@@ -12,12 +12,12 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import java.util.Locale;
 import java.util.function.Function;
 
-@Name("Alpha/Red/Green/Blue Color Value")
+@Name("Alpha/Red/Green/Blue Colour Value")
 @Description({
-	"The alpha, red, green, or blue value of colors. Ranges from 0 to 255.",
-	"Alpha represents opacity."
+	"The alpha, red, green, or blue value of colours. Rangeth from 0 to 255.",
+	"Alpha doth represent opacity."
 })
-@Example("broadcast red value of rgb(100, 0, 50) # sends '100'")
+@Example("broadcast red value of rgb(100, 0, 50) # proclaimeth '100'")
 @Example("set {_red} to red's red value + 10")
 @Keywords({"ARGB", "RGB", "color", "colour"})
 @Since("2.10")

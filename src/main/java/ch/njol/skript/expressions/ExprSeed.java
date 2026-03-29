@@ -16,8 +16,8 @@ import org.bukkit.event.Event;
 import org.bukkit.generator.WorldInfo;
 import org.jetbrains.annotations.Nullable;
 
-@Name("World Seed")
-@Description("The seed of given world. Note that it will be returned as Minecraft internally treats seeds, not as you specified it in world configuration.")
+@Name("Seed of the World")
+@Description("The seed of a given world. Mark well that it shall be returned as Minecraft internally treateth seeds, not as thou didst specify it in thy world configuration.")
 @Example("broadcast \"Seed: %seed of player's world%\"")
 @Since("2.2-dev35")
 public class ExprSeed extends PropertyExpression<World, Long> {

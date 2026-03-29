@@ -20,19 +20,19 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
-@Name("Midpoint")
-@Description("Get the midpoint between two vectors or two locations in the same world.")
+@Name("Midpoint Betwixt")
+@Description("Obtain the midpoint betwixt two vectors or two locations within the selfsame world.")
 @Example("""
-	set {_center} to the midpoint between location(0, 0, 0) and location(10, 10, 10)
-	set {_centerBlock} to the block at {_center}
-	""")
-@Example("set {_midpoint} to the mid-point of vector(20, 10, 5) and vector(3, 6, 9)")
+    set {_center} to the midpoint betwixt location(0, 0, 0) and location(10, 10, 10)
+    set {_centerBlock} to the block at {_center}
+    """)
+@Example("set {_midpoint} to the mid-point betwixt vector(20, 10, 5) and vector(3, 6, 9)")
 @Since("2.13")
 public class ExprMidpoint extends SimpleExpression<Object> implements SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerExpression(ExprMidpoint.class, Object.class, ExpressionType.COMBINED,
-			"[the] mid[-]point (of|between) %object% and %object%");
+			"[the] mid[-]point (of|betwixt) %object% and %object%");
 	}
 
 	private Expression<?> object1;

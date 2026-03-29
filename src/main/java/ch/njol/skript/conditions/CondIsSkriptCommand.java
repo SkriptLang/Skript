@@ -8,8 +8,8 @@ import ch.njol.skript.doc.Since;
 
 import static ch.njol.skript.command.Commands.scriptCommandExists;
 
-@Name("Is a Skript command")
-@Description("Checks whether a command/string is a custom Skript command.")
+@Name("Be a Skript Command")
+@Description("Ascertaineth whether a command or string be a custom Skript command.")
 @Example("""
 	on command:
 		command is a skript command

@@ -11,15 +11,15 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Leash Will Drop")
-@Description("Checks whether the leash item will drop during the leash detaching in an unleash event.")
+@Name("Leash Shall Fall")
+@Description("Ascertaineth whether the leash item shall fall to the ground during the detaching of the leash in an unleash event.")
 @Example("""
-	on unleash:
-		if the leash will drop:
-			prevent the leash from dropping
-		else:
-			allow the leash to drop
-	""")
+    on unleash:
+    	if the leash shall fall:
+    		prevent the leash from dropping
+    	else:
+    		allow the leash to drop
+    """)
 @Keywords("lead")
 @Events("Leash / Unleash")
 @Since("2.10")
@@ -28,7 +28,7 @@ public class CondLeashWillDrop extends Condition {
 	static {
 		// TODO - remove this when Spigot support is dropped
 		if (Skript.methodExists(EntityUnleashEvent.class, "isDropLeash"))
-			Skript.registerCondition(CondLeashWillDrop.class, "[the] (lead|leash) [item] (will|not:(won't|will not)) (drop|be dropped)");
+			Skript.registerCondition(CondLeashWillDrop.class, "[the] (lead|leash) [item] (shall|not:(shan't|shall not)) (fall|be dropped)");
 	}
 
 	@Override

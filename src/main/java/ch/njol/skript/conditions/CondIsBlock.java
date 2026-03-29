@@ -7,8 +7,8 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-@Name("Is Block")
-@Description("Checks whether an item is a block.")
+@Name("Be a Block")
+@Description("Discerneth whether an item be a block.")
 @Example("player's held item is a block")
 @Example("{list::*} are blocks")
 @Since("2.4")

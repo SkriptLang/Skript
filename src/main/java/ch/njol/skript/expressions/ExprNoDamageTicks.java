@@ -16,18 +16,18 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
-@Name("No Damage Ticks")
-@Description("The number of ticks that an entity is invulnerable to damage for.")
+@Name("Ticks of Invulnerability")
+@Description("The number of ticks during which an entity remaineth invulnerable unto harm.")
 @Example("""
-	on damage:
-		set victim's invulnerability ticks to 20 #Victim will not take damage for the next second
-	""")
+    on damage:
+    	set victim's invulnerability ticks to 20 #The victim shall suffer no harm for the next second
+    """)
 @Since("2.5, 2.11 (deprecated)")
 @Deprecated(since = "2.11.0", forRemoval = true)
 public class ExprNoDamageTicks extends SimplePropertyExpression<LivingEntity, Long> {
 	
 	static {
-		registerDefault(ExprNoDamageTicks.class, Long.class,"(invulnerability|invincibility|no damage) tick[s]", "livingentities");
+		registerDefault(ExprNoDamageTicks.class, Long.class,"(invulnerability|invincibility|no harm) tick[s]", "livingentities");
 	}
 
 	@Override

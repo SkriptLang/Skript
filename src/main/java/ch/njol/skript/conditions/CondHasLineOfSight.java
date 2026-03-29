@@ -15,9 +15,9 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Has Line of Sight")
-@Description("Checks whether living entities have an unobstructed line of sight to other entities or locations.")
-@Example("player has direct line of sight to location 5 blocks to the right of player")
+@Name("Hath Line of Sight")
+@Description("Ascertaineth whether living entities possess an unobstructed line of sight unto other entities or locations.")
+@Example("player has clear line of sight to location 5 blocks to the right of player")
 @Example("victim has line of sight to attacker")
 @Example("player has no line of sight to location 100 blocks in front of player")
 @Since("2.8.0")
@@ -25,9 +25,9 @@ public class CondHasLineOfSight extends Condition {
 
 	static {
 		Skript.registerCondition(CondHasLineOfSight.class,
-				"%livingentities% (has|have) [a] [direct] line of sight to %entities/locations%",
-				"%livingentities% does(n't| not) have [a] [direct] line of sight to %entities/locations%",
-				"%livingentities% (has|have) no [direct] line of sight to %entities/locations%");
+				"%livingentities% (has|have) [a] [clear] line of sight to %entities/locations%",
+				"%livingentities% does(n't| not) have [a] [clear] line of sight to %entities/locations%",
+				"%livingentities% (has|have) no [clear] line of sight to %entities/locations%");
 	}
 
 	private Expression<LivingEntity> viewers;

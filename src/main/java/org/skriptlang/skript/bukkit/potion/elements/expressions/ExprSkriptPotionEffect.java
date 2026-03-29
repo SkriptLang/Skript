@@ -12,8 +12,8 @@ import org.skriptlang.skript.bukkit.potion.elements.expressions.ExprSecPotionEff
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Created Potion Effect")
-@Description("An expression to obtain the potion effect being made in a potion effect creation section.")
+@Name("Conjured Potion Effect")
+@Description("An expression to obtain the potion effect being fashioned within a potion effect creation section.")
 @Example("""
 	set {_potion} to a potion effect of speed 2 for 10 minutes:
 		hide the effect's icon
@@ -24,7 +24,7 @@ public class ExprSkriptPotionEffect extends EventValueExpression<SkriptPotionEff
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(ExprSkriptPotionEffect.class, SkriptPotionEffect.class,
-			"[created] [potion] effect")
+			"[conjured] [potion] effect")
 				.supplier(ExprSkriptPotionEffect::new)
 				.build());
 	}

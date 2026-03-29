@@ -11,11 +11,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Exact Item")
+@Name("True Likeness of an Item")
 @Description(
-	"Get an exact item representation of a block, carrying over any data. "
-	+ "For example, using this expression on a chest block with items stored inside will return a chest "
-	+ "item with the exact same items in its inventory as the chest block."
+	"Procure an exact item representation of a block, carrying over all its particulars. "
+	+ "For example, employing this expression upon a chest block with items stored within shall yield a chest "
+	+ "item bearing the very same items in its inventory as the chest block."
 )
 @Example("set {_item} to exact item of block at location(0, 0, 0)")
 @Since("2.12")

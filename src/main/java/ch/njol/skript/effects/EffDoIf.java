@@ -16,17 +16,17 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
 
-@Name("Do If")
-@Description("Execute an effect if a condition is true.")
+@Name("Perform Should")
+@Description("Performeth an effect should a condition prove true.")
 @Example("""
-	on join:
-		give a diamond to the player if the player has permission "rank.vip"
-	""")
+    on join:
+    	grant a diamond unto the player should the player have permission "rank.vip"
+    """)
 @Since("2.3")
 public class EffDoIf extends Effect  {
 
 	static {
-		Skript.registerEffect(EffDoIf.class, "<.+> if <.+>");
+		Skript.registerEffect(EffDoIf.class, "<.+> should <.+>");
 	}
 
 	@SuppressWarnings("null")

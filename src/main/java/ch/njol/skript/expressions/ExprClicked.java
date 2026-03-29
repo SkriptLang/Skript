@@ -36,10 +36,10 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Clicked Block/Entity/Inventory/Slot")
 @Description("The clicked block, entity, inventory, inventory slot, inventory click type or inventory action.")
 @Example("""
-	message "You clicked on a %type of clicked entity%!"
-	if the clicked block is a chest:
-		show the inventory of the clicked block to the player
-	""")
+    message "Thou didst click upon a %type of clicked entity%!"
+    if the clicked block is a chest:
+    	show the inventory of the clicked block to the player
+    """)
 @Since("1.0, 2.2-dev35 (more clickable things)")
 @Events({"click", "inventory click"})
 public class ExprClicked extends SimpleExpression<Object> {

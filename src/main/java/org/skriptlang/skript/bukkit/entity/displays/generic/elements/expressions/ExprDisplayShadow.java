@@ -15,8 +15,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Display Shadow Radius/Strength")
-@Description("Returns or changes the shadow radius/strength of <a href='#display'>displays</a>.")
+@Name("Display Shadow Breadth and Vigour")
+@Description("Returns or changes the shadow radius or strength of <a href='#display'>displays</a>.")
 @Example("set shadow radius of the last spawned text display to 1.75")
 @Since("2.10")
 public class ExprDisplayShadow extends SimplePropertyExpression<Display, Float> {

@@ -17,24 +17,24 @@ import org.bukkit.entity.Piglin;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Dance")
+@Name("The Dance")
 @Description({
-	"Make an allay or piglin start or stop dancing.",
-	"Providing a location only applies to allays. They will check to see if the the block at the location is a jukebox and playing music. "
-		+ "If it isn't, they will stop dancing. If no location is provided, the allay will dance indefinitely.",
-	"Providing a timespan only applies for piglins. It determines the length of time they will dance for. "
-		+ "If no timespan is provided, they will dance indefinitely."
+	"Biddeth an allay or piglin to commence or cease their merry dancing.",
+	"Providing a location applieth only unto allays. They shall inspect whether the block at said location be a jukebox playing music. "
+		+ "If it be not, they shall cease their dance. If no location be provided, the allay shall dance without end.",
+	"Providing a timespan applieth only unto piglins. It determineth the duration of their revelry. "
+		+ "If no timespan be provided, they shall dance in perpetuity."
 })
 @Example("""
-	if last spawned allay is not dancing:
-		make last spawned allay start dancing
-	""")
+    if last spawned allay is not dancing:
+    	bid last spawned allay commence a dance
+    """)
 @Example("""
-	if block at location(0, 0, 0) is a jukebox:
-		make all allays dance at location(0, 0, 0)
-	""")
-@Example("make last spawned piglin start dancing")
-@Example("make all piglins dance for 5 hours")
+    if block at location(0, 0, 0) is a jukebox:
+    	bid all allays dance at location(0, 0, 0)
+    """)
+@Example("bid last spawned piglin commence a dance")
+@Example("bid all piglins dance for 5 hours")
 @Since("2.11")
 public class EffDancing extends Effect {
 
@@ -42,8 +42,8 @@ public class EffDancing extends Effect {
 
 	static {
 		Skript.registerEffect(EffDancing.class,
-			"make %livingentities% (start dancing|dance) [%-direction% %-location%] [timespan:for %-timespan%]",
-			"make %livingentities% (stop dancing|not dance)");
+			"bid %livingentities% (commence a dance|dance) [%-direction% %-location%] [timespan:for %-timespan%]",
+			"bid %livingentities% (cease dancing|dance not)");
 	}
 
 	private Expression<LivingEntity> entities;

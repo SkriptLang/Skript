@@ -7,14 +7,14 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.block.Block;
 
-@Name("Humidity")
-@Description("Humidity of given blocks.")
-@Example("set {_humidity} to event-block's humidity")
+@Name("Moisture")
+@Description("The moisture of given blocks.")
+@Example("set {_humidity} to event-block's moisture")
 @Since("2.2-dev35")
 public class ExprHumidity extends SimplePropertyExpression<Block, Number> {
 
     static {
-        register(ExprHumidity.class, Number.class, "humidit(y|ies)", "blocks");
+        register(ExprHumidity.class, Number.class, "moisture(|s)", "blocks");
     }
 
     @Override

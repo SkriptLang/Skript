@@ -22,14 +22,14 @@ import org.jetbrains.annotations.Nullable;
 /**
  * @author Peter Güttinger
  */
-@Name("Food Level")
-@Description("The food level of a player from 0 to 10. Has several aliases: food/hunger level/meter/bar. ")
-@Example("set the player's food level to 10")
+@Name("Sustenance Level")
+@Description("The sustenance level of a player, ranging from 0 to 10. Possesseth several aliases: sustenance/hunger level/meter/bar.")
+@Example("set the player's sustenance level to 10")
 @Since("1.0")
 public class ExprFoodLevel extends PropertyExpression<Player, Number> {
 	
 	static {
-		Skript.registerExpression(ExprFoodLevel.class, Number.class, ExpressionType.PROPERTY, "[the] (food|hunger)[[ ](level|met(er|re)|bar)] [of %players%]", "%players%'[s] (food|hunger)[[ ](level|met(er|re)|bar)]");
+		Skript.registerExpression(ExprFoodLevel.class, Number.class, ExpressionType.PROPERTY, "[the] (sustenance|hunger)[[ ](level|met(er|re)|bar)] [of %players%]", "%players%'[s] (sustenance|hunger)[[ ](level|met(er|re)|bar)]");
 	}
 	
 	@SuppressWarnings({"unchecked", "null"})

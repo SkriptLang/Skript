@@ -16,24 +16,24 @@ import org.bukkit.WorldCreator;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Load World")
+@Name("Summon or Banish a World")
 @Description({
-		"Load your worlds or unload your worlds",
-		"The load effect will create a new world if world doesn't already exist.",
-		"When attempting to load a normal vanilla world you must define it's environment i.e \"world_nether\" must be loaded with nether environment"
+		"Summon thy worlds into existence or banish them from memory.",
+		"The summoning effect shall create a new world should one not already exist.",
+		"When attempting to summon a vanilla world, thou must declare its environment, e.g. \"world_nether\" must be summoned with nether environment."
 })
-@Example("load world \"world_nether\" with environment nether")
-@Example("load the world \"myCustomWorld\"")
-@Example("unload \"world_nether\"")
-@Example("unload \"world_the_end\" without saving")
-@Example("unload all worlds")
+@Example("summon world \"world_nether\" with environment nether")
+@Example("summon the world \"myCustomWorld\"")
+@Example("banish \"world_nether\"")
+@Example("banish \"world_the_end\" without saving")
+@Example("banish all worlds")
 @Since("2.8.0")
 public class EffWorldLoad extends Effect {
 
 	static {
 		Skript.registerEffect(EffWorldLoad.class,
-				"load [the] world[s] %strings% [with environment %-environment%]",
-				"unload [[the] world[s]] %worlds% [:without saving]"
+				"summon [the] world[s] %strings% [with environment %-environment%]",
+				"banish [[the] world[s]] %worlds% [:without saving]"
 		);
 	}
 

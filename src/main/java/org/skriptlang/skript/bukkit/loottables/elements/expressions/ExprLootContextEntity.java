@@ -15,15 +15,15 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Looted Entity of Loot Context")
-@Description("Returns the looted entity of a loot context.")
-@Example("set {_entity} to looted entity of {_context}")
+@Name("Plundered Entity of Plunder Context")
+@Description("Returneth the plundered entity of a loot context.")
+@Example("set {_entity} to plundered entity of {_context}")
 @Example("""
-	set {_context} to a loot context at player:
-		set loot luck value to 10
-		set looter to player
-		set looted entity to last spawned pig
-	""")
+    set {_context} to a plunder context at player:
+    	set looting luck value to 10
+    	set looter to player
+    	set plundered entity to last spawned pig
+    """)
 @Since("2.10")
 public class ExprLootContextEntity extends SimplePropertyExpression<LootContext, Entity> {
 
@@ -33,7 +33,7 @@ public class ExprLootContextEntity extends SimplePropertyExpression<LootContext,
 			infoBuilder(
 				ExprLootContextEntity.class,
 				Entity.class,
-				"looted entity",
+				"plundered entity",
 				"lootcontexts",
 				true
 			)

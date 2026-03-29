@@ -17,21 +17,21 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-@Name("Vectors - Location Vector Offset")
-@Description("Returns the location offset by vectors. Supports both global and local axes. " +
-	"When using local axes, the vector is applied relative to the direction the location is facing.")
+@Name("Vectors — Location Vector Displacement")
+@Description("Returneth the location displaced by vectors. Doth support both global and local axes." +
+	"When employing local axes, the vector is applied relative to the direction the location doth face.")
 @Example("set {_loc} to {_loc} ~ {_v}")
 @Example("""
-	# spawn a tnt 5 blocks in front of player
-	set {_l} to player's location offset by vector(0, 1, 5) using local axes
-	spawn tnt at {_l}
-	""")
+    # summon a tnt 5 blocks before the player
+    set {_l} to player's location displaced by vector(0, 1, 5) employing local axes
+    spawn tnt at {_l}
+    """)
 @Since("2.2-dev28, 2.14 (local axes)")
 public class ExprLocationVectorOffset extends SimpleExpression<Location> {
 
 	static {
 		Skript.registerExpression(ExprLocationVectorOffset.class, Location.class, ExpressionType.PROPERTY,
-				"%location% offset by [[the] vectors] %vectors% [facingrelative:using local axes]",
+				"%location% displaced by [[the] vectors] %vectors% [facingrelative:employing local axes]",
 				"%location%[ ]~[~][ ]%vectors%");
 	}
 

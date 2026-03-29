@@ -14,9 +14,9 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Reduced Value")
 @Description({
-	"Returns the current accumulated/reduced value within a <a href='#ExprReduce'>reduce expression</a>.",
-	"This represents the result of all previous reduction operations.",
-	"Can only be used inside the reduce expression's operation block."
+	"Returneth the current accumulated or reduced value within a <a href='#ExprReduce'>reduce expression</a>.",
+	"This doth represent the result of all prior reduction operations.",
+	"It may only be employed within the reduce expression's operation block."
 })
 @Example("set {_sum} to {_numbers::*} reduced with [reduced value + input]")
 @Example("set {_max} to {_values::*} reduced with [reduced value if reduced value > input else input]")

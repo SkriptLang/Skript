@@ -16,9 +16,9 @@ import java.util.*;
 
 @Name("Reduce")
 @Description({
-	"Reduces lists to single values by repeatedly applying an operation.",
-	"The reduce expression takes each element and combines it with an accumulator value.",
-	"Use 'reduced value' to access the current accumulated value and 'input' for the current element.",
+	"Reduceth lists unto single values by repeatedly applying an operation.",
+	"The reduce expression taketh each element and combineth it with an accumulator value.",
+	"Employ 'reduced value' to access the current accumulated value and 'input' for the present element.",
 })
 @Example("set {_sum} to {_numbers::*} reduced with [reduced value + input]")
 @Example("set {_product} to {_values::*} reduced with [reduced value * input]")

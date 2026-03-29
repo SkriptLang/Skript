@@ -14,16 +14,16 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Love Time")
+@Name("Time of Ardour")
 @Description({
-	"The amount of time the animals have been in love for. " +
-	"Using a value of 30 seconds is equivalent to using an item to breed them.",
-	"Only works on animals that can be bred and returns '0 seconds' for animals that can't be bred."
+	"The measure of time these creatures have dwelt in the throes of love. " +
+	"Employing a value of 30 seconds is tantamount to using an item to breed them.",
+	"Functions solely upon beasts that may be bred, and returneth '0 seconds' for those that cannot."
 })
 @Example("""
-	on right click:
-		send "%event-entity% has been in love for %love time of event-entity% more than you!" to player
-	""")
+    on right click:
+    	send "%event-entity% hath been in love for %ardour time of event-entity% more than thee!" to player
+    """)
 @Since("2.10")
 public class ExprLoveTime extends SimplePropertyExpression<LivingEntity, Timespan> {
 
@@ -33,7 +33,7 @@ public class ExprLoveTime extends SimplePropertyExpression<LivingEntity, Timespa
 			infoBuilder(
 				ExprLoveTime.class,
 				Timespan.class,
-				"love[d] time",
+				"ardour[ed] time",
 				"livingentities",
 				false
 			)

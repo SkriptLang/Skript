@@ -21,14 +21,14 @@ import org.jetbrains.annotations.Nullable;
  * @author bensku
  *
  */
-@Name("Last Damage Cause")
-@Description("Cause of last damage done to an entity")
-@Example("set last damage cause of event-entity to fire tick")
+@Name("Last Wound's Cause")
+@Description("The cause of the last wound dealt unto an entity.")
+@Example("set last wound cause of event-entity to fire tick")
 @Since("2.2-Fixes-V10")
 public class ExprLastDamageCause extends PropertyExpression<LivingEntity, DamageCause>{
 	
 	static {
-		register(ExprLastDamageCause.class, DamageCause.class, "last damage (cause|reason|type)", "livingentities");
+		register(ExprLastDamageCause.class, DamageCause.class, "last wound (cause|reason|nature)", "livingentities");
 	}
 
 	@SuppressWarnings({"unchecked", "null"})

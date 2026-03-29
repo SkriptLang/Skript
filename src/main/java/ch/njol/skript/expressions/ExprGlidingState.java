@@ -12,14 +12,14 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
-@Name("Gliding State")
-@Description("Sets of gets gliding state of player. It allows you to set gliding state of entity even if they do not have an <a href=\"https://minecraft.wiki/w/Elytra\">Elytra</a> equipped.")
-@Example("set gliding of player to off")
+@Name("Soaring State")
+@Description("Setteth or fetcheth the soaring state of a player. It doth permit thee to set the gliding state of an entity even shouldst they lack an <a href=\"https://minecraft.wiki/w/Elytra\">Elytra</a> upon their person.")
+@Example("set soaring of player to off")
 @Since("2.2-dev21")
 public class ExprGlidingState extends SimplePropertyExpression<LivingEntity, Boolean> {
 
 	static {
-		register(ExprGlidingState.class, Boolean.class, "(gliding|glider) [state]", "livingentities");
+		register(ExprGlidingState.class, Boolean.class, "(soaring|glider) [state]", "livingentities");
 	}
 
 	@Override

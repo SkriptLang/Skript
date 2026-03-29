@@ -21,14 +21,14 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Chat Recipients")
-@Description("Recipients of chat events where this is called.")
-@Example("chat recipients")
+@Name("Discourse Recipients")
+@Description("Recipients of discourse events where this is called upon.")
+@Example("discourse recipients")
 @Since("2.2-Fixes-v7, 2.2-dev35 (clearing recipients)")
 public class ExprChatRecipients extends SimpleExpression<Player> {
 
 	static {
-		Skript.registerExpression(ExprChatRecipients.class, Player.class, ExpressionType.SIMPLE, "[chat][( |-)]recipients");
+		Skript.registerExpression(ExprChatRecipients.class, Player.class, ExpressionType.SIMPLE, "[discourse][( |-)]recipients");
 	}
 
 	@Override

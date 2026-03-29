@@ -20,8 +20,8 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Respawn location")
-@Description("The location that a player should respawn at. This is used within the respawn event.")
+@Name("Respawn Locale")
+@Description("The locale whereupon a player shall respawn. This is employed within the respawn event.")
 @Example("""
 	on respawn:
 		set respawn location to {example::spawn}

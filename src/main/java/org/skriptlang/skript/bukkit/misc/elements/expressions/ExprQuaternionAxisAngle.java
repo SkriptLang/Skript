@@ -21,23 +21,23 @@ import org.joml.Math;
 import org.joml.Quaternionf;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Rotation Axis/Angle")
+@Name("Revolution Axis and Angle")
 @Description({
-	"Returns the axis or angle that a quaternion will rotate by/around.",
-	"All quaternions can be represented by a rotation of some amount around some axis, so this expression provides " +
-	"the ability to get that angle/axis."
+	"Returneth the axis or angle by which a quaternion shall revolve.",
+	"All quaternions may be represented by a revolution of some measure about some axis; thus this expression doth provide" +
+	"the means to obtain that angle or axis."
 })
 @Example("set {_quaternion} to axisAngle(45, vector(1, 2, 3))")
-@Example("send rotation axis of {_quaternion} # 1, 2, 3")
-@Example("send rotation angle of {_quaternion} # 45")
-@Example("set rotation angle of {_quaternion} to 135")
-@Example("set rotation axis of {_quaternion} to vector(0, 1, 0)")
+@Example("send revolution axis of {_quaternion} # 1, 2, 3")
+@Example("send revolution angle of {_quaternion} # 45")
+@Example("set revolution angle of {_quaternion} to 135")
+@Example("set revolution axis of {_quaternion} to vector(0, 1, 0)")
 @Since("2.10")
 public class ExprQuaternionAxisAngle extends SimplePropertyExpression<Quaternionf, Object> {
 
 	static {
 		if (Skript.classExists("org.joml.Quaternionf"))
-			register(ExprQuaternionAxisAngle.class, Object.class, "rotation (angle|:axis)", "quaternions");
+			register(ExprQuaternionAxisAngle.class, Object.class, "revolution (angle|:axis)", "quaternions");
 	}
 
 	private boolean isAxis;

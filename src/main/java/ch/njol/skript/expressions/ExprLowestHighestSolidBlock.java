@@ -17,10 +17,10 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.generator.WorldInfo;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Lowest/Highest Solid Block")
+@Name("Lowest/Highest Firmament Block")
 @Description({
-	"An expression to obtain the lowest or highest solid (impassable) block at a location.",
-	"Note that the y-coordinate of the location is not taken into account for this expression."
+	"An expression to obtain the lowest or highest solid (impassable) block at a given locale.",
+	"Pray note that the y-coordinate of the location is not regarded in this expression."
 })
 @Example("teleport the player to the block above the highest block at the player")
 @Example("set the highest solid block at the player's location to the lowest solid block at the player's location")

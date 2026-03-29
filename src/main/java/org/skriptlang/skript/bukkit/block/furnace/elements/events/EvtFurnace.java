@@ -78,8 +78,8 @@ public class EvtFurnace extends SkriptEvent {
 			BukkitSyntaxInfos.Event.builder(EvtFurnace.class, "Start Smelt")
 				.addEvent(FurnaceStartSmeltEvent.class)
 				.addPatterns(
-					"[furnace] start [of] smelt[ing] [[of] %-itemtypes%]",
-					"[furnace] smelt[ing] start [of %-itemtypes%]"
+					"[furnace] commence[th] smelt[ing] [[of] %-itemtypes%]",
+					"[furnace] smelt[ing] commence[th] [of %-itemtypes%]"
 				)
 				.addDescription("Called when a furnace starts smelting an item in its ore slot.")
 				.addExample("""

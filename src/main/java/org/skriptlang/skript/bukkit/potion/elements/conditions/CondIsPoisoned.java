@@ -9,19 +9,19 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Is Poisoned")
-@Description("Checks whether an entity is poisoned.")
+@Name("Is Envenomed")
+@Description("Ascertaineth whether an entity hath been envenomed.")
 @Example("""
-	if the player is poisoned:
-		cure the player from poison
-		message "You have been cured!" to the player
-	""")
+    if the player is envenomed:
+    	purge the player of venom
+    	message "Thou hast been cured of thy affliction!" to the player
+    """)
 @Since("1.4.4")
 public class CondIsPoisoned extends PropertyCondition<LivingEntity> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.CONDITION, infoBuilder(CondIsPoisoned.class, PropertyType.BE,
-			"poisoned", "livingentities")
+			"envenomed", "livingentities")
 			.supplier(CondIsPoisoned::new)
 			.build());
 	}

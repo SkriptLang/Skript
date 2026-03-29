@@ -15,21 +15,21 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Max Durability")
-@Description({"The maximum durability of an item. Changing requires Minecraft 1.20.5+",
-	"Note: 'delete' will remove the max durability from the item (making it a non-damageable item). Delete requires Paper 1.21+"})
-@Example("maximum durability of diamond sword")
-@Example("if max durability of player's tool is not 0: # Item is damageable")
-@Example("set max durability of player's tool to 5000")
-@Example("add 5 to max durability of player's tool")
-@Example("reset max durability of player's tool")
-@Example("delete max durability of player's tool")
+@Name("Greatest Endurance")
+@Description({"The utmost durability of an item. Alteration requireth Minecraft 1.20.5+",
+	"Note: 'delete' shall strip the max durability from the item (rendering it proof against wear). Deletion requireth Paper 1.21+"})
+@Example("maximum endurance of diamond sword")
+@Example("if max endurance of player's tool is not 0: # Item doth suffer wear")
+@Example("set max endurance of player's tool to 5000")
+@Example("add 5 to max endurance of player's tool")
+@Example("reset max endurance of player's tool")
+@Example("delete max endurance of player's tool")
 @RequiredPlugins("Minecraft 1.20.5+ (custom amount)")
 @Since("2.5, 2.9.0 (change)")
 public class ExprMaxDurability extends SimplePropertyExpression<Object, Integer> {
 
 	static {
-		register(ExprMaxDurability.class, Integer.class, "max[imum] (durabilit(y|ies)|damage)", "itemtypes/itemstacks/slots");
+		register(ExprMaxDurability.class, Integer.class, "max[imum] (endur(ance|ances)|damage)", "itemtypes/itemstacks/slots");
 	}
 
 	@Override

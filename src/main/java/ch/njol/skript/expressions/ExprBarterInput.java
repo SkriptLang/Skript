@@ -15,20 +15,20 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.PiglinBarterEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Barter Input")
-@Description("The item picked up by the piglin in a piglin bartering event.")
+@Name("Bartering Offering")
+@Description("The item taken up by the piglin in a piglin bartering event.")
 @Example("""
-	on piglin barter:
-		if the bartering input is a gold ingot:
-			broadcast "my precious..."
-	""")
+    on piglin barter:
+    	if the bartering offering is a gold ingot:
+    		broadcast "my precious..."
+    """)
 @Since("2.10")
 public class ExprBarterInput extends SimpleExpression<ItemType> {
 
 	static {
 		if (Skript.classExists("org.bukkit.event.entity.PiglinBarterEvent")) {
 			Skript.registerExpression(ExprBarterInput.class, ItemType.class,
-					ExpressionType.SIMPLE, "[the] [piglin] barter[ing] input");
+					ExpressionType.SIMPLE, "[the] [piglin] barter[ing] offering");
 		}
 	}
 

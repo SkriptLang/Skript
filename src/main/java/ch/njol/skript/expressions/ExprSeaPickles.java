@@ -18,17 +18,17 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Sea Pickles")
-@Description("An expression to obtain or modify data relating to the pickles of a sea pickle block.")
+@Description("An expression to obtain or alter data pertaining to the pickles upon a sea pickle block.")
 @Example("""
-	on block break:
-		type of block is sea pickle
-		send "Wow! This stack of sea pickles contained %event-block's sea pickle count% pickles!"
-		send "It could've contained a maximum of %event-block's maximum sea pickle count% pickles!"
-		send "It had to have contained at least %event-block's minimum sea pickle count% pickles!"
-		cancel event
-		set event-block's sea pickle count to event-block's maximum sea pickle count
-		send "This bad boy is going to hold so many pickles now!!"
-	""")
+    on block break:
+    	type of block is sea pickle
+    	send "Hark! This stack of sea pickles contained %event-block's sea pickle count% pickles!"
+    	send "It could have contained a maximum of %event-block's maximum sea pickle count% pickles!"
+    	send "It had to have contained at least %event-block's minimum sea pickle count% pickles!"
+    	cancel event
+    	set event-block's sea pickle count to event-block's maximum sea pickle count
+    	send "This vessel shall hold a great many pickles henceforth!!"
+    """)
 @Since("2.7")
 public class ExprSeaPickles extends SimplePropertyExpression<Block, Integer> {
 

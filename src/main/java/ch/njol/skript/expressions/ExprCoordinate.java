@@ -21,11 +21,11 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
  * @author Peter Güttinger
  */
 @Name("Coordinate")
-@Description("Represents a given coordinate of a location. ")
+@Description("Representeth a given coordinate of a location upon the worlde.")
 @Example("""
-	player's y-coordinate is smaller than 40:
-		message "Watch out for lava!"
-	""")
+    player's y-coordinate is smaller than 40:
+    	message "Beware the molten rivers below!"
+    """)
 @Since("1.4.3")
 public class ExprCoordinate extends SimplePropertyExpression<Location, Number> {
 	

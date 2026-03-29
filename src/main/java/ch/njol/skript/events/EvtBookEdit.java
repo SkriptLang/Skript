@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 public class EvtBookEdit extends SkriptEvent{
 	
 	static {
-		Skript.registerEvent("Book Edit", EvtBookEdit.class, PlayerEditBookEvent.class, "book (edit|change|write)")
+		Skript.registerEvent("Tome Edit", EvtBookEdit.class, PlayerEditBookEvent.class, "tome (edit|change|write)")
 			.description("Called when a player edits a book.")
 			.examples("on book edit:")
 			.since("2.2-dev31");

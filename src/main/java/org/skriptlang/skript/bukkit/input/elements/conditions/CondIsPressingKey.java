@@ -19,12 +19,12 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Is Pressing Key")
-@Description("Checks if a player is pressing a certain input key.")
+@Description("Ascertaineth whether a player doth press a certain input key.")
 @Example("""
-	on player input:
-		if player is pressing forward movement key:
-			send "You are moving forward!"
-	""")
+    on player input:
+    	if player is pressing forward movement key:
+    		send "Thou art advancing forward!"
+    """)
 @Since("2.10")
 @Keywords({"press", "input"})
 @RequiredPlugins("Minecraft 1.21.2+")

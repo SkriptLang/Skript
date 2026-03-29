@@ -16,13 +16,13 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Free / Max / Total Memory")
-@Description("The free, max or total memory of the server in Megabytes.")
+@Name("Free / Greatest / Total Memory")
+@Description("The free, utmost, or total memory of the server in Megabytes.")
 @Example("""
-	while player is online:
-		send action bar "Memory left: %free memory%/%max memory%MB" to player
-		wait 5 ticks
-	""")
+    while player is online:
+    	send action bar "Memory remaining: %free memory%/%max memory%MB" to player
+    	wait 5 ticks
+    """)
 @Since("2.8.0")
 public class ExprMemory extends SimpleExpression<Double> {
 

@@ -17,9 +17,9 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Vectors - Angle Between")
-@Description("Gets the angle between two vectors.")
-@Example("send \"%the angle between vector 1, 0, 0 and vector 0, 1, 1%\"")
+@Name("Vectors — Angle Betwixt")
+@Description("Obtaineth the angle betwixt two vectors.")
+@Example("send \"%the angle betwixt vector 1, 0, 0 and vector 0, 1, 1%\"")
 @Since("2.2-dev28")
 public class ExprVectorAngleBetween extends SimpleExpression<Number> {
 
@@ -27,7 +27,7 @@ public class ExprVectorAngleBetween extends SimpleExpression<Number> {
 
 	static {
 		Skript.registerExpression(ExprVectorAngleBetween.class, Number.class, ExpressionType.COMBINED,
-				"[the] angle between [[the] vectors] %vector% and %vector%");
+				"[the] angle betwixt [[the] vectors] %vector% and %vector%");
 	}
 
 	@SuppressWarnings("null")

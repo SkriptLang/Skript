@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 public class EvtScript extends SkriptEvent {
 	
 	static {
-		Skript.registerEvent("Script Load/Unload", EvtScript.class, ScriptEvent.class,
+		Skript.registerEvent("Script Awakening/Slumber", EvtScript.class, ScriptEvent.class,
 			"[:async] [script] (load|init|enable)",
 			"[:async] [script] (unload|stop|disable)"
 			).description(

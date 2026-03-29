@@ -17,10 +17,10 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("In The Past/Future")
+@Name("In Days of Yore or Yet to Come")
 @Description({
-	"Checks whether a date is in the past or future.",
-	"Note that using the 'now' expression will not be in the past or future when used directly in the condition."
+	"Doth ascertain whether a date lieth in the past or in the future.",
+	"Mark well that employing the 'now' expression shall not be reckoned in the past nor the future when used directly within the condition."
 })
 @Example("""
 	set {_date} to now
@@ -33,19 +33,19 @@ import org.jetbrains.annotations.Nullable;
 		# this will be false
 	""")
 @Example("""
-	set {_dates::*} to 1 day from now, 12 days from now, and 1 year from now
-	if {_dates::*} are in the future:
-		# this will be true
-	if {_dates::*} have passed:
-		# this will be false
-	""")
+    set {_dates::*} to 1 day from now, 12 days from now, and 1 year from now
+    if {_dates::*} are in the future:
+    	# this will be true
+    if {_dates::*} have passed hence:
+    	# this will be false
+    """)
 @Since("2.10")
 public class CondPastFuture extends Condition {
 
 	static {
 		Skript.registerCondition(CondPastFuture.class,
 				"%dates% (is|are)[negated:(n't| not)] in the (past|:future)",
-				"%dates% ha(s|ve)[negated:(n't| not)] passed");
+				"%dates% ha(s|ve)[negated:(n't| not)] passed hence");
 	}
 
 	private Expression<Date> dates;

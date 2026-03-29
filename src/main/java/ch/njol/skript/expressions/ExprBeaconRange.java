@@ -11,21 +11,21 @@ import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Beacon Range")
+@Name("Beacon Reach")
 @Description({
-	"The range of a beacon's effects, in blocks."
+	"The reach of a beacon's enchantments, measured in blocks."
 })
 @Example("""
-	if the beacon tier of the clicked block is 4:
-		set the beacon effect range of the clicked block to 100
-	"""
+    if the beacon tier of the clicked block is 4:
+    	set the beacon enchantment reach of the clicked block to 100
+    """
 )
 @Since("2.10")
 public class ExprBeaconRange extends SimplePropertyExpression<Block, Double> {
 
 	static {
 		if (Skript.methodExists(Beacon.class, "getEffectRange"))
-			register(ExprBeaconRange.class, Double.class, "beacon [effect] range", "blocks");
+			register(ExprBeaconRange.class, Double.class, "beacon [enchantment] reach", "blocks");
 	}
 
 	@Override

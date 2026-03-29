@@ -21,7 +21,7 @@ import static ch.njol.skript.registrations.EventValues.TIME_PAST;
 public class EvtTeleport extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Teleport", EvtTeleport.class, CollectionUtils.array(EntityTeleportEvent.class, PlayerTeleportEvent.class), "[%entitytypes%] teleport[ing]")
+		Skript.registerEvent("Translocation", EvtTeleport.class, CollectionUtils.array(EntityTeleportEvent.class, PlayerTeleportEvent.class), "[%entitytypes%] teleport[ing]")
 			.description(
 				"This event can be used to listen to teleports from non-players or player entities respectively.",
 				"When teleporting entities, the event may also be called due to a result of natural causes, such as an enderman or shulker teleporting, or wolves teleporting to players.",

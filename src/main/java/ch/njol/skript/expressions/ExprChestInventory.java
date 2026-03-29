@@ -23,8 +23,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Custom Chest Inventory")
-@Description("Returns a chest inventory with the given amount of rows and the name. Use the <a href=#EffOpenInventory>open inventory</a> effect to open it.")
+@Name("Bespoke Chest Inventory")
+@Description("Returneth a chest inventory with the given number of rows and the name. Employ the <a href=#EffOpenInventory>open inventory</a> effect to reveal it.")
 @Example("open chest inventory with 1 row named \"test\" to player")
 @Example("""
 	set {_inventory} to a chest inventory with 1 row

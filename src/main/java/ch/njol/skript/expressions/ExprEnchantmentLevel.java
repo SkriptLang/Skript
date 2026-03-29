@@ -20,21 +20,21 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.Stream;
 
-@Name("Enchantment Level")
-@Description("The level of a particular <a href='#enchantment'>enchantment</a> on an item.")
+@Name("Enchantment Potency")
+@Description("The potency of a particular <a href='#enchantment'>enchantment</a> upon an item.")
 @Example("""
-	player's tool is a sword of sharpness:
-		message "You have a sword of sharpness %level of sharpness of the player's tool% equipped"
-	""")
+    player's tool is a sword of sharpness:
+    	message "Thou dost wield a blade of sharpness %potency of sharpness of the player's tool% upon thine hand"
+    """)
 @Since("2.0")
 public class ExprEnchantmentLevel extends SimpleExpression<Long> {
 
 	static {
 		Skript.registerExpression(ExprEnchantmentLevel.class, Long.class, ExpressionType.PROPERTY,
-			"[the] [enchant[ment]] level[s] of %enchantments% (on|of) %itemtypes%",
-			"[the] %enchantments% [enchant[ment]] level[s] (on|of) %itemtypes%",
-			"%itemtypes%'[s] %enchantments% [enchant[ment]] level[s]",
-			"%itemtypes%'[s] [enchant[ment]] level[s] of %enchantments%");
+			"[the] [enchant[ment]] potency of %enchantments% (upon|of) %itemtypes%",
+			"[the] %enchantments% [enchant[ment]] potency (upon|of) %itemtypes%",
+			"%itemtypes%'[s] %enchantments% [enchant[ment]] potency",
+			"%itemtypes%'[s] [enchant[ment]] potency of %enchantments%");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")

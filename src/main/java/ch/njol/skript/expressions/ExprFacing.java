@@ -23,12 +23,12 @@ import org.jetbrains.annotations.Nullable;
  * @author Peter Güttinger
  */
 @Name("Facing")
-@Description("The facing of an entity or block, i.e. exactly north, south, east, west, up or down (unlike <a href='#ExprDirection'>direction</a> which is the exact direction, e.g. '0.5 south and 0.7 east')")
+@Description("The facing of an entity or block, that is to say exactly north, south, east, west, up, or down (unlike <a href='#ExprDirection'>direction</a> which giveth the precise bearing, e.g. '0.5 south and 0.7 east').")
 @Example("""
-	# makes a bridge
-	loop blocks from the block below the player in the horizontal facing of the player:
-		set loop-block to cobblestone
-	""")
+    # doth construct a bridge
+    loop blocks from the block below the player in the horizontal facing of the player:
+    	set loop-block to cobblestone
+    """)
 @Since("1.4")
 public class ExprFacing extends SimplePropertyExpression<Object, Direction> {
 

@@ -14,11 +14,11 @@ import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Is Plugin Enabled")
-@Description({"Check if a plugin is enabled/disabled on the server.",
-	"Plugin names can be found in the plugin's 'plugin.yml' file or by using the '/plugins' command, they are NOT the name of the plugin's jar file.",
-	"When checking if a plugin is not enabled, this will return true if the plugin is either disabled or not on the server. ",
-	"When checking if a plugin is disabled, this will return true if the plugin is on the server and is disabled."})
+@Name("Be Plugin Enabled")
+@Description({"Doth examine whether a plugin be enabled or disabled upon the server.",
+	"Plugin names may be found within the plugin's 'plugin.yml' scroll or by invoking the '/plugins' command; they art NOT the name of the plugin's jar vessel.",
+	"When checking if a plugin be not enabled, this shall yield true if the plugin be either disabled or absent from the server. ",
+	"When checking if a plugin be disabled, this shall yield true if the plugin resideth upon the server yet standeth disabled."})
 @Example("if plugin \"Vault\" is enabled:")
 @Example("if plugin \"WorldGuard\" is not enabled:")
 @Example("if plugins \"Essentials\" and \"Vault\" are enabled:")

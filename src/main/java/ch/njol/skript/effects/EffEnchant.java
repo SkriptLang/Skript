@@ -20,12 +20,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 
-@Name("Enchant/Disenchant")
-@Description("Enchant or disenchant an existing item. Enchanting at a specific level will act as if an enchanting table " +
-	"was used, and will apply the enchantments randomly chosen at that level. Treasure enchantments, like mending, can " +
-	"optionally be allowed. Note that enchanting a book at a specific level will turn it into an enchanted book, rather " +
-	"than a book with enchantments.")
-@Example("enchant the player's tool with sharpness 5")
+@Name("Bewitch/Unbewitch")
+@Description("Bewitch or unbewitch an existing item with enchantments most wondrous. Bewitching at a given level shall act as though " +
+	"an enchanting table were employed, bestowing enchantments chosen at random for that level. Treasure enchantments, such as mending, may " +
+	"optionally be permitted. Mark well that bewitching a book at a given level shall transform it into an enchanted book, rather " +
+	"than a mere book bearing enchantments.")
+@Example("bewitch the player's tool with sharpness 5")
 @Example("enchant the player's tool at level 30")
 @Example("disenchant the player's tool")
 @Since("2.0, 2.13 (at level)")
@@ -41,7 +41,7 @@ public class EffEnchant extends Effect {
 
 	static {
 		 patterns = new Patterns<>(new Object[][]{
-				{"enchant %~itemtypes% with %enchantmenttypes%", Operation.ENCHANT},
+				{"bewitch %~itemtypes% with %enchantmenttypes%", Operation.ENCHANT},
 				{"[naturally|randomly] enchant %~itemtypes% at level %number%[treasure:[,] allowing treasure enchant[ment]s]",
 						Operation.ENCHANT_AT_LEVEL},
 				{"disenchant %~itemtypes%", Operation.DISENCHANT}

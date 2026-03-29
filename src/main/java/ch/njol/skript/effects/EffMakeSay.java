@@ -13,17 +13,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Make Say")
-@Description("Forces a player to send a message to the chat. If the message starts with a slash it will force the player to use command.")
-@Example("make the player say \"Hello.\"")
-@Example("force all players to send the message \"I love this server\"")
+@Name("Bid Proclaim")
+@Description("Compelleth a player to send forth a message unto the chat. If the message doth begin with a slash, it shall force the player to invoke a command.")
+@Example("bid the player proclaim \"Hello.\"")
+@Example("compel all players to dispatch the message \"I love this server\"")
 @Since("2.3")
 public class EffMakeSay extends Effect {
 
 	static {
 		Skript.registerEffect(EffMakeSay.class,
-				"make %players% (say|send [the] message[s]) %strings%",
-				"force %players% to (say|send [the] message[s]) %strings%");
+				"bid %players% (proclaim|dispatch [the] message[s]) %strings%",
+				"compel %players% to (proclaim|dispatch [the] message[s]) %strings%");
 	}
 
 	@SuppressWarnings("null")

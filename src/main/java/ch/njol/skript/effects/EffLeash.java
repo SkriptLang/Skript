@@ -15,24 +15,24 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Leash entities")
+@Name("Tether Entities")
 @Description({
-	"Leash living entities to other entities. When trying to leash an Ender Dragon, Wither, Player, or a Bat, this effect will not work.",
-	"See <a href=\"https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/LivingEntity.html#setLeashHolder(org.bukkit.entity.Entity)\">Spigot's Javadocs for more info</a>."
+	"Tether living entities unto other entities. When attempting to tether an Ender Dragon, Wither, Player, or a Bat, this effect shall not avail.",
+	"See <a href=\"https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/LivingEntity.html#setLeashHolder(org.bukkit.entity.Entity)\">Spigot's Javadocs for further knowledge</a>."
 })
 @Example("""
-	on right click:
-		leash event-entity to player
-		send "&aYou leashed &2%event-entity%!" to player
-	""")
+    on right click:
+    	tether event-entity to player
+    	send "&aThou hast tether'd &2%event-entity%!" to player
+    """)
 @Since("2.3")
 public class EffLeash extends Effect {
 
 	static {
 		Skript.registerEffect(EffLeash.class,
-			"(leash|lead) %livingentities% to %entity%",
-			"make %entity% (leash|lead) %livingentities%",
-			"un(leash|lead) [holder of] %livingentities%");
+			"(leash|tether) %livingentities% to %entity%",
+			"make %entity% (leash|tether) %livingentities%",
+			"un(leash|tether) [holder of] %livingentities%");
 	}
 
 	@SuppressWarnings("null")

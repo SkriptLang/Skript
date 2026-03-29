@@ -7,8 +7,8 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.LivingEntity;
 
-@Name("Is Riptiding")
-@Description("Checks to see if an entity is currently using the Riptide enchantment.")
+@Name("Doth Riptide")
+@Description("Ascertaineth whether an entity doth presently employ the Riptide enchantment.")
 @Example("target entity is riptiding")
 @Since("2.5")
 public class CondIsRiptiding extends PropertyCondition<LivingEntity> {

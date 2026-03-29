@@ -6,21 +6,21 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperime
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Equippable Component - Can Swap Equipment")
+@Name("Equippable Component - May Exchange Armament")
 @Description("""
-	Whether an item can swap equipment by right clicking with it in your hand.
-	The item will swap places of the set 'equipment slot' of the item. If an equipment slot is not set, defaults to helmet.
-	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended.
-	""")
+    Whether an item may exchange armament by right clicking with it in thine hand.
+    The item shall swap places of the appointed 'equipment slot' of the item. If no equipment slot be set, it defaults to the helmet.
+    NOTE: Equippable component elements art experimental. Thus, they art subject to change and may not function as intended.
+    """)
 @Example("""
-	if {_item} can swap equipment:
-		add "Swappable" to lore of {_item}
-	""")
+    if {_item} can exchange armament:
+    	add "Swappable" to lore of {_item}
+    """)
 @Example("""
-	set {_component} to the equippable component of {_item}
-	if {_component} can not be equipped when right clicked:
-		make {_component} swappable
-	""")
+    set {_component} to the equippable component of {_item}
+    if {_component} can not exchange armament when right clicked:
+    	make {_component} exchange armament
+    """)
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("2.13")
 public class CondEquipCompSwapEquipment extends PropertyCondition<EquippableWrapper> implements EquippableExperimentSyntax {
@@ -31,7 +31,7 @@ public class CondEquipCompSwapEquipment extends PropertyCondition<EquippableWrap
 			infoBuilder(
 				CondEquipCompSwapEquipment.class,
 				PropertyType.CAN,
-				"swap equipment [on right click|when right clicked]",
+				"exchange armament [upon right click|when right clicked]",
 				"equippablecomponents"
 			).supplier(CondEquipCompSwapEquipment::new)
 				.build()

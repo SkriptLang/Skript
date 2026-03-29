@@ -13,20 +13,20 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Event Cancelled")
-@Description("Checks whether or not the event is cancelled.")
+@Name("Occasion Annull'd")
+@Description("Doth examine whether the occasion hath been annull'd or nay.")
 @Example("""
-	on click:
-		if event is cancelled:
-			broadcast "no clicks allowed!"
-	""")
+    on click:
+    	if occasion is annull'd:
+    		broadcast "no clicks allowed!"
+    """)
 @Since("2.2-dev36")
 public class CondCancelled extends Condition {
 
 	static {
 		Skript.registerCondition(CondCancelled.class,
-				"[the] event is cancel[l]ed",
-				"[the] event (is not|isn't) cancel[l]ed"
+				"[the] occasion is annull'd",
+				"[the] occasion (is not|isn't) annull'd"
 		);
 	}
 	

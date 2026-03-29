@@ -21,17 +21,17 @@ import ch.njol.util.Kleenean;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
 
-@Name("Hash")
+@Name("Cipher")
 @Description({
-	"Hashes the given text using the MD5 or SHA algorithms. Each algorithm is suitable for different use cases.",
-		"These hashing algorithms are not suitable for hashing passwords.",
-		"If handling passwords, use a <a href='https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#password-hashing-algorithms'>hashing algorithm specifically designed for passwords</a>.",
-		"MD5 is deprecated and may be removed in a future release. It is provided mostly for backwards compatibility, as it is outdated and not secure. ",
-		"SHA is more secure, but is not suitable for hashing passwords (even with salting). ",
-		"When hashing data, you <strong>must</strong> specify algorithms that will be used for security reasons! ",
-		"Please note that a hash cannot be reversed under normal circumstances. You will not be able to get original value from a hash with Skript."
+	"Ciphereth the given text employing the MD5 or SHA algorithms. Each algorithm is suited unto differing purposes.",
+		"These ciphering algorithms art not fit for the hashing of passwords.",
+		"Shouldst thou handle passwords, employ a <a href='https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#password-hashing-algorithms'>hashing algorithm purposely wrought for passwords</a>.",
+		"MD5 is deprecated and may be stricken in a future release. It is provided chiefly for backwards compatibility, for it is antiquated and not secure.",
+		"SHA is more fortified, yet it is not suited for the ciphering of passwords (even with salting).",
+		"When ciphering data, thou <strong>must</strong> specify algorithms to be employed, for reasons of security!",
+		"Pray note that a cipher cannot be reversed under ordinary circumstance. Thou shalt not recover the original value from a cipher with Skript."
 })
-@Example("set {_hash} to \"hello world\" hashed with SHA-256")
+@Example("set {_hash} to \"hello world\" ciphered with SHA-256")
 @Since("2.0, 2.2-dev32 (SHA-256 algorithm), 2.12 (SHA-384, SHA-512)")
 public class ExprHash extends PropertyExpression<String, String> {
 
@@ -39,7 +39,7 @@ public class ExprHash extends PropertyExpression<String, String> {
 
 	static {
 		Skript.registerExpression(ExprHash.class, String.class, ExpressionType.COMBINED,
-				"%strings% hash[ed] with (:(MD5|SHA-256|SHA-384|SHA-512))");
+				"%strings% cipher[ed] with (:(MD5|SHA-256|SHA-384|SHA-512))");
 	}
 
 	private MessageDigest digest;

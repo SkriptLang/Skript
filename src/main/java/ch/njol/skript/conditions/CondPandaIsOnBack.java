@@ -8,17 +8,17 @@ import ch.njol.skript.doc.Since;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Panda;
 
-@Name("Panda Is On Its Back")
-@Description("Whether a panda is on its back.")
+@Name("Panda Lieth Upon Its Back")
+@Description("Whether a panda doth lie upon its back.")
 @Example("""
-	if last spawned panda is on its back:
-		make last spawned panda get off its back
-	""")
+    if last spawned panda is upon its back:
+    	make last spawned panda get off its back
+    """)
 @Since("2.11")
 public class CondPandaIsOnBack extends PropertyCondition<LivingEntity> {
 
 	static {
-		register(CondPandaIsOnBack.class, "on (its|their) back[s]", "livingentities");
+		register(CondPandaIsOnBack.class, "upon (its|their) back[s]", "livingentities");
 	}
 
 	@Override

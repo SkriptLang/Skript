@@ -13,21 +13,21 @@ import org.bukkit.event.player.PlayerLevelChangeEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Level")
-@Description("The experience level of a player.")
-@Example("reduce the victim's level by 1")
-@Example("set the player's level to 0")
+@Name("Station of Experience")
+@Description("The experience station of a player.")
+@Example("reduce the victim's station by 1")
+@Example("set the player's station to 0")
 @Example("""
-	on level change:
-		set {_diff} to future xp level - past exp level
-		broadcast "%player%'s level changed by %{_diff}%!"
-	""")
+    on level change:
+    	set {_diff} to future xp station - past exp station
+    	broadcast "%player%'s station changed by %{_diff}%!"
+    """)
 @Since("unknown (before 2.1), 2.13.2 (allow player default)")
 @Events("level change")
 public class ExprLevel extends SimplePropertyExpression<Player, Long> {
 
 	static {
-		registerDefault(ExprLevel.class, Long.class, "[xp|exp[erience]] level", "players");
+		registerDefault(ExprLevel.class, Long.class, "[xp|exp[erience]] station", "players");
 	}
 	
 	@Override

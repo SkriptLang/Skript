@@ -29,21 +29,21 @@ import ch.njol.util.Kleenean;
 /**
  * @author Peter Güttinger
  */
-@Name("Attacker")
-@Description({"The attacker of a damage event, e.g. when a player attacks a zombie this expression represents the player.",
-		"Please note that the attacker can also be a block, e.g. a cactus or lava, but this expression will not be set in these cases."})
+@Name("The Assailant")
+@Description({"The assailant of a damage event, e.g. when a player doth strike a zombie this expression representeth the player.",
+		"Pray note that the assailant may also be a block, e.g. a cactus or lava, but this expression shall not be set in such cases."})
 @Example("""
-	on damage:
-		attacker is a player
-		health of attacker is less than or equal to 2
-		damage victim by 1 heart
-	""")
+    on damage:
+    	assailant is a player
+    	health of assailant is less than or equal to 2
+    	damage victim by 1 heart
+    """)
 @Since("1.3")
 @Events({"damage", "death", "vehicle destroy"})
 public class ExprAttacker extends SimpleExpression<Entity> implements EventRestrictedSyntax {
 
 	static {
-		Skript.registerExpression(ExprAttacker.class, Entity.class, ExpressionType.SIMPLE, "[the] (attacker|damager)");
+		Skript.registerExpression(ExprAttacker.class, Entity.class, ExpressionType.SIMPLE, "[the] (assailant|damager)");
 	}
 	
 	@Override

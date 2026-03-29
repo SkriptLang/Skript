@@ -20,8 +20,8 @@ import org.jetbrains.annotations.Nullable;
 public class EvtHarvestBlock extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Harvest Block", EvtHarvestBlock.class, PlayerHarvestBlockEvent.class,
-			"[player] [block|crop] harvest[ing] [of %-itemtypes/blockdatas%]")
+		Skript.registerEvent("Reaping of Bounty", EvtHarvestBlock.class, PlayerHarvestBlockEvent.class,
+			"[player] [block|crop] reap[ing] [of %-itemtypes/blockdatas%]")
 			.description("""
 				Called when a player harvests a block.
 				A block being harvested is when a block drops items and the state of the block is changed, but the block is not broken.

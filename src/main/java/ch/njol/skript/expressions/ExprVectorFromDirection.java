@@ -15,10 +15,10 @@ import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Vectors - Create from Direction")
+@Name("Vectors — Conjure from Direction")
 @Description({
-	"Creates vectors from given directions.",
-	"Relative directions are relative to the origin, (0, 0, 0). Therefore, the vector from the direction 'forwards' is (0, 0, 1)."
+	"Conjureth vectors from given directions.",
+	"Relative directions art relative to the origin, (0, 0, 0). Therefore, the vector from the direction 'forwards' is (0, 0, 1)."
 })
 @Example("set {_v} to vector from direction upwards")
 @Example("set {_v} to vector in direction of player")

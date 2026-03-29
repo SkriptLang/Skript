@@ -14,12 +14,12 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Armor Change Item")
-@Description("Get the unequipped or equipped armor item from a 'armor change' event.")
+@Name("Armour Change Piece")
+@Description("Obtain the unequipped or equipped armour piece from an 'armour change' event.")
 @Example("""
-	on armor change
-		broadcast the old armor item
-	""")
+    on armor change
+    	broadcast the old armour piece
+    """)
 @Events("Armor Change")
 @Since("2.11")
 public class ExprArmorChangeItem extends EventValueExpression<ItemStack> implements EventRestrictedSyntax {
@@ -27,7 +27,7 @@ public class ExprArmorChangeItem extends EventValueExpression<ItemStack> impleme
 	static {
 		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerArmorChangeEvent"))
 			register(ExprArmorChangeItem.class, ItemStack.class,
-				"(old|unequipped) armo[u]r item",
+				"(old|unequipped) armo[u]r piece",
 				"(new|equipped) armo[u]r item");
 	}
 

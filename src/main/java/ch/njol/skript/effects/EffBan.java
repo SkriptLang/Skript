@@ -21,30 +21,30 @@ import org.jetbrains.annotations.Nullable;
 import java.net.InetSocketAddress;
 import java.util.Date;
 
-@Name("Ban")
-@Description({"Bans or unbans a player or an IP address.",
-	"If a reason is given, it will be shown to the player when they try to join the server while banned.",
-	"A length of ban may also be given to apply a temporary ban. If it is absent for any reason, a permanent ban will be used instead.",
-	"We recommend that you test your scripts so that no accidental permanent bans are applied.",
+@Name("Banishment")
+@Description({"Doth banish or pardon a player or an IP address.",
+	"If a reason be given, it shall be shown to the player when they attempt to join the server whilst banished.",
+	"A duration of banishment may also be given to impose a temporary exile. If it be absent for any reason, a permanent banishment shall be imposed instead.",
+	"We do counsel that thou test thy scripts so that no accidental permanent banishments be imposed.",
 	"",
-	"Note that banning people does not kick them from the server.",
-	"You can optionally use 'and kick' or consider using the <a href='#EffKick'>kick effect</a> after applying a ban."})
-@Example("unban player")
-@Example("ban \"127.0.0.1\"")
-@Example("IP-ban the player because \"he is an idiot\"")
-@Example("ban player due to \"inappropriate language\" for 2 days")
-@Example("ban and kick player due to \"inappropriate language\" for 2 days")
+	"Mark well that banishing people doth not cast them out from the server.",
+	"Thou mayest optionally employ 'and cast out' or consider using the <a href='#EffKick'>cast out effect</a> after imposing a banishment."})
+@Example("pardon player")
+@Example("banish \"127.0.0.1\"")
+@Example("IP-banish the player because \"he is a knave\"")
+@Example("banish player due to \"inappropriate tongue\" for 2 days")
+@Example("banish and cast out player due to \"inappropriate tongue\" for 2 days")
 @Since("1.4, 2.1.1 (ban reason), 2.5 (timespan), 2.9.0 (kick)")
 public class EffBan extends Effect {
 
 	static {
 		Skript.registerEffect(EffBan.class,
-			"ban [kick:and kick] %strings/offlineplayers% [(by reason of|because [of]|on account of|due to) %-string%] [for %-timespan%]",
-			"unban %strings/offlineplayers%",
-			"ban [kick:and kick] %players% by IP [(by reason of|because [of]|on account of|due to) %-string%] [for %-timespan%]",
-			"unban %players% by IP",
-			"IP(-| )ban [kick:and kick] %players% [(by reason of|because [of]|on account of|due to) %-string%] [for %-timespan%]",
-			"(IP(-| )unban|un[-]IP[-]ban) %players%");
+			"banish [kick:and cast out] %strings/offlineplayers% [(by reason of|because [of]|on account of|due to) %-string%] [for %-timespan%]",
+			"pardon %strings/offlineplayers%",
+			"banish [kick:and cast out] %players% by IP [(by reason of|because [of]|on account of|due to) %-string%] [for %-timespan%]",
+			"pardon %players% by IP",
+			"IP(-| )banish [kick:and cast out] %players% [(by reason of|because [of]|on account of|due to) %-string%] [for %-timespan%]",
+			"(IP(-| )pardon|un[-]IP[-]banish) %players%");
 	}
 
 	@SuppressWarnings("null")

@@ -20,19 +20,19 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Heal Amount")
-@Description("The amount of health healed in a <a href='/#heal'>heal event</a>.")
+@Name("Mending Amount")
+@Description("The measure of health restored in a <a href='/#heal'>heal event</a>.")
 @Example("""
-	on player healing:
-		increase the heal amount by 2
-		remove 0.5 from the healing amount
-	""")
+    on player healing:
+    	increase the mending amount by 2
+    	remove 0.5 from the mending amount
+    """)
 @Events("heal")
 @Since("2.5.1")
 public class ExprHealAmount extends SimpleExpression<Double> {
 
 	static {
-		Skript.registerExpression(ExprHealAmount.class, Double.class, ExpressionType.SIMPLE, "[the] heal[ing] amount");
+		Skript.registerExpression(ExprHealAmount.class, Double.class, ExpressionType.SIMPLE, "[the] mend[ing] amount");
 	}
 
 	private Kleenean delay;

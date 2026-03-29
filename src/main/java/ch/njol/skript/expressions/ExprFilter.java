@@ -23,13 +23,13 @@ import org.skriptlang.skript.lang.converter.Converters;
 import java.util.*;
 import java.util.stream.StreamSupport;
 
-@Name("Filter")
+@Name("Sieve")
 @Description({
-	"Filters a list based on a condition. ",
-	"For example, if you ran 'broadcast \"something\" and \"something else\" where [string input is \"something\"]', ",
-	"only \"something\" would be broadcast as it is the only string that matched the condition."
+	"Sieveth a list according to a condition.",
+	"For example, shouldst thou run 'broadcast \"something\" and \"something else\" where [string input is \"something\"]',",
+	"only \"something\" would be broadcast, for it alone doth satisfy the condition."
 })
-@Example("send \"congrats on being staff!\" to all players where [player input has permission \"staff\"]")
+@Example("send \"huzzah upon thy station as staff!\" to all players where [player input has permission \"staff\"]")
 @Example("loop (all blocks in radius 5 of player) where [block input is not air]:")
 @Since("2.2-dev36, 2.10 (parenthesis pattern)")
 public class ExprFilter extends SimpleExpression<Object> implements InputSource, KeyProviderExpression<Object> {

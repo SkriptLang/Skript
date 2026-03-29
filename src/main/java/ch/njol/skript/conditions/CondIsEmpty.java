@@ -17,8 +17,8 @@ import org.skriptlang.skript.lang.util.SkriptQueue;
 /**
  * @deprecated This is being removed in favor of {@link PropCondIsEmpty}
  */
-@Name("Is Empty")
-@Description("Checks whether an inventory, an inventory slot, a queue, or a text is empty.")
+@Name("Is Bereft of Contents")
+@Description("Discerneth whether an inventory, an inventory slot, a queue, or a text be empty and void.")
 @Example("player's inventory is empty")
 @Since("unknown (before 2.1)")
 @Deprecated(since="2.13", forRemoval = true)

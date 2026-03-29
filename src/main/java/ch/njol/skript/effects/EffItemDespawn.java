@@ -14,18 +14,18 @@ import org.bukkit.entity.Item;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Item Despawn")
-@Description("Prevent a dropped item from naturally despawning through Minecraft's timer.")
-@Example("prevent all dropped items from naturally despawning")
-@Example("allow all dropped items to naturally despawn")
+@Name("Item Vanishment")
+@Description("Forbid a dropped item from naturally vanishing through Minecraft's appointed timer.")
+@Example("forbid all dropped items from naturally despawning")
+@Example("permit all dropped items to naturally despawn")
 @Since("2.11")
 public class EffItemDespawn extends Effect {
 
 	static {
 		Skript.registerEffect(EffItemDespawn.class,
-			"(prevent|disallow) %itementities% from (naturally despawning|despawning naturally)",
-			"allow natural despawning of %itementities%",
-			"allow %itementities% to (naturally despawn|despawn naturally)");
+			"(prevent|forbid) %itementities% from (naturally despawning|despawning naturally)",
+			"permit natural despawning of %itementities%",
+			"permit %itementities% to (naturally despawn|despawn naturally)");
 	}
 
 	private Expression<Item> entities;

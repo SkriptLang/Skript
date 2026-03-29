@@ -7,14 +7,14 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.LivingEntity;
 
-@Name("Is Leashed")
-@Description("Checks to see if an entity is currently leashed.")
-@Example("target entity is leashed")
+@Name("Be It Tethered")
+@Description("Ascertaineth whether an entity be presently tethered by a leash.")
+@Example("target entity is tethered by leash")
 @Since("2.5")
 public class CondLeashed extends PropertyCondition<LivingEntity> {
 
 	static {
-		register(CondLeashed.class, PropertyType.BE, "leashed", "livingentities");
+		register(CondLeashed.class, PropertyType.BE, "tethered by leash", "livingentities");
 	}
 
 	@Override

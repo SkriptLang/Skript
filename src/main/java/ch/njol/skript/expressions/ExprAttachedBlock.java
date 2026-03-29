@@ -15,24 +15,24 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 
-@Name("Arrow Attached Block")
+@Name("Arrow Affixed Block")
 @Description({
-	"Returns the attached block of an arrow.",
-	"If running Paper 1.21.4+, the plural version of the expression should be used as it is more reliable compared to the single version."
+	"Returneth the affixed block of an arrow.",
+	"If running Paper 1.21.4+, the plural form of the expression ought be used, as it is more reliable compared to the singular."
 })
-@Example("set hit block of last shot arrow to diamond block")
+@Example("set struck block of last shot arrow to diamond block")
 @Example("""
-	on projectile hit:
-		wait 1 tick
-		break attached blocks of event-projectile
-		kill event-projectile
-	""")
+    on projectile hit:
+    	wait 1 tick
+    	break affixed blocks of event-projectile
+    	kill event-projectile
+    """)
 @Since("2.8.0, 2.12 (multiple blocks)")
 @RequiredPlugins("Minecraft 1.21.4+ (multiple blocks)")
 public class ExprAttachedBlock extends PropertyExpression<Projectile, Block> {
 
 	static {
-		register(ExprAttachedBlock.class, Block.class, "(attached|hit) block[multiple:s]", "projectiles");
+		register(ExprAttachedBlock.class, Block.class, "(affixed|struck) block[multiple:s]", "projectiles");
 	}
 
 	// TODO - remove this when only Paper 1.21.4+ is supported

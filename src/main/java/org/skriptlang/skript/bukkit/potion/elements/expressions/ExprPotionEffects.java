@@ -28,13 +28,13 @@ import java.util.Collection;
 import java.util.Deque;
 import java.util.List;
 
-@Name("Potion Effects of Entity/Item")
+@Name("Potion Effects of Entity or Artefact")
 @Description({
-	"An expression to obtain the active or hidden potion effects of an entity or item.",
-	"When an entity is affected by a potion effect but already has a weaker version of that effect type, the weaker version becomes hidden. " +
-			"If the weaker version has a longer duration, it returns after the stronger version expires.",
-	"NOTE: Hidden effects are not able to be changed.",
-	"NOTE: Clearing the base potion effects of a potion item is not possible. If you wish to do so, just set the item to a water bottle.",
+	"An expression to obtain the active or hidden potion effects borne by an entity or item.",
+	"When an entity is afflicted by a potion effect yet already possesseth a weaker form of that same type, the lesser version becometh hidden." +
+			"Should the weaker version endure longer, it doth return once the mightier version hath expired.",
+	"NOTE: Hidden effects may not be altered.",
+	"NOTE: Clearing the base potion effects of a potion item is not possible. Shouldst thou desire such, merely set the item to a water bottle.",
 })
 @Example("set {_effects::*} to the active potion effects of the player")
 @Example("clear the player's hidden potion effects")

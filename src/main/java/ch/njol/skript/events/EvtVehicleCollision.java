@@ -23,7 +23,7 @@ import java.util.List;
 public class EvtVehicleCollision extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Vehicle Collision", EvtVehicleCollision.class, new Class[]{VehicleBlockCollisionEvent.class, VehicleEntityCollisionEvent.class},
+		Skript.registerEvent("Carriage Collision", EvtVehicleCollision.class, new Class[]{VehicleBlockCollisionEvent.class, VehicleEntityCollisionEvent.class},
 				"vehicle collision [(with|of) [a[n]] %-itemtypes/blockdatas/entitydatas%]",
 				"vehicle block collision [(with|of) [a[n]] %-itemtypes/blockdatas%]",
 				"vehicle entity collision [(with|of) [a[n]] %-entitydatas%]")

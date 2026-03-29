@@ -23,8 +23,8 @@ import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Item Enchantments")
-@Description("All the enchantments an <a href='#itemtype'>item type</a> has.")
+@Name("Enchantments Upon an Item")
+@Description("All the enchantments an <a href='#itemtype'>item type</a> doth possess.")
 @Example("clear enchantments of event-item")
 @Since("2.2-dev36")
 public class ExprEnchantments extends SimpleExpression<EnchantmentType> {

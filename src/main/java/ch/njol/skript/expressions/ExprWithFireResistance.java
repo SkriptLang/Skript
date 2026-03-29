@@ -16,13 +16,13 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
-@Name("With Fire Resistance")
+@Name("With Fire Ward")
 @Description({
-	"Creates a copy of an item with (or without) fire resistance."
+	"Createth a copy of an item bestowed with (or bereft of) fire ward."
 })
-@Example("set {_x} to diamond sword with fire resistance")
-@Example("equip player with netherite helmet without fire resistance")
-@Example("drop fire resistant stone at player")
+@Example("set {_x} to diamond sword with fire ward")
+@Example("equip player with netherite helmet without fire ward")
+@Example("drop fire warded stone at player")
 @RequiredPlugins("Spigot 1.20.5+")
 @Since("2.9.0")
 public class ExprWithFireResistance extends PropertyExpression<ItemType, ItemType> {
@@ -30,8 +30,8 @@ public class ExprWithFireResistance extends PropertyExpression<ItemType, ItemTyp
 	static {
 		if (Skript.methodExists(ItemMeta.class, "setFireResistant", boolean.class))
 			Skript.registerExpression(ExprWithFireResistance.class, ItemType.class, ExpressionType.PROPERTY,
-				"%itemtype% with[:out] fire[ ]resistance",
-				"fire resistant %itemtype%");
+				"%itemtype% with(out:out) fire[ ]ward",
+				"fire warded %itemtype%");
 	}
 
 	private boolean out;

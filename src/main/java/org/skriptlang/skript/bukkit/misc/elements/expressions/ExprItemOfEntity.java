@@ -9,23 +9,23 @@ import ch.njol.skript.util.slot.*;
 import org.bukkit.entity.*;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Item of an Entity")
+@Name("Chattel of an Entity")
 @Description({
-	"An item associated with an entity. For dropped item entities, it gets the item that was dropped.",
-	"For item frames, the item inside the frame is returned.",
-	"For throwable projectiles (snowballs, enderpearls etc.) or item displays, it gets the displayed item.",
-	"For arrows, it gets the item that will be picked up when retrieving the arrow. Note that setting the item may not change the displayed " +
-	"model, and that setting a spectral arrow to a non-spectral arrow or vice-versa will not affect the effects of the projectile.",
-	"Other entities do not have items associated with them."
+	"A chattel associated with an entity. For dropped item entities, it yieldeth the item that was cast down.",
+	"For item frames, the item within the frame is returned.",
+	"For throwable projectiles (snowballs, enderpearls, and the like) or item displays, it yieldeth the displayed item.",
+	"For arrows, it yieldeth the item that shall be claimed when retrieving the arrow. Note that setting the item may not alter the displayed" +
+	"model, and that setting a spectral arrow to a common arrow or vice-versa shall not affect the projectile's enchantments.",
+	"Other entities possess no chattels."
 })
-@Example("item of event-entity")
-@Example("set the item inside of event-entity to a diamond sword named \"Example\"")
+@Example("chattel of event-entity")
+@Example("set the chattel within of event-entity to a diamond sword named \"Example\"")
 @Since("2.2-dev35, 2.2-dev36 (improved), 2.5.2 (throwable projectiles), 2.10 (item displays), 2.14.1 (arrows)")
 public class ExprItemOfEntity extends SimplePropertyExpression<Entity, Slot> {
 
 
 	static {
-		register(ExprItemOfEntity.class, Slot.class, "item [inside]", "entities");
+		register(ExprItemOfEntity.class, Slot.class, "chattel [within]", "entities");
 	}
 
 	@Override

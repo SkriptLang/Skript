@@ -23,10 +23,10 @@ import org.skriptlang.skript.common.properties.expressions.PropExprValueOf;
 /**
  * @deprecated This is being removed in favor of {@link PropExprValueOf}
  */
-@Name("Value")
+@Name("Worth Contained")
 @Description({
-	"Returns the value of something that has a value, e.g. a node in a config.",
-	"The value is automatically converted to the specified type (e.g. text, number) where possible."
+	"Returneth the value of something that doth possess a value, e.g. a node within a config.",
+	"The value is automatically converted unto the specified type (e.g. text, number) where possible."
 })
 @Example("""
 	set {_node} to node "language" in the skript config

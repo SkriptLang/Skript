@@ -13,17 +13,17 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Max Minecart Speed")
-@Description("The maximum speed of a minecart.")
+@Name("Greatest Minecart Swiftness")
+@Description("The utmost swiftness of a minecart.")
 @Example("""
-	on right click on minecart:
-		set max minecart speed of event-entity to 1
-	""")
+    on right click on minecart:
+    	set max minecart swiftness of event-entity to 1
+    """)
 @Since("2.5.1")
 public class ExprMaxMinecartSpeed extends SimplePropertyExpression<Entity, Number> {
 	
 	static {
-		register(ExprMaxMinecartSpeed.class, Number.class, "max[imum] minecart (speed|velocity)", "entities");
+		register(ExprMaxMinecartSpeed.class, Number.class, "max[imum] minecart (swiftness|velocity)", "entities");
 	}
 	
 	@Nullable

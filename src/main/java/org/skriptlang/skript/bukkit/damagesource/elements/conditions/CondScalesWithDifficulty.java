@@ -12,12 +12,12 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Damage Source - Does Scale With Difficulty")
-@Description("Whether the damage from a damage source scales with the difficulty of the server.")
+@Name("Wound's Source — Doth Scale With Difficulty")
+@Description("Whether the harm wrought by a damage source doth wax or wane with the difficulty of the realm.")
 @Example("""
-	on death:
-		if event-damage source scales damage with difficulty:
-	""")
+    on death:
+    	if event-damage source scales harm with difficulty:
+    """)
 @Since("2.12")
 public class CondScalesWithDifficulty extends PropertyCondition<DamageSource> {
 
@@ -26,10 +26,10 @@ public class CondScalesWithDifficulty extends PropertyCondition<DamageSource> {
 			SyntaxRegistry.CONDITION,
 			SyntaxInfo.builder(CondScalesWithDifficulty.class)
 				.addPatterns(
-					"%damagesources% ((does|do) scale|scales) damage with difficulty",
-					"%damagesources% (do not|don't|does not|doesn't) scale damage with difficulty",
-					"%damagesources%'[s] damage ((does|do) scale|scales) with difficulty",
-					"%damagesources%'[s] damage (do not|don't|does not|doesn't) scale with difficulty")
+					"%damagesources% ((doth|do) scale|scales) harm with difficulty",
+					"%damagesources% (do not|don't|doth not|doesn't) scale harm with difficulty",
+					"%damagesources%'[s] harm ((doth|do) scale|scales) with difficulty",
+					"%damagesources%'[s] harm (do not|don't|doth not|doesn't) scale with difficulty")
 				.supplier(CondScalesWithDifficulty::new)
 				.build()
 		);

@@ -11,15 +11,15 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Middle of Location")
-@Description("Returns the middle/center of a location. In other words, returns the middle of the X, Z coordinates and the floor value of the Y coordinate of a location.")
+@Name("Heart of a Location")
+@Description("Returneth the middle or centre of a location. In other words, yieldeth the centre of the X, Z coordinates and the floor value of the Y coordinate of a location.")
 @Example("""
-	command /stuck:
-		executable by: players
-		trigger:
-			teleport player to the center of player's location
-			send "You're no longer stuck."
-	""")
+    command /stuck:
+    	executable by: players
+    	trigger:
+    		teleport player to the center of player's location
+    		send "Thou art no longer ensnared."
+    """)
 @Since("2.6.1")
 public class ExprMiddleOfLocation extends SimplePropertyExpression<Location, Location> {
 	

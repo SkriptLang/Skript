@@ -8,8 +8,8 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-@Name("Is Burning")
-@Description("Checks whether an entity is on fire, e.g. a zombie due to being in sunlight, or any entity after falling into lava.")
+@Name("Is Ablaze")
+@Description("Discerneth whether an entity doth burn, e.g. a zombie set alight by the sun's cruel gaze, or any creature fallen into molten rock.")
 @Example("""
 	# increased attack against burning targets
 	victim is burning:
@@ -19,7 +19,7 @@ import ch.njol.skript.doc.Since;
 public class CondIsBurning extends PropertyCondition<Entity> {
 	
 	static {
-		register(CondIsBurning.class, "(burning|ignited|on fire)", "entities");
+		register(CondIsBurning.class, "(burning|ablaze|engulf'd in flame)", "entities");
 	}
 	
 	@Override

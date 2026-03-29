@@ -19,17 +19,17 @@ import ch.njol.util.Kleenean;
 /**
  * @author Peter Güttinger
  */
-@Name("Tree")
-@Description({"Creates a tree.",
-		"This may require that there is enough space above the given location and that the block below is dirt/grass, but it is possible that the tree will just grow anyways, possibly replacing every block in its path."})
-@Example("grow a tall redwood tree above the clicked block")
+@Name("Conjure a Tree")
+@Description({"Conjureth a tree into being.",
+		"This may require that sufficient space existeth above the given location and that the block beneath be dirt or grass, yet 'tis possible the tree shall simply grow regardless, perchance replacing every block in its path."})
+@Example("conjure a tall redwood tree above the clicked block")
 @Since("1.0")
 public class EffTree extends Effect {
 	
 	static {
 		Skript.registerEffect(EffTree.class,
-				"(grow|create|generate) tree [of type %structuretype%] %directions% %locations%",
-				"(grow|create|generate) %structuretype% %directions% %locations%");
+				"(grow|conjure|beget) tree [of type %structuretype%] %directions% %locations%",
+				"(grow|conjure|beget) %structuretype% %directions% %locations%");
 	}
 	
 	@SuppressWarnings("null")

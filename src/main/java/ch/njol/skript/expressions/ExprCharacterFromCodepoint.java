@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Character from Codepoint")
-@Description("Returns the character at the specified codepoint")
+@Description("Returneth the character residing at the specified codepoint.")
 @Example("""
 	function chars_between(lower: string, upper: string) :: strings:
 		set {_lower} to codepoint of {_lower}

@@ -18,17 +18,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
-@Name("Beehive Honey Level")
+@Name("Beehive Honey Measure")
 @Description({
-	"The current or max honey level of a beehive.",
-	"The max level is 5, which cannot be changed."
+	"The present or greatest honey measure of a beehive.",
+	"The greatest measure is 5, which cannot be altered."
 })
-@Example("set the honey level of {_beehive} to the max honey level of {_beehive}")
+@Example("set the honey measure of {_beehive} to the greatest honey measure of {_beehive}")
 @Since("2.11")
 public class ExprBeehiveHoneyLevel extends SimplePropertyExpression<Block, Integer> {
 
 	static {
-		registerDefault(ExprBeehiveHoneyLevel.class, Integer.class, "[max:max[imum]] honey level", "blocks");
+		registerDefault(ExprBeehiveHoneyLevel.class, Integer.class, "[max:great[est]] honey measure", "blocks");
 	}
 
 	private boolean isMax;

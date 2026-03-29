@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 @SuppressWarnings("unchecked")
 public class EvtWeatherChange extends SkriptEvent {
 	static {
-		Skript.registerEvent("Weather Change", EvtWeatherChange.class, CollectionUtils.array(WeatherChangeEvent.class, ThunderChangeEvent.class), "weather change [to %-weathertypes%]")
+		Skript.registerEvent("Shift of the Heavens", EvtWeatherChange.class, CollectionUtils.array(WeatherChangeEvent.class, ThunderChangeEvent.class), "weather change [to %-weathertypes%]")
 				.description("Called when a world's weather changes.")
 				.examples("on weather change:", "on weather change to sunny:")
 				.since("1.0");

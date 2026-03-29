@@ -23,11 +23,11 @@ import org.skriptlang.skript.common.properties.expressions.PropExprAmount;
 /**
  * @deprecated This is being removed in favor of {@link PropExprAmount}
  */
-@Name("Amount")
-@Description({"The amount or size of something.",
-		"Please note that <code>amount of %items%</code> will not return the number of items, but the number of stacks, e.g. 1 for a stack of 64 torches. To get the amount of items in a stack, see the <a href='#ExprItemAmount'>item amount</a> expression."
+@Name("Quantity")
+@Description({"The quantity or tally of something.",
+		"Pray note that <code>quantity of %items%</code> shall not return the number of individual items, but rather the number of stacks, e.g. 1 for a stack of 64 torches. To obtain the count of items within a stack, see the <a href='#ExprItemAmount'>item amount</a> expression."
 })
-@Example("message \"There are %number of all players% players online!\"")
+@Example("message \"There art %number of all players% players present!\"")
 @Since("1.0")
 @Deprecated(since="2.13", forRemoval = true)
 public class ExprAmount extends SimpleExpression<Number> {
@@ -35,8 +35,8 @@ public class ExprAmount extends SimpleExpression<Number> {
 	static {
 		if (!SkriptConfig.useTypeProperties.value())
 			Skript.registerExpression(ExprAmount.class, Number.class, ExpressionType.PROPERTY,
-					"[the] (amount|number|size) of %numbered%",
-					"[the] (amount|number|size) of %objects%");
+					"[the] (quantity|number|tally) of %numbered%",
+					"[the] (quantity|number|tally) of %objects%");
 	}
 
 	@SuppressWarnings("null")

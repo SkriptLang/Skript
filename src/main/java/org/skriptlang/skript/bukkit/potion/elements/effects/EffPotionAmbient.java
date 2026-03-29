@@ -8,10 +8,10 @@ import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Potion Effect - Ambient")
+@Name("Potion Effect — Ambient")
 @Description({
-	"Modify whether a potion effect is ambient.",
-	"That is, whether the potion effect produces more, translucent, particles."
+	"Altereth whether a potion effect is ambient.",
+	"That is to say, whether the potion effect doth produce more, translucent particles."
 })
 @Example("make the player's potion effects ambient")
 @Since("2.14")

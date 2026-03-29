@@ -24,19 +24,19 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Cancel Event")
-@Description("Cancels the event (e.g. prevent blocks from being placed, or damage being taken).")
+@Name("Forbid the Occasion")
+@Description("Forbiddeth the occasion (e.g. preventeth blocks from being placed, or harm from being suffered).")
 @Example("""
-	on damage:
-		victim is a player
-		victim has the permission "skript.god"
-		cancel the event
-	""")
+    on damage:
+    	victim is a player
+    	victim has the permission "skript.god"
+    	forbid the occasion
+    """)
 @Since("1.0")
 public class EffCancelEvent extends Effect {
 
 	static {
-		Skript.registerEffect(EffCancelEvent.class, "cancel [the] event", "uncancel [the] event");
+		Skript.registerEffect(EffCancelEvent.class, "forbid [the] occasion", "unforbid [the] occasion");
 	}
 	
 	private boolean cancel;

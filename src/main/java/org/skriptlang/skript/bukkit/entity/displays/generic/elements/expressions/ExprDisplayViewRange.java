@@ -12,11 +12,11 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Display View Range")
+@Name("Display Gaze Reach")
 @Description({
 	"Returns or changes the view range of <a href='#display'>displays</a>.",
-	"Default value is 1.0. This value is then multiplied by 64 and the player's entity view distance setting to determine the actual range.",
-	"For example, a player with 150% entity view distance will see a block display with a view range of 1.2 at 1.2 * 64 * 150% = 115.2 blocks away."
+	"The default value is 1.0. This value is then multiplied by 64 and the player's entity view distance setting to determine the true range.",
+	"For example, a player with 150% entity view distance shall perceive a block display with a view range of 1.2 at 1.2 × 64 × 150% = 115.2 blocks hence."
 })
 @Example("set view range of the last spawned text display to 2.9")
 @Since("2.10")

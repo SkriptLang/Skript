@@ -17,7 +17,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Apply Bone Meal")
-@Description("Applies bone meal to a crop, sapling, or composter")
+@Description("Doth apply bone meal unto a crop, sapling, or composter.")
 @Example("apply 3 bone meal to event-block")
 @RequiredPlugins("MC 1.16.2+")
 @Since("2.8.0")

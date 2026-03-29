@@ -17,23 +17,23 @@ import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.List;
 
-@Name("Exit")
-@Description("Exits a given amount of loops and conditionals, or the entire trigger.")
+@Name("Depart")
+@Description("Depart from a given number of loops and conditionals, or the entire trigger.")
 @Example("""
-	loop blocks above the player:
-		loop-block is not air:
-			exit 2 sections
-		set loop-block to water
-	""")
+    loop blocks above the player:
+    	loop-block is not air:
+    		depart 2 sections
+    	set loop-block to water
+    """)
 @Since("unknown (before 2.1)")
 public class EffExit extends Effect {
 
 	static {
 		Skript.registerEffect(EffExit.class,
-			"(exit|stop) [trigger]",
-			"(exit|stop) [1|a|the|this] (section|1:loop|2:conditional)",
-			"(exit|stop) <" + JavaClasses.INTEGER_NUMBER_PATTERN + "> (section|1:loop|2:conditional)s",
-			"(exit|stop) all (section|1:loop|2:conditional)s");
+			"(depart|cease) [trigger]",
+			"(depart|cease) [1|a|the|this] (section|1:loop|2:conditional)",
+			"(depart|cease) <" + JavaClasses.INTEGER_NUMBER_PATTERN + "> (section|1:loop|2:conditional)s",
+			"(depart|cease) all (section|1:loop|2:conditional)s");
 	}
 
 	@SuppressWarnings("unchecked")

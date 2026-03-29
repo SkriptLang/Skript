@@ -15,9 +15,9 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.UnknownNullability;
 
 @Name("Whether")
-@Description("A shorthand for returning the result of a condition (true or false). This is functionally identical to using `true if <condition> else false`.")
+@Description("A shorthand for returning the verdict of a condition (true or false). This is functionally identical to employing `true if <condition> else false`.")
 @Example("set {fly} to whether player can fly")
-@Example("broadcast \"Flying: %whether player is flying%\"")
+@Example("broadcast \"In flight: %whether player is flying%\"")
 @Since("2.9.0")
 public class ExprWhether extends SimpleExpression<Boolean> {
 

@@ -13,8 +13,8 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 
 @Name("Fall Distance")
-@Description({"The distance an entity has fallen for."})
-@Example("set all entities' fall distance to 10")
+@Description({"The distance an entity hath fallen through the air."})
+@Example("set all entities' fallen distance to 10")
 @Example("""
 	on damage:
 		send "%victim's fall distance%" to victim

@@ -24,19 +24,19 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-@Name("Loot of Loot Table")
+@Name("Spoils of the Loot Table")
 @Description(
-	"Returns the items of a loot table using a loot context. "
-		+ "Not specifying a loot context will use a loot context with a location at the world's origin."
+	"Returneth the items of a loot table using a loot context."
+		+ "Should no loot context be provided, one shall be conjured with a location at the world's origin."
 )
 @Example("""
-	set {_items::*} to loot items of the loot table "minecraft:chests/simple_dungeon" with loot context {_context}
-	# this will set {_items::*} to the items that would be dropped from the simple dungeon loot table with the given loot context
-	""")
+    set {_items::*} to spoils of the loot table "minecraft:chests/simple_dungeon" with loot context {_context}
+    # this shall set {_items::*} to the treasures that would fall from the simple dungeon loot table with the given loot context
+    """)
 @Example("""
-	give player loot items of entity's loot table with loot context {_context}
-	# this will give the player the items that the entity would drop with the given loot context
-	""")
+    give player spoils of entity's loot table with loot context {_context}
+    # this shall bestow upon the player the items that the entity would yield with the given loot context
+    """)
 @Since("2.10")
 public class ExprLootItems extends SimpleExpression<ItemStack> {
 
@@ -45,8 +45,8 @@ public class ExprLootItems extends SimpleExpression<ItemStack> {
 			SyntaxRegistry.EXPRESSION,
 			SyntaxInfo.Expression.builder(ExprLootItems.class, ItemStack.class)
 				.addPatterns(
-					"[the] loot of %loottables% [(with|using) %-lootcontext%]",
-					"%loottables%'[s] loot [(with|using) %-lootcontext%]"
+					"[the] spoils of %loottables% [(with|using) %-lootcontext%]",
+					"%loottables%'[s] spoils [(with|using) %-lootcontext%]"
 				)
 				.supplier(ExprLootItems::new)
 				.build()

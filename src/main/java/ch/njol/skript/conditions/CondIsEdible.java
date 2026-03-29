@@ -7,8 +7,8 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-@Name("Is Edible")
-@Description("Checks whether an item is edible.")
+@Name("Is Fit for Consumption")
+@Description("Discerneth whether an item be fit for eating.")
 @Example("cooked beef is edible")
 @Example("player's tool is edible")
 @Since("2.2-dev36")

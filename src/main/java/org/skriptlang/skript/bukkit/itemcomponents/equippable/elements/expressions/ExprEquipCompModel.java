@@ -14,27 +14,27 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperime
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Equippable Component - Model")
+@Name("Equippable Component - Donned Visage")
 @Description("""
-	The model of the item when equipped.
-	The model key is represented as a namespaced key.
-	A namespaced key can be formatted as 'namespace:id' or 'id'. \
-	It can only contain one ':' to separate the namespace and the id. \
-	Only alphanumeric characters, periods, underscores, and dashes can be used.
-	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
-	""")
-@Example("set the equipped model key of {_item} to \"custom_model\"")
+    The visage of the item when donned.
+    The visage key is represented as a namespaced key.
+    A namespaced key may be formatted as 'namespace:id' or 'id'. \
+    It may contain but one ':' to separate the namespace and the id. \
+    Only alphanumeric characters, periods, underscores, and dashes may be employed.
+    NOTE: Equippable component elements art experimental. Thus, they art subject to change and may not function as intended.
+    """)
+@Example("set the donned visage key of {_item} to \"custom_model\"")
 @Example("""
-	set {_component} to the equippable component of {_item}
-	set the equipped model id of {_component} to "custom_model"
-	""")
+    set {_component} to the equippable component of {_item}
+    set the donned visage id of {_component} to "custom_model"
+    """)
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("2.13")
 public class ExprEquipCompModel extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperimentSyntax {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprEquipCompModel.class, String.class, "equipped (model|asset) (key|id)", "equippablecomponents", true)
+			infoBuilder(ExprEquipCompModel.class, String.class, "donned (visage|asset) (key|id)", "equippablecomponents", true)
 				.supplier(ExprEquipCompModel::new)
 				.build()
 		);

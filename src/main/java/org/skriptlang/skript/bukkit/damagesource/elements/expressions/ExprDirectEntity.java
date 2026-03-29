@@ -18,11 +18,11 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.elements.expressions.ExprSecDamageSource.DamageSourceSectionEvent;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Damage Source - Direct Entity")
+@Name("Wound's Origin - Direct Entity")
 @Description({
 	"The direct entity of a damage source.",
-	"The direct entity is the entity that directly caused the damage. (e.g. the arrow that was shot)",
-	"Attributes of a damage source cannot be changed once created, only while within the 'custom damage source' section."
+	"The direct entity is that which didst immediately inflict the harm. (e.g. the arrow that was loosed)",
+	"Attributes of a damage source cannot be altered once forged, only whilst within the 'custom damage source' section."
 })
 @Example("""
 	set {_source} to a custom damage source:

@@ -15,34 +15,34 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Persistent")
+@Name("Enduring Persistence")
 @Description({
-	"Make entities, players, or leaves be persistent.",
-	"Persistence of entities is whether they are retained through server restarts.",
-	"Persistence of leaves is whether they should decay when not connected to a log block within 6 meters.",
-	"Persistence of players is if the player's playerdata should be saved when they leave the server. "
-		+ "Players' persistence is reset back to 'true' when they join the server.",
-	"Passengers inherit the persistence of their vehicle, meaning a persistent zombie put on a "
-		+ "non-persistent chicken will become non-persistent. This does not apply to players.",
+	"Render entities, players, or leaves to be persistent in their endurance.",
+	"The persistence of entities doth determine whether they be retained through server restarts.",
+	"The persistence of leaves doth determine whether they should decay when not bound to a log block within six meters.",
+	"The persistence of players doth determine whether their playerdata be preserved when they depart the server."
+		+ "A player's persistence is restored to 'true' upon their return to the server.",
+	"Passengers do inherit the persistence of their conveyance, meaning a persistent zombie set upon a"
+		+ "non-persistent chicken shall become non-persistent. This doth not apply to players.",
 	"By default, all entities are persistent."
 })
-@Example("prevent all entities from persisting")
-@Example("force {_leaves} to persist")
+@Example("forbid all entities from persisting")
+@Example("compel {_leaves} to persist")
 @Example("""
-	command /kickcheater <cheater: player>:
-		permission: op
-		trigger:
-			prevent {_cheater} from persisting
-			kick {_cheater}
-	""")
+    command /kickcheater <cheater: player>:
+    	permission: op
+    	trigger:
+    		forbid {_cheater} from persisting
+    		kick {_cheater}
+    """)
 @Since("2.11")
 public class EffPersistent extends Effect {
 
 	static {
 		Skript.registerEffect(EffPersistent.class,
-			"make %entities/blocks% [:not] persist[ent]",
-			"force %entities/blocks% to [:not] persist",
-			"prevent %entities/blocks% from persisting");
+			"render %entities/blocks% [:not] persist[ent]",
+			"compel %entities/blocks% to [:not] persist",
+			"forbid %entities/blocks% from persisting");
 	}
 
 	private Expression<?> source;

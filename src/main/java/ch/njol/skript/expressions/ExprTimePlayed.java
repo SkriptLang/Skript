@@ -15,18 +15,18 @@ import org.bukkit.Statistic;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Time Played")
+@Name("Time Devoted to Play")
 @Description({
-	"The amount of time a player has played for on the server. This info is stored in the player's statistics in " +
-	"the main world's data folder. Changing this will also change the player's stats which can be views in the client's statistics menu.",
-	"Using this expression on offline players on Minecraft 1.14 and below will return nothing <code>&lt;none&gt;</code>."
+	"The measure of time a player hath devoted to play upon the server. This knowledge is stored within the player's statistics in " +
+	"the main world's data vault. Altering this shall also change the player's statistics, which may be viewed in the client's statistics menu.",
+	"Employing this expression upon offline players on Minecraft 1.14 and below shall yield nothing <code>&lt;none&gt;</code>."
 })
-@Example("set {_t} to time played of player")
+@Example("set {_t} to time devoted of player")
 @Example("""
-	if player's time played is greater than 10 minutes:
-		give player a diamond sword
-	""")
-@Example("set player's time played to 0 seconds")
+    if player's time devoted is greater than 10 minutes:
+    	give player a diamond sword
+    """)
+@Example("set player's time devoted to 0 seconds")
 @RequiredPlugins("MC 1.15+ (offline players)")
 @Since("2.5, 2.7 (offline players)")
 public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Timespan> {
@@ -34,7 +34,7 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 	private static final boolean IS_OFFLINE_SUPPORTED = Skript.methodExists(OfflinePlayer.class, "getStatistic", Statistic.class);
 
 	static {
-		register(ExprTimePlayed.class, Timespan.class, "(time played|play[ ]time)", "offlineplayers");
+		register(ExprTimePlayed.class, Timespan.class, "(time devoted|play[ ]time)", "offlineplayers");
 	}
 	
 	@Nullable

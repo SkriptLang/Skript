@@ -15,27 +15,27 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Predicate;
 
-@Name("Can Build")
+@Name("May Build")
 @Description({
-	"Tests whether a player is allowed to build at a certain location.",
-	"This condition requires a supported <a href='#region'>regions</a> plugin to be installed."
+	"Doth test whether a player be permitted to build upon a certain location.",
+	"This condition doth require a supported <a href='#region'>regions</a> plugin to be installed."
 })
 @Example("""
-	command /setblock <material>:
-		description: set the block at your crosshair to a different type
-		trigger:
-			player cannot build at the targeted block:
-				message "You do not have permission to change blocks there!"
-				stop
-			set the targeted block to argument
-	""")
+    command /setblock <material>:
+    	description: set the block at your crosshair to a different type
+    	trigger:
+    		player cannot build at the targeted block:
+    			message "Thou hast not permission to alter blocks there!"
+    			stop
+    		set the targeted block to argument
+    """)
 @Since("2.0")
 @RequiredPlugins("Supported regions plugin")
 public class CondCanBuild extends Condition {
 	static {
 		Skript.registerCondition(CondCanBuild.class,
-				"%players% (can|(is|are) allowed to) build %directions% %locations%",
-				"%players% (can('t|not)|(is|are)(n't| not) allowed to) build %directions% %locations%");
+				"%players% (can|(is|are) permitted to) build %directions% %locations%",
+				"%players% (can('t|not)|(is|are)(n't| not) permitted to) build %directions% %locations%");
 	}
 
 	@SuppressWarnings("null")

@@ -14,13 +14,13 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.registrations.experiments.ReflectionExperimentSyntax;
 import org.skriptlang.skript.util.Executable;
 
-@Name("Run")
-@Description("Executes a task (a function). Any returned result is discarded.")
+@Name("Invoke")
+@Description("Doth execute a task (a function). Any value returned therefrom shall be cast aside.")
 @Example("""
-	set {_function} to the function named "myFunction"
-	run {_function}
-	run {_function} with arguments {_things::*}
-	""")
+    set {_function} to the function named "myFunction"
+    invoke {_function}
+    invoke {_function} with arguments {_things::*}
+    """)
 @Since("2.10")
 @Keywords({"run", "execute", "reflection", "function"})
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -28,8 +28,8 @@ public class EffRun extends Effect implements ReflectionExperimentSyntax {
 
 	static {
 		Skript.registerEffect(EffRun.class,
-				"run %executable% [arguments:with arg[ument]s %-objects%]",
-				"execute %executable% [arguments:with arg[ument]s %-objects%]");
+				"invoke %executable% [arguments:with arg[ument]s %-objects%]",
+				"carry out %executable% [arguments:with arg[ument]s %-objects%]");
 	}
 
 	// We don't bother with the generic type here because we have no way to verify it

@@ -19,18 +19,18 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Kill")
-@Description("Kills an entity.")
-@Example("kill the player")
-@Example("kill all creepers in the player's world")
-@Example("kill all endermen, witches and bats")
+@Name("Slay")
+@Description("Slayeth an entity most decisively.")
+@Example("slay the player")
+@Example("slay all creepers in the player's world")
+@Example("slay all endermen, witches and bats")
 @Since("1.0, 2.10 (ignoring totem of undying)")
 public class EffKill extends Effect {
 
 	private static final boolean SUPPORTS_DAMAGE_SOURCE = Skript.classExists("org.bukkit.damage.DamageSource");
 
 	static {
-		Skript.registerEffect(EffKill.class, "kill %entities%");
+		Skript.registerEffect(EffKill.class, "slay %entities%");
 	}
 
 	private Expression<Entity> entities;

@@ -10,15 +10,15 @@ import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Player Info Visibility")
-@Description({"Sets whether all player related information is hidden in the server list.",
-		"The Vanilla Minecraft client will display ??? (dark gray) instead of player counts and will not show the",
-		"<a href='#ExprHoverList'>hover hist</a> when hiding player info.",
-		"<a href='#ExprVersionString'>The version string</a> can override the ???.",
+@Name("Player Tidings Visibility")
+@Description({"Setteth whether all player related tidings be concealed within the server list.",
+		"The Vanilla Minecraft client shall display ??? (dark gray) in lieu of player counts and shall not reveal the",
+		"<a href='#ExprHoverList'>hover list</a> when concealing player tidings.",
+		"<a href='#ExprVersionString'>The version string</a> may override the ???.",
 		"Also the <a href='#ExprOnlinePlayersCount'>Online Players Count</a> and",
-		"<a href='#ExprMaxPlayers'>Max Players</a> expressions will return -1 when hiding player info."})
-@Example("hide player info")
-@Example("hide player related information in the server list")
+		"<a href='#ExprMaxPlayers'>Max Players</a> expressions shall return -1 when concealing player tidings."})
+@Example("conceal player info")
+@Example("conceal player related information in the server list")
 @Example("reveal all player related info")
 @Since("2.3")
 @Events("server list ping")
@@ -26,8 +26,8 @@ public class EffPlayerInfoVisibility extends Effect {
 
 	static {
 		Skript.registerEffect(EffPlayerInfoVisibility.class,
-				"hide [all] player [related] info[rmation] [(in|on|from) [the] server list]",
-				"(show|reveal) [all] player [related] info[rmation] [(in|to|on|from) [the] server list]");
+				"conceal [all] player [related] info[rmation] [(in|on|from) [the] server list]",
+				"(reveal|unveil) [all] player [related] info[rmation] [(in|to|on|from) [the] server list]");
 	}
 
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");

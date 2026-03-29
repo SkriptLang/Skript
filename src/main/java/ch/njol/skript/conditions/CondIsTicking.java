@@ -5,8 +5,8 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.*;
 import org.bukkit.entity.Entity;
 
-@Name("Is Ticking")
-@Description("Checks if an entity is ticking.")
+@Name("Doth Tick")
+@Description("Ascertaineth whether an entity doth presently tick within the world's course.")
 @Example("send true if target is ticking")
 @Since("2.10")
 public class CondIsTicking extends PropertyCondition<Entity> {

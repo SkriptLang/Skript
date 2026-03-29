@@ -18,23 +18,23 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.elements.expressions.ExprSecDamageSource.DamageSourceSectionEvent;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Damage Source - Damage Location")
+@Name("Wound's Source — Place of Harm")
 @Description({
-	"The location where the damage was originated from.",
-	"The 'damage location' on vanilla damage sources will be set if an entity did not cause the damage.",
-	"Attributes of a damage source cannot be changed once created, only while within the 'custom damage source' section."
+	"The locale whence the damage did originate.",
+	"The 'wound's locale' upon vanilla damage sources shall be set if no entity caused the harm.",
+	"Attributes of a damage source cannot be altered once forged, only whilst within the 'custom damage source' section."
 })
 @Example("""
-	damage all players by 5 using a custom damage source:
-		set the damage type to magic
-		set the causing entity to {_player}
-		set the direct entity to {_arrow}
-		set the damage location to location(0, 0, 10)
-	""")
+    damage all players by 5 using a custom damage source:
+    	set the damage type to magic
+    	set the causing creature to {_player}
+    	set the direct creature to {_arrow}
+    	set the wound's locale to location(0, 0, 10)
+    """)
 @Example("""
-	on death:
-		set {_location} to the damage location of event-damage source
-	""")
+    on death:
+    	set {_location} to the wound's locale of event-damage source
+    """)
 @Since("2.12")
 public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, Location> {
 
@@ -44,7 +44,7 @@ public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, L
 			infoBuilder(
 				ExprDamageLocation.class,
 				Location.class,
-				"damage location",
+				"wound's locale",
 				"damagesources",
 				true
 			)

@@ -22,14 +22,14 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import java.util.ArrayList;
 import java.util.List;
 
-@Name("Display Brightness")
+@Name("Display Luminance Override")
 @Description({
 	"Returns or changes the brightness override of <a href='#display'>displays</a>.",
-	"Unmodified displays will not have a brightness override value set. Resetting or deleting this value will remove the override.",
-	"Use the 'block' or 'sky' options to get/change specific values or get both values as a list by using neither option.",
-	"NOTE: setting only one of the sky/block light overrides of a display without an existing override will set both sky and block light to the given value. " +
-	"Make sure to set both block and sky levels to your desired values for the best results. " +
-	"Likewise, you can only clear the brightness override, you cannot clear/reset the sky/block values individually."
+	"Unmodified displays shall not possess a brightness override value. Resetting or deleting this value shall remove the override.",
+	"Employ the 'block' or 'sky' options to obtain or change specific values, or procure both values as a list by using neither option.",
+	"NOTE: setting only one of the sky/block light overrides of a display without an existing override shall set both sky and block light to the given value. " +
+	"Pray ensure thou dost set both block and sky levels to thy desired values for the finest results. " +
+	"Likewise, thou canst only clear the brightness override entire; thou canst not clear the sky/block values individually."
 })
 @Example("set sky light override of the last spawned text display to 7")
 @Example("subtract 3 from the block light level override of the last spawned text display")

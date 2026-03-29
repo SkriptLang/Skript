@@ -13,11 +13,11 @@ import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Entity Snapshot")
+@Name("Creature's Portrait")
 @Description({
-	"Returns the entity snapshot of a provided entity, which includes all the data associated with it "
-	    + "(name, health, attributes, etc.) at the time this expression is used.",
-	"Individual attributes of a snapshot cannot be modified or retrieved."
+	"Returneth the entity snapshot of a provided entity, which doth encompass all the data associated therewith "
+	    + "(name, health, attributes, &c.) at the moment this expression is invoked.",
+	"Individual attributes of a snapshot cannot be modified nor retrieved."
 })
 @Example("""
 	spawn a pig at location(0, 0, 0):

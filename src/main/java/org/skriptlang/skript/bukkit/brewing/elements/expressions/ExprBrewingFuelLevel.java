@@ -15,12 +15,12 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Brewing Stand Fuel Level")
-@Description("The fuel level of a brewing stand. The fuel level is decreased by one at the start of brewing each potion.")
+@Name("Brewing Stand Fuel Measure")
+@Description("The fuel measure of a brewing stand. The fuel measure is diminished by one upon the commencement of brewing each potion.")
 @Example("""
-	set the brewing stand fuel level of {_block} to 10
-	clear the brewing stand fuel level of {_block}
-	""")
+    set the brewing stand fuel measure of {_block} to 10
+    clear the brewing stand fuel measure of {_block}
+    """)
 @Since("2.13")
 public class ExprBrewingFuelLevel extends SimplePropertyExpression<Block, Integer> {
 
@@ -30,7 +30,7 @@ public class ExprBrewingFuelLevel extends SimplePropertyExpression<Block, Intege
 			infoBuilder(
 				ExprBrewingFuelLevel.class,
 				Integer.class,
-				"brewing [stand] fuel (level|amount)",
+				"brewing [stand] fuel (measure|amount)",
 				"blocks",
 				true
 			)

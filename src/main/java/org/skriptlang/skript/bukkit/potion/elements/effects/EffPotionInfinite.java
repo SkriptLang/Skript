@@ -8,19 +8,19 @@ import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Potion Effect - Infinite")
+@Name("Potion Effect — Eternal")
 @Description({
-	"Modify whether a potion effect is infinite.",
-	"That is, whether the potion effect will ever expire."
+	"Altereth whether a potion effect is eternal.",
+	"That is to say, whether the potion effect shall ever expire."
 })
-@Example("make the player's potion effects infinite")
+@Example("make the player's potion effects eternal")
 @Since("2.14")
 public class EffPotionInfinite extends PotionPropertyEffect {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffPotionInfinite.class)
 				.supplier(EffPotionInfinite::new)
-				.addPatterns(getPatterns(Type.MAKE, "(infinite|permanent)"))
+				.addPatterns(getPatterns(Type.MAKE, "(eternal|everlasting)"))
 				.build());
 	}
 

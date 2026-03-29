@@ -15,11 +15,11 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Is Spawnable")
+@Name("Be Spawnable")
 @Description("""
-	Whether an entity type can be spawned in a world.
-	Any general types such as 'monster, mob, entity, living entity' etc. will never be spawnable.
-	""")
+    Whether a creature type may be summoned forth into a world.
+    Any general types such as 'monster, mob, entity, living entity' and the like shall never be spawnable.
+    """)
 @Example("""
 	if a pig is spawnable in world "world": # true
 	if a monster can be spawned in {_world}: # false

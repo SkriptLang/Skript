@@ -13,18 +13,18 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Save World")
+@Name("Preserve the World")
 @Description({
-	"Save all worlds or a given world manually.",
-	"Note: saving many worlds at once may possibly cause the server to freeze."
+	"Preserve all worlds or a given world by thine own hand.",
+	"Note: preserving many worlds at once may perchance cause the server to freeze."
 })
-@Example("save \"world_nether\"")
-@Example("save all worlds")
+@Example("preserve \"world_nether\"")
+@Example("preserve all worlds")
 @Since("2.8.0")
 public class EffWorldSave extends Effect {
 
 	static {
-		Skript.registerEffect(EffWorldSave.class, "save [[the] world[s]] %worlds%");
+		Skript.registerEffect(EffWorldSave.class, "preserve [[the] world[s]] %worlds%");
 	}
 
 	private Expression<World> worlds;

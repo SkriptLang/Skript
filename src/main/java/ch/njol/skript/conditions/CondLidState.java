@@ -14,8 +14,8 @@ import org.bukkit.block.Lidded;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Lid Is Open/Closed")
-@Description("Check to see whether lidded blocks (chests, shulkers, etc.) are open or closed.")
+@Name("Lid Be Open or Shut")
+@Description("Ascertaineth whether lidded blocks (chests, shulker boxes, and the like) stand open or shut.")
 @Example("""
 	if the lid of {_chest} is closed:
 		open the lid of {_block}

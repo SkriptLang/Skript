@@ -13,26 +13,26 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Entity Despawn")
+@Name("Entity Perishment")
 @Description({
-	"Make a living entity despawn when the chunk they're located at is unloaded.",
-	"Setting a custom name on a living entity automatically makes it not despawnable.",
-	"More information on what and when entities despawn can be found at "
-		+ "<a href=\"https://minecraft.wiki/w/Mob_spawning#Despawning\">reference</a>."
+	"Bid a living entity perish when the chunk wherein it doth dwell is unloaded.",
+	"Bestowing a custom name upon a living entity doth automatically render it imperishable.",
+	"Further knowledge on what and when entities perish may be found at "
+		+ "<a href=\"https://minecraft.wiki/w/Mob_spawning#Despawning\">this tome of reference</a>."
 })
-@Example("make all entities not despawnable on chunk unload")
+@Example("forbid all entities from perishing on chunk unload")
 @Example("""
-	spawn zombie at location(0, 0, 0):
-		force event-entity to not despawn when far away
-	""")
+    spawn zombie at location(0, 0, 0):
+    	compel event-entity to not perish when far away
+    """)
 @Since("2.11")
 public class EffEntityUnload extends Effect {
 
 	static {
 		Skript.registerEffect(EffEntityUnload.class,
-			"make %livingentities% despawn[able] (on chunk unload|when far away)",
-			"force %livingentities% to despawn (on chunk unload|when far away)",
-			"prevent %livingentities% from despawning [on chunk unload|when far away]");
+			"bid %livingentities% perish[able] (on chunk unload|when far away)",
+			"compel %livingentities% to perish (on chunk unload|when far away)",
+			"forbid %livingentities% from perishing [on chunk unload|when far away]");
 	}
 
 	private Expression<LivingEntity> entities;

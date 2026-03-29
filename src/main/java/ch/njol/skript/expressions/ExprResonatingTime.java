@@ -11,18 +11,18 @@ import org.bukkit.block.Bell;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Resonating Time")
+@Name("Resonating Duration")
 @Description({
-	"Returns the resonating time of a bell.",
-	"A bell will start resonating five game ticks after being rung, and will continue to resonate for 40 game ticks."
+	"Returneth the resonating duration of a bell.",
+	"A bell shall commence its resonance five game ticks after being rung, and shall persist in resonating for forty game ticks."
 })
-@Example("broadcast \"The bell has been resonating for %resonating time of target block%\"")
+@Example("broadcast \"The bell hath been resonating for %resonating duration of target block%\"")
 @Since("2.9.0")
 public class ExprResonatingTime extends SimplePropertyExpression<Block, Timespan> {
 
 	static {
 		if (Skript.classExists("org.bukkit.block.Bell") && Skript.methodExists(Bell.class, "getResonatingTicks")) {
-			register(ExprResonatingTime.class, Timespan.class, "resonat(e|ing) time", "block");
+			register(ExprResonatingTime.class, Timespan.class, "resonat(e|ing) duration", "block");
 		}
 	}
 

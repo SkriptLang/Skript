@@ -12,16 +12,16 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Damage Source - Was Indirectly Caused")
+@Name("Wound's Source — Was Indirectly Wrought")
 @Description({
-	"Whether the damage from a damage source was indirectly caused.",
-	"Vanilla damage sources are considered indirect if the 'causing entity' and the 'direct entity' are not the same. "
-		+ "For example, taking damage from an arrow that was shot by an entity."
+	"Whether the harm from a damage source was indirectly wrought.",
+	"Vanilla damage sources art deemed indirect if the 'causing entity' and the 'direct entity' be not one and the same."
+		+ "For example, suffering harm from an arrow loosed by another creature."
 })
 @Example("""
-	on damage:
-		if event-damage source was indirectly caused:
-	""")
+    on damage:
+    	if event-damage source was indirectly wrought:
+    """)
 @Since("2.12")
 public class CondWasIndirect extends PropertyCondition<DamageSource> {
 
@@ -30,8 +30,8 @@ public class CondWasIndirect extends PropertyCondition<DamageSource> {
 			SyntaxRegistry.CONDITION,
 			SyntaxInfo.builder(CondWasIndirect.class)
 				.addPatterns(
-					"%damagesources% (was|were) ([:in]directly caused|caused [:in]directly)",
-					"%damagesources% (was not|wasn't|were not|weren't) ([:in]directly caused|caused [:in]directly)")
+					"%damagesources% (was|were) ([:in]directly wrought|wrought [:in]directly)",
+					"%damagesources% (was not|wasn't|were not|weren't) ([:in]directly wrought|wrought [:in]directly)")
 				.supplier(CondWasIndirect::new)
 				.build()
 		);

@@ -10,12 +10,12 @@ import org.bukkit.entity.LivingEntity;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Can Age")
-@Description("Checks whether or not an entity will be able to age/grow up.")
+@Description("Discerneth whether an entity shall be able to age and grow unto maturity.")
 @Example("""
-	on breeding:
-		entity can't age
-		broadcast "An immortal has been born!" to player
-	""")
+    on breeding:
+    	entity can't age
+    	broadcast "An immortal hath been born!" to player
+    """)
 @Since("2.10")
 public class CondCanAge extends PropertyCondition<LivingEntity> {
 

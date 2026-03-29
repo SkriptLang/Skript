@@ -16,9 +16,9 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Portal Cooldown")
 @Description({
-	"The amount of time before an entity can use a portal. By default, it is 15 seconds after exiting a nether portal or end gateway.",
-	"Players in survival/adventure get a cooldown of 0.5 seconds, while those in creative get no cooldown.",
-	"Resetting will set the cooldown back to the default 15 seconds for non-player entities and 0.5 seconds for players."
+	"The measure of time ere an entity may again traverse a portal. By default, 'tis 15 seconds after departing a nether portal or end gateway.",
+	"Players in survival or adventure receive a cooldown of half a second, whilst those in creative receive none at all.",
+	"Resetting shall restore the cooldown to the default 15 seconds for non-player entities and half a second for players."
 })
 @Example("""
 	on portal:

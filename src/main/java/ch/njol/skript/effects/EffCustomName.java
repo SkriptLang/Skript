@@ -13,17 +13,17 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Toggle Custom Name Visibility")
-@Description("Toggles the custom name visibility of an entity.")
-@Example("show the custom name of event-entity")
-@Example("hide target's display name")
+@Name("Reveal or Conceal True Name")
+@Description("Revealeth or concealeth the true name of an entity for all to behold.")
+@Example("reveal the true name of event-entity")
+@Example("conceal target's given name")
 @Since("2.10")
 public class EffCustomName extends Effect {
 
 	static {
 		Skript.registerEffect(EffCustomName.class,
-			"(:show|hide) [the] (custom|display)[ ]name of %entities%",
-			"(:show|hide) %entities%'[s] (custom|display)[ ]name");
+			"(show:reveal|conceal) [the] (true|given)[ ]name of %entities%",
+			"(show:reveal|conceal) %entities%'[s] (true|given)[ ]name");
 	}
 
 	private boolean showCustomName;

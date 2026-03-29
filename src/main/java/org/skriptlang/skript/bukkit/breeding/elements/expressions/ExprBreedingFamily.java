@@ -16,12 +16,12 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Breeding Family")
-@Description("Represents family members within a breeding event.")
+@Name("Breeding Kindred")
+@Description("Doth represent the members of a family within the occasion of breeding.")
 @Example("""
-	on breeding:
-		send "When a %breeding mother% and %breeding father% love each other very much, they make a %bred offspring%" to breeder
-	""")
+    on breeding:
+    	send "When a %breeding mother% and %breeding father% doth love each other most dearly, they beget a %bred offspring%" to breeder
+    """)
 @Since("2.10")
 public class ExprBreedingFamily extends SimpleExpression<LivingEntity> {
 

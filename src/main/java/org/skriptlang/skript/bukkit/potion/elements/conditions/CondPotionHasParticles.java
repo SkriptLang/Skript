@@ -8,13 +8,13 @@ import ch.njol.skript.doc.Since;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Potion Effect - Has Particles")
-@Description("Checks whether a potion effect has particles.")
+@Name("Potion Effect — Possesseth Particles")
+@Description("Ascertaineth whether a potion effect doth possess particles.")
 @Example("""
-	on entity potion effect modification:
-		if the potion effect has particles:
-			 hide the particles of event-potioneffecttype for event-entity
-	""")
+    on entity potion effect modification:
+    	if the potion effect has particles:
+    		hide the particles of event-potioneffecttype for event-entity
+    """)
 @Since("2.14")
 public class CondPotionHasParticles extends PropertyCondition<SkriptPotionEffect> {
 

@@ -16,30 +16,30 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Bed")
+@Name("Resting Place")
 @Description({
-	"Returns the bed location of a player, " +
-	"i.e. the spawn point of a player if they ever slept in a bed and the bed still exists and is unobstructed however, " +
-	"you can set the unsafe bed location of players and they will respawn there even if it has been obstructed or doesn't exist anymore " +
-	"and that's the default behavior of this expression otherwise you will need to be specific i.e. <code>safe bed location</code>.",
+	"Returneth the resting place of a player, " +
+	"that is to say, the spawn point of a player shouldst they have e'er slumbered in a bed and the bed still standeth unobstructed; howbeit, " +
+	"thou canst set the unsafe resting place of players and they shall respawn there even if it hath been obstructed or existeth no more, " +
+	"and that be the default comportment of this expression; otherwise thou must needs be particular, i.e. <code>safe resting place locale</code>.",
 	"",
-	"NOTE: Offline players can not have their bed location changed, only online players."
+	"NOTA BENE: Offline players cannot have their resting place altered, only those who walk among us."
 })
 @Example("""
-    if bed of player exists:
-    	teleport player the the player's bed
+    if resting place of player exists:
+    	teleport player the the player's resting place
     else:
     	teleport the player to the world's spawn point
     """)
 @Example("""
-    set the bed location of player to spawn location of world("world") # unsafe/invalid bed location
-    set the safe bed location of player to spawn location of world("world") # safe/valid bed location
+    set the resting place locale of player to spawn location of world("world") # unsafe/improper resting place
+    set the safe resting place locale of player to spawn location of world("world") # safe/proper resting place
     """)
 @Since("2.0, 2.7 (offlineplayers, safe bed)")
 public class ExprBed extends SimplePropertyExpression<OfflinePlayer, Location> {
 
 	static {
-		register(ExprBed.class, Location.class, "[(safe:(safe|valid)|(unsafe|invalid))] bed[s] [location[s]]", "offlineplayers");
+		register(ExprBed.class, Location.class, "[(safe:(safe|proper)|(unsafe|improper))] resting place[s] [locale[s]]", "offlineplayers");
 	}
 
 	private boolean isSafe;

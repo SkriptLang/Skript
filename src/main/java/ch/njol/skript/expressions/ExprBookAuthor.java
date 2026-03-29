@@ -14,7 +14,7 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Book Author")
-@Description("The author of a book.")
+@Description("The author of a book, the scribe who penned the tome.")
 @Example("""
 	on book sign:
 		message "Book Title: %author of event-item%"
@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprBookAuthor extends SimplePropertyExpression<ItemType, String> {
 
 	static {
-		register(ExprBookAuthor.class, String.class, "[book] (author|writer|publisher)", "itemtypes");
+		register(ExprBookAuthor.class, String.class, "[book] (author|scribe|publisher)", "itemtypes");
 	}
 
 	@Nullable

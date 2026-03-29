@@ -16,17 +16,17 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 import java.util.function.Function;
 
-@Name("Vectors - Length")
-@Description("Gets or sets the length of a vector.")
-@Example("send \"%standard length of vector 1, 2, 3%\"")
+@Name("Vectors — Magnitude")
+@Description("Getteth or setteth the magnitude of a vector.")
+@Example("send \"%standard magnitude of vector 1, 2, 3%\"")
 @Example("set {_v} to vector 1, 2, 3")
-@Example("set standard length of {_v} to 2")
-@Example("send \"%standard length of {_v}%\"")
+@Example("set standard magnitude of {_v} to 2")
+@Example("send \"%standard magnitude of {_v}%\"")
 @Since("2.2-dev28")
 public class ExprVectorLength extends SimplePropertyExpression<Vector, Number> {
 
 	static {
-		register(ExprVectorLength.class, Number.class, "(vector|standard|normal) length[s]", "vectors");
+		register(ExprVectorLength.class, Number.class, "(vector|standard|normal) magnitude[s]", "vectors");
 	}
 
 	@Override

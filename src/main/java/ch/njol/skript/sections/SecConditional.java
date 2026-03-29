@@ -30,33 +30,33 @@ import java.util.List;
 
 @Name("Conditionals")
 @Description({
-	"Conditional sections",
-	"if: executed when its condition is true",
-	"else if: executed if all previous chained conditionals weren't executed, and its condition is true",
-	"else: executed if all previous chained conditionals weren't executed",
+	"Conditional sections of judgement",
+	"if: executed when its condition doth hold true",
+	"else if: executed if all prior chained conditionals were not carried out, and its condition doth hold true",
+	"else: executed if all prior chained conditionals were not carried out",
 	"",
-	"parse if: a special case of 'if' condition that its code will not be parsed if the condition is not true",
-	"else parse if: another special case of 'else if' condition that its code will not be parsed if all previous chained " +
-		"conditionals weren't executed, and its condition is true",
+	"parse if: a special case of 'if' condition whereupon the code shall not be parsed if the condition be not true",
+	"else parse if: another special case of 'else if' condition whereupon the code shall not be parsed if all prior chained " +
+		"conditionals were not carried out, and its condition doth hold true",
 })
 @Example("""
-	if player's health is greater than or equal to 4:
-		send "Your health is okay so far but be careful!"
-	else if player's health is greater than 2:
-		send "You need to heal ASAP, your health is very low!"
-	else: # Less than 2 hearts
-		send "You are about to DIE if you don't heal NOW. You have only %player's health% heart(s)!"
-	""")
+    if player's health is greater than or equal to 4:
+    	send "Thy health doth fare well enough, yet tread with care!"
+    else if player's health is greater than 2:
+    	send "Thou must heal with haste, thy health is most perilously low!"
+    otherwise: # Fewer than 2 hearts
+    	send "Thou art upon death's very threshold lest thou heal forthwith. Thou hast only %player's health% heart(s)!"
+    """)
 @Example("""
-	parse if plugin "SomePluginName" is enabled: # parse if %condition%
-		# This code will only be executed if the condition used is met otherwise Skript will not parse this section therefore will not give any errors/info about this section
-	""")
+    parse if plugin "SomePluginName" is enabled: # parse if %condition%
+    	# This code shall only be executed if the condition be met, otherwise Skript shall not parse this section and therefore shall give no errors nor counsel regarding it
+    """)
 @Since("1.0")
 public class SecConditional extends Section {
 
 	private static final SkriptPattern THEN_PATTERN = PatternCompiler.compile("then [run]");
 	private static final Patterns<ConditionalType> CONDITIONAL_PATTERNS = new Patterns<>(new Object[][] {
-		{"else", ConditionalType.ELSE},
+		{"otherwise", ConditionalType.ELSE},
 		{"else [:parse] if <.+>", ConditionalType.ELSE_IF},
 		{"else [:parse] if (:any|any:at least one [of])", ConditionalType.ELSE_IF},
 		{"else [:parse] if [all]", ConditionalType.ELSE_IF},
@@ -348,7 +348,7 @@ public class SecConditional extends Section {
 					yield "else " + parseIf + "if " + (ifAny ? "any" : "all");
 				yield "else " + parseIf + "if " + conditional.toString(event, debug);
 			}
-			case ELSE -> "else";
+			case ELSE -> "otherwise";
 			case THEN -> "then";
 		};
 	}

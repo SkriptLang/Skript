@@ -32,15 +32,15 @@ import org.bukkit.inventory.LlamaInventory;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
-@Name("Equip")
+@Name("Adorn and Disrobe")
 @Description({
-	"Equips or unequips an entity with the given itemtypes (usually armor).",
-	"This effect will replace any armor that the entity is already wearing."
+	"Adorn or disrobe an entity with the given itemtypes (most oft armour).",
+	"This effect shall replace any armour the entity doth presently wear."
 })
-@Example("equip player with diamond helmet")
-@Example("equip player with diamond leggings, diamond chestplate, and diamond boots")
-@Example("unequip diamond chestplate from player")
-@Example("unequip player's armor")
+@Example("adorn player with diamond helmet")
+@Example("adorn player with diamond leggings, diamond chestplate, and diamond boots")
+@Example("disrobe diamond chestplate from player")
+@Example("disrobe player's armor")
 @Since({
 	"1.0, 2.7 (multiple entities, unequip), 2.10 (wolves)",
 	"2.12.1 (happy ghasts)"
@@ -120,10 +120,10 @@ public class EffEquip extends Effect {
 
 	static {
 		Skript.registerEffect(EffEquip.class,
-				"equip [%livingentities%] with %itemtypes%",
-				"make %livingentities% wear %itemtypes%",
-				"unequip %itemtypes% [from %livingentities%]",
-				"unequip %livingentities%'[s] (armo[u]r|equipment)");
+				"adorn [%livingentities%] with %itemtypes%",
+				"make %livingentities% don %itemtypes%",
+				"disrobe %itemtypes% [from %livingentities%]",
+				"disrobe %livingentities%'[s] (armo[u]r|equipment)");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")

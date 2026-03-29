@@ -15,23 +15,23 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Number of Characters")
-@Description("The number of uppercase, lowercase, or digit characters in a string.")
+@Name("Tally of Characters")
+@Description("The tally of uppercase, lowercase, or digit characters within a string.")
 @Example("""
-	#Simple Chat Filter
-	on chat:
-		if number of uppercase chars in message / length of message > 0.5
-			cancel event
-			send "&lt;red&gt;Your message has to many caps!" to player
-	""")
+    #Simple Chat Filter
+    on chat:
+    	if tally of uppercase chars in message / length of message > 0.5
+    		cancel event
+    		send "&lt;red&gt;Thy message doth contain too many capital letters!" to player
+    """)
 @Since("2.5")
 public class ExprNumberOfCharacters extends SimpleExpression<Long> {
 
 	static {
 		Skript.registerExpression(ExprNumberOfCharacters.class, Long.class, ExpressionType.SIMPLE,
-				"number of upper[ ]case char(acters|s) in %string%",
-				"number of lower[ ]case char(acters|s) in %string%",
-				"number of digit char(acters|s) in %string%");
+				"tally of upper[ ]case char(acters|s) in %string%",
+				"tally of lower[ ]case char(acters|s) in %string%",
+				"tally of digit char(acters|s) in %string%");
 	}
 
 	private int pattern = 0;

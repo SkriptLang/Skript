@@ -13,14 +13,14 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Difficulty")
-@Description("The difficulty of a world.")
-@Example("set the difficulty of \"world\" to hard")
+@Name("Tribulation")
+@Description("The tribulation bestowed upon a world.")
+@Example("set the tribulation of \"world\" to hard")
 @Since("2.3")
 public class ExprDifficulty extends SimplePropertyExpression<World, Difficulty> {
 
 	static {
-		register(ExprDifficulty.class, Difficulty.class, "difficult(y|ies)", "worlds");
+		register(ExprDifficulty.class, Difficulty.class, "tribulation(|s)", "worlds");
 	}
 	
 	@Override

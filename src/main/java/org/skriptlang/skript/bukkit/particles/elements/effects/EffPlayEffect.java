@@ -25,34 +25,34 @@ import org.skriptlang.skript.bukkit.particles.particleeffects.ParticleEffect;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Play or Draw an Effect")
+@Name("Conjure or Render an Effect")
 @Description("""
-	Plays or draws a specific effect at a location, to a player, or on an entity.
-	Effects can be:
-	* Particles.
-	* Game effects, which consist of combinations of particles and sounds, like the bone meal particles, \
-	the sound of footsteps on a specific block, or the particles and sound of breaking a splash potion.
-	* Entity effects, which are particles or animations that are entity-specific and can only be played on \
-	a compatible entity. For example, the ravager attack animation can be played with this effect.
-
-	All effects vary significantly in availability from version to version, and some may simply not function on your \
-	version of Minecraft. Some effects, like the death animation entity effect, may cause client glitches and should be \
-	used carefully!
-	""")
-@Example("draw 2 smoke particles at player")
-@Example("force draw 10 red dust particles of size 3 for player")
-@Example("play blue instant splash potion break effect with a view radius of 10")
-@Example("play ravager attack animation on player's target")
+    Conjureth or rendereth a particular effect at a location, unto a player, or upon an entity.
+    Effects may be:
+    * Particles.
+    * Game effects, which consist of combinations of particles and sounds, such as the bone meal particles, \
+    the sound of footsteps upon a specific block, or the particles and sound of shattering a splash potion.
+    * Entity effects, which art particles or animations bound to a specific entity and may only be conjured upon \
+    a compatible creature. For example, the ravager attack animation may be rendered with this effect.
+    
+    All effects do vary most significantly in availability from version to version, and some may simply not function upon thy \
+    version of Minecraft. Certain effects, such as the death animation entity effect, may cause client afflictions and should be \
+    employed with great caution!
+    """)
+@Example("render 2 smoke particles at player")
+@Example("force render 10 red dust particles of size 3 unto player")
+@Example("conjure blue instant splash potion break effect bearing a view radius of 10")
+@Example("conjure ravager attack animation upon player's target")
 @Since("2.14")
 public class EffPlayEffect extends Effect {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffPlayEffect.class)
 				.addPatterns(
-					"[:force] (play|show|draw) %gameeffects/particles% [%-directions% %locations%] [as %-player%]",
-					"[:force] (play|draw) %gameeffects/particles% [%-directions% %locations%] (for|to) %-players% [as %-player%]", // show is omitted to avoid conflicts with EffOpenInv
-					"(play|show|draw) %gameeffects% [%-directions% %locations%] (in|with) [a] [view] (radius|range) [of] %number%",
-					"(play|show|draw) %entityeffects% on %entities%"
+					"[:force] (conjure|manifest|render) %gameeffects/particles% [%-directions% %locations%] [as %-player%]",
+					"[:force] (conjure|render) %gameeffects/particles% [%-directions% %locations%] (unto|before) %-players% [as %-player%]", // show is omitted to avoid conflicts with EffOpenInv
+					"(conjure|manifest|render) %gameeffects% [%-directions% %locations%] (within|bearing) [a] [view] (radius|range) [of] %number%",
+					"(conjure|manifest|render) %entityeffects% upon %entities%"
 				)
 				.supplier(EffPlayEffect::new)
 				.build());

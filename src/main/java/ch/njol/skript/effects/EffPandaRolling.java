@@ -15,19 +15,19 @@ import org.bukkit.entity.Panda;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Make Panda Roll")
-@Description("Make a panda start/stop rolling.")
+@Name("Bid Panda Roll")
+@Description("Bid a panda to commence or cease its rolling.")
 @Example("""
-	if last spawned panda is not rolling:
-		make last spawned panda start rolling
-	""")
+    if last spawned panda is not rolling:
+    	make last spawned panda commence rolling
+    """)
 @Since("2.11")
 public class EffPandaRolling extends Effect {
 
 	static {
 		Skript.registerEffect(EffPandaRolling.class,
-			"make %livingentities% (start:(start rolling|roll)|stop rolling)",
-			"force %livingentities% to (:start|stop) rolling");
+			"make %livingentities% (start:(commence rolling|roll)|cease rolling)",
+			"bid %livingentities% to (start:commence|cease) rolling");
 	}
 
 	private Expression<LivingEntity> entities;

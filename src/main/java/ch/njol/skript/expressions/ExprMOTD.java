@@ -19,19 +19,19 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("MOTD")
-@Description({"The message of the day in the server list. " +
-		"This can be changed in a <a href='#server_list_ping'>server list ping</a> event only.",
-		"'default MOTD' returns the default MOTD always and can't be changed."})
+@Name("Proclamation of the Day")
+@Description({"The proclamation of the day displayed within the server list." +
+		"This may be altered within a <a href='#server_list_ping'>server list ping</a> event alone.",
+		"'default MOTD' returneth the default proclamation evermore and cannot be changed."})
 @Example("""
-	on server list ping:
-		set the motd to "Join now!"
-	""")
+    on server list ping:
+    	set the proclamation of the day to "Come hither and join!"
+    """)
 @Since("2.3")
 public class ExprMOTD extends SimpleExpression<String> {
 
 	static {
-		Skript.registerExpression(ExprMOTD.class, String.class, ExpressionType.SIMPLE, "[the] [(1¦default)|(2¦shown|displayed)] (MOTD|message of [the] day)");
+		Skript.registerExpression(ExprMOTD.class, String.class, ExpressionType.SIMPLE, "[the] [(1¦default)|(2¦shown|displayed)] (MOTD|proclamation of [the] day)");
 	}
 
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");

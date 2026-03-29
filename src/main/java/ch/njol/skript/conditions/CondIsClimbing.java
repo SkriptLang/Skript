@@ -5,20 +5,20 @@ import org.bukkit.entity.LivingEntity;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 
-@Name("Is Climbing")
-@Description("Whether a living entity is climbing, such as a spider up a wall or a player on a ladder.")
+@Name("Is Ascending")
+@Description("Whether a living entity doth climb, such as a spider scaling a wall or a player upon a ladder.")
 @Example("""
-	spawn a spider at location of spawn
-	wait a second
-	if the last spawned spider is climbing:
-		message "The spider is now climbing!"
-	""")
+    spawn a spider at location of spawn
+    wait a second
+    if the last spawned spider is ascending:
+    	message "The spider doth now ascend!"
+    """)
 @RequiredPlugins("Minecraft 1.17+")
 @Since("2.8.0")
 public class CondIsClimbing extends PropertyCondition<LivingEntity> {
 
 	static {
-		register(CondIsClimbing.class, "climbing", "livingentities");
+		register(CondIsClimbing.class, "ascending", "livingentities");
 	}
 
 	@Override

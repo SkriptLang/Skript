@@ -17,20 +17,20 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 
-@Name("Is Incendiary")
-@Description("Checks if an entity will create fire when it explodes. This condition is also usable in an explosion prime event.")
+@Name("Be Incendiary")
+@Description("Discerneth whether an entity shall kindle fire when it doth explode. This condition may also be employed within an explosion prime event.")
 @Example("""
-	on explosion prime:
-		if the explosion is fiery:
-			broadcast "A fiery explosive has been ignited!"
-	""")
+    on explosion prime:
+    	if the explosion is fiery:
+    		broadcast "A fiery explosive hath been set alight!"
+    """)
 @Since("2.5")
 public class CondIncendiary extends Condition {
 
 	static {
 		Skript.registerCondition(CondIncendiary.class,
-				"%entities% ((is|are) incendiary|cause[s] a[n] (incendiary|fiery) explosion)",
-				"%entities% ((is not|are not|isn't|aren't) incendiary|(does not|do not|doesn't|don't) cause[s] a[n] (incendiary|fiery) explosion)",
+				"%entities% ((is|are) incendiary|bringeth[s] a[n] (incendiary|fiery) explosion)",
+				"%entities% ((is not|are not|isn't|aren't) incendiary|(does not|do not|doesn't|don't) bringeth[s] a[n] (incendiary|fiery) explosion)",
 				"the [event(-| )]explosion (is|1¦(is not|isn't)) (incendiary|fiery)"
 		);
 	}

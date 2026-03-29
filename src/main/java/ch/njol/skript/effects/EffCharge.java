@@ -15,8 +15,8 @@ import org.bukkit.entity.WitherSkull;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Charge Entity")
-@Description("Charges or uncharges a creeper or wither skull. A creeper is charged when it has been struck by lightning.")
+@Name("Empower Entity")
+@Description("Chargeth or dischargeth a creeper or wither skull. A creeper is rendered charged when struck by heaven's lightning.")
 @Example("""
 	on spawn of creeper:
 		charge the event-entity
@@ -26,8 +26,8 @@ public class EffCharge extends Effect {
 
 	static {
 		Skript.registerEffect(EffCharge.class,
-				"make %entities% [un:(un|not |non[-| ])](charged|powered)",
-				"[:un](charge|power) %entities%");
+				"render %entities% [un:(un|not |non[-| ])](charged|empowered)",
+				"[:un](charge|empower) %entities%");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")

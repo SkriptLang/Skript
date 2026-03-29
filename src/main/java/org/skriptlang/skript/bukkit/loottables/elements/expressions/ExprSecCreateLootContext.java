@@ -24,15 +24,15 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
 
-@Name("Create Loot Context")
-@Description("Create a loot context.")
+@Name("Conjure a Plunder Context")
+@Description("Conjureth a plunder context.")
 @Example("""
     set {_player} to player
-    set {_context} to a loot context at player:
-        set loot luck value to 10
-        set looter to {_player}
-        set looted entity to last spawned pig
-    give player loot items of loot table "minecraft:entities/iron_golem" with loot context {_context}
+    set {_context} to a plunder context at player:
+        set plundering fortune value to 10
+        set plunderer to {_player}
+        set plundered entity to last spawned pig
+    give player spoils of treasure ledger "minecraft:entities/iron_golem" with loot context {_context}
     """)
 @Since("2.10")
 public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
@@ -41,7 +41,7 @@ public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			SyntaxInfo.Expression.builder(ExprSecCreateLootContext.class, LootContext.class)
-				.addPatterns("[a] loot context %direction% %location%")
+				.addPatterns("[a] plunder context %direction% %location%")
 				.supplier(ExprSecCreateLootContext::new)
 				.build()
 		);

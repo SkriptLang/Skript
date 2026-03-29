@@ -18,17 +18,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
-@Name("Is Script Loaded")
-@Description("Check if the current script, or another script, is currently loaded.")
-@Example("script is loaded")
-@Example("script \"example.sk\" is loaded")
+@Name("Is Script Laden")
+@Description("Doth verify whether the present script, or another script, is currently laden and active.")
+@Example("script is laden")
+@Example("script \"example.sk\" is laden")
 @Since("2.2-dev31")
 public class CondScriptLoaded extends Condition {
 
 	static {
 		Skript.registerCondition(CondScriptLoaded.class,
-				"script[s] [%-strings%] (is|are) loaded",
-				"script[s] [%-strings%] (isn't|is not|aren't|are not) loaded"
+				"script[s] [%-strings%] (is|are) laden",
+				"script[s] [%-strings%] (isn't|is not|aren't|are not) laden"
 		);
 	}
 

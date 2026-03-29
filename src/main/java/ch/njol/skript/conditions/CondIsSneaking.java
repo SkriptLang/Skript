@@ -8,15 +8,15 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-@Name("Is Sneaking")
-@Description("Checks whether a player is sneaking.")
+@Name("Doth Creep About")
+@Description("Ascertaineth whether a player doth creep about in stealth.")
 @Example("""
-	# prevent mobs from seeing sneaking players if they are at least 4 meters apart
-	on target:
-		target is sneaking
-		distance of target and the entity is bigger than 4
-		cancel the event
-	""")
+    # prevent mobs from espying sneaking players if they stand at least 4 metres apart
+    on target:
+    	target is sneaking
+    	distance of target and the entity is bigger than 4
+    	cancel the event
+    """)
 @Since("1.4.4")
 public class CondIsSneaking extends PropertyCondition<Player> {
 	

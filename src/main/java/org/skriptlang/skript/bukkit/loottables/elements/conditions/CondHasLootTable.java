@@ -8,20 +8,20 @@ import ch.njol.skript.doc.Since;
 import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Has Loot Table")
+@Name("Possesseth a Plunder Table")
 @Description(
-	"Checks whether an entity or block has a loot table. "
-	+ "The loot tables of chests will be deleted when the chest is opened or broken."
+	"Discerneth whether an entity or block doth possess a plunder table."
+	+ "The plunder tables of chests shall be struck from existence when the chest is opened or broken asunder."
 )
 @Example("""
-	set event-block to chest
-	if event-block has a loot table:
-		# this will never happen, because it doesn't have a loot table.
-
-	set loot table of event-block to "minecraft:chests/simple_dungeon"
-	if event-block has a loot table:
-		# this will happen, because it now has a loot table.
-	""")
+    set event-block to chest
+    if event-block has a plunder table:
+    	# this shall never come to pass, for it possesseth no plunder table.
+    
+    set plunder table of event-block to "minecraft:chests/simple_dungeon"
+    if event-block has a plunder table:
+    	# this shall come to pass, for it now possesseth a plunder table.
+    """)
 @Since("2.10")
 public class CondHasLootTable extends PropertyCondition<Object> {
 
@@ -31,7 +31,7 @@ public class CondHasLootTable extends PropertyCondition<Object> {
 			infoBuilder(
 				CondHasLootTable.class,
 				PropertyType.HAVE,
-				"[a] loot[ ]table",
+				"[a] plunder table",
 				"blocks/entities"
 			)
 				.supplier(CondHasLootTable::new)

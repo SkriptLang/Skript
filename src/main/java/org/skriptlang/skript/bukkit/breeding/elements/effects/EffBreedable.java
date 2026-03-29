@@ -15,12 +15,12 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Make Breedable")
-@Description("Sets whether or not entities will be able to breed. Only works on animals.")
+@Name("Render Breedable")
+@Description("Doth determine whether or no these creatures shall be permitted to breed. Functions solely upon beasts of the field.")
 @Example("""
-	on spawn of animal:
-		make entity unbreedable
-	""")
+    on spawn of animal:
+    	render entity unbreedable
+    """)
 @Since("2.10")
 public class EffBreedable extends Effect {
 
@@ -29,9 +29,9 @@ public class EffBreedable extends Effect {
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffBreedable.class)
 				.addPatterns(
-					"make %livingentities% breedable",
+					"render %livingentities% breedable",
 					"unsterilize %livingentities%",
-					"make %livingentities% (not |non(-| )|un)breedable",
+					"render %livingentities% (not |non(-| )|un)breedable",
 					"sterilize %livingentities%"
 				)
 				.supplier(EffBreedable::new)

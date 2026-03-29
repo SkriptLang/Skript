@@ -14,15 +14,15 @@ import org.bukkit.block.Sign;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
-@Name("Has Glowing Text")
-@Description("Checks whether a sign (either a block or an item) has glowing text")
-@Example("if target block has glowing text")
+@Name("Hath Luminous Text")
+@Description("Discerneth whether a sign (be it a block or an item) doth bear luminous text.")
+@Example("if target block has luminous text")
 @Since("2.8.0")
 public class CondGlowingText extends PropertyCondition<Object> {
 
 	static {
 		if (Skript.methodExists(Sign.class, "isGlowingText"))
-			register(CondGlowingText.class, PropertyType.HAVE, "glowing text", "blocks/itemtypes");
+			register(CondGlowingText.class, PropertyType.HAVE, "luminous text", "blocks/itemtypes");
 	}
 
 	@Override

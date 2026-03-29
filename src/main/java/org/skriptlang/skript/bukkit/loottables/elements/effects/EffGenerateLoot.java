@@ -22,14 +22,14 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-@Name("Generate Loot")
+@Name("Bring Forth Spoils")
 @Description({
-	"Generates the loot in the specified inventories from a loot table using a loot context. "
-		+ "Not specifying a loot context will use a loot context with a location at the world's origin.",
-	"Note that if the inventory is full, it will cause warnings in the console due to over-filling the inventory."
+	"Bringeth forth the spoils into the specified inventories from a loot table using a loot context."
+		+ "Should no loot context be provided, one shall be conjured with a location at the world's origin.",
+	"Mark well that if the inventory be full, it shall cause warnings in the console due to overfilling."
 })
-@Example("generate loot of loot table \"minecraft:chests/simple_dungeon\" using loot context at player in {_inventory}")
-@Example("generate loot using \"minecraft:chests/shipwreck_supply\" in {_inventory}")
+@Example("bring forth spoils of loot table \"minecraft:chests/simple_dungeon\" using loot context at player in {_inventory}")
+@Example("bring forth spoils using \"minecraft:chests/shipwreck_supply\" in {_inventory}")
 @Since("2.10")
 public class EffGenerateLoot extends Effect {
 
@@ -37,7 +37,7 @@ public class EffGenerateLoot extends Effect {
 		registry.register(
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffGenerateLoot.class)
-				.addPatterns("generate [the] loot (of|using) %loottable% [(with|using) %-lootcontext%] in %inventories%")
+				.addPatterns("bring forth [the] spoils (of|using) %loottable% [(with|using) %-lootcontext%] in %inventories%")
 				.supplier(EffGenerateLoot::new)
 				.build()
 		);

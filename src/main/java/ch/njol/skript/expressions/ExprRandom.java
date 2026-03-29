@@ -26,7 +26,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
 @Name("Random")
-@Description("Gets a random item out of a set, e.g. a random player out of all players online.")
+@Description("Draweth by fortune a random item from a set, e.g. a random player from amongst all players online.")
 @Example("give a diamond to a random player out of all players")
 @Example("give a random item out of all items to the player")
 @Since("1.4.9")

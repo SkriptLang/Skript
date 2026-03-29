@@ -15,19 +15,19 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Pattern;
 
-@Name("Stop Sound")
+@Name("Silence Sound")
 @Description({
-	"Stops specific or all sounds from playing to a group of players. Both Minecraft sound names and " +
+	"Doth silence specific or all sounds from playing unto a gathering of players. Both Minecraft sound names and " +
 	"<a href=\"https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html\">Spigot sound names</a> " +
-	"are supported. Resource pack sounds are supported too. The sound category is 'master' by default. " +
-	"A sound can't be stopped from a different category. ",
+	"are supported. Resource pack sounds are likewise supported. The sound category is 'master' by default. " +
+	"A sound cannot be silenced from a different category.",
 	"",
-	"Please note that sound names can get changed in any Minecraft or Spigot version, or even removed from Minecraft itself."
+	"Pray note that sound names may be altered in any Minecraft or Spigot version, or indeed removed from Minecraft itself."
 })
-@Example("stop sound \"block.chest.open\" for the player")
-@Example("stop playing sounds \"ambient.underwater.loop\" and \"ambient.underwater.loop.additions\" to the player")
-@Example("stop all sounds for all players")
-@Example("stop sound in the record category")
+@Example("silence sound \"block.chest.open\" for the player")
+@Example("cease playing sounds \"ambient.underwater.loop\" and \"ambient.underwater.loop.additions\" to the player")
+@Example("silence all sounds for all players")
+@Example("silence sound in the record category")
 @Since("2.4, 2.7 (stop all sounds)")
 public class EffStopSound extends Effect {
 
@@ -35,8 +35,8 @@ public class EffStopSound extends Effect {
 
 	static {
 		Skript.registerEffect(EffStopSound.class,
-				"stop (all:all sound[s]|sound[s] %-strings%) [(in [the]|from) %-soundcategory%] [(from playing to|for) %players%]",
-				"stop playing sound[s] %strings% [(in [the]|from) %-soundcategory%] [(to|for) %players%]"
+				"silence (all:all sound[s]|sound[s] %-strings%) [(in [the]|from) %-soundcategory%] [(from playing to|for) %players%]",
+				"cease playing sound[s] %strings% [(in [the]|from) %-soundcategory%] [(to|for) %players%]"
 		);
 	}
 

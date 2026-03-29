@@ -8,14 +8,14 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-@Name("Can Fly")
-@Description("Whether a player is allowed to fly.")
-@Example("player can fly")
+@Name("May Take to the Skies")
+@Description("Whether a player is permitted to soar through the heavens.")
+@Example("player can take to the skies")
 @Since("2.3")
 public class CondCanFly extends PropertyCondition<Player> {
 	
 	static {
-		register(CondCanFly.class, PropertyType.CAN, "fly", "players");
+		register(CondCanFly.class, PropertyType.CAN, "take to the skies", "players");
 	}
 	
 	@Override

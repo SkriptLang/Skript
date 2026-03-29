@@ -9,22 +9,22 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
 
-@Name("Command Sender")
+@Name("Decree Herald")
 @Description({
-	"The player or the console who sent a command. Mostly useful in <a href='commands'>commands</a> and <a href='#command'>command events</a>.",
-	"If the command sender is a command block, its location can be retrieved by using %block's location%"
+	"The player or the console who didst issue a decree. Most useful in <a href='commands'>commands</a> and <a href='#command'>command events</a>.",
+	"Shouldst the decree's herald be a command block, its locale may be retrieved by using %block's location%"
 })
-@Example("make the command sender execute \"/say hi!\"")
+@Example("make the decree's herald execute \"/say hi!\"")
 @Example("""
-	on command:
-		log "%executor% used command /%command% %arguments%" to "commands.log"
-	""")
+    on command:
+    	log "%executor% issued decree /%decree% %arguments%" to "commands.log"
+    """)
 @Since("2.0")
 @Events("command")
 public class ExprCommandSender extends EventValueExpression<CommandSender> {
 
 	static {
-		register(ExprCommandSender.class, CommandSender.class, "[command['s]] (sender|executor)");
+		register(ExprCommandSender.class, CommandSender.class, "[decree's] (herald|executor)");
 	}
 
 	public ExprCommandSender() {

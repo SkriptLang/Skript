@@ -39,14 +39,15 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-@Name("Enable/Disable/Unload/Reload Script")
+@Name("Enliven/Quench/Unload/Reload Script")
 @Description("""
-	Enables, disables, unloads, or reloads a script.
-	
-	Disabling a script unloads it and prepends - to its name so it will not be loaded the next time the server restarts.
-	If the script reflection experiment is enabled: unloading a script terminates it and removes it from memory, but does not alter the file.""")
+    Doth enliven, quench, unload, or reload a script.
+    
+    Quenching a script doth unload it and prepend - to its name so it shall not be loaded upon the next awakening of the server.
+    If the script reflection experiment be enabled: unloading a script doth terminate it and cast it from memory, yet doth not alter the file.
+    """)
 @Example("reload script \"test\"")
-@Example("enable script file \"testing\"")
+@Example("enliven script file \"testing\"")
 @Example("unload script file \"script.sk\"")
 @Example("""
 	set {_script} to the script "MyScript.sk"
@@ -57,9 +58,9 @@ public class EffScriptFile extends Effect {
 
 	static {
 		Skript.registerEffect(EffScriptFile.class,
-			"(1:(enable|load)|2:reload|3:disable|4:unload) script [file|named] %string% [print:with errors]",
-			"(1:(enable|load)|2:reload|3:disable|4:unload) skript file %string% [print:with errors]",
-			"(1:(enable|load)|2:reload|3:disable|4:unload) %scripts% [print:with errors]"
+			"(1:(enliven|load)|2:reload|3:quench|4:unload) script [file|named] %string% [print:with errors]",
+			"(1:(enliven|load)|2:reload|3:quench|4:unload) skript file %string% [print:with errors]",
+			"(1:(enliven|load)|2:reload|3:quench|4:unload) %scripts% [print:with errors]"
 		);
 		/*
 			The string-pattern must come first (since otherwise `script X` would match the expression)

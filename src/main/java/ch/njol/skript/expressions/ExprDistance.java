@@ -18,17 +18,17 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Distance")
-@Description("The distance between two points.")
+@Description("The distance betwixt two points upon the stage of the world.")
 @Example("""
-	if the distance between the player and {home::%uuid of player%} is smaller than 20:
-		message "You're very close to your home!"
-	""")
+    if the distance betwixt the player and {home::%uuid of player%} is smaller than 20:
+    	message "Thou art most near unto thy dwelling!"
+    """)
 @Since("1.0")
 public class ExprDistance extends SimpleExpression<Number> {
 	
 	static {
 		Skript.registerExpression(ExprDistance.class, Number.class, ExpressionType.COMBINED,
-				"[the] distance between %location% and %location%");
+				"[the] distance betwixt %location% and %location%");
 	}
 
 	private Expression<Location> loc1, loc2;

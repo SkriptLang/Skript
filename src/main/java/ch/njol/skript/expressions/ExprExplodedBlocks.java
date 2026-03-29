@@ -22,8 +22,8 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-@Name("Exploded Blocks")
-@Description("Get all the blocks that were destroyed in an explode event. Supports add/remove/set/clear/delete blocks.")
+@Name("Blocks Laid Asunder")
+@Description("Obtain all the blocks that were laid asunder in an explode event. Doth support add/remove/set/clear/delete of blocks.")
 @Example("""
 	on explode:
 		loop exploded blocks:

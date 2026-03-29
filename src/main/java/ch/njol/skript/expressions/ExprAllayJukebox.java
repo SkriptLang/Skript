@@ -10,14 +10,14 @@ import org.bukkit.entity.Allay;
 import org.bukkit.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Allay Target Jukebox")
-@Description("The location of the jukebox an allay is set to.")
-@Example("set {_loc} to the target jukebox of last spawned allay")
+@Name("Allay's Favoured Music Box")
+@Description("The location of the music box unto which an allay hath been appointed.")
+@Example("set {_loc} to the target music box of last spawned allay")
 @Since("2.11")
 public class ExprAllayJukebox extends SimplePropertyExpression<LivingEntity, Location> {
 
 	static {
-		registerDefault(ExprAllayJukebox.class, Location.class, "target jukebox", "livingentities");
+		registerDefault(ExprAllayJukebox.class, Location.class, "target music box", "livingentities");
 	}
 
 	@Override

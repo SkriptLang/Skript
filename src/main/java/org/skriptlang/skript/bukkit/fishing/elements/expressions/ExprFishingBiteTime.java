@@ -16,15 +16,15 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Fishing Bite Time")
+@Name("Fishing Bite Tarry")
 @Description({
-	"Returns the time it takes a fish to bite the fishing hook, after it started approaching the hook.",
-	"May return a timespan of 0 seconds. If modifying the value, it should be at least 1 tick.",
+	"Returneth the time it taketh a fish to bite the fishing hook, after it hath begun approaching the hook.",
+	"May return a timespan of 0 seconds. If altering the value, it ought be at least 1 tick.",
 })
 @Example("""
-	on fish approach:
-		set fishing bite time to 5 seconds
-	""")
+    on fish approach:
+    	set fishing bite tarry time to 5 seconds
+    """)
 @Events("Fishing")
 @Since("2.10")
 public class ExprFishingBiteTime extends SimpleExpression<Timespan> {
@@ -32,7 +32,7 @@ public class ExprFishingBiteTime extends SimpleExpression<Timespan> {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			SyntaxInfo.Expression.builder(ExprFishingBiteTime.class, Timespan.class)
-				.addPatterns("fish[ing] bit(e|ing) [wait] time")
+				.addPatterns("fish[ing] bit(e|ing) [tarry] time")
 				.supplier(ExprFishingBiteTime::new)
 				.priority(EventValueExpression.DEFAULT_PRIORITY)
 				.build());

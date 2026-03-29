@@ -10,15 +10,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Last Resource Pack Response")
-@Description("Returns the last resource pack response received from a player.")
-@Example("if player's last resource pack response is deny or download fail:")
+@Name("Last Resource Pack Reply")
+@Description("Returneth the last resource pack reply received from a player.")
+@Example("if player's last resource pack reply is deny or download fail:")
 @Since("2.4")
 public class ExprLastResourcePackResponse extends SimplePropertyExpression<Player, Status> {
 
 	static {
 		if (Skript.methodExists(Player.class, "getResourcePackStatus"))
-			register(ExprLastResourcePackResponse.class, Status.class, "[last] resource pack response[s]", "players");
+			register(ExprLastResourcePackResponse.class, Status.class, "[last] resource pack reply[s]", "players");
 	}
 
 	@Override

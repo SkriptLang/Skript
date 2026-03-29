@@ -22,8 +22,8 @@ import org.skriptlang.skript.lang.comparator.Relation;
 import java.lang.reflect.Array;
 import java.util.Iterator;
 
-@Name("Sorted List")
-@Description("Sorts given list in natural order. All objects in list must be comparable; if they're not, this expression will return nothing.")
+@Name("A List Most Orderly")
+@Description("Sorteth the given list in natural order. All objects within the list must be comparable; shouldst they not be, this expression shall return nothing.")
 @Example("set {_sorted::*} to sorted {_players::*}")
 @Example("""
 	command /leaderboard:

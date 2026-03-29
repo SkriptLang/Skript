@@ -9,8 +9,8 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.registrations.EventValues;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 
-@Name("Quit Reason")
-@Description("The <a href='#quitreason'>quit reason</a> as to why a player disconnected in a <a href='#quit'>quit</a> event.")
+@Name("Departure Reason")
+@Description("The <a href='#quitreason'>reason of departure</a> wherefore a player did disconnect in a <a href='#quit'>quit</a> event.")
 @Example("""
 	on quit:
 		quit reason was kicked

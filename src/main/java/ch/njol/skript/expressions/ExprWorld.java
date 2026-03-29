@@ -23,17 +23,17 @@ import org.jetbrains.annotations.Nullable;
 import static ch.njol.skript.registrations.EventValues.TIME_FUTURE;
 import static ch.njol.skript.registrations.EventValues.TIME_PAST;
 
-@Name("World")
-@Description("The world the event occurred in.")
-@Example("world is \"world_nether\"")
-@Example("teleport the player to the world's spawn")
-@Example("set the weather in the player's world to rain")
-@Example("set {_world} to world of event-chunk")
+@Name("Realm")
+@Description("The realm wherein the event did transpire.")
+@Example("realm is \"world_nether\"")
+@Example("teleport the player to the realm's spawn")
+@Example("set the clime in the player's realm to rain")
+@Example("set {_realm} to realm of event-chunk")
 @Since("1.0")
 public class ExprWorld extends PropertyExpression<Object, World> {
 
 	static {
-		Skript.registerExpression(ExprWorld.class, World.class, ExpressionType.PROPERTY, "[the] world [of %locations/entities/chunk%]", "%locations/entities/chunk%'[s] world");
+		Skript.registerExpression(ExprWorld.class, World.class, ExpressionType.PROPERTY, "[the] realm [of %locations/entities/chunk%]", "%locations/entities/chunk%'[s] realm");
 	}
 	
 	@Override

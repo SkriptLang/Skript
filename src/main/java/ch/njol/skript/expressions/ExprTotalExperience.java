@@ -13,10 +13,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Total Experience")
+@Name("Sum of Experience")
 @Description({
-	"The total experience, in points, of players or experience orbs.",
-	"Adding to a player's experience will trigger Mending, but setting their experience will not."
+	"The total experience, reckoned in points, of players or experience orbs.",
+	"Adding unto a player's experience shall invoke Mending, yet setting their experience shall not."
 })
 @Example("set total experience of player to 100")
 @Example("add 100 to player's experience")

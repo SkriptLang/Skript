@@ -18,23 +18,23 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.elements.expressions.ExprSecDamageSource.DamageSourceSectionEvent;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Damage Source - Damage Type")
+@Name("Wound's Source — Manner of Harm")
 @Description({
-	"The type of damage of a damage source.",
-	"Attributes of a damage source cannot be changed once created, only while within the 'custom damage source' section."
+	"The manner of harm borne by a damage source.",
+	"Attributes of a damage source cannot be altered once forged, only whilst within the 'custom damage source' section."
 })
 @Example("""
-	set {_source} to a custom damage source:
-		set the damage type to magic
-		set the causing entity to {_player}
-		set the direct entity to {_arrow}
-		set the damage location to location(0, 0, 10)
-	damage all players by 5 using {_source}
-	""")
+    set {_source} to a custom damage source:
+    	set the wound's manner to magic
+    	set the causing creature to {_player}
+    	set the direct creature to {_arrow}
+    	set the wound's locale to location(0, 0, 10)
+    damage all players by 5 using {_source}
+    """)
 @Example("""
-	on death:
-		set {_type} to the damage type of event-damage source
-	""")
+    on death:
+    	set {_type} to the wound's manner of event-damage source
+    """)
 @Since("2.12")
 public class ExprDamageType extends SimplePropertyExpression<DamageSource, DamageType> {
 
@@ -44,7 +44,7 @@ public class ExprDamageType extends SimplePropertyExpression<DamageSource, Damag
 			infoBuilder(
 				ExprDamageType.class,
 				DamageType.class,
-				"damage type",
+				"wound's manner",
 				"damagesources",
 				true
 			)

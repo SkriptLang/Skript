@@ -19,24 +19,24 @@ import java.lang.reflect.Array;
 
 import static org.skriptlang.skript.registration.DefaultSyntaxInfos.Expression.builder;
 
-@Name("Particle with Speed/Extra Value")
+@Name("Particle Bearing Swiftness / Extra Value")
 @Description("""
-	Applies a specific 'speed' or 'extra' value to a particle.
-	This value is used in different ways depending on the particle, but in general it:
-	* acts as the speed at which the particle moves if the particle count is greater than 0.
-	* acts as a multiplier to the particle's offset if the particle count is 0.
-	
-	More detailed information on particle behavior can be found at \
-	<a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
-	""")
-@Example("draw an electric spark particle with a particle speed of 0 at player")
-@Example("draw 12 red dust particles with an extra value of 0.4 at player's head location")
+    Applieth a particular 'swiftness' or 'extra' value unto a particle.
+    This value is employed in divers ways depending upon the particle, but in general it:
+    * acteth as the swiftness at which the particle moveth if the particle count be greater than 0.
+    * acteth as a multiplier to the particle's offset if the particle count be 0.
+    
+    More detailed intelligence on particle behaviour may be found at \
+    <a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
+    """)
+@Example("render an electric spark particle bearing a particle swiftness of 0 at player")
+@Example("render 12 red dust particles bearing an extra value of 0.4 at player's head location")
 @Since("2.14")
 public class ExprParticleWithSpeed extends PropertyExpression<ParticleEffect, ParticleEffect> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, builder(ExprParticleWithSpeed.class, ParticleEffect.class)
-			.addPatterns("%particles% with ([a] particle speed [value]|[an] extra value) [of] %number%")
+			.addPatterns("%particles% bearing ([a] particle swiftness [value]|[an] extra value) [of] %number%")
 			.supplier(ExprParticleWithSpeed::new)
 			.priority(SyntaxInfo.COMBINED)
 			.build());

@@ -20,17 +20,17 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Is Within")
+@Name("Doth Lie Within")
 @Description({
-	"Whether a location is within something else. The \"something\" can be a block, an entity, a chunk, a world, " +
-	"or a cuboid formed by two other locations.",
-	"Note that using the <a href='#CondCompare'>is between</a> condition will refer to a straight line " +
-	"between locations, while this condition will refer to the cuboid between locations."
+	"Whether a location doth lie within some other thing. The \"something\" may be a block, an entity, a chunk, a world, " +
+	"or a cuboid formed betwixt two other locations.",
+	"Mark well that employing the <a href='#CondCompare'>is between</a> condition shall refer to a straight line " +
+	"betwixt locations, whilst this condition shall refer to the cuboid betwixt them."
 })
 @Example("""
-	if player's location is within {_loc1} and {_loc2}:
-		send "You are in a PvP zone!" to player
-	""")
+    if player's location is contained betwixt {_loc1} and {_loc2}:
+    	send "You are in a PvP zone!" to player
+    """)
 @Example("""
 	if player is in world("world"):
 		send "You are in the overworld!" to player
@@ -54,10 +54,10 @@ public class CondIsWithin extends Condition {
 
 	static {
 		Skript.registerCondition(CondIsWithin.class,
-				"%locations% (is|are) within %location% and %location%",
-				"%locations% (isn't|is not|aren't|are not) within %location% and %location%",
-				"%locations% (is|are) (within|in[side [of]]) %entities/chunks/worlds/worldborders/blocks%",
-				"%locations% (isn't|is not|aren't|are not) (within|in[side [of]]) %entities/chunks/worlds/worldborders/blocks%"
+				"%locations% (is|are) contained betwixt %location% and %location%",
+				"%locations% (isn't|is not|aren't|are not) contained betwixt %location% and %location%",
+				"%locations% (is|are) (contained within|in[side [of]]) %entities/chunks/worlds/worldborders/blocks%",
+				"%locations% (isn't|is not|aren't|are not) (contained within|in[side [of]]) %entities/chunks/worlds/worldborders/blocks%"
 		);
 	}
 

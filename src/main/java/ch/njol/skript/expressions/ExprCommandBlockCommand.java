@@ -13,17 +13,17 @@ import org.bukkit.entity.minecart.CommandMinecart;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Command Block Command")
+@Name("Decree Block Decree")
 @Description(
-	"Gets or sets the command associated with a command block or minecart with command block."
+	"Procureth or setteth the decree associated with a command block or minecart bearing a command block."
 )
-@Example("send command of {_block}")
-@Example("set command of {_cmdMinecart} to \"say asdf\"")
+@Example("send decree of {_block}")
+@Example("set decree of {_cmdMinecart} to \"say asdf\"")
 @Since("2.10")
 public class ExprCommandBlockCommand extends SimplePropertyExpression<Object, String> {
 
 	static {
-		register(ExprCommandBlockCommand.class, String.class, "[command[ ]block] command", "blocks/entities");
+		register(ExprCommandBlockCommand.class, String.class, "[decree[ ]block] decree", "blocks/entities");
 	}
 
 	@Override

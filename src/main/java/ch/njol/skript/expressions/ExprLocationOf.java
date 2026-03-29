@@ -18,16 +18,16 @@ import ch.njol.util.Kleenean;
 /**
  * @author Peter Güttinger
  */
-@Name("Location")
-@Description({"The location of a block or entity. This not only represents the x, y and z coordinates of the location but also includes the world and the direction an entity is looking " +
-		"(e.g. teleporting to a saved location will make the teleported entity face the same saved direction every time).",
-		"Please note that the location of an entity is at it's feet, use <a href='#ExprEyeLocation'>head location</a> to get the location of the head."})
-@Example("set {home::%uuid of player%} to the location of the player")
-@Example("message \"You home was set to %player's location% in %player's world%.\"")
+@Name("Whereabouts")
+@Description({"The whereabouts of a block or entity. This doth not merely represent the x, y and z coordinates but also includeth the world and the direction an entity doth face " +
+		"(e.g. teleporting to a preserved location shall make the teleported entity face the same preserved direction each time).",
+		"Pray note that the whereabouts of an entity lie at its feet; employ <a href='#ExprEyeLocation'>head location</a> to obtain the location of the head."})
+@Example("set {home::%uuid of player%} to the whereabouts of the player")
+@Example("message \"Thy home hath been set to %player's whereabouts% in %player's world%.\"")
 @Since("")
 public class ExprLocationOf extends WrapperExpression<Location> {
 	static {
-		Skript.registerExpression(ExprLocationOf.class, Location.class, ExpressionType.PROPERTY, "(location|position) of %location%", "%location%'[s] (location|position)");
+		Skript.registerExpression(ExprLocationOf.class, Location.class, ExpressionType.PROPERTY, "(whereabouts|position) of %location%", "%location%'[s] (whereabouts|position)");
 	}
 	
 	@SuppressWarnings({"unchecked", "null"})

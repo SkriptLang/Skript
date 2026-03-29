@@ -19,8 +19,8 @@ import org.bukkit.event.Event;
 import org.bukkit.event.world.SpawnChangeEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Spawn")
-@Description("The spawn point of a world.")
+@Name("The Spawn")
+@Description("The spawn point of a world—the place where all souls first draw breath.")
 @Example("teleport all players to spawn")
 @Example("set the spawn point of \"world\" to the player's location")
 @Since("1.4.2")

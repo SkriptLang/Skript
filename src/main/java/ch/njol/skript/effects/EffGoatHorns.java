@@ -16,10 +16,10 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Goat Horns")
-@Description("Make a goat have or not have a left, right, or both horns.")
-@Example("remove the left horn of last spawned goat")
-@Example("regrow {_goat}'s horns")
-@Example("remove both horns of all goats")
+@Description("Sever or restore a goat's left, right, or both horns.")
+@Example("sever the left horn of last spawned goat")
+@Example("restore {_goat}'s horns")
+@Example("sever both horns of all goats")
 @Since("2.11")
 public class EffGoatHorns extends Effect {
 
@@ -29,10 +29,10 @@ public class EffGoatHorns extends Effect {
 
 	static {
 		Skript.registerEffect(EffGoatHorns.class,
-			"remove [the] (left horn[s]|right:right horn[s]|both:both horns) of %livingentities%",
-			"remove %livingentities%'[s] (left horn[s]|right:right horn[s]|both:horns)",
-			"(regrow|replace) [the] (left horn[s]|right:right horn[s]|both:both horns) of %livingentities%",
-			"(regrow|replace) %livingentities%'[s] (left horn[s]|right:right horn[s]|both:horns)");
+			"sever [the] (left horn[s]|right:right horn[s]|both:both horns) of %livingentities%",
+			"sever %livingentities%'[s] (left horn[s]|right:right horn[s]|both:horns)",
+			"(regrow|restore) [the] (left horn[s]|right:right horn[s]|both:both horns) of %livingentities%",
+			"(regrow|restore) %livingentities%'[s] (left horn[s]|right:right horn[s]|both:horns)");
 	}
 
 	private Expression<LivingEntity> entities;

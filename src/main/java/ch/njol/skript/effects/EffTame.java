@@ -15,7 +15,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Tame / Untame")
-@Description("Tame a tameable entity (horse, parrot, cat, etc.).")
+@Description("Doth tame or untame a tameable creature (horse, parrot, cat, and suchlike).")
 @Example("tame {_horse}")
 @Example("untame {_horse}")
 @Since("2.10")

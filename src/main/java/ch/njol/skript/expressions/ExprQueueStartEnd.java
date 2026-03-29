@@ -18,12 +18,12 @@ import java.util.Arrays;
 
 @Name("Queue Start/End (Experimental)")
 @Description("""
-	Requires the <code>using queues</code> experimental feature flag to be enabled.
-	
-	The first or last element in a queue. Asking for this does <b>not</b> remove the element from the queue.
-	
-	This is designed for use with the <code>add</code> changer: to add or remove elements from the start or the end of the queue.
-	""")
+    Requires the <code>using queues</code> experimental feature flag to be enabled.
+    
+    The first or last element within a queue. Requesting this doth <b>not</b> remove the element from the queue.
+    
+    This is designed for use with the <code>add</code> changer: to append or remove elements from the start or the end of the queue.
+    """)
 @Example("""
 	set {queue} to a new queue
 	add "hello" to {queue}

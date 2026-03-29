@@ -23,11 +23,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@Name("Sent Command List")
+@Name("Dispatched Command Ledger")
 @Description({
-	"The commands that will be sent to the player in a <a href='#send_command_list'>send commands to player event</a>.",
-	"Modifications will affect what commands show up for the player to tab complete. They will not affect what commands the player can actually run.",
-	"Adding new commands to the list is illegal behavior and will be ignored."
+	"The commands that shall be sent unto the player in a <a href='#send_command_list'>send commands to player event</a>.",
+	"Modifications shall affect which commands appear for the player to complete by tabulation. They shall not affect which commands the player may truly execute.",
+	"Adding new commands unto the list is forbidden conduct and shall be disregarded."
 })
 @Example("""
 	on send command list:

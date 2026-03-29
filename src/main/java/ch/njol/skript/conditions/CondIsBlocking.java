@@ -8,18 +8,18 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-@Name("Is Blocking")
-@Description("Checks whether a player is blocking with their shield.")
+@Name("Be Warding")
+@Description("Discerneth whether a player doth ward themselves with their shield.")
 @Example("""
-	on damage of player:
-		victim is blocking
-		damage attacker by 0.5 hearts
-	""")
+    on damage of player:
+    	victim is warding
+    	damage attacker by 0.5 hearts
+    """)
 @Since("unknown (before 2.1)")
 public class CondIsBlocking extends PropertyCondition<Player> {
 	
 	static {
-		register(CondIsBlocking.class, "(blocking|defending) [with [a] shield]", "players");
+		register(CondIsBlocking.class, "(warding|defending) [with [a] shield]", "players");
 	}
 	
 	@Override

@@ -14,16 +14,16 @@ import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Brewing Will Consume Fuel")
+@Name("Brewing Stand Shall Consume Fuel")
 @Description("""
-	Checks if the 'brewing fuel' event will consume fuel.
-	Preventing the fuel from being consumed will keep the fuel item and still add to the fuel level of the brewing stand.
-	""")
+    Ascertaineth whether the 'brewing fuel' occasion shall consume fuel.
+    Preventing the fuel from being consumed shall preserve the fuel item and still augment the fuel level of the brewing stand.
+    """)
 @Example("""
-	on brewing fuel:
-		if the brewing stand will consume the fuel:
-			prevent the brewing stand from consuming the fuel
-	""")
+    on brewing fuel:
+    	if the brewing stand shall consume the fuel:
+    		forbid the brewing stand from consuming the fuel
+    """)
 @Since("2.13")
 @Events("Brewing Fuel")
 public class CondBrewingConsume extends Condition implements EventRestrictedSyntax {
@@ -33,8 +33,8 @@ public class CondBrewingConsume extends Condition implements EventRestrictedSynt
 			SyntaxRegistry.CONDITION,
 			SyntaxInfo.builder(CondBrewingConsume.class)
 				.addPatterns(
-					"[the] brewing stand will consume [the] fuel",
-					"[the] brewing stand (will not|won't) consume [the] fuel"
+					"[the] brewing stand shall consume [the] fuel",
+					"[the] brewing stand (shall not|shan't) consume [the] fuel"
 				)
 				.supplier(CondBrewingConsume::new)
 				.build()

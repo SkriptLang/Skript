@@ -16,19 +16,19 @@ import org.bukkit.entity.Warden;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Make Disturbance")
+@Name("Perceive a Disturbance")
 @Description({
-	"Make a warden sense a disturbance at a location, causing the warden to investigate that area.",
-	"The warden will not investigate if the warden is aggressive towards an entity.",
-	"This effect does not add anger to the warden."
+	"Causeth a warden to perceive a disturbance at a location, compelling the warden to investigate that quarter.",
+	"The warden shall not investigate should it already be wrathful toward an entity.",
+	"This effect doth not add anger unto the warden."
 })
-@Example("make last spawned warden sense a disturbance at location(0, 0, 0)")
+@Example("make last spawned warden perceive a disturbance at location(0, 0, 0)")
 @Since("2.11")
 public class EffWardenDisturbance extends Effect {
 
 	static {
 		Skript.registerEffect(EffWardenDisturbance.class,
-			"make %livingentities% sense [a] disturbance %direction% %location%");
+			"make %livingentities% perceive [a] disturbance %direction% %location%");
 	}
 
 	private Expression<LivingEntity> wardens;

@@ -21,25 +21,25 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-@Name("Copy Into Variable")
+@Name("Transcribe Into Variable")
 @Description({
-	"Copies objects into a variable. When copying a list over to another list, the source list and its sublists are also copied over.",
-	"<strong>Note: Copying a value into a variable/list will overwrite the existing data.</strong>"
+	"Transcribeth objects into a variable. When transcribing a list unto another list, the source list and its sublists art faithfully copied.",
+	"<strong>Note: Transcribing a value into a variable or list shall overwrite whatsoever data existeth therein.</strong>"
 })
 @Example("""
-	set {_foo::bar} to 1
-	set {_foo::sublist::foobar} to "hey"
-	copy {_foo::*} to {_copy::*}
-	broadcast indices of {_copy::*} # bar, sublist
-	broadcast {_copy::bar} # 1
-	broadcast {_copy::sublist::foobar} # "hey!"
-	""")
+    set {_foo::bar} to 1
+    set {_foo::sublist::foobar} to "hey"
+    transcribe {_foo::*} to {_copy::*}
+    proclaim indices of {_copy::*} # bar, sublist
+    proclaim {_copy::bar} # 1
+    proclaim {_copy::sublist::foobar} # "hey!"
+    """)
 @Since("2.8.0")
 @Keywords({"clone", "variable", "list"})
 public class EffCopy extends Effect {
 
 	static {
-		Skript.registerEffect(EffCopy.class, "copy %~objects% [in]to %~objects%");
+		Skript.registerEffect(EffCopy.class, "transcribe %~objects% [in]to %~objects%");
 	}
 
 	private Expression<?> source;

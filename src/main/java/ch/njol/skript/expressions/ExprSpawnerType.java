@@ -19,16 +19,16 @@ import org.bukkit.event.Event;
 import org.bukkit.spawner.TrialSpawnerConfiguration;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Spawner Type")
+@Name("Nature of the Spawner")
 @Description("""
-	The entity type of a spawner (mob spawner).
-	Change the entity type, reset it (pig) or clear it (Minecraft 1.20.0+).
-	""")
+    The entity type of a spawner (mob spawner).
+    Alter the entity type, restore it (pig) or clear it (Minecraft 1.20.0+).
+    """)
 @Example("""
-	on right click:
-		if event-block is a spawner:
-			send "Spawner's type if %spawner type of event-block%" to player
-	""")
+    on right click:
+    	if event-block is a spawner:
+    		send "The spawner's nature is %spawner type of event-block%" to player
+    """)
 @Example("set the creature type of {_spawner} to a trader llama")
 @Example("reset {_spawner}'s entity type # Pig")
 @Example("clear the spawner type of {_spawner} # Minecraft 1.20.0+")

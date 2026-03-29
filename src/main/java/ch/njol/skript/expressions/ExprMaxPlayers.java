@@ -19,9 +19,9 @@ import org.bukkit.event.Event;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Max Players")
-@Description({"The count of max players. This can be changed in a <a href='#server_list_ping'>server list ping</a> event only.",
-		"'real max players' returns the real count of max players of the server and can be modified on Paper 1.16 or later."})
+@Name("Greatest Gathering of Players")
+@Description({"The tally of max players permitted. This may be altered within a <a href='#server_list_ping'>server list ping</a> event alone.",
+		"'true max players' returneth the veritable count of max players upon the server and may be modified on Paper 1.16 or later."})
 @Example("""
 	on server list ping:
 		set the max players count to (online players count + 1)
@@ -31,8 +31,8 @@ public class ExprMaxPlayers extends SimpleExpression<Integer> {
 
 	static {
 		Skript.registerExpression(ExprMaxPlayers.class, Integer.class, ExpressionType.PROPERTY,
-				"[the] [1:(real|default)|2:(fake|shown|displayed)] max[imum] player[s] [count|amount|number|size]",
-				"[the] [1:(real|default)|2:(fake|shown|displayed)] max[imum] (count|amount|number|size) of players"
+				"[the] [1:(true|default)|2:(false|shown|displayed)] max[imum] player[s] [count|amount|number|size]",
+				"[the] [1:(true|default)|2:(false|shown|displayed)] max[imum] (count|amount|number|size) of players"
 			);
 	}
 

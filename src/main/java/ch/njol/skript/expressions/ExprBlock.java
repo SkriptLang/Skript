@@ -23,8 +23,8 @@ import org.skriptlang.skript.lang.converter.ConverterInfo;
  * @author Peter Güttinger
  */
 @Name("Block")
-@Description({"The block involved in the event, e.g. the clicked block or the placed block.",
-		"Can optionally include a direction as well, e.g. 'block above' or 'block in front of the player'."})
+@Description({"The block entangled in the event, such as the block upon which one hath clicked or the block newly placed.",
+		"May optionally include a direction withal, e.g. 'block above' or 'block in front of the player'."})
 @Example("block is iron ore")
 @Example("set block below to air")
 @Example("spawn a creeper above the block")

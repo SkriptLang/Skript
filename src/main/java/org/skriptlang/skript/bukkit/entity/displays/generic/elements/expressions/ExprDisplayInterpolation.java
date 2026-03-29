@@ -18,13 +18,13 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Display Interpolation Delay/Duration")
+@Name("Display Interpolation Tarrying and Duration")
 @Description({
-	"Returns or changes the interpolation delay/duration of <a href='#display'>displays</a>.",
-	"Interpolation duration is the amount of time a display will take to interpolate, or shift, between its current state and a new state.",
-	"Interpolation delay is the amount of ticks before client-side interpolation will commence." +
-	"Setting to 0 seconds will make it immediate.",
-	"Resetting either value will return that value to 0."
+	"Returns or changes the interpolation delay or duration of <a href='#display'>displays</a>.",
+	"Interpolation duration is the measure of time a display shall require to interpolate, or shift, betwixt its present state and a new one.",
+	"Interpolation delay is the number of ticks ere client-side interpolation shall commence." +
+	"Setting to 0 seconds shall render it immediate.",
+	"Resetting either value shall return that value to 0."
 })
 @Example("set interpolation delay of the last spawned text display to 2 ticks")
 @Since("2.10")

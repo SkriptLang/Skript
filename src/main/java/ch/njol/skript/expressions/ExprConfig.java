@@ -16,22 +16,22 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.registrations.experiments.ReflectionExperimentSyntax;
 
-@Name("Config")
+@Name("Tome of Settings")
 @Description({
-	"The Skript config.",
-	"This can be reloaded, or navigated to retrieve options."
+	"The Skript tome of settings.",
+	"This may be reloaded anew, or navigated to retrieve its provisions."
 })
 @Example("""
-	set {_node} to node "language" in the skript config
-	if text value of {_node} is "french":
-		broadcast "Bonjour!"
-	""")
+    set {_node} to node "language" in the skript tome of settings
+    if text value of {_node} is "french":
+    	broadcast "Bonjour!"
+    """)
 @Since("2.10")
 public class ExprConfig extends SimpleExpression<Config> implements ReflectionExperimentSyntax {
 
 	static {
 		Skript.registerExpression(ExprConfig.class, Config.class, ExpressionType.SIMPLE,
-			"[the] [skript] config"
+			"[the] [skript] tome [of settings]"
 		);
 	}
 

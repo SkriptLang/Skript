@@ -18,7 +18,7 @@ public class EvtSpectate extends SkriptEvent {
 
 	static {
 		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent"))
-			Skript.registerEvent("Spectate", EvtSpectate.class, CollectionUtils.array(PlayerStartSpectatingEntityEvent.class, PlayerStopSpectatingEntityEvent.class),
+			Skript.registerEvent("Spectation", EvtSpectate.class, CollectionUtils.array(PlayerStartSpectatingEntityEvent.class, PlayerStopSpectatingEntityEvent.class),
 						"[player] stop spectating [(of|from) %-*entitydatas%]",
 						"[player] (swap|switch) spectating [(of|from) %-*entitydatas%]",
 						"[player] start spectating [of %-*entitydatas%]")

@@ -23,15 +23,15 @@ import org.jetbrains.annotations.Nullable;
 /**
  * @author Peter Güttinger
  */
-@Name("Game Mode")
-@Description("The gamemode of a player. (<a href=\"#gamemode\">Gamemodes</a>)")
-@Example("player's gamemode is survival")
-@Example("set the player's gamemode to creative")
+@Name("Manner of Play")
+@Description("The manner of play of a player. (<a href=\"#gamemode\">Gamemodes</a>)")
+@Example("player's manner of play is survival")
+@Example("set the player's manner of play to creative")
 @Since("1.0")
 public class ExprGameMode extends PropertyExpression<Player, GameMode> {
 	
 	static {
-		Skript.registerExpression(ExprGameMode.class, GameMode.class, ExpressionType.PROPERTY, "[the] game[ ]mode of %players%", "%players%'[s] game[ ]mode");
+		Skript.registerExpression(ExprGameMode.class, GameMode.class, ExpressionType.PROPERTY, "[the] manner[ ]of[ ]play of %players%", "%players%'[s] manner[ ]of[ ]play");
 	}
 	
 	@SuppressWarnings({"unchecked", "null"})

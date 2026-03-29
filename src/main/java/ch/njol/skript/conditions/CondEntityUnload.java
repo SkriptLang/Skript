@@ -7,21 +7,21 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.LivingEntity;
 
-@Name("Can Despawn")
+@Name("Can Vanish")
 @Description({
-	"Check if an entity can despawn when the chunk they're located at is unloaded.",
-	"More information on what and when entities despawn can be found at "
+	"Inspecteth whether an entity may vanish when the chunk wherein it dwelleth is unloaded.",
+	"Further wisdom on what creatures vanish and when may be found at "
 		+ "<a href=\"https://minecraft.wiki/w/Mob_spawning#Despawning\">reference</a>."
 })
 @Example("""
-	if last spawned entity can despawn on chunk unload:
-		make last spawned entity not despawn on chunk unload
-	""")
+    if last spawned entity can vanish on chunk unload:
+    	make last spawned entity not vanish on chunk unload
+    """)
 @Since("2.11")
 public class CondEntityUnload extends PropertyCondition<LivingEntity> {
 
 	static {
-		register(CondEntityUnload.class, PropertyType.CAN, "despawn (on chunk unload|when far away)", "livingentities");
+		register(CondEntityUnload.class, PropertyType.CAN, "vanish (on chunk unload|when far away)", "livingentities");
 	}
 
 	@Override

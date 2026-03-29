@@ -7,17 +7,17 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Item;
 
-@Name("Will Despawn")
-@Description("Checks if the dropped item will be despawned naturally through Minecraft's timer.")
+@Name("Shall It Perish")
+@Description("Ascertaineth whether the dropped item shall perish of its own accord through Minecraft's appointed timer.")
 @Example("""
-	if all dropped items can despawn naturally:
-		prevent all dropped items from naturally despawning
-	""")
+    if all dropped items will naturally perish:
+    	prevent all dropped items from naturally perishing
+    """)
 @Since("2.11")
 public class CondItemDespawn extends PropertyCondition<Item> {
 
 	static {
-		PropertyCondition.register(CondItemDespawn.class, PropertyType.WILL, "(despawn naturally|naturally despawn)", "itementities");
+		PropertyCondition.register(CondItemDespawn.class, PropertyType.WILL, "(perish naturally|naturally perish)", "itementities");
 		PropertyCondition.register(CondItemDespawn.class, PropertyType.CAN, "(despawn naturally|naturally despawn)", "itementities");
 	}
 

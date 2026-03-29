@@ -22,10 +22,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
-@Name("Is Wearing")
-@Description("Checks whether an entity is wearing some items (usually armor).")
-@Example("player is wearing an iron chestplate and iron leggings")
-@Example("target is wearing wolf armor")
+@Name("Be They Adorned")
+@Description("Ascertaineth whether an entity be adorned with certain items (most oft armour).")
+@Example("player is adorned with an iron chestplate and iron leggings")
+@Example("target is adorned with wolf armor")
 @Since("1.0")
 public class CondIsWearing extends Condition {
 
@@ -33,7 +33,7 @@ public class CondIsWearing extends Condition {
 	private static final boolean HAS_BODY_SLOT = Skript.fieldExists(EquipmentSlot.class, "BODY");
 	
 	static {
-		PropertyCondition.register(CondIsWearing.class, "wearing %itemtypes%", "livingentities");
+		PropertyCondition.register(CondIsWearing.class, "adorned with %itemtypes%", "livingentities");
 	}
 	
 	@SuppressWarnings("NotNullFieldNotInitialized")

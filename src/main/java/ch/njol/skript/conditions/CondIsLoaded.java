@@ -19,26 +19,26 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
-@Name("Is Loaded")
+@Name("Be Laden Upon Memory")
 @Description({
-		"Checks whether a world, chunk or script is loaded.",
-		"'chunk at 1, 1' uses chunk coordinates, which are location coords divided by 16."
+		"Doth verify whether a world, chunk, or script hath been laden into memory and standeth ready.",
+		"'chunk at 1, 1' employeth chunk coordinates, which art location coords divided by 16."
 })
-@Example("if chunk at {home::%player's uuid%} is loaded:")
-@Example("if chunk 1, 10 in world \"world\" is loaded:")
-@Example("if world(\"lobby\") is loaded:")
-@Example("if script named \"MyScript.sk\" is loaded:")
+@Example("if chunk at {home::%player's uuid%} is laden upon memory:")
+@Example("if chunk 1, 10 in world \"world\" is laden upon memory:")
+@Example("if world(\"lobby\") is laden upon memory:")
+@Example("if script named \"MyScript.sk\" is laden upon memory:")
 @Since("2.3, 2.5 (revamp with chunk at location/coords), 2.10 (Scripts)")
 @SuppressWarnings("unchecked")
 public class CondIsLoaded extends Condition {
 
 	static {
 		Skript.registerCondition(CondIsLoaded.class,
-			"chunk[s] %directions% [%locations%] (is|are)[(1¦(n't| not))] loaded",
-			"chunk [at] %number%, %number% (in|of) [world] %world% is[(1¦(n't| not))] loaded",
-			"%scripts/worlds% (is|are)[1:(n't| not)] loaded",
-			"script[s] %scripts% (is|are)[1:(n't| not)] loaded",
-			"world[s] %worlds% (is|are)[1:(n't| not)] loaded");
+			"chunk[s] %directions% [%locations%] (is|are)[(1¦(n't| not))] laden upon memory",
+			"chunk [at] %number%, %number% (in|of) [world] %world% is[(1¦(n't| not))] laden upon memory",
+			"%scripts/worlds% (is|are)[1:(n't| not)] laden upon memory",
+			"script[s] %scripts% (is|are)[1:(n't| not)] laden upon memory",
+			"world[s] %worlds% (is|are)[1:(n't| not)] laden upon memory");
 	}
 
 	private Expression<Location> locations;

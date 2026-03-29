@@ -20,16 +20,16 @@ import org.skriptlang.skript.bukkit.particles.registration.EffectInfo;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Game Effects with Data")
+@Name("Game Effects Furnished with Data")
 @Description("""
-	Creates game effects that require some extra information, such as colors, particle counts, or block data.
-	Game effects consist of combinations particles and/or sounds that are used in Minecraft, such as \
-	the bone meal particles, the sound of footsteps on a specific block, or the particles and sound of breaking a splash potion.
-	Game effects not present here do not require data and can be found in the Game Effect type.
-	Data requirements vary from version to version, so these docs are only accurate for the most recent Minecraft \
-	version at time of release.
-	""")
-@Example("play compost success sound effect to player")
+    Fashioneth game effects that do require some further intelligence, such as colours, particle counts, or block data.
+    Game effects consist of combinations of particles and/or sounds employed within Minecraft, such as \
+    the bone meal particles, the sound of footsteps upon a specific block, or the particles and sound of shattering a splash potion.
+    Game effects not present herein require no data and may be found within the Game Effect type.
+    Data requirements do vary from version to version, thus these documents art only accurate for the most recent Minecraft \
+    version at the time of release.
+    """)
+@Example("conjure compost success sound effect unto player")
 @Since("2.14")
 public class ExprGameEffectWithData extends SimpleExpression<GameEffect> {
 

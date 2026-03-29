@@ -9,8 +9,8 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.registrations.EventValues;
 
-@Name("Damage Cause")
-@Description("The <a href='#damagecause'>damage cause</a> of a damage event. Please click on the link for more information.")
+@Name("Cause of Harm")
+@Description("The <a href='#damagecause'>cause of harm</a> in a damage event. Pray click upon the link for further knowledge.")
 @Example("damage cause is lava, fire or burning")
 @Since("2.0")
 public class ExprDamageCause extends EventValueExpression<DamageCause> {

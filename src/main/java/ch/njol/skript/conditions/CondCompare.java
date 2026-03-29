@@ -32,12 +32,12 @@ import org.skriptlang.skript.lang.util.Cyclical;
 
 import java.util.function.Predicate;
 
-@Name("Comparison")
-@Description({"A very general condition, it simply compares two values. Usually you can only compare for equality (e.g. block is/isn't of &lt;type&gt;), " +
-		"but some values can also be compared using greater than/less than. In that case you can also test for whether an object is between two others.",
-		"Note: This is the only element where not all patterns are shown. It has actually another two sets of similar patters, " +
-				"but with <code>(was|were)</code> or <code>will be</code> instead of <code>(is|are)</code> respectively, " +
-				"which check different <a href='#ExprTimeState'>time states</a> of the first expression."})
+@Name("Comparison of Worth")
+@Description({"A most general condition, which doth simply compare two values. Ordinarily thou canst only compare for equality (e.g. block is/isn't of &lt;type&gt;), " +
+		"yet some values may also be compared using greater than or less than. In such a case thou mayest also test whether an object doth lie betwixt two others.",
+		"Note: This is the sole element wherein not all patterns are shown. It hath in truth another two sets of similar patterns, " +
+				"but with <code>(was|were)</code> or <code>will be</code> in place of <code>(is|are)</code> respectively, " +
+				"which do examine different <a href='#ExprTimeState'>time states</a> of the first expression."})
 @Example("the clicked block is a stone slab or a double stone slab")
 @Example("time in the player's world is greater than 8:00")
 @Example("the creature is not an enderman or an ender dragon")

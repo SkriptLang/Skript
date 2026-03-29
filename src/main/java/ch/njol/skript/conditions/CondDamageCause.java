@@ -18,30 +18,30 @@ import ch.njol.util.Kleenean;
 /**
  * @author Peter Güttinger
  */
-@Name("Damage Cause")
-@Description("Tests what kind of damage caused a <a href='#damage'>damage event</a>. Refer to the <a href='#damagecause'>Damage Cause</a> type for a list of all possible causes.")
+@Name("Wound's Origin")
+@Description("Doth test what manner of harm caused a <a href='#damage'>damage occasion</a>. Pray refer to the <a href='#damagecause'>Damage Cause</a> type for a catalogue of all possible causes.")
 @Example("""
-	# make players use their potions of fire resistance whenever they take any kind of fire damage
-	on damage:
-		damage was caused by lava, fire or burning
-		victim is a player
-		victim has a potion of fire resistance
-		cancel event
-		apply fire resistance to the victim for 30 seconds
-		remove 1 potion of fire resistance from the victim
-	""")
+    # make players use their potions of fire resistance whenever they take any kind of fire damage
+    on damage:
+    	wound was wrought by lava, fire or burning
+    	victim is a player
+    	victim has a potion of fire resistance
+    	cancel event
+    	apply fire resistance to the victim for 30 seconds
+    	remove 1 potion of fire resistance from the victim
+    """)
 @Example("""
-	# prevent mobs from dropping items under certain circumstances
-	on death:
-		entity is not a player
-		damage wasn't caused by a block explosion, an attack, a projectile, a potion, fire, burning, thorns or poison
-		clear drops
-	""")
+    # prevent mobs from dropping items under certain circumstances
+    on death:
+    	entity is not a player
+    	wound was not wrought by a block explosion, an attack, a projectile, a potion, fire, burning, thorns or poison
+    	clear drops
+    """)
 @Since("2.0")
 public class CondDamageCause extends Condition {
 	
 	static {
-		Skript.registerCondition(CondDamageCause.class, "[the] damage (was|is|has)(0¦|1¦n('|o)t) [been] (caused|done|made) by %damagecause%");
+		Skript.registerCondition(CondDamageCause.class, "[the] wound (was|is|hath)(0¦|1¦ not) [been] (wrought|caused|dealt) by %damagecause%");
 	}
 	
 	@SuppressWarnings("null")

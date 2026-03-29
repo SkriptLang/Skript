@@ -14,16 +14,16 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Arrows Stuck")
-@Description("The number of arrows stuck in a living entity.")
-@Example("set arrows stuck in player to 5")
+@Name("Arrows Lodged")
+@Description("The number of arrows lodged within a living entity.")
+@Example("set arrows lodged in player to 5")
 @Since("2.5")
 public class ExprArrowsStuck extends SimplePropertyExpression<LivingEntity, Long> {
 
     static {
     	if (Skript.methodExists(LivingEntity.class, "getArrowsStuck")) {
     		Skript.registerExpression(ExprArrowsStuck.class, Long.class, ExpressionType.PROPERTY,
-    				"[number of] arrow[s] stuck in %livingentities%");
+    				"[number of] arrow[s] lodged in %livingentities%");
     	}
     }
 

@@ -12,12 +12,12 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Apply Fishing Lure")
-@Description("Sets whether the lure enchantment should be applied, which reduces the wait time.")
+@Name("Bestow Fishing Lure")
+@Description("Setteth whether the lure enchantment ought be bestowed, which doth lessen the tarrying time.")
 @Example("""
-	on fishing line cast:
-		apply lure enchantment bonus
-	""")
+    on fishing line cast:
+    	bestow lure enchantment boon
+    """)
 @Events("Fishing")
 @Since("2.10")
 public class EffFishingLure extends Effect {
@@ -25,8 +25,8 @@ public class EffFishingLure extends Effect {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffFishingLure.class)
 			.addPatterns(
-				"apply [the] lure enchantment bonus",
-				"remove [the] lure enchantment bonus"
+				"bestow [the] lure enchantment boon",
+				"revoke [the] lure enchantment boon"
 			)
 			.supplier(EffFishingLure::new)
 			.build());

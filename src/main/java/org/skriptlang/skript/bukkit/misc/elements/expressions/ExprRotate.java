@@ -26,30 +26,30 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import java.util.Locale;
 import java.util.Objects;
 
-@Name("Rotated Quaternion/Vector")
+@Name("Revolved Quaternion or Vector")
 @Description({
-	"Rotates a quaternion or vector around an axis a set amount of degrees, or around all 3 axes at once.",
-	"Vectors can only be rotated around the global X/Y/Z axes, or an arbitrary vector axis.",
-	"Quaternions are more flexible, allowing rotation around the global or local X/Y/Z axes, arbitrary vectors, or all 3 local axes at once.",
-	"Global axes are the ones in the Minecraft world. Local axes are relative to how the quaternion is already oriented.",
+	"Revolveth a quaternion or vector about an axis by a set measure of degrees, or about all three axes at once.",
+	"Vectors may only be revolved about the global X/Y/Z axes, or an arbitrary vector axis.",
+	"Quaternions art more versatile, permitting revolution about the global or local X/Y/Z axes, arbitrary vectors, or all three local axes at once.",
+	"Global axes art those of the Minecraft world. Local axes art relative to the quaternion's present orientation.",
 	"",
-	"Note that rotating a quaternion around a vector results in a rotation around the local vector, so results may not be what you expect. " +
-	"For example, rotating around vector(1, 0, 0) is the same as rotating around the local X axis.",
-	"The same applies to rotations by all three axes at once. " +
-	"In addition, rotating around all three axes of a quaternion/display at once will rotate in ZYX order, meaning the Z rotation will be applied first and the X rotation last."
+	"Mark well that revolving a quaternion about a vector doth result in a revolution about the local vector, and thus the outcome may defy expectation." +
+	"For instance, revolving about vector(1, 0, 0) is the selfsame thing as revolving about the local X axis.",
+	"The same doth apply to revolutions by all three axes at once." +
+	"Furthermore, revolving about all three axes of a quaternion or display at once shall proceed in ZYX order, meaning the Z revolution shall be applied first and the X revolution last."
 })
-@Example("set {_new} to {_quaternion} rotated around x axis by 10 degrees")
-@Example("set {_new} to {_vector} rotated around vector(1, 1, 1) by 45")
-@Example("set {_new} to {_quaternion} rotated by x 45, y 90, z 135")
+@Example("set {_new} to {_quaternion} revolved about x axis by 10 degrees")
+@Example("set {_new} to {_vector} revolved about vector(1, 1, 1) by 45")
+@Example("set {_new} to {_quaternion} revolved by x 45, y 90, z 135")
 @Since("2.10")
 public class ExprRotate extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprRotate.class, Object.class, ExpressionType.SIMPLE,
-				"%quaternions/vectors% rotated around [the] [global] (:x|:y|:z)(-| )axis by %number%",
-				"%quaternions% rotated around [the|its|their] local (:x|:y|:z)(-| )ax(i|e)s by %number%",
-				"%quaternions/vectors% rotated around [the] %vector% by %number%",
-				"%quaternions% rotated by x %number%, y %number%(, [and]| and) z %number%");
+				"%quaternions/vectors% revolved about [the] [global] (:x|:y|:z)(-| )axis by %number%",
+				"%quaternions% revolved about [the|its|their] local (:x|:y|:z)(-| )ax(i|e)s by %number%",
+				"%quaternions/vectors% revolved about [the] %vector% by %number%",
+				"%quaternions% revolved by x %number%, y %number%(, [and]| and) z %number%");
 	}
 
 	private Expression<?> toRotate;

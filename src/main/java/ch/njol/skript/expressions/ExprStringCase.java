@@ -17,8 +17,8 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Case Text")
-@Description("Copy of given text in Lowercase, Uppercase, Proper Case, camelCase, PascalCase, Snake_Case, and Kebab-Case")
+@Name("Lettering of Text")
+@Description("A rendition of the given text in Lowercase, Uppercase, Proper Case, camelCase, PascalCase, Snake_Case, or Kebab-Case.")
 @Example("\"Oops!\" in lowercase # oops!")
 @Example("\"oops!\" in uppercase # OOPS!")
 @Example("\"hellO i'm steve!\" in proper case # HellO I'm Steve!")

@@ -19,13 +19,13 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Equippable Component")
 @Description("""
-	The equippable component of an item. Any changes made to the equippable component will be present on the item.
-	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
-	""")
+    The equippable component of an item. Any alterations wrought upon the equippable component shall be manifest upon the item.
+    NOTE: Equippable component elements art experimental. Thus, they art subject to change and may not function as intended.
+    """)
 @Example("""
-	set {_component} to the equippable component of {_item}
-	set the equipment slot of {_component} to helmet slot
-	""")
+    set {_component} to the equippable component of {_item}
+    set the armament slot of {_component} to helmet slot
+    """)
 @Example("clear the equippable component of {_item}")
 @Example("reset the equippable component of {_item}")
 @RequiredPlugins("Minecraft 1.21.2+")

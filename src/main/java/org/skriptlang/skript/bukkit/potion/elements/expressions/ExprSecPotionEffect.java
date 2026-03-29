@@ -35,8 +35,8 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
 
-@Name("New Potion Effect")
-@Description("Create a new potion effect that can be applied to an entity or item type.")
+@Name("Newly Brewed Potion Effect")
+@Description("Conjure a new potion effect that may be bestowed upon an entity or item type.")
 @Example("""
 	set {_potion} to a potion effect of speed 2 for 10 minutes:
 		hide the effect's icon
@@ -49,9 +49,9 @@ import java.util.List;
 	""")
 @Example("add a potion effect of speed 1 to the potion effects of the player")
 @Example("""
-	# creates a potion effect with the properties of an existing potion effect
-	set {_potion} to a potion effect of slowness based on the player's speed effect
-	""")
+    # conjures a potion effect with the properties of an existing potion effect
+    set {_potion} to a potion effect of slowness wrought from the player's speed effect
+    """)
 @Since({"2.5.2", "2.14 (syntax changes, infinite duration support)"})
 public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 
@@ -60,9 +60,9 @@ public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 				.supplier(ExprSecPotionEffect::new)
 				.addPatterns(
 						"[a[n]] [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] [for %-timespan%]",
-						"[an] (infinite|permanent) [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] ",
-						"[an] (infinite|permanent) [:ambient] %potioneffecttype% [[of tier] %-number%] [potion [effect]] ",
-						"[a] potion effect [of %-potioneffecttype%] (from|using|based on) %potioneffect%"
+						"[an] (infinite|everlasting) [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] ",
+						"[an] (infinite|everlasting) [:ambient] %potioneffecttype% [[of tier] %-number%] [potion [effect]] ",
+						"[a] potion effect [of %-potioneffecttype%] (from|using|wrought from) %potioneffect%"
 				)
 				.build());
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprSecPotionEffect.class, SkriptPotionEffect.class)

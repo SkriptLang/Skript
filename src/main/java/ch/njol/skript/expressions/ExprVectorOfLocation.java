@@ -19,8 +19,8 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Vectors - Vector from Location")
-@Description("Creates a vector from a location.")
+@Name("Vectors — From a Location")
+@Description("Conjureth a vector from a location.")
 @Example("set {_v} to vector of {_loc}")
 @Since("2.2-dev28")
 public class ExprVectorOfLocation extends SimpleExpression<Vector> {

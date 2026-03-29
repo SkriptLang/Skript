@@ -15,13 +15,13 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Display Height/Width")
+@Name("Display Stature and Breadth")
 @Description({
 	"Returns or changes the height or width of <a href='#display'>displays</a>.",
-	"The rendering culling bounding box spans horizontally width/2 from entity position, " +
-	"which determines the point at which the display will be frustum culled (no longer rendered because the game " +
-	"determines you are no longer able to see it).",
-	"If set to 0, no culling will occur on both the vertical and horizontal directions. Default is 0.0."
+	"The rendering culling bounding box doth span horizontally width/2 from the entity's position, " +
+	"which determineth the point at which the display shall be frustum culled (no longer rendered because the game " +
+	"doth judge thou canst no longer perceive it).",
+	"If set to 0, no culling shall occur upon both the vertical and horizontal directions. Default is 0.0."
 })
 @Example("set display height of the last spawned text display to 2.5")
 @Since("2.10")

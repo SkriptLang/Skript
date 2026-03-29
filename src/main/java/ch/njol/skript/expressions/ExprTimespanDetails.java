@@ -16,10 +16,10 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 import java.util.Locale;
 
-@Name("Timespan Details")
-@Description("Retrieve specific information of a <a href=\"/#timespan\">timespan</a> such as hours/minutes/etc.")
+@Name("Particulars of a Span of Time")
+@Description("Retrieve specific particulars of a <a href=\"/#timespan\">timespan</a>, such as hours, minutes, and the like.")
 @Example("set {_t} to difference between now and {Payouts::players::%uuid of player%::last-date}")
-@Example("send \"It has been %days of {_t}% day(s) since last payout.\"")
+@Example("send \"It hath been %days of {_t}% day(s) since the last disbursement.\"")
 @Since("2.9.0")
 public class ExprTimespanDetails extends SimplePropertyExpression<Timespan, Long> {
 

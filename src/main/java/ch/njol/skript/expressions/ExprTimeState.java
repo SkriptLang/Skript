@@ -15,22 +15,22 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Former/Future State")
+@Name("Former/Future Guise")
 @Description({
-	"Represents the value of an expression before an event happened or the value it will have directly after the event, e.g. the old or new level respectively in a <a href='#level_change'>level change event</a>.",
-	"Note: The past, future and present states of an expression are sometimes called 'time states' of an expression.",
-	"Note 2: If you don't specify whether to use the past or future state of an expression that has different values, its default value will be used which is usually the value after the event."
+	"Doth represent the value of an expression ere an event came to pass, or the value it shall assume directly after the event, e.g. the old or new level respectively in a <a href='#level_change'>level change event</a>.",
+	"Note: The past, future and present guises of an expression art sometimes called 'time states' of an expression.",
+	"Note 2: If thou dost not specify whether to employ the past or future guise of an expression that hath different values, its default value shall be used, which is customarily the value after the event."
 })
 @Example("""
-	on teleport:
-		former world was "world_nether" # or 'world was'
-		world will be "world" # or 'world after the event is'
-	""")
+    on teleport:
+    	former world was "world_nether" # or 'world was'
+    	world will be "world" # or 'world hence the event is'
+    """)
 @Example("""
-	on tool change:
-		past tool is an axe
-		the tool after the event will be air
-	""")
+    on tool change:
+    	past tool is an axe
+    	the tool henceforth the event will be air
+    """)
 @Example("""
 	on weather change:
 		set {weather::%world%::old} to past weather
@@ -41,8 +41,8 @@ public class ExprTimeState extends WrapperExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprTimeState.class, Object.class, ExpressionType.PROPERTY,
-			"[the] (former|past|old) [state] [of] %~objects%", "%~objects% before [the event]",
-			"[the] (future|to-be|new) [state] [of] %~objects%", "%~objects%(-to-be| after[(wards| the event)])");
+			"[the] (former|past|old) [state] [of] %~objects%", "%~objects% ere [the event]",
+			"[the] (future|to-be|new) [state] [of] %~objects%", "%~objects%(-to-be| hence[(forth| the event)])");
 	}
 
 	@Override

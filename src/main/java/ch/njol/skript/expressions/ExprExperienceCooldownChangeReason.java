@@ -9,18 +9,18 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerExpCooldownChangeEvent.ChangeReason;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Experience Cooldown Change Reason")
+@Name("Experience Cooldown Change Cause")
 @Description({
 	"The <a href='#experiencechangereason'>experience change reason</a> within an " +
 	"<a href='#experience%20cooldown%20change%20event'>experience cooldown change event</a>."
 })
 @Example("""
-	on player experience cooldown change:
-		if xp cooldown change reason is plugin:
-			#Changed by a plugin
-		else if xp cooldown change reason is orb pickup:
-			#Changed by picking up xp orb
-	""")
+    on player experience cooldown change:
+    	if xp cooldown change reason is plugin:
+    		#Altered by a plugin
+    	else if xp cooldown change reason is orb pickup:
+    		#Altered by gathering an xp orb
+    """)
 @Since("2.10")
 public class ExprExperienceCooldownChangeReason extends EventValueExpression<ChangeReason> {
 

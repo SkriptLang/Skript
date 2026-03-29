@@ -19,17 +19,17 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Make Sign Glow")
-@Description("Makes a sign (either a block or item) have glowing text or normal text")
-@Example("make target block of player have glowing text")
+@Name("Bestow Luminous Text Upon a Sign")
+@Description("Cause a sign (be it block or item) to bear luminous text or ordinary text.")
+@Example("make target block of player bear luminous text")
 @Since("2.8.0")
 public class EffGlowingText extends Effect {
 
 	static {
 		if (Skript.methodExists(Sign.class, "setGlowingText", boolean.class)) {
 			Skript.registerEffect(EffGlowingText.class,
-					"make %blocks/itemtypes% have glowing text",
-					"make %blocks/itemtypes% have (normal|non[-| ]glowing) text"
+					"make %blocks/itemtypes% bear luminous text",
+					"make %blocks/itemtypes% bear (ordinary|non[-| ]luminous) text"
 			);
 		}
 	}

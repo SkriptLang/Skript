@@ -14,15 +14,15 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Do Respawn Anchors Work")
-@Description("Checks whether or not respawn anchors work in a world.")
-@Example("respawn anchors work in world \"world_nether\"")
+@Name("Do Respawn Anchors Function")
+@Description("Doth ascertain whether respawn anchors shall function within a given world.")
+@Example("respawn anchors function in world \"world_nether\"")
 @RequiredPlugins("Minecraft 1.16+")
 @Since("2.7")
 public class CondAnchorWorks extends Condition {
 
 	static {
-		Skript.registerCondition(CondAnchorWorks.class, "respawn anchors [do[1:(n't| not)]] work in %worlds%");
+		Skript.registerCondition(CondAnchorWorks.class, "respawn anchors [do[1:(n't| not)]] function in %worlds%");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")

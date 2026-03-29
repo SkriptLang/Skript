@@ -16,9 +16,9 @@ import org.bukkit.Server;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("TPS (ticks per second)")
-@Description("Returns the 3 most recent TPS readings, like the /tps command. " +
-			"This expression is only supported on some server software (PaperSpigot).")
+@Name("Ticks Per Second (TPS)")
+@Description("Returneth the 3 most recent TPS readings, much like the /tps command." +
+			"This expression is only supported upon certain server software (PaperSpigot).")
 @Example("broadcast \"%tps%\"")
 @Since("2.2-dev36")
 public class ExprTPS extends SimpleExpression<Number> {

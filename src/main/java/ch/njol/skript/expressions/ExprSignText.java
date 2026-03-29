@@ -28,8 +28,8 @@ import ch.njol.util.Kleenean;
 /**
  * @author Peter Güttinger
  */
-@Name("Sign Text")
-@Description("A line of text on a sign. Can be changed, but remember that there is a 16 character limit per line (including color codes that use 2 characters each).")
+@Name("Inscription Upon the Sign")
+@Description("A line of text upon a sign. It may be changed, yet remember well that there existeth a limit of 16 characters per line (including colour codes that consume 2 characters each).")
 @Example("""
 	on rightclick on sign:
 		line 2 of the clicked block is "[Heal]":

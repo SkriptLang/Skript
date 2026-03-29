@@ -8,17 +8,17 @@ import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Ghast;
 import org.bukkit.entity.LivingEntity;
 
-@Name("Is Charging Fireball")
-@Description("Check whether a ghast is charging a fireball.")
+@Name("Is Summoning a Fireball")
+@Description("Discerneth whether a ghast doth summon forth a fireball.")
 @Example("""
-	if last spawned ghast is charging fireball:
-		kill last spawned ghast
-	""")
+    if last spawned ghast is summoning fireball:
+    	kill last spawned ghast
+    """)
 @Since("2.11")
 public class CondIsChargingFireball extends PropertyCondition<LivingEntity> {
 
 	static {
-		register(CondIsChargingFireball.class, "charging [a] fireball", "livingentities");
+		register(CondIsChargingFireball.class, "summoning [a] fireball", "livingentities");
 	}
 
 	@Override

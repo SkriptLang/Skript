@@ -18,20 +18,20 @@ import org.bukkit.event.hanging.HangingEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Hanging Entity/Remover")
-@Description("Returns the hanging entity or remover in hanging <a href='#break_mine'>break</a> and <a href='#place'>place</a> events.")
+@Name("Suspended Entity/Remover")
+@Description("Returneth the suspended entity or its remover in hanging <a href='#break_mine'>break</a> and <a href='#place'>place</a> events.")
 @Example("""
-	on break of item frame:
-		if item of hanging entity is diamond pickaxe:
-			cancel event
-			if hanging remover is a player:
-				send "You can't break that item frame!" to hanging remover
-	""")
+    on break of item frame:
+    	if item of suspended entity is diamond pickaxe:
+    		cancel event
+    		if suspended remover is a player:
+    			send "Thou canst not break that item frame!" to suspended remover
+    """)
 @Since("2.6.2")
 public class ExprHanging extends SimpleExpression<Entity> {
 	
 	static {
-		Skript.registerExpression(ExprHanging.class, Entity.class, ExpressionType.SIMPLE, "[the] hanging (entity|:remover)");
+		Skript.registerExpression(ExprHanging.class, Entity.class, ExpressionType.SIMPLE, "[the] suspended (entity|:remover)");
 	}
 
 	private boolean isRemover;

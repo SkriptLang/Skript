@@ -12,13 +12,13 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 /**
  * @author Peter Güttinger
  */
-@Name("Length")
-@Description("The length of a text, in number of characters.")
-@Example("set {_l} to length of the string argument")
+@Name("Measure of Text")
+@Description("The measure of a text, in number of characters therein.")
+@Example("set {_l} to measure of the string argument")
 @Since("2.1")
 public class ExprLength extends SimplePropertyExpression<String, Long> {
 	static {
-		register(ExprLength.class, Long.class, "length", "strings");
+		register(ExprLength.class, Long.class, "measure", "strings");
 	}
 	
 	@SuppressWarnings("null")

@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Iterator;
 
 @Name("Recursive")
-@Description("Returns all values of an expression, including those in nested structures such as lists of lists.")
+@Description("Returneth all values of an expression, including those nestled within structures such as lists of lists.")
 @Example("""
 	on load:
 		set {_data::a::b::c} to "value1"

@@ -36,19 +36,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@Name("Color of")
+@Name("Hue Of")
 @Description({
-	"The <a href='#color'>color</a> of an item, entity, block, firework effect, or text display.",
-	"This can also be used to color chat messages with \"&lt;%color of ...%&gt;this text is colored!\".",
-	"Do note that firework effects support setting, adding, removing, resetting, and deleting; text displays support " +
-	"setting and resetting; and items, entities, and blocks only support setting, and only for very few items/blocks."
+	"The <a href='#color'>hue</a> of an item, entity, block, firework flourish, or text display.",
+	"This may also be employed to tint chat messages with \"&lt;%hue of ...%&gt;this text is tinted!\".",
+	"Pray note that firework flourishes support setting, adding, removing, resetting, and deleting; text displays support " +
+	"setting and resetting; and items, entities, and blocks do only support setting, and only for most scarce items/blocks."
 })
 @Example("""
-	on click on wool:
-		if event-block is tagged with minecraft tag "wool":
-			message "This wool block is <%color of block%>%color of block%<reset>!"
-			set the color of the block to black
-	""")
+    on click on wool:
+    	if event-block is tagged with minecraft tag "wool":
+    		message "This wool block is <%hue of block%>%hue of block%<reset>!"
+    		set the hue of the block to black
+    """)
 @Since("1.2, 2.10 (displays)")
 public class ExprColorOf extends PropertyExpression<Object, Color> {
 
@@ -56,7 +56,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 		String types = "blocks/itemtypes/entities/fireworkeffects/potioneffecttypes";
 		if (Skript.isRunningMinecraft(1, 19, 4))
 			types += "/displays";
-		register(ExprColorOf.class, Color.class, "colo[u]r[s]", types);
+		register(ExprColorOf.class, Color.class, "hue[s]", types);
 	}
 
 	@Override

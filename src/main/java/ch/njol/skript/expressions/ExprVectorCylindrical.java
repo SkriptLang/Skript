@@ -17,8 +17,8 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Vectors - Cylindrical Shape")
-@Description("Forms a 'cylindrical shaped' vector using yaw to manipulate the current point.")
+@Name("Vectors — Cylindrical Form")
+@Description("Fashioneth a 'cylindrical shaped' vector, employing yaw to govern the current point.")
 @Example("""
 	loop 360 times:
 		set {_v} to cylindrical vector radius 1, yaw loop-value, height 2

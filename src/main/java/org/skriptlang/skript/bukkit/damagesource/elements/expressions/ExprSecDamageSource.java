@@ -29,11 +29,11 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@Name("Damage Source")
+@Name("Bespoke Wound's Origin")
 @Description({
-	"Create a custom damage source and change the attributes.",
-	"When setting a 'causing entity' you must also set a 'direct entity'.",
-	"Attributes of a damage source cannot be changed once created, only while within the 'custom damage source' section."
+	"Fashion a custom damage source and alter its attributes.",
+	"When setting a 'causing entity' thou must also set a 'direct entity'.",
+	"Attributes of a damage source cannot be altered once forged, only whilst within the 'custom damage source' section."
 })
 @Example("""
 	set {_source} to a custom damage source:

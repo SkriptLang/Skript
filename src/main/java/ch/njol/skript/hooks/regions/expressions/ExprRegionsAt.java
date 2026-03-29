@@ -23,26 +23,26 @@ import java.util.ArrayList;
 /**
  * @author Peter Güttinger
  */
-@Name("Regions At")
+@Name("Dominions At")
 @Description({
-	"All <a href='#region'>regions</a> at a particular <a href='./classes/#location'>location</a>.",
-	"This expression requires a supported regions plugin to be installed."
+	"All <a href='#region'>dominions</a> at a particular <a href='./classes/#location'>location</a>.",
+	"This expression doth require a supported regions plugin to be installed."
 })
 @Example("""
-	On click on a sign:
-		line 1 of the clicked block is "[region info]"
-		set {_regions::*} to regions at the clicked block
-		if {_regions::*} is empty:
-			message "No regions exist at this sign."
-		else:
-			message "Regions containing this sign: <gold>%{_regions::*}%<r>."
-	""")
+    On click on a sign:
+    	line 1 of the clicked block is "[dominion info]"
+    	set {_dominions::*} to dominions at the clicked block
+    	if {_dominions::*} is empty:
+    		message "No dominions doth exist at this sign."
+    	else:
+    		message "Dominions encompassing this sign: <gold>%{_dominions::*}%<r>."
+    """)
 @Since("2.1")
 @RequiredPlugins("Supported regions plugin")
 public class ExprRegionsAt extends SimpleExpression<Region> {
 	static {
 		Skript.registerExpression(ExprRegionsAt.class, Region.class, ExpressionType.PROPERTY,
-				"[the] region(1¦s|) %direction% %locations%");
+				"[the] dominion(1¦s|) %direction% %locations%");
 	}
 	
 	@SuppressWarnings("null")

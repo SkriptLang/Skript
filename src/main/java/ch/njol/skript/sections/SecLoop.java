@@ -22,59 +22,59 @@ import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.*;
 
-@Name("Loop")
+@Name("Traverse")
 @Description({
-	"Loop sections repeat their code with multiple values.",
+	"Traversal sections do repeat their code with manifold values.",
 	"",
-	"A loop will loop through all elements of the given expression, e.g. all players, worlds, items, etc. " +
-		"The conditions & effects inside the loop will be executed for every of those elements, " +
-		"which can be accessed with ‘loop-<what>’, e.g. <code>send \"hello\" to loop-player</code>. " +
-		"When a condition inside a loop is not fulfilled the loop will start over with the next element of the loop. " +
-		"You can however use <code>stop loop</code> to exit the loop completely and resume code execution after the end of the loop.",
+	"A traversal shall iterate through all elements of the given expression, e.g. all players, worlds, items, et cetera. " +
+		"The conditions & effects within the traversal shall be executed for every one of those elements, " +
+		"which may be accessed with 'loop-<what>', e.g. <code>send \"hail\" to loop-player</code>. " +
+		"When a condition within a traversal is not fulfilled, the traversal shall recommence with the next element. " +
+		"Thou mayest however use <code>stop loop</code> to depart the traversal entirely and resume code execution after its end.",
 	"",
-	"<b>Loopable Values</b>",
-	"All expressions that represent more than one value, e.g. ‘all players’, ‘worlds’, " +
-		"etc., as well as list variables, can be looped. You can also use a list of expressions, e.g. <code>loop the victim " +
-		"and the attacker</code>, to execute the same code for only a few values.",
+	"<b>Traversable Values</b>",
+	"All expressions that represent more than one value, e.g. 'all players', 'worlds', " +
+		"et cetera, as well as list variables, may be traversed. Thou mayest also employ a list of expressions, e.g. <code>traverse the victim " +
+		"and the attacker</code>, to execute the same code for but a few values.",
 	"",
 	"<b>List Variables</b>",
-	"When looping list variables, you can also use <code>loop-index</code> in addition to <code>loop-value</code> inside " +
-		"the loop. <code>loop-value</code> is the value of the currently looped variable, and <code>loop-index</code> " +
-		"is the last part of the variable's name (the part where the list variable has its asterisk *)."
+	"When traversing list variables, thou mayest also use <code>loop-index</code> in addition to <code>loop-value</code> within " +
+		"the traversal. <code>loop-value</code> is the value of the currently traversed variable, and <code>loop-index</code> " +
+		"is the last part of the variable's name (the part where the list variable hath its asterisk *)."
 })
 @Example("""
-	loop all players:
-		send "Hello %loop-player%!" to loop-player
-	""")
+    traverse all players:
+    	send "Hail, %loop-player%!" to loop-player
+    """)
 @Example("""
-	loop items in player's inventory:
-		if loop-item is dirt:
-			set loop-item to air
-	""")
+    traverse items in player's inventory:
+    	if loop-item is dirt:
+    		set loop-item to air
+    """)
 @Example("""
-	loop 10 times:
-		send title "%11 - loop-value%" and subtitle "seconds left until the game begins" to player for 1 second # 10, 9, 8 etc.
-		wait 1 second
-	""")
+    traverse 10 times:
+    	send title "%11 - loop-value%" and subtitle "seconds remain ere the contest doth begin" to player for 1 second # 10, 9, 8 etc.
+    	wait 1 second
+    """)
 @Example("""
-	loop {Coins::*}:
-		set {Coins::%loop-index%} to loop-value + 5 # Same as "add 5 to {Coins::%loop-index%}" where loop-index is the uuid of " +
-		"the player and loop-value is the number of coins for the player
-	""")
+    traverse {Coins::*}:
+    	set {Coins::%loop-index%} to loop-value + 5 # Same as "add 5 to {Coins::%loop-index%}" where loop-index is the uuid of " +
+    	"the player and loop-value is the number of coins for the player
+    """)
 @Example("""
-	loop shuffled (integers between 0 and 8):
-		if all:
-			previous loop-value = 1
-			loop-value = 4
-			next loop-value = 8
-		then:
-			kill all players
-	""")
+    traverse shuffled (integers between 0 and 8):
+    	if all:
+    		previous loop-value = 1
+    		loop-value = 4
+    		next loop-value = 8
+    	then:
+    		kill all players
+    """)
 @Since("1.0")
 public class SecLoop extends LoopSection {
 
 	static {
-		Skript.registerSection(SecLoop.class, "loop %objects%");
+		Skript.registerSection(SecLoop.class, "traverse %objects%");
 	}
 
 	protected @UnknownNullability Expression<?> expression;

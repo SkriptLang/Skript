@@ -20,22 +20,22 @@ import java.util.function.Predicate;
 /**
  * @author Peter Güttinger
  */
-@Name("Is Member/Owner of Region")
-@Description({"Checks whether a player is a member or owner of a particular region.",
-		"This condition requires a supported regions plugin to be installed."})
+@Name("Is Denizen/Lord of Dominion")
+@Description({"Doth ascertain whether a player be a denizen or lord of a particular dominion.",
+		"This condition doth require a supported regions plugin to be installed."})
 @Example("""
-	on region enter:
-		player is the owner of the region
-		message "Welcome back to %region%!"
-		send "%player% just entered %region%!" to all members of the region
-	""")
+    on region enter:
+    	player is the lord of the dominion
+    	message "Welcome back to %region%!"
+    	send "%player% hath just entered %region%!" to all denizens of the dominion
+    """)
 @Since("2.1")
 @RequiredPlugins("Supported regions plugin")
 public class CondIsMember extends Condition {
 	static {
 		Skript.registerCondition(CondIsMember.class,
-				"%offlineplayers% (is|are) (0¦[a] member|1¦[(the|an)] owner) of [[the] region] %regions%",
-				"%offlineplayers% (is|are)(n't| not) (0¦[a] member|1¦[(the|an)] owner) of [[the] region] %regions%");
+				"%offlineplayers% (is|are) (0¦[a] denizen|1¦[(the|a)] lord) of [[the] dominion] %regions%",
+				"%offlineplayers% (is|are)(n't| not) (0¦[a] denizen|1¦[(the|a)] lord) of [[the] dominion] %regions%");
 	}
 
 	@SuppressWarnings("null")

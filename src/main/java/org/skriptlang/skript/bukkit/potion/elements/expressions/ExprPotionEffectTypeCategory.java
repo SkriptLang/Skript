@@ -12,16 +12,16 @@ import org.bukkit.potion.PotionEffectTypeCategory;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Potion Effect Type Category")
+@Name("Potion Effect Type Designation")
 @Description({
 	"An expression to obtain the category of a potion effect type.",
-	"That is, whether the potion effect type is beneficial, harmful, or neutral."
+	"That is to say, whether the potion effect type be beneficial, harmful, or of neutral disposition."
 })
 @Example("""
-	on entity potion effect modification:
-		if the potion effect type category is harmful:
-			 message "You have been afflicted with %potion effect type%"
-	""")
+    on entity potion effect alteration:
+    	if the potion effect type category is harmful:
+    		 message "Thou hast been afflicted with %potion effect type%"
+    """)
 @RequiredPlugins("Minecraft 1.21+")
 @Since("2.14")
 public class ExprPotionEffectTypeCategory extends SimplePropertyExpression<PotionEffectType, PotionEffectTypeCategory> {

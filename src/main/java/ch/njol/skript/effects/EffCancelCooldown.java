@@ -15,27 +15,27 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 
-@Name("Cancel Command Cooldown")
-@Description({"Only usable in commands. Makes it so the current command usage isn't counted towards the cooldown."})
+@Name("Forsake Command Cooldown")
+@Description({"Usable only within commands. Doth ensure the present command invocation be not tallied toward the cooldown."})
 @Example("""
-	command /nick <text>:
-		executable by: players
-		cooldown: 10 seconds
-		trigger:
-			if length of arg-1 is more than 16:
-				# Makes it so that invalid arguments don't make you wait for the cooldown again
-				cancel the cooldown
-				send "Your nickname may be at most 16 characters."
-				stop
-			set the player's display name to arg-1
-	""")
+    command /nick <text>:
+    	executable by: players
+    	cooldown: 10 seconds
+    	trigger:
+    		if length of arg-1 is more than 16:
+    			# Makes it so that invalid arguments don't make you wait for the cooldown again
+    			forsake the cooldown
+    			send "Your nickname may be at most 16 characters."
+    			stop
+    		set the player's display name to arg-1
+    """)
 @Since("2.2-dev34")
 public class EffCancelCooldown extends Effect {
 
 	static {
 		Skript.registerEffect(EffCancelCooldown.class,
-				"(cancel|ignore) [the] [current] [command] cooldown",
-				"un(cancel|ignore) [the] [current] [command] cooldown");
+				"(forsake|disregard) [the] [present] [command] cooldown",
+				"un(forsake|disregard) [the] [present] [command] cooldown");
 	}
 
 	private boolean cancel;

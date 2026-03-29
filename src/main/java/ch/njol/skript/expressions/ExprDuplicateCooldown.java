@@ -15,21 +15,21 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Allay Duplication Cooldown")
+@Name("Allay Duplication Repose")
 @Description({
-	"The cooldown time until an allay can duplicate again naturally.",
-	"Resetting the cooldown time will set the cooldown time to the same amount of time after an allay has duplicated."
+	"The repose period ere an allay may duplicate itself once more by nature's course.",
+	"Resetting the repose period shall set it to the selfsame span of time as after an allay hath duplicated."
 })
-@Example("set {_time} to the duplicate cooldown of last spawned allay")
-@Example("add 5 seconds to the duplication cool down time of last spawned allay")
-@Example("remove 3 seconds from the duplicating cooldown time of last spawned allay")
-@Example("clear the clone cool down of last spawned allay")
-@Example("reset the cloning cool down time of last spawned allay")
+@Example("set {_time} to the duplicate repose of last spawned allay")
+@Example("add 5 seconds to the duplication repose period of last spawned allay")
+@Example("remove 3 seconds from the duplicating repose period of last spawned allay")
+@Example("clear the clone repose of last spawned allay")
+@Example("reset the cloning repose period of last spawned allay")
 @Since("2.11")
 public class ExprDuplicateCooldown extends SimplePropertyExpression<LivingEntity, Timespan> {
 
 	static {
-		registerDefault(ExprDuplicateCooldown.class, Timespan.class, "(duplicat(e|ing|ion)|clon(e|ing)) cool[ ]down [time]", "livingentities");
+		registerDefault(ExprDuplicateCooldown.class, Timespan.class, "(duplicat(e|ing|ion)|clon(e|ing)) repose [period]", "livingentities");
 	}
 
 	@Override

@@ -15,17 +15,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@Name("View Distance")
+@Name("Gaze Reach")
 @Description({
-	"The view distance of a world or a player.",
-	"The view distance of a player is the distance in chunks sent by the server to the player. "
-		+ "This has nothing to do with client side view distance settings.",
-	"View distance is capped between 2 to 32 chunks."
+	"The gaze reach of a world or a player.",
+	"The gaze reach of a player is the distance in chunks dispatched by the server unto the player."
+		+ "This hath naught to do with client-side gaze reach settings.",
+	"Gaze reach is confined betwixt 2 and 32 chunks."
 })
-@Example("set view distance of player to 10")
-@Example("add 50 to the view distance of world \"world\"")
-@Example("reset the view distance of player")
-@Example("clear the view distance of world \"world\"")
+@Example("set gaze reach of player to 10")
+@Example("add 50 to the gaze reach of world \"world\"")
+@Example("reset the gaze reach of player")
+@Example("clear the gaze reach of world \"world\"")
 @Since("2.4, 2.11 (worlds)")
 public class ExprViewDistance extends SimplePropertyExpression<Object, Integer> {
 
@@ -33,7 +33,7 @@ public class ExprViewDistance extends SimplePropertyExpression<Object, Integer> 
 	private static final boolean RUNNING_1_21 = Skript.isRunningMinecraft(1, 21, 0);
 
 	static {
-		register(ExprViewDistance.class, Integer.class, "view distance[s]", "players/worlds");
+		register(ExprViewDistance.class, Integer.class, "gaze reach[es]", "players/worlds");
 	}
 
 	@Override

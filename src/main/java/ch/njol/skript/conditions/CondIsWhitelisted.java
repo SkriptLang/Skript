@@ -15,10 +15,10 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Is Whitelisted")
-@Description("Whether or not the server or a player is whitelisted, or the server is whitelist enforced.")
+@Name("Be It Upon the Whitelist")
+@Description("Whether the server or a player doth stand upon the whitelist, or whether the server's whitelist be enforced.")
 @Example("if the player is whitelisted:")
-@Example("if the server is whitelisted:")
+@Example("if the server is upon the whitelist:")
 @Example("if the server whitelist is enforced:")
 @Since("2.5.2, 2.9.0 (enforce, offline players)")
 @RequiredPlugins("MC 1.17+ (enforce)")
@@ -26,7 +26,7 @@ public class CondIsWhitelisted extends Condition {
 
 	static {
 		Skript.registerCondition(CondIsWhitelisted.class,
-			"[the] server (is|not:(isn't|is not)) (in white[ ]list mode|white[ ]listed)",
+			"[the] server (is|not:(isn't|is not)) (upon the white[ ]list|white[ ]listed)",
 			"%offlineplayers% (is|are|not:(isn't|is not|aren't|are not)) white[ ]listed",
 			"[the] server white[ ]list (is|not:(isn't|is not)) enforced");
 	}

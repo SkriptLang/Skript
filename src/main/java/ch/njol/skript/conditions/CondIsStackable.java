@@ -7,8 +7,8 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-@Name("Is Stackable")
-@Description("Checks whether an item is stackable.")
+@Name("Be Stackable")
+@Description("Ascertaineth whether an item may be stacked together in a pile.")
 @Example("diamond axe is stackable")
 @Example("birch wood is stackable")
 @Example("torch is stackable")

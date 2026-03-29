@@ -26,9 +26,9 @@ import ch.njol.util.StringUtils;
 /**
  * @author Peter Güttinger
  */
-@Name("Creature/Entity/Player/Projectile/Villager/Powered Creeper/etc.")
-@Description({"The entity involved in an event (an entity is a player, a creature or an inanimate object like ignited TNT, a dropped item or an arrow).",
-		"You can use the specific type of the entity that's involved in the event, e.g. in a 'death of a creeper' event you can use 'the creeper' instead of 'the entity'."})
+@Name("Being/Creature/Soul/Projectile/Villager/Charged Creeper/&c.")
+@Description({"The entity embroiled in an event (an entity being a player, a creature, or an inanimate object such as ignited TNT, a dropped item, or an arrow).",
+		"Thou mayest employ the specific type of the entity involved in the event, e.g. in a 'death of a creeper' event thou canst use 'the creeper' in lieu of 'the entity'."})
 @Example("give a diamond sword of sharpness 3 to the player")
 @Example("kill the creeper")
 @Example("kill all powered creepers in the wolf's world")

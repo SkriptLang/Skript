@@ -15,17 +15,17 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Make Fire Resistant")
-@Description("Makes items fire resistant.")
-@Example("make player's tool fire resistant")
-@Example("make {_items::*} not resistant to fire")
+@Name("Render Proof Against Flame")
+@Description("Render items proof against the ravages of fire.")
+@Example("render player's tool proof against flame")
+@Example("render {_items::*} not resistant to fire")
 @RequiredPlugins("Spigot 1.20.5+")
 @Since("2.9.0")
 public class EffFireResistant extends Effect {
 
 	static {
 		if (Skript.methodExists(ItemMeta.class, "setFireResistant", boolean.class)) {
-			Skript.registerEffect(EffFireResistant.class, "make %itemtypes% [:not] (fire resistant|resistant to fire)");
+			Skript.registerEffect(EffFireResistant.class, "render %itemtypes% [:not] (proof against flame|resistant to fire)");
 		}
 	}
 

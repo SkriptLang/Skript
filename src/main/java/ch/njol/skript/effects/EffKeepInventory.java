@@ -16,21 +16,21 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Keep Inventory / Experience")
-@Description("Keeps the inventory or/and experiences of the dead player in a death event.")
+@Name("Preserve Inventory / Experience")
+@Description("Preserveth the inventory or experiences of the fallen player upon a death event.")
 @Example("""
-	on death of a player:
-		if the victim is an op:
-			keep the inventory and experiences
-	""")
+    on death of a player:
+    	if the victim is an op:
+    		preserve the inventory and experiences
+    """)
 @Since("2.4")
 @Events("death")
 public class EffKeepInventory extends Effect {
 
 	static {
 		Skript.registerEffect(EffKeepInventory.class,
-			"keep [the] (inventory|items) [(1:and [e]xp[erience][s] [point[s]])]",
-			"keep [the] [e]xp[erience][s] [point[s]] [(1:and (inventory|items))]");
+			"preserve [the] (inventory|items) [(1:and [e]xp[erience][s] [point[s]])]",
+			"preserve [the] [e]xp[erience][s] [point[s]] [(1:and (inventory|items))]");
 	}
 
 	private boolean keepItems, keepExp;

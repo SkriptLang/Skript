@@ -28,11 +28,11 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
 
 @Name("Blocks")
-@Description({"Blocks relative to other blocks or between other blocks.",
-	"Can be used to get blocks relative to other blocks or for looping.",
-	"Blocks from/to and between will return a straight line whereas blocks within will return a cuboid."})
+@Description({"Blocks relative unto other blocks or betwixt other blocks.",
+	"May be employed to obtain blocks relative unto other blocks or for looping thereupon.",
+	"Blocks from/to and betwixt shall yield a straight line, whereas blocks within shall yield a cuboid."})
 @Example("loop blocks above the player:")
-@Example("loop blocks between the block below the player and the targeted block:")
+@Example("loop blocks betwixt the block below the player and the targeted block:")
 @Example("set the blocks below the player, the victim and the targeted block to air")
 @Example("set all blocks within {loc1} and {loc2} to stone")
 @Example("set all blocks within chunk at player to air")
@@ -44,9 +44,9 @@ public class ExprBlocks extends SimpleExpression<Block> {
 	static {
 		Skript.registerExpression(ExprBlocks.class, Block.class, ExpressionType.COMBINED,
 				"[(all [[of] the]|the)] blocks %direction% [%locations%]",
-				"[(all [[of] the]|the)] blocks from %location% [on] %direction%",
+				"[(all [[of] the]|the)] blocks from %location% [upon] %direction%",
 				"[(all [[of] the]|the)] blocks from %location% to %location%",
-				"[(all [[of] the]|the)] blocks between %location% and %location%",
+				"[(all [[of] the]|the)] blocks betwixt %location% and %location%",
 				"[(all [[of] the]|the)] blocks within %location% and %location%",
 				"[(all [[of] the]|the)] blocks (in|within) %chunk%");
 	}

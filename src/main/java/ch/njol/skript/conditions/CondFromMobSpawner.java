@@ -8,19 +8,19 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Entity;
 
-@Name("Is From A Mob Spawner")
-@Description("Checks if an entity was spawned from a mob spawner.")
-@Example("send whether target is from a mob spawner")
+@Name("Be Born of a Mob Spawner")
+@Description("Ascertaineth whether an entity was brought forth from a mob spawner.")
+@Example("send whether target is born of a mob spawner")
 @Since("2.10")
 public class CondFromMobSpawner extends PropertyCondition<Entity> {
 
 	static {
 		if (Skript.methodExists(Entity.class, "fromMobSpawner"))
 			Skript.registerCondition(CondFromMobSpawner.class,
-				"%entities% (is|are) from a [mob] spawner",
-				"%entities% (isn't|aren't|is not|are not) from a [mob] spawner",
-				"%entities% (was|were) spawned (from|by) a [mob] spawner",
-				"%entities% (wasn't|weren't|was not|were not) spawned (from|by) a [mob] spawner");
+				"%entities% (is|are) born of a [mob] spawner",
+				"%entities% (isn't|aren't|is not|are not) born of a [mob] spawner",
+				"%entities% (was|were) brought forth (from|by) a [mob] spawner",
+				"%entities% (wasn't|weren't|was not|were not) brought forth (from|by) a [mob] spawner");
 	}
 
 	@Override

@@ -23,17 +23,17 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Drop")
-@Description("Drops one or more items.")
+@Name("Cast Down")
+@Description("Casteth down one or more items upon the ground.")
 @Example("""
-	on death of creeper:
-		drop 1 TNT
-	""")
+    on death of creeper:
+    	cast down 1 TNT
+    """)
 @Since("1.0")
 public class EffDrop extends Effect {
 
 	static {
-		Skript.registerEffect(EffDrop.class, "drop %itemtypes/experiences% [%directions% %locations%] [(1¦without velocity)]");
+		Skript.registerEffect(EffDrop.class, "cast down %itemtypes/experiences% [%directions% %locations%] [(1¦bereft of velocity)]");
 	}
 
 	@Nullable

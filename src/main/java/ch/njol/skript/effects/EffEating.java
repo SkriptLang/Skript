@@ -13,12 +13,12 @@ import org.bukkit.entity.Panda;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Force Eating")
-@Description("Make a panda or horse type (horse, camel, donkey, llama, mule) start/stop eating.")
+@Name("Compel Feasting")
+@Description("Bid a panda or horse-kind (horse, camel, donkey, llama, mule) commence or cease their feasting.")
 @Example("""
-	if last spawned panda is eating:
-		make last spawned panda stop eating
-	""")
+    if last spawned panda is eating:
+    	bid last spawned panda stop feasting
+    """)
 @Since("2.11")
 public class EffEating extends Effect {
 
@@ -26,8 +26,8 @@ public class EffEating extends Effect {
 
 	static {
 		Skript.registerEffect(EffEating.class,
-			"make %livingentities% (:start|stop) eating",
-			"force %livingentities% to (:start|stop) eating");
+			"bid %livingentities% (:start|stop) feasting",
+			"compel %livingentities% to (:start|stop) feasting");
 	}
 
 	private Expression<LivingEntity> entities;

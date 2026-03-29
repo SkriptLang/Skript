@@ -21,30 +21,30 @@ import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-@Name("Transformed List")
+@Name("Transmuted Catalogue")
 @Description({
-	"Transforms (or 'maps') a list's values using a given expression. This is akin to looping over the list and getting " +
-	"a modified version of each value.",
-	"If the given expression returns a single value, the indices of the list will not change. If the expression returns " +
-	"multiple values, then then indices will be reset as a single index cannot contain multiple values.",
+	"Transmuteth (or 'mappeth') the values of a list by means of a given expression. This is akin to traversing the list and obtaining" +
+	"a modified rendition of each value.",
+	"If the given expression doth return a single value, the indices of the list shall remain unchanged. If the expression returneth" +
+	"multiple values, then the indices shall be reset, for a single index cannot harbour multiple values.",
 })
 @Example("""
-	set {_a::*} to (1, 2, and 3) transformed using (input * 2 - 1, input * 2)
-	# {_a::*} is now 1, 2, 3, 4, 5, and 6
-	""")
+    set {_a::*} to (1, 2, and 3) transmuted by means of (input * 2 - 1, input * 2)
+    # {_a::*} is now 1, 2, 3, 4, 5, and 6
+    """)
 @Example("""
-	# get a list of the sizes of all clans without manually looping
-	set {_clan-sizes::*} to keyed {clans::*} transformed using [{clans::%input index%::size}]
-	# using the 'keyed' expression retains the indices of the clans list
-	""")
+    # procure a list of the sizes of all clans without manually traversing
+    set {_clan-sizes::*} to keyed {clans::*} transmuted by means of [{clans::%input index%::size}]
+    # employing the 'keyed' expression retaineth the indices of the clans list
+    """)
 @Since("2.10")
 @Keywords("input")
 public class ExprTransform extends SimpleExpression<Object> implements InputSource, KeyProviderExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprTransform.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
-				"%objects% (transformed|mapped) (using|with) \\[<.+>\\]",
-				"%objects% (transformed|mapped) (using|with) \\(<.+>\\)"
+				"%objects% (transmuted|mapped) (by means of|with) \\[<.+>\\]",
+				"%objects% (transmuted|mapped) (by means of|with) \\(<.+>\\)"
 			);
 		if (!ParserInstance.isRegistered(InputData.class))
 			ParserInstance.registerData(InputData.class, InputData::new);

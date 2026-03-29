@@ -15,17 +15,17 @@ import org.bukkit.event.Event;
 import org.bukkit.metadata.Metadatable;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Has Metadata")
-@Description("Checks whether a metadata holder has a metadata tag.")
-@Example("if player has metadata value \"healer\":")
+@Name("Hath Metadata")
+@Description("Examineth whether a metadata holder doth bear a metadata tag.")
+@Example("if player has metadata mark \"healer\":")
 @Since("2.2-dev36")
 @SuppressWarnings("null")
 public class CondHasMetadata extends Condition {
 
 	static {
 		Skript.registerCondition(CondHasMetadata.class,
-				"%metadataholders% (has|have) metadata [(value|tag)[s]] %strings%",
-				"%metadataholders% (doesn't|does not|do not|don't) have metadata [(value|tag)[s]] %strings%"
+				"%metadataholders% (has|have) metadata [(mark|tag)[s]] %strings%",
+				"%metadataholders% (doesn't|does not|do not|don't) have metadata [(mark|tag)[s]] %strings%"
 		);
 	}
 	

@@ -20,10 +20,10 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 
-@Name("Enforce Whitelist")
+@Name("Enforce the Whitelist")
 @Description({
-	"Enforces or un-enforce a server's whitelist.",
-	"All non-whitelisted players will be kicked upon enforcing the whitelist."
+	"Doth enforce or unenforce the server's whitelist.",
+	"All souls not upon the whitelist shall be cast out upon its enforcement."
 })
 @Example("enforce the whitelist")
 @Example("unenforce the whitelist")

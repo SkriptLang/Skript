@@ -17,25 +17,25 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Targeted Block")
+@Name("Block Aimed Upon")
 @Description({
-	"The block at the crosshair. This regards all blocks that are not air as fully solid, e.g. torches will be like a solid stone block for this expression.",
-	"The actual target block will regard the actual hit box of the block."
+	"The block upon which the crosshair doth rest. This expression regardeth all blocks that are not air as fully solid, e.g. torches shall be as a solid stone block.",
+	"The actual aimed-at block shall regard the true bounding shape of the block."
 })
-@Example("set target block of player to stone")
-@Example("set target block of player to oak_stairs[waterlogged=true]")
-@Example("break target block of player using player's tool")
-@Example("give player 1 of type of target block")
-@Example("teleport player to location above target block")
-@Example("kill all entities in radius 3 around target block of player")
-@Example("set {_block} to actual target block of player")
-@Example("break actual target block of player")
+@Example("set aimed-at block of player to stone")
+@Example("set aimed-at block of player to oak_stairs[waterlogged=true]")
+@Example("break aimed-at block of player using player's tool")
+@Example("give player 1 of type of aimed-at block")
+@Example("teleport player to location above aimed-at block")
+@Example("kill all entities in radius 3 around aimed-at block of player")
+@Example("set {_block} to actual aimed-at block of player")
+@Example("break actual aimed-at block of player")
 @Since("1.0, 2.9.0 (actual/exact)")
 public class ExprTargetedBlock extends PropertyExpression<LivingEntity, Block> {
 
 	static {
 		Skript.registerExpression(ExprTargetedBlock.class, Block.class, ExpressionType.COMBINED,
-				"[the] [actual:(actual[ly]|exact)] target[ed] block[s] [of %livingentities%]", "%livingentities%'[s] [actual:(actual[ly]|exact)] target[ed] block[s]");
+				"[the] [actual:(actual[ly]|exact)] aimed[(-| )]at block[s] [of %livingentities%]", "%livingentities%'[s] [actual:(actual[ly]|exact)] aimed[(-| )]at block[s]");
 	}
 
 	private boolean actual;

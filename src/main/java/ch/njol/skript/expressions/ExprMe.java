@@ -17,16 +17,16 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-@Name("Me")
-@Description("A 'me' expression that can be used in players' effect commands only.")
+@Name("Mine Own Self")
+@Description("A 'me' expression that may be employed solely within players' effect commands.")
 @Example("!heal me")
-@Example("!kick myself")
+@Example("!kick mineself")
 @Example("!give a diamond axe to me")
 @Since("2.1.1")
 public class ExprMe extends SimpleExpression<Player> {
 
 	static {
-		Skript.registerExpression(ExprMe.class, Player.class, ExpressionType.SIMPLE, "me", "my[self]");
+		Skript.registerExpression(ExprMe.class, Player.class, ExpressionType.SIMPLE, "me", "mine[self]");
 	}
 
 	@Override

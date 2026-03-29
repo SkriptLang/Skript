@@ -4,12 +4,12 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.*;
 import org.bukkit.block.Block;
 
-@Name("Is Passable")
+@Name("Be Passable")
 @Description({
-	"Checks whether a block is passable.",
-	"A block is passable if it has no colliding parts that would prevent players from moving through it.",
-	"Blocks like tall grass, flowers, signs, etc. are passable, but open doors, fence gates, trap doors, etc. "
-		+ "are not because they still have parts that can be collided with."
+	"Doth examine whether a block may be traversed without hindrance.",
+	"A block is passable if it possesseth no colliding parts that would bar players from passing through.",
+	"Blocks such as tall grass, flowers, signs, and the like art passable, yet open doors, fence gates, trap doors, and their ilk "
+		+ "art not, for they still bear parts with which one may collide."
 })
 @Example("if player's targeted block is passable")
 @Since("2.5.1")

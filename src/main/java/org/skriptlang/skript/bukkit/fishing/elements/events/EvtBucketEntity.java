@@ -23,12 +23,12 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import java.util.Arrays;
 import java.util.List;
 
-@Name("Bucket Catch Entity")
-@Description("Called when a player catches an entity in a bucket.")
+@Name("Bucket Snaring of Entity")
+@Description("Called whence a player doth snare an entity within a bucket.")
 @Example("""
-	on bucket catch of a puffer fish:
-		send "You caught a fish with a %future event-item%!" to player
-	""")
+    on bucket catch of a puffer fish:
+    	send "Thou hast caught a fish with a %future event-item%!" to player
+    """)
 @Since("2.10")
 public class EvtBucketEntity extends SkriptEvent {
 

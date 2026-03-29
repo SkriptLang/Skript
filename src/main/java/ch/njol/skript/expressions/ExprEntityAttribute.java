@@ -22,17 +22,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-@Name("Entity Attribute")
+@Name("Creature's Attribute")
 @Description({
-	"The numerical value of an entity's particular attribute.",
-	"Note that the movement speed attribute cannot be reliably used for players. For that purpose, use the speed expression instead.",
-	"Resetting an entity's attribute is only available in Minecraft 1.11 and above."
+	"The numerical value of a creature's particular attribute.",
+	"Mark well that the movement speed attribute cannot be reliably employed for players. To that end, use the speed expression instead.",
+	"Restoring an entity's attribute to its natural state is only available in Minecraft 1.11 and above."
 })
 @Example("""
-	on damage of player:
-		send "You are wounded!" to victim
-		set victim's attack speed attribute to 2
-	""")
+    on damage of player:
+    	send "Thou art wounded!" to victim
+    	set victim's attack speed attribute to 2
+    """)
 @Since("2.5, 2.6.1 (final attribute value)")
 public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 	

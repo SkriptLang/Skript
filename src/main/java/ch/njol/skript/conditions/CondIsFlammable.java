@@ -7,8 +7,8 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-@Name("Is Flammable")
-@Description("Checks whether an item is flammable.")
+@Name("Is Susceptible to Flame")
+@Description("Discerneth whether an item may catch fire and burn.")
 @Example("send whether the tag contents of minecraft tag \"planks\" are flammable")
 @Example("player's tool is flammable")
 @Since("2.2-dev36")

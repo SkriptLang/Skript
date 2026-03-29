@@ -10,8 +10,8 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Is Unbreakable")
-@Description("Checks whether an item is unbreakable.")
+@Name("Be It Unbreakable")
+@Description("Ascertaineth whether an item be unbreakable in its constitution.")
 @Example("""
 	if event-item is unbreakable:
 		send "This item is unbreakable!" to player

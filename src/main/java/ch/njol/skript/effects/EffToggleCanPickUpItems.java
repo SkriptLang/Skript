@@ -13,22 +13,22 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Toggle Picking Up Items")
-@Description("Determines whether living entities are able to pick up items or not")
+@Name("Bestow or Forbid the Gathering of Items")
+@Description("Determineth whether living entities art able to gather items from the ground or not.")
 @Example("forbid player from picking up items")
-@Example("send \"You can no longer pick up items!\" to player")
+@Example("send \"Thou canst no longer gather items!\" to player")
 @Example("""
-	on drop:
-		if player can't pick up items:
-			allow player to pick up items
-	""")
+    on drop:
+    	if player can't pick up items:
+    		grant player leave to pick up items
+    """)
 @Since("2.8.0")
 public class EffToggleCanPickUpItems extends Effect {
 
 	static {
 		Skript.registerEffect(EffToggleCanPickUpItems.class,
-				"allow %livingentities% to pick([ ]up items| items up)",
-				"(forbid|disallow) %livingentities% (from|to) pick([ing | ]up items|[ing] items up)");
+				"grant %livingentities% leave to pick([ ]up items| items up)",
+				"(forbid|deny) %livingentities% (from|to) pick([ing | ]up items|[ing] items up)");
 	}
 
 	private Expression<LivingEntity> entities;

@@ -16,23 +16,23 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@Name("Explosive Yield")
+@Name("Explosive Magnitude")
 @Description({
-	"The yield of an explosive (creeper, ghast, primed tnt, fireball, etc.). This is how big of an explosion is caused by the entity.",
-	"Read <a href='https://minecraft.wiki/w/Explosion'>this wiki page</a> for more information.",
-	"The yield of ghasts can only be set to between 0 and 127."
+	"The yield of an explosive (creeper, ghast, primed tnt, fireball, et cetera). This determineth how grand an explosion the entity doth cause.",
+	"Read <a href='https://minecraft.wiki/w/Explosion'>this wiki page</a> for further knowledge.",
+	"The yield of ghasts may only be set betwixt 0 and 127."
 })
 @Example("""
-	on spawn of a creeper:
-		set the explosive yield of the event-entity to 10
-	""")
+    on spawn of a creeper:
+    	set the explosive magnitude of the event-entity to 10
+    """)
 @Since("2.5, 2.11 (ghasts)")
 public class ExprExplosiveYield extends SimplePropertyExpression<Entity, Number> {
 
 	private static final boolean SUPPORTS_GHASTS = Skript.methodExists(Ghast.class, "getExplosionPower");
 
 	static {
-		register(ExprExplosiveYield.class, Number.class, "explosive (yield|radius|size|power)", "entities");
+		register(ExprExplosiveYield.class, Number.class, "explosive (yield|radius|magnitude|power)", "entities");
 	}
 
 	@Override

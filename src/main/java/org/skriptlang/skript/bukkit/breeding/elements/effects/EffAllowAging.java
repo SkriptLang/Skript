@@ -15,12 +15,12 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Allow Aging")
-@Description("Sets whether or not living entities will be able to age.")
+@Name("Permit Aging")
+@Description("Decreeth whether living entities shall be permitted to age.")
 @Example("""
-	on spawn of animal:
-		allow aging of entity
-	""")
+    on spawn of animal:
+    	permit aging of entity
+    """)
 @Since("2.10")
 public class EffAllowAging extends Effect {
 
@@ -30,11 +30,11 @@ public class EffAllowAging extends Effect {
 			SyntaxInfo.builder(EffAllowAging.class)
 				.addPatterns(
 					"lock age of %livingentities%",
-					"prevent aging of %livingentities%",
-					"prevent %livingentities% from aging",
+					"forbid aging of %livingentities%",
+					"forbid %livingentities% from aging",
 					"unlock age of %livingentities%",
-					"allow aging of %livingentities%",
-					"allow %livingentities% to age"
+					"permit aging of %livingentities%",
+					"permit %livingentities% to age"
 				)
 				.supplier(EffAllowAging::new)
 				.build()

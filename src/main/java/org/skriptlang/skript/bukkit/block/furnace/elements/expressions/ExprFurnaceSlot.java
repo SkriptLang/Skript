@@ -36,9 +36,9 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import java.util.ArrayList;
 import java.util.List;
 
-@Name("Furnace Slot")
+@Name("Furnace Receptacle")
 @Description({
-	"A slot of a furnace, i.e. either the ore, fuel or result slot."
+	"A receptacle of a furnace, that is to say, the ore, fuel, or result slot therein."
 })
 @Example("set the fuel slot of the clicked block to a lava bucket")
 @Example("set the block's ore slot to 64 iron ore")

@@ -14,16 +14,16 @@ import org.bukkit.entity.ZombieVillager;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Villager Type")
-@Description("Represents the type of a villager/zombie villager. This usually represents the biome the villager is from.")
-@Example("set {_type} to villager type of {_villager}")
-@Example("villager type of {_villager} = plains")
-@Example("set villager type of event-entity to plains")
+@Name("Villager Lineage")
+@Description("Representeth the lineage of a villager or zombie villager. This most oft denotes the biome whence the villager doth hail.")
+@Example("set {_type} to villager lineage of {_villager}")
+@Example("villager lineage of {_villager} = plains")
+@Example("set villager lineage of event-entity to plains")
 @Since("2.10")
 public class ExprVillagerType extends SimplePropertyExpression<LivingEntity, Type> {
 
 	static {
-		register(ExprVillagerType.class, Type.class, "villager type", "livingentities");
+		register(ExprVillagerType.class, Type.class, "villager lineage", "livingentities");
 	}
 
 	@Override

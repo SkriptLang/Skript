@@ -9,24 +9,25 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.Goat;
 import org.bukkit.entity.LivingEntity;
 
-@Name("Goat Has Horns")
-@Description("Checks to see if a goat has or does not have a left, right, or both horns.")
+@Name("Goat Hath Horns")
+@Description("Examineth whether a goat doth possess or doth lack a sinister, dexter, or both horns.")
 @Example("""
 		if last spawned goat does not have both horns:
 			make last spawned goat have both horns
 	"""
 )
 @Example("""
-		if {_goat} has a right horn:
-			force {_goat} to not have a right horn
-	"""
+    if {_goat} has a dexter horn:
+    	force {_goat} to not have a dexter horn
+    	
+    """
 )
 @Since("2.11")
 public class CondGoatHasHorns extends PropertyCondition<LivingEntity> {
 
 	static {
 		register(CondGoatHasHorns.class, PropertyType.HAVE,
-			"((any|a) horn|left:[a] left horn[s]|right:[a] right horn[s]|both:both horns)", "livingentities");
+			"((any|a) horn|left:[a] sinister horn[s]|right:[a] dexter horn[s]|both:both horns)", "livingentities");
 	}
 
 	private GoatHorn goatHorn = GoatHorn.ANY;

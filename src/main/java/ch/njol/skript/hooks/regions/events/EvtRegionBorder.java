@@ -30,9 +30,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class EvtRegionBorder extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Region Enter/Leave", EvtRegionBorder.class, RegionBorderEvent.class,
-				"(:enter[ing]|leav(e|ing)|exit[ing]) [of] ([a] region|[[the] region] %-regions%)",
-				"region (:enter[ing]|leav(e|ing)|exit[ing])")
+		Skript.registerEvent("Dominion Enter/Leave", EvtRegionBorder.class, RegionBorderEvent.class,
+				"(:enter[ing]|leav(e|ing)|exit[ing]) [of] ([a] dominion|[[the] dominion] %-regions%)",
+				"dominion (:enter[ing]|leav(e|ing)|exit[ing])")
 				.description(
 					"Called when a player enters or leaves a <a href='#region'>region</a>.",
 					"This event requires a supported regions plugin to be installed."

@@ -18,14 +18,14 @@ import ch.njol.util.Kleenean;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 
-@Name("Action Bar")
-@Description("Sends an action bar message to the given player(s).")
-@Example("send action bar \"Hello player!\" to player")
+@Name("Action Bar Proclamation")
+@Description("Doth dispatch an action bar message unto the given player(s).")
+@Example("dispatch action bar \"Hail, good player!\" to player")
 @Since("2.3")
 public class EffActionBar extends Effect {
 
 	static {
-		Skript.registerEffect(EffActionBar.class, "send [the] action[ ]bar [with text] %string% [to %players%]");
+		Skript.registerEffect(EffActionBar.class, "dispatch [the] action[ ]bar [with text] %string% [to %players%]");
 	}
 
 	private Expression<String> message;

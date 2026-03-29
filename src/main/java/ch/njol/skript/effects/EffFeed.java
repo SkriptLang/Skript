@@ -13,15 +13,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Feed")
-@Description("Feeds the specified players.")
-@Example("feed all players")
-@Example("feed the player by 5 beefs")
+@Name("Nourish")
+@Description("Nourish the specified players with sustenance most hearty.")
+@Example("nourish all players")
+@Example("nourish the player by 5 beefs")
 @Since("2.2-dev34")
 public class EffFeed extends Effect {
 
     static {
-        Skript.registerEffect(EffFeed.class, "feed [the] %players% [by %-number% [beef[s]]]");
+        Skript.registerEffect(EffFeed.class, "nourish [the] %players% [by %-number% [beef[s]]]");
     }
 
     @SuppressWarnings("null")

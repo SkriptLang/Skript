@@ -15,10 +15,10 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Is Hand Raised")
+@Name("Is Hand Raised Aloft")
 @Description({
-	"Checks whether an entity has one or both of their hands raised.",
-	"Hands are raised when an entity is using an item (eg: blocking, drawing a bow, eating)."
+	"Discerneth whether an entity hath one or both hands raised aloft.",
+	"Hands are raised when an entity doth employ an item (e.g.: blocking, drawing a bow, partaking of sustenance)."
 })
 @Example("""
 	on damage of player:

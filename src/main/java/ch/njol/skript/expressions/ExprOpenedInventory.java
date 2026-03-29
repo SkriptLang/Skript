@@ -16,9 +16,9 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Opened Inventory")
-@Description({"Return the currently opened inventory of a player.",
-	"If no inventory is open, it returns the own player's crafting inventory."})
+@Name("Presently Opened Inventory")
+@Description({"Returneth the inventory presently opened by a player.",
+	"If no inventory standeth open, it returneth the player's own crafting inventory."})
 @Example("set slot 1 of player's current inventory to diamond sword")
 @Since("2.2-dev24, 2.2-dev35 (Just 'current inventory' works in player events)")
 public class ExprOpenedInventory extends PropertyExpression<Player, Inventory> {

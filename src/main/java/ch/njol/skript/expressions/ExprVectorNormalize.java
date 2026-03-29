@@ -17,8 +17,8 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Vectors - Normalized")
-@Description("Returns the same vector but with length 1.")
+@Name("Vectors — Made Uniform")
+@Description("Returneth the selfsame vector yet with magnitude of one.")
 @Example("set {_v} to normalized {_v}")
 @Since("2.2-dev28")
 public class ExprVectorNormalize extends SimpleExpression<Vector> {

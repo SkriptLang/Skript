@@ -13,17 +13,17 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Equippable Component - Shear Off")
+@Name("Equippable Component - Shear Asunder")
 @Description("""
-	Whether the item can be sheared off of entities.
-	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
-	""")
-@Example("allow {_item} to be sheared off")
+    Whether the item may be shorn from entities.
+    NOTE: Equippable component elements art experimental. Thus, they art subject to change and may not function as intended.
+    """)
+@Example("grant {_item} to be shorn from")
 @Example("""
-	set {_component} to the equippable component of {_item}
-	if {_component} can be sheared off of entities:
-		prevent {_component} from being sheared off of entities
-	""")
+    set {_component} to the equippable component of {_item}
+    if {_component} can be shorn from entities:
+    	forbid {_component} from being shorn from entities
+    """)
 @RequiredPlugins("Minecraft 1.21.6+")
 @Since("2.13")
 public class EffEquipCompShearable extends Effect implements EquippableExperimentSyntax {
@@ -33,8 +33,8 @@ public class EffEquipCompShearable extends Effect implements EquippableExperimen
 			return;
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffEquipCompShearable.class)
 			.addPatterns(
-				"allow %equippablecomponents% to be sheared off [of entities]",
-				"(disallow|prevent) %equippablecomponents% from being sheared off [of entities]"
+				"grant %equippablecomponents% to be shorn from [entities]",
+				"(forbid|prevent) %equippablecomponents% from being shorn from [entities]"
 			)
 			.supplier(EffEquipCompShearable::new)
 			.build()

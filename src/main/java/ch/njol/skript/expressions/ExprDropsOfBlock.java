@@ -22,12 +22,12 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 
-@Name("Drops Of Block")
-@Description("A list of the items that will drop when a block is broken.")
+@Name("Spoils of a Block")
+@Description("A manifest of the items that shall fall when a block is broken asunder.")
 @RequiredPlugins("Minecraft 1.15+ ('as %entity%')")
 @Example("""
     on break of block:
-    	give drops of block using player's tool to player
+    	give spoils of block using player's tool to player
     """)
 @Since("2.5.1")
 public class ExprDropsOfBlock extends SimpleExpression<ItemType> {
@@ -36,8 +36,8 @@ public class ExprDropsOfBlock extends SimpleExpression<ItemType> {
 
 	static {
 		Skript.registerExpression(ExprDropsOfBlock.class, ItemType.class, ExpressionType.COMBINED,
-			"[(all|the|all [of] the)] drops of %blocks% [(using|with) %-itemtype% [(1¦as %-entity%)]]",
-			"%blocks%'s drops [(using|with) %-itemtype% [(1¦as %-entity%)]]");
+			"[(all|the|all [of] the)] spoils of %blocks% [(using|with) %-itemtype% [(1¦as %-entity%)]]",
+			"%blocks%'s spoils [(using|with) %-itemtype% [(1¦as %-entity%)]]");
 	}
 	
 	@SuppressWarnings("null")

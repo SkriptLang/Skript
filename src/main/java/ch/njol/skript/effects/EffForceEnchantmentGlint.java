@@ -12,10 +12,10 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Force Enchantment Glint")
-@Description("Forces the items to glint or not, or removes its existing enchantment glint enforcement.")
-@Example("force {_items::*} to glint")
-@Example("force the player's tool to stop glinting")
+@Name("Decree Enchantment Glint")
+@Description("Compel the items to glint or cease their glinting, or remove any existing enchantment glint decree.")
+@Example("compel {_items::*} to glint")
+@Example("compel the player's tool to stop glinting")
 @RequiredPlugins("Spigot 1.20.5+")
 @Since("2.10")
 public class EffForceEnchantmentGlint extends Effect {
@@ -23,10 +23,10 @@ public class EffForceEnchantmentGlint extends Effect {
 	static {
 		if (Skript.methodExists(ItemMeta.class, "setEnchantmentGlintOverride", Boolean.class))
 			Skript.registerEffect(EffForceEnchantmentGlint.class,
-					"(force|make) %itemtypes% [to] [start] glint[ing]",
-					"(force|make) %itemtypes% [to] (not|stop) glint[ing]",
-					"(clear|delete|reset) [the] enchantment glint override of %itemtypes%",
-					"(clear|delete|reset) %itemtypes%'s enchantment glint override");
+					"(compel|make) %itemtypes% [to] [start] glint[ing]",
+					"(compel|make) %itemtypes% [to] (not|stop) glint[ing]",
+					"(clear|delete|reset) [the] enchantment glint decree of %itemtypes%",
+					"(clear|delete|reset) %itemtypes%'s enchantment glint decree");
 	}
 
 	private Expression<ItemType> itemTypes;

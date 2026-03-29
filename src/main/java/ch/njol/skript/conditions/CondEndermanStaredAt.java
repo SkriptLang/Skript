@@ -6,18 +6,18 @@ import ch.njol.skript.doc.*;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.LivingEntity;
 
-@Name("Enderman Has Been Stared At")
+@Name("Enderman Hath Been Gazed Upon")
 @Description({
-	"Checks to see if an enderman has been stared at.",
-	"This will return true as long as the entity that stared at the enderman is still alive."
+	"Doth ascertain whether an enderman hath been gazed upon.",
+	"This shall return true so long as the entity that did gaze upon the enderman yet liveth."
 })
-@Example("if last spawned enderman has been stared at:")
+@Example("if last spawned enderman has been gazed upon:")
 @Since("2.11")
 public class CondEndermanStaredAt extends PropertyCondition<LivingEntity> {
 
 	static {
 		if (Skript.methodExists(Enderman.class, "hasBeenStaredAt"))
-			register(CondEndermanStaredAt.class, PropertyType.HAVE, "been stared at", "livingentities");
+			register(CondEndermanStaredAt.class, PropertyType.HAVE, "been gazed upon", "livingentities");
 	}
 
 	@Override

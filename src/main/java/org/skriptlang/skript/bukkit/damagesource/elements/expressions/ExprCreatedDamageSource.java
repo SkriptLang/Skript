@@ -12,12 +12,12 @@ import org.bukkit.event.Event;
 import org.skriptlang.skript.bukkit.damagesource.elements.expressions.ExprSecDamageSource.DamageSourceSectionEvent;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Created Damage Source")
-@Description("Get the created damage source being created/modified in a 'custom damage source' section.")
+@Name("Forged Damage Source")
+@Description("Obtain the damage source being forged or amended within a 'custom damage source' section.")
 @Example("""
-	set {_source} to a custom damage source:
-		set the damage type of the created damage source to magic
-	""")
+    set {_source} to a custom damage source:
+    	set the damage type of the forged damage source to magic
+    """)
 @Since("2.12")
 public class ExprCreatedDamageSource extends EventValueExpression<DamageSource> implements EventRestrictedSyntax {
 
@@ -27,7 +27,7 @@ public class ExprCreatedDamageSource extends EventValueExpression<DamageSource> 
 			infoBuilder(
 				ExprCreatedDamageSource.class,
 				DamageSource.class,
-				"created damage source"
+				"forged damage source"
 			)
 				.supplier(ExprCreatedDamageSource::new)
 				.build()

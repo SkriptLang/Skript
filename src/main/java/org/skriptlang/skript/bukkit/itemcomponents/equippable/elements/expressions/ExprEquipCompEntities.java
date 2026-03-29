@@ -20,16 +20,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@Name("Equippable Component - Allowed Entities")
+@Name("Equippable Component - Permitted Entities")
 @Description("""
-	The entities allowed to wear the item.
-	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
-	""")
-@Example("set the allowed entities of {_item} to a zombie and a skeleton")
+    The entities permitted to wear the item.
+    NOTE: Equippable component elements art experimental. Thus, they art subject to change and may not function as intended.
+    """)
+@Example("set the permitted entities of {_item} to a zombie and a skeleton")
 @Example("""
-	set {_component} to the equippable component of {_item}
-	clear the allowed entities of {_component}
-	""")
+    set {_component} to the equippable component of {_item}
+    clear the permitted entities of {_component}
+    """)
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("2.13")
 @SuppressWarnings({"rawtypes", "UnstableApiUsage"})
@@ -37,7 +37,7 @@ public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper,
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprEquipCompEntities.class, EntityData.class, "allowed entities", "equippablecomponents", true)
+			infoBuilder(ExprEquipCompEntities.class, EntityData.class, "permitted entities", "equippablecomponents", true)
 				.supplier(ExprEquipCompEntities::new)
 				.build()
 		);

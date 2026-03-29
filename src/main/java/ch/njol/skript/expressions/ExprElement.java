@@ -33,8 +33,8 @@ import java.util.function.Function;
 
 @Name("Elements")
 @Description({
-		"The first, last, range or a random element of a set, e.g. a list variable, or a queue.",
-		"Asking for elements from a queue will also remove them from the queue, see the new queue expression for more information.",
+		"The first, last, range or a chance element of a set, e.g. a list variable, or a queue.",
+		"Requesting elements from a queue shall also remove them from said queue; see the new queue expression for further knowledge.",
 		"See also: <a href='#ExprRandom'>random expression</a>"
 })
 @Example("broadcast the first 3 elements of {top players::*}")

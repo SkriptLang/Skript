@@ -15,13 +15,13 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Consume Brewing Fuel")
 @Description("""
-	Makes the brewing stand in a brewing fuel event consume its fuel.
-	Preventing the fuel from being consumed will keep the fuel item and still add to the fuel level of the brewing stand.
-	""")
+    Biddeth the brewing stand in a brewing fuel occasion to consume its fuel.
+    Forbidding the fuel from being consumed shall preserve the fuel item and still augment the fuel level of the brewing stand.
+    """)
 @Example("""
-	on brewing fuel consumption:
-		prevent the brewing stand from consuming the fuel
-	""")
+    on brewing fuel consumption:
+    	forbid the brewing stand from consuming the fuel
+    """)
 @Since("2.13")
 @Events("Brewing Fuel")
 public class EffBrewingConsume extends Effect implements EventRestrictedSyntax {
@@ -31,8 +31,8 @@ public class EffBrewingConsume extends Effect implements EventRestrictedSyntax {
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffBrewingConsume.class)
 				.addPatterns(
-					"make [the] brewing stand consume [its|the] fuel",
-					"prevent [the] brewing stand from consuming [its|the] fuel"
+					"bid [the] brewing stand consume [its|the] fuel",
+					"forbid [the] brewing stand from consuming [its|the] fuel"
 				)
 				.supplier(EffBrewingConsume::new)
 				.build()

@@ -20,20 +20,20 @@ import ch.njol.skript.util.Experience;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Enchanting Experience Cost")
-@Description({"The cost of enchanting in an enchant event.", 
-				"This is number that was displayed in the enchantment table, not the actual number of levels removed."})
+@Name("Enchanting Experience Toll")
+@Description({"The toll of enchanting within an enchant event.", 
+				"This be the number that was displayed upon the enchantment table, not the true number of levels taken away."})
 @Example("""
-	on enchant:
-		send "Cost: %the displayed enchanting cost%" to player
-	""")
+    on enchant:
+    	send "Toll: %the displayed enchanting toll%" to player
+    """)
 @Events("enchant")
 @Since("2.5")
 public class ExprEnchantingExpCost extends SimpleExpression<Long> {
 
 	static {
 		Skript.registerExpression(ExprEnchantingExpCost.class, Long.class, ExpressionType.SIMPLE,
-				"[the] [displayed] ([e]xp[erience]|enchanting) cost");
+				"[the] [displayed] ([e]xp[erience]|enchanting) toll");
 	}
 
 	@Override

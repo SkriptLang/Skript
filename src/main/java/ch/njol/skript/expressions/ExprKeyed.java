@@ -17,8 +17,8 @@ import java.util.Iterator;
 
 @Name("Keyed")
 @Description({
-	"This expression is used to explicitly pass the keys of an expression alongside its values.",
-	"For example, when setting a list variable or passing an expression to a function.",
+	"This expression doth explicitly convey the keys of an expression alongside its values.",
+	"For instance, when setting a list variable or passing an expression unto a function.",
 })
 @Example("""
 	set {_first::foo} to "value1"

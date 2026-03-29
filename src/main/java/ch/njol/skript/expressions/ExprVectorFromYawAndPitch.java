@@ -19,8 +19,8 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 import static ch.njol.skript.expressions.ExprYawPitch.fromYawAndPitch;
 
-@Name("Vectors - Vector from Yaw and Pitch")
-@Description("Creates a vector from a yaw and pitch value.")
+@Name("Vectors — From Yaw and Pitch")
+@Description("Conjureth a vector from a yaw and pitch value.")
 @Example("set {_v} to vector from yaw 45 and pitch 45")
 @Since("2.2-dev28")
 public class ExprVectorFromYawAndPitch extends SimpleExpression<Vector> {

@@ -24,14 +24,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
-@Name("Items")
-@Description("Items or blocks of a specific type, useful for looping.")
+@Name("Wares and Blocks")
+@Description("Wares or blocks of a particular kind, most useful for the looping thereof.")
 @Example("""
-	loop tag values of tag "diamond_ores" and tag values of tag "oak_logs":
-		block contains loop-item
-		message "Theres at least one %loop-item% in this block"
-	""")
-@Example("drop all blocks at the player # drops one of every block at the player")
+    loop tag values of tag "diamond_ores" and tag values of tag "oak_logs":
+    	block contains loop-item
+    	message "There doth exist at least one %loop-item% within this block"
+    """)
+@Example("drop all blocks at the player # letteth fall one of every block upon the player")
 @Since("1.0 pre-5")
 public class ExprItems extends SimpleExpression<ItemType> {
 
@@ -44,8 +44,8 @@ public class ExprItems extends SimpleExpression<ItemType> {
 		Skript.registerExpression(ExprItems.class, ItemType.class, ExpressionType.COMBINED,
 			"[all [[of] the]|the] block[[ ]type]s",
 			"every block[[ ]type]",
-			"[all [[of] the]|the|every] block[s] of type[s] %itemtypes%",
-			"[all [[of] the]|the|every] item[s] of type[s] %itemtypes%"
+			"[all [[of] the]|the|every] block[s] of kind[s] %itemtypes%",
+			"[all [[of] the]|the|every] ware[s] of kind[s] %itemtypes%"
 		);
 	}
 

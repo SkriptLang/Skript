@@ -24,8 +24,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-@Name("Entity Sound")
-@Description("Gets the sound that a given entity will make in a specific scenario.")
+@Name("Creature's Utterance")
+@Description("Obtaineth the sound that a given entity shall make in a specific circumstance.")
 @Example("play sound (hurt sound of player) at player")
 @Example("set {_sounds::*} to death sounds of (all mobs in radius 10 of player)")
 @Since("2.10")

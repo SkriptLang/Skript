@@ -14,16 +14,16 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Toggle Flight")
-@Description("Toggle the <a href='#ExprFlightMode'>flight mode</a> of a player.")
-@Example("allow flight to event-player")
+@Name("Bestow or Revoke Flight")
+@Description("Bestow or revoke the <a href='#ExprFlightMode'>gift of flight</a> upon a player.")
+@Example("bestow flight upon event-player")
 @Since("2.3")
 public class EffToggleFlight extends Effect {
 
 	static {
 		Skript.registerEffect(EffToggleFlight.class,
-			"(allow|enable) (fly|flight) (for|to) %players%",
-			"(disallow|disable) (fly|flight) (for|to) %players%");
+			"(grant|bestow) (fly|flight) (upon|to) %players%",
+			"(revoke|deny) (fly|flight) (from|to) %players%");
 	}
 
 	@SuppressWarnings("null")

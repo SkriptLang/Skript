@@ -18,10 +18,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
-@Name("Entity Storage Entity Count")
+@Name("Stored Creatures Tally")
 @Description({
-	"The current number of entities stored inside an entity block storage (i.e. beehive).",
-	"The maximum amount of entities an entity block storage can hold."
+	"The present number of creatures stored within an entity block storage (i.e. beehive).",
+	"The greatest number of creatures an entity block storage may hold."
 })
 @Example("broadcast the stored entity count of {_beehive}")
 @Example("set the maximum entity count of {_beehive} to 20")

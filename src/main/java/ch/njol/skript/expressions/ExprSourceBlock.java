@@ -17,8 +17,8 @@ import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Source Block")
-@Description("The source block in a spread event.")
+@Name("The Block of Origin")
+@Description("The source block whence the spread doth originate.")
 @Events("Spread")
 @Example("""
 	on spread:

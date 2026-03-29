@@ -23,12 +23,12 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 /**
  * @author Peter Güttinger
  */
-@Name("Biome")
-@Description({"The biome at a certain location. Please note that biomes are only defined for x/z-columns",
-	"(i.e. the <a href='#ExprAltitude'>altitude</a> (y-coordinate) doesn't matter), up until Minecraft 1.15.x.",
-	"As of Minecraft 1.16, biomes are now 3D (per block vs column)."})
+@Name("Biome of the Land")
+@Description({"The biome at a certain locale. Pray note that biomes are defined only for x/z-columns",
+	"(that is, the <a href='#ExprAltitude'>altitude</a> (y-coordinate) doth matter not), up until Minecraft 1.15.x.",
+	"As of Minecraft 1.16, biomes art now three-dimensional (per block rather than column)."})
 @Example("""
-    # damage player in deserts constantly
+    # afflict players in deserts without cease
     every real minute:
     	loop all players:
     		biome at loop-player is desert

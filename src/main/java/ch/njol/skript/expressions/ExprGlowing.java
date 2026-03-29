@@ -11,14 +11,14 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
-@Name("Glowing")
-@Description("Indicates if targeted entity is glowing (new 1.9 effect) or not. Glowing entities can be seen through walls.")
-@Example("set glowing of player to true")
+@Name("Aglow")
+@Description("Doth indicate whether the targeted entity shineth with a luminous glow (a power bestowed since the 1.9 era) or doth not. Glowing entities may be perceived through walls.")
+@Example("set aglow of player to true")
 @Since("2.2-dev18")
 public class ExprGlowing extends SimplePropertyExpression<Entity, Boolean> {
 	
 	static {
-		register(ExprGlowing.class, Boolean.class, "glowing", "entities");
+		register(ExprGlowing.class, Boolean.class, "aglow", "entities");
 	}
 	
 	@Override

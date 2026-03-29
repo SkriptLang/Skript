@@ -15,20 +15,20 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Arrow Knockback Strength")
-@Description("An arrow's knockback strength.")
+@Name("Arrow Knockback Might")
+@Description("An arrow's knockback might.")
 @Example("""
-	on shoot:
-		event-projectile is an arrow
-		set arrow knockback strength of event-projectile to 10
-	""")
+    on shoot:
+    	event-projectile is an arrow
+    	set arrow knockback might of event-projectile to 10
+    """)
 @Since("2.5.1")
 public class ExprArrowKnockbackStrength extends SimplePropertyExpression<Projectile, Long> {
 	
 	final static boolean abstractArrowExists = Skript.classExists("org.bukkit.entity.AbstractArrow");
 	
 	static {
-		register(ExprArrowKnockbackStrength.class, Long.class, "arrow knockback strength", "projectiles");
+		register(ExprArrowKnockbackStrength.class, Long.class, "arrow knockback might", "projectiles");
 	}
 	
 	@Nullable

@@ -14,17 +14,17 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("PvP")
-@Description("Set the PvP state for a given world.")
-@Example("enable PvP #(current world only)")
-@Example("disable PvP in all worlds")
+@Name("Player Versus Player")
+@Description("Set the PvP decree for a given world.")
+@Example("permit PvP #(the present world alone)")
+@Example("forbid PvP in all worlds")
 @Since("1.3.4")
 public class EffPvP extends Effect {
 
 	private static final boolean PVP_GAME_RULE_EXISTS = Skript.fieldExists(GameRule.class, "PVP");
 
 	static {
-		Skript.registerEffect(EffPvP.class, "enable PvP [in %worlds%]", "disable PVP [in %worlds%]");
+		Skript.registerEffect(EffPvP.class, "permit PvP [in %worlds%]", "forbid PVP [in %worlds%]");
 	}
 	
 	@SuppressWarnings("null")

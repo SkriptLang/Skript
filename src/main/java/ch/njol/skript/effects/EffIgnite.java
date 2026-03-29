@@ -18,17 +18,17 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
 
-@Name("Ignite/Extinguish")
-@Description("Lights entities on fire or extinguishes them.")
-@Example("ignite the player")
-@Example("extinguish the player")
+@Name("Enkindle/Quench")
+@Description("Setteth entities ablaze or quencheth their flames.")
+@Example("enkindle the player")
+@Example("quench the player")
 @Since("1.4")
 public class EffIgnite extends Effect {
 
 	static {
 		Skript.registerEffect(EffIgnite.class,
-				"(ignite|set fire to) %entities% [for %-timespan%]", "(set|light) %entities% on fire [for %-timespan%]",
-				"extinguish %entities%");
+				"(enkindle|set fire to) %entities% [for %-timespan%]", "(set|light) %entities% on fire [for %-timespan%]",
+				"quench %entities%");
 	}
 
 	private static final int DEFAULT_DURATION = 8 * 20; // default is 8 seconds for lava and fire.

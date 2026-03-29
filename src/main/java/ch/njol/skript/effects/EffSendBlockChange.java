@@ -17,21 +17,21 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Send Block Change")
-@Description("Makes a player see a block as something else or as the original.")
-@Example("make player see block at player as dirt")
-@Example("make player see player's target block as campfire[facing=south]")
+@Name("Conjure Block Illusion")
+@Description("Causeth a player to perceive a block as something other than its true form, or to see it restored to its original state.")
+@Example("make player perceive block at player as dirt")
+@Example("make player perceive player's target block as campfire[facing=south]")
 @Example("""
-	make all players see (blocks in radius 5 of location(0, 0, 0)) as bedrock
-	make all players see (blocks in radius 5 of location(0, 0, 0)) as original
-	""")
+    make all players perceive (blocks in radius 5 of location(0, 0, 0)) as bedrock
+    make all players perceive (blocks in radius 5 of location(0, 0, 0)) as original
+    """)
 @Since("2.2-dev37c, 2.5.1 (block data support), 2.12 (as original)")
 public class EffSendBlockChange extends Effect {
 
 	static {
 		Skript.registerEffect(EffSendBlockChange.class,
-			"make %players% see %locations% as %itemtype/blockdata%",
-			"make %players% see %locations% as [the|its] (original|normal|actual) [block]"
+			"make %players% perceive %locations% as %itemtype/blockdata%",
+			"make %players% perceive %locations% as [the|its] (original|true|actual) [block]"
 		);
 	}
 

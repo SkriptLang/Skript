@@ -16,24 +16,24 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Horse Domestication")
+@Name("Horse Taming Spirit")
 @Description({
-	"Gets and/or sets the (max) domestication of a horse.",
-	"The domestication of a horse is how close a horse is to becoming tame - the higher the domestication, the closer they are to becoming tame (must be between 1 and the max domestication level of the horse).",
-	"The max domestication of a horse is how long it will take for a horse to become tame (must be greater than 0)."
+	"Getteth and/or setteth the (max) taming measure of a horse.",
+	"The taming measure of a horse is how near the beast standeth to becoming gentle — the higher the measure, the closer it draws to docility (must lie betwixt 1 and the max taming measure of the horse).",
+	"The max taming measure of a horse is how long it shall take ere the horse becometh tame (must be greater than 0)."
 })
 @Example("""
-	function domesticateAndTame(horse: entity, p: offline player, i: int = 10):
-		add {_i} to domestication level of {_horse}
-		if domestication level of {_horse} >= max domestication level of {_horse}:
-			tame {_horse}
-			set tamer of {_horse} to {_p}
-	""")
+    function domesticateAndTame(horse: entity, p: offline player, i: int = 10):
+    	add {_i} to taming spirit of {_horse}
+    	if taming spirit of {_horse} >= max taming spirit of {_horse}:
+    		tame {_horse}
+    		set tamer of {_horse} to {_p}
+    """)
 @Since("2.10")
 public class ExprDomestication extends SimplePropertyExpression<LivingEntity, Integer> {
 
 	static {
-		register(ExprDomestication.class, Integer.class, "[:max[imum]] domestication level", "livingentities");
+		register(ExprDomestication.class, Integer.class, "[:max[imum]] taming [of] (spirit|measure)", "livingentities");
 	}
 
 	private boolean max;

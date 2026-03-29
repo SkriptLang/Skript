@@ -14,23 +14,23 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Protocol Version")
-@Description({"The protocol version that will be sent as the protocol version of the server in a server list ping event. " +
-		"For more information and list of protocol versions <a href='https://wiki.vg/Protocol_version_numbers'>visit wiki.vg</a>.",
-		"If this protocol version doesn't match with the protocol version of the client, the client will see the <a href='#ExprVersionString'>version string</a>.",
-		"But please note that, this expression has no visual effect over the version string. " +
-		"For example if the server uses PaperSpigot 1.12.2, and you make the protocol version 107 (1.9),",
-		"the version string will not be \"Paper 1.9\", it will still be \"Paper 1.12.2\".",
-		"But then you can customize the <a href='#ExprVersionString'>version string</a> as you wish.",
-		"Also if the protocol version of the player is higher than protocol version of the server, it will say",
-		"\"Server out of date!\", and if vice-versa \"Client out of date!\" when you hover on the ping bars.",
+@Description({"The protocol version that shall be dispatched as the protocol version of the server in a server list ping event." +
+		"For further knowledge and a catalogue of protocol versions, <a href='https://wiki.vg/Protocol_version_numbers'>pray visit wiki.vg</a>.",
+		"If this protocol version doth not accord with the protocol version of the client, the client shall behold the <a href='#ExprVersionString'>version string</a>.",
+		"Yet pray note that this expression hath no visible effect upon the version string." +
+		"For example, if the server employeth PaperSpigot 1.12.2 and thou dost set the protocol version to 107 (1.9),",
+		"the version string shall not read \"Paper 1.9\"; it shall remain \"Paper 1.12.2\".",
+		"But then thou mayest customise the <a href='#ExprVersionString'>version string</a> as thou dost wish.",
+		"Also, if the protocol version of the player exceedeth that of the server, it shall proclaim",
+		"\"Server out of date!\", and if the reverse, \"Client out of date!\" when one hovers upon the ping bars.",
 		"",
-		"This can be set in a <a href='#server_list_ping'>server list ping</a> event only",
-		"(increase and decrease effects cannot be used because that wouldn't make sense).",})
+		"This may be set only within a <a href='#server_list_ping'>server list ping</a> event",
+		"(increase and decrease effects cannot be employed, for such would be without sense).",})
 @Example("""
-	on server list ping:
-		set the version string to "<light green>Version: <orange>%minecraft version%"
-		set the protocol version to 0 # 13w41a (1.7) - so the player will see the custom version string almost always
-	""")
+    on server list ping:
+    	set the version string to "<light green>Version: <orange>%minecraft version%"
+    	set the protocol version to 0 # 13w41a (1.7) - thus the player shall behold the custom version string nearly always
+    """)
 @Since("2.3")
 @Events("server list ping")
 public class ExprProtocolVersion extends SimpleExpression<Long> {

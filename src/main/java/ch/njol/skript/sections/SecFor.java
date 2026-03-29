@@ -22,30 +22,31 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-@Name("For Each Loop")
+@Name("For Each Traversal")
 @Description("""
-	A specialised loop section run for each element in a list.
-	Unlike the basic loop, this is designed for extracting the key & value from pairs.
-	The loop element's key/index and value can be stored in a variable for convenience.
-	
-	When looping a simple (non-indexed) set of values, e.g. all players, the index will be the loop counter number."""
+    A specialised traversal section run for each element within a list.
+    Unlike the basic loop, this is devised for extracting the key & value from pairs.
+    The traversal element's key/index and value may be stored in a variable for convenience.
+    
+    When traversing a simple (non-indexed) set of values, e.g. all players, the index shall be the traversal counter number.
+    """
 )
 @Example("""
-	for each {_player} in players:
-		send "Hello %{_player}%!" to {_player}
-	""")
+    for each {_player} in players:
+    	send "Hail, %{_player}%!" to {_player}
+    """)
 @Example("""
-	loop {_item} in {list of items::*}:
-		broadcast {_item}'s name
-	""")
+    traverse {_item} in {list of items::*}:
+    	broadcast {_item}'s name
+    """)
 @Example("""
 	for each key {_index} in {list of items::*}:
 		broadcast {_index}
 	""")
 @Example("""
-	loop key {_index} and value {_value} in {list of items::*}:
-		broadcast "%{_index}% = %{_value}%"
-	""")
+    traverse key {_index} and value {_value} in {list of items::*}:
+    	broadcast "%{_index}% = %{_value}%"
+    """)
 @Example("""
 	for each {_index}, {_value} in {my list::*}:
 		broadcast "%{_index}% = %{_value}%"
@@ -55,9 +56,9 @@ public class SecFor extends SecLoop {
 
 	static {
 		Skript.registerSection(SecFor.class,
-			"(for [each]|loop) [value] %~object% in %objects%",
-			"(for [each]|loop) (key|index) %~object% in %objects%",
-			"(for [each]|loop) [key|index] %~object%(,| and) [value] %~object% in %objects%"
+			"(for [each]|traverse) [value] %~object% in %objects%",
+			"(for [each]|traverse) (key|index) %~object% in %objects%",
+			"(for [each]|traverse) [key|index] %~object%(,| and) [value] %~object% in %objects%"
 		);
 	}
 

@@ -20,7 +20,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class EvtLeash extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Leash / Unleash", EvtLeash.class, CollectionUtils.array(PlayerLeashEntityEvent.class, EntityUnleashEvent.class), "[:player] [:un]leash[ing] [of %-entitydatas%]")
+		Skript.registerEvent("Tethering / Untethering", EvtLeash.class, CollectionUtils.array(PlayerLeashEntityEvent.class, EntityUnleashEvent.class), "[:player] [:un]tether[ing] [of %-entitydatas%]")
 			.description("Called when an entity is leashed or unleashed. Cancelling these events will prevent the leashing or unleashing from occurring.")
 			.examples(
 					"on player leash of a sheep:",

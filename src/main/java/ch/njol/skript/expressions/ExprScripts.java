@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@Name("All Scripts")
-@Description("Returns all of the scripts, or just the enabled or disabled ones.")
+@Name("All Ye Scripts")
+@Description("Returneth all of the scripts, or solely those which art enabled or disabled.")
 @Example("""
 	command /scripts:
 		trigger:

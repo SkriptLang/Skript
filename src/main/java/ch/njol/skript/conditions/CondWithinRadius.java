@@ -14,14 +14,14 @@ import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Is Within Radius")
-@Description("Checks whether a location is within a certain radius of another location.")
+@Name("Is Within Radius Hence")
+@Description("Doth ascertain whether a location resideth within a certain radius of another location.")
 @Example("""
-	on damage:
-		if attacker's location is within 10 blocks around {_spawn}:
-			cancel event
-			send "You can't PVP in spawn."
-	""")
+    on damage:
+    	if attacker's location is within 10 blocks around {_spawn}:
+    		cancel event
+    		send "Thou canst not engage in mortal combat at the spawn."
+    """)
 @Since("2.7")
 public class CondWithinRadius extends Condition {
 

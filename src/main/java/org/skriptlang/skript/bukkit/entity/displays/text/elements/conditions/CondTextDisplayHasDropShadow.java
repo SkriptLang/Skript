@@ -13,12 +13,12 @@ import org.bukkit.entity.TextDisplay;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Text Display Has Drop Shadow")
-@Description("Returns whether the text of a display has drop shadow applied.")
+@Name("Text Display Beareth Drop Shadow")
+@Description("Returns whether the text of a display hath drop shadow applied unto it.")
 @Example("""
-	if {_display} has drop shadow:
-		remove drop shadow from the text of {_display}
-	""")
+    if {_display} hath drop shadow:
+    	remove drop shadow from the text of {_display}
+    """)
 @Since("2.10")
 public class CondTextDisplayHasDropShadow extends PropertyCondition<Display> {
 
@@ -27,10 +27,10 @@ public class CondTextDisplayHasDropShadow extends PropertyCondition<Display> {
 			SyntaxRegistry.CONDITION,
 			SyntaxInfo.builder(CondTextDisplayHasDropShadow.class)
 				.addPatterns(
-					"[[the] text of] %displays% (has|have) [a] (drop|text) shadow",
-					"%displays%'[s] text (has|have) [a] (drop|text) shadow",
-					"[[the] text of] %displays% (doesn't|does not|do not|don't) have [a] (drop|text) shadow",
-					"%displays%'[s] text (doesn't|does not|do not|don't) have [a] (drop|text) shadow"
+					"[[the] text of] %displays% (hath|have) [a] (drop|text) shadow",
+					"%displays%'[s] text (hath|have) [a] (drop|text) shadow",
+					"[[the] text of] %displays% (hath not|doth not have|do not|don't) have [a] (drop|text) shadow",
+					"%displays%'[s] text (hath not|doth not have|do not|don't) have [a] (drop|text) shadow"
 				)
 				.supplier(CondTextDisplayHasDropShadow::new)
 				.priority(DEFAULT_PRIORITY)

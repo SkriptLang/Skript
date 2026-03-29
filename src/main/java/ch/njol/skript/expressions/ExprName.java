@@ -47,28 +47,28 @@ import java.util.List;
 /**
  * @deprecated This is being removed in favor of {@link PropExprName}
  */
-@Name("Name / Display Name / Tab List Name")
+@Name("Appellation / Display Title / Tab Roster Name")
 @Description({
-	"Represents the Minecraft account, display or tab list name of a player, or the custom name of an item, entity, "
+	"Representeth the Minecraft account, display or tab roster name of a player, or the custom appellation of an item, entity, "
         + "block, inventory, gamerule, world, script or function.",
 	"",
 	"<strong>Players:</strong>",
-	"\t<strong>Name:</strong> The Minecraft account name of the player. Can't be changed, but 'display name' can be changed.",
-	"\t<strong>Display Name:</strong> The name of the player that is displayed in messages. " +
-		"This name can be changed freely and can include color codes, and is shared among all plugins (e.g. chat plugins will use the display name).",
+	"\t<strong>Name:</strong> The Minecraft account name of the player. It cannot be altered, yet 'display name' may be changed at will.",
+	"\t<strong>Display Name:</strong> The name of the player as shown in messages. " +
+		"This appellation may be freely altered and may include colour codes, and is shared among all plugins (e.g. chat plugins shall employ the display name).",
 	"",
 	"<strong>Entities:</strong>",
-	"\t<strong>Name:</strong> The custom name of the entity. Can be changed. But for living entities, " +
-		"the players will have to target the entity to see its name tag. For non-living entities, the name will not be visible at all. To prevent this, use 'display name'.",
-	"\t<strong>Display Name:</strong> The custom name of the entity. Can be changed, " +
-		"which will also enable <em>custom name visibility</em> of the entity so name tag of the entity will be visible always.",
+	"\t<strong>Name:</strong> The custom appellation of the entity. May be changed. Yet for living entities, " +
+		"the players must needs target the entity to behold its name tag. For non-living entities, the name shall not be visible at all. To prevent this, employ 'display name'.",
+	"\t<strong>Display Name:</strong> The custom appellation of the entity. May be changed, " +
+		"which shall also enable <em>custom name visibility</em> of the entity so its name tag shall be visible evermore.",
 	"",
 	"<strong>Items:</strong>",
-	"\t<strong>Name and Display Name:</strong> The <em>custom</em> name of the item (not the Minecraft locale name). Can be changed.",
+	"\t<strong>Name and Display Name:</strong> The <em>custom</em> appellation of the item (not the Minecraft locale name). May be changed.",
 	"",
 	"<strong>Inventories:</strong>",
-	"\t<strong>Name and Display Name:</strong> The name/title of the inventory. " +
-		"Changing name of an inventory means opening the same inventory with the same contents but with a different name to its current viewers.",
+	"\t<strong>Name and Display Name:</strong> The name or title of the inventory. " +
+		"Changing the name of an inventory doth open the same inventory with the same contents but with a different title unto its current viewers.",
 	"",
 	"<strong>Gamerules:</strong>",
 	"\t<strong>Name:</strong> The name of the gamerule. Cannot be changed.",

@@ -13,15 +13,15 @@ import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Beehive Target Flower")
-@Description("The flower a beehive has selected to pollinate from.")
-@Example("set the target flower of {_beehive} to location(0, 0, 0)")
-@Example("clear the target flower of {_beehive}")
+@Name("Beehive Coveted Blossom")
+@Description("The blossom a beehive hath chosen to gather pollen from.")
+@Example("set the coveted blossom of {_beehive} to location(0, 0, 0)")
+@Example("clear the coveted blossom of {_beehive}")
 @Since("2.11")
 public class ExprBeehiveFlower extends SimplePropertyExpression<Block, Location> {
 
 	static {
-		registerDefault(ExprBeehiveFlower.class, Location.class, "target flower", "blocks");
+		registerDefault(ExprBeehiveFlower.class, Location.class, "coveted blossom", "blocks");
 	}
 
 	@Override

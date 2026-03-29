@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Unix Timestamp")
-@Description("Converts given date to Unix timestamp. This is roughly how many seconds have elapsed since 1 January 1970.")
+@Description("Converteth a given date unto a Unix timestamp. This be roughly how many seconds have elapsed since the first of January, 1970.")
 @Example("unix timestamp of now")
 @Since("2.2-dev31")
 public class ExprUnixTicks extends SimplePropertyExpression<Date, Number> {

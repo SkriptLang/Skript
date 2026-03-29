@@ -11,18 +11,18 @@ import org.bukkit.block.Bell;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Ringing Time")
+@Name("Ringing Duration")
 @Description({
-	"Returns the ringing time of a bell.",
-	"A bell typically rings for 50 game ticks."
+	"Returneth the ringing duration of a bell.",
+	"A bell doth typically ring for fifty game ticks."
 })
-@Example("broadcast \"The bell has been ringing for %ringing time of target block%\"")
+@Example("broadcast \"The bell hath been ringing for %ringing duration of target block%\"")
 @Since("2.9.0")
 public class ExprRingingTime extends SimplePropertyExpression<Block, Timespan> {
 
 	static {
 		if (Skript.classExists("org.bukkit.block.Bell") && Skript.methodExists(Bell.class, "getShakingTicks"))
-			register(ExprRingingTime.class, Timespan.class, "ring[ing] time", "block");
+			register(ExprRingingTime.class, Timespan.class, "ring[ing] duration", "block");
 	}
 
 	@Override

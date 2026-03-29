@@ -18,22 +18,22 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Has Potion Effect")
+@Name("Possesseth Potion Effect")
 @Description({
-	"Checks whether an entity has a potion effect with certain properties.",
-	"An entity is considered having a potion effect if it has a potion effect with at least the specified properties.",
-	"For example, if an entity has an 'ambient speed 5' effect, they would be considered as having 'speed 5'.",
-	"For exact comparisons, consider using the <a href='./expressions.html#ExprPotionEffect'>Potion Effect of Entity/Item</a> " +
-			"expression in an 'is' comparison."
+	"Ascertaineth whether an entity doth possess a potion effect with certain properties.",
+	"An entity is considered to possess a potion effect if it beareth a potion effect with at least the specified properties.",
+	"For example, if an entity hath an 'ambient speed 5' effect, it would be deemed as possessing 'speed 5'.",
+	"For exact comparisons, consider employing the <a href='./expressions.html#ExprPotionEffect'>Potion Effect of Entity/Item</a> " +
+			"expression within an 'is' comparison."
 })
 @Example("""
-	if the player has a potion effect of speed:
-		message "You are sonic!"
-	""")
+    if the player has a potion effect of speed:
+    	message "Thou art swift as Mercury!"
+    """)
 @Example("""
-	if all players have speed and haste active:
-		broadcast "This server is ready to mine!"
-	""")
+    if all players have speed and haste active:
+    	broadcast "This server standeth ready to mine!"
+    """)
 @Since({"2.6.1", "2.14 (support for potion effects)"})
 public class CondHasPotion extends Condition {
 

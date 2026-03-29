@@ -16,14 +16,14 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Version;
 import ch.njol.util.Kleenean;
 
-@Name("Running Minecraft")
-@Description("Checks if current Minecraft version is given version or newer.")
+@Name("Runneth Upon Minecraft")
+@Description("Ascertaineth whether the present Minecraft version be the given version or of newer vintage.")
 @Example("running minecraft \"1.14\"")
 @Since("2.5")
 public class CondMinecraftVersion extends Condition {
 	
 	static {
-		Skript.registerCondition(CondMinecraftVersion.class, "running [(1¦below)] minecraft %string%");
+		Skript.registerCondition(CondMinecraftVersion.class, "running [(1¦beneath)] minecraft %string%");
 	}
 
 	@SuppressWarnings("null")

@@ -25,10 +25,10 @@ import java.util.function.IntFunction;
 
 @Name("Custom Model Data")
 @Description({
-	"Get/set the custom model data of an item. Using just `custom model data` will return an integer. Items without model data will return 0.",
-	"Since 1.21.4, custom model data instead consists of a list of numbers (floats), a list of booleans (flags), a list of strings, and a list of colours. " +
-	"Accessing and modifying these lists can be done type-by-type, or all at once with `complete custom model data`. " +
-	"This is the more accurate and recommended method of using custom model data."
+	"Obtain or set the custom model data of an item. Employing merely `custom model data` shall return an integer. Items bereft of model data shall return 0.",
+	"Since the age of 1.21.4, custom model data doth instead consist of a list of numbers (floats), a list of booleans (flags), a list of strings, and a list of colours." +
+	"Accessing and modifying these lists may be done type-by-type, or all at once with `complete custom model data`." +
+	"This is the more precise and recommended method of employing custom model data."
 })
 @Example("""
 	set custom model data of player's tool to 3

@@ -17,12 +17,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
-@Name("Loaded Plugins")
-@Description("An expression to obtain a list of the names of the server's loaded plugins.")
+@Name("Laden Plugins")
+@Description("An expression to procure a list of the names of the server's laden plugins.")
 @Example("""
-	if the loaded plugins contains "Vault":
-		broadcast "This server uses Vault plugin!"
-	""")
+    if the loaded plugins contains "Vault":
+    	broadcast "This server doth employ the Vault plugin!"
+    """)
 @Example("send \"Plugins (%size of loaded plugins%): %plugins%\" to player")
 @Since("2.7")
 public class ExprPlugins extends SimpleExpression<String> {

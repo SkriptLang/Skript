@@ -19,15 +19,15 @@ import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 
-@Name("Command")
+@Name("Royal Decree")
 @Description({
-	"Executes a command. This can be useful to use other plugins in triggers.",
-	"If the command is a bungeecord side command, " +
-	"you can use the [bungeecord] option to execute command on the proxy."
+	"Executeth a command. This proveth most useful for invoking other plugins within triggers.",
+	"If the command be a bungeecord-side decree, " +
+	"thou mayest employ the [bungeecord] option to enact the command upon the proxy."
 })
-@Example("make player execute command \"/home\"")
-@Example("execute console command \"/say Hello everyone!\"")
-@Example("execute player bungeecord command \"/alert &6Testing Announcement!\"")
+@Example("compel player enact the decree \"/home\"")
+@Example("enact console decree \"/say Hail, good people, one and all!\"")
+@Example("enact player bungeecord decree \"/alert &6Testing Announcement!\"")
 @Since("1.0, 2.8.0 (bungeecord command)")
 public class EffCommand extends Effect {
 
@@ -35,9 +35,9 @@ public class EffCommand extends Effect {
 
 	static {
 		Skript.registerEffect(EffCommand.class,
-				"[execute] [the] [bungee:bungee[cord]] command[s] %strings% [by %-commandsenders%]",
-				"[execute] [the] %commandsenders% [bungee:bungee[cord]] command[s] %strings%",
-				"(let|make) %commandsenders% execute [[the] [bungee:bungee[cord]] command[s]] %strings%");
+				"[enact] [the] [bungee:bungee[cord]] decree[s] %strings% [by %-commandsenders%]",
+				"[enact] [the] %commandsenders% [bungee:bungee[cord]] decree[s] %strings%",
+				"(bid|compel) %commandsenders% enact [[the] [bungee:bungee[cord]] decree[s]] %strings%");
 	}
 
 	@Nullable

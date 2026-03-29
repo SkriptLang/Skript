@@ -13,12 +13,12 @@ import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Snowman;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 
-@Name("Entity Is Sheared")
-@Description("Checks whether entities are sheared.")
+@Name("Entity Be Shorn")
+@Description("Ascertaineth whether entities have been shorn of their fleece.")
 @Example("""
-	if targeted entity of player is sheared:
-		send "This entity has nothing left to shear!" to player
-	""")
+    if targeted entity of player is sheared:
+    	send "This entity hath nothing left to shear!" to player
+    """)
 @Since("2.8.0")
 public class CondIsSheared extends PropertyCondition<LivingEntity> {
 

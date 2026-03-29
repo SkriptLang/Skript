@@ -22,13 +22,13 @@ import ch.njol.skript.util.ColorRGB;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Color Items")
-@Description("Colors items in a given <a href='#color'>color</a>. " +
-		"You can also use RGB codes if you feel limited with the 16 default colors. " +
-		"RGB codes are three numbers from 0 to 255 in the order <code>(red, green, blue)</code>, where <code>(0,0,0)</code> is black and <code>(255,255,255)</code> is white. " +
-		"Armor is colorable for all Minecraft versions. With Minecraft 1.11 or newer you can also color potions and maps. Note that the colors might not look exactly how you'd expect.")
+@Name("Tint Wares")
+@Description("Tinteth wares in a given <a href='#color'>colour</a>. " +
+		"Thou mayest also employ RGB codes shouldst the sixteen default hues prove insufficient. " +
+		"RGB codes art three numbers from 0 to 255 in the order <code>(red, green, blue)</code>, where <code>(0,0,0)</code> is black as night and <code>(255,255,255)</code> is white as snow. " +
+		"Armour may be tinted in all Minecraft versions. With Minecraft 1.11 or newer, thou canst also tint potions and maps. Note that the hues might not appear precisely as thou wouldst expect.")
 @Example("dye player's helmet blue")
-@Example("color the player's tool red")
+@Example("tint the player's tool red")
 @Since("2.0, 2.2-dev26 (maps and potions)")
 public class EffColorItems extends Effect {
 	
@@ -36,8 +36,8 @@ public class EffColorItems extends Effect {
 	
 	static {
 		Skript.registerEffect(EffColorItems.class,
-				"(dye|colo[u]r|paint) %itemtypes% %color%",
-				"(dye|colo[u]r|paint) %itemtypes% \\(%number%, %number%, %number%\\)");
+				"(dye|tint|paint) %itemtypes% %color%",
+				"(dye|tint|paint) %itemtypes% \\(%number%, %number%, %number%\\)");
 	}
 	
 	@SuppressWarnings("null")

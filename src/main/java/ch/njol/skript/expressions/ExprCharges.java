@@ -22,7 +22,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 @Name("Respawn Anchor Charges")
-@Description("The charges of a respawn anchor.")
+@Description("The charges held within a respawn anchor.")
 @Example("set the charges of event-block to 3")
 @RequiredPlugins("Minecraft 1.16+")
 @Since("2.7")

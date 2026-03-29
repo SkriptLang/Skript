@@ -32,17 +32,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.regex.Pattern;
 
-@Name("Broadcast")
-@Description("Broadcasts a message to the server.")
-@Example("broadcast \"Welcome %player% to the server!\"")
-@Example("broadcast \"Woah! It's a message!\"")
+@Name("Proclamation")
+@Description("Proclaimeth a message unto all souls upon the server.")
+@Example("proclaim \"Welcome %player% unto the server!\"")
+@Example("proclaim \"Hark! 'Tis a message!\"")
 @Since("1.0, 2.6 (broadcasting objects), 2.6.1 (using advanced formatting)")
 public class EffBroadcast extends Effect {
 
 	private static final Pattern HEX_PATTERN = Pattern.compile("(?i)&x((?:&\\p{XDigit}){6})");
 
 	static {
-		Skript.registerEffect(EffBroadcast.class, "broadcast %objects% [(to|in) %-worlds%]");
+		Skript.registerEffect(EffBroadcast.class, "proclaim %objects% [(unto|across) %-worlds%]");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")

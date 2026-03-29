@@ -19,8 +19,8 @@ import ch.njol.util.Kleenean;
 /**
  * @author Peter Güttinger
  */
-@Name("Exists/Is Set")
-@Description("Checks whether a given expression or variable is set.")
+@Name("Doth Exist / Be Established")
+@Description("Ascertaineth whether a given expression or variable hath been established.")
 @Example("{teams::%player's uuid%::preferred-team} is not set")
 @Example("""
 	on damage:

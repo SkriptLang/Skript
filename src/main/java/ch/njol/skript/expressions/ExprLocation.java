@@ -20,15 +20,15 @@ import ch.njol.util.Kleenean;
 /**
  * @author Peter Güttinger
  */
-@Name("Location")
-@Description("The location where an event happened (e.g. at an entity or block), or a location <a href='#ExprDirection'>relative</a> to another (e.g. 1 meter above another location).")
-@Example("drop 5 apples at the event-location # exactly the same as writing 'drop 5 apples'")
-@Example("set {_loc} to the location 1 meter above the player")
+@Name("Whereabouts")
+@Description("The whereabouts at which an event did transpire (e.g. at an entity or block), or a location <a href='#ExprDirection'>relative</a> unto another (e.g. 1 meter above another location).")
+@Example("drop 5 apples at the event-whereabouts # exactly the same as writing 'drop 5 apples'")
+@Example("set {_loc} to the whereabouts 1 meter above the player")
 @Since("2.0")
 public class ExprLocation extends WrapperExpression<Location> {
 	static {
-		Skript.registerExpression(ExprLocation.class, Location.class, ExpressionType.SIMPLE, "[the] [event-](location|position)");
-		Skript.registerExpression(ExprLocation.class, Location.class, ExpressionType.COMBINED, "[the] (location|position) %directions% [%location%]");
+		Skript.registerExpression(ExprLocation.class, Location.class, ExpressionType.SIMPLE, "[the] [event-](whereabouts|position)");
+		Skript.registerExpression(ExprLocation.class, Location.class, ExpressionType.COMBINED, "[the] (whereabouts|position) %directions% [%location%]");
 	}
 	
 	@SuppressWarnings({"unchecked", "null"})

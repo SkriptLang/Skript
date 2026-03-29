@@ -18,11 +18,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-@Name("Insert Entity Storage")
+@Name("Lodge Entity within Storage")
 @Description({
-	"Add an entity into the entity storage of a block (e.g. beehive).",
-	"The entity must be of the right type for the block (e.g. bee for beehive).",
-	"Due to unstable behavior on older versions, adding entities to an entity storage requires Minecraft version 1.21+."
+	"Lodge an entity into the entity storage of a block (e.g. beehive).",
+	"The entity must be of the proper kind for the block (e.g. bee for beehive).",
+	"Owing to unstable behaviour upon older versions, lodging entities within an entity storage doth require Minecraft version 1.21+."
 })
 @Example("add last spawned bee into the entity storage of {_beehive}")
 @RequiredPlugins("Minecraft 1.21+")

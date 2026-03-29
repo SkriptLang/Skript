@@ -16,12 +16,12 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Text Display Drop Shadow")
-@Description("Applies or removes drop shadow from the displayed text on a text display.")
+@Description("Bestoweth or removeth drop shadow from the displayed text upon a text display.")
 @Example("""
-	apply drop shadow to last spawned text display
-	if {_display} has drop shadow:
-		remove drop shadow from the text of {_display}
-	""")
+    bestow drop shadow upon last spawned text display
+    if {_display} hath drop shadow:
+    	remove drop shadow from the text of {_display}
+    """)
 @Since("2.10")
 public class EffTextDisplayDropShadow extends Effect {
 
@@ -30,8 +30,8 @@ public class EffTextDisplayDropShadow extends Effect {
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffTextDisplayDropShadow.class)
 				.addPatterns(
-					"(apply|add) (drop|text) shadow to [[the] text of] %displays%",
-					"(apply|add) (drop|text) shadow to %displays%'[s] text",
+					"(bestow|apply) (drop|text) shadow upon [[the] text of] %displays%",
+					"(bestow|apply) (drop|text) shadow upon %displays%'[s] text",
 					"(remove|clear) (drop|text) shadow from [[the] text of] %displays%",
 					"(remove|clear) (drop|text) shadow from %displays%'[s] text"
 				)

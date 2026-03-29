@@ -18,11 +18,11 @@ import org.bukkit.event.Event;
 import org.bukkit.util.CachedServerIcon;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Server Icon")
-@Description({"Icon of the server in the server list. Can be set to an icon that loaded using the",
+@Name("Server Crest")
+@Description({"The icon of the server upon the server list. It may be set to an icon loaded by means of the",
 		"<a href='#EffLoadServerIcon'>load server icon</a> effect,",
-		"or can be reset to the default icon in a <a href='#server_list_ping'>server list ping</a>.",
-		"'default server icon' returns the default server icon (server-icon.png) always and cannot be changed.",})
+		"or it may be restored to the default icon within a <a href='#server_list_ping'>server list ping</a>.",
+		"'default server icon' returneth the default server icon (server-icon.png) always and cannot be altered.",})
 @Example("""
 	on script load:
 		set {server-icons::default} to the default server icon

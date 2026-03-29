@@ -18,8 +18,8 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-@Name("Raw Name")
-@Description("The raw Minecraft material name of the given item. Note that this is not guaranteed to give same results on all servers.")
+@Name("True Name")
+@Description("The raw Minecraft material name of the given ware. Note that this is not assured to yield the same results upon all servers.")
 @Example("raw name of tool of player")
 @Since("unknown (2.2)")
 public class ExprRawName extends SimpleExpression<String> {

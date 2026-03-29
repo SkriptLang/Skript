@@ -8,18 +8,18 @@ import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Entity;
 import org.skriptlang.skript.util.Validated;
 
-@Name("Is Valid")
+@Name("Be It Valid")
 @Description({
-	"Checks whether something (an entity, a script, a config, etc.) is valid.",
-	"An invalid entity may have died or de-spawned for some other reason.",
-	"An invalid script reference may have been reloaded, moved or disabled since."
+	"Ascertaineth whether a thing (an entity, a script, a config, and the like) doth hold validity.",
+	"An invalid entity may have perished or vanished from this mortal plane by some other cause.",
+	"An invalid script reference may have been reloaded, displaced, or rendered dormant since."
 })
-@Example("if event-entity is valid")
+@Example("if event-entity is of sound validity")
 @Since("2.7, 2.10 (Scripts & Configs)")
 public class CondIsValid extends PropertyCondition<Object> {
 
 	static {
-		register(CondIsValid.class, "valid", "entities/scripts");
+		register(CondIsValid.class, "of sound validity", "entities/scripts");
 	}
 
 	@Override

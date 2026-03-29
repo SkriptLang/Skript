@@ -10,12 +10,12 @@ import io.papermc.paper.world.MoonPhase;
 import org.bukkit.World;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Moon Phase")
-@Description("The current moon phase of a world.")
+@Name("Lunar Countenance")
+@Description("The present phase of the moon within a world.")
 @Example("""
-	if moon phase of player's world is full moon:
-		send "Watch for the wolves!"
-	""")
+    if moon phase of player's world is full moon:
+    	send "Beware the wolves upon this night!"
+    """)
 @Since("2.7")
 public class ExprMoonPhase extends SimplePropertyExpression<World, MoonPhase> {
 

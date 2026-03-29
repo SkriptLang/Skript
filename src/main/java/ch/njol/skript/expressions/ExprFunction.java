@@ -22,7 +22,7 @@ import org.skriptlang.skript.lang.script.Script;
 import java.util.Objects;
 
 @Name("Function")
-@Description("Obtain a function by name, which can be executed.")
+@Description("Obtaineth a function by its given name, which may thence be invoked.")
 @Example("set {_function} to the function named \"myFunction\"")
 @Example("run {_function} with arguments 13 and true")
 @Since("2.10")

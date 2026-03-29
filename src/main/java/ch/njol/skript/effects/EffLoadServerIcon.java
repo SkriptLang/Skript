@@ -18,10 +18,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-@Name("Load Server Icon")
-@Description({"Loads server icons from the given files. You can get the loaded icon using the",
+@Name("Summon Server Icon")
+@Description({"Loadeth server icons from the given files. Thou canst obtain the loaded icon by means of the",
 		"<a href='#ExprLastLoadedServerIcon'>last loaded server icon</a> expression.",
-		"Please note that the image must be 64x64 and the file path starts from the server folder.",})
+		"Pray note that the image must be 64x64 and the file path doth begin from the server folder.",})
 @Example("""
 	on load:
 		clear {server-icons::*}

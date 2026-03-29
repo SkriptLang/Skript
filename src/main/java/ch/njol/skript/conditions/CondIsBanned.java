@@ -15,20 +15,20 @@ import org.bukkit.entity.Player;
 
 import java.net.InetSocketAddress;
 
-@Name("Is Banned")
-@Description("Checks whether a player or IP is banned.")
-@Example("player is banned")
-@Example("victim is not IP-banned")
-@Example("\"127.0.0.1\" is banned")
+@Name("Be Banished")
+@Description("Ascertaineth whether a player or IP hath been banished from the realm.")
+@Example("player is banished")
+@Example("victim is not IP-banished")
+@Example("\"127.0.0.1\" is banished")
 @Since("1.4")
 public class CondIsBanned extends PropertyCondition<Object> {
 	
 	static {
 		Skript.registerCondition(CondIsBanned.class,
-				"%offlineplayers/strings% (is|are) banned",
-				"%players/strings% (is|are) IP(-| |)banned",
-				"%offlineplayers/strings% (isn't|is not|aren't|are not) banned",
-				"%players/strings% (isn't|is not|aren't|are not) IP(-| |)banned");
+				"%offlineplayers/strings% (is|are) banished",
+				"%players/strings% (is|are) IP(-| |)banished",
+				"%offlineplayers/strings% (isn't|is not|aren't|are not) banished",
+				"%players/strings% (isn't|is not|aren't|are not) IP(-| |)banished");
 	}
 	
 	private boolean ipBanned;

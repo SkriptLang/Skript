@@ -18,8 +18,8 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Vectors - Create from XYZ")
-@Description("Creates a vector from x, y and z values.")
+@Name("Vectors — Conjure from XYZ")
+@Description("Conjureth a vector from x, y, and z values.")
 @Example("set {_v} to vector 0, 1, 0")
 @Since("2.2-dev28")
 public class ExprVectorFromXYZ extends SimpleExpression<Vector> {

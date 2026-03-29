@@ -17,12 +17,12 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Plain Item")
-@Description("A plain item is an item with no modifications. It can be used to convert items to their default state or to match with other default items.")
+@Name("Unadorned Item")
+@Description("An unadorned item is one bearing no modifications whatsoever. It may be employed to convert items to their pristine state or to match against other items in their natural form.")
 @Example("""
-	if the player's tool is a plain diamond: # check if player's tool has no modifications
-		send "You are holding a plain diamond!"
-	""")
+    if the player's tool is a plain diamond: # check if player's tool has no modifications
+    	send "Thou dost hold an unadorned diamond!"
+    """)
 @Since("2.6")
 public class ExprPlain extends SimpleExpression<ItemType> {
 	

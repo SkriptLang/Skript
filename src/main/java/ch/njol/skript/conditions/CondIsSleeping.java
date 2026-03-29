@@ -7,8 +7,8 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.LivingEntity;
 
-@Name("Is Sleeping")
-@Description("Checks whether an entity is sleeping.")
+@Name("Doth Slumber")
+@Description("Ascertaineth whether an entity doth presently slumber.")
 @Example("""
 	if player is sleeping:
 		make player wake up without spawn location update

@@ -15,21 +15,21 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Explode Creeper")
-@Description("Starts the explosion process of a creeper or instantly explodes it.")
-@Example("start explosion of the last spawned creeper")
-@Example("stop ignition of the last spawned creeper")
+@Name("Detonate the Creeper")
+@Description("Commence the detonation process of a creeper, or forthwith cause it to explode.")
+@Example("commence detonation of the last spawned creeper")
+@Example("halt ignition of the last spawned creeper")
 @Since("2.5")
 public class EffExplodeCreeper extends Effect {
 
 	static {
 		if (Skript.methodExists(Creeper.class, "explode")) {
 			Skript.registerEffect(EffExplodeCreeper.class, 
-					"instantly explode [creeper[s]] %livingentities%",
-					"explode [creeper[s]] %livingentities% instantly",
-					"ignite creeper[s] %livingentities%",
-					"start (ignition|explosion) [process] of [creeper[s]] %livingentities%",
-					"stop (ignition|explosion) [process] of [creeper[s]] %livingentities%");
+					"forthwith detonate [creeper[s]] %livingentities%",
+					"detonate [creeper[s]] %livingentities% forthwith",
+					"kindle creeper[s] %livingentities%",
+					"commence (ignition|detonation) [process] of [creeper[s]] %livingentities%",
+					"halt (ignition|detonation) [process] of [creeper[s]] %livingentities%");
 		}
 	}
 

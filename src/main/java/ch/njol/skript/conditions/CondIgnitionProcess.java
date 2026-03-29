@@ -15,21 +15,21 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
 @Name("Ignition Process")
-@Description("Checks if a creeper is going to explode.")
+@Description("Discerneth whether a creeper be readying itself to burst asunder.")
 @Example("""
-	if the last spawned creeper is going to explode:
-		loop all players in radius 3 of the last spawned creeper
-			send "RUN!!!" to the loop-player
-	""")
+    if the last spawned creeper is about to burst asunder:
+    	loop all players in radius 3 of the last spawned creeper
+    		send "FLEE!!!" to the loop-player
+    """)
 @Since("2.5")
 public class CondIgnitionProcess extends PropertyCondition<LivingEntity> {
 
 	static {
 		if (Skript.methodExists(Creeper.class, "isIgnited")) {
 			Skript.registerCondition(CondIgnitionProcess.class,
-					"[creeper[s]] %livingentities% ((is|are)|1¦(isn't|is not|aren't|are not)) going to explode",
-					"[creeper[s]] %livingentities% ((is|are)|1¦(isn't|is not|aren't|are not)) in the (ignition|explosion) process",
-					"creeper[s] %livingentities% ((is|are)|1¦(isn't|is not|aren't|are not)) ignited");
+					"[creeper[s]] %livingentities% ((is|are)|1¦(isn't|is not|aren't|are not)) about to burst asunder",
+					"[creeper[s]] %livingentities% ((is|are)|1¦(isn't|is not|aren't|are not)) in the (ignition|detonation) process",
+					"creeper[s] %livingentities% ((is|are)|1¦(isn't|is not|aren't|are not)) set alight");
 		}
 	}
 

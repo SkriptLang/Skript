@@ -15,20 +15,20 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("All Groups")
-@Description("All the groups a player can have. This expression requires Vault and a compatible permissions plugin to be installed.")
+@Name("All Guilds")
+@Description("All the guilds a player may belong unto. This expression doth require Vault and a compatible permissions plugin to be installed.")
 @Example("""
-	command /group &lt;text&gt;:
-		trigger:
-			if argument is "list":
-				send "%all groups%"
-	""")
+    command /guild &lt;text&gt;:
+    	trigger:
+    		if argument is "list":
+    			send "%all guilds%"
+    """)
 @Since("2.2-dev35")
 @RequiredPlugins({"Vault", "a permission plugin that supports Vault"})
 public class ExprAllGroups extends SimpleExpression<String> {
 
 	static {
-		Skript.registerExpression(ExprAllGroups.class, String.class, ExpressionType.SIMPLE, "all groups");
+		Skript.registerExpression(ExprAllGroups.class, String.class, ExpressionType.SIMPLE, "all guilds");
 	}
 
 	@Override
@@ -58,7 +58,7 @@ public class ExprAllGroups extends SimpleExpression<String> {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "all groups";
+		return "all guilds";
 	}
 
 }

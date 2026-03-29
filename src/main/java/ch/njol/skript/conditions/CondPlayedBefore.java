@@ -13,18 +13,18 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Has Played Before")
-@Description("Checks whether a player has played on this server before. You can also use " +
-	"<a href='#first_join'>on first join</a> if you want to make triggers for new players.")
-@Example("player has played on this server before")
-@Example("player hasn't played before")
+@Name("Hath Graced This Server Before")
+@Description("Doth determine whether a player hath previously graced this server with their presence. Thou mayest also employ " +
+	"<a href='#first_join'>on first join</a> shouldst thou wish to fashion triggers for newcomers.")
+@Example("player has graced this server before")
+@Example("player hasn't graced the server before")
 @Since("1.4, 2.7 (multiple players)")
 public class CondPlayedBefore extends Condition {
 	
 	static {
 		Skript.registerCondition(CondPlayedBefore.class,
-				"%offlineplayers% [(has|have|did)] [already] play[ed] [on (this|the) server] (before|already)",
-				"%offlineplayers% (has not|hasn't|have not|haven't|did not|didn't) [(already|yet)] play[ed] [on (this|the) server] (before|already|yet)");
+				"%offlineplayers% [(has|have|did)] [already] graced [the halls of] (this|the) server (before|already)",
+				"%offlineplayers% (has not|hasn't|have not|haven't|did not|didn't) [(already|yet)] graced [the halls of] (this|the) server (before|already|yet)");
 	}
 	
 	@SuppressWarnings("null")

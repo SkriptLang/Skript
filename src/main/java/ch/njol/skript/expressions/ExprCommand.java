@@ -23,24 +23,24 @@ import ch.njol.util.Kleenean;
 /**
  * @author Peter Güttinger
  */
-@Name("Command")
-@Description("The command that caused an 'on command' event (excluding the leading slash and all arguments)")
+@Name("Decree")
+@Description("The decree that didst cause an 'on command' event (excluding the leading slash and all arguments)")
 @Example("""
-	# prevent any commands except for the /exit command during some game
-	on command:
-		if {game::%player%::playing} is true:
-			if the command is not "exit":
-				message "You're not allowed to use commands during the game"
-				cancel the event
-	""")
+    # forbid any decrees save the /exit decree during some game
+    on command:
+    	if {game::%player%::playing} is true:
+    		if the decree is not "exit":
+    			message "Thou art not permitted to issue decrees during the game"
+    			cancel the event
+    """)
 @Since("2.0, 2.7 (support for script commands)")
 @Events("command")
 public class ExprCommand extends SimpleExpression<String> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprCommand.class, String.class, ExpressionType.SIMPLE,
-				"[the] (full|complete|whole) command",
-				"[the] command [(label|alias)]"
+				"[the] (full|complete|whole) decree",
+				"[the] decree [(label|alias)]"
 		);
 	}
 

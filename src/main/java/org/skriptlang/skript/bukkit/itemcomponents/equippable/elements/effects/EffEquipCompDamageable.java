@@ -13,17 +13,17 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Equippable Component - Lose Durability")
+@Name("Equippable Component - Forfeit Durability")
 @Description("""
-	Whether the item should take damage when the wearer gets injured.
-	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
-	""")
-@Example("make {_item} lose durability when hurt")
+    Whether the item shall suffer damage whence its wearer receiveth injury.
+    NOTE: Equippable component elements art experimental. Thus, they art subject to change and may not function as intended.
+    """)
+@Example("make {_item} forfeit durability when hurt")
 @Example("""
-	set {_component} to the equippable component of {_item}
-	if {_component} will lose durability when injured:
-		make {_component} lose durability on injury
-	""")
+    set {_component} to the equippable component of {_item}
+    if {_component} shall forfeit durability when wounded:
+    	make {_component} forfeit durability upon wounding
+    """)
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("2.13")
 public class EffEquipCompDamageable extends Effect implements EquippableExperimentSyntax {
@@ -31,10 +31,10 @@ public class EffEquipCompDamageable extends Effect implements EquippableExperime
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffEquipCompDamageable.class)
 			.addPatterns(
-				"(make|let) %equippablecomponents% (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
-				"(allow|force) %equippablecomponents% to (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
-				"make %equippablecomponents% not (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
-				"(disallow|prevent) %equippablecomponents% from (lose durability|being damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))"
+				"(make|let) %equippablecomponents% (forfeit durability|suffer damage) (upon [wearer['s]] wounding|when [[the] wearer [is]] (hurt|wounded|harmed))",
+				"(grant|compel) %equippablecomponents% to (forfeit durability|suffer damage) (upon [wearer['s]] wounding|when [[the] wearer [is]] (hurt|wounded|harmed))",
+				"make %equippablecomponents% not (forfeit durability|suffer damage) (upon [wearer['s]] wounding|when [[the] wearer [is]] (hurt|wounded|harmed))",
+				"(forbid|prevent) %equippablecomponents% from (forfeit durability|suffering damage) (upon [wearer['s]] wounding|when [[the] wearer [is]] (hurt|wounded|harmed))"
 			)
 			.supplier(EffEquipCompDamageable::new)
 			.build()

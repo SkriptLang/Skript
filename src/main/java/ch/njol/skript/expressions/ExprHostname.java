@@ -15,13 +15,13 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-@Name("Hostname")
-@Description("The hostname used by the connecting player to connect to the server in a <a href='#connect'>connect</a> event.")
+@Name("Host Name")
+@Description("The hostname employed by the connecting player to reach the server in a <a href='#connect'>connect</a> event.")
 @Example("""
-	on connect:
-		hostname is "testers.example.com"
-		send "Welcome back tester!"
-	""")
+    on connect:
+    	hostname is "testers.example.com"
+    	send "Welcome back, good tester!"
+    """)
 @Since("2.6.1")
 public class ExprHostname extends SimpleExpression<String> {
 

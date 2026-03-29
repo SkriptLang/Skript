@@ -36,18 +36,18 @@ public class EvtItem extends SkriptEvent {
 	private final static boolean HAS_PLAYER_STONECUTTER_RECIPE_SELECT_EVENT = Skript.classExists("io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent");
 
 	static {
-		Skript.registerEvent("Dispense", EvtItem.class, BlockDispenseEvent.class, "dispens(e|ing) [[of] %-itemtypes%]")
+		Skript.registerEvent("Dispensation", EvtItem.class, BlockDispenseEvent.class, "dispens(e|ing) [[of] %-itemtypes%]")
 				.description("Called when a dispenser dispenses an item.")
 				.examples("on dispense of iron block:",
 						"\tsend \"that'd be 19.99 please!\"")
 				.since("unknown (before 2.1)");
-		Skript.registerEvent("Item Spawn", EvtItem.class, ItemSpawnEvent.class, "item spawn[ing] [[of] %-itemtypes%]")
+		Skript.registerEvent("Wares Manifest", EvtItem.class, ItemSpawnEvent.class, "wares manifest[ing] [[of] %-itemtypes%]")
 				.description("Called whenever an item stack is spawned in a world, e.g. as drop of a block or mob, a player throwing items out of their inventory, or a dispenser dispensing an item (not shooting it).")
 				.examples("on item spawn of iron sword:",
 						"\tbroadcast \"Someone dropped an iron sword!\"")
 				.since("unknown (before 2.1)");
-		Skript.registerEvent("Drop", EvtItem.class, CollectionUtils.array(PlayerDropItemEvent.class, EntityDropItemEvent.class),
-				"[player|1:entity] drop[ping] [[of] %-itemtypes%]")
+		Skript.registerEvent("Casting Forth", EvtItem.class, CollectionUtils.array(PlayerDropItemEvent.class, EntityDropItemEvent.class),
+				"[player|1:entity] cast[ing] forth [[of] %-itemtypes%]")
 				.description("Called when a player drops an item from their inventory, or an entity drops an item, such as a chicken laying an egg.")
 				.examples("on drop:",
 						"\tif event-item is compass:",
@@ -57,48 +57,48 @@ public class EvtItem extends SkriptEvent {
 						"\tif event-entity is a chicken:",
 						"\t\tset item of event-dropped item to a diamond")
 				.since("unknown (before 2.1), 2.7 (entity)");
-		Skript.registerEvent("Prepare Craft", EvtItem.class, PrepareItemCraftEvent.class, "[player] (preparing|beginning) craft[ing] [[of] %-itemtypes%]")
+		Skript.registerEvent("Preparing Craft", EvtItem.class, PrepareItemCraftEvent.class, "[player] (preparing|commencing) craft[ing] [[of] %-itemtypes%]")
 				.description("Called just before displaying crafting result to player. Note that setting the result item might or might not work due to Bukkit bugs.")
 				.examples("on preparing craft of torch:")
 				.since("2.2-Fixes-V10");
 
 		// TODO limit to InventoryAction.PICKUP_* and similar (e.g. COLLECT_TO_CURSOR)
-		Skript.registerEvent("Craft", EvtItem.class, CraftItemEvent.class, "[player] craft[ing] [[of] %-itemtypes%]")
+		Skript.registerEvent("Crafting", EvtItem.class, CraftItemEvent.class, "[player] craft[ing] [[of] %-itemtypes%]")
 				.description("Called when a player crafts an item.")
 				.examples("on craft:")
 				.since("unknown (before 2.1)");
-		Skript.registerEvent("Pick Up", EvtItem.class, CollectionUtils.array(PlayerPickupItemEvent.class, EntityPickupItemEvent.class),
-					"[(player|1¦entity)] (pick[ ]up|picking up) [[of] %-itemtypes%]")
+		Skript.registerEvent("Gathering Up", EvtItem.class, CollectionUtils.array(PlayerPickupItemEvent.class, EntityPickupItemEvent.class),
+					"[(player|1¦entity)] (gather[ing] up|collecting) [[of] %-itemtypes%]")
 				.description("Called when a player/entity picks up an item. Please note that the item is still on the ground when this event is called.")
 				.examples("on pick up:", "on entity pickup of wheat:")
 				.since("unknown (before 2.1), 2.5 (entity)")
 				.keywords("pickup");
-		Skript.registerEvent("Consume", EvtItem.class, PlayerItemConsumeEvent.class, "[player] ((eat|drink)[ing]|consum(e|ing)) [[of] %-itemtypes%]")
+		Skript.registerEvent("Consuming", EvtItem.class, PlayerItemConsumeEvent.class, "[player] ((feast|drink)[ing]|consum(e|ing)) [[of] %-itemtypes%]")
 				.description("Called when a player is done eating/drinking something, e.g. an apple, bread, meat, milk or a potion.")
 				.examples("on consume:")
 				.since("2.0");
-		Skript.registerEvent("Inventory Click", EvtItem.class, InventoryClickEvent.class, "[player] inventory(-| )click[ing] [[at] %-itemtypes%]")
+		Skript.registerEvent("Inventory Perusal", EvtItem.class, InventoryClickEvent.class, "[player] inventory(-| )click[ing] [[at] %-itemtypes%]")
 				.description("Called when clicking on inventory slot.")
 				.examples("on inventory click:",
 						"\tif event-item is stone:",
 						"\t\tgive player 1 stone",
 						"\t\tremove 20$ from player's balance")
 				.since("2.2-Fixes-V10");
-		Skript.registerEvent("Item Despawn", EvtItem.class, ItemDespawnEvent.class, "(item[ ][stack]|[item] %-itemtypes%) despawn[ing]", "[item[ ][stack]] despawn[ing] [[of] %-itemtypes%]")
+		Skript.registerEvent("Wares Vanishing", EvtItem.class, ItemDespawnEvent.class, "(wares|[item] %-itemtypes%) vanish[ing]", "[wares] vanish[ing] [[of] %-itemtypes%]")
 				.description("Called when an item is about to be despawned from the world, usually 5 minutes after it was dropped.")
 				.examples("on item despawn of diamond:",
 					 	"	send \"Not my precious!\"",
 					 	"	cancel event")
 				.since("2.2-dev35");
-		Skript.registerEvent("Item Merge", EvtItem.class, ItemMergeEvent.class, "(item[ ][stack]|[item] %-itemtypes%) merg(e|ing)", "item[ ][stack] merg(e|ing) [[of] %-itemtypes%]")
+		Skript.registerEvent("Wares Uniting", EvtItem.class, ItemMergeEvent.class, "(wares|[item] %-itemtypes%) unit(e|ing)", "wares unit(e|ing) [[of] %-itemtypes%]")
 				.description("Called when dropped items merge into a single stack. event-entity will be the entity which is trying to merge, " +
 						"and future event-entity will be the entity which is being merged into.")
 				.examples("on item merge of gold blocks:",
 					 	"	cancel event")
 				.since("2.2-dev35");
-		Skript.registerEvent("Inventory Item Move", SimpleEvent.class, InventoryMoveItemEvent.class,	 
-                        "inventory item (move|transport)",
-		                "inventory (mov(e|ing)|transport[ing]) [an] item")
+		Skript.registerEvent("Inventory Wares Conveyance", SimpleEvent.class, InventoryMoveItemEvent.class,	 
+                        "inventory wares (convey|transport)",
+		                "inventory (convey[ing]|transport[ing]) [a] ware")
 				.description(
 						"Called when an entity or block (e.g. hopper) tries to move items directly from one inventory to another.",
 						"When this event is called, the initiator may have already removed the item from the source inventory and is ready to move it into the destination inventory.",
@@ -110,7 +110,7 @@ public class EvtItem extends SkriptEvent {
 				)
 				.since("2.8.0");
 		if (HAS_PLAYER_STONECUTTER_RECIPE_SELECT_EVENT) {
-			Skript.registerEvent("Stonecutter Recipe Select", EvtItem.class, PlayerStonecutterRecipeSelectEvent.class, "stonecutting [[of] %-itemtypes%]")
+			Skript.registerEvent("Stonecutter Recipe Selection", EvtItem.class, PlayerStonecutterRecipeSelectEvent.class, "stonecutting [[of] %-itemtypes%]")
 					.description("Called when a player selects a recipe in a stonecutter.")
 					.examples(
 							"on stonecutting stone slabs",

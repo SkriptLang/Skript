@@ -15,32 +15,32 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
-@Name("Force Attack")
+@Name("Compel to Strike")
 @Description({
-	"Makes a living entity attack an entity with a melee attack.",
-	"Using 'attack' will make the attacker use the item in their main hand "
-		+ "and will apply extra data from the item, including enchantments and attributes.",
-	"Using 'damage' with a number of hearts will not account for the item in the main hand "
-		+ "and will always be the number provided."
+	"Bid a living entity strike another entity with a melee blow.",
+	"Employing 'strike' shall cause the attacker to wield the item in their main hand "
+		+ "and apply all enchantments and attributes thereupon.",
+	"Employing 'wound' with a number of hearts shall disregard the item in the main hand "
+		+ "and deal precisely the harm specified."
 })
 @Example("""
-	spawn a wolf at location(0, 0, 0)
-	make last spawned wolf attack all players
-	""")
+    spawn a wolf at location(0, 0, 0)
+    bid last spawned wolf strike all players
+    """)
 @Example("""
-	spawn a zombie at location(0, 0, 0)
-	make player damage last spawned zombie by 2
-	""")
+    spawn a zombie at location(0, 0, 0)
+    bid player wound last spawned zombie by 2
+    """)
 @Since("2.5.1, 2.13 (multiple, amount)")
 @RequiredPlugins("Minecraft 1.15.2+")
 public class EffForceAttack extends Effect implements SyntaxRuntimeErrorProducer {
 	
 	static {
 		Skript.registerEffect(EffForceAttack.class,
-			"make %livingentities% attack %entities%",
-			"force %livingentities% to attack %entities%",
-			"make %livingentities% damage %entities% by %number% [heart[s]]",
-			"force %livingentities% to damage %entities% by %number% [heart[s]]");
+			"bid %livingentities% strike %entities%",
+			"compel %livingentities% to strike %entities%",
+			"bid %livingentities% wound %entities% by %number% [heart[s]]",
+			"compel %livingentities% to wound %entities% by %number% [heart[s]]");
 	}
 
 	private Expression<LivingEntity> attackers;

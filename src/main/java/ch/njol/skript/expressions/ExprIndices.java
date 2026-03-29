@@ -15,11 +15,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
-@Name("Indices of List")
+@Name("Indices of a Ledger")
 @Description({
-	"Returns all the indices of a list variable, optionally sorted by their values.",
-	"To sort the indices, all objects in the list must be comparable;",
-	"Otherwise, this expression will just return the unsorted indices."
+	"Returneth all the indices of a list variable, optionally ordered by their values.",
+	"To sort the indices, all objects within the list must be comparable;",
+	"Otherwise, this expression shall merely return the unsorted indices."
 })
 @Example("""
 		set {l::*} to "some", "cool" and "values"

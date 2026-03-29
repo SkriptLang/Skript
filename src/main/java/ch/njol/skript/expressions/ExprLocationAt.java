@@ -21,15 +21,15 @@ import ch.njol.util.Kleenean;
  * 
  * @author Peter Güttinger
  */
-@Name("Location At")
-@Description("Allows to create a <a href='#location'>location</a> from three coordinates and a world.")
-@Example("set {_loc} to the location at arg-1, arg-2, arg-3 of the world arg-4")
-@Example("distance between the player and the location (0, 0, 0) is less than 200")
+@Name("Whereabouts At Coordinates")
+@Description("Alloweth the creation of a <a href='#location'>location</a> from three coordinates and a world.")
+@Example("set {_loc} to the whereabouts at arg-1, arg-2, arg-3 of the world arg-4")
+@Example("distance between the player and the whereabouts (0, 0, 0) is less than 200")
 @Since("2.0")
 public class ExprLocationAt extends SimpleExpression<Location> {
 	static {
 		Skript.registerExpression(ExprLocationAt.class, Location.class, ExpressionType.COMBINED,
-				"[the] (location|position) [at] [\\(][x[ ][=[ ]]]%number%, [y[ ][=[ ]]]%number%, [and] [z[ ][=[ ]]]%number%[\\)] [[(in|of) [[the] world]] %world%]");
+				"[the] (whereabouts|position) [at] [\\(][x[ ][=[ ]]]%number%, [y[ ][=[ ]]]%number%, [and] [z[ ][=[ ]]]%number%[\\)] [[(in|of) [[the] world]] %world%]");
 	}
 	
 	@SuppressWarnings("null")

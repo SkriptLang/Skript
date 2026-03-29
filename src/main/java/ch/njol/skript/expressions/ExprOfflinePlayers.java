@@ -16,14 +16,14 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-@Name("Offline players")
-@Description("All players that have ever joined the server. This includes the players currently online.")
-@Example("send \"Size of all players who have joined the server: %size of all offline players%\"")
+@Name("Absent Players")
+@Description("All players who have ever graced the server with their presence. This doth include the players presently online.")
+@Example("send \"Size of all players who have joined the server: %size of all absent players%\"")
 @Since("2.2-dev35")
 public class ExprOfflinePlayers extends SimpleExpression<OfflinePlayer> {
 	
 	static {
-		Skript.registerExpression(ExprOfflinePlayers.class, OfflinePlayer.class, ExpressionType.SIMPLE, "[(all [[of] the]|the)] offline[ ]players");
+		Skript.registerExpression(ExprOfflinePlayers.class, OfflinePlayer.class, ExpressionType.SIMPLE, "[(all [[of] the]|the)] absent[ ]players");
 	}
 	
 	@Override

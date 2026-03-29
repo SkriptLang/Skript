@@ -21,16 +21,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Name("Has Item Cooldown")
+@Name("Hath Item Cooldown")
 @Description("""
-	Checks whether a cooldown is active on the specified item for a specific player.
-	If the provided item has a cooldown group component specified, the cooldown group will take priority.
-	Otherwise, the cooldown of the item material will be used.
-	""")
+    Checketh whether a cooldown be active upon the specified item for a particular player.
+    Should the provided item bear a cooldown group component, the cooldown group shall take precedence.
+    Otherwise, the cooldown of the item's material shall be employed.
+    """)
 @Example("""
-	if player has player's tool on cooldown:
-		send "You can't use this item right now. Wait %item cooldown of player's tool for player%"
-	""")
+    if player has player's tool upon cooldown:
+    	send "Thou canst not wield this item presently. Tarry %item cooldown of player's tool for player%"
+    """)
 @RequiredPlugins("MC 1.21.2 (cooldown group)")
 @Since({"2.8.0", "2.12 (cooldown group)"})
 public class CondHasItemCooldown extends Condition {
@@ -43,9 +43,9 @@ public class CondHasItemCooldown extends Condition {
 	static {
 		Skript.registerCondition(CondHasItemCooldown.class, 
 				"%players% (has|have) [([an] item|a)] cooldown (on|for) %itemtypes%",
-				"%players% (has|have) %itemtypes% on [(item|a)] cooldown",
+				"%players% (has|have) %itemtypes% upon [(item|a)] cooldown",
 				"%players% (doesn't|does not|do not|don't) have [([an] item|a)] cooldown (on|for) %itemtypes%",
-				"%players% (doesn't|does not|do not|don't) have %itemtypes% on [(item|a)] cooldown");
+				"%players% (doesn't|does not|do not|don't) have %itemtypes% upon [(item|a)] cooldown");
 	}
 
 	private Expression<Player> players;

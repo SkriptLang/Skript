@@ -18,14 +18,14 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 
-@Name("Alphabetical Sort")
-@Description("Sorts given strings in alphabetical order.")
-@Example("set {_list::*} to alphabetically sorted {_strings::*}")
+@Name("Alphabetical Ordering")
+@Description("Doth arrange the given strings in proper alphabetical order.")
+@Example("set {_list::*} to alphabetically ordered {_strings::*}")
 @Since("2.2-dev18b, 2.14 (retain indices when looping)")
 public class ExprAlphabetList extends SimpleExpression<String> implements KeyedIterableExpression<String> {
 
 	static{
-		Skript.registerExpression(ExprAlphabetList.class, String.class, ExpressionType.COMBINED, "alphabetically sorted %strings%");
+		Skript.registerExpression(ExprAlphabetList.class, String.class, ExpressionType.COMBINED, "alphabetically ordered %strings%");
 	}
 
 	private Expression<String> texts;

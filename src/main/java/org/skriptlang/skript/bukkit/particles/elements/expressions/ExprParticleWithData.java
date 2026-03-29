@@ -24,16 +24,16 @@ import java.util.Arrays;
 
 import static org.skriptlang.skript.registration.DefaultSyntaxInfos.Expression.builder;
 
-@Name("Particles with Data")
+@Name("Particles Furnished with Data")
 @Description("""
-	Creates particles that require some extra information, such as colors, locations, or block data.
-	Particles not present here do not require data and can be found in the Particle type.
-	Data requirements vary from version to version, so these docs are only accurate for the most recent Minecraft \
-	version at time of release.
-	For example, between 1.21.8 and 1.21.9, the 'flash' particle became colourable and now requires a colour data.
-	""")
+    Fashioneth particles that do require some further intelligence, such as colours, locations, or block data.
+    Particles not present herein require no data and may be found within the Particle type.
+    Data requirements do vary from version to version, thus these documents art only accurate for the most recent Minecraft \
+    version at the time of release.
+    For example, betwixt 1.21.8 and 1.21.9, the 'flash' particle became colourable and now requireth a colour datum.
+    """)
 @Example("set {blood-effect} to a red dust particle of size 1")
-@Example("draw 3 blue trail particles moving to player's target over 3 seconds at player")
+@Example("render 3 blue trail particles moving to player's target over 3 seconds at player")
 @Since("2.14")
 public class ExprParticleWithData extends SimpleExpression<ParticleEffect> {
 

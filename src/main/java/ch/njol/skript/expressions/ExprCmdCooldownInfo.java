@@ -24,26 +24,26 @@ import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
 
-@Name("Cooldown Time/Remaining Time/Elapsed Time/Last Usage/Bypass Permission")
-@Description({"Only usable in command events. Represents the cooldown time, the remaining time, the elapsed time,",
-		"the last usage date, or the cooldown bypass permission."})
+@Name("Tarrying Duration / Remaining Duration / Elapsed Duration / Last Usage / Bypass Permission")
+@Description({"Usable only within command events. Doth represent the tarrying duration, the remaining time,",
+		"the time elapsed, the date of last usage, or the permission to bypass the tarrying period."})
 @Example("""
-	command /home:
-		cooldown: 10 seconds
-		cooldown message: You last teleported home %elapsed time% ago, you may teleport home again in %remaining time%.
-		trigger:
-			teleport player to {home::%player%}
-	""")
+    command /home:
+    	cooldown: 10 seconds
+    	cooldown message: Thou last journeyed home %elapsed time% past, thou may journey home anon in %remaining time%.
+    	trigger:
+    		teleport player to {home::%player%}
+    """)
 @Since("2.2-dev33")
 public class ExprCmdCooldownInfo extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprCmdCooldownInfo.class, Object.class, ExpressionType.SIMPLE,
-				"[the] remaining [time] [of [the] (cooldown|wait) [(of|for) [the] [current] command]]",
-				"[the] elapsed [time] [of [the] (cooldown|wait) [(of|for) [the] [current] command]]",
-				"[the] ((cooldown|wait) time|[wait] time of [the] (cooldown|wait) [(of|for) [the] [current] command])",
-				"[the] last usage [date] [of [the] (cooldown|wait) [(of|for) [the] [current] command]]",
-				"[the] [cooldown] bypass perm[ission] [of [the] (cooldown|wait) [(of|for) [the] [current] command]]");
+				"[the] remaining [time] [of [the] (cooldown|tarrying) [(of|for) [the] [current] command]]",
+				"[the] elapsed [time] [of [the] (cooldown|tarrying) [(of|for) [the] [current] command]]",
+				"[the] ((cooldown|tarrying) time|[tarrying] time of [the] (cooldown|tarrying) [(of|for) [the] [current] command])",
+				"[the] last usage [date] [of [the] (cooldown|tarrying) [(of|for) [the] [current] command]]",
+				"[the] [cooldown] bypass perm[ission] [of [the] (cooldown|tarrying) [(of|for) [the] [current] command]]");
 	}
 
 	private int pattern;

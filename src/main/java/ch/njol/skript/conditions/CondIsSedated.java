@@ -8,8 +8,8 @@ import ch.njol.skript.doc.Since;
 import org.bukkit.block.Beehive;
 import org.bukkit.block.Block;
 
-@Name("Beehive Is Sedated")
-@Description("Checks if a beehive is sedated from a nearby campfire.")
+@Name("Beehive Be Sedated")
+@Description("Ascertaineth whether a beehive hath been lulled to calm by a nearby campfire.")
 @Example("if {_beehive} is sedated:")
 @Since("2.11")
 public class CondIsSedated extends PropertyCondition<Block> {

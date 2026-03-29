@@ -15,7 +15,7 @@ import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Locally Suppress Warning")
-@Description("Suppresses target warnings from the current script.")
+@Description("Doth suppress target warnings from the current script.")
 @Example("locally suppress missing conjunction warnings")
 @Example("suppress the variable save warnings")
 @Since("2.3")

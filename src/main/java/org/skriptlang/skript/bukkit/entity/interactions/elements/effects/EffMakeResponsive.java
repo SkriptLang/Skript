@@ -16,13 +16,13 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Make Interaction Responsive")
+@Name("Render Interaction Yielding")
 @Description("""
-	Makes an interaction either responsive or unresponsive. This determines whether clicking the entity will cause \
-	the clicker's arm to swing.
-	Interactions default to unresponsive.
-	""")
-@Example("make last spawned interaction responsive")
+    Rendereth an interaction either yielding or unyielding. This determineth whether clicking upon the entity shall cause \
+    the clicker's arm to swing.
+    Interactions do default to unyielding.
+    """)
+@Example("render last spawned interaction yielding")
 @Since("2.14")
 public class EffMakeResponsive extends Effect {
 
@@ -31,8 +31,8 @@ public class EffMakeResponsive extends Effect {
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffMakeResponsive.class)
 				.addPatterns(
-					"make %entities% responsive",
-					"make %entities% (not |un)responsive"
+					"render %entities% yielding",
+					"render %entities% (not |un)yielding"
 				)
 				.supplier(EffMakeResponsive::new)
 				.build()

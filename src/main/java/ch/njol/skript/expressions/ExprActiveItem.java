@@ -12,11 +12,11 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Active Item")
+@Name("Implement in Hand")
 @Description(
-	"Returns the item the entities are currently using (ie: the food they're eating, " +
-	"the bow they're drawing back, etc.). This cannot be changed. " +
-	"If an entity is not using any item, this will return null."
+	"Returneth the item the entities art presently employing (that is: the victuals they consume, " +
+	"the bow they draw back, and so forth). This cannot be altered. " +
+	"Should an entity not be employing any item, this shall return null."
 )
 @Example("""
 	on damage of player:

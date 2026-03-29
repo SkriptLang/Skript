@@ -21,20 +21,20 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-@Name("Join & Split")
-@Description("Joins several texts with a common delimiter (e.g. \", \"), or splits a text into multiple texts at a given delimiter.")
-@Example("message \"Online players: %join all players' names with \"\" | \"\"%\" # %all players% would use the default \"x, y, and z\"")
-@Example("set {_s::*} to the string argument split at \",\"")
+@Name("Conjoin & Cleave")
+@Description("Conjoineth several texts with a common delimiter (e.g. \", \"), or cleaveth a text into many texts at a given delimiter.")
+@Example("message \"Online players: %conjoin all players' names with \"\" | \"\"%\" # %all players% would use the default \"x, y, and z\"")
+@Example("set {_s::*} to the string argument cleft at \",\"")
 @Since("2.1, 2.5.2 (regex support), 2.7 (case sensitivity), 2.10 (without trailing string)")
 public class ExprJoinSplit extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprJoinSplit.class, String.class, ExpressionType.COMBINED,
-			"(concat[enate]|join) %strings% [(with|using|by) [[the] delimiter] %-string%]",
-			"split %string% (at|using|by) [[the] delimiter] %string% [case:with case sensitivity] [trailing:without [the] trailing [empty] (string|text)]",
-			"%string% split (at|using|by) [[the] delimiter] %string% [case:with case sensitivity] [trailing:without [the] trailing [empty] (string|text)]",
-			"regex split %string% (at|using|by) [[the] delimiter] %string% [trailing:without [the] trailing [empty] (string|text)]",
-			"regex %string% split (at|using|by) [[the] delimiter] %string% [trailing:without [the] trailing [empty] (string|text)]");
+			"(concat[enate]|conjoin) %strings% [(with|using|by) [[the] delimiter] %-string%]",
+			"cleave %string% (at|using|by) [[the] delimiter] %string% [case:with case sensitivity] [trailing:without [the] trailing [empty] (string|text)]",
+			"%string% cleft (at|using|by) [[the] delimiter] %string% [case:with case sensitivity] [trailing:without [the] trailing [empty] (string|text)]",
+			"regex cleave %string% (at|using|by) [[the] delimiter] %string% [trailing:without [the] trailing [empty] (string|text)]",
+			"regex %string% cleft (at|using|by) [[the] delimiter] %string% [trailing:without [the] trailing [empty] (string|text)]");
 	}
 
 	private boolean join;

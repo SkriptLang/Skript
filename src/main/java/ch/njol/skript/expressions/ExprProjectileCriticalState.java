@@ -16,7 +16,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 
 @Name("Projectile Critical State")
-@Description("A projectile's critical state. The only currently accepted projectiles are arrows and tridents.")
+@Description("A projectile's critical state. The only projectiles presently accepted are arrows and tridents.")
 @Example("""
 	on shoot:
 		event-projectile is an arrow

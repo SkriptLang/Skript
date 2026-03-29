@@ -18,17 +18,17 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 
-@Name("Force Respawn")
-@Description("Forces player(s) to respawn if they are dead. If this is called without delay from death event, one tick is waited before respawn attempt.")
+@Name("Compel Resurrection")
+@Description("Compelleth player(s) to rise again should they be fallen. If this be invoked without delay from a death event, one tick is awaited ere the resurrection attempt.")
 @Example("""
-	on death of player:
-		force event-player to respawn
-	""")
+    on death of player:
+    	compel event-player to rise again
+    """)
 @Since("2.2-dev21")
 public class EffRespawn extends Effect {
 
 	static {
-		Skript.registerEffect(EffRespawn.class, "force %players% to respawn");
+		Skript.registerEffect(EffRespawn.class, "compel %players% to rise again");
 	}
 
 	@SuppressWarnings("null")

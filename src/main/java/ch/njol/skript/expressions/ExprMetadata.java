@@ -30,8 +30,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Name("Metadata")
-@Description("Metadata is a way to store temporary data on entities, blocks and more that disappears after a server restart.")
+@Name("Ephemeral Markings")
+@Description("Metadata is a means to store fleeting knowledge upon entities, blocks, and more, which vanisheth upon a server restart.")
 @Example("set metadata value \"healer\" of player to true")
 @Example("broadcast \"%metadata value \"healer\" of player%\"")
 @Example("clear metadata value \"healer\" of player")

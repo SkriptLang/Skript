@@ -12,13 +12,13 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Fishing Lure Applied")
-@Description("Checks if the lure enchantment is applied to the current fishing event.")
+@Name("Fishing Lure Bestowed")
+@Description("Ascertaineth whether the lure enchantment is bestowed upon the present fishing occasion.")
 @Example("""
-	on fishing line cast:
-		if lure enchantment bonus is applied:
-			cancel event
-	""")
+    on fishing line cast:
+    	if lure enchantment boon is bestowed:
+    		cancel event
+    """)
 @Events("Fishing")
 @Since("2.10")
 public class CondFishingLure extends Condition {
@@ -26,8 +26,8 @@ public class CondFishingLure extends Condition {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(CondFishingLure.class)
 			.addPatterns(
-				"lure enchantment bonus is (applied|active)",
-				"lure enchantment bonus is(n't| not) (applied|active)"
+				"lure enchantment boon is (bestowed|active)",
+				"lure enchantment boon is(n't| not) (bestowed|active)"
 			)
 			.supplier(CondFishingLure::new)
 			.build());

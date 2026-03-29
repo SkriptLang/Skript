@@ -10,21 +10,21 @@ import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Consume Boosting Firework")
-@Description("Prevent the firework used in an 'elytra boost' event to be consumed.")
+@Name("Consume the Boosting Firework")
+@Description("Forbid the firework employed in an 'elytra boost' event from being consumed.")
 @Example("""
-	on elytra boost:
-		if the used firework will be consumed:
-			prevent the used firework from being consume
-	""")
+    on elytra boost:
+    	if the used firework will be consumed:
+    		forbid the used firework from being consume
+    """)
 @Since("2.10")
 public class EffElytraBoostConsume extends Effect {
 
 	static {
 		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerElytraBoostEvent")) {
 			Skript.registerEffect(EffElytraBoostConsume.class,
-				"(prevent|disallow) [the] (boosting|used) firework from being consumed",
-				"allow [the] (boosting|used) firework to be consumed");
+				"(forbid|disallow) [the] (boosting|used) firework from being consumed",
+				"permit [the] (boosting|used) firework to be consumed");
 		}
 	}
 

@@ -24,21 +24,21 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Tool")
-@Description("The item an entity is holding in their main or off hand.")
-@Example("player's tool is tagged with minecraft tag \"pickaxes\"")
-@Example("player's off hand tool is a shield")
-@Example("set tool of all players to a diamond sword")
-@Example("set offhand tool of target entity to a bow")
+@Name("Implement in Hand")
+@Description("The item an entity doth hold in their main or off hand.")
+@Example("player's implement is tagged with minecraft tag \"pickaxes\"")
+@Example("player's off hand implement is a shield")
+@Example("set implement of all players to a diamond sword")
+@Example("set offhand implement of target entity to a bow")
 @Since("1.0")
 public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
 
 	static {
 		Skript.registerExpression(ExprTool.class, Slot.class, ExpressionType.PROPERTY,
-			"[the] (tool|held item|weapon) [of %livingentities%]",
-			"%livingentities%'[s] (tool|held item|weapon)",
-			"[the] off[ ]hand (tool|item) [of %livingentities%]",
-			"%livingentities%'[s] off[ ]hand (tool|item)"
+			"[the] (implement|held item|weapon) [of %livingentities%]",
+			"%livingentities%'[s] (implement|held item|weapon)",
+			"[the] off[ ]hand (implement|item) [of %livingentities%]",
+			"%livingentities%'[s] off[ ]hand (implement|item)"
 		);
 	}
 

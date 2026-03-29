@@ -15,10 +15,10 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 
-@Name("Damaged Item")
-@Description("Directly damages an item. In MC versions 1.12.2 and lower, this can be used to apply data values to items/blocks")
+@Name("Harmed Item")
+@Description("Directly visiteth harm upon an item. In MC versions 1.12.2 and lower, this may be employed to apply data values to items and blocks.")
 @Example("give player diamond sword with damage value 100")
-@Example("set player's tool to diamond hoe damaged by 250")
+@Example("set player's tool to diamond hoe harmed by 250")
 @Example("give player diamond sword with damage 700 named \"BROKEN SWORD\"")
 @Example("set {_item} to diamond hoe with damage value 50 named \"SAD HOE\"")
 @Since("2.4")
@@ -27,7 +27,7 @@ public class ExprDamagedItem extends PropertyExpression<ItemType, ItemType> {
 	static {
 		Skript.registerExpression(ExprDamagedItem.class, ItemType.class, ExpressionType.COMBINED,
 				"%itemtype% with (damage|data) [value] %number%",
-				"%itemtype% damaged by %number%");
+				"%itemtype% harmed by %number%");
 	}
 	
 	@SuppressWarnings("null")

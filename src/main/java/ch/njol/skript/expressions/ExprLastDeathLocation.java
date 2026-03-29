@@ -13,18 +13,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Last Death Location")
+@Name("Last Demise Location")
 @Description({
-	"Gets the last death location of a player, or offline player, if available.",
-	"Can also be set, reset, and deleted if the player is online."
+	"Obtaineth the last demise location of a player, or offline player, if such knowledge be available.",
+	"It may also be set, reset, and deleted if the player doth presently walk the server."
 })
-@Example("set {_loc} to the last death location of player")
-@Example("teleport player to last death location of (random element out of all players)")
+@Example("set {_loc} to the last demise location of player")
+@Example("teleport player to last demise location of (random element out of all players)")
 @Since("2.10")
 public class ExprLastDeathLocation extends SimplePropertyExpression<OfflinePlayer, Location> {
 
 	static {
-		register(ExprLastDeathLocation.class, Location.class, "[last] death location[s]", "offlineplayers");
+		register(ExprLastDeathLocation.class, Location.class, "[last] demise location[s]", "offlineplayers");
 	}
 
 	@Override

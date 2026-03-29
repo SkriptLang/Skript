@@ -22,21 +22,21 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 import java.lang.reflect.Array;
 
-@Name("Difference")
+@Name("Disparity")
 @Description({
-	"The difference between two values",
+	"The disparity betwixt two values.",
 	"Supported types include <a href='#number'>numbers</a>, <a href='./classes/#date'>dates</a> and <a href='./classes/#time'>times</a>."
 })
 @Example("""
-	if difference between {command::%player%::lastuse} and now is smaller than a minute:
-		message "You have to wait a minute before using this command again!"
-	""")
+    if disparity betwixt {command::%player%::lastuse} and now is smaller than a minute:
+    	message "Thou must tarry a minute ere using this command again!"
+    """)
 @Since("1.4")
 public class ExprDifference extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprDifference.class, Object.class, ExpressionType.COMBINED,
-				"difference (between|of) %object% and %object%"
+				"disparity (betwixt|of) %object% and %object%"
 		);
 	}
 

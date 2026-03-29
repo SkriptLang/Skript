@@ -23,16 +23,16 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-@Name("Delay")
-@Description("Delays the script's execution by a given timespan. Please note that delays are not persistent, e.g. trying to create a tempban script with <code>ban player → wait 7 days → unban player</code> will not work if you restart your server anytime within these 7 days. You also have to be careful even when using small delays!")
-@Example("wait 2 minutes")
+@Name("Tarry")
+@Description("Doth delay the script's execution by a given span of time. Pray note that delays are not persistent, e.g. attempting to fashion a tempban script with <code>ban player → tarry 7 days → unban player</code> shall not avail if thou dost restart thy server at any time within those 7 days. Thou must also take great care even when employing brief delays!")
+@Example("tarry for 2 minutes")
 @Example("halt for 5 minecraft hours")
-@Example("wait a tick")
+@Example("tarry for a tick")
 @Since("1.4")
 public class Delay extends Effect {
 
 	static {
-		Skript.registerEffect(Delay.class, "(wait|halt) [for] %timespan%");
+		Skript.registerEffect(Delay.class, "(tarry|wait|halt) [for] %timespan%");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")

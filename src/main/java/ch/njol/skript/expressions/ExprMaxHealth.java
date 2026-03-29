@@ -17,22 +17,22 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 /**
  * @author Peter Güttinger
  */
-@Name("Max Health")
-@Description("The maximum health of an entity, e.g. 10 for a player.")
+@Name("Greatest Vigour")
+@Description("The utmost health of an entity, e.g. 10 for a player.")
 @Example("""
-	on join:
-		set the maximum health of the player to 100
-	""")
+    on join:
+    	set the maximum vigour of the player to 100
+    """)
 @Example("""
-	spawn a giant
-	set the last spawned entity's max health to 1000
-	""")
+    spawn a giant
+    set the last spawned entity's max vigour to 1000
+    """)
 @Since("2.0")
 @Events({"damage", "death"})
 public class ExprMaxHealth extends SimplePropertyExpression<LivingEntity, Number> {
 	
 	static {
-		register(ExprMaxHealth.class, Number.class, "max[imum] health", "livingentities");
+		register(ExprMaxHealth.class, Number.class, "max[imum] vigour", "livingentities");
 	}
 	
 	@Override

@@ -16,20 +16,20 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Item with Item Flags")
-@Description("Creates a new item with the specified item flags.")
-@Example("give player diamond sword with item flags hide enchants and hide attributes")
-@Example("set {_item} to player's tool with item flag hide additional tooltip")
-@Example("give player torch with hide placed on item flag")
-@Example("set {_item} to diamond sword with all item flags")
+@Name("Item with Item Banners")
+@Description("Createth a new item adorned with the specified item banners.")
+@Example("give player diamond sword with item banners hide enchants and hide attributes")
+@Example("set {_item} to player's tool with item banner hide additional tooltip")
+@Example("give player torch with hide placed on item banner")
+@Example("set {_item} to diamond sword with all item banners")
 @Since("2.10, 2.11 (all itemflags)")
 public class ExprWithItemFlags extends SimpleExpression<ItemType> {
 
 	static {
 		Skript.registerExpression(ExprWithItemFlags.class, ItemType.class, ExpressionType.COMBINED,
-			"%itemtypes% with [the] item flag[s] %itemflags%",
-			"%itemtypes% with [the] %itemflags% item flag[s]",
-			"%itemtypes% with all [the] item flags");
+			"%itemtypes% with [the] item banner[s] %itemflags%",
+			"%itemtypes% with [the] %itemflags% item banner[s]",
+			"%itemtypes% with all [the] item banners");
 	}
 
 	private Expression<ItemFlag> itemFlags;

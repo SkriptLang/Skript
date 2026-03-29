@@ -11,18 +11,18 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
-@Name("View Distance of Client")
-@Description("The view distance of the client. Can not be changed. " +
-	"This differs from the server side view distance of player as this will retrieve the view distance the player has set on their client.")
-@Example("set {_clientView} to the client view distance of player")
-@Example("set view distance of player to client view distance of player")
+@Name("Gaze Distance of Client")
+@Description("The view distance as set upon the client. It cannot be altered. " +
+	"This differeth from the server-side view distance of a player, as it shall retrieve the view distance the player hath set upon their own client.")
+@Example("set {_clientView} to the client gaze distance of player")
+@Example("set view distance of player to client gaze distance of player")
 @RequiredPlugins("1.13.2+")
 @Since("2.5")
 public class ExprClientViewDistance extends SimplePropertyExpression<Player, Long> {
 	
 	static {
 		if (Skript.methodExists(Player.class, "getClientViewDistance")) {
-			register(ExprClientViewDistance.class, Long.class, "client view distance[s]", "players");
+			register(ExprClientViewDistance.class, Long.class, "client gaze distance[s]", "players");
 		}
 	}
 	

@@ -21,16 +21,16 @@ import org.skriptlang.skript.lang.comparator.Relation;
 
 import java.util.function.Predicate;
 
-@Name("Is of Type")
-@Description("Checks whether an item or an entity is of the given type. This is mostly useful for variables," +
-	" as you can use the general 'is' condition otherwise (e.g. 'victim is a creeper').")
-@Example("tool is of type {selected type}")
-@Example("victim is of type {villager type}")
+@Name("Be of a Certain Kind")
+@Description("Doth verify whether an item or an entity be of the given kind. This serveth most usefully for variables," +
+	" for thou mayest employ the general 'is' condition otherwise (e.g. 'victim is a creeper').")
+@Example("tool is of kind {selected type}")
+@Example("victim is of kind {villager type}")
 @Since("1.4")
 public class CondIsOfType extends Condition {
 
 	static {
-		PropertyCondition.register(CondIsOfType.class, "of type[s] %itemtypes/entitydatas%", "itemstacks/entities");
+		PropertyCondition.register(CondIsOfType.class, "of kind[s] %itemtypes/entitydatas%", "itemstacks/entities");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")

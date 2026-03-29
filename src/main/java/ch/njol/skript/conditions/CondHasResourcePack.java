@@ -8,16 +8,16 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Player;
 
-@Name("Has Resource Pack")
-@Description("Checks whether the given players have a server resource pack loaded. Please note that this can't detect " +
-		"player's own resource pack, only the resource pack that sent by the server.")
-@Example("if the player has a resource pack loaded:")
+@Name("Hath Resource Pack")
+@Description("Discerneth whether the given players have a server resource pack laden upon them. Pray note that this cannot detect " +
+		"a player's own resource pack, only the resource pack dispatched by the server.")
+@Example("if the player has a resource pack laden:")
 @Since("2.4")
 public class CondHasResourcePack extends PropertyCondition<Player> {
 
 	static {
 		if (Skript.methodExists(Player.class, "hasResourcePack"))
-			register(CondHasResourcePack.class, PropertyType.HAVE, "[a] resource pack [(loaded|installed)]", "players");
+			register(CondHasResourcePack.class, PropertyType.HAVE, "[a] resource pack [(laden|installed)]", "players");
 	}
 
 	@Override

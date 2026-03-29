@@ -11,17 +11,17 @@ import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Damage Amount of World Border")
+@Name("Harm Amount of Realm Boundary")
 @Description({
-	"The amount of damage a player takes per second for each block they are outside the border plus the border buffer.",
-	"Players only take damage when outside of the world's world border, and the damage value cannot be less than 0.",
+	"The measure of harm a player doth suffer per second for each block they stand beyond the boundary plus the boundary buffer.",
+	"Players suffer harm only when beyond the realm's boundary, and the harm value cannot be less than 0.",
 })
-@Example("set world border damage amount of {_worldborder} to 1")
+@Example("set realm boundary harm amount of {_worldborder} to 1")
 @Since("2.11")
 public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldBorder, Double>  {
 
 	static {
-		registerDefault(ExprWorldBorderDamageAmount.class, Double.class, "world[ ]border damage amount", "worldborders");
+		registerDefault(ExprWorldBorderDamageAmount.class, Double.class, "realm[ ]boundary harm amount", "worldborders");
 	}
 
 	@Override

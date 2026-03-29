@@ -7,8 +7,8 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.OfflinePlayer;
 
-@Name("Is Operator")
-@Description("Checks whether a player is a server operator.")
+@Name("Be an Operator of the Realm")
+@Description("Doth verify whether a player holdeth the mantle of server operator, wielding authority most supreme.")
 @Example("player is an operator")
 @Since("2.7")
 public class CondIsOp extends PropertyCondition<OfflinePlayer> {

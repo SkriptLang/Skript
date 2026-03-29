@@ -7,8 +7,8 @@ import org.bukkit.entity.Entity;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 
-@Name("Is Invulnerable")
-@Description("Checks whether an entity or a gamemode is invulnerable.\nFor gamemodes, Paper and Minecraft 1.20.6 are required")
+@Name("Be Invulnerable")
+@Description("Doth ascertain whether an entity or a gamemode be beyond the reach of harm, as if blessed by divine providence.")
 @Example("target entity is invulnerable")
 @Example("""
 	loop all gamemodes:

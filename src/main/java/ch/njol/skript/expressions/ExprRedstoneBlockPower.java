@@ -7,17 +7,17 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
-@Name("Redstone Block Power")
-@Description("Power of a redstone block")
+@Name("Redstone Block Might")
+@Description("The redstone might of a block.")
 @Example("""
-    if redstone power of targeted block is 15:
-    	send "This block is very powerful!"
+    if redstone might of targeted block is 15:
+    	send "This block doth possess great might!"
     """)
 @Since("2.5")
 public class ExprRedstoneBlockPower extends SimplePropertyExpression<Block, Long> {
 	
 	static {
-		register(ExprRedstoneBlockPower.class, Long.class, "redstone power", "blocks");
+		register(ExprRedstoneBlockPower.class, Long.class, "redstone might", "blocks");
 	}
 	
 	@Override

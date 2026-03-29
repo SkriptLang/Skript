@@ -14,17 +14,17 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Title - Reset")
-@Description("Resets the title of the player to the default values.")
-@Example("reset the titles of all players")
-@Example("reset the title")
+@Name("Title — Restore")
+@Description("Restoreth the title of the player to its original decree.")
+@Example("restore the titles of all players")
+@Example("restore the title")
 @Since("2.3")
 public class EffResetTitle extends Effect {
 	
 	static {
 		Skript.registerEffect(EffResetTitle.class,
-				"reset [the] title[s] [of %players%]",
-				"reset [the] %players%'[s] title[s]");
+				"restore [the] title[s] [of %players%]",
+				"restore [the] %players%'[s] title[s]");
 	}
 	
 	@SuppressWarnings("null")

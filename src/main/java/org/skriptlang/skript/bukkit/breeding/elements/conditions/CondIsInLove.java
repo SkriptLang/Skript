@@ -9,13 +9,13 @@ import org.bukkit.entity.Animals;
 import org.bukkit.entity.LivingEntity;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Is In Love")
-@Description("Checks whether or not a living entity is in love.")
+@Name("Is Enamoured")
+@Description("Discerneth whether a living entity doth find itself in a state of amorous affection.")
 @Example("""
-	on spawn of living entity:
-		if entity is in love:
-			broadcast "That was quick!"
-	""")
+    on spawn of living entity:
+    	if entity is in love:
+    		broadcast "That was most swift!"
+    """)
 @Since("2.10")
 public class CondIsInLove extends PropertyCondition<LivingEntity> {
 

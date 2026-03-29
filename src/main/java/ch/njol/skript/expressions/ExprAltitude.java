@@ -10,18 +10,18 @@ import ch.njol.skript.lang.Literal;
 import org.bukkit.Location;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Altitude")
-@Description("Effectively an alias of 'y-<a href='#ExprCoordinate'>coordinate</a> of …', it represents the height of some location within the world.")
+@Name("Elevation")
+@Description("In effect an alias of 'y-<a href='#ExprCoordinate'>coordinate</a> of …', it doth represent the height of some location within the realm.")
 @Example("""
-	on damage:
-		altitude of the attacker is higher than the altitude of the victim
-		set damage to damage * 1.2
-	""")
+    on damage:
+    	elevation of the attacker is higher than the elevation of the victim
+    	set damage to damage * 1.2
+    """)
 @Since("1.4.3")
 public class ExprAltitude extends SimplePropertyExpression<Location, Number> {
 	
 	static {
-		register(ExprAltitude.class, Number.class, "altitude[s]", "locations");
+		register(ExprAltitude.class, Number.class, "elevation[s]", "locations");
 	}
 
 	@Override

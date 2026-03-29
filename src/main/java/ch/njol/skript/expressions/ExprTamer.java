@@ -16,13 +16,13 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-@Name("Tamer")
-@Description("The tamer of an entity. Can only be used in entity tame events. You can use 'event-entity' to refer tamed entity itself.")
+@Name("The Tamer")
+@Description("The one who hath tamed a creature. May only be employed within entity tame events. Thou mayest use 'event-entity' to refer to the tamed beast itself.")
 @Example("""
-	on tame:
-		if the tamer is a player:
-			send "someone tamed something!" to console
-	""")
+    on tame:
+    	if the tamer is a player:
+    		send "someone hath tamed a creature!" to console
+    """)
 @Since("2.2-dev25")
 public class ExprTamer extends SimpleExpression<Player> {
 	

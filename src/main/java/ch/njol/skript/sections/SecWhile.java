@@ -17,31 +17,31 @@ import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-@Name("While Loop")
-@Description("While Loop sections are loops that will just keep repeating as long as a condition is met.")
+@Name("Whilst Loop")
+@Description("Whilst Loop sections are loops that shall persist in their repetition so long as a condition doth hold true.")
 @Example("""
-	while size of all players < 5:
-		send "More players are needed to begin the adventure" to all players
-		wait 5 seconds
-	""")
+    whilst size of all players < 5:
+    	send "More souls are needed to commence the adventure" to all players
+    	wait 5 seconds
+    """)
 @Example("""
-	set {_counter} to 1
-	do while {_counter} > 1: # false but will increase {_counter} by 1 then get out
-		add 1 to {_counter}
-	""")
+    set {_counter} to 1
+    do whilst {_counter} > 1: # false, yet 'twill increase {_counter} by 1 then depart
+    	add 1 to {_counter}
+    """)
 @Example("""
-	# Be careful when using while loops with conditions that are almost
-	# always true for a long time without using 'wait %timespan%' inside it,
-	# otherwise it will probably hang and crash your server.
-	while player is online:
-		give player 1 dirt
-		wait 1 second # without using a delay effect the server will crash
-	""")
+    # Take heed when employing whilst loops with conditions that hold true
+    # for great spans without using 'wait %timespan%' within,
+    # lest it hang and bring ruin upon thy server.
+    whilst player is online:
+    	give player 1 dirt
+    	wait 1 second # without a delay effect the server shall surely crash
+    """)
 @Since("2.0, 2.6 (do while)")
 public class SecWhile extends LoopSection {
 
 	static {
-		Skript.registerSection(SecWhile.class, "[:do] while <.+>");
+		Skript.registerSection(SecWhile.class, "[:do] whilst <.+>");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")

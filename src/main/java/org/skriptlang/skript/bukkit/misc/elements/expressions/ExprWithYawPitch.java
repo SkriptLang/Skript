@@ -15,17 +15,17 @@ import org.jspecify.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Location with Yaw/Pitch")
-@Description("Returns the given locations with the specified yaw and/or pitch.")
-@Example("set {_location} to player's location with yaw 0 and pitch 0")
+@Name("Locale Bearing Yaw and Pitch")
+@Description("Returneth the given locations bearing the specified yaw and/or pitch.")
+@Example("set {_location} to player's location bearing yaw 0 and pitch 0")
 @Since("INSERT VERSION")
 public class ExprWithYawPitch extends PropertyExpression<Location, Location> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprWithYawPitch.class, Location.class)
 			.supplier(ExprWithYawPitch::new)
-			.addPattern("%locations% with [a] (:yaw|:pitch) [of] %number%")
-			.addPattern("%locations% with [a] yaw [of] %number% and [a] pitch [of] %number%")
+			.addPattern("%locations% bearing [a] (:yaw|:pitch) [of] %number%")
+			.addPattern("%locations% bearing [a] yaw [of] %number% and [a] pitch [of] %number%")
 			.build());
 	}
 

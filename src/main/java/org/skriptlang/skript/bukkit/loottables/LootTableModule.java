@@ -174,7 +174,7 @@ public class LootTableModule extends HierarchicalAddonModule {
 		registry.register(BukkitSyntaxInfos.Event.KEY,
 			BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Loot Generate")
 				.addEvent(LootGenerateEvent.class)
-				.addPattern("loot generat(e|ing)")
+				.addPattern("spoils generat(e|ing)")
 				.addDescription(
 					"Called when a loot table of an inventory is generated in the world.",
 					"For example, when opening a shipwreck chest."

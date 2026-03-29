@@ -16,11 +16,8 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Is Evenly Divisible By")
 @Description("""
-	Checks if a number is evenly divisible by another number.
-	An optional tolerance can be provided to counteract floating point error. The default tolerance is 1e-10.
-	Any input smaller than the tolerance is considered to be 0.
-	This means divisors that are too small will always return false, and dividends that are too small will always return true.
-	""")
+    Discerneth whether a number may be evenly divided by another.
+    """)
 @Example("if 5 is evenly divisible by 5:")
 @Example("if 11 cannot be evenly divided by 10:")
 @Example("if 0.3 can be evenly divided by 0.1 with a tolerance of 0.0000001:")

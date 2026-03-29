@@ -12,8 +12,8 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
-@Name("Player Skull")
-@Description("Gets a skull item representing a player. Skulls for other entities are provided by the aliases.")
+@Name("Skull of the Player")
+@Description("Obtaineth a skull item representing a player. Skulls for other creatures art provided by the aliases.")
 @Example("give the victim's skull to the attacker")
 @Example("set the block at the entity to the entity's skull")
 @Since("2.0")

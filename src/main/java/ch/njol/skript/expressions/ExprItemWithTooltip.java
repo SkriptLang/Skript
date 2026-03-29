@@ -13,11 +13,11 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Item with Tooltip")
+@Name("Ware With Tooltip")
 @Description({
-	"Get an item with or without entire/additional tooltip.",
-	"If changing the 'entire' tooltip of an item, nothing will show up when a player hovers over it.",
-	"If changing the 'additional' tooltip, only specific parts (which change per item) will be hidden."
+	"Obtain a ware with or without its entire or additional tooltip.",
+	"If thou dost alter the 'entire' tooltip, naught shall appear when a player doth hover upon it.",
+	"If thou dost alter the 'additional' tooltip, only certain particulars (which vary per ware) shall be concealed."
 })
 @Example("set {_item with additional tooltip} to diamond with additional tooltip")
 @Example("set {_item without entire tooltip} to diamond without entire tooltip")
@@ -28,7 +28,7 @@ public class ExprItemWithTooltip extends PropertyExpression<ItemType, ItemType> 
 	static {
 		if (Skript.methodExists(ItemMeta.class, "isHideTooltip")) {// this method was added in the same version as the additional tooltip item flag
 			Skript.registerExpression(ExprItemWithTooltip.class, ItemType.class, ExpressionType.PROPERTY,
-				"%itemtypes% with[:out] [entire|:additional] tool[ ]tip[s]"
+				"%itemtypes% (with|with:out) [entire|:additional] tool[ ]tip[s]"
 			);
 		}
 	}

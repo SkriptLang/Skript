@@ -19,9 +19,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Name("Random Character")
 @Description({
-	"One or more random characters between two given characters. Use 'alphanumeric' if you want only alphanumeric characters.",
-	"This expression uses the Unicode numerical code of a character to determine which characters are between the two given characters.",
-	"If strings of more than one character are given, only the first character of each is used."
+	"One or more characters drawn by fortune betwixt two given characters. Employ 'alphanumeric' shouldst thou desire only alphanumeric characters.",
+	"This expression maketh use of the Unicode numerical code of a character to determine which characters lie between the two given characters.",
+	"If strings of more than one character be given, only the first character of each is employed."
 })
 @Example("set {_captcha} to join (5 random characters between \"a\" and \"z\") with \"\"")
 @Example("send 3 random alphanumeric characters between \"0\" and \"z\"")

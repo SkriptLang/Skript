@@ -16,32 +16,32 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Characters Between")
+@Name("Characters Betwixt")
 @Description({
-	"All characters between two given characters, useful for generating random strings. This expression uses the Unicode numerical code " +
-	"of a character to determine which characters are between the two given characters. The <a href=\"https://www.asciitable.com/\">ASCII table linked here</a> " +
-	"shows this ordering for the first 256 characters.",
-	"If you would like only alphanumeric characters you can use the 'alphanumeric' option in the expression.",
-	"If strings of more than one character are given, only the first character of each is used."
+	"All characters betwixt two given characters, most useful for generating random strings. This expression employeth the Unicode numerical code " +
+	"of a character to determine which characters lie betwixt the two given characters. The <a href=\"https://www.asciitable.com/\">ASCII table linked herein</a> " +
+	"showeth this ordering for the first 256 characters.",
+	"Shouldst thou desire only alphanumeric characters, thou mayst employ the 'alphanumeric' option in the expression.",
+	"If strings of more than one character be given, only the first character of each is used."
 })
 @Example("""
 	loop characters from "a" to "f":
 		broadcast "%loop-value%"
 	""")
 @Example("""
-	# 0123456789:;<=>?@ABC... ...uvwxyz
-	send characters between "0" and "z"
-	""")
+    # 0123456789:;<=>?@ABC... ...uvwxyz
+    send characters betwixt "0" and "z"
+    """)
 @Example("""
-	# 0123456789ABC... ...uvwxyz
-	send alphanumeric characters between "0" and "z"
-	""")
+    # 0123456789ABC... ...uvwxyz
+    send alphanumeric characters betwixt "0" and "z"
+    """)
 @Since("2.8.0")
 public class ExprCharacters extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprCharacters.class, String.class, ExpressionType.COMBINED,
-				"[(all [[of] the]|the)] [:alphanumeric] characters (between|from) %string% (and|to) %string%");
+				"[(all [[of] the]|the)] [:alphanumeric] characters (betwixt|from) %string% (and|to) %string%");
 	}
 
 	private Expression<String> start, end;

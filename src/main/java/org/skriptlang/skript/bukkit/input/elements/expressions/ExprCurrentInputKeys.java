@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Name("Player Input Keys")
-@Description("Get the current input keys of a player.")
-@Example("broadcast \"%player% is pressing %current input keys of player%\"")
+@Description("Obtain the present input keys of a player.")
+@Example("broadcast \"%player% doth press %present input keys of player%\"")
 @Since("2.10")
 @RequiredPlugins("Minecraft 1.21.2+")
 public class ExprCurrentInputKeys extends PropertyExpression<Player, InputKey> {
@@ -33,7 +33,7 @@ public class ExprCurrentInputKeys extends PropertyExpression<Player, InputKey> {
 			infoBuilder(
 				ExprCurrentInputKeys.class,
 				InputKey.class,
-				"[current] (inputs|input keys)",
+				"[present] (inputs|input keys)",
 				"players",
 				false
 			)

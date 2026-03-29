@@ -19,9 +19,9 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import java.util.ArrayList;
 import java.util.List;
 
-@Name("Loot Table from Key")
-@Description("Returns the loot table from a namespaced key.")
-@Example("set {_table} to loot table \"minecraft:chests/simple_dungeon\"")
+@Name("Treasure Ledger from Key")
+@Description("Returneth the treasure ledger from a namespaced key.")
+@Example("set {_table} to treasure ledger \"minecraft:chests/simple_dungeon\"")
 @Since("2.10")
 public class ExprLootTableFromString extends SimpleExpression<LootTable> {
 
@@ -29,7 +29,7 @@ public class ExprLootTableFromString extends SimpleExpression<LootTable> {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			SyntaxInfo.Expression.builder(ExprLootTableFromString.class, LootTable.class)
-				.addPatterns("[the] loot[ ]table[s] %strings%")
+				.addPatterns("[the] treasure[ ]ledger[s] %strings%")
 				.supplier(ExprLootTableFromString::new)
 				.build()
 		);

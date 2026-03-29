@@ -21,8 +21,8 @@ import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Experience")
-@Description("How much experience was spawned in an experience spawn or block break event. Can be changed.")
+@Name("Wisdom Orbs")
+@Description("How much experience was brought forth in an experience spawn or block break event. May be altered.")
 @Example("""
 	on experience spawn:
 		add 5 to the spawned experience

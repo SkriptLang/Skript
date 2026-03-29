@@ -22,21 +22,21 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Name("Drops")
+@Name("Spoils")
 @Description({
-	"This expression only works in death and harvest events.",
-	"In a death event, will hold the drops of the dying creature.",
-	"Drops can be prevented by removing them with \"remove ... from drops\", "
-		+ "e.g. \"remove all pickaxes from the drops\", or \"clear drops\" if you don't want any drops at all."
+	"This expression doth only function within death and harvest events.",
+	"In a death event, it shall hold the spoils of the perishing creature.",
+	"Spoils may be forestalled by removing them with \"remove ... from spoils\", "
+		+ "e.g. \"remove all pickaxes from the spoils\", or \"clear spoils\" if thou desirest no spoils at all."
 })
-@Example("clear drops")
-@Example("remove 4 planks from the drops")
+@Example("clear spoils")
+@Example("remove 4 planks from the spoils")
 @Since("1.0")
 @Events("death")
 public class ExprDrops extends SimpleExpression<ItemType> implements EventRestrictedSyntax {
 
 	static {
-		Skript.registerExpression(ExprDrops.class, ItemType.class, ExpressionType.SIMPLE, "[the] drops");
+		Skript.registerExpression(ExprDrops.class, ItemType.class, ExpressionType.SIMPLE, "[the] spoils");
 	}
 
 	private boolean isDeathEvent;

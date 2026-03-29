@@ -35,26 +35,26 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
-@Name("Filter")
+@Name("Sift")
 @Description({
-	"Filters a variable list based on the supplied conditions. Unlike the filter expression, this effect " +
-	"maintains the indices of the filtered list.",
-	"It also supports filtering based on meeting any of the given criteria, rather than all, like multi-line if statements."
+	"Doth sift a variable list according to the supplied conditions. Unlike the filter expression, this effect " +
+	"preserveth the indices of the sifted list.",
+	"It doth also support sifting based upon meeting any of the given criteria, rather than all, akin to multi-line if statements."
 })
 @Example("set {_a::*} to integers between -10 and 10")
 @Example("""
-	filter {_a::*} to match:
-		input is a number
-		mod(input, 2) = 0
-		input > 0
-	send {_a::*} # sends 2, 4, 6, 8, and 10
-	""")
+    sift {_a::*} to match:
+    	input is a number
+    	mod(input, 2) = 0
+    	input > 0
+    send {_a::*} # sends 2, 4, 6, 8, and 10
+    """)
 @Since("2.10")
 public class SecFilter extends Section implements InputSource {
 
 	static {
 		Skript.registerSection(SecFilter.class,
-				"filter %~objects% to match [:any|all]");
+				"sift %~objects% to match [:any|all]");
 		if (!ParserInstance.isRegistered(InputSource.InputData.class))
 			ParserInstance.registerData(InputSource.InputData.class, InputSource.InputData::new);
 	}

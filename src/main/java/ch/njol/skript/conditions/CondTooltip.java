@@ -16,14 +16,14 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Has Item Tooltips")
+@Name("Hath Item Tooltips")
 @Description({
-	"Whether the entire or additional tooltip of an item is shown or hidden.",
-	"The 'entire tooltip' is what shows to the player when they hover an item (i.e. name, lore, etc.).",
-	"The 'additional tooltip' hides certain information from certain items (potions, maps, books, fireworks, and banners)."
+	"Whether the entire or additional tooltip of an item is revealed or concealed.",
+	"The 'entire tooltip' is that which doth appear before the player when they hover upon an item (i.e. name, lore, and such).",
+	"The 'additional tooltip' doth conceal certain particulars from certain items (potions, maps, books, fireworks, and banners)."
 })
-@Example("send true if entire tooltip of player's tool is shown")
-@Example("if additional tooltip of {_item} is hidden:")
+@Example("send true if entire tooltip of player's tool is revealed")
+@Example("if additional tooltip of {_item} is concealed:")
 @RequiredPlugins("Spigot 1.20.5+")
 @Since("2.9.0")
 public class CondTooltip extends Condition {
@@ -31,10 +31,10 @@ public class CondTooltip extends Condition {
 	static {
 		if (Skript.methodExists(ItemMeta.class, "isHideTooltip")) {// this method was added in the same version as the additional tooltip item flag
 			Skript.registerCondition(CondTooltip.class,
-				"[the] [entire|:additional] tool[ ]tip[s] of %itemtypes% (is|are) (:shown|hidden)",
-				"[the] [entire|:additional] tool[ ]tip[s] of %itemtypes% (isn't|is not|aren't|are not) (:shown|hidden)",
-				"%itemtypes%'[s] [entire|:additional] tool[ ]tip[s] (is|are) (:shown|hidden)",
-				"%itemtypes%'[s] [entire|:additional] tool[ ]tip[s] (isn't|is not|aren't|are not) (:shown|hidden)"
+				"[the] [entire|:additional] tool[ ]tip[s] of %itemtypes% (is|are) (shown:revealed|concealed)",
+				"[the] [entire|:additional] tool[ ]tip[s] of %itemtypes% (isn't|is not|aren't|are not) (shown:revealed|concealed)",
+				"%itemtypes%'[s] [entire|:additional] tool[ ]tip[s] (is|are) (shown:revealed|concealed)",
+				"%itemtypes%'[s] [entire|:additional] tool[ ]tip[s] (isn't|is not|aren't|are not) (shown:revealed|concealed)"
 			);
 		}
 	}

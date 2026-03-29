@@ -6,17 +6,17 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.FishHook;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Is Fish Hook in Open Water")
+@Name("Is Fish Hook in Open Waters")
 @Description({
-	"Checks whether the fish hook is in open water.",
-	"Open water is defined by a 5x4x5 area of water, air and lily pads. " +
-	"If in open water, treasure items may be caught."
+	"Ascertaineth whether the fish hook doth rest in open waters.",
+	"Open water is defined by a 5x4x5 expanse of water, air, and lily pads." +
+	"If in open waters, treasures of great worth may be caught."
 })
 @Example("""
-	on fish catch:
-		if fish hook is in open water:
-			send "You will catch a shark soon!"
-	""")
+    on fish catch:
+    	if fish hook is in open waters:
+    		send "Thou shalt soon catch a shark!"
+    """)
 @Events("Fishing")
 @Since("2.10")
 public class CondIsInOpenWater extends PropertyCondition<Entity> {

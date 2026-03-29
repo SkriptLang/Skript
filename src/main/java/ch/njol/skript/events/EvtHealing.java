@@ -15,7 +15,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 public class EvtHealing extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Heal", EvtHealing.class, EntityRegainHealthEvent.class, "heal[ing] [of %-entitydatas%] [(from|due to|by) %-healreasons%]", "%entitydatas% heal[ing] [(from|due to|by) %-healreasons%]")
+		Skript.registerEvent("Mending", EvtHealing.class, EntityRegainHealthEvent.class, "mend[ing] [of %-entitydatas%] [(from|owing to|by) %-healreasons%]", "%entitydatas% mend[ing] [(from|owing to|by) %-healreasons%]")
 				.description("Called when an entity is healed, e.g. by eating (players), being fed (pets), or by the effect of a potion of healing (overworld mobs) or harm (nether mobs).")
 				.examples(
 						"on heal:",

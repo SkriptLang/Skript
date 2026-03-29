@@ -8,18 +8,18 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
 
-@Name("Spawn Reason")
-@Description("The <a href='#spawnreason'>spawn reason</a> in a <a href='#spawn'>spawn</a> event.")
+@Name("Reason of Begetting")
+@Description("The <a href='#spawnreason'>spawn reason</a> within a <a href='#spawn'>spawn</a> event — the circumstance by which a creature was brought forth.")
 @Example("""
-	on spawn:
-		spawn reason is reinforcements or breeding
-		cancel event
-	""")
+    on spawn:
+    	spawning cause is reinforcements or breeding
+    	cancel event
+    """)
 @Since("2.3")
 public class ExprSpawnReason extends EventValueExpression<SpawnReason> {
 
 	static {
-		register(ExprSpawnReason.class, SpawnReason.class, "spawn[ing] reason");
+		register(ExprSpawnReason.class, SpawnReason.class, "spawn[ing] cause");
 	}
 
 	public ExprSpawnReason() {

@@ -16,15 +16,15 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Conditional / Unconditional")
 @Description(
-	"Sets whether the provided command blocks are conditional or not."
+	"Setteth whether the provided command blocks be conditional or nay."
 )
-@Example("make command block {_block} conditional")
-@Example("make command block {_block} unconditional if {_block} is conditional")
+@Example("render command block {_block} conditional")
+@Example("render command block {_block} unconditional if {_block} is conditional")
 @Since("2.10")
 public class EffCommandBlockConditional extends Effect {
 
 	static {
-		Skript.registerEffect(EffCommandBlockConditional.class, "make command block[s] %blocks% [not:(un|not )]conditional");
+		Skript.registerEffect(EffCommandBlockConditional.class, "render command block[s] %blocks% [not:(un|not )]conditional");
 	}
 
 	private Expression<Block> blocks;

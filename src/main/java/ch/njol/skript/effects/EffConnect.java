@@ -15,16 +15,16 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Connect")
+@Name("Conveyance")
 @Description({
-	"Connect a player to a server running on your proxy, or any server supporting transfers. Read below for more information.",
-	"If the server is running Minecraft 1.20.5 or above, you may specify an IP and Port to transfer a player over to that server.",
-	"When transferring players using an IP, the transfer will not complete if the `accepts-transfers` option isn't enabled in `server.properties` for the server specified.",
-	"If the port is not provided, it will default to `25565`."
+	"Conveyeth a player unto a realm upon thy proxy, or any realm that doth support transfers. Read hereunder for further particulars.",
+	"If the realm runneth Minecraft 1.20.5 or above, thou mayest specify an IP and Port to transport a player unto that realm.",
+	"When transporting players by IP, the passage shall not complete lest the `accepts-transfers` option be enabled in `server.properties` for the realm specified.",
+	"If the port be not provided, it shall default to `25565`."
 })
-@Example("connect all players to proxy server \"hub\"")
-@Example("transfer player to server \"my.server.com\"")
-@Example("transfer player to server \"localhost\" on port 25566")
+@Example("convey all players unto proxy realm \"hub\"")
+@Example("transport player unto realm \"my.server.com\"")
+@Example("transport player unto realm \"localhost\" on port 25566")
 @Since("2.3, 2.10 (transfer)")
 public class EffConnect extends Effect {
 
@@ -35,9 +35,9 @@ public class EffConnect extends Effect {
 
 	static {
 		Skript.registerEffect(EffConnect.class,
-				"connect %players% to [proxy|bungeecord] [server] %string%",
-				"send %players% to [proxy|bungeecord] server %string%",
-				"transfer %players% to server %string% [on port %-number%]"
+				"convey %players% unto [proxy|bungeecord] [realm] %string%",
+				"dispatch %players% unto [proxy|bungeecord] realm %string%",
+				"transport %players% unto realm %string% [on port %-number%]"
 		);
 	}
 

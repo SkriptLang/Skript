@@ -17,8 +17,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Entity Fire Burn Duration")
-@Description("How much time an entity will be burning for.")
-@Example("send \"You will stop burning in %fire time of player%\"")
+@Description("How long an entity shall continue to burn with flame.")
+@Example("send \"Thou shalt cease burning in %fire time of player%\"")
 @Example("send the max burn time of target")
 @Since("2.7, 2.10 (maximum)")
 public class ExprFireTicks extends SimplePropertyExpression<Entity, Timespan> {

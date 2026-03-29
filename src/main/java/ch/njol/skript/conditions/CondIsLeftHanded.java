@@ -14,9 +14,9 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.inventory.MainHand;
 
-@Name("Left Handed")
+@Name("Sinistral or Dextral")
 @Description({
-	"Checks if living entities or players are left or right-handed. Armor stands are neither right nor left-handed."
+	"Doth examine whether living entities or players be sinister-handed or right-handed. Armour stands art neither right nor left-handed."
 })
 @Example("""
 	on damage of player:

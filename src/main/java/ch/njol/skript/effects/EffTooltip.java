@@ -18,12 +18,12 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Item Tooltips")
 @Description({
-	"Show or hide the tooltip of an item.",
-	"If changing the 'entire' tooltip of an item, nothing will show up when a player hovers over it.",
-	"If changing the 'additional' tooltip, only specific parts (which change per item) will be hidden."
+	"Reveal or conceal the tooltip of an item.",
+	"If altering the 'entire' tooltip of an item, naught shall appear when a player hovers upon it.",
+	"If altering the 'supplementary' tooltip, only particular portions (which vary per item) shall be concealed."
 })
-@Example("hide the entire tooltip of player's tool")
-@Example("hide {_item}'s additional tool tip")
+@Example("conceal the entire tooltip of player's tool")
+@Example("conceal {_item}'s supplementary tool tip")
 @RequiredPlugins("Spigot 1.20.5+")
 @Since("2.9.0")
 public class EffTooltip extends Effect {
@@ -31,8 +31,8 @@ public class EffTooltip extends Effect {
 	static {
 		if (Skript.methodExists(ItemMeta.class, "setHideTooltip", boolean.class)) { // this method was added in the same version as the additional tooltip item flag
 			Skript.registerEffect(EffTooltip.class,
-				"(show|reveal|:hide) %itemtypes%'[s] [entire|:additional] tool[ ]tip",
-				"(show|reveal|:hide) [the] [entire|:additional] tool[ ]tip of %itemtypes%"
+				"(reveal|unveil|hide:conceal) %itemtypes%'[s] [entire|additional:supplementary] tool[ ]tip",
+				"(reveal|unveil|hide:conceal) [the] [entire|additional:supplementary] tool[ ]tip of %itemtypes%"
 			);
 		}
 	}

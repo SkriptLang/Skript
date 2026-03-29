@@ -22,14 +22,14 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import java.util.ArrayList;
 import java.util.List;
 
-@Name("Loot")
-@Description("The loot that will be generated in a 'loot generate' event.")
+@Name("The Spoils")
+@Description("The spoils that shall be brought forth in a 'loot generate' event.")
 @Example("""
-	on loot generate:
-		chance of %10
-		add 64 diamonds to loot
-		send "You hit the jackpot!!"
-	""")
+    on loot generate:
+    	chance of %10
+    	add 64 diamonds to spoils
+    	send "Thou hast struck the mother lode!!"
+    """)
 @Since("2.7")
 @RequiredPlugins("MC 1.16+")
 public class ExprLoot extends SimpleExpression<ItemStack> {
@@ -38,7 +38,7 @@ public class ExprLoot extends SimpleExpression<ItemStack> {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			SyntaxInfo.Expression.builder(ExprLoot.class, ItemStack.class)
-				.addPatterns("[the] loot")
+				.addPatterns("[the] spoils")
 				.supplier(ExprLoot::new)
 				.build()
 		);

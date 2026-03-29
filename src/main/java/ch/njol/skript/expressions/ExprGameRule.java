@@ -20,14 +20,14 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.GameruleValue;
 import ch.njol.util.Kleenean;
 
-@Name("Gamerule Value")
-@Description("The gamerule value of a world.")
-@Example("set the gamerule commandBlockOutput of world \"world\" to false")
+@Name("Decree Value")
+@Description("The gamerule decree value of a world.")
+@Example("set the decree commandBlockOutput of world \"world\" to false")
 @Since("2.5")
 public class ExprGameRule extends SimpleExpression<GameruleValue> {
 	
 	static {
-		Skript.registerExpression(ExprGameRule.class, GameruleValue.class, ExpressionType.COMBINED, "[the] gamerule %gamerule% of %worlds%");
+		Skript.registerExpression(ExprGameRule.class, GameruleValue.class, ExpressionType.COMBINED, "[the] decree %gamerule% of %worlds%");
 	}
 
 	private Expression<GameRule<?>> gamerule;

@@ -21,15 +21,15 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-@Name("Default Value")
-@Description("A shorthand expression for giving things a default value. If the first thing isn't set, the second thing will be returned.")
-@Example("broadcast {score::%player's uuid%} otherwise \"%player% has no score!\"")
+@Name("Default Worth")
+@Description("A shorthand expression for bestowing upon things a default worth. If the first thing be not set, the second thing shall be returned.")
+@Example("broadcast {score::%player's uuid%} lest \"%player% hath no score!\"")
 @Since("2.2-dev36")
 public class ExprDefaultValue extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprDefaultValue.class, Object.class, ExpressionType.COMBINED,
-				"%objects% (otherwise|?) %objects%");
+				"%objects% (lest|?) %objects%");
 	}
 
 	private Class<?>[] types;

@@ -10,11 +10,11 @@ import org.bukkit.damage.DamageSource;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Damage Source - Source Location")
+@Name("Wound's Origin - Provenance")
 @Description({
-	"The final location where the damage was originated from.",
-	"The 'source location' for vanilla damage sources will retrieve the 'damage location' if set. "
-		+  "If 'damage location' is not set, will attempt to grab the location of the 'causing entity', "
+	"The final locale whence the damage didst originate.",
+	"The 'source location' for vanilla damage sources shall retrieve the 'damage location' if set. "
+		+  "If 'damage location' be not set, it shall attempt to procure the location of the 'causing entity', "
 		+ "otherwise, null."
 })
 @Example("""

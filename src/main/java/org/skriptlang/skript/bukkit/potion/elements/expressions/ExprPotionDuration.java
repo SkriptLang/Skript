@@ -17,7 +17,7 @@ import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Potion Effect - Duration")
-@Description("An expression to obtain the duration of a potion effect.")
+@Description("An expression to obtain the duration of a potion effect's tenure.")
 @Example("set the duration of {_potion} to 10 seconds")
 @Example("add 10 seconds to the duration of the player's speed effect")
 @Since("2.14")
@@ -25,7 +25,7 @@ public class ExprPotionDuration extends SimplePropertyExpression<SkriptPotionEff
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(ExprPotionDuration.class, Timespan.class,
-			"([potion] duration|potion length)[s]", "skriptpotioneffects", true)
+			"([potion] duration|potion endurance)[s]", "skriptpotioneffects", true)
 				.supplier(ExprPotionDuration::new)
 				.build());
 	}

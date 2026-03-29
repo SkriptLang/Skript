@@ -21,8 +21,8 @@ import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Open/Close Inventory")
-@Description({"Opens an inventory to a player. The player can then access and modify the inventory as if it was a chest that they just opened.",
-		"Please note that currently 'show' and 'open' have the same effect, but 'show' will eventually show an unmodifiable view of the inventory in the future."})
+@Description({"Openeth an inventory before a player. The player may then peruse and alter the inventory as though it were a chest newly opened.",
+		"Pray note that presently 'show' and 'open' bear the same effect, yet 'show' shall in time reveal an unalterable view of the inventory."})
 @Example("show the victim's inventory to the player")
 @Example("open the player's inventory for the player")
 @Since("2.0, 2.1.1 (closing), 2.2-Fixes-V10 (anvil), 2.4 (hopper, dropper, dispenser)")

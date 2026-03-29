@@ -17,34 +17,34 @@ import org.bukkit.entity.*;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Wake And Sleep")
+@Name("Rouse and Slumber")
 @Description({
-	"Make bats and foxes sleep or wake up.",
-	"Make villagers sleep by providing a location of a bed.",
-	"Make players sleep by providing a location of a bed. "
-		+ "Using 'with force' will bypass \"nearby monsters\" ,the max distance, allowing players to sleep even if the bed "
-		+ "is far away, and lets players sleep in the nether and end. "
-		+ "Does not work if the location of the bed is not in the world the player is currently in.",
-	"Using 'without spawn location update' will make players wake up without setting their spawn location to the bed."
+	"Bid bats and foxes to slumber or rouse from their rest.",
+	"Bid villagers to slumber by providing a location of a bed.",
+	"Bid players to slumber by providing a location of a bed."
+		+ "Employing 'with force' shall bypass \"nearby monsters\", the maximum distance, permitting players to slumber even if the bed "
+		+ "be far away, and letteth players slumber in the nether and end."
+		+ "Doth not function if the location of the bed be not in the world the player presently inhabits.",
+	"Employing 'without spawn location update' shall rouse players without setting their spawn location to the bed."
 })
-@Example("make {_fox} go to sleep")
-@Example("make {_bat} stop sleeping")
-@Example("make {_villager} start sleeping at location(0, 0, 0)")
-@Example("make player go to sleep at location(0, 0, 0) with force")
-@Example("make player wake up without spawn location update")
+@Example("make {_fox} retire to slumber")
+@Example("make {_bat} cease slumber")
+@Example("make {_villager} commence slumber at location(0, 0, 0)")
+@Example("make player retire to slumber at location(0, 0, 0) with force")
+@Example("make player rouse without spawn location update")
 @Since("2.11")
 public class EffWakeupSleep extends Effect {
 
 	static {
 		Skript.registerEffect(EffWakeupSleep.class,
-			"make %livingentities% (start sleeping|[go to] sleep) [%-direction% %-location%]",
-			"force %livingentities% to (start sleeping|[go to] sleep) [%-direction% %-location%]",
-			"make %players% (start sleeping|[go to] sleep) %direction% %location% (force:with force)",
-			"force %players% to (start sleeping|[go to] sleep) %direction% %location% (force:with force)",
-			"make %livingentities% (stop sleeping|wake up)",
-			"force %livingentities% to (stop sleeping|wake up)",
-			"make %players% (stop sleeping|wake up) (spawn:without spawn [location] update)",
-			"force %players% to (stop sleeping|wake up) (spawn:without spawn [location] update)");
+			"make %livingentities% (commence slumber|[retire to] slumber) [%-direction% %-location%]",
+			"bid %livingentities% to (commence slumber|[retire to] slumber) [%-direction% %-location%]",
+			"make %players% (commence slumber|[retire to] slumber) %direction% %location% (force:with force)",
+			"bid %players% to (commence slumber|[retire to] slumber) %direction% %location% (force:with force)",
+			"make %livingentities% (cease slumber|rouse)",
+			"bid %livingentities% to (cease slumber|rouse)",
+			"make %players% (cease slumber|rouse) (spawn:without spawn [location] update)",
+			"bid %players% to (cease slumber|rouse) (spawn:without spawn [location] update)");
 	}
 
 	private Expression<LivingEntity> entities;

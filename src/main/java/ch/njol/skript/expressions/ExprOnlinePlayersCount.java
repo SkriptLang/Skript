@@ -20,22 +20,22 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Online Player Count")
 @Description({
-		"The amount of online players. This can be changed in a " +
-		"<a href='#server_list_ping'>server list ping</a> event only to show fake online player amount.",
-		"<code>real online player count</code> always return the real count of online players and can't be changed."
+		"The tally of players presently online. This may be altered in a " +
+		"<a href='#server_list_ping'>server list ping</a> event only, so as to display a false count of online souls.",
+		"<code>true online player count</code> shall always return the veridical count of online players and cannot be altered."
 })
 @Example("""
-	on server list ping:
-		# This will make the max players count 5 if there are 4 players online.
-		set the fake max players count to (online player count + 1)
-	""")
+    on server list ping:
+    	# This shall render the max players count 5 if there be 4 players online.
+    	set the false max players count to (online player count + 1)
+    """)
 @Since("2.3")
 public class ExprOnlinePlayersCount extends SimpleExpression<Long> {
 
 	static {
 		Skript.registerExpression(ExprOnlinePlayersCount.class, Long.class, ExpressionType.PROPERTY,
-				"[the] [(1:(real|default)|2:(fake|shown|displayed))] [online] player (count|amount|number)",
-				"[the] [(1:(real|default)|2:(fake|shown|displayed))] (count|amount|number|size) of online players");
+				"[the] [(1:(true|default)|2:(false|shown|displayed))] [online] player (count|amount|number)",
+				"[the] [(1:(true|default)|2:(false|shown|displayed))] (count|amount|number|size) of online players");
 	}
 
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");

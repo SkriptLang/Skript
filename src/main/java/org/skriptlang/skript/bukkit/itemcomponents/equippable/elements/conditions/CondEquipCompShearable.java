@@ -6,20 +6,20 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperime
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Equippable Component - Can Be Sheared Off")
+@Name("Equippable Component - May Be Shorn")
 @Description("""
-	Whether an item can be sheared off of an entity.
-	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
-	""")
+    Whether an item may be shorn from an entity.
+    NOTE: Equippable component elements art experimental. Thus, they art subject to change and may not function as intended.
+    """)
 @Example("""
-	if {_item} can be sheared off:
-		add "Shearable" to lore of {_item}
-	""")
+    if {_item} can be shorn from:
+    	add "Shearable" to lore of {_item}
+    """)
 @Example("""
-	set {_component} to the equippable component of {_item}
-	if {_component} can not be sheared off:
-		allow {_component} to be sheared off
-	""")
+    set {_component} to the equippable component of {_item}
+    if {_component} can not be shorn from:
+    	grant {_component} to be shorn from
+    """)
 @RequiredPlugins("Minecraft 1.21.6+")
 @Since("2.13")
 public class CondEquipCompShearable extends PropertyCondition<EquippableWrapper> implements EquippableExperimentSyntax {
@@ -29,7 +29,7 @@ public class CondEquipCompShearable extends PropertyCondition<EquippableWrapper>
 			return;
 		registry.register(
 			SyntaxRegistry.CONDITION,
-			infoBuilder(CondEquipCompShearable.class, PropertyType.CAN, "be sheared off [of entities]", "equippablecomponents")
+			infoBuilder(CondEquipCompShearable.class, PropertyType.CAN, "be shorn from [entities]", "equippablecomponents")
 				.supplier(CondEquipCompShearable::new)
 				.build()
 		);

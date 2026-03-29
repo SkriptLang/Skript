@@ -14,15 +14,15 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Creeper Max Fuse Ticks")
-@Description("The max fuse ticks that a creeper has.")
-@Example("set target entity's max fuse ticks to 20 #1 second")
+@Name("Creeper Greatest Fuse Ticks")
+@Description("The greatest fuse ticks that a creeper doth possess.")
+@Example("set target entity's greatest fuse ticks to 20 #1 second")
 @Since("2.5")
 public class ExprCreeperMaxFuseTicks extends SimplePropertyExpression<LivingEntity, Long> {
 	
 	static {
 		if(Skript.methodExists(LivingEntity.class, "getMaxFuseTicks"))
-			register(ExprCreeperMaxFuseTicks.class, Long.class, "[creeper] max[imum] fuse tick[s]", "livingentities");
+			register(ExprCreeperMaxFuseTicks.class, Long.class, "[creeper] (max|greatest)[imum] fuse tick[s]", "livingentities");
 	}
 
 	@Override

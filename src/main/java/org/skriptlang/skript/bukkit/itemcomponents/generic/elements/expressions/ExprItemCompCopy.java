@@ -9,9 +9,9 @@ import org.skriptlang.skript.bukkit.itemcomponents.ComponentWrapper;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Item Component - Copy")
-@Description("Grab a copy of an item component of an item. Any changes made to the copy will not be present on the item.")
-@Example("set {_component} to the item component copy of (the equippable component of {_item})")
+@Name("Item Component - Likeness")
+@Description("Procure a likeness of an item component from an item. Any alterations wrought upon the likeness shall not be manifest upon the original item.")
+@Example("set {_component} to the item component likeness of (the equippable component of {_item})")
 @Since("2.13")
 @RequiredPlugins("Minecraft 1.21.2+")
 @SuppressWarnings("rawtypes")
@@ -20,8 +20,8 @@ public class ExprItemCompCopy extends SimplePropertyExpression<ComponentWrapper,
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprItemCompCopy.class, ComponentWrapper.class)
 			.addPatterns(
-				"[the|a[n]] [item] component copy of %itemcomponents%",
-				"[the] [item] component copies of %itemcomponents%"
+				"[the|a[n]] [item] component likeness of %itemcomponents%",
+				"[the] [item] component likenesses of %itemcomponents%"
 			)
 			.supplier(ExprItemCompCopy::new)
 			.build()

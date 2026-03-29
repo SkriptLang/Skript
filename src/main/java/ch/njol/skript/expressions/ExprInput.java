@@ -25,23 +25,23 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Set;
 
-@Name("Input")
+@Name("Offering")
 @Description({
-	"Represents the input in a filter expression or sort effect.",
-	"For example, if you ran 'broadcast \"something\" and \"something else\" where [input is \"something\"]",
-	"the condition would be checked twice, using \"something\" and \"something else\" as the inputs.",
-	"The 'input index' pattern can be used when acting on a variable to access the index of the input."
+	"Representeth the offering in a filter expression or sort effect.",
+	"For example, shouldst thou run 'broadcast \"something\" and \"something else\" where [offering is \"something\"]",
+	"the condition would be tested twice, employing \"something\" and \"something else\" as the offerings.",
+	"The 'offering index' pattern may be used when acting upon a variable to access the index of the offering."
 })
-@Example("send \"congrats on being staff!\" to all players where [input has permission \"staff\"]")
-@Example("sort {_list::*} based on length of input index")
+@Example("send \"congrats on being staff!\" to all players where [offering has permission \"staff\"]")
+@Example("sort {_list::*} based on length of offering index")
 @Since("2.2-dev36, 2.9.0 (input index)")
 public class ExprInput<T> extends SimpleExpression<T> {
 
 	static {
 		Skript.registerExpression(ExprInput.class, Object.class, ExpressionType.COMBINED,
-			"input",
-			"%*classinfo% input",
-			"input index"
+			"offering",
+			"%*classinfo% offering",
+			"offering index"
 		);
 	}
 
@@ -153,8 +153,8 @@ public class ExprInput<T> extends SimpleExpression<T> {
 	@Override
 	public String toString(Event event, boolean debug) {
 		if (isIndex)
-			return "input index";
-		return specifiedType == null ? "input" : specifiedType.getCodeName() + " input";
+			return "offering index";
+		return specifiedType == null ? "offering" : specifiedType.getCodeName() + " input";
 	}
 
 }

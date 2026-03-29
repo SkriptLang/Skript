@@ -8,8 +8,8 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-@Name("Is Flying")
-@Description("Checks whether a player is flying.")
+@Name("Is Aloft")
+@Description("Discerneth whether a player doth soar through the heavens.")
 @Example("player is not flying")
 @Since("1.4.4")
 public class CondIsFlying extends PropertyCondition<Player> {

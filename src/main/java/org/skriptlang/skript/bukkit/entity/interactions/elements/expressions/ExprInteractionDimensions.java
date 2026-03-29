@@ -15,13 +15,13 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Interaction Height/Width")
+@Name("Interaction Stature/Breadth")
 @Description("""
-	Returns the height or width of an interaction entity's hitbox. Both default to 1.
-	The width of the hitbox determines the x/z widths
-	""")
-@Example("set interaction height of last spawned interaction to 5.3")
-@Example("set interaction width of last spawned interaction to 2")
+    Returneth the stature or breadth of an interaction entity's bounding form. Both do default to 1.
+    The breadth of the bounding form determineth the x/z measures.
+    """)
+@Example("set interaction stature of last spawned interaction to 5.3")
+@Example("set interaction breadth of last spawned interaction to 2")
 @Since("2.14")
 public class ExprInteractionDimensions extends SimplePropertyExpression<Entity, Number> {
 
@@ -29,7 +29,7 @@ public class ExprInteractionDimensions extends SimplePropertyExpression<Entity, 
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			infoBuilder(ExprInteractionDimensions.class, Number.class,
-						"interaction (height|:width)[s]", "entities",
+						"interaction (stature|:breadth)[s]", "entities",
 						true)
 				.supplier(ExprInteractionDimensions::new)
 				.build());

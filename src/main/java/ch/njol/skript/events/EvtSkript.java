@@ -18,7 +18,7 @@ import java.util.List;
 public class EvtSkript extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Server Start/Stop", EvtSkript.class, CollectionUtils.array(SkriptStartEvent.class, SkriptStopEvent.class),
+		Skript.registerEvent("Server Rise / Fall", EvtSkript.class, CollectionUtils.array(SkriptStartEvent.class, SkriptStopEvent.class),
 				"(:server|skript) (start|load|enable)", "(:server|skript) (stop|unload|disable)"
 			)
 			.description("Called when the server starts or stops (actually, when Skript starts or stops, so a /reload will trigger these events as well).")

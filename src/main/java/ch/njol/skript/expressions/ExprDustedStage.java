@@ -16,8 +16,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Dusted Stage")
 @Description({
-	"Represents how far the block has been uncovered.",
-	"The only blocks that can currently be \"dusted\" are Suspicious Gravel and Suspicious Sand."
+	"Representeth how far the block hath been uncover'd from its earthen shroud.",
+	"The only blocks that may presently be \"dusted\" are Suspicious Gravel and Suspicious Sand."
 })
 @Example("send target block's maximum dusted stage")
 @Example("set {_sand}'s dusted stage to 2")
@@ -30,7 +30,7 @@ public class ExprDustedStage extends PropertyExpression<Object, Integer> {
 	static {
 		if (SUPPORTS_DUSTING)
 			register(ExprDustedStage.class, Integer.class,
-				"[:max[imum]] dust[ed|ing] (value|stage|progress[ion])",
+				"[:max[imum]] dust[ed|ing] (worth|stage|progress[ion])",
 				"blocks/blockdatas");
 	}
 

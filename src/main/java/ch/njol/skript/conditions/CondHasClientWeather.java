@@ -8,17 +8,17 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-@Name("Has Client Weather")
-@Description("Checks whether the given players have a custom client weather")
+@Name("Hath Bespoke Weather")
+@Description("Ascertaineth whether the given players possess a bespoke client weather bestowed upon them.")
 @Example("""
-	if the player has custom weather:
-		message "Your custom weather is %player's weather%"
-	""")
+    if the player has bespoke weather:
+    	message "Thy bespoke weather is %player's weather%"
+    """)
 @Since("2.3")
 public class CondHasClientWeather extends PropertyCondition<Player> {
 	
 	static {
-		register(CondHasClientWeather.class, PropertyType.HAVE, "[a] (client|custom) weather [set]", "players");
+		register(CondHasClientWeather.class, PropertyType.HAVE, "[a] (bespoke|custom) weather [set]", "players");
 	}
 	
 	@Override

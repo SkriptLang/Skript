@@ -22,26 +22,26 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
 
-@Name("Blank Equippable Component")
+@Name("Bare Equippable Component")
 @Description("""
-	Gets a blank equippable component.
-	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
-	""")
+    Procureth a bare equippable component, unsullied and void of properties.
+    NOTE: Equippable component elements art experimental. Thus, they art subject to change and may not function as intended.
+    """)
 @Example("""
-	set {_component} to a blank equippable component:
-		set the camera overlay to "custom_overlay"
-		set the allowed entities to a zombie and a skeleton
-		set the equip sound to "block.note_block.pling"
-		set the equipped model id to "custom_model"
-		set the shear sound to "ui.toast.in"
-		set the equipment slot to chest slot
-		allow event-equippable component to be damage when hurt
-		allow event-equippable component to be dispensed
-		allow event-equippable component to be equipped onto entities
-		allow event-equippable component to be sheared off
-		allow event-equippable component to swap equipment
-	set the equippable component of {_item} to {_component}
-	""")
+    set {_component} to a bare equippable component:
+    	set the looking-glass overlay to "custom_overlay"
+    	set the permitted entities to a zombie and a skeleton
+    	set the donning sound to "block.note_block.pling"
+    	set the donned visage id to "custom_model"
+    	set the shearing sound to "ui.toast.in"
+    	set the armament slot to chest slot
+    	grant event-equippable component to suffer damage when hurt
+    	grant event-equippable component to be dispensed forth
+    	grant event-equippable component to be donned upon entities
+    	grant event-equippable component to be shorn from
+    	grant event-equippable component to exchange armament
+    set the equippable component of {_item} to {_component}
+    """)
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("2.13")
 public class ExprSecBlankEquipComp extends SectionExpression<EquippableWrapper> implements EquippableExperimentSyntax {
@@ -66,7 +66,7 @@ public class ExprSecBlankEquipComp extends SectionExpression<EquippableWrapper> 
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprSecBlankEquipComp.class, EquippableWrapper.class)
-			.addPatterns("a (blank|empty) equippable component")
+			.addPatterns("a (bare|empty) equippable component")
 			.supplier(ExprSecBlankEquipComp::new)
 			.build()
 		);

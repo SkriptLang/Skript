@@ -9,21 +9,21 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.entity.HumanEntity;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Attack Cooldown")
-@Description({"Returns the current cooldown for a player's attack. This is used to calculate damage, with 1.0 representing a fully charged attack and 0.0 representing a non-charged attack.",
-	"NOTE: Currently this can not be set to anything."})
+@Name("Strike Cooldown")
+@Description({"Returneth the present cooldown for a player's strike. This is employed to calculate damage, with 1.0 representing a fully charged blow and 0.0 representing an uncharged blow.",
+	"NOTE: Presently this cannot be set to any value."})
 @Example("""
-	on damage:
-		if attack cooldown of attacker < 1:
-			set damage to 0
-			send "Your hit was too weak! wait until your weapon is fully charged next time." to attacker
-	""")
+    on damage:
+    	if strike cooldown of attacker < 1:
+    		set damage to 0
+    		send "Thy blow was too feeble! Pray wait until thy weapon is fully charged next time." to attacker
+    """)
 @Since("2.6.1")
 @RequiredPlugins("Minecraft 1.15+")
 public class ExprAttackCooldown extends SimplePropertyExpression<HumanEntity, Float> {
 
 	static {
-		register(ExprAttackCooldown.class, Float.class, "attack cooldown", "players");
+		register(ExprAttackCooldown.class, Float.class, "strike cooldown", "players");
 	}
 
 	@Override

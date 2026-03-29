@@ -13,17 +13,17 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Remaining Air")
-@Description("How much time a player has left underwater before starting to drown.")
+@Name("Remaining Breath")
+@Description("How much time a player hath remaining beneath the waters ere they begin to drown.")
 @Example("""
-	if the player's remaining air is less than 3 seconds:
-		send "hurry, get to the surface!" to the player
-	""")
+    if the player's remaining breath is less than 3 seconds:
+    	send "Make haste, rise to the surface!" to the player
+    """)
 @Since("2.0")
 public class ExprRemainingAir extends SimplePropertyExpression<LivingEntity, Timespan> {
 
 	static {
-		register(ExprRemainingAir.class, Timespan.class, "remaining air", "livingentities");
+		register(ExprRemainingAir.class, Timespan.class, "remaining breath", "livingentities");
 	}
 
 	@Override

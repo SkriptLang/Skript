@@ -10,8 +10,8 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Item Has Enchantment Glint Override")
-@Description("Checks whether an item has the enchantment glint overridden, or is forced to glint or not.")
+@Name("Item Beareth Enchantment Glint Override")
+@Description("Ascertaineth whether an item doth bear the enchantment glint overridden, or be compelled to glint or not.")
 @Example("""
 	if the player's tool has the enchantment glint override
 		send "Your tool has the enchantment glint override." to player

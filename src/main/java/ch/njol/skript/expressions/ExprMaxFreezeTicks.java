@@ -13,18 +13,18 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Maximum Freeze Time")
-@Description("The maximum amount of time an entity can spend in powdered snow before taking damage.")
+@Name("Greatest Frost Duration")
+@Description("The utmost span of time an entity may abide within powdered snow ere suffering harm.")
 @Example("""
-	difference between player's freeze time and player's max freeze time is less than 1 second:
-		send "you're about to freeze!" to the player
-	""")
+    difference between player's frost time and player's max frost time is less than 1 second:
+    	send "thou art upon the verge of freezing!" to the player
+    """)
 @Since("2.7")
 public class ExprMaxFreezeTicks extends SimplePropertyExpression<Entity, Timespan> {
 
 	static {
 		if (Skript.methodExists(Entity.class, "getMaxFreezeTicks"))
-			register(ExprMaxFreezeTicks.class, Timespan.class, "max[imum] freeze time", "entities");
+			register(ExprMaxFreezeTicks.class, Timespan.class, "max[imum] frost time", "entities");
 	}
 
 	@Override

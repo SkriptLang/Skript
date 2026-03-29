@@ -22,10 +22,10 @@ import org.bukkit.entity.Mob;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Is Pathfinding")
+@Name("Be Pathfinding")
 @Description({
-	"Checks whether living entities are pathfinding.",
-	"Can only be a living entity that is a Mob."
+	"Doth ascertain whether living entities art seeking a path upon their journey.",
+	"The entity in question must needs be a living creature that is a Mob."
 })
 @Example("""
 	make {_entity} pathfind to {_location} at speed 2

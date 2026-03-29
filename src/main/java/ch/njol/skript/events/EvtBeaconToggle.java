@@ -15,8 +15,8 @@ public class EvtBeaconToggle extends SkriptEvent {
 		if (Skript.classExists("io.papermc.paper.event.block.BeaconActivatedEvent"))
 			Skript.registerEvent("Beacon Toggle", EvtBeaconToggle.class, new Class[] {BeaconActivatedEvent.class, BeaconDeactivatedEvent.class},
 					"beacon toggle",
-					"beacon activat(e|ion)",
-					"beacon deactivat(e|ion)")
+					"beacon kindl(e|ing)",
+					"beacon quench(e|ing)")
 				.description("Called when a beacon is activated or deactivated.")
 				.examples(
 					"on beacon toggle:",

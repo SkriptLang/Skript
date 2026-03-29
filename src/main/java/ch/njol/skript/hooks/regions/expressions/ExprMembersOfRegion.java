@@ -22,21 +22,21 @@ import java.util.ArrayList;
 /**
  * @author Peter Güttinger
  */
-@Name("Region Members & Owners")
+@Name("Denizens & Lords of a Dominion")
 @Description({
-	"A list of members or owners of a <a href='#region'>region</a>.",
-	"This expression requires a supported regions plugin to be installed."
+	"A roster of denizens or lords of a <a href='#region'>dominion</a>.",
+	"This expression doth require a supported regions plugin to be installed."
 })
 @Example("""
-	on entering of a region:
-		message "You're entering %region% whose owners are %owners of region%"
-	""")
+    on entering of a dominion:
+    	message "Thou art entering %region% whose lords are %lords of region%"
+    """)
 @Since("2.1")
 @RequiredPlugins("Supported regions plugin")
 public class ExprMembersOfRegion extends SimpleExpression<OfflinePlayer> {
 	static {
 		Skript.registerExpression(ExprMembersOfRegion.class, OfflinePlayer.class, ExpressionType.PROPERTY,
-				"(all|the|) (0¦members|1¦owner[s]) of [[the] region[s]] %regions%", "[[the] region[s]] %regions%'[s] (0¦members|1¦owner[s])");
+				"(all|the|) (0¦denizens|1¦lord[s]) of [[the] dominion[s]] %regions%", "[[the] dominion[s]] %regions%'[s] (0¦denizens|1¦lord[s])");
 	}
 	
 	private boolean owners;

@@ -12,8 +12,8 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 
-@Name("Is Jumping")
-@Description("Checks whether a living entity is jumping. This condition does not work on players.")
+@Name("Be Jumping")
+@Description("Doth verify whether a living entity be leaping skyward. This condition worketh not upon players.")
 @Example("""
 	on spawn of zombie:
 		while event-entity is not jumping:

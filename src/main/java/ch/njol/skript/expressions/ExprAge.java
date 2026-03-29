@@ -18,28 +18,28 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Age of Block/Entity")
+@Name("Maturity of Block/Entity")
 @Description({
-	"Returns the age or maximum age of blocks and age for entities (there in no maximum age for entities).",
-	"For blocks, 'Age' represents the different growth stages that a crop-like block can go through. " +
-	"A value of 0 indicates that the crop was freshly planted, whilst a value equal to 'maximum age' indicates that the crop is ripe and ready to be harvested.",
-	"For entities, 'Age' represents the time left for them to become adults and it's in minus increasing to be 0 which means they're adults, " +
-	"e.g. A baby cow needs 20 minutes to become an adult which equals to 24,000 ticks so their age will be -24000 once spawned."
+	"Returneth the maturity or greatest maturity of blocks, and maturity for entities (there be no greatest maturity for entities).",
+	"For blocks, 'Maturity' doth represent the sundry stages of growth through which a crop-like block may pass." +
+	"A value of 0 doth indicate the crop was freshly sown, whilst a value equal to 'maximum maturity' doth indicate the crop is ripe and ready for the harvest.",
+	"For entities, 'Maturity' doth represent the time remaining ere they become full-grown, and it be in the negative, ascending to 0 which doth signify adulthood," +
+	"e.g. A calf doth require 20 minutes to become a bull, which equateth to 24,000 ticks, so its maturity shall be -24000 upon spawning."
 })
 @Example("""
-	# Set targeted crop to fully grown crop
-	set age of targeted block to maximum age of targeted block
-	""")
+    # Set targeted crop to fully grown crop
+    set maturity of targeted block to maximum maturity of targeted block
+    """)
 @Example("""
-	# Spawn a baby cow that will only need 1 minute to become an adult
-	spawn a baby cow at player
-	set age of last spawned entity to -1200 # in ticks = 60 seconds
-	""")
+    # Spawn a baby cow that will only need 1 minute to become an adult
+    spawn a baby cow at player
+    set maturity of last spawned entity to -1200 # in ticks = 60 seconds
+    """)
 @Since("2.7")
 public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 
 	static {
-		register(ExprAge.class, Integer.class, "[:max[imum]] age", "blocks/entities");
+		register(ExprAge.class, Integer.class, "[:max[imum]] maturity", "blocks/entities");
 	}
 
 	private boolean isMax;

@@ -15,8 +15,8 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Is Enchanted")
-@Description("Checks whether an item is enchanted. Enchants must match the exact level by default, unless 'or better' or 'or worse' are used.")
+@Name("Is Bespelled")
+@Description("Discerneth whether an item doth bear enchantments. Enchantments must match the precise level by default, unless 'or better' or 'or worse' be declared.")
 @Example("tool of the player is enchanted with efficiency 2")
 @Example("if player's helmet or player's boots are enchanted with protection 3 or better:")
 @Example("if player's chestplate is enchanted with protection")

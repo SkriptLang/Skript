@@ -15,14 +15,14 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Has Scoreboard Tag")
-@Description("Checks whether the given entities has the given <a href='#ExprScoreboardTags'>scoreboard tags</a>.")
-@Example("if the targeted armor stand has the scoreboard tag \"test tag\":")
+@Name("Hath Scoreboard Mark")
+@Description("Ascertaineth whether the given entities doth bear the given <a href='#ExprScoreboardTags'>scoreboard marks</a>.")
+@Example("if the targeted armor stand has the scoreboard mark \"test tag\":")
 @Since("2.3")
 public class CondHasScoreboardTag extends Condition {
 	
 	static {
-		PropertyCondition.register(CondHasScoreboardTag.class, PropertyType.HAVE, "[the] score[ ]board tag[s] %strings%", "entities");
+		PropertyCondition.register(CondHasScoreboardTag.class, PropertyType.HAVE, "[the] score[ ]board mark[s] %strings%", "entities");
 	}
 
 	private Expression<Entity> entities;

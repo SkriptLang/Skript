@@ -16,27 +16,27 @@ import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Consumed Item")
-@Description("Represents the item consumed within an entity shoot bow and item consume event.")
+@Name("Consumed Morsel")
+@Description("Representeth the morsel consumed within an entity shoot bow and item consume event.")
 @Example("""
-	on player or skeleton shoot projectile:
-		if the consumed item is an arrow:
-			cancel event
-			send "You're now allowed to shoot your arrows." to shooter
-	""")
+    on player or skeleton shoot projectile:
+    	if the consumed morsel is an arrow:
+    		cancel event
+    		send "Thou art not permitted to loose thine arrows." to shooter
+    """)
 @Example("""
-	on player consume:
-		if the consumed item is cooked porkchop:
-			send "Well aren't you just a little piggy wiggly!" to player
-		if player has scoreboard tag "vegetarian":
-			set the consumed item to a carrot
-	""")
+    on player consume:
+    	if the consumed morsel is cooked porkchop:
+    		send "Well art thou not a little swine most gluttonous!" to player
+    	if player has scoreboard tag "vegetarian":
+    		set the consumed morsel to a carrot
+    """)
 @Since("2.11")
 public class ExprConsumedItem extends SimpleExpression<ItemStack> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprConsumedItem.class, ItemStack.class, ExpressionType.SIMPLE,
-			"[the] consumed item");
+			"[the] consumed morsel");
 	}
 
 	private boolean allowsSettingConsumedItem;

@@ -10,8 +10,8 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.LivingEntity;
 
-@Name("Is Invisible")
-@Description("Checks whether a living entity is invisible.")
+@Name("Be Invisible")
+@Description("Doth verify whether a living entity be hidden from mortal sight, unseen as a ghost upon the wind.")
 @Example("target entity is invisible")
 @Since("2.7")
 public class CondIsInvisible extends PropertyCondition<LivingEntity> {

@@ -20,9 +20,9 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Item with Lore")
-@Description({"Returns the given item type with the specified lore added to it.",
-		"If multiple strings are passed, each of them will be a separate line in the lore."})
+@Name("Ware With Lore")
+@Description({"Returneth the given ware with the specified lore inscribed upon it.",
+		"Should multiple strings be provided, each shall become a separate line within the lore."})
 @Example("""
 		set {_test} to stone with lore "line 1" and "line 2"
 		give {_test} to player

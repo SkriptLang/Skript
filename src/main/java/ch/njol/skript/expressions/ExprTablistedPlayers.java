@@ -19,19 +19,19 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Tablisted Players")
+@Name("Players Upon the Roster")
 @Description({
-	"The players shown in the tab lists of the specified players.",
-	"`delete` will remove all the online players from the tab list.",
-	"`reset` will reset the tab list to the default state, which makes all players visible again."
+	"The players displayed upon the tab rosters of the specified players.",
+	"`delete` shall remove all online players from the roster.",
+	"`reset` shall restore the roster to its default state, rendering all players visible once more."
 })
-@Example("tablist players of player")
+@Example("rostered players of player")
 @Since("2.13")
 @Keywords("tablist")
 public class ExprTablistedPlayers extends PropertyExpression<Player, Player> {
 
 	static {
-		registerDefault(ExprTablistedPlayers.class, Player.class, "(tablist[ed]|listed) players", "players");
+		registerDefault(ExprTablistedPlayers.class, Player.class, "(roster[ed]|listed) players", "players");
 	}
 
 	@Override

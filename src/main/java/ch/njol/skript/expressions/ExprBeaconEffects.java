@@ -18,17 +18,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiConsumer;
 
-@Name("Beacon Effects")
+@Name("Beacon Enchantments")
 @Description({
-	"The active effects of a beacon.",
-	"The secondary effect can be set to anything, but the icon in the GUI will not display correctly.",
-	"The secondary effect can only be set when the beacon is at max tier.",
-	"The primary and secondary effect can not be the same, primary will always retain the potion type and secondary will be cleared."
+	"The active enchantments of a beacon most luminous.",
+	"The secondary enchantment may be set to any potion, yet the icon within the tableau shall not display true.",
+	"The secondary enchantment may only be bestowed when the beacon hath reached its highest tier.",
+	"The primary and secondary enchantment cannot be one and the same; the principal shall ever retain the potion type, and the lesser shall be swept clean."
 })
 @Example("""
-	set primary beacon effect of {_block} to haste
-	set secondary effect of {_block} to resistance
-	"""
+    set primary beacon enchantment of {_block} to haste
+    set secondary enchantment of {_block} to resistance
+    """
 )
 @Events({"Beacon Effect", "Beacon Toggle", "Beacon Change Effect"})
 @Since("2.10")
@@ -37,7 +37,7 @@ public class ExprBeaconEffects extends PropertyExpression<Block, PotionEffectTyp
 	private static final boolean SUPPORTS_CHANGE_EVENT = Skript.classExists("io.papermc.paper.event.player.PlayerChangeBeaconEffectEvent");
 
 	static {
-		registerDefault(ExprBeaconEffects.class, PotionEffectType.class, "(:primary|secondary) [beacon] effect", "blocks");
+		registerDefault(ExprBeaconEffects.class, PotionEffectType.class, "(primary:principal|secondary:lesser) [beacon] enchantment", "blocks");
 	}
 
 	private boolean primary;

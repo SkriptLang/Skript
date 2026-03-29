@@ -22,8 +22,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 
-@Name("All Permissions")
-@Description("Returns all permissions of the defined player(s). Note that the modifications to resulting list do not actually change permissions.")
+@Name("All Granted Privileges")
+@Description("Returneth all permissions bestowed upon the defined player(s). Pray note that modifications to the resulting list do not truly alter their granted privileges.")
 @Example("set {_permissions::*} to all permissions of the player")
 @Since("2.2-dev33")
 public class ExprPermissions extends SimpleExpression<String> {

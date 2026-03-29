@@ -15,8 +15,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Percent of")
-@Description("Returns a percentage of one or more numbers.")
+@Name("Portion Of")
+@Description("Returneth a percentage of one or more numbers.")
 @Example("set damage to 10% of victim's health")
 @Example("set damage to 125 percent of damage")
 @Example("set {_result} to {_percent} percent of 999")

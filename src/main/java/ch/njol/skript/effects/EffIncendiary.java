@@ -17,20 +17,20 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 
-@Name("Make Incendiary")
-@Description("Sets if an entity's explosion will leave behind fire. This effect is also usable in an explosion prime event.")
+@Name("Render Incendiary")
+@Description("Declareth whether an entity's explosion shall leave fire in its wake. This effect may also be employ'd within an explosion prime event.")
 @Example("""
-	on explosion prime:
-		make the explosion fiery
-	""")
+    on explosion prime:
+    	render the explosion fiery
+    """)
 @Since("2.5")
 public class EffIncendiary extends Effect {
 
 	static {
 		Skript.registerEffect(EffIncendiary.class,
-				"make %entities% [(1¦not)] incendiary",
-				"make %entities%'[s] explosion [(1¦not)] (incendiary|fiery)",
-				"make [the] [event(-| )]explosion [(1¦not)] (incendiary|fiery)"
+				"render %entities% [(1¦not)] incendiary",
+				"render %entities%'[s] explosion [(1¦not)] (incendiary|fiery)",
+				"render [the] [event(-| )]explosion [(1¦not)] (incendiary|fiery)"
 		);
 	}
 

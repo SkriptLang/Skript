@@ -12,8 +12,8 @@ import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 
 import java.util.Locale;
 
-@Name("Has Custom Model Data")
-@Description("Check if an item has a custom model data tag")
+@Name("Hath Custom Model Data")
+@Description("Examineth whether an item doth bear a custom model data tag.")
 @Example("player's tool has custom model data")
 @Example("""
 	if player's tool has custom model data flags:

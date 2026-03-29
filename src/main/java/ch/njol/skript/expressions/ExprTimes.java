@@ -21,13 +21,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Iterator;
 import java.util.stream.LongStream;
 
-@Name("X Times")
-@Description({"Integers between 1 and X, used in loops to loop X times."})
+@Name("X Repetitions")
+@Description({"Integers from 1 unto X, employed within loops to repeat X times over."})
 @Example("""
-	loop 20 times:
-		broadcast "%21 - loop-number% seconds left.."
-		wait 1 second
-	""")
+    loop 20 times:
+    	broadcast "%21 - loop-number% seconds remain.."
+    	wait 1 second
+    """)
 @Since("1.4.6")
 public class ExprTimes extends SimpleExpression<Long> {
 

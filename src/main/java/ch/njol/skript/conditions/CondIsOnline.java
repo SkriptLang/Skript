@@ -11,11 +11,11 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.OfflinePlayer;
 
-@Name("Is Online")
+@Name("Be Present in the Realm")
 @Description(
-	"Checks whether a player is online. The 'connected' pattern will return false once this player leaves the server, "
-		+ "even if they rejoin. Be aware that using the 'connected' pattern with a variable will not have this special behavior. "
-		+ "Use the direct event-player or other non-variable expression for best results."
+	"Doth ascertain whether a player be present within the realm. The 'connected' pattern shall yield false once said player departeth the server, "
+		+ "even shouldst they return anon. Be warned that employing the 'connected' pattern with a variable shall not possess this special comportment. "
+		+ "Employ the direct event-player or other non-variable expression for truest results."
 )
 @Example("player is online")
 @Example("player-argument is offline")

@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@Name("Brewing Results")
-@Description("The resulting items in an 'on brew complete' event.")
+@Name("Brewing Fruits")
+@Description("The resultant items yielded in an 'on brew complete' occasion.")
 @Example("""
 	on brew complete:
 		set {_results::*} to the brewing results

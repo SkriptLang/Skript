@@ -19,18 +19,18 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Mending Repair Amount")
-@Description({"The number of durability points an item is to be repaired in a mending event.",
-			" Modifying the repair amount will affect how much experience is given to the player after mending."})
+@Name("Mending Restoration Amount")
+@Description({"The number of durability points an item is to be restored in a mending event.",
+			"Altering the restoration amount shall affect how much experience is bestowed upon the player after mending."})
 @Example("""
-	on item mend:
-		set the mending repair amount to 100
-	""")
+    on item mend:
+    	set the mending restoration amount to 100
+    """)
 @Since("2.5.1")
 public class ExprMendingRepairAmount extends SimpleExpression<Long> {
 
 	static {
-		Skript.registerExpression(ExprMendingRepairAmount.class, Long.class, ExpressionType.SIMPLE, "[the] [mending] repair amount");
+		Skript.registerExpression(ExprMendingRepairAmount.class, Long.class, ExpressionType.SIMPLE, "[the] [mending] restoration amount");
 	}
 
 	@Override

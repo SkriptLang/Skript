@@ -14,20 +14,20 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Allay Duplicate")
+@Name("Allay Duplication Decree")
 @Description({
-	"Set whether an allay can or cannot duplicate itself.",
-	"This is not the same as breeding allays."
+	"Doth decree whether an allay may or may not duplicate itself.",
+	"This is not the same as the breeding of allays."
 })
-@Example("allow all allays to duplicate")
-@Example("prevent all allays from duplicating")
+@Example("grant all allays leave to duplicate")
+@Example("forbid all allays from duplicating")
 @Since("2.11")
 public class EffAllayCanDuplicate extends Effect {
 
 	static {
 		Skript.registerEffect(EffAllayCanDuplicate.class,
-			"allow %livingentities% to (duplicate|clone)",
-			"prevent %livingentities% from (duplicating|cloning)");
+			"grant %livingentities% leave to (duplicate|clone)",
+			"forbid %livingentities% from (duplicating|cloning)");
 	}
 
 	private Expression<LivingEntity> entities;

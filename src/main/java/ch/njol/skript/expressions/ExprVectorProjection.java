@@ -16,8 +16,8 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Vectors - Vector Projection")
-@Description("An expression to get the vector projection of two vectors.")
+@Name("Vectors — Projection Upon Another")
+@Description("An expression to obtain the vector projection of two vectors.")
 @Example("set {_projection} to vector projection of vector(1, 2, 3) onto vector(4, 4, 4)")
 @Since("2.8.0")
 public class ExprVectorProjection extends SimpleExpression<Vector> {

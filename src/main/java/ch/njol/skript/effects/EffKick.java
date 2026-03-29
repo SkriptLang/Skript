@@ -20,17 +20,17 @@ import ch.njol.util.Kleenean;
 /**
  * @author Peter Güttinger
  */
-@Name("Kick")
-@Description("Kicks a player from the server.")
+@Name("Banish")
+@Description("Banisheth a player from the server forthwith.")
 @Example("""
-	on place of TNT, lava, or obsidian:
-		kick the player due to "You may not place %block%!"
-		cancel the event
-	""")
+    on place of TNT, lava, or obsidian:
+    	banish the player due to "Thou mayest not place %block%!"
+    	cancel the event
+    """)
 @Since("1.0")
 public class EffKick extends Effect {
 	static {
-		Skript.registerEffect(EffKick.class, "kick %players% [(by reason of|because [of]|on account of|due to) %-string%]");
+		Skript.registerEffect(EffKick.class, "banish %players% [(by reason of|because [of]|on account of|due to) %-string%]");
 	}
 	
 	@SuppressWarnings("null")

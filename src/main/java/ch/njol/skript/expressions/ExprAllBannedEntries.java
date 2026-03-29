@@ -15,18 +15,18 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("All Banned Players/IPs")
-@Description("Obtains the list of all banned players or IP addresses.")
+@Name("All Banished Players/IPs")
+@Description("Obtaineth the ledger of all banished players or IP addresses.")
 @Example("""
-	command /banlist:
-		trigger:
-			send all the banned players
-	""")
+    command /banlist:
+    	trigger:
+    		send all the banished players
+    """)
 @Since("2.7")
 public class ExprAllBannedEntries extends SimpleExpression<Object> {
 
 	static {
-		Skript.registerExpression(ExprAllBannedEntries.class, Object.class, ExpressionType.SIMPLE, "[all [[of] the]|the] banned (players|ips:(ips|ip addresses))");
+		Skript.registerExpression(ExprAllBannedEntries.class, Object.class, ExpressionType.SIMPLE, "[all [[of] the]|the] banished (players|ips:(ips|ip addresses))");
 	}
 
 	private boolean ip;

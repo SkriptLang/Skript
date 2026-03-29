@@ -11,18 +11,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Tab List Name")
-@Description("Represents the name of a player that shows up in the tab list.")
+@Name("Roster Name upon the Tablet")
+@Description("Representeth the name of a player as it doth appear upon the tab roster.")
 @Example("""
-	on join:
-		player has permission "name.red"
-		set the player's tab list name to "&lt;green&gt;%player's name%"
-	""")
+    on join:
+    	player has permission "name.red"
+    	set the player's tab roster name to "&lt;green&gt;%player's name%"
+    """)
 @Since("before 2.1")
 public class ExprTablistName extends SimplePropertyExpression<Player, String> {
 
 	static {
-		register(ExprTablistName.class, String.class, "(player|tab)[ ]list name[s]", "players");
+		register(ExprTablistName.class, String.class, "(player|tab)[ ]roster name[s]", "players");
 	}
 
 	@Override

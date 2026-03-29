@@ -17,18 +17,18 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 
-@Name("Enchantment Bonus")
-@Description("The enchantment bonus in an enchant prepare event. This represents the number of bookshelves affecting/surrounding the enchantment table.")
+@Name("Enchantment Boon")
+@Description("The enchantment boon in an enchant prepare event. This representeth the number of bookshelves affecting and surrounding the enchantment table.")
 @Example("""
-	on enchant:
-		send "There are %enchantment bonus% bookshelves surrounding this enchantment table!" to player
-	""")
+    on enchant:
+    	send "There stand %enchantment boon% bookshelves about this enchantment table!" to player
+    """)
 @Events("enchant prepare")
 @Since("2.5")
 public class ExprEnchantmentBonus extends SimpleExpression<Long> {
 
 	static {
-		Skript.registerExpression(ExprEnchantmentBonus.class, Long.class, ExpressionType.SIMPLE, "[the] enchantment bonus");
+		Skript.registerExpression(ExprEnchantmentBonus.class, Long.class, ExpressionType.SIMPLE, "[the] enchantment boon");
 	}
 
 	@Override

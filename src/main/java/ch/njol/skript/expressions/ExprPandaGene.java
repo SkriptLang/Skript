@@ -16,17 +16,17 @@ import org.bukkit.entity.Panda.Gene;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Panda Gene")
-@Description("The main or hidden gene of a panda.")
+@Name("Panda Lineage")
+@Description("The main or hidden lineage of a panda, revealing its inborn nature.")
 @Example("""
-	if the main gene of last spawned panda is lazy:
-		set the main gene of last spawned panda to playful
-	""")
+    if the main lineage of last spawned panda is lazy:
+    	set the main lineage of last spawned panda to playful
+    """)
 @Since("2.11")
 public class ExprPandaGene extends SimplePropertyExpression<LivingEntity, Gene> {
 
 	static {
-		register(ExprPandaGene.class, Gene.class, "(:main|hidden) gene[s]", "livingentities");
+		register(ExprPandaGene.class, Gene.class, "(:main|hidden) lineage[s]", "livingentities");
 	}
 
 	private boolean mainGene;

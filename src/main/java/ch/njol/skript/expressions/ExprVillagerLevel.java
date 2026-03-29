@@ -17,28 +17,28 @@ import org.bukkit.entity.Villager;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Villager Level/Experience")
+@Name("Villager Rank and Wisdom")
 @Description({
-	"Represents the level/experience of a villager.",
-	"The level will determine which trades are available to players (value between 1 and 5, defaults to 1).",
-	"When a villager's level is 1, they may lose their profession if they don't have a workstation.",
-	"Experience works along with the leveling system, determining which level the villager will move to.",
-	"Experience must be greater than or equal to 0.",
-	"Learn more about villager levels on <a href='https://minecraft.wiki/w/Trading#Level'>Minecraft Wiki</a>"
+	"Representeth the rank or wisdom of a villager.",
+	"The rank shall determine which trades art available unto players (a value betwixt 1 and 5, defaulting to 1).",
+	"When a villager's rank is 1, they may forsake their profession shouldst they lack a workstation.",
+	"Wisdom worketh alongside the ranking system, determining to which rank the villager shall ascend.",
+	"Wisdom must be greater than or equal to 0.",
+	"Learn more of villager ranks upon <a href='https://minecraft.wiki/w/Trading#Level'>Minecraft Wiki</a>"
 })
-@Example("set {_level} to villager level of {_villager}")
-@Example("set villager level of last spawned villager to 2")
-@Example("add 1 to villager level of target entity")
-@Example("remove 1 from villager level of event-entity")
-@Example("reset villager level of event-entity")
-@Example("set villager experience of last spawned entity to 100")
+@Example("set {_level} to villager rank of {_villager}")
+@Example("set villager rank of last spawned villager to 2")
+@Example("add 1 to villager rank of target entity")
+@Example("remove 1 from villager rank of event-entity")
+@Example("reset villager rank of event-entity")
+@Example("set villager wisdom of last spawned entity to 100")
 @Since("2.10")
 public class ExprVillagerLevel extends SimplePropertyExpression<LivingEntity, Number> {
 
 	private static final boolean HAS_INCREASE_METHOD = Skript.methodExists(Villager.class, "increaseLevel", int.class);
 
 	static {
-		register(ExprVillagerLevel.class, Number.class, "villager (level|:experience)", "livingentities");
+		register(ExprVillagerLevel.class, Number.class, "villager (rank|experience:wisdom)", "livingentities");
 	}
 
 	private boolean experience;

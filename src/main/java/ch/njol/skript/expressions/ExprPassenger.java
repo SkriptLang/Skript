@@ -29,22 +29,22 @@ import ch.njol.util.Kleenean;
 /**
  * @author Peter Güttinger
  */
-@Name("Passenger")
-@Description({"The passenger of a vehicle, or the rider of a mob.",
-		"For 1.11.2 and above, it returns a list of passengers and you can use all changers in it.",
+@Name("Rider")
+@Description({"The rider of a vehicle, or the one mounted upon a mob.",
+		"For 1.11.2 and above, it returneth a list of riders and thou mayest employ all changers thereupon.",
 		"See also: <a href='#ExprVehicle'>vehicle</a>"})
 @Example("""
-	passengers of the minecart contains a creeper or a cow
-	the boat's passenger contains a pig
-	add a cow and a zombie to passengers of last spawned boat
-	set passengers of player's vehicle to a pig and a horse
-	remove all pigs from player's vehicle
-	clear passengers of boat
-	""")
+    riders of the minecart contains a creeper or a cow
+    the boat's rider contains a pig
+    add a cow and a zombie to riders of last spawned boat
+    set riders of player's vehicle to a pig and a horse
+    remove all pigs from player's vehicle
+    clear riders of boat
+    """)
 @Since("2.0, 2.2-dev26 (Multiple passengers for 1.11.2+)")
 public class ExprPassenger extends SimpleExpression<Entity> { // REMIND create 'vehicle' and 'passenger' expressions for vehicle enter/exit events?
 	static { // It was necessary to convert to SimpleExpression due to the method 'isSingle()'.
-		Skript.registerExpression(ExprPassenger.class, Entity.class, ExpressionType.PROPERTY, "[the] passenger[s] of %entities%", "%entities%'[s] passenger[s]");
+		Skript.registerExpression(ExprPassenger.class, Entity.class, ExpressionType.PROPERTY, "[the] rider[s] of %entities%", "%entities%'[s] rider[s]");
 	}
 	
 	@SuppressWarnings("null")

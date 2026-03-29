@@ -19,15 +19,15 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 
-@Name("Final Damage")
-@Description("How much damage is done in a damage event, considering all types of damage reduction. Can NOT be changed.")
-@Example("send \"%final damage%\" to victim")
+@Name("Final Harm")
+@Description("How much harm is ultimately wrought in a damage event, considering all manner of damage reduction. Can NOT be altered.")
+@Example("send \"%final harm%\" to victim")
 @Since("2.2-dev19")
 @Events("damage")
 public class ExprFinalDamage extends SimpleExpression<Number> {
 	
 	static {
-		Skript.registerExpression(ExprFinalDamage.class, Number.class, ExpressionType.SIMPLE, "[the] final damage");
+		Skript.registerExpression(ExprFinalDamage.class, Number.class, ExpressionType.SIMPLE, "[the] final (harm|damage)");
 	}
 	
 	@Override

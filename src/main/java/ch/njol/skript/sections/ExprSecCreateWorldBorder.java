@@ -25,19 +25,19 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-@Name("Create WorldBorder")
+@Name("Fashion a World Border")
 @Description({
-    "Creates a new, unused world border. World borders can be assigned to either worlds or specific players.",
-    "Borders assigned to worlds apply to all players in that world.",
-    "Borders assigned to players apply only to those players, and different players can have different borders."
+    "Doth fashion a new, unbound world border. World borders may be assigned unto either worlds or particular players.",
+    "Borders assigned unto worlds shall apply to all players within that world.",
+    "Borders assigned unto players shall apply only to those players, and divers players may possess different borders."
 })
 @Example("""
-	on join:
-		set {_location} to location of player
-		set worldborder of player to a virtual worldborder:
-			set worldborder radius to 25
-			set world border center of event-worldborder to {_location}
-	""")
+    on join:
+    	set {_location} to location of player
+    	set worldborder of player to a phantasmal worldborder:
+    		set worldborder radius to 25
+    		set world border center of event-worldborder to {_location}
+    """)
 @Example("""
 	on load:
 		set worldborder of world "world" to a worldborder:
@@ -49,7 +49,7 @@ import java.util.List;
 public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 
 	static {
-		Skript.registerExpression(ExprSecCreateWorldBorder.class, WorldBorder.class, ExpressionType.SIMPLE, "a [virtual] world[ ]border");
+		Skript.registerExpression(ExprSecCreateWorldBorder.class, WorldBorder.class, ExpressionType.SIMPLE, "a [phantasmal] world[ ]border");
 		EventValues.registerEventValue(CreateWorldborderEvent.class, WorldBorder.class, CreateWorldborderEvent::getWorldBorder);
 	}
 

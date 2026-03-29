@@ -22,27 +22,27 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Damage")
+@Name("Harm")
 @Description({
-	"How much damage is done in a entity/vehicle/item damage events.",
-	"For entity damage events, possibly ignoring armour, criticals and/or enchantments (remember that in Skript '1' is one full heart, not half a heart).",
-	"For items, it's the amount of durability damage the item will be taking."
+	"How much harm is wrought in an entity/vehicle/item damage event.",
+	"For entity damage events, perchance disregarding armour, criticals and/or enchantments (remember that in Skript '1' is one full heart, not half a heart).",
+	"For items, 'tis the measure of durability harm the item shall suffer."
 })
 @Example("""
-	on item damage:
-		event-item is any tool
-		clear damage # unbreakable tools as the damage will be 0
-	""")
+    on item damage:
+    	event-item is any tool
+    	clear damage # unbreakable tools as the harm shall be 0
+    """)
 @Example("""
-	on damage:
-		increase the damage by 2
-	""")
+    on damage:
+    	increase the harm by 2
+    """)
 @Since("1.3.5, 2.8.0 (item damage event)")
 @Events({"Damage", "Vehicle Damage", "Item Damage"})
 public class ExprDamage extends SimpleExpression<Number> {
 	
 	static {
-		Skript.registerExpression(ExprDamage.class, Number.class, ExpressionType.SIMPLE, "[the] damage");
+		Skript.registerExpression(ExprDamage.class, Number.class, ExpressionType.SIMPLE, "[the] (harm|damage)");
 	}
 	
 	@SuppressWarnings("null")

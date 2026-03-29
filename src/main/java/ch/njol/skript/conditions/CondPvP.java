@@ -14,17 +14,17 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("PvP")
-@Description("Checks the PvP state of a world.")
-@Example("PvP is enabled")
-@Example("PvP is disabled in \"world\"")
+@Name("Mortal Combat")
+@Description("Doth inspect the state of player-versus-player combat within a world.")
+@Example("mortal combat is permitted")
+@Example("mortal combat is forbidden in \"world\"")
 @Since("1.3.4")
 public class CondPvP extends Condition {
 
 	private static final boolean PVP_GAME_RULE_EXISTS = Skript.fieldExists(GameRule.class, "PVP");
 	
 	static {
-		Skript.registerCondition(CondPvP.class, "(is PvP|PvP is) enabled [in %worlds%]", "(is PvP|PvP is) disabled [in %worlds%]");
+		Skript.registerCondition(CondPvP.class, "(is mortal combat|mortal combat is) permitted [in %worlds%]", "(is mortal combat|mortal combat is) forbidden [in %worlds%]");
 	}
 	
 	@SuppressWarnings("null")

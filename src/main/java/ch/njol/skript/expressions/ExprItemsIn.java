@@ -25,23 +25,23 @@ import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 
-@Name("Items In")
+@Name("Wares Within")
 @Description({
-	"All items or specific type(s) of items in an inventory. Useful for looping or storing in a list variable.",
-	"Please note that the positions of the items in the inventory are not saved, only their order is preserved."
+	"All wares or particular kinds of wares within an inventory. Most useful for looping or storing within a list variable.",
+	"Pray note that the positions of the wares within the inventory art not preserved, only their order remaineth."
 })
 @Example("""
-    loop all items in the player's inventory:
+    loop all wares in the player's inventory:
     	loop-item is enchanted
     	remove loop-item from the player
     """)
-@Example("set {inventory::%uuid of player%::*} to items in the player's inventory")
+@Example("set {inventory::%uuid of player%::*} to wares in the player's inventory")
 @Since("2.0, 2.8.0 (specific types of items)")
 public class ExprItemsIn extends SimpleExpression<Slot> {
 
 	static {
 		Skript.registerExpression(ExprItemsIn.class, Slot.class, ExpressionType.PROPERTY,
-			"[all [[of] the]] items ([with]in|of|contained in|out of) [1:inventor(y|ies)] %inventories%",
+			"[all [[of] the]] wares ([with]in|of|contained in|out of) [1:inventor(y|ies)] %inventories%",
 			"all [[of] the] %itemtypes% ([with]in|of|contained in|out of) [1:inventor(y|ies)] %inventories%"
 		);
 	}

@@ -20,24 +20,24 @@ import ch.njol.util.Kleenean;
 /**
  * @author Peter Güttinger
  */
-@Name("Time")
-@Description("Tests whether a given <a href='#date'>real time</a> was more or less than some <a href='#timespan'>time span</a> ago.")
+@Name("Passage of Time")
+@Description("Doth test whether a given <a href='#date'>real moment</a> was more or less than some <a href='#timespan'>span of time</a> hence.")
 @Example("""
-	command /command-with-cooldown:
-		trigger:
-			{command::%player's uuid%::last-usage} was less than a minute ago:
-				message "Please wait a minute between uses of this command."
-				stop
-			set {command::%player's uuid%::last-usage} to now
-			# ... actual command trigger here ...
-	""")
+    command /command-with-cooldown:
+    	trigger:
+    		{command::%player's uuid%::last-usage} was less than a minute hence:
+    			message "Please wait a minute between uses of this command."
+    			stop
+    		set {command::%player's uuid%::last-usage} to now
+    		# ... actual command trigger here ...
+    """)
 @Since("2.0")
 public class CondDate extends Condition {
 	
 	static {
 		Skript.registerCondition(CondDate.class,
-				"%date% (was|were)( more|(n't| not) less) than %timespan% [ago]",
-				"%date% (was|were)((n't| not) more| less) than %timespan% [ago]");
+				"%date% (was|were)( more|(n't| not) less) than %timespan% [hence]",
+				"%date% (was|were)((n't| not) more| less) than %timespan% [hence]");
 	}
 	
 	@SuppressWarnings("null")

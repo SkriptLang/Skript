@@ -9,16 +9,16 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Leaves;
 import org.bukkit.entity.Entity;
 
-@Name("Is Persistent")
+@Name("Be Persistent")
 @Description({
-	"Whether entities, players, or leaves are persistent.",
-	"Persistence of entities is whether they are retained through server restarts.",
-	"Persistence of leaves is whether they should decay when not connected to a log block within 6 meters.",
-	"Persistence of players is if the player's playerdata should be saved when they leave the server. "
-		+ "Players' persistence is reset back to 'true' when they join the server.",
-	"Passengers inherit the persistence of their vehicle, meaning a persistent zombie put on a "
-		+ "non-persistent chicken will become non-persistent. This does not apply to players.",
-	"By default, all entities are persistent."
+	"Whether entities, players, or leaves do endure with persistence.",
+	"Persistence of entities speaketh to whether they be retained through server restarts.",
+	"Persistence of leaves is whether they ought to decay when unconnected to a log block within six metres.",
+	"Persistence of players determineth if the player's data shall be preserved when they depart the server. "
+		+ "Players' persistence is restored unto 'true' when they rejoin the server.",
+	"Passengers do inherit the persistence of their vehicle, meaning a persistent zombie set upon a "
+		+ "non-persistent chicken shall itself become non-persistent. This applieth not unto players.",
+	"By default, all entities art persistent."
 })
 @Example("""
 	on spawn:

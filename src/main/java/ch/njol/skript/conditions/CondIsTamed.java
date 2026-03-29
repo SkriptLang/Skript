@@ -8,8 +8,8 @@ import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Tameable;
 
-@Name("Is Tamed")
-@Description("Check if a tameable entity is tamed (horse, parrot, cat, etc.).")
+@Name("Be Tamed")
+@Description("Ascertaineth whether a tameable creature hath been tamed and brought to heel (horse, parrot, cat, and such).")
 @Example("send true if {_horse} is tamed")
 @Example("tame {_horse} if {_horse} is untamed")
 @Since("2.10")

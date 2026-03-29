@@ -15,13 +15,13 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Arrow Pierce Level")
-@Description("An arrow's pierce level.")
+@Name("Arrow Pierce Degree")
+@Description("An arrow's pierce degree.")
 @Example("""
-	on shoot:
-		event-projectile is an arrow
-		set arrow pierce level of event-projectile to 5
-	""")
+    on shoot:
+    	event-projectile is an arrow
+    	set arrow pierce degree of event-projectile to 5
+    """)
 @RequiredPlugins("Minecraft 1.14+")
 @Since("2.5.1")
 public class ExprArrowPierceLevel extends SimplePropertyExpression<Projectile, Long> {
@@ -30,7 +30,7 @@ public class ExprArrowPierceLevel extends SimplePropertyExpression<Projectile, L
 	
 	static {
 		if (CAN_USE_PIERCE)
-			register(ExprArrowPierceLevel.class, Long.class, "arrow pierce level", "projectiles");
+			register(ExprArrowPierceLevel.class, Long.class, "arrow pierce degree", "projectiles");
 	}
 	
 	@Nullable

@@ -28,25 +28,25 @@ import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.util.Closeable;
 import ch.njol.util.Kleenean;
 
-@Name("Log")
-@Description({"Writes text into a .log file. Skript will write these files to /plugins/Skript/logs.",
-		"NB: Using 'server.log' as the log file will write to the default server log. Omitting the log file altogether will log the message as '[Skript] [&lt;script&gt;.sk] &lt;message&gt;' in the server log."})
+@Name("Inscribe unto Log")
+@Description({"Inscribeth text into a .log file. Skript shall write these files unto /plugins/Skript/logs.",
+		"NB: Employing 'server.log' as the log file shall write to the default server log. Omitting the log file altogether shall inscribe the message as '[Skript] [&lt;script&gt;.sk] &lt;message&gt;' in the server log."})
 @Example("""
-	on join:
-		log "%player% has just joined the server!"
-	""")
+    on join:
+    	inscribe "%player% hath just arrived upon the server!"
+    """)
 @Example("""
-	on world change:
-		log "Someone just went to %event-world%!" to file "worldlog/worlds.log"
-	""")
+    on world change:
+    	inscribe "Someone hath just departed unto %event-world%!" to file "worldlog/worlds.log"
+    """)
 @Example("""
-	on command:
-		log "%player% just executed %full command%!" to file "server/commands.log" with a severity of warning
-	""")
+    on command:
+    	inscribe "%player% hath just executed %full command%!" to file "server/commands.log" with a severity of warning
+    """)
 @Since("2.0, 2.9.0 (severities)")
 public class EffLog extends Effect {
 	static {
-		Skript.registerEffect(EffLog.class, "log %strings% [(to|in) [file[s]] %-strings%] [with [the|a] severity [of] (1:warning|2:severe)]");
+		Skript.registerEffect(EffLog.class, "inscribe %strings% [(to|in) [file[s]] %-strings%] [with [the|a] severity [of] (1:warning|2:severe)]");
 	}
 
 	private static final File logsFolder = new File(Skript.getInstance().getDataFolder(), "logs");

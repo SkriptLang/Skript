@@ -23,22 +23,22 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-@Name("Group")
+@Name("Guild")
 @Description({
-	"The primary group or all groups of a player. This expression requires Vault and a compatible permissions plugin to be installed.",
-	"If you have LuckPerms, ensure you have vault integration enabled in the luck perms configurations."
+	"The primary guild or all guilds of a player. This expression doth require Vault and a compatible permissions plugin to be installed.",
+	"If thou dost employ LuckPerms, ensure vault integration be enabled within the LuckPerms configurations."
 })
 @Example("""
-	on join:
-		broadcast "%group of player%" # this is the player's primary group
-		broadcast "%groups of player%" # this is all of the player's groups
-	""")
+    on join:
+    	broadcast "%guild of player%" # this be the player's primary guild
+    	broadcast "%guilds of player%" # these be all of the player's guilds
+    """)
 @Since("2.2-dev35")
 @RequiredPlugins({"Vault", "a permission plugin that supports Vault"})
 public class ExprGroup extends SimpleExpression<String> {
 
 	static {
-		PropertyExpression.register(ExprGroup.class, String.class, "group[plural:s]", "offlineplayers");
+		PropertyExpression.register(ExprGroup.class, String.class, "guild[plural:s]", "offlineplayers");
 	}
 
 	private boolean primary;

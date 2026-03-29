@@ -16,14 +16,14 @@ import org.bukkit.event.Event;
 import org.bukkit.util.CachedServerIcon;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Last Loaded Server Icon")
-@Description({"Returns the last loaded server icon with the <a href='#EffLoadServerIcon'>load server icon</a> effect."})
-@Example("set {server-icon} to the last loaded server icon")
+@Name("Last Laden Server Icon")
+@Description({"Returneth the last laden server icon conjured by the <a href='#EffLoadServerIcon'>load server icon</a> effect."})
+@Example("set {server-icon} to the last laden server icon")
 @Since("2.3")
 public class ExprLastLoadedServerIcon extends SimpleExpression<CachedServerIcon> {
 
 	static {
-		Skript.registerExpression(ExprLastLoadedServerIcon.class, CachedServerIcon.class, ExpressionType.SIMPLE, "[the] [last[ly]] loaded server icon");
+		Skript.registerExpression(ExprLastLoadedServerIcon.class, CachedServerIcon.class, ExpressionType.SIMPLE, "[the] [last[ly]] laden server icon");
 	}
 
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");

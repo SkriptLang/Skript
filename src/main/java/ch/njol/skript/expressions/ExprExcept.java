@@ -18,12 +18,12 @@ import org.skriptlang.skript.lang.comparator.Relation;
 
 import java.lang.reflect.Array;
 
-@Name("Except")
-@Description("Filter a list by providing objects to be excluded.")
+@Name("Save For")
+@Description("Filter a list by providing objects to be cast aside.")
 @Example("""
-	spawn zombie at location(0, 0, 0):
-		hide entity from all players except {_player}
-	""")
+    spawn zombie at location(0, 0, 0):
+    	hide entity from all players save {_player}
+    """)
 @Example("""
 	set {_items::*} to a copper ingot, an iron ingot and a gold ingot
 	set {_except::*} to {_items::*} excluding copper ingot
@@ -33,7 +33,7 @@ public class ExprExcept extends WrapperExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprExcept.class, Object.class, ExpressionType.COMBINED,
-				"%objects% (except|excluding|not including) %objects%");
+				"%objects% (save|excluding|not including) %objects%");
 	}
 
 	private Expression<?> exclude;

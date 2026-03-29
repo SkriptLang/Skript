@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 public class EvtPeriodical extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("*Periodical", EvtPeriodical.class, ScheduledNoWorldEvent.class, "every %timespan%")
+		Skript.registerEvent("*Periodical Recurrence"Recurrence", EvtPeriodical.class, ScheduledNoWorldEvent.class, "every %timespan%")
 				.description("An event that is called periodically.")
 				.examples(
 					"every 2 seconds:",
@@ -24,7 +24,7 @@ public class EvtPeriodical extends SkriptEvent {
 					"every tick: # can cause lag depending on the code inside the event",
 					"every minecraft days:"
 				).since("1.0");
-		Skript.registerEvent("*Periodical", EvtPeriodical.class, ScheduledEvent.class, "every %timespan% in [world[s]] %worlds%")
+		Skript.registerEvent("*Periodical", EvtPeriodical.class, ScheduledEvent.class, "every %timespan% in [realm[s]] %worlds%")
 				.description("An event that is called periodically.")
 				.examples(
 					"every 2 seconds in \"world\":",

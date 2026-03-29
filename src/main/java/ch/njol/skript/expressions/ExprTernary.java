@@ -20,8 +20,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-@Name("Ternary")
-@Description("A shorthand expression for returning something based on a condition.")
+@Name("Conditional Decree")
+@Description("A shorthand expression for returning a value contingent upon a condition's truth.")
 @Example("set {points} to 500 if {admin::%player's uuid%} is set else 100")
 @Since("2.2-dev36")
 public class ExprTernary extends SimpleExpression<Object> {

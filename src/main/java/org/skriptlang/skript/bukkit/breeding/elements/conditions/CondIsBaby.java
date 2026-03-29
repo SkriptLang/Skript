@@ -9,8 +9,8 @@ import org.bukkit.entity.Ageable;
 import org.bukkit.entity.LivingEntity;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Is Baby")
-@Description("Checks whether or not a living entity is a baby.")
+@Name("Is a Babe")
+@Description("Discerneth whether a living entity is yet but a babe.")
 @Example("""
 	on drink:
 		event-entity is a baby

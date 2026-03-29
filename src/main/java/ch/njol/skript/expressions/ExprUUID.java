@@ -14,24 +14,24 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
 import java.util.UUID;
 
-@Name("UUID")
-@Description("The UUID of a player, entity or world.")
+@Name("Unique Designation (UUID)")
+@Description("The UUID — a unique designation — of a player, entity, or world.")
 @Example("""
-	# prevents people from joining the server if they use the name of a player
-	# who has played on this server at least once since this script has been added
-	on login:
-		if {uuid::%name of player%} exists:
-			{uuid::%name of player%} is not uuid of player
-			kick player due to "Someone with your name has played on this server before"
-		else:
-			set {uuid::%name of player%} to uuid of player
-	""")
+    # preventeth persons from joining the server shouldst they bear the name of a player
+    # who hath played upon this server at least once since this script was penned
+    on login:
+    	if {uuid::%name of player%} exists:
+    		{uuid::%name of player%} is not uuid of player
+    		kick player due to "One bearing thy name hath played upon this server ere now"
+    	else:
+    		set {uuid::%name of player%} to uuid of player
+    """)
 @Example("""
-	command /what-is-my-uuid:
-		trigger:
-			set {_uuid} to uuid of player
-			send "Your UUID is '%string within {_uuid}%'"
-	""")
+    command /what-is-my-uuid:
+    	trigger:
+    		set {_uuid} to uuid of player
+    		send "Thy UUID is '%string within {_uuid}%'"
+    """)
 @Since("2.1.2, 2.2 (offline players' uuids), 2.2-dev24 (other entities' uuids)")
 public class ExprUUID extends SimplePropertyExpression<Object, UUID> {
 

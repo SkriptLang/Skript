@@ -17,16 +17,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Name("Hidden Players")
-@Description({"The players hidden from a player that were hidden using the <a href='#EffEntityVisibility'>entity visibility</a> effect."})
-@Example("message \"&lt;light red&gt;You are currently hiding: &lt;light gray&gt;%hidden players of the player%\"")
+@Name("Concealed Players")
+@Description({"The players concealed from a player that were hidden by means of the <a href='#EffEntityVisibility'>entity visibility</a> effect."})
+@Example("message \"&lt;light red&gt;Thou art presently concealing: &lt;light gray&gt;%concealed players of the player%\"")
 @Since("2.3")
 public class ExprHiddenPlayers extends SimpleExpression<Player> {
 
 	static {
 		Skript.registerExpression(ExprHiddenPlayers.class, Player.class, ExpressionType.PROPERTY,
-				"[(all [[of] the]|the)] hidden players (of|for) %players%",
-				"[(all [[of] the]|the)] players hidden (from|for|by) %players%");
+				"[(all [[of] the]|the)] concealed players (of|for) %players%",
+				"[(all [[of] the]|the)] players concealed (from|for|by) %players%");
 	}
 
 	@SuppressWarnings("null")

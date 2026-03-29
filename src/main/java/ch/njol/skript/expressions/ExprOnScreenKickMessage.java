@@ -14,19 +14,19 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
 import org.jetbrains.annotations.Nullable;
 
-@Name("On-screen Kick Message")
-@Description("The kick message that is displayed on-screen when a player is kicked.")
+@Name("On-screen Banishment Message")
+@Description("The banishment message that is displayed upon the screen when a player is expelled from the server.")
 @Example("""
-	on kick:
-		on-screen kick message is "Invalid hotbar selection (Hacking?)"
-		cancel event
-	""")
+    on kick:
+    	on-screen banishment message is "Invalid hotbar selection (Hacking?)"
+    	cancel event
+    """)
 @Since("2.12")
 @Events("Kick")
 public class ExprOnScreenKickMessage extends SimpleExpression<String> implements EventRestrictedSyntax {
 
 	static {
-		Skript.registerExpression(ExprOnScreenKickMessage.class, String.class, ExpressionType.SIMPLE, "[the] on-screen kick message");
+		Skript.registerExpression(ExprOnScreenKickMessage.class, String.class, ExpressionType.SIMPLE, "[the] on-screen banishment message");
 	}
 
 	@Override

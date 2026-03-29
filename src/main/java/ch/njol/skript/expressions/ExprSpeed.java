@@ -19,16 +19,16 @@ import ch.njol.util.Math2;
 /**
  * @author Peter Güttinger
  */
-@Name("Speed")
-@Description({"A player's walking or flying speed. Both can be changed, but values must be between -1 and 1 (excessive values will be changed to -1 or 1 respectively). Negative values reverse directions.",
-		"Please note that changing a player's speed will change their FOV just like potions do."})
-@Example("set the player's walk speed to 1")
-@Example("increase the argument's fly speed by 0.1")
+@Name("Swiftness")
+@Description({"A player's walking or flying swiftness. Both may be altered, yet values must lie betwixt -1 and 1 (excessive values shall be constrained to -1 or 1 accordingly). Negative values reverse the direction of movement.",
+		"Pray take note that altering a player's swiftness shall change their field of vision, much as potions do."})
+@Example("set the player's walk swiftness to 1")
+@Example("increase the argument's flight swiftness by 0.1")
 @Since("unknown (before 2.1)")
 public class ExprSpeed extends SimplePropertyExpression<Player, Number> {
 	
 	static {
-		register(ExprSpeed.class, Number.class, "(0¦walk[ing]|1¦fl(y[ing]|ight))[( |-)]speed", "players");
+		register(ExprSpeed.class, Number.class, "(0¦walk[ing]|1¦fl(y[ing]|ight))[( |-)]swiftness", "players");
 	}
 	
 	private boolean walk;

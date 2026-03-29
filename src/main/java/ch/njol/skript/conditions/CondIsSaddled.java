@@ -14,10 +14,10 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Steerable;
 import org.bukkit.inventory.ItemStack;
 
-@Name("Is Saddled")
+@Name("Doth Bear a Saddle")
 @Description({
-	"Checks whether a given entity (horse or steerable) is saddled.",
-	"If 'properly' is used, this will only return true if the entity is wearing specifically a saddle item."
+	"Ascertaineth whether a given entity (horse or steerable beast) doth bear a saddle.",
+	"If 'properly' be employed, this shall only yield true if the entity doth wear specifically a saddle item."
 })
 @Example("send whether {_horse} is saddled")
 @Since("2.10")

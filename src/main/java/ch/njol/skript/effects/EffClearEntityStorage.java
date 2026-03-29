@@ -11,16 +11,16 @@ import org.bukkit.block.EntityBlockStorage;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Clear Entity Storage")
-@Description("Clear the stored entities of an entity block storage (i.e. beehive).")
-@Example("clear the stored entities of {_beehive}")
+@Name("Purge Creature Storage")
+@Description("Purgeth the stored creatures from an entity block storage (e.g. a beehive).")
+@Example("purge the stored creatures of {_beehive}")
 @Since("2.11")
 public class EffClearEntityStorage extends Effect {
 
 	static {
 		if (Skript.methodExists(EntityBlockStorage.class, "clearEntities"))
 			Skript.registerEffect(EffClearEntityStorage.class,
-				"(clear|empty) the (stored entities|entity storage) of %blocks%");
+				"(purge|empty) the (stored creatures|creature storage) of %blocks%");
 	}
 
 	private Expression<Block> blocks;

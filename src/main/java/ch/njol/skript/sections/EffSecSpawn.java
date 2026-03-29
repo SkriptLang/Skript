@@ -25,29 +25,29 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
 
-@Name("Spawn")
+@Name("Summon Forth")
 @Description({
-	"Spawns entities. This can be used as an effect and as a section.",
+	"Doth summon entities into being. This may be employed as an effect or as a section.",
 	"",
-	"If it is used as a section, the section is run before the entity is added to the world.",
-	"You can modify the entity in this section, using for example 'event-entity' or 'cow'. ",
-	"Do note that other event values, such as 'player', won't work in this section.",
+	"If employed as a section, the section shall run ere the entity is added unto the world.",
+	"Thou mayest modify the entity within this section, using for example 'event-entity' or 'cow'. ",
+	"Mark well that other event values, such as 'player', shall not function within this section.",
 	"",
-	"If you're spawning a display and want it to be empty on initialization, like not having a block display be stone, " + 
-	"set hidden config node 'spawn empty displays' to true.",
+	"If thou art summoning a display and dost wish it to be empty upon initialization, such as not having a block display appear as stone, " + 
+	"set the hidden config node 'spawn empty displays' to true.",
 	"",
-	"Note that when spawning an entity via entity snapshots, the code within the section will not run instantaneously as compared to spawning normally (via 'a zombie')."
+	"Note that when summoning an entity by way of entity snapshots, the code within the section shall not run instantaneously as compared to summoning by the usual means (via 'a zombie')."
 })
-@Example("spawn 3 creepers at the targeted block")
-@Example("spawn a ghast 5 meters above the player")
+@Example("summon 3 creepers at the targeted block")
+@Example("conjure a ghast 5 meters above the player")
 @Example("""
-	spawn a zombie at the player:
-		set name of the zombie to ""
-	""")
+    summon a zombie at the player:
+    	set name of the zombie to ""
+    """)
 @Example("""
-	spawn a block display of a ladder[waterlogged=true] at location above player:
-		set billboard of event-display to center # allows the display to rotate around the center axis
-	""")
+    conjure a block display of a ladder[waterlogged=true] at location above player:
+    	set billboard of event-display to center # permits the display to rotate about the centre axis
+    """)
 @RequiredPlugins("Minecraft 1.20.2+ (entity snapshots)")
 @Since("1.0, 2.6.1 (with section), 2.8.6 (dropped items), 2.10 (entity snapshots)")
 public class EffSecSpawn extends EffectSection {
@@ -76,8 +76,8 @@ public class EffSecSpawn extends EffectSection {
 		if (Skript.classExists("org.bukkit.entity.EntitySnapshot"))
 			acceptedTypes = "%entitytypes/entitysnapshots%";
 		Skript.registerSection(EffSecSpawn.class,
-				"(spawn|summon) " + acceptedTypes + " [%directions% %locations%]",
-				"(spawn|summon) %number% of " + acceptedTypes + " [%directions% %locations%]"
+				"(summon|conjure) " + acceptedTypes + " [%directions% %locations%]",
+				"(summon|conjure) %number% of " + acceptedTypes + " [%directions% %locations%]"
 		);
 		EventValues.registerEventValue(SpawnEvent.class, Entity.class, SpawnEvent::getEntity);
 	}

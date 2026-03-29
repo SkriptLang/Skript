@@ -13,19 +13,19 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Text Display Opacity")
+@Name("Text Display Translucency")
 @Description("""
-	Returns or changes the text opacity of <a href='#display'>text displays</a>. The default is 255, fully opaque.
-	Values are between 0 and 255. 0 to 3 are treated the same as 255, meaning fully opaque.
-	Values from 4 to 26 are fully transparent, and opacity increases linearly from there up to 255.
-	For backwards compatability, setting negative values between -1 and -128 wrap around, so -1 is the same as 255 and -128 is the same as 128.
-	Adding or subtracting values will adjust the opacity within the bounds of 0-255, so subtracting 300 wil always \
-	result in an opacity of 0.
-	""")
-@Example("set the text opacity of the last spawned text display to 0 # fully opaque")
-@Example("set text opacity of all text displays to 255 # fully opaque")
-@Example("set text opacity of all text displays to 128 # semi-transparent")
-@Example("set text opacity of all text displays to 4 # fully transparent")
+    Returneth or altereth the text translucency of <a href='#display'>text displays</a>. The default is 255, wholly opaque.
+    Values range betwixt 0 and 255. 0 to 3 are treated as 255, meaning wholly opaque.
+    Values from 4 to 26 are wholly transparent, and opacity increaseth linearly thence unto 255.
+    For backward accord, setting negative values betwixt -1 and -128 doth wrap about, so -1 is as 255 and -128 is as 128.
+    Adding or subtracting values shall adjust the translucency within the bounds of 0-255, so subtracting 300 shall always \
+    yield a translucency of 0.
+    """)
+@Example("set the text translucency of the last spawned text display to 0 # fully opaque")
+@Example("set text translucency of all text displays to 255 # fully opaque")
+@Example("set text translucency of all text displays to 128 # semi-transparent")
+@Example("set text translucency of all text displays to 4 # fully transparent")
 @Since("2.10, 2.14 (0-255)")
 public class ExprTextDisplayOpacity extends SimplePropertyExpression<Display, Integer> {
 
@@ -35,7 +35,7 @@ public class ExprTextDisplayOpacity extends SimplePropertyExpression<Display, In
 			infoBuilder(
 				ExprTextDisplayOpacity.class,
 				Integer.class,
-				"[display] [text] opacity",
+				"[display] [text] translucency",
 				"displays",
 				true
 			)

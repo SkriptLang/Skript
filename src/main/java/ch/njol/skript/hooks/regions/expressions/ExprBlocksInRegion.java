@@ -26,21 +26,21 @@ import java.util.NoSuchElementException;
 /**
  * @author Peter Güttinger
  */
-@Name("Blocks in Region")
+@Name("Blocks Within a Dominion")
 @Description({
-	"All blocks in a <a href='#region'>region</a>.",
-	"This expression requires a supported regions plugin to be installed."
+	"All blocks residing within a <a href='#region'>dominion</a>.",
+	"This expression doth require a supported regions plugin to be installed."
 })
 @Example("""
-	loop all blocks in the region {arena.%{faction.%player%}%}:
-		clear the loop-block
-	""")
+    loop all blocks within the dominion {arena.%{faction.%player%}%}:
+    	clear the loop-block
+    """)
 @Since("2.1")
 @RequiredPlugins("Supported regions plugin")
 public class ExprBlocksInRegion extends SimpleExpression<Block> {
 	static {
 		Skript.registerExpression(ExprBlocksInRegion.class, Block.class, ExpressionType.COMBINED,
-				"[(all|the)] blocks (in|of) [[the] region[s]] %regions%");
+				"[(all|the)] blocks (within|of) [[the] dominion[s]] %regions%");
 	}
 	
 	@SuppressWarnings("null")

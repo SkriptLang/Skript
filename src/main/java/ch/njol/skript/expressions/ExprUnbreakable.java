@@ -13,8 +13,8 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.inventory.meta.ItemMeta;
 
-@Name("Unbreakable Items")
-@Description("Creates breakable or unbreakable copies of given items.")
+@Name("Indestructible Wares")
+@Description("Createth breakable or indestructible copies of the given items.")
 @Example("set {_item} to unbreakable iron sword")
 @Example("give breakable {_weapon} to all players")
 @Since("2.2-dev13b, 2.9.0 (breakable)")

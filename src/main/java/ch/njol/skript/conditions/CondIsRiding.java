@@ -17,8 +17,8 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Is Riding")
-@Description("Tests whether an entity is riding any entity, a specific entity type, or a specific entity.")
+@Name("Be Astride")
+@Description("Doth examine whether an entity rideth upon any creature, a particular manner of entity, or a specific entity.")
 @Example("if player is riding:")
 @Example("if player is riding an entity:")
 @Example("if player is riding a saddled pig:")

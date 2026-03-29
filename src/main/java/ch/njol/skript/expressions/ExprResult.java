@@ -16,22 +16,22 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.registrations.experiments.ReflectionExperimentSyntax;
 import org.skriptlang.skript.util.Executable;
 
-@Name("Result")
+@Name("Yield of Execution")
 @Description({
-	"Runs something (like a function) and returns its result.",
-	"If the thing is expected to return multiple values, use 'results' instead of 'result'."
+	"Doth run something (such as a function) and returneth its yield.",
+	"Shouldst the thing be expected to return many values, employ 'yields' in lieu of 'yield'."
 })
 @Example("set {_function} to the function named \"myFunction\"")
-@Example("set {_result} to the result of {_function}")
-@Example("set {_list::*} to the results of {_function}")
-@Example("set {_result} to the result of {_function} with arguments 13 and true")
+@Example("set {_result} to the yield of {_function}")
+@Example("set {_list::*} to the yields of {_function}")
+@Example("set {_result} to the yield of {_function} with arguments 13 and true")
 @Since("2.10")
 @Keywords({"run", "result", "execute", "function", "reflection"})
 public class ExprResult extends PropertyExpression<Executable<Event, Object>, Object> implements ReflectionExperimentSyntax {
 
 	static {
 		Skript.registerExpression(ExprResult.class, Object.class, ExpressionType.COMBINED,
-			"[the] result[plural:s] of [running|executing] %executable% [arguments:with arg[ument]s %-objects%]");
+			"[the] (yield|result)[plural:s] of [running|executing] %executable% [arguments:with arg[ument]s %-objects%]");
 	}
 
 	private Expression<?> arguments;

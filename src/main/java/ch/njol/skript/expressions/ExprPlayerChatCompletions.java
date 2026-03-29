@@ -22,8 +22,8 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Player Chat Completions")
 @Description({
-	"The custom chat completion suggestions. You can add, set, remove, and clear them. Removing the names of online players with this expression is ineffective.",
-	"This expression will not return anything due to Bukkit limitations."
+	"The custom chat completion suggestions. Thou mayest add, set, remove, and clear them. Removing the names of players presently online with this expression proveth ineffectual.",
+	"This expression shall return naught, owing to Bukkit's limitations."
 })
 @Example("add \"Skript\" and \"Njol\" to chat completions of all players")
 @Example("remove \"text\" from {_p}'s chat completions")

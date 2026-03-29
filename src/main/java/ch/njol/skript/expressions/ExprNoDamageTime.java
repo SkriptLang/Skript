@@ -14,21 +14,21 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("No Damage Time")
-@Description("The amount of time an entity is invulnerable to any damage.")
+@Name("Duration of Invulnerability")
+@Description("The span of time during which an entity remaineth invulnerable unto all manner of harm.")
 @Example("""
     on damage:
-    	set victim's invulnerability time to 20 ticks #Victim will not take damage for the next second
+    	set victim's invulnerability time to 20 ticks #The victim shall suffer no harm for the next second
     """)
 @Example("""
-    if the no damage timespan of {_entity} is 0 seconds:
+    if the no harm timespan of {_entity} is 0 seconds:
     	set the invincibility time span of {_entity} to 1 minute
     """)
 @Since("2.11")
 public class ExprNoDamageTime extends SimplePropertyExpression<LivingEntity, Timespan> {
 
 	static {
-		registerDefault(ExprNoDamageTime.class, Timespan.class, "(invulnerability|invincibility|no damage) time[[ ]span]", "livingentities");
+		registerDefault(ExprNoDamageTime.class, Timespan.class, "(invulnerability|invincibility|no harm) time[[ ]span]", "livingentities");
 	}
 
 	@Override

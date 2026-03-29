@@ -18,13 +18,13 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Fishing Hooked Entity")
-@Description("Returns the hooked entity in the hooked event.")
+@Name("Fishing Hooked Creature")
+@Description("Returneth the hooked creature in the hooked occasion.")
 @Example("""
-	on entity hooked:
-		if hooked entity is a player:
-			teleport hooked entity to player
-	""")
+    on entity hooked:
+    	if hooked creature is a player:
+    		teleport hooked creature to player
+    """)
 @Events("Fishing")
 @Since("2.10")
 public class ExprFishingHookEntity extends SimpleExpression<Entity> {
@@ -32,7 +32,7 @@ public class ExprFishingHookEntity extends SimpleExpression<Entity> {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			SyntaxInfo.Expression.builder(ExprFishingHookEntity.class, Entity.class)
-				.addPatterns("[the] hook[ed] entity")
+				.addPatterns("[the] hook[ed] creature")
 				.supplier(ExprFishingHookEntity::new)
 				.priority(EventValueExpression.DEFAULT_PRIORITY)
 				.build());

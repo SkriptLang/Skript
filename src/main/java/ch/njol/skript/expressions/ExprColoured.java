@@ -15,32 +15,32 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Colored / Uncolored")
-@Description({"Parses &lt;color&gt;s and, optionally, chat styles in a message or removes",
-		"any colors <i>and</i> chat styles from the message. Parsing all",
-		"chat styles requires this expression to be used in same line with",
+@Name("Hued / Unhued")
+@Description({"Doth parse &lt;colour&gt;s and, if it please thee, chat styles in a message, or doth strip",
+		"any hues <i>and</i> chat styles from the message. Parsing all",
+		"chat styles requireth this expression to be employed upon the selfsame line with",
 		"the <a href=#EffSend>send effect</a>."})
 @Example("""
-	on chat:
-		set message to colored message # Safe; only colors get parsed
-	""")
+    on chat:
+    	set message to hued message # Safe; only hues get parsed
+    """)
 @Example("""
-	command /fade <player>:
-		trigger:
-			set display name of the player-argument to uncolored display name of the player-argument
-	""")
+    command /fade <player>:
+    	trigger:
+    		set display name of the player-argument to unhued display name of the player-argument
+    """)
 @Example("""
-	command /format <text>:
-		trigger:
-			message formatted text-argument # Safe, because we're sending to whoever used this command
-	""")
+    command /format <text>:
+    	trigger:
+    		message adorned text-argument # Safe, for we send unto whomsoever invoked this command
+    """)
 @Since("2.0")
 public class ExprColoured extends PropertyExpression<String, String> {
 	static {
 		Skript.registerExpression(ExprColoured.class, String.class, ExpressionType.COMBINED,
-				"(colo[u]r-|colo[u]red )%strings%",
-				"(format-|formatted )%strings%",
-				"(un|non)[-](colo[u]r-|colo[u]red |format-|formatted )%strings%");
+				"(hue-|hued )%strings%",
+				"(adorn-|adorned )%strings%",
+				"(un|non)[-](hue-|hued |adorn-|adorned )%strings%");
 	}
 	
 	/**

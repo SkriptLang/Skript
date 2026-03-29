@@ -13,16 +13,16 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Cancel Active Item")
+@Name("Halt Active Item")
 @Description({
-	"Interrupts the action entities may be trying to complete.",
-	"For example, interrupting eating, or drawing back a bow."
+	"Interrupteth the action entities may be endeavouring to complete.",
+	"For instance, halting the consumption of victuals, or the drawing of a bow."
 })
 @Example("""
-	on damage of player:
-		if the victim's active tool is a bow:
-			interrupt the usage of the player's active item
-	""")
+    on damage of player:
+    	if the victim's active tool is a bow:
+    		halt the employment of the player's active item
+    """)
 @Since("2.8.0")
 public class EffCancelItemUse extends Effect {
 
@@ -30,7 +30,7 @@ public class EffCancelItemUse extends Effect {
 		// TODO - remove this when Spigot support is dropped
 		if (Skript.methodExists(LivingEntity.class, "clearActiveItem"))
 			Skript.registerEffect(EffCancelItemUse.class,
-					"(cancel|interrupt) [the] us[ag]e of %livingentities%'[s] [active|current] item"
+					"(halt|interrupt) [the] employ[ment] of %livingentities%'[s] [active|current] item"
 			);
 	}
 

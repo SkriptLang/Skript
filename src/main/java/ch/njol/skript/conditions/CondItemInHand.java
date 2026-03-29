@@ -17,23 +17,23 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.EntityEquipment;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Is Holding")
-@Description("Checks whether a player is holding a specific item. Cannot be used with endermen, use 'entity is [not] an enderman holding &lt;item type&gt;' instead.")
-@Example("player is holding a stick")
-@Example("victim isn't holding a diamond sword of sharpness")
+@Name("Doth Wield")
+@Description("Ascertaineth whether a player doth wield a particular item. Cannot be employed with endermen; use 'entity is [not] an enderman holding &lt;item type&gt;' in its stead.")
+@Example("player doth wield a stick")
+@Example("victim doth not wield a diamond sword of sharpness")
 @Since("1.0")
 public class CondItemInHand extends Condition {
 	
 	static {
 		Skript.registerCondition(CondItemInHand.class,
 				"[%livingentities%] ha(s|ve) %itemtypes% in [main] hand",
-				"[%livingentities%] (is|are) holding %itemtypes% [in main hand]",
+				"[%livingentities%] (doth|do) wield %itemtypes% [in main hand]",
 				"[%livingentities%] ha(s|ve) %itemtypes% in off[(-| )]hand",
-				"[%livingentities%] (is|are) holding %itemtypes% in off[(-| )]hand",
+				"[%livingentities%] (doth|do) wield %itemtypes% in off[(-| )]hand",
 				"[%livingentities%] (ha(s|ve) not|do[es]n't have) %itemtypes% in [main] hand",
-				"[%livingentities%] (is not|isn't) holding %itemtypes% [in main hand]",
+				"[%livingentities%] (doth not|do not) wield %itemtypes% [in main hand]",
 				"[%livingentities%] (ha(s|ve) not|do[es]n't have) %itemtypes% in off[(-| )]hand",
-				"[%livingentities%] (is not|isn't) holding %itemtypes% in off[(-| )]hand"
+				"[%livingentities%] (doth not|do not) wield %itemtypes% in off[(-| )]hand"
 		);
 	}
 	

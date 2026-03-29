@@ -16,15 +16,15 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Is Tagged")
+@Name("Is Marked by Tag")
 @Description({
-	"Checks whether an item, block, entity, or entitydata is tagged with the given tag."
+	"Ascertaineth whether an item, block, entity, or entitydata is marked with the given tag."
 })
 @Example("""
-	if player's tool is tagged with minecraft tag "enchantable/sharp_weapon":
-		enchant player's tool with sharpness 1
-	""")
-@Example("if all logs are tagged with tag \"minecraft:logs\"")
+    if player's tool is marked with minecraft tag "enchantable/sharp_weapon":
+    	enchant player's tool with sharpness 1
+    """)
+@Example("if all logs are marked with tag \"minecraft:logs\"")
 @Since("2.10")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class CondIsTagged extends Condition {
@@ -35,7 +35,7 @@ public class CondIsTagged extends Condition {
 			PropertyCondition.infoBuilder(
 				CondIsTagged.class,
 				PropertyType.BE,
-				"tagged (as|with) %minecrafttags%",
+				"marked (as|with) %minecrafttags%",
 				"itemtypes/entities/entitydatas"
 			)
 				.supplier(CondIsTagged::new)

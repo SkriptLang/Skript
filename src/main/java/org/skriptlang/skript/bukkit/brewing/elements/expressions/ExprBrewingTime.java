@@ -29,10 +29,10 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@Name("Brewing Time")
-@Description("The remaining brewing time of a brewing stand.")
-@Example("set the brewing time of {_block} to 10 seconds")
-@Example("clear the remaining brewing time of {_block}")
+@Name("Brewing Duration")
+@Description("The remaining brewing duration of a brewing stand.")
+@Example("set the brewing duration of {_block} to 10 seconds")
+@Example("clear the remaining brewing duration of {_block}")
 @Since("2.13")
 public class ExprBrewingTime extends PropertyExpression<Block, Timespan> {
 
@@ -44,7 +44,7 @@ public class ExprBrewingTime extends PropertyExpression<Block, Timespan> {
 			infoBuilder(
 				ExprBrewingTime.class,
 				Timespan.class,
-				"[current|remaining] brewing time",
+				"[current|remaining] brewing duration",
 				"blocks",
 				true
 			)

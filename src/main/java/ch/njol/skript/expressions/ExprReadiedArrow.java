@@ -16,21 +16,21 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Readied Arrow/Bow")
+@Name("Nocked Arrow or Drawn Bow")
 @Description("The bow or arrow in a <a href='#ready_arrow'>Ready Arrow event</a>.")
 @Example("""
-	on player ready arrow:
-		selected bow's name is "Spectral Bow"
-		if selected arrow is not a spectral arrow:
-			cancel event
-	""")
+    on player ready arrow:
+    	drawn bow's name is "Spectral Bow"
+    	if nocked shaft is not a spectral arrow:
+    		cancel event
+    """)
 @Since("2.8.0")
 @Events("ready arrow")
 public class ExprReadiedArrow extends SimpleExpression<ItemStack> {
 
 	static {
 		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerReadyArrowEvent"))
-			Skript.registerExpression(ExprReadiedArrow.class, ItemStack.class, ExpressionType.SIMPLE, "[the] (readied|selected|drawn) (:arrow|bow)");
+			Skript.registerExpression(ExprReadiedArrow.class, ItemStack.class, ExpressionType.SIMPLE, "[the] (readied|drawn|nocked) (arrow:shaft|bow)");
 	}
 
 	private boolean isArrow;

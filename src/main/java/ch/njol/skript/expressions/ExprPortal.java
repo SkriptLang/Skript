@@ -22,12 +22,12 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
 @Name("Portal")
-@Description("The blocks associated with a portal in the portal creation event.")
+@Description("The blocks bound unto a portal within the portal creation event.")
 @Example("""
-	on portal creation:
-		loop portal blocks:
-			broadcast "%loop-block% is part of a portal!"
-	""")
+    on portal creation:
+    	loop portal blocks:
+    		broadcast "%loop-block% doth form part of a portal!"
+    """)
 @Since("2.4")
 @Events("portal_create")
 public class ExprPortal extends SimpleExpression<Block> {

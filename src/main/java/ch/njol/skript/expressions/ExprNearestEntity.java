@@ -22,8 +22,8 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
-@Name("Nearest Entity")
-@Description("Gets the entity nearest to a location or another entity.")
+@Name("Most Proximate Entity")
+@Description("Obtaineth the entity most proximate unto a location or another entity.")
 @Example("kill the nearest pig and cow relative to player")
 @Example("teleport player to the nearest cow relative to player")
 @Example("teleport player to the nearest entity relative to player")

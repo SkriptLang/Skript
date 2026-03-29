@@ -11,8 +11,8 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Entity;
 
-@Name("Is Custom Name Visible")
-@Description("Checks if an entity's custom name is visible.")
+@Name("Is Given Name Visible")
+@Description("Discerneth whether an entity's given name be visible unto all.")
 @Example("send true if target's custom name is visible")
 @Since("2.10")
 public class CondIsCustomNameVisible extends PropertyCondition<Entity> {

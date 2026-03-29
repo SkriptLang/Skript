@@ -25,27 +25,27 @@ import ch.njol.util.Kleenean;
 
 import org.bukkit.entity.Player;
 
-@Name("Vehicle")
+@Name("Steed")
 @Description({
-	"The vehicle an entity is in, if any.",
-	"This can actually be any entity, e.g. spider jockeys are skeletons that ride on a spider, so the spider is the 'vehicle' of the skeleton.",
+	"The steed upon which an entity doth ride, if any such mount existeth.",
+	"This may verily be any entity, e.g. spider jockeys art skeletons that ride upon a spider, thus the spider is the 'steed' of the skeleton.",
 	"See also: <a href='#ExprPassenger'>passenger</a>"
 })
 @Example("""
-	set the vehicle of {game::players::*} to a saddled pig
-	give {game::players::*} a carrot on a stick
-	""")
+    set the steed of {game::players::*} to a saddled pig
+    give {game::players::*} a carrot on a stick
+    """)
 @Example("""
-	on vehicle enter:
-		vehicle is a horse
-		add 1 to {statistics::horseMounting::%uuid of player%}
-	""")
+    on vehicle enter:
+    	steed is a horse
+    	add 1 to {statistics::horseMounting::%uuid of player%}
+    """)
 @Since("2.0")
 public class ExprVehicle extends PropertyExpression<Entity, Entity> {
 
 	static {
 		if (Skript.classExists("org.bukkit.event.entity.EntityMountEvent"))
-			registerDefault(ExprVehicle.class, Entity.class, "vehicle[s]", "entities");
+			registerDefault(ExprVehicle.class, Entity.class, "steed[s]", "entities");
 	}
 
 	@Override

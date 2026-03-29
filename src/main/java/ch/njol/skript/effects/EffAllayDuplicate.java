@@ -14,17 +14,17 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Make Allay Duplicate")
+@Name("Bid Allay Duplicate")
 @Description({
-	"Make an allay duplicate itself.",
-	"This effect will always make an allay duplicate regardless of whether the duplicate attribute is disabled."
+	"Doth bid an allay to duplicate itself.",
+	"This effect shall always compel an allay to duplicate regardless of whether the duplicate attribute be disabled."
 })
-@Example("make all allays duplicate")
+@Example("bid all allays duplicate")
 @Since("2.11")
 public class EffAllayDuplicate extends Effect {
 
 	static {
-		Skript.registerEffect(EffAllayDuplicate.class, "make %livingentities% (duplicate|clone)");
+		Skript.registerEffect(EffAllayDuplicate.class, "bid %livingentities% (duplicate|clone)");
 	}
 
 	private Expression<LivingEntity> entities;

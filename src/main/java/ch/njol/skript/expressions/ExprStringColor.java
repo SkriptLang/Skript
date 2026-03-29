@@ -24,16 +24,16 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import java.util.ArrayList;
 import java.util.List;
 
-@Name("String Colors")
+@Name("Hues of a String")
 @Description({
-	"Retrieve the first, the last, or all of the color objects or color codes of a string.",
-	"The retrieved color codes of the string will be formatted with the color symbol."
+	"Retrieveth the first, the last, or all colour objects or colour codes dwelling within a string.",
+	"The retrieved colour codes of the string shall be formatted with the colour symbol."
 })
-@Example("set {_colors::*} to the string colors of \"<red>hey<blue>yo\"")
+@Example("set {_colors::*} to the string hues of \"<red>hey<blue>yo\"")
 @Example("""
-		set {_color} to the first string color code of "&aGoodbye!"
-		send "%{_color}%Howdy!" to all players
-		""")
+    set {_color} to the first string hue code of "&aGoodbye!"
+    send "%{_color}%Howdy!" to all players
+    """)
 @Since("2.11")
 public class ExprStringColor extends PropertyExpression<String, Object> {
 
@@ -45,9 +45,9 @@ public class ExprStringColor extends PropertyExpression<String, Object> {
 
 	static {
 		Skript.registerExpression(ExprStringColor.class, Object.class, ExpressionType.PROPERTY,
-			"[all [of the|the]|the] string colo[u]r[s] [code:code[s]] of %strings%",
-			"[the] first string colo[u]r[s] [code:code[s]] of %strings%",
-			"[the] last string colo[u]r[s] [code:code[s]] of %strings%");
+			"[all [of the|the]|the] string hue[s] [code:code[s]] of %strings%",
+			"[the] first string hue[s] [code:code[s]] of %strings%",
+			"[the] last string hue[s] [code:code[s]] of %strings%");
 	}
 
 	private StringColor selectedState;

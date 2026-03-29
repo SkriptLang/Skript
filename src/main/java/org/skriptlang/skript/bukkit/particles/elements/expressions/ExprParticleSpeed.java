@@ -11,24 +11,24 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.particles.particleeffects.ParticleEffect;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Particle Speed/Extra Value")
+@Name("Particle Swiftness / Extra Value")
 @Description("""
-	Determines the specific 'speed' or 'extra' value of a particle.
-	This value is used in different ways depending on the particle, but in general it:
-	* acts as the speed at which the particle moves if the particle count is greater than 0.
-	* acts as a multiplier to the particle's offset if the particle count is 0.
-	
-	More detailed information on particle behavior can be found at \
-	<a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
-	""")
+    Determineth the particular 'swiftness' or 'extra' value of a particle.
+    This value is employed in divers ways depending upon the particle, but in general it:
+    * acteth as the swiftness at which the particle moveth if the particle count be greater than 0.
+    * acteth as a multiplier to the particle's offset if the particle count be 0.
+    
+    More detailed intelligence on particle behaviour may be found at \
+    <a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
+    """)
 @Example("set the extra value of {_my-flame-particle} to 2")
-@Example("set the particle speed of {_my-flame-particle} to 0")
+@Example("set the particle swiftness of {_my-flame-particle} to 0")
 @Since("2.14")
 public class ExprParticleSpeed extends SimplePropertyExpression<ParticleEffect, Number> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprParticleSpeed.class, Number.class, "(particle speed [value]|extra value)", "particles", false)
+			infoBuilder(ExprParticleSpeed.class, Number.class, "(particle swiftness [value]|extra value)", "particles", false)
 				.supplier(ExprParticleSpeed::new)
 				.build());
 	}

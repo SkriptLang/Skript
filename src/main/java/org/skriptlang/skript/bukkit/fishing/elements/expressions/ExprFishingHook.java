@@ -9,12 +9,12 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Fishing Hook")
-@Description("The <a href='#entity'>fishing hook</a> in a fishing event.")
+@Description("The <a href='#entity'>fishing hook</a> within a fishing occasion.")
 @Example("""
-	on fish line cast:
-		wait a second
-		teleport player to fishing hook
-	""")
+    on fish line cast:
+    	tarry a second
+    	teleport player to fishing hook
+    """)
 @Events("Fishing")
 @Since("2.10")
 public class ExprFishingHook extends EventValueExpression<Entity> {

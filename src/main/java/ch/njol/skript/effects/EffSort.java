@@ -15,19 +15,20 @@ import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.*;
 
-@Name("Sort")
+@Name("Arrange in Order")
 @Description("""
-	Sorts a list variable using either the natural ordering of the contents or the results of the given expression.
-	Be warned, this will overwrite the indices of the list variable.
-	
-	When using the full <code>sort %~objects% (by|based on) &lt;expression&gt;</code> pattern,
-	the input expression can be used to refer to the current item being sorted.
-	(See input expression for more information.)""")
+    Doth arrange a list variable by either the natural ordering of its contents or the results of the given expression.
+    Be forewarned, this shall overwrite the indices of the list variable.
+    
+    When employing the full <code>arrange %~objects% (by|based on) &lt;expression&gt;</code> pattern,
+    the input expression may be used to refer to the current item being arranged.
+    (See input expression for further knowledge.)
+    """)
 @Example("set {_words::*} to \"pineapple\", \"banana\", \"yoghurt\", and \"apple\"")
-@Example("sort {_words::*} # alphabetical sort")
-@Example("sort {_words::*} by length of input # shortest to longest")
-@Example("sort {_words::*} in descending order by length of input # longest to shortest")
-@Example("sort {_words::*} based on {tastiness::%input%} # sort based on custom value")
+@Example("arrange {_words::*} # alphabetical arrangement")
+@Example("arrange {_words::*} by length of input # shortest to longest")
+@Example("arrange {_words::*} in descending order by length of input # longest to shortest")
+@Example("arrange {_words::*} based on {tastiness::%input%} # arrange based on custom value")
 @Since("2.9.0, 2.10 (sort order)")
 @Keywords("input")
 public class EffSort extends Effect implements InputSource {
@@ -35,7 +36,7 @@ public class EffSort extends Effect implements InputSource {
 	private record MappedValue(Object original, Object mapped) { }
 
 	static {
-		Skript.registerEffect(EffSort.class, "sort %~objects% [in (:descending|ascending) order] [(by|based on) <.+>]");
+		Skript.registerEffect(EffSort.class, "arrange %~objects% [in (:descending|ascending) order] [(by|based on) <.+>]");
 		if (!ParserInstance.isRegistered(InputData.class))
 			ParserInstance.registerData(InputData.class, InputData::new);
 	}

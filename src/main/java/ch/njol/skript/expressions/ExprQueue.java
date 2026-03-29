@@ -20,15 +20,16 @@ import java.util.Iterator;
 
 @Name("Queue (Experimental)")
 @Description("""
-	Requires the <code>using queues</code> experimental feature flag to be enabled.
-	
-	Creates a new queue.
-	A queue is a set of elements that can have things removed from the start and added to the end.
-	
-	Any value can be added to a queue. Adding a non-existent value (e.g. `{variable that isn't set}`) will have no effect.
-	This means that removing an element from the queue will always return a value <i>unless the queue is empty</i>.
-	
-	Requesting an element from a queue (e.g. `the 1st element of {queue}`) also removes it from the queue.""")
+    Requires the <code>using queues</code> experimental feature flag to be enabled.
+    
+    Conjureth a new queue.
+    A queue is an ordered procession of elements wherefrom things may be removed from the fore and appended to the rear.
+    
+    Any value may be added to a queue. Adding a non-existent value (e.g. `{variable that isn't set}`) shall have no effect.
+    This meaneth that removing an element from the queue shall always yield a value <i>unless the queue be empty</i>.
+    
+    Requesting an element from a queue (e.g. `the 1st element of {queue}`) doth also remove it from the queue.
+    """)
 @Example("""
 	set {queue} to a new queue
 	add "hello" and "there" to {queue}

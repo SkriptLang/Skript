@@ -15,13 +15,13 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Make Adult/Baby")
-@Description("Force a animal to become an adult or baby.")
+@Name("Render Adult or Babe")
+@Description("Compel a beast to assume the form of an adult or a suckling babe.")
 @Example("""
-	on spawn of mob:
-		entity is not an adult
-		make entity an adult
-	""")
+    on spawn of mob:
+    	entity is not an adult
+    	render entity an adult
+    """)
 @Since("2.10")
 public class EffMakeAdultOrBaby extends Effect {
 
@@ -30,8 +30,8 @@ public class EffMakeAdultOrBaby extends Effect {
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffMakeAdultOrBaby.class)
 				.addPatterns(
-					"make %livingentities% [a[n]] (:adult|baby|child)",
-					"force %livingentities% to be[come] a[n] (:adult|baby|child)"
+					"render %livingentities% [a[n]] (:adult|baby|child)",
+					"compel %livingentities% to be[come] a[n] (:adult|baby|child)"
 				)
 				.supplier(EffMakeAdultOrBaby::new)
 				.build()

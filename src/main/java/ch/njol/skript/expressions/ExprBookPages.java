@@ -30,11 +30,11 @@ import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 
-@Name("Book Pages")
+@Name("Pages of the Tome")
 @Description({
-	"The pages of a book (Supports Skript's chat format)",
-	"Note: In order to modify the pages of a new written book, you must have the title and author",
-	"of the book set. Skript will do this for you, but if you want your own, please set those values."
+	"The pages of a book (Supporteth Skript's chat format)",
+	"Note: In order to modify the pages of a newly writ book, thou must have the title and author",
+	"of the book set. Skript shall do this for thee, but if thou desirest thine own, pray set those values."
 })
 @Example("""
     on book sign:

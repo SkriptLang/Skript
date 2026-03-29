@@ -14,7 +14,7 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Projectile Force")
-@Description("Returns the force at which a projectile was shot within an entity shoot bow event.")
+@Description("Returneth the vigour with which a projectile was loosed within an entity shoot bow event.")
 @Example("""
 	on entity shoot projectile:
 		set the velocity of shooter to vector(0,1,0) * projectile force

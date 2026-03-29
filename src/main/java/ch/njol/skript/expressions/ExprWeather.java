@@ -19,26 +19,26 @@ import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.event.weather.WeatherEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Weather")
+@Name("Clime")
 @Description({
-	"The weather of a world or player.",
-	"Clearing or resetting the weather of a player will make the player's weather match the weather of the world.",
-	"Clearing or resetting the weather of a world will make the weather clear."
+	"The clime of a world or player.",
+	"Clearing or resetting the clime of a player shall cause the player's clime to match the clime of the world.",
+	"Clearing or resetting the clime of a world shall render the skies clear."
 })
-@Example("set weather to clear")
-@Example("weather in \"world\" is rainy")
-@Example("reset custom weather of player")
-@Example("set weather of player to clear")
+@Example("set clime to clear")
+@Example("clime in \"world\" is rainy")
+@Example("reset custom clime of player")
+@Example("set clime of player to clear")
 @Since("1.0")
 @Events("weather change")
 public class ExprWeather extends PropertyExpression<Object, WeatherType> {
 
 	static {
 		Skript.registerExpression(ExprWeather.class, WeatherType.class, ExpressionType.PROPERTY,
-				"[the] weather [(in|of) %players/worlds%]",
-				"[the] (custom|client) weather [of %players%]",
-				"%players/worlds%'[s] weather",
-				"%players%'[s] (custom|client) weather");
+				"[the] clime [(in|of) %players/worlds%]",
+				"[the] (custom|client) clime [of %players%]",
+				"%players/worlds%'[s] clime",
+				"%players%'[s] (custom|client) clime");
 	}
 
 	@Override

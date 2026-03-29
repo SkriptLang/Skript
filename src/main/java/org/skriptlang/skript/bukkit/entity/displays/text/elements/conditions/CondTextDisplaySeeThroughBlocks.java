@@ -9,8 +9,8 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Text Display Visible Through Blocks")
-@Description("Returns whether text displays can be seen through blocks or not.")
+@Name("Text Display Visible Through Ramparts")
+@Description("Returns whether text displays may be perceived through blocks or not.")
 @Example("""
 	if last spawned text display is visible through walls:
 		prevent last spawned text display from being visible through walls

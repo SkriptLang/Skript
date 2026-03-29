@@ -13,17 +13,17 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Item with Enchantment Glint")
-@Description("Get an item with or without enchantment glint.")
-@Example("set {_item with glint} to diamond with enchantment glint")
-@Example("set {_item without glint} to diamond without enchantment glint")
+@Name("Ware With Enchantment Glimmer")
+@Description("Obtain a ware with or without enchantment glimmer.")
+@Example("set {_item with glimmer} to diamond with enchantment glimmer")
+@Example("set {_item without glimmer} to diamond without enchantment glimmer")
 @RequiredPlugins("Spigot 1.20.5+")
 @Since("2.10")
 public class ExprItemWithEnchantmentGlint extends PropertyExpression<ItemType, ItemType> {
 
 	static {
 		if (Skript.methodExists(ItemMeta.class, "getEnchantmentGlintOverride"))
-			Skript.registerExpression(ExprItemWithEnchantmentGlint.class, ItemType.class, ExpressionType.PROPERTY, "%itemtypes% with[:out] [enchant[ment]] glint");
+			Skript.registerExpression(ExprItemWithEnchantmentGlint.class, ItemType.class, ExpressionType.PROPERTY, "%itemtypes% (with|with:out) [enchant[ment]] glimmer");
 	}
 
 	private boolean glint;

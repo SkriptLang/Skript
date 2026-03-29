@@ -13,9 +13,9 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Text Display Line Width")
-@Description("Returns or changes the line width of <a href='#display'>text displays</a>. Default is 200.")
-@Example("set the line width of the last spawned text display to 300")
+@Name("Text Display Line Breadth")
+@Description("Returneth or altereth the line breadth of <a href='#display'>text displays</a>. The default measure is 200.")
+@Example("set the line breadth of the last spawned text display to 300")
 @Since("2.10")
 public class ExprTextDisplayLineWidth extends SimplePropertyExpression<Display, Integer> {
 
@@ -25,7 +25,7 @@ public class ExprTextDisplayLineWidth extends SimplePropertyExpression<Display, 
 			infoBuilder(
 				ExprTextDisplayLineWidth.class,
 				Integer.class,
-				"line width",
+				"line breadth",
 				"displays",
 				true
 			)

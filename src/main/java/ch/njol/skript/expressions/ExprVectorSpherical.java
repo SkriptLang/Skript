@@ -17,8 +17,8 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Vectors - Spherical Shape")
-@Description("Forms a 'spherical shaped' vector using yaw and pitch to manipulate the current point.")
+@Name("Vectors — Spherical Form")
+@Description("Formeth a vector of spherical shape, employing yaw and pitch to govern the current point.")
 @Example("""
 	loop 360 times:
 		set {_v} to spherical vector radius 1, yaw loop-value, pitch loop-value

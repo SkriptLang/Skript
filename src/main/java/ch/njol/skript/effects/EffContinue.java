@@ -17,33 +17,33 @@ import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.List;
 
-@Name("Continue")
-@Description("Moves the loop to the next iteration. You may also continue an outer loop from an inner one." +
-	" The loops are labelled from 1 until the current loop, starting with the outermost one.")
+@Name("Carry On")
+@Description("Advanceth the loop unto the next iteration. Thou mayest also carry on an outer loop from within an inner one." +
+	" The loops are numbered from 1 unto the current loop, beginning with the outermost.")
 @Example("""
-	# Broadcast online moderators
-	loop all players:
-		if loop-value does not have permission "moderator":
-			continue # filter out non moderators
-		broadcast "%loop-player% is a moderator!" # Only moderators get broadcast
-	""")
+    # Proclaim online moderators
+    loop all players:
+    	if loop-value does not have permission "moderator":
+    		carry on # filter out non moderators
+    	proclaim "%loop-player% is a moderator!" # Only moderators get proclaimed
+    """)
 @Example("""
-	# Game starting counter
-	set {_counter} to 11
-	while {_counter} > 0:
-		remove 1 from {_counter}
-		wait a second
-		if {_counter} != 1, 2, 3, 5 or 10:
-			continue # only print when counter is 1, 2, 3, 5 or 10
-		broadcast "Game starting in %{_counter}% second(s)"
-	""")
+    # Game commencement counter
+    set {_counter} to 11
+    while {_counter} > 0:
+    	remove 1 from {_counter}
+    	wait a second
+    	if {_counter} != 1, 2, 3, 5 or 10:
+    		carry on # only print when counter is 1, 2, 3, 5 or 10
+    	proclaim "Game commencing in %{_counter}% second(s)"
+    """)
 @Since("2.2-dev37, 2.7 (while loops), 2.8.0 (outer loops)")
 public class EffContinue extends Effect {
 
 	static {
 		Skript.registerEffect(EffContinue.class,
-			"continue [this loop|[the] [current] loop]",
-			"continue [the] <" + JavaClasses.INTEGER_NUMBER_PATTERN + ">(st|nd|rd|th) loop"
+			"carry on [this loop|[the] [current] loop]",
+			"carry on [the] <" + JavaClasses.INTEGER_NUMBER_PATTERN + ">(st|nd|rd|th) loop"
 		);
 	}
 

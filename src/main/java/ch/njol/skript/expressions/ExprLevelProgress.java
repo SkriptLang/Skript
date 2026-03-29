@@ -16,32 +16,32 @@ import ch.njol.util.Math2;
 /**
  * @author Peter Güttinger
  */
-@Name("Level Progress")
-@Description({"The player's progress in reaching the next level, this represents the experience bar in the game. " +
-		"Please note that this value is between 0 and 1 (e.g. 0.5 = half experience bar).",
-		"Changing this value can cause the player's level to change if the resulting level progess is negative or larger than 1, e.g. " +
-				"<code>increase the player's level progress by 0.5</code> will make the player gain a level if their progress was more than 50%."})
+@Name("Station Progress")
+@Description({"The player's progress toward attaining the next station; this representeth the experience bar within the game. " +
+		"Pray note that this value lieth betwixt 0 and 1 (e.g. 0.5 = half the experience bar).",
+		"Altering this value may cause the player's station to change if the resulting station progress be negative or greater than 1, e.g. " +
+				"<code>increase the player's station progress by 0.5</code> shall cause the player to gain a station if their progress exceeded 50%."})
 @Example("""
-	# use the exp bar as mana
-	on rightclick with a blaze rod:
-		player's level progress is larger than 0.2
-		shoot a fireball from the player
-		reduce the player's level progress by 0.2
-	every 2 seconds:
-		loop all players:
-			level progress of loop-player is smaller than 0.9:
-				increase level progress of the loop-player by 0.1
-			else:
-				set level progress of the loop-player to 0.99
-	on xp spawn:
-		cancel event
-	""")
+    # employ the exp bar as mana
+    on rightclick with a blaze rod:
+    	player's station progress is larger than 0.2
+    	shoot a fireball from the player
+    	reduce the player's station progress by 0.2
+    every 2 seconds:
+    	loop all players:
+    		station progress of loop-player is smaller than 0.9:
+    			increase station progress of the loop-player by 0.1
+    		else:
+    			set station progress of the loop-player to 0.99
+    on xp spawn:
+    	cancel event
+    """)
 @Since("2.0")
 @Events("level change")
 public class ExprLevelProgress extends SimplePropertyExpression<Player, Number> {
 	
 	static {
-		register(ExprLevelProgress.class, Number.class, "level progress", "players");
+		register(ExprLevelProgress.class, Number.class, "station progress", "players");
 	}
 	
 	@Override

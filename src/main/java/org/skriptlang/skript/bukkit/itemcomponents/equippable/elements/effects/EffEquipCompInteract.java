@@ -12,12 +12,12 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Equippable Component - Equip On Entities")
+@Name("Equippable Component - Don Upon Entities")
 @Description("""
-	Whether an entity should equip the item when right clicking on the entity with the item.
-	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
-	""")
-@Example("allow {_item} to be equipped onto entities")
+    Whether an entity ought to don the item whence one doth right-click upon the entity with said item.
+    NOTE: Equippable component elements art experimental. Thus, they art subject to change and may not function as intended.
+    """)
+@Example("grant {_item} to be donned upon entities")
 @Since("2.13")
 @RequiredPlugins("Minecraft 1.21.5+")
 public class EffEquipCompInteract extends Effect implements EquippableExperimentSyntax {
@@ -25,11 +25,11 @@ public class EffEquipCompInteract extends Effect implements EquippableExperiment
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffEquipCompInteract.class)
 			.addPatterns(
-				"allow %equippablecomponents% to be equipped on[to] entities",
-				"make %equippablecomponents% equippable on[to] entities",
-				"let %equippablecomponents% be equipped on[to] entities",
-				"(block|prevent|disallow) %equippablecomponents% from being equipped on[to] entities",
-				"make %equippablecomponents% not equippable on[to] entities"
+				"grant %equippablecomponents% to be donned upon entities",
+				"make %equippablecomponents% donnable upon entities",
+				"let %equippablecomponents% be donned upon entities",
+				"(forbid|prevent|deny) %equippablecomponents% from being donned upon entities",
+				"make %equippablecomponents% not donnable upon entities"
 			)
 			.supplier(EffEquipCompInteract::new)
 			.build()

@@ -33,11 +33,11 @@ import java.util.function.Consumer;
 
 @Name("Banner Patterns")
 @Description({
-	"Gets or sets the banner patterns of a banner.",
-	"In order to set a specific position of a banner, there needs to be that many patterns already on the banner.",
-	"This expression will add filler patterns to the banner to allow the specified position to be set.",
-	"For Example, setting the 3rd banner pattern of a banner that has no patterns on it, will internally add 3 base patterns, "
-	+ "allowing the 3rd banner pattern to be set."
+	"Obtaineth or setteth the banner patterns of a banner.",
+	"In order to set a specific position of a banner, there must already be that many patterns upon the banner.",
+	"This expression shall add filler patterns to the banner to permit the specified position to be set.",
+	"For example, setting the 3rd banner pattern of a banner bearing no patterns shall internally add 3 base patterns, "
+	+ "thereby permitting the 3rd banner pattern to be set."
 })
 @Example("broadcast banner patterns of {_banneritem}")
 @Example("broadcast 1st banner pattern of block at location(0,0,0)")

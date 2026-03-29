@@ -13,28 +13,28 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Sprinting")
+@Name("Dashing")
 @Description({
-	"Make a player start or stop sprinting.",
-	"If the player is not moving when this effect is used, they will be put in sprint mode for a tick and then stopped (this causes the FOV to change). "
-		+ "Using it a second time, without the player manually sprinting in between, causes the player to stay in sprint mode, with some quirks.",
-	" - Particles may not be produced under the player's feet.",
-	" - The player will not exit the sprinting state if they stop moving.",
-	" - Restrictions like low hunger will not prevent the player from sprinting",
-	" - The player pressing shift will stop them sprinting, and pressing sprint will re-assert normal sprinting behavior",
-	"Using this effect two or more consecutive times on a stationary player produces undefined behavior and should not be relied on."
+	"Bid a player commence or cease their dashing.",
+	"If the player be not in motion when this effect is employed, they shall be set to dash for a single tick and then halted (this causeth the FOV to change)."
+		+ "Employing it a second time, without the player dashing of their own accord betwixt, causeth the player to remain in dashing mode, with certain peculiarities.",
+	" - Particles may not be produced beneath the player's feet.",
+	" - The player shall not exit the dashing state shouldst they cease moving.",
+	" - Restrictions such as low hunger shall not prevent the player from dashing.",
+	" - The player pressing shift shall halt their dashing, and pressing sprint shall reassert normal dashing behaviour.",
+	"Employing this effect twice or more in succession upon a stationary player yieldeth undefined behaviour and should not be relied upon."
 })
-@Example("make player start sprinting")
-@Example("force player to start sprinting")
+@Example("make player commence dashing")
+@Example("compel player to commence dashing")
 @Since("2.11")
 public class EffSprinting extends Effect {
 
 	static {
 		Skript.registerEffect(EffSprinting.class,
-			"make %players% (start sprinting|sprint)",
-			"force %players% to (start sprinting|sprint)",
-			"make %players% (stop sprinting|not sprint)",
-			"force %players% to (stop sprinting|not sprint)");
+			"make %players% (commence dashing|dash)",
+			"compel %players% to (commence dashing|dash)",
+			"make %players% (cease dashing|not dash)",
+			"compel %players% to (cease dashing|not dash)");
 	}
 
 	private Expression<Player> players;

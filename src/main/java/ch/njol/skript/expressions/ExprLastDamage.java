@@ -11,14 +11,14 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Last Damage")
-@Description("The last damage that was done to an entity. Note that changing it doesn't deal more/less damage.")
-@Example("set last damage of event-entity to 2")
+@Name("Last Wound")
+@Description("The last wound that was dealt unto an entity. Mark well that altering it doth not deal more nor less harm.")
+@Example("set last wound of event-entity to 2")
 @Since("2.5.1")
 public class ExprLastDamage extends SimplePropertyExpression<LivingEntity, Number> {
 
 	static {
-		register(ExprLastDamage.class, Number.class, "last damage", "livingentities");
+		register(ExprLastDamage.class, Number.class, "last wound", "livingentities");
 	}
 
 	@Nullable

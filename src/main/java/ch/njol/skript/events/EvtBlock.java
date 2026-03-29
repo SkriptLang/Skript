@@ -32,7 +32,7 @@ public class EvtBlock extends SkriptEvent {
 	static {
 		// TODO 'block destroy' event for any kind of block destruction (player, water, trampling, fall (sand, toches, ...), etc) -> BlockPhysicsEvent?
 		// REMIND attacking an item frame first removes its item; include this in on block damage?
-		Skript.registerEvent("Break / Mine", EvtBlock.class, new Class[]{BlockBreakEvent.class, PlayerBucketFillEvent.class, HangingBreakEvent.class}, "[block] (break[ing]|1¦min(e|ing)) [[of] %-itemtypes/blockdatas%]")
+		Skript.registerEvent("Shatter / Mine", EvtBlock.class, new Class[]{BlockBreakEvent.class, PlayerBucketFillEvent.class, HangingBreakEvent.class}, "[block] (shatter[ing]|1¦min(e|ing)) [[of] %-itemtypes/blockdatas%]")
 			.description("Called when a block is broken by a player. If you use 'on mine', only events where the broken block dropped something will call the trigger.")
 			.examples("on mine:", "on break of stone:", "on break of chest[facing=north]:", "on break of potatoes[age=7]:")
 			.since("1.0 (break), unknown (mine), 2.6 (BlockData support)");
@@ -40,7 +40,7 @@ public class EvtBlock extends SkriptEvent {
 			.description("Called when a block is destroyed by fire.")
 			.examples("on burn:", "on burn of oak wood, oak fences, or chests:", "on burn of oak_log[axis=y]:")
 			.since("1.0, 2.6 (BlockData support)");
-		Skript.registerEvent("Place", EvtBlock.class, new Class[]{BlockPlaceEvent.class, PlayerBucketEmptyEvent.class, HangingPlaceEvent.class}, "[block] (plac(e|ing)|build[ing]) [[of] %-itemtypes/blockdatas%]")
+		Skript.registerEvent("Erect", EvtBlock.class, new Class[]{BlockPlaceEvent.class, PlayerBucketEmptyEvent.class, HangingPlaceEvent.class}, "[block] (erect(ion|ing)|build[ing]) [[of] %-itemtypes/blockdatas%]")
 			.description("Called when a player places a block.")
 			.examples("on place:", "on place of a furnace, crafting table or chest:", "on break of chest[type=right] or chest[type=left]")
 			.since("1.0, 2.6 (BlockData support)");

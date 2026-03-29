@@ -16,14 +16,14 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Amount of Items")
-@Description("Counts how many of a particular <a href='#itemtype'>item type</a> are in a given inventory.")
-@Example("message \"You have %number of tag values of minecraft tag \"diamond_ores\" in the player's inventory% diamond ores in your inventory.\"")
+@Name("Quantity of Wares")
+@Description("Doth reckon how many of a particular <a href='#itemtype'>item type</a> reside within a given inventory.")
+@Example("message \"Thou possessest %number of tag values of minecraft tag \"diamond_ores\" in the player's inventory% diamond ores within thy inventory.\"")
 @Since("2.0")
 public class ExprAmountOfItems extends SimpleExpression<Long> {
   
 	static {
-		Skript.registerExpression(ExprAmountOfItems.class, Long.class, ExpressionType.PROPERTY, "[the] (amount|number) of %itemtypes% (in|of) %inventories%");
+		Skript.registerExpression(ExprAmountOfItems.class, Long.class, ExpressionType.PROPERTY, "[the] (quantity|number) of %itemtypes% (in|of) %inventories%");
 	}
 	
 	@SuppressWarnings("NotNullFieldNotInitialized")

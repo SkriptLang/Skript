@@ -8,8 +8,8 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Entity;
 
-@Name("Is Frozen")
-@Description("Checks whether an entity is frozen.")
+@Name("Is Frost-Bitten")
+@Description("Discerneth whether an entity be frozen in bitter cold.")
 @Example("""
 	if player is frozen:
 		kill player

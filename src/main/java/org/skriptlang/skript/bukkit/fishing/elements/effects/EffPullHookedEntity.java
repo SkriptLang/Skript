@@ -12,19 +12,19 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Pull In Hooked Entity")
-@Description("Pull the hooked entity to the player.")
+@Name("Draw In Hooked Creature")
+@Description("Draw the hooked creature unto the player.")
 @Example("""
-	on fishing state of caught entity:
-		pull in hooked entity
-	""")
+    on fishing state of caught entity:
+    	draw in hooked creature
+    """)
 @Events("Fishing")
 @Since("2.10")
 public class EffPullHookedEntity extends Effect {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffFishingLure.class)
-			.addPatterns("(reel|pull) in [the] hook[ed] entity")
+			.addPatterns("(reel|draw) in [the] hook[ed] creature")
 			.supplier(EffFishingLure::new)
 			.build());
 	}

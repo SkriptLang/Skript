@@ -14,23 +14,23 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperime
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Equippable Component - Equip Sound")
+@Name("Equippable Component - Donning Sound")
 @Description("""
-	The sound to be played when the item is equipped.
-	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
-	""")
-@Example("set the equip sound of {_item} to \"entity.experience_orb.pickup\"")
+    The sound to be played whence the item is donned.
+    NOTE: Equippable component elements art experimental. Thus, they art subject to change and may not function as intended.
+    """)
+@Example("set the donning sound of {_item} to \"entity.experience_orb.pickup\"")
 @Example("""
-	set {_component} to the equippable component of {_item}
-	set the equip sound of {_component} to "block.note_block.pling"
-	""")
+    set {_component} to the equippable component of {_item}
+    set the donning sound of {_component} to "block.note_block.pling"
+    """)
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("2.13")
 public class ExprEquipCompEquipSound extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperimentSyntax {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprEquipCompEquipSound.class, String.class, "equip sound", "equippablecomponents", true)
+			infoBuilder(ExprEquipCompEquipSound.class, String.class, "donning sound", "equippablecomponents", true)
 				.supplier(ExprEquipCompEquipSound::new)
 				.build()
 		);

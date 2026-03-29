@@ -8,14 +8,14 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-@Name("Is on Ground")
-@Description("Checks whether an entity is on ground.")
-@Example("player is not on ground")
+@Name("Be Upon the Ground")
+@Description("Doth verify whether an entity standeth firm upon the earth.")
+@Example("player is not upon the ground")
 @Since("2.2-dev26")
 public class CondIsOnGround extends PropertyCondition<Entity> {
 	
 	static {
-		PropertyCondition.register(CondIsOnGround.class, "on [the] ground", "entities");
+		PropertyCondition.register(CondIsOnGround.class, "upon [the] ground", "entities");
 	}
 	
 	@Override

@@ -11,18 +11,18 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Is Alive")
-@Description("Checks whether an entity is alive. Works for non-living entities too.")
-@Example("if {villager-buddy::%player's uuid%} is not dead:")
+@Name("Be Amongst the Living")
+@Description("Examineth whether an entity yet liveth. Functioneth for non-living entities as well.")
+@Example("if {villager-buddy::%player's uuid%} is not fallen:")
 @Example("""
-	on shoot:
-		while the projectile is alive:
-	""")
+    on shoot:
+    	while the projectile is amongst the living:
+    """)
 @Since("2.0, 2.4-alpha4 (non-living entity support)")
 public class CondIsAlive extends PropertyCondition<Entity> {
 
 	static {
-		register(CondIsAlive.class, "(alive|1¦dead)", "entities");
+		register(CondIsAlive.class, "(amongst the living|1¦fallen)", "entities");
 	}
 
 	private boolean isNegated;

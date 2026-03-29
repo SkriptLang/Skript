@@ -20,13 +20,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-@Name("Barter Drops")
+@Name("Bartering Spoils")
 @Description("The items dropped by the piglin in a piglin bartering event.")
 @Example("""
     on piglin barter:
-    	if the bartering drops contain a jack o lantern:
-    		remove jack o lantern from bartering output
-    		broadcast "it's not halloween yet!"
+    	if the bartering spoils contain a jack o lantern:
+    		remove jack o lantern from bartering spoils
+    		broadcast "'tis not Hallowe'en yet!"
     """)
 @Since("2.10")
 public class ExprBarterDrops extends SimpleExpression<ItemType> {
@@ -34,7 +34,7 @@ public class ExprBarterDrops extends SimpleExpression<ItemType> {
 	static {
 		if (Skript.classExists("org.bukkit.event.entity.PiglinBarterEvent")) {
 			Skript.registerExpression(ExprBarterDrops.class, ItemType.class,
-					ExpressionType.SIMPLE, "[the] [piglin] barter[ing] drops");
+					ExpressionType.SIMPLE, "[the] [piglin] barter[ing] spoils");
 		}
 	}
 

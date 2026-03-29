@@ -16,27 +16,27 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 
-@Name("Break Block")
-@Description({"Breaks the block and spawns items as if a player had mined it",
-		"\nYou can add a tool, which will spawn items based on how that tool would break the block ",
-		"(ie: When using a hand to break stone, it drops nothing, whereas with a pickaxe it drops cobblestone)"})
+@Name("Shatter Block")
+@Description({"Doth shatter the block and scatter items as though a player had mined it.",
+		"\nThou mayest add a tool, which shall scatter items based upon how that tool would break the block ",
+		"(i.e.: When using a bare hand to break stone, it yieldeth nothing, whereas with a pickaxe it yieldeth cobblestone)."})
 @Example("""
-	on right click:
-		break clicked block naturally
-	""")
+    on right click:
+    	shatter clicked block naturally
+    """)
 @Example("""
-	loop blocks in radius 10 around player:
-		break loop-block using player's tool
-	""")
+    loop blocks in radius 10 around player:
+    	shatter loop-block using player's tool
+    """)
 @Example("""
-	loop blocks in radius 10 around player:
-		break loop-block naturally using diamond pickaxe
-	""")
+    loop blocks in radius 10 around player:
+    	shatter loop-block naturally using diamond pickaxe
+    """)
 @Since("2.4")
 public class EffBreakNaturally extends Effect {
 	
 	static {
-		Skript.registerEffect(EffBreakNaturally.class, "break %blocks% [naturally] [using %-itemtype%]");
+		Skript.registerEffect(EffBreakNaturally.class, "shatter %blocks% [naturally] [using %-itemtype%]");
 	}
 	
 	@SuppressWarnings("null")

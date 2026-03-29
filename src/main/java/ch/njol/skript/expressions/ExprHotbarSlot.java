@@ -20,23 +20,23 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Hotbar Slot")
 @Description({
-	"The currently selected hotbar <a href='#slot'>slot</a>.",
-	"To retrieve its number use <a href='#ExprSlotIndex'>Slot Index</a> expression.",
-	"Use future and past tense to grab the previous slot in an item change event, see example."
+	"The presently chosen hotbar <a href='#slot'>slot</a>.",
+	"To retrieve its number, employ the <a href='#ExprSlotIndex'>Slot Index</a> expression.",
+	"Use future and past tense to obtain the former slot in an item change event; see the example."
 })
 @Example("message \"%player's current hotbar slot%\"")
-@Example("set player's selected hotbar slot to slot 4 of player")
+@Example("set player's presently chosen hotbar slot to slot 4 of player")
 @Example("send \"index of player's current hotbar slot = 1\" # second slot from the left")
 @Example("""
-	on item held change:
-		if the selected hotbar slot was a diamond:
-			set the currently selected hotbar slot to slot 5 of player
-	""")
+    on item held change:
+    	if the presently chosen hotbar slot was a diamond:
+    		set the presently chosen hotbar slot to slot 5 of player
+    """)
 @Since("2.2-dev36")
 public class ExprHotbarSlot extends PropertyExpression<Player, Slot> {
 
 	static {
-		registerDefault(ExprHotbarSlot.class, Slot.class, "[([current:currently] selected|current:current)] hotbar slot[s]", "players");
+		registerDefault(ExprHotbarSlot.class, Slot.class, "[([current:presently] chosen|current:current)] hotbar slot[s]", "players");
 	}
 
 	// This exists because time states should not register when the 'currently' tag of the syntax is present.

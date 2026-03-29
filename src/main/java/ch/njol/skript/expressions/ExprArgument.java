@@ -31,10 +31,10 @@ import java.util.regex.MatchResult;
 
 @Name("Argument")
 @Description({
-	"Usable in script commands and command events. Holds the value of an argument given to the command, " +
-	"e.g. if the command \"/tell &lt;player&gt; &lt;text&gt;\" is used like \"/tell Njol Hello Njol!\" argument 1 is the player named \"Njol\" and argument 2 is \"Hello Njol!\".",
-	"One can also use the type of the argument instead of its index to address the argument, e.g. in the above example 'player-argument' is the same as 'argument 1'.",
-	"Please note that specifying the argument type is only supported in script commands."
+	"Usable in script commands and command events. Holdeth the value of an argument given unto the command, " +
+	"e.g. if the command \"/tell &lt;player&gt; &lt;text&gt;\" is employed as \"/tell Njol Hello Njol!\" argument 1 is the player named \"Njol\" and argument 2 is \"Hello Njol!\".",
+	"One may also employ the type of the argument in lieu of its index to address the argument, e.g. in the above example 'player-argument' is the same as 'argument 1'.",
+	"Pray note that specifying the argument type is only supported in script commands."
 })
 @Example("give the item-argument to the player-argument")
 @Example("damage the player-argument by the number-argument")

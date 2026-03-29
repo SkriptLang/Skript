@@ -19,19 +19,19 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
-@Name("Push")
-@Description("Push entities in a given direction or towards a specific location.")
-@Example("push the player upwards")
-@Example("push the victim downwards at speed 0.5")
-@Example("push player towards player's target at speed 2")
+@Name("Propel Forth")
+@Description("Propel entities in a given direction or towards a specific locale.")
+@Example("propel the player upwards")
+@Example("thrust the victim downwards at speed 0.5")
+@Example("propel player towards player's target at speed 2")
 @Example("pull player along vector(1,1,1) at speed 1.5")
 @Since({"1.4.6", "2.12 (push towards)"})
 public class EffPush extends Effect {
 
 	static {
 		Skript.registerEffect(EffPush.class,
-			"(push|thrust|pull) %entities% [along] %direction% [(at|with) [a] (speed|velocity|force) [of] %-number%]",
-			"(push|thrust|pull) %entities% (towards|away:away from) %location% [(at|with) [a] (speed|velocity|force) [of] %-number%]");
+			"(propel|thrust|pull) %entities% [along] %direction% [(at|with) [a] (speed|velocity|force) [of] %-number%]",
+			"(propel|thrust|pull) %entities% (towards|away:away from) %location% [(at|with) [a] (speed|velocity|force) [of] %-number%]");
 	}
 
 	private Expression<Entity> entities;

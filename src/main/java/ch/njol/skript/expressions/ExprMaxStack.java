@@ -20,12 +20,12 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Maximum Stack Size")
+@Name("Greatest Stack Measure")
 @Description({
-	"The maximum stack size of an item (e.g. 64 for torches, 16 for buckets, 1 for swords, etc.) or inventory.",
-	"In 1.20.5+, the maximum stack size of items can be changed to any integer from 1 to 99, and stacked up to the maximum stack size of the inventory they're in."
+	"The utmost stack size of an item (e.g. 64 for torches, 16 for buckets, 1 for swords, etc.) or inventory.",
+	"In 1.20.5+, the maximum stack size of items may be set to any integer from 1 to 99, and stacked unto the maximum stack size of the inventory wherein they reside."
 })
-@Example("send \"You can hold %max stack size of player's tool% of %type of player's tool% in a slot.\" to player")
+@Example("send \"Thou canst hold %max stack size of player's tool% of %type of player's tool% in a slot.\" to player")
 @Example("set the maximum stack size of inventory of all players to 16")
 @Example("add 8 to the maximum stack size of player's tool")
 @Example("reset the maximum stack size of {_gui}")

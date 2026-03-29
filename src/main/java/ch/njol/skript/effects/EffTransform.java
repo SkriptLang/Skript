@@ -24,35 +24,35 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-@Name("Transform List")
+@Name("Transmute a Catalogue")
 @Description({
-	"Transforms (or 'maps') a list's values using a given expression. This is akin to looping over the list and setting " +
-	"each value to a modified version of itself.",
-	"Evaluates the given expression for each element in the list, replacing the original element with the expression's result.",
-	"If the given expression returns a single value, the indices of the list will not change. If the expression returns " +
-	"multiple values, then then indices will be reset as a single index cannot contain multiple values.",
-	"Only variable lists can be transformed with this effect. For other lists, see the transform expression."
+	"Transmuteth (or 'mappeth') a list's values employing a given expression. 'Tis akin to traversing the list and setting " +
+	"each value to a modified form of itself.",
+	"Evaluateth the given expression for each element in the list, replacing the original element with the expression's yield.",
+	"Should the given expression return a single value, the indices of the list shall remain unchanged. Should the expression return " +
+	"manifold values, then the indices shall be reset, as a single index cannot harbour multiple values.",
+	"Only variable lists may be transmuted with this effect. For other lists, see the transform expression."
 })
 @Example("""
-	set {_a::*} to 1, 2, and 3
-	transform {_a::*} using input * 2
-	# {_a::*} is now 2, 4, and 6
-	""")
+    set {_a::*} to 1, 2, and 3
+    transmute {_a::*} employing input * 2
+    # {_a::*} is now 2, 4, and 6
+    """)
 @Example("""
-	# get a list of the sizes of all clans without manually looping
-	set {_clan-sizes::*} to indices of {clans::*}
-	transform {_clan-sizes::*} using {clans::%input%::size}
-	""")
+    # procure a list of the sizes of all clans without manually traversing
+    set {_clan-sizes::*} to indices of {clans::*}
+    transmute {_clan-sizes::*} employing {clans::%input%::size}
+    """)
 @Example("""
-	# set all existing values of a list to 0:
-	transform {_list::*} with 0
-	""")
+    # set all existing values of a list to naught:
+    transmute {_list::*} with 0
+    """)
 @Since("2.10")
 @Keywords("input")
 public class EffTransform extends Effect implements InputSource {
 
 	static {
-		Skript.registerEffect(EffTransform.class, "(transform|map) %~objects% (using|with) <.+>");
+		Skript.registerEffect(EffTransform.class, "(transform|transmute) %~objects% (employing|with) <.+>");
 		if (!ParserInstance.isRegistered(InputData.class))
 			ParserInstance.registerData(InputData.class, InputData::new);
 	}

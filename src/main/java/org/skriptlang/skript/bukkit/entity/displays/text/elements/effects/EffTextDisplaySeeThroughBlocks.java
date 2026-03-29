@@ -15,10 +15,10 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Text Display See Through Blocks")
-@Description("Forces a text display to either be or not be visible through blocks.")
-@Example("force last spawned text display to be visible through walls")
-@Example("prevent all text displays from being visible through walls")
+@Name("Text Display Seen Through Ramparts")
+@Description("Compelleth a text display to either be or not be visible through blocks.")
+@Example("compel last spawned text display to be visible through walls")
+@Example("forbid all text displays from being visible through walls")
 @Since("2.10")
 public class EffTextDisplaySeeThroughBlocks extends Effect {
 
@@ -28,8 +28,8 @@ public class EffTextDisplaySeeThroughBlocks extends Effect {
 			SyntaxInfo.builder(EffTextDisplaySeeThroughBlocks.class)
 				.addPatterns(
 					"make %displays% visible through (blocks|walls)",
-					"force %displays% to be visible through (blocks|walls)",
-					"(prevent|block) %displays% from being (visible|seen) through (blocks|walls)"
+					"compel %displays% to be visible through (blocks|walls)",
+					"(prevent|forbid) %displays% from being (visible|seen) through (blocks|walls)"
 				)
 				.supplier(EffTextDisplaySeeThroughBlocks::new)
 				.build()

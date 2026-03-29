@@ -11,15 +11,15 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 
-@Name("Allow / Prevent Leash Drop")
-@Description("Allows or prevents the leash from being dropped in an unleash event.")
+@Name("Permit / Forbid Tether Drop")
+@Description("Permitteth or forbiddeth the tether from falling to the ground in an unleash event.")
 @Example("""
-	on unleash:
-		if player is not set:
-			prevent the leash from dropping
-		else if player is op:
-			allow the leash to drop
-	""")
+    on unleash:
+    	if player is not set:
+    		forbid the tether from falling
+    	else if player is op:
+    		permit the tether to fall
+    """)
 @Keywords("lead")
 @Events("Leash / Unleash")
 @Since("2.10")
@@ -27,8 +27,8 @@ public class EffDropLeash extends Effect {
 
 	static {
 			Skript.registerEffect(EffDropLeash.class,
-					"(force|allow) [the] (lead|leash) [item] to drop",
-					"(block|disallow|prevent) [the] (lead|leash) [item] from dropping"
+					"(permit|allow) [the] (lead|tether) [item] to fall",
+					"(forbid|disallow|prevent) [the] (lead|tether) [item] from falling"
 		);
 	}
 

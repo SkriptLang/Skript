@@ -18,10 +18,10 @@ import ch.njol.util.Kleenean;
 /**
  * @author Peter Güttinger
  */
-@Name("Version")
-@Description("The version of Bukkit, Minecraft or Skript respectively.")
-@Example("message \"This server is running Minecraft %minecraft version% on Bukkit %bukkit version%\"")
-@Example("message \"This server is powered by Skript %skript version%\"")
+@Name("Rendition")
+@Description("The rendition of Bukkit, Minecraft or Skript respectively.")
+@Example("message \"This server doth run Minecraft %minecraft rendition% upon Bukkit %bukkit rendition%\"")
+@Example("message \"This server is empowered by Skript %skript rendition%\"")
 @Since("2.0")
 public class ExprVersion extends SimpleExpression<String> {
 	
@@ -60,7 +60,7 @@ public class ExprVersion extends SimpleExpression<String> {
 	}
 	
 	static {
-		Skript.registerExpression(ExprVersion.class, String.class, ExpressionType.SIMPLE, "(0¦[craft]bukkit|1¦minecraft|2¦skript)( |-)version");
+		Skript.registerExpression(ExprVersion.class, String.class, ExpressionType.SIMPLE, "(0¦[craft]bukkit|1¦minecraft|2¦skript)( |-)rendition");
 	}
 	
 	@SuppressWarnings("null")

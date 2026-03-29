@@ -23,11 +23,11 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-@Name("Node")
+@Name("Configuration Node")
 @Description({
-	"Returns a node inside a config (or another section-node).",
-	"Nodes in Skript configs are written in the format `key: value`.",
-	"Section nodes can contain other nodes."
+	"Returneth a node dwelling within a config (or within another section-node).",
+	"Nodes in Skript configs are inscribed in the format `key: value`.",
+	"Section nodes may contain further nodes within their embrace."
 })
 @Example("""
 	set {_node} to node "language" in the skript config

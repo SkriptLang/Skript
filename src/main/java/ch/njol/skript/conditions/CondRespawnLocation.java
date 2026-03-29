@@ -15,13 +15,13 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Is Bed/Anchor Spawn")
-@Description("Checks what the respawn location of a player in the respawn event is.")
+@Name("Is Bed or Anchor of Respawning")
+@Description("Doth ascertain the nature of a player's respawn location in the respawn event.")
 @Example("""
-	on respawn:
-		the respawn location is a bed
-		broadcast "%player% is respawning in their bed! So cozy!"
-	""")
+    on respawn:
+    	the respawn location is a bed
+    	broadcast "%player% doth respawn in their bed! How most comfortable!"
+    """)
 @RequiredPlugins("Minecraft 1.16+")
 @Since("2.7")
 @Events("respawn")

@@ -11,20 +11,20 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Make Goat Ram")
+@Name("Bid the Goat Ram")
 @Description({
-	"Make a goat ram an entity.",
-	"Ramming does have a cooldown and currently no way to change it."
+	"Bid a goat ram an entity most forcefully.",
+	"Ramming doth bear a cooldown, and presently there existeth no means to alter it."
 })
-@Example("make all goats ram player")
+@Example("bid all goats ram player")
 @Since("2.11")
 public class EffGoatRam extends Effect {
 
 	static {
 		if (Skript.methodExists(Goat.class, "ram", LivingEntity.class))
 			Skript.registerEffect(EffGoatRam.class,
-				"make %livingentities% ram %livingentity%",
-				"force %livingentities% to ram %livingentity%");
+				"bid %livingentities% ram %livingentity%",
+				"compel %livingentities% to ram %livingentity%");
 	}
 
 	private Expression<LivingEntity> entities;

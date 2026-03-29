@@ -21,24 +21,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalLong;
 
-@Name("Play Sound")
+@Name("Sound a Melody")
 @Description({
-	"Plays a sound at given location for everyone or just for given players, or plays a sound to specified players. " +
+	"Playeth a sound at a given location for all souls present or solely for given players, or playeth a sound unto specified players." +
 	"Both Minecraft sound names and " +
 	"<a href=\"https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html\">Spigot sound names</a> " +
-	"are supported. Playing resource pack sounds are supported too. The sound category is 'master' by default. ",
+	"are supported. Playing resource pack sounds art supported as well. The sound category is 'master' by default.",
 	"",
-	"When running 1.19+, playing a sound from an entity directly will result in the sound coming from said entity, even while moving.",
-	"If the sound is custom, a location emitter will follow the entity. Do note that pitch and volume ",
-	"are reflected based on the entity, and Minecraft may not use the values from this syntax.",
+	"When running 1.19+, playing a sound from an entity directly shall cause the sound to emanate from said entity, even whilst in motion.",
+	"If the sound be custom, a location emitter shall follow the entity. Do note that pitch and volume ",
+	"are reflected based upon the entity, and Minecraft may not employ the values from this syntax.",
 	"",
-	"Minecraft sometimes has a set of sounds under one sound ID that will randomly play. " +
-	"To counter this, you can directly state which seed to use.",
+	"Minecraft doth sometimes harbour a set of sounds under one sound ID that shall randomly play." +
+	"To counter this, thou canst directly state which seed to employ.",
 	"",
-	"Please note that sound names can get changed in any Minecraft or Spigot version, or even removed from Minecraft itself.",
+	"Pray note that sound names may be altered in any Minecraft or Spigot version, or even banished from Minecraft itself.",
 })
 @Example("play sound \"block.note_block.pling\"")
-@Example("play sound \"entity.experience_orb.pickup\" with volume 0.5 to the player")
+@Example("play sound \"entity.experience_orb.pickup\" with volume 0.5 unto the player")
 @Example("play sound \"custom.music.1\" in jukebox category at {speakerBlock}")
 @Example("play sound \"BLOCK_AMETHYST_BLOCK_RESONATE\" with seed 1 on target entity for the player")
 @Since("2.2-dev28, 2.4 (sound categories), 2.9 (sound seed & entity emitter)")
@@ -70,9 +70,9 @@ public class EffPlaySound extends Effect {
 			emitterTypes += "/entities";
 		Skript.registerEffect(EffPlaySound.class,
 				"play sound[s] %strings% " + seedOption + "[(in|from) %-soundcategory%] " +
-						"[(at|with) volume %-number%] [(and|at|with) pitch %-number%] (at|on|from) %" + emitterTypes + "% [(to|for) %-players%]",
+						"[(at|with) volume %-number%] [(and|at|with) pitch %-number%] (at|on|from) %" + emitterTypes + "% [(unto|for) %-players%]",
 				"play sound[s] %strings% " + seedOption + "[(in|from) %-soundcategory%] " +
-						"[(at|with) volume %-number%] [(and|at|with) pitch %-number%] [(to|for) %players%] [(at|on|from) %-" + emitterTypes + "%]"
+						"[(at|with) volume %-number%] [(and|at|with) pitch %-number%] [(unto|for) %players%] [(at|on|from) %-" + emitterTypes + "%]"
 		);
 	}
 

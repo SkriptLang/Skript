@@ -12,14 +12,14 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Entity AI")
-@Description("Returns whether an entity has AI.")
+@Name("Entity Wits")
+@Description("Returneth whether an entity doth possess wits — that is, artificial intelligence.")
 @Example("set artificial intelligence of target entity to false")
 @Since("2.5")
 public class ExprAI extends SimplePropertyExpression<LivingEntity, Boolean> {
 	
 	static {
-		register(ExprAI.class, Boolean.class, "(ai|artificial intelligence)", "livingentities");
+		register(ExprAI.class, Boolean.class, "(wits|artificial intelligence)", "livingentities");
 	}
 	
 	@Override

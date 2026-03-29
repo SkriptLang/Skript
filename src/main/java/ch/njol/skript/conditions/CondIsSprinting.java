@@ -7,8 +7,8 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Player;
 
-@Name("Is Sprinting")
-@Description("Checks whether a player is sprinting.")
+@Name("Doth Sprint")
+@Description("Ascertaineth whether a player doth sprint with great haste.")
 @Example("player is not sprinting")
 @Since("1.4.4")
 public class CondIsSprinting extends PropertyCondition<Player> {

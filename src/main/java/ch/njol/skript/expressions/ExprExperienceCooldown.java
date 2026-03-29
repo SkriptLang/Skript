@@ -13,11 +13,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Experience Pickup Cooldown")
+@Name("Experience Gathering Cooldown")
 @Description({
 	"The experience cooldown of a player.",
-	"Experience cooldown is how long until a player can pick up another orb of experience.",
-	"The cooldown of a player must be 0 to pick up another orb of experience."
+	"Experience cooldown is the duration one must wait ere a player may gather another orb of experience.",
+	"The cooldown of a player must be 0 to gather another orb of experience."
 })
 @Example("send experience cooldown of player")
 @Example("set the xp pickup cooldown of player to 1 hour")

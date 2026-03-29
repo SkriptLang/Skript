@@ -15,28 +15,28 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 
-@Name("Send Resource Pack")
-@Description({"Request that the player's client download and switch resource packs. The client will download ",
-		"the resource pack in the background, and will automatically switch to it once the download is complete. ",
-		"The URL must be a direct download link.",
+@Name("Dispatch Resource Pack")
+@Description({"Beseech the player's client to procure and employ a resource pack. The client shall retrieve ",
+		"the resource pack in the background, and shall switch to it forthwith upon completion. ",
+		"The URL must needs be a direct download link.",
 		"",
-		"The hash is used for caching, the player won't have to re-download the resource pack that way. ",
-		"The hash must be SHA-1, you can get SHA-1 hash of your resource pack using ",
+		"The hash serveth for caching, so the player need not re-procure the resource pack anew. ",
+		"The hash must be SHA-1; thou canst obtain the SHA-1 hash of thy resource pack using ",
 		"<a href=\"https://emn178.github.io/online-tools/sha1_checksum.html\">this online tool</a>.",
 		"",
-		"The <a href='#resource_pack_request_action'>resource pack request action</a> can be used to check ",
-		"status of the sent resource pack request."})
+		"The <a href='#resource_pack_request_action'>resource pack request action</a> may be employed to discern ",
+		"the status of the dispatched resource pack request."})
 @Example("""
-	on join:
-		send the resource pack from "URL" with hash "hash" to the player
-	""")
+    on join:
+    	dispatch the resource pack from "URL" with hash "hash" unto the player
+    """)
 @Since("2.4")
 public class EffSendResourcePack extends Effect {
 
 	static {
 		Skript.registerEffect(EffSendResourcePack.class,
-				"send [the] resource pack [from [[the] URL]] %string% to %players%",
-				"send [the] resource pack [from [[the] URL]] %string% with hash %string% to %players%");
+				"dispatch [the] resource pack [from [[the] URL]] %string% unto %players%",
+				"dispatch [the] resource pack [from [[the] URL]] %string% with hash %string% unto %players%");
 	}
 
 	private static final boolean PAPER_METHOD_EXISTS = Skript.methodExists(Player.class, "setResourcePack", String.class, String.class);

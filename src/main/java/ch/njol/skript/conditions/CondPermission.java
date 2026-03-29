@@ -19,13 +19,13 @@ import ch.njol.util.Kleenean;
 /**
  * @author Peter Güttinger
  */
-@Name("Has Permission")
-@Description("Test whether a player has a certain permission.")
+@Name("Doth Possess Permission")
+@Description("Doth examine whether a player possesseth a certain permission.")
 @Example("player has permission \"skript.tree\"")
 @Example("""
-	victim has the permission "admin":
-		send "You're attacking an admin!" to attacker
-	""")
+    victim has the permission "admin":
+    	send "Thou dost assail an administrator!" to attacker
+    """)
 @Since("1.0")
 public class CondPermission extends Condition {
 	

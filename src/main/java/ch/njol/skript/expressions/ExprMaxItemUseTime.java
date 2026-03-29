@@ -7,22 +7,22 @@ import ch.njol.skript.util.Timespan;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Max Item Use Time")
+@Name("Greatest Item Employment Duration")
 @Description({
-	"Returns the max duration an item can be used for before the action completes. " +
-	"E.g. it takes 1.6 seconds to drink a potion, or 1.4 seconds to load an unenchanted crossbow.",
-	"Some items, like bows and shields, do not have a limit to their use. They will return 1 hour."
+	"Returneth the utmost span an item may be employed ere the action concludeth." +
+	"For instance, it requireth 1.6 seconds to quaff a potion, or 1.4 seconds to load an unenchanted crossbow.",
+	"Certain items, such as bows and shields, bear no limit upon their employment. They shall return 1 hour."
 })
 @Example("""
-	on right click:
-		broadcast max usage duration of player's tool
-	""")
+    on right click:
+    	broadcast max employment duration of player's tool
+    """)
 @Since("2.8.0")
 public class ExprMaxItemUseTime extends SimplePropertyExpression<ItemStack, Timespan> {
 
 	static {
 		if (Skript.methodExists(ItemStack.class, "getMaxItemUseDuration"))
-			register(ExprMaxItemUseTime.class, Timespan.class, "max[imum] [item] us(e|age) (time|duration)", "itemstacks");
+			register(ExprMaxItemUseTime.class, Timespan.class, "max[imum] [item] employ(ment|age) (time|duration)", "itemstacks");
 	}
 
 	@Override

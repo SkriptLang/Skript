@@ -20,7 +20,7 @@ public class EvtBreed extends SkriptEvent {
 			BukkitSyntaxInfos.Event.KEY,
 			BukkitSyntaxInfos.Event.builder(EvtBreed.class, "Entity Breed")
 				.addEvent(EntityBreedEvent.class)
-				.addPatterns("[entity] breed[ing] [of %-entitytypes%]")
+				.addPatterns("[creature] breed[ing] [of %-entitytypes%]")
 				.addDescription("Called whenever two animals begin to conceive a child. The type can be specified.")
 				.addExample("""
 					on breeding of llamas:

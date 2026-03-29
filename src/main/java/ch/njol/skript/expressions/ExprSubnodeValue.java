@@ -25,21 +25,21 @@ import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
 
-@Name("Value of Subnode")
+@Name("Worth of a Subnode")
 @Description({
-	"Returns the value of an sub-node of the given node, following the provided path.",
-	"The value is automatically converted to the specified type (e.g. text, number) where possible."
+	"Returneth the value of a sub-node within the given node, following the appointed path.",
+	"The value is automatically transmuted to the specified type (e.g. text, number) where possible."
 })
 @Example("""
-	set {_node} to node "language" in the skript config
-	broadcast the text value of {_node}
-	""")
+    set {_node} to node "language" in the skript config
+    broadcast the text worth at "" in {_node}
+    """)
 @Since("2.10")
 public class ExprSubnodeValue extends SimplePropertyExpression<Node, Object> {
 
 	static {
 		Skript.registerExpression(ExprSubnodeValue.class, Object.class, ExpressionType.PROPERTY,
-			"[the] %*classinfo% value [at] %string% (from|in) %node%"
+			"[the] %*classinfo% worth [at] %string% (from|in) %node%"
 		);
 	}
 

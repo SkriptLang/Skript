@@ -24,13 +24,13 @@ import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 
 @Name("Toggle")
-@Description("Toggle the state of a block or boolean.")
+@Description("Toggle the state of a block or boolean, as one doth flip a lever.")
 @Example("""
-	# use arrows to toggle switches, doors, etc.
-	on projectile hit:
-		projectile is arrow
-		toggle the block at the arrow
-	""")
+    # employ arrows to toggle switches, doors, and the like
+    on projectile hit:
+    	projectile is arrow
+    	toggle the block at the arrow
+    """)
 @Example("""
 	# With booleans
 	toggle gravity of player

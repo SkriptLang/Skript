@@ -7,20 +7,20 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.Chunk;
 
-@Name("Is Slime Chunk")
+@Name("Be a Slime Chunk")
 @Description({
-	"Tests whether a chunk is a so-called slime chunk.",
-	"Slimes can generally spawn in the swamp biome and in slime chunks.",
-	"For more info, see <a href='https://minecraft.wiki/w/Slime#.22Slime_chunks.22'>the Minecraft wiki</a>."
+	"Determineth whether a chunk be a so-called slime chunk.",
+	"Slimes may generally spawn within the swamp biome and within slime chunks.",
+	"For further knowledge, consult <a href='https://minecraft.wiki/w/Slime#.22Slime_chunks.22'>the Minecraft wiki</a>."
 })
 @Example("""
-	command /slimey:
-		trigger:
-			if chunk at player is a slime chunk:
-				send "Yeah, it is!"
-			else:
-				send "Nope, it isn't"
-	""")
+    command /slimey:
+    	trigger:
+    		if chunk at player is a slime chunk:
+    			send "Aye, verily it is!"
+    		else:
+    			send "Nay, it is not"
+    """)
 @Since("2.3")
 public class CondIsSlimeChunk extends PropertyCondition<Chunk> {
 	

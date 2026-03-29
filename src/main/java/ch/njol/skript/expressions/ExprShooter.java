@@ -16,8 +16,8 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.projectiles.ProjectileSource;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Shooter")
-@Description("The shooter of a projectile.")
+@Name("The Archer")
+@Description("The one who loosed the projectile.")
 @Example("shooter is a skeleton")
 @Since("1.3.7, 2.11 (entity shoot bow event)")
 public class ExprShooter extends PropertyExpression<Projectile, LivingEntity> {

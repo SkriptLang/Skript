@@ -13,9 +13,9 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 /**
  * @author Peter Güttinger
  */
-@Name("Head location")
-@Description({"The location of an entity's head, mostly useful for players and e.g. looping blocks in the player's line of sight.",
-		"Please note that this location is only accurate for entities whose head is exactly above their center, i.e. players, endermen, zombies, skeletons, etc., but not sheep, pigs or cows."})
+@Name("Head Location")
+@Description({"The location of an entity's head, most useful for players and, for example, looping blocks in the player's line of sight.",
+		"Pray note that this location is only true for entities whose head resteth precisely above their centre, i.e. players, endermen, zombies, skeletons, etc., but not sheep, pigs, nor cows."})
 @Example("set the block at the player's head to air")
 @Example("set the block in front of the player's eyes to glass")
 @Example("loop blocks in front of the player's head:")

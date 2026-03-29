@@ -21,19 +21,19 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-@Name("Affected Entities")
-@Description("The affected entities in the <a href='#aoe_cloud_effect'>area cloud effect</a> event.")
+@Name("Afflicted Entities")
+@Description("The afflicted entities within the <a href='#aoe_cloud_effect'>area cloud effect</a> occasion.")
 @Example("""
-	on area cloud effect:
-		loop affected entities:
-			if loop-value is a player:
-				send "WARNING: you've step on an area effect cloud!" to loop-value
-	""")
+    on area cloud effect:
+    	loop afflicted entities:
+    		if loop-value is a player:
+    			send "HARK: thou hast tread upon an area effect cloud!" to loop-value
+    """)
 @Since("2.4")
 public class ExprAffectedEntities extends SimpleExpression<LivingEntity> {
 
 	static {
-		Skript.registerExpression(ExprAffectedEntities.class, LivingEntity.class, ExpressionType.SIMPLE, "[the] affected entities");
+		Skript.registerExpression(ExprAffectedEntities.class, LivingEntity.class, ExpressionType.SIMPLE, "[the] afflicted entities");
 	}
 
 	@Override

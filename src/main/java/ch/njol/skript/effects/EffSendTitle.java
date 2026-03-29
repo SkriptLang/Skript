@@ -15,21 +15,21 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
 
-@Name("Title - Send")
+@Name("Title - Proclaim")
 @Description({
-	"Sends a title/subtitle to the given player(s) with optional fadein/stay/fadeout times for Minecraft versions 1.11 and above. ",
+	"Doth proclaim a title or subtitle unto the given player(s) with optional fadein/stay/fadeout durations for Minecraft versions 1.11 and above.",
 	"",
-	"If you're sending only the subtitle, it will be shown only if there's a title displayed at the moment, otherwise it will " +
-	"be sent with the next title. To show only the subtitle, use: <code>send title \" \" with subtitle \"yourtexthere\" to player</code>.",
+	"Shouldst thou send only the subtitle, it shall appear only if a title be presently displayed; otherwise it shall " +
+	"be shown with the next title. To display only the subtitle, employ: <code>proclaim title \" \" with subtitle \"yourtexthere\" unto player</code>.",
 	"",
-	"Note: if no input is given for the times, it will keep the ones from the last title sent, " +
+	"Mark well: if no durations be given, it shall retain those from the last title proclaimed; " +
 	"use the <a href='#EffResetTitle'>reset title</a> effect to restore the default values."
 })
-@Example("send title \"Competition Started\" with subtitle \"Have fun, Stay safe!\" to player for 5 seconds")
-@Example("send title \"Hi %player%\" to player")
-@Example("send title \"Loot Drop\" with subtitle \"starts in 3 minutes\" to all players")
-@Example("send title \"Hello %player%!\" with subtitle \"Welcome to our server\" to player for 5 seconds with fadein 1 second and fade out 1 second")
-@Example("send subtitle \"Party!\" to all players")
+@Example("proclaim title \"Competition Started\" with subtitle \"Have fun, Stay safe!\" unto player for 5 seconds")
+@Example("proclaim title \"Hi %player%\" unto player")
+@Example("proclaim title \"Loot Drop\" with subtitle \"starts in 3 minutes\" unto all players")
+@Example("proclaim title \"Hello %player%!\" with subtitle \"Welcome to our server\" unto player for 5 seconds with fadein 1 second and fade out 1 second")
+@Example("proclaim subtitle \"Party!\" unto all players")
 @Since("2.3")
 public class EffSendTitle extends Effect {
 	
@@ -38,12 +38,12 @@ public class EffSendTitle extends Effect {
 	static {
 		if (TIME_SUPPORTED)
 			Skript.registerEffect(EffSendTitle.class,
-					"send title %string% [with subtitle %-string%] [to %players%] [for %-timespan%] [with fade[(-| )]in %-timespan%] [[and] [with] fade[(-| )]out %-timespan%]",
-					"send subtitle %string% [to %players%] [for %-timespan%] [with fade[(-| )]in %-timespan%] [[and] [with] fade[(-| )]out %-timespan%]");
+					"proclaim title %string% [with subtitle %-string%] [unto %players%] [for %-timespan%] [with fade[(-| )]in %-timespan%] [[and] [with] fade[(-| )]out %-timespan%]",
+					"proclaim subtitle %string% [unto %players%] [for %-timespan%] [with fade[(-| )]in %-timespan%] [[and] [with] fade[(-| )]out %-timespan%]");
 		else
 			Skript.registerEffect(EffSendTitle.class,
-					"send title %string% [with subtitle %-string%] [to %players%]",
-					"send subtitle %string% [to %players%]");
+					"proclaim title %string% [with subtitle %-string%] [unto %players%]",
+					"proclaim subtitle %string% [unto %players%]");
 	}
 	
 	@Nullable

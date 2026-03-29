@@ -8,15 +8,15 @@ import ch.njol.skript.doc.Since;
 import org.bukkit.potion.PotionEffectType;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Potion Effect Type - Is Instant")
+@Name("Potion Effect Type — Is Instantaneous")
 @Description({
-	"Checks whether a potion effect type is instant.",
-	"That is, whether the effect happens once/immediately."
+	"Ascertaineth whether a potion effect type is instantaneous.",
+	"That is to say, whether the effect doth transpire once and forthwith."
 })
 @Example("""
-	if any of the potion effects of the player's tool are instant:
-		message "Use your tool for immediate benefits!"
-	""")
+    if any of the potion effects of the player's tool are instant:
+    	message "Employ thy tool for immediate benefit!"
+    """)
 @Since("2.14")
 public class CondIsPotionInstant extends PropertyCondition<PotionEffectType> {
 

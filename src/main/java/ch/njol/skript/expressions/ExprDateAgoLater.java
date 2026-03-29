@@ -17,18 +17,18 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Date Ago/Later")
-@Description("A date the specified timespan before/after another date.")
+@Name("Date Past and Hence")
+@Description("A date the specified timespan ere or hence another date.")
 @Example("set {_yesterday} to 1 day ago")
 @Example("set {_hourAfter} to 1 hour after {someOtherDate}")
-@Example("set {_hoursBefore} to 5 hours before {someOtherDate}")
+@Example("set {_hoursBefore} to 5 hours ere {someOtherDate}")
 @Since("2.2-dev33")
 public class ExprDateAgoLater extends SimpleExpression<Date> {
 
     static {
         Skript.registerExpression(ExprDateAgoLater.class, Date.class, ExpressionType.COMBINED,
-                "%timespan% (ago|in the past|before [the] [date] %-date%)",
-                "%timespan% (later|(from|after) [the] [date] %-date%)");
+                "%timespan% (ago|in the past|ere [the] [date] %-date%)",
+                "%timespan% (hence|(from|after) [the] [date] %-date%)");
     }
 
     @SuppressWarnings("null")

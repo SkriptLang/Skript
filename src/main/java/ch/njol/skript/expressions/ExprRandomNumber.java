@@ -22,11 +22,11 @@ import ch.njol.util.Kleenean;
 
 @Name("Random Numbers")
 @Description({
-		"A given amount of random numbers or integers between two given numbers. Use 'number' if you want any number with decimal parts, or use use 'integer' if you only want whole numbers.",
-		"Please note that the order of the numbers doesn't matter, i.e. <code>random number between 2 and 1</code> will work as well as <code>random number between 1 and 2</code>."
+		"A given quantity of random numbers or integers betwixt two given numbers. Employ 'number' shouldst thou desire any number with decimal parts, or employ 'integer' shouldst thou desire only whole numbers.",
+		"Pray note that the order of the numbers mattereth not, i.e. <code>random number between 2 and 1</code> shall serve as well as <code>random number between 1 and 2</code>."
 })
 @Example("set the player's health to a random number between 5 and 10")
-@Example("send \"You rolled a %random integer from 1 to 6%!\" to the player")
+@Example("send \"Thou hast rolled a %random integer from 1 to 6%!\" to the player")
 @Example("set {_chances::*} to 5 random integers between 5 and 96")
 @Example("set {_decimals::*} to 3 random numbers between 2.7 and -1.5")
 @Since("1.4, 2.10 (Multiple random numbers)")

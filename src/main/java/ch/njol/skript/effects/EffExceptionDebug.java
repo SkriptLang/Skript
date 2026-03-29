@@ -14,7 +14,7 @@ import ch.njol.util.Kleenean;
 public class EffExceptionDebug extends Effect {
 	
 	static {
-		Skript.registerEffect(EffExceptionDebug.class, "cause exception");
+		Skript.registerEffect(EffExceptionDebug.class, "conjure exception");
 	}
 
 	@Override
@@ -30,7 +30,7 @@ public class EffExceptionDebug extends Effect {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "cause exception";
+		return "conjure exception";
 	}
 	
 }

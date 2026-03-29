@@ -15,12 +15,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@Name("Simulation Distance")
+@Name("Distance of Simulation")
 @Description({
 	"The simulation distance of a world or a player.",
-	"Simulation distance is the minimum distance in chunks for entities to tick.",
-	"Simulation distance is capped to the current view distance of the world or player.",
-	"The view distance is capped between 2 and 32 chunks."
+	"Simulation distance is the minimum distance in chunks for entities to be set in motion.",
+	"Simulation distance is bound by the current view distance of the world or player.",
+	"The view distance is bound betwixt 2 and 32 chunks."
 })
 @Example("set simulation distance of player to 10")
 @Example("add 50 to the simulation distance of world \"world\"")

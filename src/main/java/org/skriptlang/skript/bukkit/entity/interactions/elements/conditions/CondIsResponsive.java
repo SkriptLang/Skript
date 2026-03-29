@@ -12,20 +12,20 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Interaction;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Is Responsive")
+@Name("Is Yielding")
 @Description("""
-	Checks whether an interaction is responsive or not. Responsiveness determines whether clicking the entity will cause \
-	the clicker's arm to swing.
-	""")
-@Example("if last spawned interaction is responsive:")
-@Example("if last spawned interaction is unresponsive:")
+    Doth ascertain whether an interaction be yielding or nay. Yieldingness determineth whether clicking upon the entity shall cause \
+    the clicker's arm to swing.
+    """)
+@Example("if last spawned interaction is yielding:")
+@Example("if last spawned interaction is unyielding:")
 @Since("2.14")
 public class CondIsResponsive extends PropertyCondition<Entity> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.CONDITION,
-			infoBuilder(CondIsResponsive.class, PropertyType.BE, "(responsive|:unresponsive)", "entities")
+			infoBuilder(CondIsResponsive.class, PropertyType.BE, "(yielding|:unyielding)", "entities")
 				.supplier(CondIsResponsive::new)
 				.build());
 	}

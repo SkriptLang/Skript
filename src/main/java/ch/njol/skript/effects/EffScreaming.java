@@ -12,17 +12,19 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Make Entity Scream")
-@Description("Make a goat or enderman start or stop screaming.")
+@Name("Bid Entity Wail")
+@Description("Bid a goat or enderman commence or cease its wailing.")
 @Example("""
-		make last spawned goat start screaming
-		force last spawned goat to stop screaming
-	"""
+    make last spawned goat commence wailing
+    compel last spawned goat to cease wailing
+    	
+    """
 )
 @Example("""
-		make {_enderman} scream
-		force {_enderman} to stop screaming
-	"""
+    make {_enderman} wail
+    compel {_enderman} to cease wailing
+    	
+    """
 )
 @Since("2.11")
 public class EffScreaming extends Effect {
@@ -31,10 +33,10 @@ public class EffScreaming extends Effect {
 
 	static {
 		Skript.registerEffect(EffScreaming.class,
-			"make %livingentities% (start screaming|scream)",
-			"force %livingentities% to (start screaming|scream)",
-			"make %livingentities% stop screaming",
-			"force %livingentities% to stop screaming");
+			"make %livingentities% (commence wailing|wail)",
+			"compel %livingentities% to (commence wailing|wail)",
+			"make %livingentities% cease wailing",
+			"compel %livingentities% to cease wailing");
 	}
 
 	private Expression<LivingEntity> entities;

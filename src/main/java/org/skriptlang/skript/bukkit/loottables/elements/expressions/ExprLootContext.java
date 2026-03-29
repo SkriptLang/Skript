@@ -8,12 +8,12 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 import org.bukkit.loot.LootContext;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Loot Context")
-@Description("The loot context involved in the context create section.")
+@Name("Plunder Context")
+@Description("The plunder context involved in the context creation section.")
 @Example("""
-	set {_context} to a new loot context at {_location}:
-		broadcast loot context
-	""")
+    set {_context} to a new plunder context at {_location}:
+    	broadcast plunder context
+    """)
 @Since("2.10")
 public class ExprLootContext extends EventValueExpression<LootContext> {
 
@@ -23,7 +23,7 @@ public class ExprLootContext extends EventValueExpression<LootContext> {
 			infoBuilder(
 				ExprLootContext.class,
 				LootContext.class,
-				"loot[ ]context"
+				"plunder[ ]context"
 			)
 				.supplier(ExprLootContext::new)
 				.build()

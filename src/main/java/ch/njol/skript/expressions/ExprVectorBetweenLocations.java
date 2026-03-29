@@ -19,15 +19,15 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Vectors - Vector Between Locations")
-@Description("Creates a vector between two locations.")
-@Example("set {_v} to vector between {_loc1} and {_loc2}")
+@Name("Vectors — Vector Betwixt Locations")
+@Description("Fashioneth a vector betwixt two locations.")
+@Example("set {_v} to vector betwixt {_loc1} and {_loc2}")
 @Since("2.2-dev28")
 public class ExprVectorBetweenLocations extends SimpleExpression<Vector> {
 
 	static {
 		Skript.registerExpression(ExprVectorBetweenLocations.class, Vector.class, ExpressionType.COMBINED,
-				"[the] vector (from|between) %location% (to|and) %location%");
+				"[the] vector (from|betwixt) %location% (unto|and) %location%");
 	}
 
 	@SuppressWarnings("null")

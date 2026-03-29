@@ -18,8 +18,8 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Vectors - Dot Product")
-@Description("Gets the dot product between two vectors.")
+@Name("Vectors — Dot Product")
+@Description("Obtaineth the dot product betwixt two vectors.")
 @Example("set {_dot} to {_v1} dot {_v2}")
 @Since("2.2-dev28")
 public class ExprVectorDotProduct extends SimpleExpression<Number> {

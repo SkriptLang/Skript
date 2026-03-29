@@ -14,8 +14,8 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-@Name("Inverse Boolean")
-@Description("An expression to obtain the inverse value of a boolean")
+@Name("Contrary Boolean")
+@Description("An expression to obtain the contrary value of a boolean.")
 @Example("set {_gravity} to inverse of player's flight mode")
 @Since("2.12")
 public class ExprInverse extends SimpleExpression<Boolean> {

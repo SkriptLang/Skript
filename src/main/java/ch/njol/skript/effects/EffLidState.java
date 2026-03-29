@@ -14,8 +14,8 @@ import org.bukkit.block.Lidded;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Open/Close Lid")
-@Description("Open or close the lid of the block(s).")
+@Name("Open/Shut the Lid")
+@Description("Open or shut the lid of the block(s).")
 @Example("open the lid of {_chest}")
 @Example("close the lid of {_blocks::*}")
 @Since("2.10")

@@ -15,19 +15,20 @@ import org.bukkit.entity.Tameable;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Entity Owner")
-@Description("The owner of a tameable entity (i.e. horse or wolf).")
+@Name("Creature's Master")
+@Description("The master of a tameable creature (i.e. horse or wolf).")
 @Example("""
-		set owner of last spawned wolf to player
-		if the owner of last spawned wolf is player:
-	""")
+    set master of last spawned wolf to player
+    if the master of last spawned wolf is player:
+    	
+    """)
 @Since("2.5")
 public class ExprEntityOwner extends SimplePropertyExpression<Entity, OfflinePlayer> {
 
 	static {
 		Skript.registerExpression(ExprEntityOwner.class, OfflinePlayer.class, ExpressionType.PROPERTY,
-			"[the] (owner|tamer) of %livingentities%",
-			"%livingentities%'[s] (owner|tamer)");
+			"[the] (master|tamer) of %livingentities%",
+			"%livingentities%'[s] (master|tamer)");
 	}
 
 	@Override

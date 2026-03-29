@@ -24,30 +24,30 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-@Name("Message")
-@Description({"Sends a message to the given player. Only styles written",
-		"in given string or in <a href=#ExprColored>formatted expressions</a> will be parsed.",
-		"Adding an optional sender allows the messages to be sent as if a specific player sent them.",
-		"This is useful with Minecraft 1.16.4's new chat ignore system, in which players can choose to ignore other players,",
-		"but for this to work, the message needs to be sent from a player."})
+@Name("Dispatch Message")
+@Description({"Sendeth a message unto the given player. Only styles inscribed",
+		"within the given string or in <a href=#ExprColored>formatted expressions</a> shall be parsed.",
+		"Appending an optional sender doth allow the messages to be dispatched as though a specific player penned them.",
+		"This proveth useful with Minecraft 1.16.4's new chat ignore system, wherein players may choose to ignore other players,",
+		"yet for this to function, the message must needs be sent from a player."})
 @Example("message \"A wild %player% appeared!\"")
 @Example("message \"This message is a distraction. Mwahaha!\"")
-@Example("send \"Your kill streak is %{kill streak::%uuid of player%}%\" to player")
+@Example("dispatch \"Thy kill streak standeth at %{kill streak::%uuid of player%}%\" unto player")
 @Example("""
-	if the targeted entity exists:
-		message "You're currently looking at a %type of the targeted entity%!"
-	""")
+    if the targeted entity exists:
+    	message "Thou art presently gazing upon a %type of the targeted entity%!"
+    """)
 @Example("""
-	on chat:
-		cancel event
-		send "[%player%] >> %message%" to all players from player
-	""")
+    on chat:
+    	cancel event
+    	dispatch "[%player%] >> %message%" unto all players from player
+    """)
 @RequiredPlugins("Minecraft 1.16.4+ for optional sender")
 @Since("1.0, 2.2-dev26 (advanced features), 2.5.2 (optional sender), 2.6 (sending objects)")
 public class EffMessage extends Effect {
 	
 	static {
-		Skript.registerEffect(EffMessage.class, "(message|send [message[s]]) %objects% [to %commandsenders%] [from %-player%]");
+		Skript.registerEffect(EffMessage.class, "(message|dispatch [message[s]]) %objects% [unto %commandsenders%] [from %-player%]");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")

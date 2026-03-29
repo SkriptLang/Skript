@@ -16,16 +16,16 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Fishing Wait Time")
+@Name("Fishing Tarrying Time")
 @Description({
-	"Returns the minimum and/or maximum waiting time of the fishing hook. ",
-	"Default minimum value is 5 seconds and maximum is 30 seconds, before lure is applied."
+	"Returneth the minimum and/or maximum tarrying time of the fishing hook.",
+	"The default minimum value is 5 seconds and the maximum is 30 seconds, ere lure be applied."
 })
 @Example("""
-	on fishing line cast:
-		set min fish waiting time to 10 seconds
-		set max fishing waiting time to 20 seconds
-	""")
+    on fishing line cast:
+    	set min fish tarrying time to 10 seconds
+    	set max fishing tarrying time to 20 seconds
+    """)
 @Events("Fishing")
 @Since("2.10")
 public class ExprFishingWaitTime extends SimpleExpression<Timespan> {
@@ -36,7 +36,7 @@ public class ExprFishingWaitTime extends SimpleExpression<Timespan> {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			SyntaxInfo.Expression.builder(ExprFishingWaitTime.class, Timespan.class)
-				.addPatterns("(min:min[imum]|max[imum]) fish[ing] wait[ing] time")
+				.addPatterns("(min:min[imum]|max[imum]) fish[ing] tarry[ing] time")
 				.supplier(ExprFishingWaitTime::new)
 				.priority(EventValueExpression.DEFAULT_PRIORITY)
 				.build());

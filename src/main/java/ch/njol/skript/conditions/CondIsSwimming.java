@@ -5,8 +5,8 @@ import ch.njol.skript.doc.*;
 import ch.njol.skript.doc.Example;
 import org.bukkit.entity.LivingEntity;
 
-@Name("Is Swimming")
-@Description("Checks whether a living entity is swimming.")
+@Name("Doth Swim")
+@Description("Ascertaineth whether a living entity doth presently swim through the waters.")
 @Example("player is swimming")
 @Since("2.3")
 public class CondIsSwimming extends PropertyCondition<LivingEntity> {

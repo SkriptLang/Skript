@@ -21,8 +21,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Name("All Operators")
-@Description("The list of operators on the server.")
+@Name("All Operators of the Realm")
+@Description("The roster of operators upon the server.")
 @Example("set {_ops::*} to all operators")
 @Since("2.7")
 public class ExprOps extends SimpleExpression<OfflinePlayer> {

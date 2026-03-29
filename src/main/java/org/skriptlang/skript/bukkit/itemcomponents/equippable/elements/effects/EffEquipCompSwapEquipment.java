@@ -12,16 +12,16 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Equippable Component - Swap Equipment")
+@Name("Equippable Component - Exchange Armament")
 @Description("""
-	Whether the item can be swapped by right clicking with it in your hand.
-	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
-	""")
-@Example("allow {_item} to swap equipment")
+    Whether the item may be exchanged by right clicking with it in thine hand.
+    NOTE: Equippable component elements art experimental. Thus, they art subject to change and may not function as intended.
+    """)
+@Example("grant {_item} to exchange armament")
 @Example("""
-	set {_component} to the equippable component of {_item}
-	prevent {_component} from swapping equipment on right click
-	""")
+    set {_component} to the equippable component of {_item}
+    forbid {_component} from exchanging armament upon right click
+    """)
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("2.13")
 public class EffEquipCompSwapEquipment extends Effect implements EquippableExperimentSyntax {
@@ -29,10 +29,10 @@ public class EffEquipCompSwapEquipment extends Effect implements EquippableExper
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffEquipCompSwapEquipment.class)
 			.addPatterns(
-				"(allow|force) %equippablecomponents% to swap equipment [on right click|when right clicked]",
-				"(make|let) %equippablecomponents% swap equipment [on right click|when right clicked]",
-				"(block|prevent|disallow) %equippablecomponents% from swapping equipment [on right click|when right clicked]",
-				"make %equippablecomponents% not swap equipment [on right click|when right clicked]"
+				"(grant|compel) %equippablecomponents% to exchange armament [upon right click|when right clicked]",
+				"(make|let) %equippablecomponents% exchange armament [upon right click|when right clicked]",
+				"(forbid|prevent|deny) %equippablecomponents% from exchanging armament [upon right click|when right clicked]",
+				"make %equippablecomponents% not exchange armament [upon right click|when right clicked]"
 			)
 			.supplier(EffEquipCompSwapEquipment::new)
 			.build()

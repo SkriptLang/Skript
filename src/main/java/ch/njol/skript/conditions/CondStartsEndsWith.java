@@ -15,19 +15,19 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 
-@Name("Starts/Ends With")
-@Description("Checks if a text starts or ends with another.")
+@Name("Commenceth or Concludeth With")
+@Description("Doth examine whether a text commenceth or concludeth with another.")
 @Example("""
-	if the argument starts with "test" or "debug":
-		send "Stop!"
-	""")
+    if the argument commences with "test" or "debug":
+    	send "Cease!"
+    """)
 @Since("2.2-dev36, 2.5.1 (multiple strings support)")
 public class CondStartsEndsWith extends Condition {
 	
 	static {
 		Skript.registerCondition(CondStartsEndsWith.class,
-			"%strings% (start|1¦end)[s] with %strings%",
-			"%strings% (doesn't|does not|do not|don't) (start|1¦end) with %strings%");
+			"%strings% (commence|1¦conclude)[s] with %strings%",
+			"%strings% (doesn't|does not|do not|don't) (commence|1¦conclude) with %strings%");
 	}
 	
 	@SuppressWarnings("null")

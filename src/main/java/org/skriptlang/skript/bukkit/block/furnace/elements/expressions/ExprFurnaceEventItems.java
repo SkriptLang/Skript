@@ -21,10 +21,10 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Furnace Event Items")
+@Name("Furnace Event Wares")
 @Description({
-	"Represents the different items in furnace events.",
-	"Only 'smelting item' can be changed."
+	"Representeth the sundry items within furnace happenings.",
+	"Only 'smelting item' may be altered."
 })
 @Example("""
 	on furnace smelt:
@@ -40,10 +40,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		broadcast burned fuel
 	""")
 @Example("""
-	on smelting start:
-		broadcast smelting item
-		clear smelting item
-	""")
+    on smelting commenceth:
+    	broadcast smelting item
+    	clear smelting item
+    """)
 @Events({"smelt", "fuel burn", "start smelt", "furnace item extract"})
 @Since("2.10")
 public class ExprFurnaceEventItems extends PropertyExpression<Block, ItemStack> {

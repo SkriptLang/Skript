@@ -9,14 +9,14 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
-@Name("Last Attacker")
-@Description("The last block or entity that attacked an entity.")
-@Example("send \"%last attacker of event-entity%\"")
+@Name("Last Assailant")
+@Description("The last block or entity that did strike upon an entity.")
+@Example("send \"%last assailant of event-entity%\"")
 @Since("2.5.1")
 public class ExprLastAttacker extends SimplePropertyExpression<Entity, Entity> {
 
 	static {
-		register(ExprLastAttacker.class, Entity.class, "last attacker", "entity");
+		register(ExprLastAttacker.class, Entity.class, "last assailant", "entity");
 	}
 
 	@Override

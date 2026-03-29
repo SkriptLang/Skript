@@ -8,8 +8,8 @@ import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Axolotl;
 import org.bukkit.entity.LivingEntity;
 
-@Name("Is Playing Dead")
-@Description("Checks to see if an axolotl is playing dead.")
+@Name("Be Feigning Death")
+@Description("Doth verify whether an axolotl be feigning death, playing lifeless as a ruse most cunning.")
 @Example("""
 	if last spawned axolotl is playing dead:
 		make last spawned axolotl stop playing dead

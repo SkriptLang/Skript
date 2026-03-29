@@ -25,33 +25,33 @@ import org.skriptlang.skript.bukkit.misc.rotation.VectorRotator;
 
 import java.util.Locale;
 
-@Name("Rotate")
+@Name("Revolve")
 @Description({
-	"Rotates displays, quaternions, or vectors around an axis a set amount of degrees, or around all 3 axes at once.",
-	"Vectors can only be rotated around the global X/Y/Z axes, or an arbitrary vector axis.",
-	"Quaternions are more flexible, allowing rotation around the global or local X/Y/Z axes, arbitrary vectors, or all 3 local axes at once.",
-	"Global axes are the ones in the Minecraft world. Local axes are relative to how the quaternion is already oriented.",
+	"Revolveth displays, quaternions, or vectors about an axis by a set measure of degrees, or about all three axes at once.",
+	"Vectors may only be revolved about the global X/Y/Z axes, or an arbitrary vector axis.",
+	"Quaternions art more versatile, permitting revolution about the global or local X/Y/Z axes, arbitrary vectors, or all three local axes at once.",
+	"Global axes art those of the Minecraft world. Local axes art relative to the quaternion's present orientation.",
 	"",
-	"Rotating a display is a shortcut for rotating its left rotation. If the right rotation needs to be modified, it should be acquired, rotated, and re-set.",
+	"Revolving a display is but a shorthand for revolving its left rotation. Should the right rotation require alteration, it must be acquired, revolved, and set anew.",
 	"",
-	"Note that rotating a quaternion/display around a vector results in a rotation around the local vector, so results may not be what you expect. " +
-	"For example, rotating quaternions/displays around vector(1, 0, 0) is the same as rotating around the local X axis.",
-	"The same applies to rotations by all three axes at once. " +
-	"In addition, rotating around all three axes of a quaternion/display at once will rotate in ZYX order, meaning the Z rotation will be applied first and the X rotation last."
+	"Mark well that revolving a quaternion or display about a vector doth result in a revolution about the local vector, and thus the outcome may defy expectation." +
+	"For instance, revolving quaternions or displays about vector(1, 0, 0) is the selfsame thing as revolving about the local X axis.",
+	"The same doth apply to revolutions by all three axes at once." +
+	"Furthermore, revolving about all three axes of a quaternion or display at once shall proceed in ZYX order, meaning the Z revolution shall be applied first and the X revolution last."
 })
-@Example("rotate {_quaternion} around x axis by 10 degrees")
-@Example("rotate last spawned block display around y axis by 10 degrees")
-@Example("rotate {_vector} around vector(1, 1, 1) by 45")
-@Example("rotate {_quaternion} by x 45, y 90, z 135")
+@Example("revolve {_quaternion} about x axis by 10 degrees")
+@Example("revolve last spawned block display about y axis by 10 degrees")
+@Example("revolve {_vector} about vector(1, 1, 1) by 45")
+@Example("revolve {_quaternion} by x 45, y 90, z 135")
 @Since("2.2-dev28, 2.10 (quaternions, displays)")
 public class EffRotate extends Effect {
 
 	static {
 		Skript.registerEffect(EffRotate.class,
-			"rotate %vectors/quaternions/displays% around [the] [global] (:x|:y|:z)(-| )axis by %number%",
-			"rotate %quaternions/displays% around [the|its|their] local (:x|:y|:z)(-| )ax(i|e)s by %number%",
-			"rotate %vectors/quaternions/displays% around [the] %vector% by %number%",
-			"rotate %quaternions/displays% by x %number%, y %number%(, [and]| and) z %number%"
+			"revolve %vectors/quaternions/displays% about [the] [global] (:x|:y|:z)(-| )axis by %number%",
+			"revolve %quaternions/displays% about [the|its|their] local (:x|:y|:z)(-| )ax(i|e)s by %number%",
+			"revolve %vectors/quaternions/displays% about [the] %vector% by %number%",
+			"revolve %quaternions/displays% by x %number%, y %number%(, [and]| and) z %number%"
 		);
 	}
 

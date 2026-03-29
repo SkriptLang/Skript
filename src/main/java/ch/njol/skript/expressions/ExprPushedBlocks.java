@@ -20,8 +20,8 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 
-@Name("Moved blocks")
-@Description("Blocks which are moved in a piston event. Cannot be used outside of piston events.")
+@Name("Displaced Blocks")
+@Description("Blocks which are displaced in a piston event. Cannot be employed outside of piston events.")
 @Example("the moved blocks")
 @Since("2.2-dev27")
 public class ExprPushedBlocks extends SimpleExpression<Block> implements EventRestrictedSyntax {

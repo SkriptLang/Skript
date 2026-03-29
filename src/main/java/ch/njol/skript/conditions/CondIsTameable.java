@@ -9,8 +9,8 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-@Name("Is Tameable")
-@Description("Check if an entity is tameable.")
+@Name("Be Tameable")
+@Description("Ascertaineth whether an entity may be tamed and brought under one's dominion.")
 @Example("""
 	on damage:
 		if victim is tameable:

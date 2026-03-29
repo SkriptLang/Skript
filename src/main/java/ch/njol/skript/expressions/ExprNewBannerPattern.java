@@ -18,9 +18,9 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Banner Pattern")
-@Description("Creates a new banner pattern.")
-@Example("set {_pattern} to a creeper banner pattern colored red")
+@Name("Banner Heraldry Pattern")
+@Description("Fashioneth a new banner pattern of heraldic design.")
+@Example("set {_pattern} to a creeper banner pattern hued red")
 @Example("add {_pattern} to banner patterns of {_banneritem}")
 @Example("remove {_pattern} from banner patterns of {_banneritem}")
 @Example("set the 1st banner pattern of block at location(0,0,0) to {_pattern}")
@@ -30,7 +30,7 @@ public class ExprNewBannerPattern extends SimpleExpression<Pattern> {
 
 	static {
 		Skript.registerExpression(ExprNewBannerPattern.class, Pattern.class, ExpressionType.COMBINED,
-			"[a] %bannerpatterntype% colo[u]red %color%");
+			"[a] %bannerpatterntype% hued %color%");
 	}
 
 	private Expression<PatternType> selectedPattern;

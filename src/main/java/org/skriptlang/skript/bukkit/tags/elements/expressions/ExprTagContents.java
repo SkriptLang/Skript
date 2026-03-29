@@ -23,13 +23,13 @@ import java.lang.reflect.Array;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-@Name("Tags Contents")
+@Name("Tag Constituents")
 @Description({
-		"Returns all the values that a tag contains.",
-		"For item and block tags, this will return items. For entity tags, " +
-		"it will return entity datas (a creeper, a zombie)."
+		"Returneth all the values a tag doth contain.",
+		"For item and block tags, this shall yield items. For entity tags, " +
+		"it shall yield entity datas (a creeper, a zombie)."
 })
-@Example("broadcast tag values of minecraft tag \"dirt\"")
+@Example("broadcast tag constituents of minecraft tag \"dirt\"")
 @Example("broadcast (first element of player's tool's block tags)'s tag contents")
 @Since("2.10")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
@@ -41,7 +41,7 @@ public class ExprTagContents extends SimpleExpression<Object> {
 			PropertyExpression.infoBuilder(
 				ExprTagContents.class,
 				Object.class,
-				"tag (contents|values)",
+				"tag (contents|constituents)",
 				"minecrafttag",
 				false
 			)

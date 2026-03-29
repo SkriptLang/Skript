@@ -14,19 +14,19 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Loot Table")
+@Name("Treasure Ledger")
 @Description({
-	"Returns the loot table of an entity or block.",
-	"Setting the loot table of a block will update the block state, and once opened will "
-		+ "generate loot of the specified loot table. Please note that doing so may cause "
-		+ "warnings in the console due to over-filling the chest.",
-	"Please note that resetting/deleting the loot table of an ENTITY will reset the entity's loot table to its default.",
+	"Returneth the treasure ledger of an entity or block.",
+	"Setting the treasure ledger of a block shall update the block state, and once opened, it shall"
+		+ "bring forth spoils of the specified loot table. Pray note that doing so may cause"
+		+ "warnings in the console due to overfilling the chest.",
+	"Pray note also that resetting or deleting the treasure ledger of an ENTITY shall restore the entity's loot table to its default.",
 })
 @Example("""
-	set loot table of event-entity to "minecraft:entities/ghast"
-	# this will set the loot table of the entity to a ghast's loot table, thus dropping ghast tears and gunpowder
-	""")
-@Example("set loot table of event-block to \"minecraft:chests/simple_dungeon\"")
+    set treasure ledger of event-entity to "minecraft:entities/ghast"
+    # this shall set the treasure ledger of the entity to a ghast's bounty, thus dropping ghast tears and gunpowder
+    """)
+@Example("set treasure ledger of event-block to \"minecraft:chests/simple_dungeon\"")
 @Since("2.10")
 public class ExprLootTable extends SimplePropertyExpression<Object, LootTable> {
 
@@ -36,7 +36,7 @@ public class ExprLootTable extends SimplePropertyExpression<Object, LootTable> {
 			infoBuilder(
 				ExprLootTable.class,
 				LootTable.class,
-				"loot[ ]table[s]",
+				"treasure[ ]ledger[s]",
 				"entities/blocks",
 				false
 			)

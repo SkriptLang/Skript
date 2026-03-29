@@ -27,22 +27,22 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-@Name("Last Spawned Entity")
-@Description("Holds the entity that was spawned most recently with the spawn effect (section), dropped with the <a href='../effects/#EffDrop'>drop effect</a>, shot with the <a href='../effects/#EffShoot'>shoot effect</a> or created with the <a href='../effects/#EffLightning'>lightning effect</a>. " +
-		"Please note that even though you can spawn multiple mobs simultaneously (e.g. with 'spawn 5 creepers'), only the last spawned mob is saved and can be used. " +
-		"If you spawn an entity, shoot a projectile and drop an item you can however access all them together.")
+@Name("Last Summoned Entity")
+@Description("Holdeth the entity that was most recently summoned by the spawn effect (section), let fall by the <a href='../effects/#EffDrop'>drop effect</a>, loosed by the <a href='../effects/#EffShoot'>shoot effect</a>, or conjured by the <a href='../effects/#EffLightning'>lightning effect</a>." +
+		"Pray note that even though thou canst summon multiple creatures at once (e.g. with 'spawn 5 creepers'), only the last summoned creature is preserved and may be used." +
+		"Shouldst thou summon an entity, loose a projectile, and let fall an item, thou canst however access all of them together.")
 @Example("""
-	spawn a priest
-	set {healer::%spawned priest%} to true
-	""")
+    spawn a priest
+    set {healer::%summoned priest%} to true
+    """)
 @Example("""
-	shoot an arrow from the last spawned entity
-	ignite the shot projectile
-	""")
+    shoot an arrow from the last summoned entity
+    ignite the loosed projectile
+    """)
 @Example("""
-	drop a diamond sword
-	push last dropped item upwards
-	""")
+    drop a diamond sword
+    push last let fall item upwards
+    """)
 @Example("teleport player to last struck lightning")
 @Example("delete last launched firework")
 @Since("1.3 (spawned entity), 2.0 (shot entity), 2.2-dev26 (dropped item), 2.7 (struck lightning, firework)")
@@ -50,9 +50,9 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 	
 	static {
 		Skript.registerExpression(ExprLastSpawnedEntity.class, Entity.class, ExpressionType.SIMPLE,
-			"[the] [last[ly]] (0:spawned|1:shot) %*entitydata%",
-			"[the] [last[ly]] dropped (2:item)",
-			"[the] [last[ly]] (created|struck) (3:lightning)",
+			"[the] [last[ly]] (0:summoned|1:loosed) %*entitydata%",
+			"[the] [last[ly]] let fall (2:item)",
+			"[the] [last[ly]] (conjured|struck) (3:lightning)",
 			"[the] [last[ly]] (launched|deployed) (4:firework)");
 	}
 	

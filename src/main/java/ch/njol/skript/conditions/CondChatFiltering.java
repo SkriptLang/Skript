@@ -6,19 +6,19 @@ import ch.njol.skript.doc.*;
 import com.destroystokyo.paper.ClientOption;
 import org.bukkit.entity.Player;
 
-@Name("Has Chat Filtering")
-@Description("Checks whether a player has chat filtering enabled.")
+@Name("Hath Chat Purification")
+@Description("Doth ascertain whether a player hath chat purification enabled upon their person.")
 @Example("""
-	if player doesn't have chat filtering enabled:
-		send "<gray>This server may contain mature chat messages. You have been warned!" to player
-	""")
+    if player doesn't have chat purification enabled:
+    	send "<gray>This server may contain mature chat messages. You have been warned!" to player
+    """)
 @Since("2.10")
 public class CondChatFiltering extends PropertyCondition<Player> {
 
 	static {
 		if (Skript.classExists("com.destroystokyo.paper.ClientOption"))
 			register(CondChatFiltering.class, PropertyType.HAVE,
-				"(chat|text) filtering (on|enabled)", "players");
+				"(chat|text) purification (on|enabled)", "players");
 	}
 
 	@Override

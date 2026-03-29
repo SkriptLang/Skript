@@ -23,17 +23,17 @@ import ch.njol.util.Kleenean;
 /**
  * @author Peter Güttinger
  */
-@Name("Can Hold")
-@Description("Tests whether a player or a chest can hold the given item.")
+@Name("May Contain Within")
+@Description("Doth test whether a player or a chest may harbour the given wares within.")
 @Example("block can hold 200 cobblestone")
-@Example("player has enough space for 64 feathers")
+@Example("player has sufficient room for 64 feathers")
 @Since("1.0")
 public class CondCanHold extends Condition {
 	
 	static {
 		Skript.registerCondition(CondCanHold.class,
-				"%inventories% (can hold|ha(s|ve) [enough] space (for|to hold)) %itemtypes%",
-				"%inventories% (can(no|')t hold|(ha(s|ve) not|ha(s|ve)n't|do[es]n't have) [enough] space (for|to hold)) %itemtypes%");
+				"%inventories% (can hold|ha(s|ve) [sufficient] room (for|to hold)) %itemtypes%",
+				"%inventories% (can(no|')t hold|(ha(s|ve) not|ha(s|ve)n't|do[es]n't have) [sufficient] room (for|to hold)) %itemtypes%");
 	}
 	
 	@SuppressWarnings("null")

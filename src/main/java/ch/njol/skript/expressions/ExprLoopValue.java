@@ -25,8 +25,8 @@ import java.util.regex.Pattern;
 /**
  * Used to access a loop's current value.
  */
-@Name("Loop value")
-@Description("Returns the previous, current, or next looped value.")
+@Name("Loop'd Value")
+@Description("Returneth the foregoing, present, or ensuing looped value.")
 @Example("""
 	# Countdown
 	loop 10 times:
@@ -34,16 +34,16 @@ import java.util.regex.Pattern;
 		wait a second
 	""")
 @Example("""
-	# Generate a 10x10 floor made of randomly colored wool below the player
-	loop blocks from the block below the player to the block 10 east of the block below the player:
-		loop blocks from the loop-block to the block 10 north of the loop-block:
-			set loop-block-2 to any wool
-	""")
+    # Generate a 10x10 floor made of randomly coloured wool beneath the player
+    loop blocks from the block below the player to the block 10 east of the block below the player:
+    	loop blocks from the loop-block to the block 10 north of the loop-block:
+    		set loop-block-2 to any wool
+    """)
 @Example("""
-	loop {top-balances::*}:
-		loop-iteration <= 10
-		send "#%loop-iteration% %loop-index% has $%loop-value%"
-	""")
+    loop {top-balances::*}:
+    	loop-iteration <= 10
+    	send "#%loop-iteration% %loop-index% hath $%loop-value%"
+    """)
 @Example("""
 	loop shuffled (integers between 0 and 8):
 		if all:

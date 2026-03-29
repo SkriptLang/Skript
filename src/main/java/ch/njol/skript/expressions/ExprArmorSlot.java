@@ -27,20 +27,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-@Name("Armor Slot")
+@Name("Armour Slot")
 @Description({
-	"Equipment of living entities, i.e. the boots, leggings, chestplate or helmet.",
-	"Body armor is a special slot that can only be used for:",
+	"Equipment of living entities, that is to say the boots, greaves, breastplate or helm.",
+	"Body armour is a special slot that may only be employed for:",
 	"<ul>",
-	"<li>Horses: Horse armour (doesn't work on zombie or skeleton horses)</li>",
-	"<li>Wolves: Wolf Armor</li>",
-	"<li>Llamas (regular or trader): Carpet</li>",
+	"<li>Horses: Horse armour (functioneth not upon zombie or skeleton horses)</li>",
+	"<li>Wolves: Wolf Armour</li>",
+	"<li>Llamas (common or trader): Carpet</li>",
 	"<li>Happy Ghasts: Harness</li>",
 	"</ul>",
-	"Saddle is a special slot that can only be used for: pigs, striders and horse types (horse, camel, llama, mule, donkey)."
+	"Saddle is a special slot that may only be employed for: pigs, striders and horse types (horse, camel, llama, mule, donkey)."
 })
 @Example("set chestplate of the player to a diamond chestplate")
-@Example("helmet of player is neither tag values of tag \"paper:helmets\" nor air # player is wearing a block, e.g. from another plugin")
+@Example("helmet of player is neither tag values of tag \"paper:helmets\" nor air # the player weareth a block, e.g. from another plugin")
 @Keywords("armor")
 @Since({
 	"1.0, 2.8.0 (armor), 2.10 (body armor), 2.12 (saddle)",
@@ -68,7 +68,7 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 		if (Skript.classExists("org.bukkit.entity.HappyGhast"))
 			BODY_ENTITIES.add(HappyGhast.class);
 
-		register(ExprArmorSlot.class, Slot.class, "(%-*equipmentslots%|[the] armo[u]r[s]) [item:item[s]]", "livingentities");
+		register(ExprArmorSlot.class, Slot.class, "(%-*equipmentslots%|[the] armo[u]r[s]) [item:piece[s]]", "livingentities");
 	}
 
 	private @Nullable Literal<org.bukkit.inventory.EquipmentSlot> slots;

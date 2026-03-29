@@ -18,16 +18,16 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Detonate Entities")
-@Description("Immediately detonates an entity. Accepted entities are fireworks, TNT minecarts, primed TNT, wind charges and creepers.")
-@Example("detonate last launched firework")
+@Name("Set Alight Entities")
+@Description("Forthwith detonateth an entity. Accepted souls include fireworks, TNT minecarts, primed TNT, wind charges, and creepers.")
+@Example("set alight last launched firework")
 @Since("2.10")
 public class EffDetonate extends Effect {
 
 	private static final boolean HAS_WINDCHARGE = Skript.classExists("org.bukkit.entity.WindCharge");
 
 	static {
-		Skript.registerEffect(EffDetonate.class, "detonate %entities%");
+		Skript.registerEffect(EffDetonate.class, "set alight %entities%");
 	}
 
 	private Expression<Entity> entities;

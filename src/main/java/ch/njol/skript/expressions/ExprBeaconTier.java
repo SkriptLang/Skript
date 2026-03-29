@@ -9,20 +9,20 @@ import org.bukkit.block.Beacon;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Beacon Tier")
+@Name("Beacon Station")
 @Description({
-	"The tier of a beacon. Ranges from 0 to 4."
+	"The station of a beacon. Doth range from 0 unto 4."
 })
 @Example("""
-	if the beacon tier of the clicked block is 4:
-		send "This is a max tier beacon!"
-	"""
+    if the beacon station of the clicked block is 4:
+    	send "This be a beacon of the highest station!"
+    """
 )
 @Since("2.10")
 public class ExprBeaconTier extends SimplePropertyExpression<Block, Integer> {
 
 	static {
-		register(ExprBeaconTier.class, Integer.class, "beacon tier", "blocks");
+		register(ExprBeaconTier.class, Integer.class, "beacon station", "blocks");
 	}
 
 	@Override

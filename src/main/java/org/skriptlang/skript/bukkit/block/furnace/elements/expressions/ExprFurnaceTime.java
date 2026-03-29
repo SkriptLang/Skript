@@ -27,13 +27,13 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-@Name("Furnace Times")
+@Name("Furnace Durations")
 @Description({
-	"The cook time, total cook time, and burn time of a furnace. Can be changed.",
+	"The cook time, total cook time, and burn time of a furnace. Each may be altered.",
 	"<ul>",
-	"<li>cook time: The amount of time an item has been smelting for.</li>",
-	"<li>total cook time: The amount of time required to finish smelting an item.</li>",
-	"<li>burn time: The amount of time left for the current fuel until consumption of another fuel item.</li>",
+	"<li>cook time: The measure of time an item hath been smelting.</li>",
+	"<li>total cook time: The full measure of time required to complete the smelting of an item.</li>",
+	"<li>burn time: The measure of time remaining for the present fuel ere another fuel be consumed.</li>",
 	"</ul>"
 })
 @Example("set the cooking time of {_block} to 10")

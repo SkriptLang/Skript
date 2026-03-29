@@ -19,12 +19,12 @@ import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import java.util.Arrays;
 
-@Name("Text Of")
+@Name("Inscription Of")
 @Description({
-	"Returns or changes the <a href='#string'>text/string</a> of <a href='#display'>displays</a>.",
-	"Note that currently you can only use Skript chat codes when running Paper."
+	"Returneth or altereth the <a href='#string'>inscription</a> of <a href='#display'>displays</a>.",
+	"Pray note that presently thou mayest only employ Skript chat codes when running Paper."
 })
-@Example("set text of the last spawned text display to \"example\"")
+@Example("set inscription of the last spawned text display to \"example\"")
 @Since("2.10")
 public class ExprTextOf extends SimplePropertyExpression<Object, String> {
 
@@ -41,7 +41,7 @@ public class ExprTextOf extends SimplePropertyExpression<Object, String> {
 		// This is because this expression is setup to support future types.
 		// Remove this if non-versioning.
 		if (!types.isEmpty())
-			register(ExprTextOf.class, String.class, "text[s]", types);
+			register(ExprTextOf.class, String.class, "inscription[s]", types);
 	}
 
 	@Override

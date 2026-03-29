@@ -13,10 +13,10 @@ public class EvtBeaconEffect extends SkriptEvent {
 
 	static {
 		if (Skript.classExists("com.destroystokyo.paper.event.block.BeaconEffectEvent"))
-			Skript.registerEvent("Beacon Effect", EvtBeaconEffect.class, BeaconEffectEvent.class,
-					"[:primary|:secondary] beacon effect [of %-potioneffecttypes%]",
-					"application of [:primary|:secondary] beacon effect [of %-potioneffecttypes%]",
-					"[:primary|:secondary] beacon effect apply [of %-potioneffecttypes%]")
+			Skript.registerEvent("Beacon Blessing", EvtBeaconEffect.class, BeaconEffectEvent.class,
+					"[:primary|:secondary] beacon blessing [of %-potioneffecttypes%]",
+					"bestowing of [:primary|:secondary] beacon blessing [of %-potioneffecttypes%]",
+					"[:primary|:secondary] beacon blessing bestow [of %-potioneffecttypes%]")
 				.description("Called when a player gets an effect from a beacon.")
 				.examples(
 					"on beacon effect:",

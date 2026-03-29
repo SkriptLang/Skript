@@ -27,7 +27,7 @@ public class EvtRealTime extends SkriptEvent {
 	private static final Timer TIMER;
 
 	static {
-		Skript.registerEvent("System Time", EvtRealTime.class, RealTimeEvent.class,
+		Skript.registerEvent("The Worldly Clock", EvtRealTime.class, RealTimeEvent.class,
 			"at %times% [in] real time")
 				.description("Called when the local time of the system the server is running on reaches the provided real-life time.")
 				.examples(

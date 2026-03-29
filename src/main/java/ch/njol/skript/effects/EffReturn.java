@@ -19,21 +19,21 @@ import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.List;
 
-@Name("Return")
-@Description("Makes a trigger or a section (e.g. a function) return a value")
+@Name("Bestow Return")
+@Description("Causeth a trigger or section (e.g. a function) to yield back a value")
 @Example("""
-	function double(i: number) :: number:
-		return 2 * {_i}
-	""")
+    function double(i: number) :: number:
+    	bestow 2 * {_i}
+    """)
 @Example("""
-	function divide(i: number) returns number:
-		return {_i} / 2
-	""")
+    function divide(i: number) returns number:
+    	bestow {_i} / 2
+    """)
 @Since("2.2, 2.8.0 (returns aliases)")
 public class EffReturn extends Effect {
 
 	static {
-		Skript.registerEffect(EffReturn.class, "return %objects%");
+		Skript.registerEffect(EffReturn.class, "bestow %objects%");
 		ParserInstance.registerData(ReturnHandlerStack.class, ReturnHandlerStack::new);
 	}
 

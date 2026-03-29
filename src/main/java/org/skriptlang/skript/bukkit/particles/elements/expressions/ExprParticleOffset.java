@@ -15,14 +15,14 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Particle Offset")
 @Description("""
-	Determines the offset value for a particle.
-	Offsets are treated as distributions if particle count is greater than 0.
-	Offsets are treated as velocity or some other special behavior if particle count is 0.
-	Setting distribution/velocity with this method may change the particle count to 1/0 respectively.
-	
-	More detailed information on particle behavior can be found at \
-	<a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
-	""")
+    Determineth the offset value for a particle.
+    Offsets art treated as distributions if particle count be greater than 0.
+    Offsets art treated as velocity or some other special behaviour if particle count be 0.
+    Setting distribution or velocity by this method may alter the particle count to 1 or 0 respectively.
+    
+    More detailed intelligence on particle behaviour may be found at \
+    <a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
+    """)
 @Example("set the particle offset of {_my-particle} to vector(1, 2, 1)")
 @Since("2.14")
 public class ExprParticleOffset extends SimplePropertyExpression<ParticleEffect, Vector> {

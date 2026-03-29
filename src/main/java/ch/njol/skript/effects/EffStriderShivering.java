@@ -15,21 +15,21 @@ import org.bukkit.entity.Strider;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Strider Shivering")
-@Description("Make a strider start/stop shivering.")
+@Name("Strider Trembling")
+@Description("Bid a strider commence or cease its trembling.")
 @Example("""
-	if last spawned strider is shivering:
-		make last spawned strider stop shivering
-	""")
+    if last spawned strider is shivering:
+    	make last spawned strider cease trembling
+    """)
 @Since("2.12")
 public class EffStriderShivering extends Effect {
 
 	static {
 		Skript.registerEffect(EffStriderShivering.class,
-			"make %livingentities% start shivering",
-			"force %livingentities% to start shivering",
-			"make %livingentities% stop shivering",
-			"force %livingentities% to stop shivering");
+			"make %livingentities% commence trembling",
+			"compel %livingentities% to commence trembling",
+			"make %livingentities% cease trembling",
+			"compel %livingentities% to cease trembling");
 	}
 
 	private Expression<LivingEntity> entities;

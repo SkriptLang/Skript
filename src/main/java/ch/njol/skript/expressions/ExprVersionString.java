@@ -13,17 +13,17 @@ import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Version String")
+@Name("Rendition String")
 @Description({
-	"The text to show if the protocol version of the server doesn't match with protocol version of the client. " +
-	"You can check the <a href='#ExprProtocolVersion'>protocol version</a> expression for more information about this.",
-	"This can only be set in a <a href='#server_list_ping'>server list ping</a> event."
+	"The text to display if the protocol rendition of the server doth not match the protocol rendition of the client." +
+	"Thou canst check the <a href='#ExprProtocolVersion'>protocol version</a> expression for further knowledge upon this matter.",
+	"This may only be set within a <a href='#server_list_ping'>server list ping</a> event."
 })
 @Example("""
-	on server list ping:
-		set the protocol version to 0 # 13w41a (1.7), so it will show the version string always
-		set the version string to "&lt;light green&gt;Version: &lt;orange&gt;%minecraft version%"
-	""")
+    on server list ping:
+    	set the protocol version to 0 # 13w41a (1.7), thus it shall display the rendition string always
+    	set the rendition string to "&lt;light green&gt;Rendition: &lt;orange&gt;%minecraft rendition%"
+    """)
 @Since("2.3")
 @Events("Server List Ping")
 public class ExprVersionString extends SimpleExpression<String> {
@@ -31,7 +31,7 @@ public class ExprVersionString extends SimpleExpression<String> {
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
 
 	static {
-		Skript.registerExpression(ExprVersionString.class, String.class, ExpressionType.SIMPLE, "[the] [shown|custom] version [string|text]");
+		Skript.registerExpression(ExprVersionString.class, String.class, ExpressionType.SIMPLE, "[the] [shown|custom] rendition [string|text]");
 	}
 
 	@Override

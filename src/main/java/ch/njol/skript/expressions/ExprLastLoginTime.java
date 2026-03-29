@@ -14,13 +14,13 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Date;
 import ch.njol.util.Kleenean;
 
-@Name("Last/First Login Time")
-@Description("When a player last/first logged in the server. 'last login' requires paper to get the last login, otherwise it will get the last time they were seen on the server.")
+@Name("Last/First Arrival")
+@Description("When a player did last or first arrive upon the server. 'last arrival' doth require Paper to obtain the true last arrival, else it shall report the last time they were seen upon the server.")
 @Example("""
     command /onlinefor:
     	trigger:
-    		send "You have been online for %difference between player's last login and now%."
-    		send "You first joined the server %difference between player's first login and now% ago."
+    		send "Thou hast been present for %difference between player's last arrival and now%."
+    		send "Thou first graced this server %difference between player's first arrival and now% ago."
     """)
 @Since("2.5")
 public class ExprLastLoginTime extends SimplePropertyExpression<OfflinePlayer, Date> {
@@ -28,7 +28,7 @@ public class ExprLastLoginTime extends SimplePropertyExpression<OfflinePlayer, D
 	private static boolean LAST_LOGIN = Skript.methodExists(OfflinePlayer.class, "getLastLogin");
 	
 	static {
-		register(ExprLastLoginTime.class, Date.class, "(1¦last|2¦first) login", "offlineplayers");
+		register(ExprLastLoginTime.class, Date.class, "(1¦last|2¦first) arrival", "offlineplayers");
 	}
 	
 	private boolean first;

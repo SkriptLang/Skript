@@ -15,21 +15,21 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 /**
  * @author Peter Güttinger
  */
-@Name("Compass Target")
-@Description({"The location a player's compass is pointing at.",
-	"As of Minecraft 1.21.4, the compass is controlled by the resource pack and by default will not point to " +
-		"this compass target when used outside of the overworld dimension."})
+@Name("Compass Bearing")
+@Description({"The locale unto which a player's compass doth point.",
+	"As of Minecraft 1.21.4, the compass is governed by the resource pack and by default shall not point to " +
+		"this compass bearing when employed beyond the overworld dimension."})
 @Example("""
-	# make all player's compasses target a player stored in {compass::target::%player%}
-	every 5 seconds:
-		loop all players:
-			set the loop-player's compass target to location of {compass::target::%%loop-player%}
-	""")
+    # direct all players' compasses toward a player stored in {compass::target::%player%}
+    every 5 seconds:
+    	loop all players:
+    		set the loop-player's compass bearing to location of {compass::target::%%loop-player%}
+    """)
 @Since("2.0")
 public class ExprCompassTarget extends SimplePropertyExpression<Player, Location> {
 	
 	static {
-		register(ExprCompassTarget.class, Location.class, "compass target", "players");
+		register(ExprCompassTarget.class, Location.class, "compass bearing", "players");
 	}
 	
 	@Override

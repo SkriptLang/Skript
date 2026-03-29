@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Name("First Empty Slot in Inventory")
-@Description("Returns the first empty slot in an inventory. If no empty slot is found, it returns nothing.")
+@Name("First Vacant Berth in Inventory")
+@Description("Returneth the first empty slot within an inventory. Should no vacant berth be found, it returneth naught.")
 @Example("set the first empty slot in player's inventory to 5 diamonds")
 @Example("""
 	if the first empty slot in player's inventory is not set:

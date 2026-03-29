@@ -10,12 +10,12 @@ import org.bukkit.entity.LivingEntity;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Can Breed")
-@Description("Checks whether or not a living entity can be bred.")
+@Description("Discerneth whether a living entity may be bred.")
 @Example("""
-	on right click on living entity:
-		event-entity can't breed
-		send "Turns out %event-entity% is not breedable. Must be a Skript user!" to player
-	""")
+    on right click on living entity:
+    	event-entity can't breed
+    	send "It doth appear %event-entity% cannot be bred. Surely a Skript user!" to player
+    """)
 @Since("2.10")
 public class CondCanBreed extends PropertyCondition<LivingEntity> {
 

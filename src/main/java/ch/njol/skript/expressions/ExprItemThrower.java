@@ -15,21 +15,21 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-@Name("Dropped Item Thrower")
-@Description("The uuid of the entity or player that threw/dropped the dropped item.")
+@Name("Dropped Ware Thrower")
+@Description("The uuid of the entity or player that hath cast forth or let fall the dropped ware.")
 @Example("""
-	set the uuid of the dropped item thrower of {_dropped item} to player
-	if the uuid of the dropped item thrower of {_dropped item} is uuid of player:
-	"""
+    set the uuid of the dropped ware thrower of {_dropped item} to player
+    if the uuid of the dropped ware thrower of {_dropped item} is uuid of player:
+    """
 )
-@Example("clear the item thrower of {_dropped item}")
+@Example("clear the ware thrower of {_dropped item}")
 @Since("2.11")
 public class ExprItemThrower extends SimplePropertyExpression<Item, UUID> {
 
 	static {
 		Skript.registerExpression(ExprItemThrower.class, UUID.class, ExpressionType.PROPERTY,
-			"[the] uuid of [the] [dropped] item thrower [of %itementities%]",
-			"[the] [dropped] item thrower's uuid [of %itementities%]");
+			"[the] uuid of [the] [dropped] ware thrower [of %itementities%]",
+			"[the] [dropped] ware thrower's uuid [of %itementities%]");
 	}
 
 	@Override

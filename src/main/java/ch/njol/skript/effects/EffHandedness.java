@@ -14,19 +14,19 @@ import org.bukkit.entity.Mob;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Handedness")
-@Description("Make mobs left or right-handed. This does not affect players.")
+@Name("Favour'd Hand")
+@Description("Render mobs left or right-handed. This doth not affect players.")
 @Example("""
-	spawn skeleton at spawn of world "world":
-		make entity left handed
-	""")
-@Example("make all zombies in radius 10 of player right handed")
+    spawn skeleton at spawn of world "world":
+    	render entity left handed
+    """)
+@Example("render all zombies in radius 10 of player right handed")
 @Since("2.8.0")
 public class EffHandedness extends Effect {
 
 	static {
 		if (Skript.methodExists(Mob.class, "setLeftHanded", boolean.class))
-			Skript.registerEffect(EffHandedness.class, "make %livingentities% (:left|right)( |-)handed");
+			Skript.registerEffect(EffHandedness.class, "render %livingentities% (:left|right)( |-)handed");
 	}
 
 	private boolean leftHanded;

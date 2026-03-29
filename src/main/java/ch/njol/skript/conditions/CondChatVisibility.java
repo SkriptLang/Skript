@@ -11,31 +11,31 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Can See Messages")
-@Description("Checks whether a player can see specific message types in chat.")
+@Name("May Perceive Missives")
+@Description("Doth verify whether a player can perceive specific varieties of missives in chat.")
 @Example("""
-	if player can see all messages:
-		send "You can see all messages."
-	""")
+    if player can perceive all missives:
+    	send "You can see all messages."
+    """)
 @Example("""
-	if player can only see commands:
-		send "This game doesn't work with commands-only chat."
-	""")
+    if player can only perceive commands:
+    	send "This game doesn't work with commands-only chat."
+    """)
 @Example("""
-	if player can't see any messages:
-		send action bar "Server shutting down in 5 minutes!"
-	""")
+    if player can't perceive any missives:
+    	send action bar "Server shutting down in 5 minutes!"
+    """)
 @Since("2.10")
 public class CondChatVisibility extends Condition {
 
 	static {
 		if (Skript.classExists("com.destroystokyo.paper.ClientOption$ChatVisibility"))
 			Skript.registerCondition(CondChatVisibility.class,
-				"%player% can see all messages [in chat]",
-				"%player% can only see (commands|system messages) [in chat]",
-				"%player% can('t|[ ]not) see any (command[s]|message[s]) [in chat]",
-				"%player% can('t|[ ]not) see all messages [in chat]",
-				"%player% can('t|[ ]not) only see (commands|system messages) [in chat]");
+				"%player% can perceive all missives [in chat]",
+				"%player% can only perceive (commands|system missives) [in chat]",
+				"%player% can('t|[ ]not) perceive any (command[s]|missive[s]) [in chat]",
+				"%player% can('t|[ ]not) perceive all missives [in chat]",
+				"%player% can('t|[ ]not) only perceive (commands|system missives) [in chat]");
 	}
 
 	private int pattern = 0;

@@ -16,13 +16,13 @@ import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Inventory Close Reason")
+@Name("Inventory Closing Cause")
 @Description("The <a href='/#inventoryclosereason'>inventory close reason</a> of an <a href='/#inventory_close'>inventory close event</a>.")
 @Example("""
-	on inventory close:
-		inventory close reason is teleport
-		send "Your inventory closed due to teleporting!" to player
-	""")
+    on inventory close:
+    	inventory closing reason is teleport
+    	send "Thine inventory was shut by virtue of teleportation!" to player
+    """)
 @Events("Inventory Close")
 @Since("2.8.0")
 public class ExprInventoryCloseReason extends EventValueExpression<InventoryCloseEvent.Reason> {

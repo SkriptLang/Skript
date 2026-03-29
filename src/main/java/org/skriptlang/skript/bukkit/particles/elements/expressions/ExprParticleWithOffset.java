@@ -24,18 +24,18 @@ import java.util.function.BiFunction;
 
 import static org.skriptlang.skript.registration.DefaultSyntaxInfos.Expression.builder;
 
-@Name("Particle with Offset/Distribution/Velocity")
+@Name("Particle Bearing Offset, Distribution, or Velocity")
 @Description("""
-	Applies a specific offset to a particle.
-	Offsets are treated as distributions if particle count is greater than 0.
-	Offsets are treated as velocity or some other special behavior if particle count is 0.
-	Setting distribution/velocity with this method may change the particle count to 1/0 respectively.
-	
-	More detailed information on particle behavior can be found at \
-	<a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
-	""")
-@Example("draw an electric spark particle with a velocity of vector(1,2,3) at player")
-@Example("draw 12 red dust particles with a distribution of vector(1,2,1) at player's head location")
+    Applieth a particular offset unto a particle.
+    Offsets art treated as distributions if particle count be greater than 0.
+    Offsets art treated as velocity or some other special behaviour if particle count be 0.
+    Setting distribution or velocity by this method may alter the particle count to 1 or 0 respectively.
+    
+    More detailed intelligence on particle behaviour may be found at \
+    <a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
+    """)
+@Example("render an electric spark particle bearing a velocity of vector(1,2,3) at player")
+@Example("render 12 red dust particles bearing a distribution of vector(1,2,1) at player's head location")
 @Since("2.14")
 public class ExprParticleWithOffset extends PropertyExpression<ParticleEffect, ParticleEffect> {
 
@@ -56,7 +56,7 @@ public class ExprParticleWithOffset extends PropertyExpression<ParticleEffect, P
 	}
 
 	private static final Patterns<Mode> patterns = new Patterns<>(new Object[][]{
-		{"%particles% with [an] offset [of] %vector%", Mode.OFFSET},
+		{"%particles% bearing [an] offset [of] %vector%", Mode.OFFSET},
 		{"%particles% with [a] distribution [of] %vector%", Mode.DISTRIBUTION},
 		{"%directionalparticles% with [a] velocity [of] %vector%", Mode.VELOCITY}
 	});

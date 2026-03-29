@@ -29,19 +29,19 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Name("Replace")
+@Name("Supplant")
 @Description(
-	"Replaces all occurrences of a given text or regex with another text. Please note that you can only change " +
-		"variables and a few expressions, e.g. a <a href='/#ExprMessage'>message</a> or a line of a sign."
+	"Supplanteth all occurrences of a given text or regex with another text. Pray note that thou canst only alter" +
+		"variables and a few expressions, e.g. a <a href='/#ExprMessage'>message</a> or a line upon a sign."
 )
 @Example("replace \"<item>\" in {_msg} with \"[%name of player's tool%]\"")
 @Example("replace every \"&\" with \"§\" in line 1 of targeted block")
 @Example("""
-	# Very simple chat censor
-	on chat:
-		replace all "idiot" and "noob" with "****" in the message
-		regex replace "\b(idiot|noob)\b" with "****" in the message # Regex version using word boundaries for better results
-	""")
+    # A most simple chat censor
+    on chat:
+    	replace all "idiot" and "noob" with "****" in the message
+    	regex replace "\b(idiot|noob)\b" with "****" in the message # Regex version using word boundaries for finer results
+    """)
 @Example("replace all stone and dirt in player's inventory and player's top inventory with diamond")
 @Since("2.0, 2.2-dev24 (multiple strings, items in inventory), 2.5 (replace first, case sensitivity), 2.10 (regex)")
 public class EffReplace extends Effect {

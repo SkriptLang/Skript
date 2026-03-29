@@ -4,8 +4,8 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.*;
 
-@Name("Is Interactable")
-@Description("Checks wether or not a block is interactable.")
+@Name("Be Interactable")
+@Description("Doth examine whether or not a block may be engaged with by mortal hand.")
 @Example("""
 	on block break:
 		if event-block is interactable:

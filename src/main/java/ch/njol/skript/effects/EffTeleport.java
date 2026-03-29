@@ -25,21 +25,21 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-@Name("Teleport")
+@Name("Transport")
 @Description({
-	"Teleport an entity to a specific location. ",
-	"This effect is delayed by default on Paper, meaning certain syntax such as the return effect for functions cannot be used after this effect.",
-	"The keyword 'force' indicates this effect will not be delayed, ",
-	"which may cause lag spikes or server crashes when using this effect to teleport entities to unloaded chunks.",
-	"Teleport flags are settings to retain during a teleport. Such as direction, passengers, x coordinate, etc."
+	"Doth transport an entity unto a specific location.",
+	"This effect is delayed by default on Paper, meaning certain syntax such as the return effect for functions cannot be employed thereafter.",
+	"The keyword 'force' doth indicate this effect shall not be delayed,",
+	"which may cause lag spikes or server crashes when transporting entities unto unloaded chunks.",
+	"Transport flags are settings to retain during a transport, such as direction, passengers, x coordinate, and so forth."
 })
-@Example("teleport the player to {home::%uuid of player%}")
-@Example("teleport the attacker to the victim")
+@Example("transport the player unto {home::%uuid of player%}")
+@Example("transport the attacker unto the victim")
 @Example("""
-	on dismount:
-		cancel event
-		teleport the player to {server::spawn} retaining vehicle and passengers
-	""")
+    on dismount:
+    	cancel event
+    	transport the player unto {server::spawn} retaining vehicle and passengers
+    """)
 @Since("1.0, 2.10 (flags)")
 public class EffTeleport extends Effect {
 
@@ -50,7 +50,7 @@ public class EffTeleport extends Effect {
 		String extra = "";
 		if (TELEPORT_FLAGS_SUPPORTED)
 			extra = " [[while] retaining %-teleportflags%]";
-		Skript.registerEffect(EffTeleport.class, "[:force] teleport %entities% (to|%direction%) %location%" + extra);
+		Skript.registerEffect(EffTeleport.class, "[:force] transport %entities% (unto|%direction%) %location%" + extra);
 	}
 
 	private @Nullable Expression<SkriptTeleportFlag> teleportFlags;

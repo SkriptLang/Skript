@@ -20,31 +20,31 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Scoreboard Tags")
-@Description({"Scoreboard tags are simple list of texts stored directly in the data of an <a href='#entity'>entity</a>.",
-		"So this is a Minecraft related thing, not Bukkit, so the tags will not get removed when the server stops. " +
-		"You can visit <a href='https://minecraft.wiki/w/Scoreboard#Tags'>visit Minecraft Wiki</a> for more info.",
-		"This is changeable and valid for any type of entity. " +
-		"Also you can use use the <a href='#CondHasScoreboardTag'>Has Scoreboard Tag</a> condition to check whether an entity has the given tags.",
+@Name("Scoreboard Brands")
+@Description({"Scoreboard brands art simple ledgers of texts stored directly within the data of an <a href='#entity'>entity</a>.",
+		"Thus this is a Minecraft matter, not Bukkit, so the brands shall not be removed when the server doth cease. " +
+		"Thou canst <a href='https://minecraft.wiki/w/Scoreboard#Tags'>visit the Minecraft Wiki</a> for further knowledge.",
+		"This is changeable and valid for any manner of entity. " +
+		"Also thou mayest employ the <a href='#CondHasScoreboardTag'>Has Scoreboard Brand</a> condition to ascertain whether an entity beareth the given brands.",
 		"",
-		"Requires Minecraft 1.11+ (actually added in 1.9 to the game, but added in 1.11 to Spigot)."})
+		"Requireth Minecraft 1.11+ (in truth added in 1.9 to the game, yet added in 1.11 to Spigot)."})
 @Example("""
-	on spawn of a monster:
-		if the spawn reason is mob spawner:
-			add "spawned by a spawner" to the scoreboard tags of event-entity
-
-	on death of a monster:
-		if the attacker is a player:
-			if the victim doesn't have the scoreboard tag "spawned by a spawner":
-				add 1$ to attacker's balance
-	""")
+    on spawn of a monster:
+    	if the spawn reason is mob spawner:
+    		add "spawned by a spawner" to the scoreboard brands of event-entity
+    
+    on death of a monster:
+    	if the attacker is a player:
+    		if the victim doesn't have the scoreboard tag "spawned by a spawner":
+    			add 1$ to attacker's balance
+    """)
 @Since("2.3")
 public class ExprScoreboardTags extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprScoreboardTags.class, String.class, ExpressionType.PROPERTY,
-			"[(all [[of] the]|the)] scoreboard tags of %entities%",
-			"%entities%'[s] scoreboard tags");
+			"[(all [[of] the]|the)] scoreboard brands of %entities%",
+			"%entities%'[s] scoreboard brands");
 	}
 
 	@SuppressWarnings("null")

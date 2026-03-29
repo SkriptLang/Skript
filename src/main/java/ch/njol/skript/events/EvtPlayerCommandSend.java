@@ -16,7 +16,7 @@ import java.util.Collection;
 public class EvtPlayerCommandSend extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Send Command List", EvtPlayerCommandSend.class, PlayerCommandSendEvent.class, "send[ing] [of [the]] [server] command[s] list", "[server] command list send")
+		Skript.registerEvent("Dispatch of Command Ledger", EvtPlayerCommandSend.class, PlayerCommandSendEvent.class, "send[ing] [of [the]] [server] command[s] list", "[server] command list send")
 				.description(
 					"Called when the server sends a list of commands to the player. This usually happens on join. The sent commands " +
 					"can be modified via the <a href='#ExprSentCommands'>sent commands expression</a>.",

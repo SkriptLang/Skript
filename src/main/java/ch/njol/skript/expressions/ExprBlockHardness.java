@@ -11,17 +11,17 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.Material;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Block Hardness")
-@Description("Obtains the block's hardness level (also known as \"strength\"). This number is used to calculate the time required to break each block.")
-@Example("set {_hard} to block hardness of target block")
-@Example("if block hardness of target block > 5:")
+@Name("Block Fortitude")
+@Description("Obtaineth the block's fortitude (also known as \"strength\"). This number is employed to reckon the time required to shatter each block.")
+@Example("set {_hard} to block fortitude of target block")
+@Example("if block fortitude of target block > 5:")
 @RequiredPlugins("Minecraft 1.13+")
 @Since("2.6")
 public class ExprBlockHardness extends SimplePropertyExpression<ItemType, Number> {
 
 	static {
 		if (Skript.methodExists(Material.class, "getHardness"))
-			register(ExprBlockHardness.class, Number.class, "[block] hardness", "itemtypes");
+			register(ExprBlockHardness.class, Number.class, "[block] fortitude", "itemtypes");
 	}
 
 	@Nullable

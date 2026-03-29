@@ -14,28 +14,28 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperime
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Equippable Component - Camera Overlay")
+@Name("Equippable Component - Looking-Glass Overlay")
 @Description("""
-	The camera overlay for the player when the item is equipped.
-	Example: The jack-o'-lantern view when having a jack-o'-lantern equipped as a helmet.
-	The camera overlay is represented as a namespaced key.
-	A namespaced key can be formatted as 'namespace:id' or 'id'. \
-	It can only contain one ':' to separate the namespace and the id. \
-	Only alphanumeric characters, periods, underscores, and dashes can be used.
-	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
-	""")
-@Example("set the camera overlay of {_item} to \"custom_overlay\"")
+    The looking-glass overlay for the player whence the item is donned.
+    Example: The jack-o'-lantern visage when one weareth a jack-o'-lantern as a helm.
+    The looking-glass overlay is represented as a namespaced key.
+    A namespaced key may be formatted as 'namespace:id' or 'id'. \
+    It may contain but one ':' to separate the namespace and the id. \
+    Only alphanumeric characters, periods, underscores, and dashes may be employed.
+    NOTE: Equippable component elements art experimental. Thus, they art subject to change and may not function as intended.
+    """)
+@Example("set the looking-glass overlay of {_item} to \"custom_overlay\"")
 @Example("""
-	set {_component} to the equippable component of {_item}
-	set the camera overlay of {_component} to "custom_overlay"
-	""")
+    set {_component} to the equippable component of {_item}
+    set the looking-glass overlay of {_component} to "custom_overlay"
+    """)
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("2.13")
 public class ExprEquipCompCameraOverlay extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperimentSyntax {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprEquipCompCameraOverlay.class, String.class, "camera overlay", "equippablecomponents", true)
+			infoBuilder(ExprEquipCompCameraOverlay.class, String.class, "looking-glass overlay", "equippablecomponents", true)
 				.supplier(ExprEquipCompCameraOverlay::new)
 				.build()
 		);

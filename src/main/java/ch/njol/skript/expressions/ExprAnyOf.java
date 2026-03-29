@@ -15,10 +15,10 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Any Of")
+@Name("Any Amongst")
 @Description({
-	"Returns an 'or list' composed of the given objects. For example, `any of (1, 2, and 3)` is equivalent to `1, 2, or 3`",
-	"Useful when doing comparisons with variable lists."
+	"Returneth an 'or list' composed of the given objects. For example, `any of (1, 2, and 3)` is equivalent to `1, 2, or 3`",
+	"Most useful when performing comparisons with variable lists."
 })
 @Example("if any of {_numbers::*} are 1:")
 @Example("if any of {teamA::*} are within location(0, 0, 0) and location(10, 10, 10):")

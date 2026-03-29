@@ -12,7 +12,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.type.CommandBlock;
 
 @Name("Is Conditional")
-@Description("Checks whether a command block is conditional or not.")
+@Description("Discerneth whether a command block be conditional or nay.")
 @Example("""
 	if {_block} is conditional:
 		make {_block} unconditional

@@ -12,16 +12,16 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Equippable Component - Dispense")
+@Name("Equippable Component - Dispense Forth")
 @Description("""
-	Whether the item can be dispensed by a dispenser.
-	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
-	""")
-@Example("allow {_item} to be dispensed")
+    Whether the item may be dispensed forth by a dispenser.
+    NOTE: Equippable component elements art experimental. Thus, they art subject to change and may not function as intended.
+    """)
+@Example("grant {_item} to be dispensed forth")
 @Example("""
-	set {_component} to the equippable component of {_item}
-	prevent {_component} from being dispensed
-	""")
+    set {_component} to the equippable component of {_item}
+    forbid {_component} from being dispensed forth
+    """)
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("2.13")
 public class EffEquipCompDispensable extends Effect implements EquippableExperimentSyntax {
@@ -29,10 +29,10 @@ public class EffEquipCompDispensable extends Effect implements EquippableExperim
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffEquipCompDispensable.class)
 			.addPatterns(
-				"allow %equippablecomponents% to be dispensed",
+				"grant %equippablecomponents% to be dispensed forth",
 				"make %equippablecomponents% dispensable",
-				"let %equippablecomponents% be dispensed",
-				"(block|prevent|disallow) %equippablecomponents% from being dispensed",
+				"let %equippablecomponents% be dispensed forth",
+				"(forbid|prevent|deny) %equippablecomponents% from being dispensed forth",
 				"make %equippablecomponents% not dispensable"
 			)
 			.supplier(EffEquipCompDispensable::new)

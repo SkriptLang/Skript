@@ -18,14 +18,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-@Name("Release From Entity Storage")
+@Name("Liberate From Entity Storage")
 @Description({
-	"Releases the stored entities in an entity block storage (i.e. beehive).",
-	"When using beehives, providing a timespan will prevent the released bees from re-entering the beehive for that amount of time.",
-	"Due to unstable behaviour on older versions, this effect requires Minecraft version 1.21+."
+	"Liberateth the stored entities from an entity block storage (i.e. beehive).",
+	"When dealing with beehives, providing a timespan shall prevent the liberated bees from re-entering the beehive for that duration.",
+	"Due to unstable behaviour upon older versions, this effect doth require Minecraft version 1.21+."
 })
-@Example("release the stored entities of {_beehive}")
-@Example("release the entity storage of {_hive} for 5 seconds")
+@Example("liberate the stored entities of {_beehive}")
+@Example("liberate the entity storage of {_hive} for 5 seconds")
 @RequiredPlugins("Minecraft 1.21")
 @Since("2.11")
 public class EffReleaseEntityStorage extends Effect {
@@ -40,7 +40,7 @@ public class EffReleaseEntityStorage extends Effect {
 	static {
 		if (Skript.isRunningMinecraft(1, 21, 0)) {
 			Skript.registerEffect(EffReleaseEntityStorage.class,
-				"(release|evict) [the] (stored entities|entity storage) of %blocks% [for %-timespan%]");
+				"(liberate|evict) [the] (stored entities|entity storage) of %blocks% [for %-timespan%]");
 		}
 	}
 

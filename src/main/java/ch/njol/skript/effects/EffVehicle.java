@@ -14,18 +14,18 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Vehicle")
-@Description("Makes an entity ride another entity, e.g. a minecart, a saddled pig, an arrow, etc.")
+@Name("Mount and Dismount")
+@Description("Compelleth an entity to mount another entity, be it a minecart, a saddled pig, an arrow, or any such conveyance.")
 @Example("make the player ride a saddled pig")
-@Example("make the attacker ride the victim")
+@Example("make the attacker mount the victim")
 @Since("2.0")
 public class EffVehicle extends Effect {
 
 	static {
 		Skript.registerEffect(EffVehicle.class,
-				"(make|let|force) %entities% [to] (ride|mount) [(in|on)] %entity/entitydata%",
-				"(make|let|force) %entities% [to] (dismount|(dismount|leave) (from|of|) (any|the[ir]|his|her|) vehicle[s])",
-				"(eject|dismount) (any|the|) passenger[s] (of|from) %entities%");
+				"(make|bid|compel) %entities% [to] (ride|mount) [(in|on|upon)] %entity/entitydata%",
+				"(make|bid|compel) %entities% [to] (dismount|(dismount|depart) (from|of|) (any|the[ir]|his|her|) steed[s])",
+				"(eject|dismount) (any|the|) rider[s] (of|from) %entities%");
 	}
 
 	private @Nullable Expression<Entity> passengers;

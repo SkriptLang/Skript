@@ -18,15 +18,15 @@ import org.bukkit.potion.PotionEffect;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Apply Potion Effect")
-@Description("Applies a potion effect to an entity.")
-@Example("apply swiftness 2 to the player")
+@Name("Bestow Potion Effect")
+@Description("Bestoweth a potion effect upon an entity.")
+@Example("bestow swiftness 2 upon the player")
 @Example("""
-	command /strengthboost:
-		trigger:
-			apply strength 10 to the player for 5 minutes
-	""")
-@Example("apply the potion effects of the player's tool to the player")
+    command /strengthboost:
+    	trigger:
+    		bestow strength 10 upon the player for 5 minutes
+    """)
+@Example("bestow the potion effects of the player's tool upon the player")
 @Since({"2.0", "2.14 (syntax rework)"})
 public class EffApplyPotionEffect extends Effect {
 
@@ -36,8 +36,8 @@ public class EffApplyPotionEffect extends Effect {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffApplyPotionEffect.class)
 				.supplier(EffApplyPotionEffect::new)
 				.addPatterns(
-						"(apply|grant) %skriptpotioneffects% to %livingentities% [for %-timespan%]",
-						"(affect|afflict) %livingentities% with %skriptpotioneffects% [for %-timespan%]"
+						"(bestow|grant) %skriptpotioneffects% upon %livingentities% [for %-timespan%]",
+						"(afflict|beset) %livingentities% with %skriptpotioneffects% [for %-timespan%]"
 				)
 				.build());
 	}

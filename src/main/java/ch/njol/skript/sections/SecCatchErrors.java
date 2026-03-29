@@ -23,19 +23,19 @@ import org.skriptlang.skript.log.runtime.RuntimeErrorCatcher;
 
 import java.util.List;
 
-@Name("Catch Runtime Errors")
-@Description("Catch any runtime errors produced by code within the section. This is an in progress feature.")
+@Name("Ensnare Runtime Faults")
+@Description("Doth ensnare any runtime faults begotten by code within the section. This be a feature still in progress.")
 @Example("""
-	catch runtime errors:
-		set worldborder center of {_border} to location(0, 0, NaN value)
-	if last caught runtime errors contains "Your location can't have a NaN value as one of its components":
-		set worldborder center of {_border} to location(0, 0, 0)
-	""")
+    ensnare runtime faults:
+    	set worldborder center of {_border} to location(0, 0, NaN value)
+    if last caught runtime errors contains "Your location can't have a NaN value as one of its components":
+    	set worldborder center of {_border} to location(0, 0, 0)
+    """)
 @Since("2.12")
 public class SecCatchErrors extends Section implements ExperimentalSyntax {
 
 	static {
-		Skript.registerSection(SecCatchErrors.class, "catch [run[ ]time] error[s]");
+		Skript.registerSection(SecCatchErrors.class, "ensnare [run[ ]time] fault[s]");
 	}
 
 	@Override

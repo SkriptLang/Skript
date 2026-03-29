@@ -15,17 +15,17 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
 
-@Name("Stop Server")
-@Description("Stops or restarts the server. If restart is used when the restart-script spigot.yml option isn't defined, the server will stop instead.")
-@Example("stop the server")
-@Example("restart server")
+@Name("Halt the Server")
+@Description("Doth halt or revive the server. If 'revive' be used when the restart-script spigot.yml option remaineth undefined, the server shall halt instead.")
+@Example("halt the server")
+@Example("revive server")
 @Since("2.5")
 public class EffStopServer extends Effect {
 	
 	static {
 		Skript.registerEffect(EffStopServer.class,
-			"(stop|shut[ ]down) [the] server",
-			"restart [the] server");
+			"(halt|shut[ ]down) [the] server",
+			"revive [the] server");
 	}
 	
 	private boolean restart;

@@ -18,25 +18,25 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Predicate;
 
-@Name("Region Contains")
+@Name("Dominion Doth Contain")
 @Description({
-	"Checks whether a location is contained in a particular <a href='#region'>region</a>.",
-	"This condition requires a supported regions plugin to be installed."
+	"Doth verify whether a location be contained within a particular <a href='#region'>dominion</a>.",
+	"This condition doth require a supported regions plugin to be installed."
 })
-@Example("player is in the region {regions::3}")
+@Example("player is within the dominion {regions::3}")
 @Example("""
-	on region enter:
-		region contains {flags.%world%.red}
-		message "The red flag is near!"
-	""")
+    on region enter:
+    	region contains {flags.%world%.red}
+    	message "The crimson banner doth lie near!"
+    """)
 @Since("2.1")
 @RequiredPlugins("Supported regions plugin")
 public class CondRegionContains extends Condition {
 
 	static {
 		Skript.registerCondition(CondRegionContains.class,
-				"[[the] region] %regions% contain[s] %directions% %locations%", "%locations% (is|are) ([contained] in|part of) [[the] region] %regions%",
-				"[[the] region] %regions% (do|does)(n't| not) contain %directions% %locations%", "%locations% (is|are)(n't| not) (contained in|part of) [[the] region] %regions%");
+				"[[the] dominion] %regions% contain[s] %directions% %locations%", "%locations% (is|are) ([contained] within|part of) [[the] dominion] %regions%",
+				"[[the] dominion] %regions% (do|does)(n't| not) contain %directions% %locations%", "%locations% (is|are)(n't| not) (contained within|part of) [[the] dominion] %regions%");
 	}
 
 	@SuppressWarnings("null")

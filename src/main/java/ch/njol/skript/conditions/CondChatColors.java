@@ -6,20 +6,20 @@ import ch.njol.skript.doc.*;
 import com.destroystokyo.paper.ClientOption;
 import org.bukkit.entity.Player;
 
-@Name("Can See Chat Colors")
-@Description("Checks whether a player can see chat colors.")
+@Name("May Behold Chat Colours")
+@Description("Doth examine whether a player can behold the colours of chat.")
 @Example("""
-	if player can see chat colors:
-		send "Find the red word in <red>this<reset> message."
-	else:
-		send "You cannot partake in finding the colored word."
-	""")
+    if player can behold chat colours:
+    	send "Find the red word in <red>this<reset> message."
+    else:
+    	send "You cannot partake in finding the colored word."
+    """)
 @Since("2.10")
 public class CondChatColors extends PropertyCondition<Player> {
 
 	static {
 		if (Skript.classExists("com.destroystokyo.paper.ClientOption"))
-			register(CondChatColors.class, PropertyType.CAN, "see chat colo[u]r[s|ing]", "players");
+			register(CondChatColors.class, PropertyType.CAN, "behold chat colo[u]r[s|ing]", "players");
 	}
 
 	@Override

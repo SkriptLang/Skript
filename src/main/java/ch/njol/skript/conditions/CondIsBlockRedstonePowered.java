@@ -15,25 +15,25 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Is Block Redstone Powered")
-@Description("Checks if a block is indirectly or directly powered by redstone")
+@Name("Be Block Redstone Empowered")
+@Description("Examineth whether a block be indirectly or directly empowered by redstone.")
 @Example("""
-	if clicked block is redstone powered:
-		send "This block is well-powered by redstone!"
-	""")
+    if clicked block is redstone empowered:
+    	send "This block is well-empowered by redstone!"
+    """)
 @Example("""
-	if clicked block is indirectly redstone powered:
-		send "This block is indirectly redstone powered."
-	""")
+    if clicked block is indirectly redstone empowered:
+    	send "This block is indirectly redstone empowered."
+    """)
 @Since("2.5")
 public class CondIsBlockRedstonePowered extends Condition {
 	
 	static {
 		Skript.registerCondition(CondIsBlockRedstonePowered.class,
-			"%blocks% (is|are) redstone powered",
-			"%blocks% (is|are) indirectly redstone powered",
-			"%blocks% (is|are)(n't| not) redstone powered",
-			"%blocks% (is|are)(n't| not) indirectly redstone powered");
+			"%blocks% (is|are) redstone empowered",
+			"%blocks% (is|are) indirectly redstone empowered",
+			"%blocks% (is|are)(n't| not) redstone empowered",
+			"%blocks% (is|are)(n't| not) indirectly redstone empowered");
 	}
 	
 	@SuppressWarnings("null")

@@ -17,8 +17,8 @@ import ch.njol.util.Kleenean;
 /**
  * @author Peter Güttinger
  */
-@Name("op/deop")
-@Description("Grant/revoke a user operator state.")
+@Name("Bestow/Revoke Operatorship")
+@Description("Bestow upon or revoke from a user the mantle of operator.")
 @Example("op the player")
 @Example("deop all players")
 @Since("1.0")

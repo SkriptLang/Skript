@@ -21,9 +21,9 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Chunk")
-@Description("Returns the <a href='#chunk'>chunk</a> of a block, location or entity is in, or a list of the loaded chunks of a world.")
+@Description("Returneth the <a href='#chunk'>chunk</a> wherein a block, location or entity doth reside, or a list of the laden chunks of a world.")
 @Example("add the chunk at the player to {protected chunks::*}")
-@Example("set {_chunks::*} to the loaded chunks of the player's world")
+@Example("set {_chunks::*} to the laden chunks of the player's world")
 @Since("2.0, 2.8.0 (loaded chunks)")
 public class ExprChunk extends SimpleExpression<Chunk> {
 	
@@ -31,7 +31,7 @@ public class ExprChunk extends SimpleExpression<Chunk> {
 		Skript.registerExpression(ExprChunk.class, Chunk.class, ExpressionType.COMBINED,
 			"[(all [[of] the]|the)] chunk[s] (of|%-directions%) %locations%",
 			"%locations%'[s] chunk[s]",
-			"[(all [[of] the]|the)] loaded chunks (of|in) %worlds%"
+			"[(all [[of] the]|the)] laden chunks (of|in) %worlds%"
 		);
 	}
 

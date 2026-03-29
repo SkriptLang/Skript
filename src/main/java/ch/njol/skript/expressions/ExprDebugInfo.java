@@ -9,18 +9,18 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.registrations.Classes;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Debug Info")
+@Name("Divination Intelligence")
 @Description("""
-	Returns a string version of the given objects, but with their type attached:
-		debug info of 1, "a", 0.5 -> 1 (long), "a" (string), 0.5 (double)
-	This is intended to make debugging easier, not as a reliable method of getting the type of a value.
-	""")
-@Example("broadcast debug info of {list::*}")
+    Returneth a string rendering of the given objects, yet with their type appended thereto:
+    	debug intelligence of 1, "a", 0.5 -> 1 (long), "a" (string), 0.5 (double)
+    This is meant to ease the art of debugging, not as a reliable method of discerning the type of a value.
+    """)
+@Example("broadcast debug intelligence of {list::*}")
 @Since("2.13")
 public class ExprDebugInfo extends SimplePropertyExpression<Object, String> {
 
 	static {
-		register(ExprDebugInfo.class, String.class, "debug info[rmation]", "objects");
+		register(ExprDebugInfo.class, String.class, "debug (info[rmation]|intelligence)", "objects");
 	}
 
 	@Override

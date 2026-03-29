@@ -8,17 +8,17 @@ import ch.njol.skript.doc.Since;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Strider;
 
-@Name("Strider Is Shivering")
-@Description("Whether a strider is shivering.")
+@Name("Strider Doth Tremble")
+@Description("Whether a strider doth tremble with cold.")
 @Example("""
-	if last spawned strider is shivering:
-		make last spawned strider stop shivering
-	""")
+    if last spawned strider is trembling:
+    	make last spawned strider stop trembling
+    """)
 @Since("2.12")
 public class CondStriderIsShivering extends PropertyCondition<LivingEntity> {
 
 	static {
-		register(CondStriderIsShivering.class, "shivering", "livingentities");
+		register(CondStriderIsShivering.class, "trembling", "livingentities");
 	}
 
 	@Override

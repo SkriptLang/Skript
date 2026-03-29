@@ -18,7 +18,7 @@ public class EvtWorld extends SkriptEvent {
 
 	static {
 		// World Save Event
-		Skript.registerEvent("World Save", EvtWorld.class, WorldSaveEvent.class, "world sav(e|ing) [of %-worlds%]")
+		Skript.registerEvent("World Preservation", EvtWorld.class, WorldSaveEvent.class, "world sav(e|ing) [of %-worlds%]")
 				.description("Called when a world is saved to disk. Usually all worlds are saved simultaneously, but world management plugins could change this.")
 				.examples(
 					"on world save of \"world\":",
@@ -26,7 +26,7 @@ public class EvtWorld extends SkriptEvent {
 				.since("1.0, 2.8.0 (defining worlds)");
 
 		// World Init Event
-		Skript.registerEvent("World Init", EvtWorld.class, WorldInitEvent.class, "world init[ialization] [of %-worlds%]")
+		Skript.registerEvent("World Genesis", EvtWorld.class, WorldInitEvent.class, "world init[ialization] [of %-worlds%]")
 				.description("Called when a world is initialized. As all default worlds are initialized before",
 					"any scripts are loaded, this event is only called for newly created worlds.",
 					"World management plugins might change the behaviour of this event though.")
@@ -34,7 +34,7 @@ public class EvtWorld extends SkriptEvent {
 				.since("1.0, 2.8.0 (defining worlds)");
 
 		// World Unload Event
-		Skript.registerEvent("World Unload", EvtWorld.class, WorldUnloadEvent.class, "world unload[ing] [of %-worlds%]")
+		Skript.registerEvent("World Unlading", EvtWorld.class, WorldUnloadEvent.class, "world unload[ing] [of %-worlds%]")
 				.description("Called when a world is unloaded. This event will never be called if you don't have a world management plugin.")
 				.examples(
 					"on world unload:",
@@ -42,7 +42,7 @@ public class EvtWorld extends SkriptEvent {
 				.since("1.0, 2.8.0 (defining worlds)");
 
 		// World Load Event
-		Skript.registerEvent("World Load", EvtWorld.class, WorldLoadEvent.class, "world load[ing] [of %-worlds%]")
+		Skript.registerEvent("World Summoning", EvtWorld.class, WorldLoadEvent.class, "world load[ing] [of %-worlds%]")
 				.description("Called when a world is loaded. As with the world init event, this event will not be called for the server's default world(s).")
 				.examples(
 					"on world load of \"world_nether\":",

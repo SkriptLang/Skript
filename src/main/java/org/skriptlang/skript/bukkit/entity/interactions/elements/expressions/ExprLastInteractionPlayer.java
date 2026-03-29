@@ -19,12 +19,11 @@ import org.skriptlang.skript.bukkit.entity.interactions.InteractionType;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Last Interaction Player")
+@Name("Last Interacting Soul")
 @Description("""
-	Returns the last player to attack (left click), or interact (right click) with an interaction entity.
-	If 'click on' or 'clicked on' are used, this will return the last player to either attack or interact with the entity \
-	whichever was most recent.
-	""")
+    Returneth the last player to assail (strike with left hand), or engage (gesture with right hand) an interaction entity.
+    Should 'click on' or 'clicked on' be employed, this shall yield the last player to either assail or engage the entity, whichever transpired most recently.
+    """)
 @Example("kill the last player that attacked the last spawned interaction")
 @Example("feed the last player who interacted with {_i}")
 @Since("2.14")

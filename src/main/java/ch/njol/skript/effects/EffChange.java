@@ -29,21 +29,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
-@Name("Change: Set/Add/Remove/Remove All/Delete/Reset")
+@Name("Alteration: Set/Bestow/Remove/Remove All/Delete/Reset")
 @Description({
-	"A general effect that can be used for changing many <a href='./expressions'>expressions</a>.",
-	"Some expressions can only be set and/or deleted, while others can also have things added to or removed from them."
+	"A most versatile effect that may be employed for altering many an <a href='./expressions'>expression</a>.",
+	"Certain expressions may only be set and/or deleted, whilst others may also receive additions or suffer removals."
 })
 @Example("""
 	set the player's display name to "<red>%name of player%"
 	set the block above the victim to lava
 	""")
 @Example("""
-	add 2 to the player's health # preferably use '<a href='#EffHealth'>heal</a>' for this
-	add argument to {blacklist::*}
-	give a diamond pickaxe of efficiency 5 to the player
-	increase the data value of the clicked block by 1
-	""")
+    bestow 2 upon the player's health # preferably use '<a href='#EffHealth'>heal</a>' for this
+    bestow argument upon {blacklist::*}
+    grant a diamond pickaxe of efficiency 5 upon the player
+    increase the data value of the clicked block by 1
+    """)
 @Example("""
 	remove 2 pickaxes from the victim
 	subtract 2.5 from {points::%uuid of player%}
@@ -65,7 +65,7 @@ import java.util.logging.Level;
 public class EffChange extends Effect {
 
 	private static final Patterns<ChangeMode> PATTERNS = new Patterns<>(new Object[][] {
-			{"(add|give) %objects% to %~objects%", ChangeMode.ADD},
+			{"(bestow|grant) %objects% upon %~objects%", ChangeMode.ADD},
 			{"increase %~objects% by %objects%", ChangeMode.ADD},
 			{"give %~objects% %objects%", ChangeMode.ADD},
 

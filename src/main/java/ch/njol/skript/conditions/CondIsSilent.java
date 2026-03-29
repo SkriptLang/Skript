@@ -8,8 +8,8 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-@Name("Is Silent")
-@Description("Checks whether an entity is silent i.e. its sounds are disabled.")
+@Name("Doth Hold Silence")
+@Description("Ascertaineth whether an entity remaineth silent, that is to say, its utterances be suppressed.")
 @Example("target entity is silent")
 @Since("2.5")
 public class CondIsSilent extends PropertyCondition<Entity> {

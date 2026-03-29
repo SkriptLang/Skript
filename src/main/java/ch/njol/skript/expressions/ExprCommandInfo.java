@@ -30,26 +30,26 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-@Name("Command Info")
-@Description("Get information about a command.")
-@Example("main command label of command \"skript\"")
-@Example("description of command \"help\"")
-@Example("label of command \"pl\"")
-@Example("usage of command \"help\"")
-@Example("aliases of command \"bukkit:help\"")
-@Example("permission of command \"/op\"")
-@Example("command \"op\"'s permission message")
-@Example("command \"sk\"'s plugin owner")
+@Name("Decree Particulars")
+@Description("Obtain particulars regarding a decree.")
+@Example("principal decree label of decree \"skript\"")
+@Example("description of decree \"help\"")
+@Example("label of decree \"pl\"")
+@Example("usage of decree \"help\"")
+@Example("aliases of decree \"bukkit:help\"")
+@Example("permission of decree \"/op\"")
+@Example("decree \"op\"'s permission message")
+@Example("decree \"sk\"'s plugin owner")
 @Example("""
-	command /greet <player>:
-		usage: /greet <target>
-		trigger:
-			if arg-1 is sender:
-				send "&cYou can't greet yourself! Usage: %the usage%"
-				stop
-			send "%sender% greets you!" to arg-1
-			send "You greeted %arg-1%!"
-	""")
+    command /greet <player>:
+    	usage: /greet <target>
+    	trigger:
+    		if arg-1 is sender:
+    			send "&cThou canst not greet thine own self! Usage: %the usage%"
+    			stop
+    		send "%sender% doth greet thee!" to arg-1
+    		send "Thou hast greeted %arg-1%!"
+    """)
 @Since("2.6")
 public class ExprCommandInfo extends SimpleExpression<String> {
 
@@ -84,14 +84,14 @@ public class ExprCommandInfo extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprCommandInfo.class, String.class, ExpressionType.PROPERTY,
-			"[the] main command [label|name] [of [[the] command[s] %-strings%]]", "command[s] %strings%'[s] main command [label|name]",
-			"[the] description [of [[the] command[s] %-strings%]]", "command[s] %strings%'[s] description",
-			"[the] label [of [[the] command[s] %-strings%]]", "command[s] %strings%'[s] label",
-			"[the] usage [of [[the] command[s] %-strings%]]", "command[s] %strings%'[s] usage",
-			"[(all|the|all [of] the)] aliases [of [[the] command[s] %-strings%]]", "command[s] %strings%'[s] aliases",
-			"[the] permission [of [[the] command[s] %-strings%]]", "command[s] %strings%'[s] permission",
-			"[the] permission message [of [[the] command[s] %-strings%]]", "command[s] %strings%'[s] permission message",
-			"[the] plugin [owner] [of [[the] command[s] %-strings%]]", "command[s] %strings%'[s] plugin [owner]");
+			"[the] principal decree [label|name] [of [[the] decree[s] %-strings%]]", "decree[s] %strings%'[s] principal decree [label|name]",
+			"[the] description [of [[the] decree[s] %-strings%]]", "decree[s] %strings%'[s] description",
+			"[the] label [of [[the] decree[s] %-strings%]]", "decree[s] %strings%'[s] label",
+			"[the] usage [of [[the] decree[s] %-strings%]]", "decree[s] %strings%'[s] usage",
+			"[(all|the|all [of] the)] aliases [of [[the] decree[s] %-strings%]]", "decree[s] %strings%'[s] aliases",
+			"[the] permission [of [[the] decree[s] %-strings%]]", "decree[s] %strings%'[s] permission",
+			"[the] permission message [of [[the] decree[s] %-strings%]]", "decree[s] %strings%'[s] permission message",
+			"[the] plugin [owner] [of [[the] decree[s] %-strings%]]", "decree[s] %strings%'[s] plugin [owner]");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")

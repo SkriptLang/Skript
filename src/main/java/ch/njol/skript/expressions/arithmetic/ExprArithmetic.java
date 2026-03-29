@@ -31,14 +31,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@Name("Arithmetic")
-@Description("Arithmetic expressions, e.g. 1 + 2, (health of player - 2) / 3, etc.")
+@Name("Arithmetickal Reckoning")
+@Description("Arithmetickal expressions, e.g. 1 + 2, (health of player - 2) / 3, and so forth.")
 @Example("set the player's health to 10 - the player's health")
 @Example("""
     loop (argument + 2) / 5 times:
-    	message "Two useless numbers: %loop-num * 2 - 5%, %2^loop-num - 1%"
+    	message "Two trifling numbers: %loop-num * 2 - 5%, %2^loop-num - 1%"
     """)
-@Example("message \"You have %health of player * 2% half hearts of HP!\"")
+@Example("message \"Thou hast %health of player * 2% half hearts of vigour!\"")
 @Since("1.4.2")
 @SuppressWarnings("null")
 public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {

@@ -18,23 +18,23 @@ import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Expand/Shrink World Border")
+@Name("Expand or Diminish the World's Border")
 @Description({
-	"Expand or shrink the size of a world border.",
-	"Using `by` adds/subtracts from the current size of the world border.",
-	"Using `to` sets to the specified size."
+	"Expand or diminish the breadth of a world border.",
+	"Employing `by` doth add or subtract from the present size of the world border.",
+	"Employing `to` doth set it to the specified measure."
 })
 @Example("expand world border of player by 100 over 5 seconds")
-@Example("shrink world border of world \"world\" to 100 over 10 seconds")
+@Example("diminish world border of world \"world\" to 100 over 10 seconds")
 @Since("2.11")
 public class EffWorldBorderExpand extends Effect {
 
 	static {
 		Skript.registerEffect(EffWorldBorderExpand.class,
-			"(expand|grow) [[the] (diameter|:radius) of] %worldborders% (by|:to) %number% [over [a period of] %-timespan%]",
-			"(expand|grow) %worldborders%['s (diameter|:radius)] (by|:to) %number% [over [a period of] %-timespan%]",
-			"(contract|shrink) [[the] (diameter|:radius) of] %worldborders% (by|:to) %number% [over [a period of] %-timespan%]",
-			"(contract|shrink) %worldborders%['s (diameter|:radius)] (by|:to) %number% [over [a period of] %-timespan%]"
+			"(expand|extend) [[the] (diameter|:radius) of] %worldborders% (by|:to) %number% [over [a span of] %-timespan%]",
+			"(expand|extend) %worldborders%['s (diameter|:radius)] (by|:to) %number% [over [a span of] %-timespan%]",
+			"(contract|diminish) [[the] (diameter|:radius) of] %worldborders% (by|:to) %number% [over [a span of] %-timespan%]",
+			"(contract|diminish) %worldborders%['s (diameter|:radius)] (by|:to) %number% [over [a span of] %-timespan%]"
 		);
 	}
 

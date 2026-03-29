@@ -14,10 +14,10 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Item Display Transform")
+@Name("Item Display Transmutation")
 @Description("Returns or changes the <a href='#itemdisplaytransform'>item display transform</a> of <a href='#display'>item displays</a>.")
 @Example("set the item transform of the last spawned item display to first person left handed")
-@Example("set the item transform of the last spawned item display to no transform # Reset to default")
+@Example("set the item transform of the last spawned item display to no transform # Restore to default")
 @Since("2.10")
 public class ExprItemDisplayTransform extends SimplePropertyExpression<Display, ItemDisplayTransform> {
 

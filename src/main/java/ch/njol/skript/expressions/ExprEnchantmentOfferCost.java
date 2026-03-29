@@ -15,21 +15,21 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.Experience;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Enchantment Offer Cost")
+@Name("Enchantment Proposition Toll")
 @Description({
-	"The cost of an enchantment offer. This is displayed to the right of an enchantment offer.",
-	"If the cost is changed, it will always be at least 1.",
-	"This changes how many levels are required to enchant, but does not change the number of levels removed.",
-	"To change the number of levels removed, use the enchant event."
+	"The toll of an enchantment proposition. This is displayed to the right of an enchantment proposition.",
+	"If the toll be changed, it shall always be at least 1.",
+	"This altereth how many levels are required to enchant, yet doth not change the number of levels removed.",
+	"To change the number of levels removed, employ the enchant event."
 })
-@Example("set cost of enchantment offer 1 to 50")
+@Example("set toll of enchantment proposition 1 to 50")
 @Since("2.5")
 @RequiredPlugins("1.11 or newer")
 public class ExprEnchantmentOfferCost extends SimplePropertyExpression<EnchantmentOffer, Long> {
 
 	static {
 		if (Skript.classExists("org.bukkit.enchantments.EnchantmentOffer"))
-			register(ExprEnchantmentOfferCost.class, Long.class, "[enchant[ment]] cost", "enchantmentoffers");
+			register(ExprEnchantmentOfferCost.class, Long.class, "[enchant[ment]] toll", "enchantmentoffers");
 	}
 
 	@Override

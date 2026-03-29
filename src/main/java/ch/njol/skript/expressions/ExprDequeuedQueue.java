@@ -15,14 +15,15 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.registrations.experiments.QueueExperimentSyntax;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
-@Name("De-queue Queue (Experimental)")
+@Name("Unravel'd Queue (Experimental)")
 @Description("""
-	Requires the <code>using queues</code> experimental feature flag to be enabled.
-	
-	Unrolls a queue into a regular list of values, which can be stored in a list variable.
-	The order of the list will be the same as the order of the elements in the queue.
-	If a list variable is set to this, it will use numerical indices.
-	The original queue will not be changed.""")
+    Requireth the <code>using queues</code> experimental feature flag to be enabled.
+    
+    Unrolleth a queue into a common list of values, which may be stored in a list variable.
+    The order of the list shall mirror the order of the elements within the queue.
+    If a list variable be set to this, it shall employ numerical indices.
+    The original queue shall remain unaltered.
+    """)
 @Example("""
 	set {queue} to a new queue
 	add "hello" and "there" to {queue}

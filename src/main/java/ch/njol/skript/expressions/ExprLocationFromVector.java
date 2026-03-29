@@ -21,20 +21,20 @@ import org.jetbrains.annotations.Nullable;
 /**
  * @author bi0qaw
  */
-@Name("Vectors - Create Location from Vector")
-@Description("Creates a location from a vector in a world.")
-@Example("set {_loc} to {_v} to location in world \"world\"")
-@Example("set {_loc} to {_v} to location in world \"world\" with yaw 45 and pitch 90")
-@Example("set {_loc} to location of {_v} in \"world\" with yaw 45 and pitch 90")
+@Name("Vectors - Conjure Whereabouts from Vector")
+@Description("Conjureth a location from a vector within a world.")
+@Example("set {_loc} to {_v} to whereabouts in world \"world\"")
+@Example("set {_loc} to {_v} to whereabouts in world \"world\" with yaw 45 and pitch 90")
+@Example("set {_loc} to whereabouts of {_v} in \"world\" with yaw 45 and pitch 90")
 @Since("2.2-dev28")
 public class ExprLocationFromVector extends SimpleExpression<Location> {
 
 	static {
 		Skript.registerExpression(ExprLocationFromVector.class, Location.class, ExpressionType.COMBINED,
-				"%vector% to location in %world%",
-				"location (from|of) %vector% in %world%",
-				"%vector% [to location] in %world% with yaw %number% and pitch %number%",
-				"location (from|of) %vector% in %world% with yaw %number% and pitch %number%"
+				"%vector% to whereabouts in %world%",
+				"whereabouts (from|of) %vector% in %world%",
+				"%vector% [to whereabouts] in %world% with yaw %number% and pitch %number%",
+				"whereabouts (from|of) %vector% in %world% with yaw %number% and pitch %number%"
 		);
 	}
 

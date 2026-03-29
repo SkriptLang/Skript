@@ -18,8 +18,8 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Player List Header and Footer")
-@Description("The message above and below the player list in the tab menu.")
+@Name("Player Roster Header and Footer")
+@Description("The inscription displayed above and below the player roster within the tab menu.")
 @Example("set all players' tab list header to \"Welcome to the Server!\"")
 @Example("send \"%the player's tab list header%\" to player")
 @Example("reset all players' tab list header")

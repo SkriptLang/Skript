@@ -9,19 +9,19 @@ import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Anvil Text Input")
-@Description("An expression to get the name to be applied to an item in an anvil inventory.")
+@Name("Anvil Inscription Input")
+@Description("An expression to obtain the name to be bestowed upon an item within an anvil inventory.")
 @Example("""
-	on inventory click:
-		type of event-inventory is anvil inventory
-		if the anvil text input of the event-inventory is "FREE OP":
-			ban player
-	""")
+    on inventory click:
+    	type of event-inventory is anvil inventory
+    	if the anvil inscription input of the event-inventory is "FREE OP":
+    		ban player
+    """)
 @Since("2.7")
 public class ExprAnvilText extends SimplePropertyExpression<Inventory, String> {
 
 	static {
-		register(ExprAnvilText.class, String.class, "anvil [inventory] (rename|text) input", "inventories");
+		register(ExprAnvilText.class, String.class, "anvil [inventory] (rename|inscription) input", "inventories");
 	}
 
 	@Override

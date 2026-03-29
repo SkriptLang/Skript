@@ -15,18 +15,18 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Make Fly")
-@Description("Forces a player to start/stop flying.")
-@Example("make player fly")
-@Example("force all players to stop flying")
+@Name("Bid Fly")
+@Description("Compelleth a player to commence or cease their flight.")
+@Example("bid player fly")
+@Example("compel all players to cease flying")
 @Since("2.2-dev34")
 public class EffMakeFly extends Effect {
 
 	static {
 		if (Skript.methodExists(Player.class, "setFlying", boolean.class)) {
-			Skript.registerEffect(EffMakeFly.class, "force %players% to [(start|1¦stop)] fly[ing]",
-												"make %players% (start|1¦stop) flying",
-												"make %players% fly");
+			Skript.registerEffect(EffMakeFly.class, "compel %players% to [(commence|1¦cease)] fly[ing]",
+												"bid %players% (commence|1¦cease) flying",
+												"bid %players% fly");
 		}
 	}
 

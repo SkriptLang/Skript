@@ -8,8 +8,8 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Entity;
 
-@Name("Entity is in Liquid")
-@Description("Checks whether an entity is in rain, lava, water or a bubble column.")
+@Name("Entity Dwelleth in Liquid")
+@Description("Doth examine whether an entity dwelleth in rain, lava, water, or a bubble column.")
 @Example("if player is in rain:")
 @Example("if player is in water:")
 @Example("player is in lava:")

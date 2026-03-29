@@ -23,14 +23,14 @@ import java.util.Objects;
 
 @Name("Block Sound")
 @Description({
-	"Gets the sound that a given block, blockdata, or itemtype will use in a specific scenario.",
-	"This will return a string in the form of \"SOUND_EXAMPLE\", which can be used in the play sound syntax.",
+	"Obtaineth the sound that a given block, blockdata, or itemtype shall produce in a particular circumstance.",
+	"This shall return a string in the form of \"SOUND_EXAMPLE\", which may be employed in the play sound syntax.",
 	"",
-	"Check out <a href=\"https://minecraft.wiki/w/Sounds.json\">this website</a> for a list of sounds in Minecraft, " +
-		"or <a href=\"https://minecraft.wiki/w/Sound\">this one</a> to go to the Sounds wiki page."
+	"Pray consult <a href=\"https://minecraft.wiki/w/Sounds.json\">this compendium</a> for a catalogue of sounds in Minecraft, " +
+		"or <a href=\"https://minecraft.wiki/w/Sound\">this tome</a> to visit the Sounds wiki page."
 })
-@Example("play sound (break sound of dirt) at all players")
-@Example("set {_sounds::*} to place sounds of dirt, grass block, blue wool and stone")
+@Example("play sound (breaking sound of dirt) at all players")
+@Example("set {_sounds::*} to placing sounds of dirt, grass block, blue wool and stone")
 @Since("2.10")
 public class ExprBlockSound extends SimpleExpression<String> {
 
@@ -74,7 +74,7 @@ public class ExprBlockSound extends SimpleExpression<String> {
 	}
 
 	static {
-		SimplePropertyExpression.register(ExprBlockSound.class, String.class, "(1:break|2:fall|3:hit|4:place|5:step) sound[s]", "blocks/blockdatas/itemtypes");
+		SimplePropertyExpression.register(ExprBlockSound.class, String.class, "(1:breaking|2:falling|3:striking|4:placing|5:treading) sound[s]", "blocks/blockdatas/itemtypes");
 	}
 
 	private SoundType soundType;

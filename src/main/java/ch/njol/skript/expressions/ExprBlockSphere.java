@@ -25,8 +25,8 @@ import ch.njol.util.coll.iterator.IteratorIterable;
 /**
  * @author Peter Güttinger
  */
-@Name("Block Sphere")
-@Description("All blocks in a sphere around a center, mostly useful for looping.")
+@Name("Sphere of Blocks")
+@Description("All blocks within a sphere surrounding a centre, most useful for looping thereupon.")
 @Example("""
 	loop blocks in radius 5 around the player:
 		set loop-block to air

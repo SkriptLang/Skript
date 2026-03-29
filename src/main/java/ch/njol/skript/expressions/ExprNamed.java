@@ -28,18 +28,18 @@ import java.util.List;
 /**
  * @author Peter Güttinger
  */
-@Name("Named Item/Inventory")
-@Description("Directly names an item/inventory, useful for defining a named item/inventory in a script. " +
-		"If you want to (re)name existing items/inventories you can either use this expression or use <code>set <a href='#PropExprName'>name of &lt;item/inventory&gt;</a> to &lt;text&gt;</code>.")
-@Example("give a diamond sword of sharpness 100 named \"<gold>Excalibur\" to the player")
-@Example("set tool of player to the player's tool named \"<gold>Wand\"")
+@Name("Christened Item/Inventory")
+@Description("Directly bestoweth a name upon an item or inventory, most useful for defining a named item or inventory within a script. " +
+		"Shouldst thou wish to (re)name existing items or inventories, thou mayest either employ this expression or use <code>set <a href='#PropExprName'>name of &lt;item/inventory&gt;</a> to &lt;text&gt;</code>.")
+@Example("give a diamond sword of sharpness 100 christened \"<gold>Excalibur\" to the player")
+@Example("set tool of player to the player's tool christened \"<gold>Wand\"")
 @Example("set the name of the player's tool to \"<gold>Wand\"")
-@Example("open hopper inventory named \"Magic Hopper\" to player")
+@Example("open hopper inventory christened \"Magic Hopper\" to player")
 @Since("2.0, 2.2-dev34 (inventories)")
 public class ExprNamed extends PropertyExpression<Object, Object> {
 	static {
 		Skript.registerExpression(ExprNamed.class, Object.class, ExpressionType.PROPERTY,
-				"%itemtype/inventorytype% (named|with name[s]) %string%");
+				"%itemtype/inventorytype% (christened|bearing name[s]) %string%");
 	}
 
 	private Expression<String> name;

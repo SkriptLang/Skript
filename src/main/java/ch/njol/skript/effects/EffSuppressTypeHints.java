@@ -18,14 +18,14 @@ import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
 @Name("Suppress Type Hints (Experimental)")
 @Description({
 	"An effect to suppress local variable type hint errors for the syntax lines that follow this effect.",
-	"NOTE: Suppressing type hints also prevents syntax from providing new type hints." +
+	"NOTE: Suppressing type hints doth also prevent syntax from providing new type hints." +
 		" For example, with type hints suppressed, 'set {_x} to true' would not provide 'boolean' as a type hint for '{_x}'"
 })
 @Example("""
-	start suppressing local variable type hints
-	# potentially unsafe code goes here
-	stop suppressing local variable type hints
-""")
+    commence suppressing local variable type hints
+    # potentially unsafe code goes here
+    cease suppressing local variable type hints
+    """)
 @Since("2.12")
 public class EffSuppressTypeHints extends Effect implements SimpleExperimentalSyntax {
 
@@ -34,7 +34,7 @@ public class EffSuppressTypeHints extends Effect implements SimpleExperimentalSy
 	static {
 		Skript.registerEffect(EffSuppressTypeHints.class,
 				"[stop:un]suppress [local variable] type hints",
-				"(start|:stop) suppressing [local variable] type hints");
+				"(commence|stop:cease) suppressing [local variable] type hints");
 	}
 
 	private boolean stop;

@@ -17,8 +17,8 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Minecart Derailed / Flying Velocity")
-@Description("The velocity of a minecart as soon as it has been derailed or as soon as it starts flying.")
+@Name("Minecart Derailed / Airborne Velocity")
+@Description("The velocity of a minecart upon the instant it hath been derailed or upon the instant it taketh flight.")
 @Example("""
 	on right click on minecart:
 		set derailed velocity of event-entity to vector 2, 10, 2
@@ -28,7 +28,7 @@ public class ExprMinecartDerailedFlyingVelocity extends SimplePropertyExpression
 	
 	static {
 		register(ExprMinecartDerailedFlyingVelocity.class, Vector.class,
-			"[minecart] (1¦derailed|2¦flying) velocity", "entities");
+			"[minecart] (1¦derailed|2¦airborne) velocity", "entities");
 	}
 	
 	private boolean flying;

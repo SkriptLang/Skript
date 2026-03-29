@@ -13,20 +13,20 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Last Caught Errors")
-@Description("Gets the last caught runtime errors from a 'catch runtime errors' section.")
+@Name("Last Ensnared Errors")
+@Description("Obtaineth the last ensnared runtime errors from a 'catch runtime errors' section.")
 @Example("""
-	catch runtime errors:
-		set worldborder center of {_border} to location(0, 0, NaN value)
-	if last caught runtime errors contains "Your location can't have a NaN value as one of its components":
-		set worldborder center of {_border} to location(0, 0, 0)
-	""")
+    catch runtime errors:
+    	set worldborder center of {_border} to location(0, 0, NaN value)
+    if last ensnared runtime errors contains "Your location can't have a NaN value as one of its components":
+    	set worldborder center of {_border} to location(0, 0, 0)
+    """)
 @Since("2.12")
 public class ExprCaughtErrors extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprCaughtErrors.class, String.class, ExpressionType.SIMPLE,
-			"[the] last caught [run[ ]time] errors");
+			"[the] last ensnared [run[ ]time] errors");
 	}
 
 	public static String[] lastErrors;

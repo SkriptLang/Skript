@@ -21,8 +21,8 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.BlockStateBlock;
 import ch.njol.util.Kleenean;
 
-@Name("Fertilized Blocks")
-@Description("The blocks fertilized in block fertilize events.")
+@Name("Fertilised Blocks")
+@Description("The blocks made fertile in block fertilize events.")
 @RequiredPlugins("Minecraft 1.13 or newer")
 @Events("block fertilize")
 @Example("the fertilized blocks")

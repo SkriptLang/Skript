@@ -15,22 +15,22 @@ import org.joml.Vector3d;
 import org.skriptlang.skript.bukkit.particles.particleeffects.DirectionalEffect;
 
 // TODO: replace with type property expression
-@Name("Velocity")
+@Name("Swiftness")
 @Description({
-	"Gets or changes velocity of an entity or particle.",
-	"Setting the velocity of a particle will remove its random dispersion and force it to be a single particle."
+	"Obtaineth or altereth the swiftness of an entity or particle.",
+	"Setting the swiftness of a particle shall remove its random dispersion and compel it to be a single particle."
 })
-@Example("set player's velocity to {_v}")
-@Example("set the velocity of {_particle} to vector(0, 1, 0)")
+@Example("set player's swiftness to {_v}")
+@Example("set the swiftness of {_particle} to vector(0, 1, 0)")
 @Example("""
-	if the vector length of the player's velocity is greater than 5:
-	    send "You're moving fast!" to the player
-	""")
+    if the vector length of the player's swiftness is greater than 5:
+        send "Thou art moving with great haste!" to the player
+    """)
 @Since("2.2-dev31")
 public class ExprVelocity extends SimplePropertyExpression<Object, Vector> {
 
 	static {
-		register(ExprVelocity.class, Vector.class, "velocit(y|ies)", "entities/directionalparticles");
+		register(ExprVelocity.class, Vector.class, "swiftness(|es)", "entities/directionalparticles");
 	}
 
 	@Override

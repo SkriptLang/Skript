@@ -14,10 +14,10 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Display Glow Color Override")
+@Name("Display Radiance Colour Override")
 @Description({
-	"Returns or changes the glowing color override of <a href='#display'>displays</a>.",
-	"This overrides whatever color is already set for the scoreboard team of the displays."
+	"Returns or changes the glowing colour override of <a href='#display'>displays</a>.",
+	"This doth override whatever colour is already appointed for the scoreboard team of the displays."
 })
 @Example("set glow color override of the last spawned text display to blue")
 @Since("2.10")

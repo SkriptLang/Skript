@@ -13,12 +13,12 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Unleash Reason")
-@Description("The unleash reason in an unleash event.")
+@Name("Cause of Unleashing")
+@Description("The reason for unleashing in an unleash event.")
 @Example("""
-	if the unleash reason is distance:
-		broadcast "The leash was snapped in half."
-	""")
+    if the unleashing reason is distance:
+    	broadcast "The tether hath been snapped asunder."
+    """)
 @Events("Leash / Unleash")
 @Since("2.10")
 public class ExprUnleashReason extends EventValueExpression<UnleashReason> {

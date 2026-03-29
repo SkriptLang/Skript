@@ -24,8 +24,8 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 
-@Name("Sets")
-@Description("Returns a list of all the values of a type. Useful for looping.")
+@Name("The Whole Assemblage")
+@Description("Returneth a list of all the values of a type. Most useful for the purpose of looping.")
 @Example("""
 	loop all attribute types:
 		set loop-value attribute of player to 10

@@ -14,21 +14,21 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Time Lived of Entity")
+@Name("Time an Entity Hath Dwelt")
 @Description("""
-	Returns the total amount of time the entity has lived.
-	Note: This does not reset when a player dies.
-	""")
-@Example("clear all entities where [input's time lived > 1 hour]")
+    Returneth the total span of time the entity hath lived upon this earth.
+    Note: This doth not reset when a player perisheth.
+    """)
+@Example("clear all entities where [input's time dwelling > 1 hour]")
 @Example("""
-	on right click on entity:
-		send "%entity% has lived for %time lived of entity%" to player
-	""")
+    on right click on entity:
+    	send "%entity% hath dwelt for %time dwelling of entity%" to player
+    """)
 @Since("2.13")
 public class ExprTimeLived extends SimplePropertyExpression<Entity, Timespan> {
 
 	static {
-		register(ExprTimeLived.class, Timespan.class, "time (alive|lived)", "entities");
+		register(ExprTimeLived.class, Timespan.class, "time (dwelling|lived)", "entities");
 	}
 
 	@Override

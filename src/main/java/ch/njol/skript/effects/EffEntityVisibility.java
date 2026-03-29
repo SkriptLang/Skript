@@ -16,20 +16,20 @@ import org.jetbrains.annotations.UnknownNullability;
 
 @Name("Entity Visibility")
 @Description({
-	"Change visibility of the given entities for the given players.",
-	"If no players are given, will hide the entities from all online players.",
+	"Alter the visibility of given entities for the given players.",
+	"If no players be specified, the entities shall be concealed from all players presently online.",
 	"",
-	"When reveal is used in combination of the <a href='#ExprHiddenPlayers'>hidden players</a> " +
-	"expression and the viewers are not specified, " +
-	"this will default it to the given player in the hidden players expression.",
+	"When reveal is employed in conjunction with the <a href='#ExprHiddenPlayers'>hidden players</a> " +
+	"expression and the viewers be not specified, " +
+	"it shall default to the given player in the hidden players expression.",
 	"",
-	"Note: all previously hidden entities (including players) will be visible when a player leaves and rejoins.",
+	"Mark well: all previously concealed entities (including players) shall become visible when a player departs and returns.",
 })
 @Example("""
-	on spawn:
-		if event-entity is a chicken:
-			hide event-entity
-	""")
+    on spawn:
+    	if event-entity is a chicken:
+    		conceal event-entity
+    """)
 @Example("reveal hidden players of players")
 @Since("2.3, 2.10 (entities)")
 @RequiredPlugins("Minecraft 1.19+ (entities)")
@@ -37,7 +37,7 @@ public class EffEntityVisibility extends Effect {
 
 	static {
 		Skript.registerEffect(EffEntityVisibility.class,
-				"hide %entities% [(from|for) %-players%]",
+				"conceal %entities% [(from|for) %-players%]",
 				"reveal %entities% [(to|for|from) %-players%]");
 	}
 

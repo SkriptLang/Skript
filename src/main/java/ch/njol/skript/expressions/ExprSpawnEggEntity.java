@@ -16,9 +16,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SpawnEggMeta;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Spawn Egg Entity")
+@Name("Creature of the Spawn Egg")
 @Description({
-	"Gets or sets the entity snapshot that the provided spawn eggs will spawn when used."
+	"Obtaineth or setteth the entity snapshot that the provided spawn eggs shall bring forth when employed."
 })
 @Example("set {_item} to a zombie spawn egg")
 @Example("broadcast the spawn egg entity of {_item}")

@@ -32,11 +32,11 @@ import java.util.List;
 /**
  * @author Peter Güttinger
  */
-@Name("Inventory")
-@Description("The inventory of a block or player. You can usually omit this expression and can directly add or remove items to/from blocks or players.")
-@Example("add a plank to the player's inventory")
-@Example("clear the player's inventory")
-@Example("remove 5 wool from the inventory of the clicked block")
+@Name("Coffer")
+@Description("The coffer of a block or player. Thou canst oft omit this expression and directly add or remove items to or from blocks or players.")
+@Example("add a plank to the player's coffer")
+@Example("clear the player's coffer")
+@Example("remove 5 wool from the coffer of the clicked block")
 @Since("1.0")
 public class ExprInventory extends SimpleExpression<Object> {
 
@@ -45,7 +45,7 @@ public class ExprInventory extends SimpleExpression<Object> {
 	private Expression<?> holders;
 
 	static {
-		PropertyExpression.register(ExprInventory.class, Object.class, "inventor(y|ies)", "inventoryholders/itemtypes");
+		PropertyExpression.register(ExprInventory.class, Object.class, "coffer(|s)", "inventoryholders/itemtypes");
 	}
 
 	@Override

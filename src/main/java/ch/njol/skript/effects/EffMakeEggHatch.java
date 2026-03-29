@@ -14,8 +14,8 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Make Egg Hatch")
-@Description("Makes the egg hatch in a Player Egg Throw event.")
+@Name("Bid the Egg Hatch")
+@Description("Biddeth the egg to hatch within a Player Egg Throw event.")
 @Example("""
 	on player egg throw:
 		# EGGS FOR DAYZ!

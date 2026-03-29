@@ -11,14 +11,14 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Vectors - Squared Length")
-@Description("Gets the squared length of a vector.")
-@Example("send \"%squared length of vector 1, 2, 3%\"")
+@Name("Vectors - Squared Magnitude")
+@Description("Obtaineth the squared length of a vector.")
+@Example("send \"%squared magnitude of vector 1, 2, 3%\"")
 @Since("2.2-dev28")
 public class ExprVectorSquaredLength extends SimplePropertyExpression<Vector, Number> {
 
 	static {
-		register(ExprVectorSquaredLength.class, Number.class, "squared length[s]", "vectors");
+		register(ExprVectorSquaredLength.class, Number.class, "squared magnitude[s]", "vectors");
 	}
 
 	@SuppressWarnings("unused")

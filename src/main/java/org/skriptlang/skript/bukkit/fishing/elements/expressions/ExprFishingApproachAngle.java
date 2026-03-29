@@ -15,20 +15,20 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Fishing Approach Angle")
+@Name("Fishing Approach Bearing")
 @Description({
-	"Returns the angle at which the fish will approach the fishing hook, after the wait time.",
-	"The angle is in degrees, with 0 being positive Z, 90 being negative X, 180 being negative Z, and 270 being positive X.",
-	"By default, returns a value between 0 and 360 degrees."
+	"Returneth the bearing at which the fish shall approach the fishing hook, after the tarrying time.",
+	"The bearing is measured in degrees, with 0 being positive Z, 90 being negative X, 180 being negative Z, and 270 being positive X.",
+	"By default, returneth a value betwixt 0 and 360 degrees."
 })
 @Example("""
-	on fish approach:
-		if any:
-			maximum fishing approach angle is bigger than 300.5 degrees
-			min fishing approach angle is smaller than 59.5 degrees
-		then:
-			cancel event
-	""")
+    on fish approach:
+    	if any:
+    		maximum fishing approaching bearing is bigger than 300.5 degrees
+    		min fishing approach bearing is smaller than 59.5 degrees
+    	then:
+    		cancel event
+    """)
 @Events("Fishing")
 @Since("2.10")
 public class ExprFishingApproachAngle extends SimpleExpression<Float> {
@@ -39,7 +39,7 @@ public class ExprFishingApproachAngle extends SimpleExpression<Float> {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			SyntaxInfo.Expression.builder(ExprFishingApproachAngle.class, Float.class)
-				.addPatterns("(min:min[imum]|max[imum]) fish[ing] approach[ing] angle")
+				.addPatterns("(min:min[imum]|max[imum]) fish[ing] approach[ing] bearing")
 				.supplier(ExprFishingApproachAngle::new)
 				.priority(EventValueExpression.DEFAULT_PRIORITY)
 				.build());

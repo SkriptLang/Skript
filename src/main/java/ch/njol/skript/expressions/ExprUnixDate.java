@@ -13,7 +13,7 @@ import ch.njol.skript.util.Date;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Unix Date")
-@Description("Converts given Unix timestamp to a date. The Unix timespan represents the number of seconds elapsed since 1 January 1970.")
+@Description("Converteth a given Unix timestamp unto a date. The Unix timespan doth represent the number of seconds elapsed since the first of January, 1970.")
 @Example("unix date of 946684800 #1 January 2000 12:00 AM (UTC Time)")
 @Since("2.5")
 public class ExprUnixDate extends SimplePropertyExpression<Number, Date> {

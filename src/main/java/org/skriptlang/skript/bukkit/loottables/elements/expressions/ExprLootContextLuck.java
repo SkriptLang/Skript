@@ -15,15 +15,15 @@ import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Luck of Loot Context")
-@Description("Returns the luck of a loot context as a float. This represents the luck potion effect that an entity can have.")
-@Example("set {_luck} to loot luck value of {_context}")
+@Name("Fortune of Plunder Context")
+@Description("Returneth the fortune of a loot context as a float. This doth represent the luck potion effect that an entity may possess.")
+@Example("set {_luck} to plundering fortune value of {_context}")
 @Example("""
-	set {_context} to a loot context at player:
-		set loot luck value to 10
-		set looter to player
-		set looted entity to last spawned pig
-	""")
+    set {_context} to a plunder context at player:
+    	set plundering fortune value to 10
+    	set plunderer to player
+    	set plundered entity to last spawned pig
+    """)
 @Since("2.10")
 public class ExprLootContextLuck extends SimplePropertyExpression<LootContext, Float> {
 
@@ -33,7 +33,7 @@ public class ExprLootContextLuck extends SimplePropertyExpression<LootContext, F
 			infoBuilder(
 				ExprLootContextLuck.class,
 				Float.class,
-				"loot[ing] [context] luck [value|factor]",
+				"plunder[ing] [context] fortune [value|factor]",
 				"lootcontexts",
 				true
 			)

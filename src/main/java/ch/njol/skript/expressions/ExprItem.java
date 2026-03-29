@@ -15,7 +15,7 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.util.slot.Slot;
 
 @Name("Item")
-@Description("The item involved in an event, e.g. in a drop, dispense, pickup or craft event.")
+@Description("The item concerned in an event, e.g. in a drop, dispense, pickup, or craft occasion.")
 @Example("""
 	on dispense:
 		item is a clock

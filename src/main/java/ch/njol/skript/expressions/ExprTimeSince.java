@@ -15,13 +15,13 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Time Since/Until")
+@Name("Time Since / Time Until")
 @Description({
-	"The time since a date has passed or the time until a date will pass.",
-	"This expression will return 0 seconds if the time since or time until would be negative, e.g. if one tries to get the time since a future date."
+	"The span of time since a date hath passed, or the span remaining until a date shall come to pass.",
+	"This expression shall return 0 seconds if the time since or time until would be of negative measure, e.g. if one seeketh the time since a date yet to come."
 })
-@Example("send \"%time since 5 minecraft days ago% has passed since 5 minecraft days ago!\" to player")
-@Example("send \"%time until {countdown::end}% until the game begins!\" to player")
+@Example("send \"%time since 5 minecraft days ago% hath passed since 5 minecraft days ago!\" to player")
+@Example("send \"%time remaining until {countdown::end}% until the contest doth begin!\" to player")
 @Since("2.5, 2.10 (time until)")
 public class ExprTimeSince extends SimplePropertyExpression<Date, Timespan> {
 

@@ -15,8 +15,8 @@ import org.bukkit.entity.Panda;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Force Panda On Back")
-@Description("Make a panda get on/off its back.")
+@Name("Compel Panda Upon Its Back")
+@Description("Bid a panda to recline upon or rise from its back.")
 @Example("""
 	if last spawned panda is on its back:
 		make last spawned panda get off its back
@@ -26,8 +26,8 @@ public class EffPandaOnBack extends Effect {
 
 	static {
 		Skript.registerEffect(EffPandaOnBack.class,
-			"make %livingentities% get (:on|off) (its|their) back[s]",
-			"force %livingentities% to get (:on|off) (its|their) back[s]");
+			"make %livingentities% get (on:upon|off) (its|their) back[s]",
+			"bid %livingentities% to get (on:upon|off) (its|their) back[s]");
 	}
 
 	private Expression<LivingEntity> entities;

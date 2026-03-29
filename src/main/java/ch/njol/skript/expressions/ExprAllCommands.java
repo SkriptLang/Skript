@@ -15,15 +15,15 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-@Name("All commands")
-@Description("Returns all registered commands or all script commands.")
-@Example("send \"Number of all commands: %size of all commands%\"")
-@Example("send \"Number of all script commands: %size of all script commands%\"")
+@Name("All Commands Known")
+@Description("Returneth all known commands or all script commands.")
+@Example("send \"The tally of all commands: %size of all commands%\"")
+@Example("send \"The tally of all script commands: %size of all script commands%\"")
 @Since("2.6")
 public class ExprAllCommands extends SimpleExpression<String> {
 	
 	static {
-		Skript.registerExpression(ExprAllCommands.class, String.class, ExpressionType.SIMPLE, "[(all|the|all [of] the)] [registered] [(1¦script)] commands");
+		Skript.registerExpression(ExprAllCommands.class, String.class, ExpressionType.SIMPLE, "[(all|the|all [of] the)] [known] [(1¦script)] commands");
 	}
 	
 	private boolean scriptCommandsOnly;

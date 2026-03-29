@@ -12,14 +12,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Saturation")
-@Description("The saturation of a player. If used in a player event, it can be omitted and will default to event-player.")
-@Example("set saturation of player to 20")
+@Name("Satiation")
+@Description("The satiation of a player. If employed within a player event, it may be omitted and shall default to the event-player.")
+@Example("set satiation of player to 20")
 @Since("2.2-Fixes-v10, 2.2-dev35 (fully modifiable), 2.6.2 (syntax pattern changed)")
 public class ExprSaturation extends SimplePropertyExpression<Player, Number> {
 
 	static {
-		register(ExprSaturation.class, Number.class, "saturation", "players");
+		register(ExprSaturation.class, Number.class, "satiation", "players");
 	}
 
 	@Override

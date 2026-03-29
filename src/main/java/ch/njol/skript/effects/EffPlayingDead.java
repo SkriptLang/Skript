@@ -14,18 +14,18 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Play Dead")
-@Description("Make an axolotl start or stop playing dead.")
-@Example("make last spawned axolotl play dead")
+@Name("Feign Death")
+@Description("Bid an axolotl commence or cease feigning death.")
+@Example("bid last spawned axolotl feign death")
 @Since("2.11")
 public class EffPlayingDead extends Effect {
 
 	static {
 		Skript.registerEffect(EffPlayingDead.class,
-			"make %livingentities% (start playing|play) dead",
-			"force %livingentities% to (start playing|play) dead",
-			"make %livingentities% (stop playing|not play) dead",
-			"force %livingentities% to (stop playing|not play) dead");
+			"bid %livingentities% (commence feigning|feign) death",
+			"compel %livingentities% to (commence feigning|feign) death",
+			"bid %livingentities% (cease feigning|no longer feign) death",
+			"compel %livingentities% to (cease feigning|no longer feign) death");
 	}
 
 	private Expression<LivingEntity> entities;

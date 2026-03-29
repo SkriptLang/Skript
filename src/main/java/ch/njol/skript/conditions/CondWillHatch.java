@@ -14,20 +14,20 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Egg Will Hatch")
-@Description("Whether the egg will hatch in a Player Egg Throw event.")
+@Name("Egg Shall Hatch")
+@Description("Whether the egg shall hatch in a Player Egg Throw event.")
 @Example("""
-	on player egg throw:
-		if an entity won't hatch:
-			send "Better luck next time!" to the player
-	""")
+    on player egg throw:
+    	if an entity shan't hatch:
+    		send "Better fortune next time!" to the player
+    """)
 @Events("Egg Throw")
 @Since("2.7")
 public class CondWillHatch extends Condition {
 
 	static {
 		Skript.registerCondition(CondWillHatch.class,
-				"[the] egg (:will|will not|won't) hatch"
+				"[the] egg (will:shall|shall not|shan't) hatch"
 		);
 	}
 

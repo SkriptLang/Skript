@@ -13,13 +13,13 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Buried Item")
+@Name("Buried Treasure")
 @Description({
-	"Represents the item that is uncovered when dusting.",
-	"The only blocks that can currently be \"dusted\" are Suspicious Gravel and Suspicious Sand."
+	"Representeth the item that is uncovered when one doth dust with care.",
+	"The only blocks that may presently be \"dusted\" are Suspicious Gravel and Suspicious Sand."
 })
-@Example("send target block's brushable item")
-@Example("set {_gravel}'s brushable item to emerald")
+@Example("send target block's buried treasure")
+@Example("set {_gravel}'s brushable treasure to emerald")
 @Since("2.12")
 @RequiredPlugins("Minecraft 1.20+")
 public class ExprBrushableItem extends SimplePropertyExpression<Block, ItemStack> {
@@ -29,7 +29,7 @@ public class ExprBrushableItem extends SimplePropertyExpression<Block, ItemStack
 	static {
 		if (SUPPORTS_DUSTING)
 			register(ExprBrushableItem.class, ItemStack.class,
-				"(brushable|buried) item",
+				"(brushable|buried) treasure",
 				"blocks");
 	}
 

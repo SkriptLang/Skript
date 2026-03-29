@@ -31,31 +31,31 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Predicate;
 
-@Name("Target")
+@Name("Quarry")
 @Description({
-	"For players this is the entity at the crosshair.",
-	"For mobs and experience orbs this is the entity they are attacking/following (if any).",
-	"The 'ray size' and 'ignoring blocks' options are only valid for players' targets.",
-	"The 'ray size' option effectively increases the area around the crosshair an entity can be in. It does so " +
-	"by expanding the hitboxes of entities by the given amount. Display entities have a hit box of 0, " +
-	"so using the 'ray size' option can be helpful when targeting them.",
-	"May grab entities in unloaded chunks."
+	"For players, this is the entity upon which the crosshair doth rest.",
+	"For mobs and experience orbs, this is the entity they pursue or assail (if any).",
+	"The 'ray size' and 'ignoring blocks' provisions are only valid for players' quarries.",
+	"The 'ray size' provision doth effectively enlarge the area about the crosshair wherein an entity may dwell. It accomplisheth this " +
+	"by expanding the bounding volumes of entities by the given measure. Display entities possess a bounding volume of naught, " +
+	"thus employing the 'ray size' provision can prove most helpful when targeting them.",
+	"May grasp entities dwelling in unloaded chunks."
 })
 @Example("""
-	on entity target:
-		if entity's target is a player:
-			send "You're being followed by an %entity%!" to target of entity
-	""")
-@Example("reset target of entity # Makes the entity target-less")
-@Example("delete targeted entity of player # for players it will delete the target")
-@Example("delete target of last spawned zombie # for entities it will make them target-less")
+    on entity target:
+    	if entity's quarry is a player:
+    		send "Thou art pursued by an %entity%!" to quarry of entity
+    """)
+@Example("reset quarry of entity # Renders the entity without a quarry")
+@Example("delete quarried entity of player # for players it shall delete the quarry")
+@Example("delete quarry of last spawned zombie # for entities it shall render them without quarry")
 @Since("1.4.2, 2.7 (Reset), 2.8.0 (ignore blocks, ray size)")
 public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 
 	static {
 		Skript.registerExpression(ExprTarget.class, Entity.class, ExpressionType.PROPERTY,
-				"[the] target[[ed] %-*entitydata%] [of %livingentities%] [blocks:ignoring blocks] [[with|at] [a] ray[ ]size [of] %-number%]", // TODO add a filter section
-				"%livingentities%'[s] target[[ed] %-*entitydata%] [blocks:ignoring blocks] [[with|at] [a] ray[ ]size [of] %-number%]"
+				"[the] quarry[[ed] %-*entitydata%] [of %livingentities%] [blocks:ignoring blocks] [[with|at] [a] ray[ ]size [of] %-number%]", // TODO add a filter section
+				"%livingentities%'[s] quarry[[ed] %-*entitydata%] [blocks:ignoring blocks] [[with|at] [a] ray[ ]size [of] %-number%]"
 		);
 	}
 

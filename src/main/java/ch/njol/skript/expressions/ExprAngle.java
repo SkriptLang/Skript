@@ -15,16 +15,16 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Angle")
+@Name("Angle of Measure")
 @Description({
-	"Represents the passed number value in degrees.",
-	"If radians is specified, converts the passed value to degrees. This conversion may not be entirely accurate, " +
-	"due to floating point precision.",
+	"Doth represent the given number in degrees.",
+	"Should radians be specified, it converteth the given value unto degrees. This conversion may not be wholly precise," +
+	"owing to the vagaries of floating point reckoning.",
 })
 @Example("set {_angle} to 90 degrees")
-@Example("{_angle} is 90 # true")
-@Example("180 degrees is pi # true")
-@Example("pi radians is 180 degrees # true")
+@Example("{_angle} is 90 # verily true")
+@Example("180 degrees is pi # verily true")
+@Example("pi radians is 180 degrees # verily true")
 @Since("2.10")
 public class ExprAngle extends SimpleExpression<Number> {
 

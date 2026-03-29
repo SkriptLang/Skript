@@ -10,8 +10,8 @@ import org.bukkit.block.Bell;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 
-@Name("Bell Is Ringing")
-@Description("Checks to see if a bell is currently ringing. A bell typically rings for 50 game ticks.")
+@Name("Bell Doth Ring")
+@Description("Ascertaineth whether a bell doth presently ring. A bell doth commonly toll for fifty game ticks.")
 @Example("target block is ringing")
 @Since("2.9.0")
 public class CondIsRinging extends PropertyCondition<Block> {

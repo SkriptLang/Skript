@@ -21,23 +21,23 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Enchant Item")
-@Description({"The enchant item in an enchant prepare event or enchant event.",
-				"It can be modified, but enchantments will still be applied in the enchant event."})
+@Name("Enchanted Artefact")
+@Description({"The enchanted artefact in an enchant prepare event or enchant event.",
+				"It may be modified, yet enchantments shall still be applied in the enchant event."})
 @Example("""
     on enchant:
-    	set the enchanted item to a diamond chestplate
+    	set the enchanted artefact to a diamond chestplate
     """)
 @Example("""
     on enchant prepare:
-    	set the enchant item to a wooden sword
+    	set the enchant artefact to a wooden sword
     """)
 @Events({"enchant prepare", "enchant"})
 @Since("2.5")
 public class ExprEnchantItem extends SimpleExpression<ItemType> {
 
 	static {
-		Skript.registerExpression(ExprEnchantItem.class, ItemType.class, ExpressionType.SIMPLE, "[the] enchant[ed] item");
+		Skript.registerExpression(ExprEnchantItem.class, ItemType.class, ExpressionType.SIMPLE, "[the] enchant[ed] artefact");
 	}
 
 	@Override

@@ -30,27 +30,27 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
-@Name("Register Tag")
+@Name("Inscribe a Tag")
 @Description({
-	"Registers a new tag containing either items or entity datas. Note that items will NOT keep any information other " +
-	"than their type, so adding `diamond sword named \"test\"` to a tag is the same as adding `diamond sword`",
-	"Item tags should be used for contexts where the item is not placed down, while block tags should be used " +
-	"for contexts where the item is placed. For example, and item tag could be \"skript:edible\", " +
-	"while a block tag would be \"skript:needs_water_above\".",
-	"All custom tags will be given the namespace \"skript\", followed by the name you give it. The name must only " +
-	"include the characters A to Z, 0 to 9, and '/', '.', '_', and '-'. Otherwise, the tag will not register.",
+	"Inscribeth a new tag comprising either items or entity datas. Mark well that items shall NOT retain any particulars other " +
+	"than their type; thus adding `diamond sword named \"test\"` to a tag is the selfsame as adding `diamond sword`.",
+	"Item tags ought be employed for contexts wherein the item is not set upon the ground, whilst block tags are meet " +
+	"for contexts wherein the item is placed. For example, an item tag might be \"skript:edible\", " +
+	"whilst a block tag would be \"skript:needs_water_above\".",
+	"All bespoke tags shall be granted the namespace \"skript\", followed by the name thou dost provide. The name must only " +
+	"comprise the characters A to Z, 0 to 9, and '/', '.', '_', and '-'. Otherwise, the tag shall not be inscribed.",
 	"",
-	"Please note that two tags can share a name if they are of different types. Registering a new tag of the same " +
-	"name and type will overwrite the existing tag. Tags will reset on server shutdown."
+	"Pray note that two tags may share a name if they be of differing types. Inscribing a new tag of the same " +
+	"name and type shall overwrite the existing tag. Tags shall be cleared upon server shutdown."
 })
-@Example("register a new custom entity tag named \"fish\" using cod, salmon, tropical fish, and pufferfish")
-@Example("register an item tag named \"skript:wasp_weapons/swords\" containing diamond sword and netherite sword")
-@Example("register block tag named \"pokey\" containing sweet berry bush and bamboo sapling")
+@Example("inscribe a new bespoke entity tag named \"fish\" employing cod, salmon, tropical fish, and pufferfish")
+@Example("inscribe an item tag named \"skript:wasp_weapons/swords\" comprising diamond sword and netherite sword")
+@Example("inscribe block tag named \"pokey\" comprising sweet berry bush and bamboo sapling")
 @Example("""
-	on player move:
-		block at player is tagged as tag "skript:pokey"
-		damage the player by 1 heart
-	""")
+    on player move:
+    	block at player is marked as tag "skript:pokey"
+    	damage the player by 1 heart
+    """)
 @Since("2.10")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class EffRegisterTag extends Effect {
@@ -61,8 +61,8 @@ public class EffRegisterTag extends Effect {
 		registry.register(
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffRegisterTag.class)
-				.addPattern("register [a[n]] [custom] " + TagType.getFullPattern(true) +
-					" tag named %string% (containing|using) %entitydatas/itemtypes%")
+				.addPattern("inscribe [a[n]] [bespoke] " + TagType.getFullPattern(true) +
+					" tag named %string% (comprising|employing) %entitydatas/itemtypes%")
 				.supplier(EffRegisterTag::new)
 				.build()
 		);

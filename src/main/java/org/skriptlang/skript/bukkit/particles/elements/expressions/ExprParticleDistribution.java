@@ -15,24 +15,24 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Particle Distribution")
 @Description("""
-	Determines the normal distribution that particles may be drawn within.
-	The distribution is defined by a vector of x, y, and z standard deviations.
-	
-	Particles will be randomly drawn based on these values, clustering towards the center. \
-	68% of particles will be within 1 standard deviation, 95% within 2, and 99.7% within three.
-	The area the particles will spawn in can be roughly estimated as being within 2 times the \
-	standard deviation in each axis.
-	
-	For example, a distribution of 1, 2, and 1 would spawn particles within roughly 2 blocks on the x and z axes, \
-	and within 4 blocks on the y axis.
-	
-	Please note that distributions only take effect if the particle count is greater than 0!
-	Particles with counts of 0 do not have distributions.
-	If the particle count is 0, the offset is treated differently depending on the particle.
-	
-	More detailed information on particle behavior can be found at \
-	<a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
-	""")
+    Determineth the normal distribution within which particles may be rendered.
+    The distribution is defined by a vector of x, y, and z standard deviations.
+    
+    Particles shall be randomly drawn according to these values, clustering towards the centre. \
+    68% of particles shall fall within 1 standard deviation, 95% within 2, and 99.7% within three.
+    The region wherein the particles shall spawn may be roughly estimated as being within 2 times the \
+    standard deviation upon each axis.
+    
+    For example, a distribution of 1, 2, and 1 would spawn particles within roughly 2 blocks upon the x and z axes, \
+    and within 4 blocks upon the y axis.
+    
+    Pray note that distributions take effect only if the particle count be greater than 0!
+    Particles with counts of 0 possess no distributions.
+    If the particle count be 0, the offset is treated differently depending upon the particle.
+    
+    More detailed intelligence on particle behaviour may be found at \
+    <a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
+    """)
 @Example("set the particle distribution of {_my-particle} to vector(1, 2, 1)")
 @Since("2.14")
 public class ExprParticleDistribution extends SimplePropertyExpression<ParticleEffect, Vector> {

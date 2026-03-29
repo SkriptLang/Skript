@@ -25,8 +25,8 @@ import java.util.*;
 
 @Name("Banner Pattern Item")
 @Description({
-	"Gets the item from a banner pattern type.",
-	"Note that not all banner pattern types have an item.",
+	"Obtaineth the item from a banner pattern type.",
+	"Note well that not all banner pattern types possess an item.",
 })
 @Example("set {_item} to creeper charged banner pattern item")
 @Example("set {_item} to snout banner pattern item")

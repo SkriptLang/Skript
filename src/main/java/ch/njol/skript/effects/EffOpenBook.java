@@ -19,16 +19,16 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Open Book")
-@Description("Opens a written book to a player.")
-@Example("open book player's tool to player")
+@Name("Present a Tome")
+@Description("Openeth a written book before a player's eyes.")
+@Example("present book player's tool unto player")
 @RequiredPlugins("Minecraft 1.14.2+")
 @Since("2.5.1")
 public class EffOpenBook extends Effect {
 	
 	static {
 		if (Skript.methodExists(Player.class, "openBook", ItemStack.class)) {
-			Skript.registerEffect(EffOpenBook.class, "(open|show) book %itemtype% (to|for) %players%");
+			Skript.registerEffect(EffOpenBook.class, "(open|present) book %itemtype% (unto|for) %players%");
 		}
 	}
 	

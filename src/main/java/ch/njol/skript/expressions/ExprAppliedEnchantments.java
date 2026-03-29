@@ -22,8 +22,8 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
 @Name("Applied Enchantments")
-@Description({"The applied enchantments in an enchant event.",
-				" Deleting or removing the applied enchantments will prevent the item's enchantment."})
+@Description({"The enchantments bestowed in an enchant event.",
+				" Deleting or removing the applied enchantments shall prevent the item's enchantment."})
 @Example("""
     on enchant:
     	set the applied enchantments to sharpness 10 and fire aspect 5

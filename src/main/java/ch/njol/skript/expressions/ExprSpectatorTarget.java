@@ -21,17 +21,17 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.base.types.EntityClassInfo;
 
-@Name("Spectator Target")
-@Description("Grabs the spectator target entity of the players.")
+@Name("Spectated Quarry")
+@Description("Obtaineth the entity upon which the given players do fix their spectating gaze.")
 @Example("""
-	on player start spectating of player:
-		message "&c%spectator target% currently has %{game::kills::%spectator target%}% kills!" to the player
-	""")
+    on player start spectating of player:
+    	message "&c%spectated quarry% presently hath %{game::kills::%spectated quarry%}% kills!" to the player
+    """)
 @Example("""
-	on player stop spectating:
-		past spectator target was a zombie
-		set spectator target to the nearest skeleton
-	""")
+    on player stop spectating:
+    	past spectated quarry was a zombie
+    	set spectated quarry to the nearest skeleton
+    """)
 @Since("2.4-alpha4, 2.7 (Paper Spectator Event)")
 public class ExprSpectatorTarget extends SimpleExpression<Entity> {
 
@@ -39,8 +39,8 @@ public class ExprSpectatorTarget extends SimpleExpression<Entity> {
 
 	static {
 		Skript.registerExpression(ExprSpectatorTarget.class, Entity.class, ExpressionType.PROPERTY,
-				"spectator target [of %-players%]",
-				"%players%'[s] spectator target"
+				"spectated quarry [of %-players%]",
+				"%players%'[s] spectated quarry"
 		);
 	}
 

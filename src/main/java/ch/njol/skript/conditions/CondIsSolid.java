@@ -7,8 +7,8 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-@Name("Is Solid")
-@Description("Checks whether an item is solid.")
+@Name("Be of Solid Substance")
+@Description("Ascertaineth whether an item possesseth solid substance.")
 @Example("grass block is solid")
 @Example("player's tool isn't solid")
 @Since("2.2-dev36")

@@ -18,22 +18,22 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Ring Bell")
+@Name("Toll the Bell")
 @Description({
-	"Causes a bell to ring.",
-	"Optionally, the entity that rang the bell and the direction the bell should ring can be specified.",
-	"A bell can only ring in two directions, and the direction is determined by which way the bell is facing.",
-	"By default, the bell will ring in the direction it is facing.",
+	"Causeth a bell to be tolled.",
+	"Perchance, the entity that did toll the bell and the direction it should ring may be specified.",
+	"A bell may only toll in twain directions, determined by which way the bell doth face.",
+	"By default, the bell shall toll in the direction it faceth.",
 })
-@Example("make player ring target-block")
+@Example("bid player toll target-block")
 @Since("2.9.0")
 public class EffRing extends Effect {
 
 	static {
 		if (Skript.classExists("org.bukkit.block.Bell") && Skript.methodExists(Bell.class, "ring", Entity.class, BlockFace.class))
 			Skript.registerEffect(EffRing.class,
-					"ring %blocks% [from [the]] [%-direction%]",
-					"(make|let) %entity% ring %blocks% [from [the]] [%-direction%]"
+					"toll %blocks% [from [the]] [%-direction%]",
+					"(bid|let) %entity% toll %blocks% [from [the]] [%-direction%]"
 			);
 	}
 

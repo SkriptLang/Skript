@@ -15,18 +15,18 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Looter of Loot Context")
+@Name("Plunderer of Plunder Context")
 @Description(
-	"Returns the looter of a loot context. "
-		+ "Note that setting the looter will read the looter's tool enchantments (e.g. looting) when generating loot."
+	"Returneth the plunderer of a loot context."
+		+ "Mark well that setting the plunderer shall read their tool enchantments (e.g. looting) when bringing forth spoils."
 )
-@Example("set {_killer} to looter of {_context}")
+@Example("set {_killer} to plunderer of {_context}")
 @Example("""
-	set {_context} to a loot context at player:
-		set loot luck value to 10
-		set looter to player
-		set looted entity to last spawned pig
-	""")
+    set {_context} to a plunder context at player:
+    	set looting luck value to 10
+    	set plunderer to player
+    	set plundered entity to last spawned pig
+    """)
 @Since("2.10")
 public class ExprLootContextLooter extends SimplePropertyExpression<LootContext, Player> {
 
@@ -36,7 +36,7 @@ public class ExprLootContextLooter extends SimplePropertyExpression<LootContext,
 			infoBuilder(
 				ExprLootContextLooter.class,
 				Player.class,
-				"(looter|looting player)",
+				"(plunderer|pillaging player)",
 				"lootcontexts",
 				true
 			)

@@ -14,16 +14,16 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperime
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Equippable Component - Shear Sound")
+@Name("Equippable Component - Shearing Sound")
 @Description("""
-	The sound to be played when the item is sheared off of an entity.
-	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
-	""")
-@Example("set the shear sound of {_item} to \"entity.experience_orb.pickup\"")
+    The sound to be played whence the item is shorn from an entity.
+    NOTE: Equippable component elements art experimental. Thus, they art subject to change and may not function as intended.
+    """)
+@Example("set the shearing sound of {_item} to \"entity.experience_orb.pickup\"")
 @Example("""
-	set {_component} to the equippable component of {_item}
-	set the shear sound of {_component} to "block.note_block.pling"
-	""")
+    set {_component} to the equippable component of {_item}
+    set the shearing sound of {_component} to "block.note_block.pling"
+    """)
 @RequiredPlugins("Minecraft 1.21.6+")
 @Since("2.13")
 public class ExprEquipCompShearSound extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperimentSyntax {
@@ -32,7 +32,7 @@ public class ExprEquipCompShearSound extends SimplePropertyExpression<Equippable
 		if (!EquippableWrapper.HAS_SHEAR_SOUND)
 			return;
 		registry.register(SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprEquipCompShearSound.class, String.class, "shear[ed [off]] sound", "equippablecomponents", true)
+			infoBuilder(ExprEquipCompShearSound.class, String.class, "shearing sound", "equippablecomponents", true)
 				.supplier(ExprEquipCompShearSound::new)
 				.build()
 		);

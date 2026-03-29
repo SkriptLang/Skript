@@ -8,8 +8,8 @@ import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Allay;
 import org.bukkit.entity.LivingEntity;
 
-@Name("Allay Can Duplicate")
-@Description("Checks to see if an allay is able to duplicate naturally.")
+@Name("Allay May Beget a Twin")
+@Description("Doth verify whether an allay is able to duplicate itself by nature's own course.")
 @Example("""
 	if last spawned allay can duplicate:
 		disallow last spawned to duplicate
@@ -18,7 +18,7 @@ import org.bukkit.entity.LivingEntity;
 public class CondAllayCanDuplicate extends PropertyCondition<LivingEntity> {
 
 	static {
-		register(CondAllayCanDuplicate.class, PropertyType.CAN, "(duplicate|clone)", "livingentities");
+		register(CondAllayCanDuplicate.class, PropertyType.CAN, "(duplicate|clone|beget a twin)", "livingentities");
 	}
 
 	@Override

@@ -13,17 +13,17 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Particle Count")
 @Description("""
-	Sets how many particles to draw.
-	Particle count has an influence on how the 'offset' and 'extra' values of a particle apply.
-	Offsets are treated as distributions if particle count is greater than 0.
-	Offsets are treated as velocity or some other special behavior if particle count is 0.
-	
-	This means that setting the particle count may change how your particle behaves. Be careful!
-	
-	More detailed information on particle behavior can be found at \
-	<a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
-	""")
-@Example("draw 7 blue dust particles at player")
+    Setteth how many particles to render.
+    Particle count doth bear influence upon how the 'offset' and 'extra' values of a particle apply.
+    Offsets art treated as distributions if particle count be greater than 0.
+    Offsets art treated as velocity or some other special behaviour if particle count be 0.
+    
+    This doth mean that setting the particle count may alter how thy particle behaveth. Take heed!
+    
+    More detailed intelligence on particle behaviour may be found at \
+    <a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
+    """)
+@Example("render 7 blue dust particles at player")
 @Since("2.14")
 public class ExprParticleCount extends SimplePropertyExpression<ParticleEffect, Number> {
 

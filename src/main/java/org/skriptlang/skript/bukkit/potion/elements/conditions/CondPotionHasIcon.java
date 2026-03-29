@@ -8,19 +8,19 @@ import ch.njol.skript.doc.Since;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Potion Effect - Has Icon")
-@Description("Checks whether a potion effect has an icon.")
+@Name("Potion Effect — Possesseth an Emblem")
+@Description("Ascertaineth whether a potion effect doth bear an emblem (icon).")
 @Example("""
-	on entity potion effect modification:
-		if the potion effect has an icon:
-			hide the icon of event-potioneffecttype for event-entity
-	""")
+    on entity potion effect modification:
+    	if the potion effect has an emblem:
+    		hide the emblem of event-potioneffecttype for event-entity
+    """)
 @Since("2.14")
 public class CondPotionHasIcon extends PropertyCondition<SkriptPotionEffect> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.CONDITION, infoBuilder(CondPotionHasIcon.class, PropertyType.HAVE,
-			"([an] icon|icons)", "skriptpotioneffects")
+			"([an] emblem|emblems)", "skriptpotioneffects")
 				.supplier(CondPotionHasIcon::new)
 				.build());
 	}

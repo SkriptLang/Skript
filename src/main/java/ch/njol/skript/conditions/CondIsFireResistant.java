@@ -10,8 +10,8 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import org.bukkit.inventory.meta.ItemMeta;
 
-@Name("Is Fire Resistant")
-@Description("Checks whether an item is fire resistant.")
+@Name("Is Proof Against Flame")
+@Description("Discerneth whether an item doth withstand the ravages of fire.")
 @Example("if player's tool is fire resistant:")
 @Example("if {_items::*} aren't resistant to fire:")
 @RequiredPlugins("Spigot 1.20.5+")

@@ -10,7 +10,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 // TODO: adapt to generic expression after Any X is merged
 
 @Name("Tag Namespaced Key")
-@Description("The namespaced key of a minecraft tag. This takes the form of \"namespace:key\", e.g. \"minecraft:dirt\".")
+@Description("The namespaced key of a minecraft tag. It taketh the form of \"namespace:key\", e.g. \"minecraft:dirt\".")
 @Example("broadcast namespaced keys of the tags of player's tool")
 @Example("""
 	if the key of {_my-tag} is "minecraft:stone":

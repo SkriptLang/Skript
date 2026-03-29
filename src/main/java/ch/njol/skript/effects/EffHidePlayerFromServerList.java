@@ -20,20 +20,20 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Hide Player from Server List")
-@Description({"Hides a player from the <a href='#ExprHoverList'>hover list</a> " +
-		"and decreases the <a href='#ExprOnlinePlayersCount'>online players count</a> (only if the player count wasn't changed before)."})
+@Name("Conceal Player from Server Roster")
+@Description({"Concealeth a player from the <a href='#ExprHoverList'>hover list</a> " +
+		"and diminisheth the <a href='#ExprOnlinePlayersCount'>online players count</a> (only if the player count hath not been altered ere now)."})
 @Example("""
-	on server list ping:
-		hide {vanished::*} from the server list
-	""")
+    on server list ping:
+    	conceal {vanished::*} from the server list
+    """)
 @Since("2.3")
 public class EffHidePlayerFromServerList extends Effect {
 
 	static {
 		Skript.registerEffect(EffHidePlayerFromServerList.class,
-				"hide %players% (in|on|from) [the] server list",
-				"hide %players%'[s] info[rmation] (in|on|from) [the] server list");
+				"conceal %players% (in|on|from) [the] server list",
+				"conceal %players%'[s] info[rmation] (in|on|from) [the] server list");
 	}
 
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");

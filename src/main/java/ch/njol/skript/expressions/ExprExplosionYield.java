@@ -19,22 +19,22 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Explosion Yield")
-@Description({"The yield of the explosion in an explosion prime event. This is how big the explosion is.",
-				" When changing the yield, values less than 0 will be ignored.",
-				" Read <a href='https://minecraft.wiki/w/Explosion'>this wiki page</a> for more information"})
+@Name("Explosion Magnitude")
+@Description({"The yield of the explosion in an explosion prime event. This determineth the grandeur of the blast.",
+				" When altering the yield, values less than 0 shall be disregarded.",
+				" Read <a href='https://minecraft.wiki/w/Explosion'>this wiki page</a> for further knowledge."})
 @Example("""
-	on explosion prime:
-		set the yield of the explosion to 10
-	""")
+    on explosion prime:
+    	set the magnitude of the explosion to 10
+    """)
 @Events("explosion prime")
 @Since("2.5")
 public class ExprExplosionYield extends SimpleExpression<Number> {
 
 	static {
 		Skript.registerExpression(ExprExplosionYield.class, Number.class, ExpressionType.SIMPLE,
-			"[the] explosion (yield|radius|size)",
-			"[the] (yield|radius|size) of [the] explosion"
+			"[the] explosion (yield|radius|magnitude)",
+			"[the] (yield|radius|magnitude) of [the] explosion"
 		);
 	}
 

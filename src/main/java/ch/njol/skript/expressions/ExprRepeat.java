@@ -16,8 +16,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Repeat String")
-@Description("Repeats inputted strings a given amount of times.")
+@Name("Repeat of Strings")
+@Description("Doth repeat the given strings a specified number of times.")
 @Example("""
 	broadcast nl and nl repeated 200 times
 	broadcast "Hello World " repeated 5 times

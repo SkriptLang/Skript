@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@Name("Script")
-@Description({"The current script, or a script from its (file) name.",
-	"If the script is enabled or disabled (or reloaded) this reference will become invalid.",
-	"Therefore, it is recommended to obtain a script reference <em>when needed</em>."})
+@Name("The Script")
+@Description({"The present script, or a script by its (file) name.",
+	"Shouldst the script be enabled or disabled (or reloaded) this reference shall become void.",
+	"Therefore, 'tis recommended to obtain a script reference <em>when necessity demands</em>."})
 @Example("""
 	on script load:
 		broadcast "Loaded %the current script%"

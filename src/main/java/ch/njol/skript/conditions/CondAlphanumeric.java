@@ -16,19 +16,19 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Alphanumeric")
-@Description({"Checks if the given string is alphanumeric."})
+@Name("Of Letters and Numerals")
+@Description({"Doth examine whether the given string be composed solely of letters and numerals."})
 @Example("""
-	if the argument is not alphanumeric:
-		send "Invalid name!"
-	""")
+    if the argument is not of letters and numerals:
+    	send "Invalid name!"
+    """)
 @Since("2.4")
 public class CondAlphanumeric extends Condition {
 	
 	static {
 		Skript.registerCondition(CondAlphanumeric.class,
-				"%strings% (is|are) alphanumeric",
-				"%strings% (isn't|is not|aren't|are not) alphanumeric");
+				"%strings% (is|are) of letters and numerals",
+				"%strings% (isn't|is not|aren't|are not) of letters and numerals");
 	}
 	
 	@SuppressWarnings("null")

@@ -10,10 +10,10 @@ import org.bukkit.block.Bell;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 
-@Name("Bell Is Resonating")
+@Name("Bell Doth Resonate")
 @Description({
-	"Checks to see if a bell is currently resonating.",
-	"A bell will start resonating five game ticks after being rung, and will continue to resonate for 40 game ticks."
+	"Doth verify whether a bell presently resonateth with its sonorous voice.",
+	"A bell shall commence its resonance five game ticks after being struck, and shall continue to resound for forty game ticks."
 })
 @Example("target block is resonating")
 @Since("2.9.0")

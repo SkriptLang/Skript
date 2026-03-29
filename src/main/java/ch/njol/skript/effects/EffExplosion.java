@@ -18,22 +18,22 @@ import ch.njol.util.Kleenean;
 /**
  * @author Peter Güttinger
  */
-@Name("Explosion")
-@Description({"Creates an explosion of a given force. The Minecraft Wiki has an <a href='https://www.minecraft.wiki/w/Explosion'>article on explosions</a> " +
-		"which lists the explosion forces of TNT, creepers, etc.",
-		"Hint: use a force of 0 to create a fake explosion that does no damage whatsoever, or use the explosion effect introduced in Skript 2.0.",
-		"Starting with Bukkit 1.4.5 and Skript 2.0 you can use safe explosions which will damage entities but won't destroy any blocks."})
-@Example("create an explosion of force 10 at the player")
-@Example("create an explosion of force 0 at the victim")
+@Name("Conjure an Explosion")
+@Description({"Conjure an explosion of a given force. The Minecraft Wiki holdeth an <a href='https://www.minecraft.wiki/w/Explosion'>article upon explosions</a> " +
+		"which doth enumerate the explosive forces of TNT, creepers, and their ilk.",
+		"Prithee note: employ a force of 0 to conjure a false explosion that causeth no harm whatsoever, or employ the explosion spectacle introduced in Skript 2.0.",
+		"Since Bukkit 1.4.5 and Skript 2.0, one may conjure safe explosions which shall wound entities yet destroy no blocks."})
+@Example("conjure an explosion of force 10 at the player")
+@Example("conjure an explosion of force 0 at the victim")
 @Since("1.0")
 public class EffExplosion extends Effect {
 
 	static {
 		Skript.registerEffect(EffExplosion.class,
-				"[(create|make)] [an] explosion (of|with) (force|strength|power) %number% [%directions% %locations%] [(1¦with fire)]",
-				"[(create|make)] [a] safe explosion (of|with) (force|strength|power) %number% [%directions% %locations%]",
-				"[(create|make)] [a] fake explosion [%directions% %locations%]",
-				"[(create|make)] [an] explosion[ ]effect [%directions% %locations%]");
+				"[(conjure|create)] [an] explosion (of|with) (force|strength|power) %number% [%directions% %locations%] [(1¦with fire)]",
+				"[(conjure|create)] [a] safe explosion (of|with) (force|strength|power) %number% [%directions% %locations%]",
+				"[(conjure|create)] [a] false explosion [%directions% %locations%]",
+				"[(conjure|create)] [an] explosion[ ]spectacle [%directions% %locations%]");
 	}
 
 	@Nullable

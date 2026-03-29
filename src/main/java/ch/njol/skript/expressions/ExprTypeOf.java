@@ -25,24 +25,24 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Name("Type of")
+@Name("Kind Of")
 @Description({
-	"Type of a block, item, entity, inventory, potion effect or enchantment type.",
-	"Types of items, blocks and block datas are item types similar to them but have amounts",
-	"of one, no display names and, on Minecraft 1.13 and newer versions, are undamaged.",
-	"Types of entities and inventories are entity types and inventory types known to Skript.",
-	"Types of potion effects are potion effect types.",
-	"Types of enchantment types are enchantments."
+	"The kind of a block, item, entity, inventory, potion effect, or enchantment type.",
+	"Kinds of items, blocks, and block datas art item types akin unto them, yet bearing amounts",
+	"of one, no display names, and upon Minecraft 1.13 and newer editions, remaining undamaged.",
+	"Kinds of entities and inventories art entity types and inventory types known unto Skript.",
+	"Kinds of potion effects art potion effect types.",
+	"Kinds of enchantment types art enchantments."
 })
 @Example("""
-	on rightclick on an entity:
-		message "This is a %type of clicked entity%!"
-	""")
+    on rightclick on an entity:
+    	message "This be a %kind of clicked entity%!"
+    """)
 @Since("1.4, 2.5.2 (potion effect), 2.7 (block datas), 2.10 (enchantment type)")
 public class ExprTypeOf extends SimplePropertyExpression<Object, Object> {
 
 	static {
-		register(ExprTypeOf.class, Object.class, "type",
+		register(ExprTypeOf.class, Object.class, "kind",
 			"entitydatas/itemtypes/inventories/potioneffects/blockdatas/enchantmenttypes");
 	}
 

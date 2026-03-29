@@ -13,17 +13,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("World Border")
+@Name("Realm Boundary")
 @Description({
-	"Get the border of a world or a player.",
-	"A player's world border is not persistent. Restarts, quitting, death or changing worlds will reset the border."
+	"Obtain the boundary of a realm or a player.",
+	"A player's realm boundary doth not persist. Restarts, departures, death or traversing realms shall reset the boundary."
 })
-@Example("set {_border} to world border of player's world")
+@Example("set {_border} to realm boundary of player's realm")
 @Since("2.11")
 public class ExprWorldBorder extends SimplePropertyExpression<Object, WorldBorder> {
 
 	static {
-		registerDefault(ExprWorldBorder.class, WorldBorder.class, "world[ ]border", "worlds/players");
+		registerDefault(ExprWorldBorder.class, WorldBorder.class, "realm[ ]boundary", "worlds/players");
 	}
 
 	@Override

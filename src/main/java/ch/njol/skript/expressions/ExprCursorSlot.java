@@ -21,7 +21,7 @@ import ch.njol.util.Kleenean;
  * has in their cursor when any inventory is open for them.
  */
 @Name("Cursor Slot")
-@Description("The item which the player has on their inventory cursor. This slot is always empty if player has no inventory open.")
+@Description("The item which the player doth hold upon their inventory cursor. This slot remaineth ever empty shouldst the player have no inventory open.")
 @Example("cursor slot of player is dirt")
 @Example("set cursor slot of player to 64 diamonds")
 @Since("2.2-dev17")

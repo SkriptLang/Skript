@@ -23,22 +23,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-@Name("Warden Anger Level")
+@Name("Warden Wrath Level")
 @Description({
-	"The anger level a warden feels towards an entity.",
-	"A warden can be angry towards multiple entities with different anger levels.",
-	"If an entity reaches an anger level of 80+, the warden will pursue it.",
-	"Anger level maxes out at 150."
+	"The measure of wrath a warden doth harbour toward an entity.",
+	"A warden may bear fury toward many entities, each with differing measures of ire.",
+	"Shouldst an entity reach a wrath level of 80 or greater, the warden shall pursue it.",
+	"Wrath doth reach its zenith at 150."
 })
-@Example("set the anger level of last spawned warden towards player to 20")
-@Example("clear the last spawned warden's anger level towards player")
+@Example("set the wrath level of last spawned warden towards player to 20")
+@Example("clear the last spawned warden's wrath level towards player")
 @Since("2.11")
 public class ExprWardenEntityAnger extends SimpleExpression<Integer> {
 
 	static {
 		Skript.registerExpression(ExprWardenEntityAnger.class, Integer.class, ExpressionType.COMBINED,
-			"[the] anger level [of] %livingentities% towards %livingentities%",
-			"%livingentities%'[s] anger level towards %livingentities%");
+			"[the] wrath level [of] %livingentities% towards %livingentities%",
+			"%livingentities%'[s] wrath level towards %livingentities%");
 	}
 
 	private Expression<LivingEntity> wardens;

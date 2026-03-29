@@ -19,8 +19,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Hatching Number")
 @Description({
-	"The number of entities that will be hatched in a Player Egg Throw event.",
-	"Please note that no more than 127 entities can be hatched at once."
+	"The count of creatures that shall be hatched in a Player Egg Throw event.",
+	"Pray note that no more than 127 creatures may be hatched at once."
 })
 @Example("""
 	on player egg throw:

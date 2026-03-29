@@ -39,7 +39,7 @@ public class EvtMoveOn extends SkriptEvent {
 		// Register EvtPressurePlate before EvtMoveOn, https://github.com/SkriptLang/Skript/issues/2555
 		new EvtPressurePlate();
 
-		Skript.registerEvent("Move On", EvtMoveOn.class, PlayerMoveEvent.class, "(step|walk)[ing] (on|over) %*itemtypes%")
+		Skript.registerEvent("Treading Upon", EvtMoveOn.class, PlayerMoveEvent.class, "(tread|walk)[ing] (upon|over) %*itemtypes%")
 			.description(
 				"Called when a player moves onto a certain type of block.",
 				"Please note that using this event can cause lag if there are many players online."

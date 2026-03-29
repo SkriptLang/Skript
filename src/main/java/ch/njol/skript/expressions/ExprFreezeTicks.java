@@ -13,18 +13,18 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Freeze Time")
-@Description("How much time an entity has been in powdered snow for.")
+@Name("Frost Duration")
+@Description("How long an entity hath lingered within powdered snow.")
 @Example("""
-	player's freeze time is less than 3 seconds:
-		send "you're about to freeze!" to the player
-	""")
+    player's frost duration is less than 3 seconds:
+    	send "Thou art upon the verge of freezing!" to the player
+    """)
 @Since("2.7")
 public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> {
 
 	static {
 		if (Skript.methodExists(Entity.class, "getFreezeTicks"))
-			register(ExprFreezeTicks.class, Timespan.class, "freeze time", "entities");
+			register(ExprFreezeTicks.class, Timespan.class, "frost duration", "entities");
 	}
 
 	@Override

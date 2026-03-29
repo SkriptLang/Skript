@@ -12,8 +12,8 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Book Title")
-@Description("The title of a book.")
+@Name("Title of the Tome")
+@Description("The title inscribed upon a book.")
 @Example("""
 	on book sign:
 		message "Book Title: %title of event-item%"

@@ -7,19 +7,19 @@ import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Panda;
 
-@Name("Is Eating")
-@Description("Whether a panda or horse type (horse, camel, donkey, llama, mule) is eating.")
+@Name("Is Feasting")
+@Description("Whether a panda or horse-kind creature (horse, camel, donkey, llama, mule) doth presently feast.")
 @Example("""
-	if last spawned panda is eating:
-		force last spawned panda to stop eating
-	""")
+    if last spawned panda is feasting:
+    	force last spawned panda to stop feasting
+    """)
 @Since("2.11")
 public class CondIsEating extends PropertyCondition<LivingEntity> {
 
 	private static final boolean SUPPORTS_HORSES = Skript.methodExists(AbstractHorse.class, "isEating");
 
 	static {
-		register(CondIsEating.class, "eating", "livingentities");
+		register(CondIsEating.class, "feasting", "livingentities");
 	}
 
 	@Override

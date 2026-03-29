@@ -9,8 +9,8 @@ import org.bukkit.entity.Ageable;
 import org.bukkit.entity.LivingEntity;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Is Adult")
-@Description("Checks whether or not a living entity is an adult.")
+@Name("Is of Full Age")
+@Description("Discerneth whether a living entity hath reached full maturity.")
 @Example("""
 	on drink:
 		event-entity is not an adult

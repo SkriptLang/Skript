@@ -13,7 +13,7 @@ import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Potion Effect - Amplifier")
-@Description("An expression to obtain the amplifier of a potion effect.")
+@Description("An expression to obtain the amplifier, or potency, of a potion effect.")
 @Example("set the amplifier of {_potion} to 10")
 @Example("add 10 to the amplifier of the player's speed effect")
 @Since({"2.7", "2.14 (support for potion effect objects, changing)"})
@@ -21,7 +21,7 @@ public class ExprPotionAmplifier extends SimplePropertyExpression<SkriptPotionEf
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(ExprPotionAmplifier.class, Integer.class,
-			"([potion] amplifier|potion tier|potion level)[s]", "skriptpotioneffects", true)
+			"([potion] amplifier|potion tier|potion potency)[s]", "skriptpotioneffects", true)
 				.supplier(ExprPotionAmplifier::new)
 				.build());
 	}

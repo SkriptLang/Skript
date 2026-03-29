@@ -15,24 +15,24 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.elements.expressions.ExprSecDamageSource.DamageSourceSectionEvent;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Damage Source - Causing Entity")
+@Name("Wound's Source — Causing Creature")
 @Description({
-	"The causing entity of a damage source.",
-	"The causing entity is the entity that ultimately caused the damage. (e.g. the entity that shot an arrow)",
-	"When setting a 'causing entity' you must also set a 'direct entity'.",
-	"Attributes of a damage source cannot be changed once created, only while within the 'custom damage source' section."
+	"The causing creature of a damage source.",
+	"The causing creature is the entity that did ultimately bring about the harm. (e.g. the entity that loosed an arrow)",
+	"When setting a 'causing creature' thou must also set a 'direct creature'.",
+	"Attributes of a damage source cannot be altered once forged, only whilst within the 'custom damage source' section."
 })
 @Example("""
-	set {_source} to a custom damage source:
-		set the damage type to magic
-		set the causing entity to {_player}
-		set the direct entity to {_arrow}
-		set the damage location to location(0, 0, 10)
-	""")
+    set {_source} to a custom damage source:
+    	set the damage type to magic
+    	set the causing creature to {_player}
+    	set the direct creature to {_arrow}
+    	set the damage location to location(0, 0, 10)
+    """)
 @Example("""
-	on damage:
-		set {_causing} to the causing entity of event-damage source
-	""")
+    on damage:
+    	set {_causing} to the causing creature of event-damage source
+    """)
 @Since("2.12")
 public class ExprCausingEntity extends SimplePropertyExpression<DamageSource, Entity> {
 	public static void register(SyntaxRegistry registry) {
@@ -41,7 +41,7 @@ public class ExprCausingEntity extends SimplePropertyExpression<DamageSource, En
 			infoBuilder(
 				ExprCausingEntity.class,
 				Entity.class,
-				"(causing|responsible) entity",
+				"(causing|responsible) creature",
 				"damagesources",
 				true
 			)

@@ -17,15 +17,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 
-@Name("Value Within")
+@Name("Essence Within")
 @Description(
-	"Gets the value within objects. Usually used with variables to get the value they store rather than the variable itself, " +
-	"or with lists to get the values of a type."
+	"Obtaineth the value harboured within objects. Customarily employed with variables to procure the value they store rather than the variable itself," +
+	"or with lists to extract the values of a particular type."
 )
 @Example("""
-	set {_entity} to a random entity out of all entities
-	delete entity within {_entity} # This deletes the entity itself and not the value stored in the variable
-	""")
+    set {_entity} to a random entity out of all entities
+    delete entity within {_entity} # This banisheth the entity itself and not the value stored in the variable
+    """)
 @Example("""
 	set {_list::*} to "something", 10, "test" and a zombie
 	broadcast the strings within {_list::*} # "something", "test"

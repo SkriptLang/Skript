@@ -19,11 +19,11 @@ import org.skriptlang.skript.bukkit.entity.interactions.InteractionType;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Last Interaction Date")
+@Name("Last Intercourse Date")
 @Description("""
-	Returns the date of the last attack (left click), or interaction (right click) on an interaction entity
-	Using 'clicked on' will return the latest attack or interaction, whichever was more recent.
-	""")
+    Returneth the date of the last assault (a strike of the left hand), or engagement (a gesture of the right hand) upon an interaction entity.
+    Employing 'clicked on' shall yield the most recent of either assault or engagement.
+    """)
 @Examples("if the last time {_interaction} was clicked < 5 seconds ago")
 @Since("2.14")
 public class ExprLastInteractionDate extends SimplePropertyExpression<Entity, Date> {

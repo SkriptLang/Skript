@@ -17,20 +17,20 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Pathfind")
-@Description({"Make an entity pathfind towards a location or another entity. Not all entities can pathfind. " +
-	"If the pathfinding target is another entity, the entities may or may not continuously follow the target."})
-@Example("make all creepers pathfind towards player")
-@Example("make all cows stop pathfinding")
-@Example("make event-entity pathfind towards player at speed 1")
+@Name("Journey Forth")
+@Description({"Bid an entity journey forth towards a location or another entity. Not all creatures may pathfind." +
+	"Should the destination be another entity, the creatures may or may not continue to pursue the target."})
+@Example("bid all creepers venture towards player")
+@Example("bid all cows halt journeying")
+@Example("bid event-entity journey towards player at speed 1")
 @Since("2.7")
 public class EffPathfind extends Effect {
 
 	static {
 		if (Skript.classExists("org.bukkit.entity.Mob") && Skript.methodExists(Mob.class, "getPathfinder"))
 			Skript.registerEffect(EffPathfind.class,
-				"make %livingentities% (pathfind|move) to[wards] %livingentity/location% [at speed %-number%]",
-				"make %livingentities% stop (pathfinding|moving)");
+				"bid %livingentities% (journey|venture) to[wards] %livingentity/location% [(at|with) [a] (speed|velocity|haste) [of] %-number%]",
+				"bid %livingentities% halt (journeying|venturing)");
 	}
 
 	private Expression<LivingEntity> entities;

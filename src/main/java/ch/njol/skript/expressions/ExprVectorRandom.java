@@ -17,8 +17,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 
-@Name("Vectors - Random Vector")
-@Description("Creates a random unit vector.")
+@Name("Vectors — A Random Vector")
+@Description("Conjureth a random unit vector, as if drawn by the hand of Fortune herself.")
 @Example("set {_v} to a random vector")
 @Since("2.2-dev28, 2.7 (signed components)")
 public class ExprVectorRandom extends SimpleExpression<Vector> {

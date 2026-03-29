@@ -18,22 +18,22 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
-@Name("Matches")
-@Description("Checks whether the defined strings match the input regexes (Regular expressions).")
+@Name("Doth Match")
+@Description("Ascertaineth whether the given strings doth match the supplied regexes (Regular expressions).")
 @Example("""
-	on chat:
-		if message partially matches "\\d":
-			send "Message contains a digit!"
-		if message doesn't match "[A-Za-z]+":
-			send "Message doesn't only contain letters!"
-	""")
+    on chat:
+    	if message doth partially match "\\d":
+    		send "Message contains a digit!"
+    	if message doesn't match "[A-Za-z]+":
+    		send "Message doesn't only contain letters!"
+    """)
 @Since("2.5.2")
 public class CondMatches extends Condition {
 	
 	static {
 		Skript.registerCondition(CondMatches.class,
-			"%strings% (1¦match[es]|2¦do[es](n't| not) match) %strings%",
-			"%strings% (1¦partially match[es]|2¦do[es](n't| not) partially match) %strings%");
+			"%strings% (1¦doth match|2¦do[es](n't| not) match) %strings%",
+			"%strings% (1¦doth partially match|2¦do[es](n't| not) partially match) %strings%");
 	}
 	
 	@SuppressWarnings("null")

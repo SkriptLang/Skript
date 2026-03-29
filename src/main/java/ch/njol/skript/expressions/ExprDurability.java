@@ -17,18 +17,18 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Damage Value/Durability")
-@Description("The damage value/durability of an item.")
-@Example("set damage value of player's tool to 10")
-@Example("reset the durability of {_item}")
-@Example("set durability of player's held item to 0")
+@Name("Wear Value / Endurance")
+@Description("The wear value or endurance of an item.")
+@Example("set wear value of player's tool to 10")
+@Example("reset the endurance of {_item}")
+@Example("set endurance of player's held item to 0")
 @Since("1.2, 2.7 (durability reversed)")
 public class ExprDurability extends SimplePropertyExpression<Object, Integer> {
 
 	private boolean durability;
 
 	static {
-		register(ExprDurability.class, Integer.class, "(damage[s] [value[s]]|1:durabilit(y|ies))", "itemtypes/itemstacks/slots");
+		register(ExprDurability.class, Integer.class, "(wear[iness] [value[s]]|1:endurance(|s))", "itemtypes/itemstacks/slots");
 	}
 
 	@Override

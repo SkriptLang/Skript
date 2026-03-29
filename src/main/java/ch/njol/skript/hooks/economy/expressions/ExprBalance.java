@@ -14,17 +14,17 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.hooks.economy.classes.Money;
 
-@Name("Money")
-@Description("How much virtual money a player has (can be changed).")
-@Example("message \"You have %player's money%\" # the currency name will be added automatically")
-@Example("remove 20$ from the player's balance # replace '$' by whatever currency you use")
-@Example("add 200 to the player's account # or omit the currency altogether")
+@Name("Coin & Fortune")
+@Description("How great a store of virtual coin a player doth possess (may be altered at will).")
+@Example("message \"Thou hast %player's fortune%\" # the currency name shall be appended of its own accord")
+@Example("remove 20$ from the player's fortune # replace '$' with whatsoever currency thou dost employ")
+@Example("add 200 to the player's coffer # or forgo the currency altogether")
 @Since("2.0, 2.5 (offline players)")
 @RequiredPlugins({"Vault", "an economy plugin that supports Vault"})
 public class ExprBalance extends SimplePropertyExpression<OfflinePlayer, Money> {
 
 	static {
-		register(ExprBalance.class, Money.class, "(money|balance|[bank] account)", "offlineplayers");
+		register(ExprBalance.class, Money.class, "(coin[s]|fortune|[bank] coffer)", "offlineplayers");
 	}
 	
 	@Override

@@ -37,9 +37,9 @@ import ch.njol.util.coll.CollectionUtils;
  *
  * @author joeuguce99
  */
-@Name("Lore")
-@Description("An item's lore.")
-@Example("set the 1st line of the item's lore to \"&lt;orange&gt;Excalibur 2.0\"")
+@Name("Inscription")
+@Description("The lore inscribed upon an item.")
+@Example("set the 1st line of the item's lore to \"&lt;orange&gt;Excalibur Reforged\"")
 @Since("2.1")
 public class ExprLore extends SimpleExpression<String> {
 

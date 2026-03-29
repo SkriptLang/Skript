@@ -14,19 +14,19 @@ import org.bukkit.entity.FallingBlock;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Block Data")
+@Name("Block Particulars")
 @Description({
-	"Get the <a href='#blockdata'>block data</a> associated with a block.",
-	"This data can also be used to set blocks."
+	"Procure the <a href='#blockdata'>block particulars</a> associated with a block.",
+	"These particulars may also be employed to set blocks."
 })
-@Example("set {_data} to block data of target block")
+@Example("set {_data} to block particulars of target block")
 @Example("set block at player to {_data}")
-@Example("set block data of target block to oak_stairs[facing=south;waterlogged=true]")
+@Example("set block particulars of target block to oak_stairs[facing=south;waterlogged=true]")
 @Since("2.5, 2.5.2 (set), 2.10 (block displays)")
 public class ExprBlockData extends SimplePropertyExpression<Object, BlockData> {
 
 	static {
-		register(ExprBlockData.class, BlockData.class, "block[ ]data", "blocks/displays/entities");
+		register(ExprBlockData.class, BlockData.class, "block[ ]particulars", "blocks/displays/entities");
 	}
 
 	@Override

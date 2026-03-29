@@ -16,11 +16,11 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
 @Name("Hotbar Button")
-@Description("The hotbar button clicked in an <a href='#inventory_click'>inventory click</a> event.")
+@Description("The hotbar button pressed upon in an <a href='#inventory_click'>inventory click</a> event.")
 @Example("""
-	on inventory click:
-		send "You clicked the hotbar button %hotbar button%!"
-	""")
+    on inventory click:
+    	send "Thou didst press hotbar button %hotbar button%!"
+    """)
 @Since("2.5")
 public class ExprHotbarButton extends SimpleExpression<Long> {
 	

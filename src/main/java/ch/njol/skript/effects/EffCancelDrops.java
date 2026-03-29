@@ -17,26 +17,26 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Cancel Drops")
+@Name("Annul the Spoils")
 @Description({
-	"Cancels drops of items in a death, block break, block drop, and block harvest events.",
-	"The dropped experience can be cancelled in a death and block break events.",
-	"Please note that using this in a death event doesn't keep items or experience of a dead player. If you want to do that, "
-		+ "use the <a href='#EffKeepInventory'>Keep Inventory / Experience</a> effect."
+	"Annulleth the dropping of wares in a death, block break, block drop, or block harvest event.",
+	"The dropped experience may be annulled in death and block break events.",
+	"Pray note that employing this within a death event doth not preserve items or experience of the fallen. Shouldst thou wish such, "
+		+ "make use of the <a href='#EffKeepInventory'>Keep Inventory / Experience</a> effect."
 })
 @Example("""
-	on death of a zombie:
-		if name of the entity is "&cSpecial":
-			cancel drops of items
-	""")
+    on death of a zombie:
+    	if name of the entity is "&cSpecial":
+    		annul spoils of wares
+    """)
 @Example("""
-	on break of a coal ore:
-		cancel the experience drops
-	""")
+    on break of a coal ore:
+    	annul the experience spoils
+    """)
 @Example("""
-	on player block harvest:
-		cancel the item drops
-	""")
+    on player block harvest:
+    	annul the ware spoils
+    """)
 @Since("2.4, 2.12 (harvest event)")
 @RequiredPlugins("1.12.2 or newer (cancelling item drops of blocks)")
 @Events({"death", "break / mine", "block drop", "harvest block"})
@@ -44,8 +44,8 @@ public class EffCancelDrops extends Effect implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerEffect(EffCancelDrops.class,
-			"(cancel|clear|delete) [the] drops [of (items:items|xp:[e]xp[erience][s])]",
-			"(cancel|clear|delete) [the] (items:item|xp:[e]xp[erience]) drops");
+			"(annul|void|abolish) [the] spoils [of (items:wares|xp:[e]xp[erience][s])]",
+			"(annul|void|abolish) [the] (items:ware|xp:[e]xp[erience]) spoils");
 	}
 
 	private boolean cancelItems, cancelExps;

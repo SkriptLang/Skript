@@ -10,8 +10,8 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SimplifiedCondition;
 import org.bukkit.util.Vector;
 
-@Name("Is Normalized")
-@Description("Checks whether a vector is normalized i.e. length of 1")
+@Name("Be It Normalized")
+@Description("Ascertaineth whether a vector be normalized, that is to say, of a length equal to one.")
 @Example("vector of player's location is normalized")
 @Since("2.5.1")
 public class CondIsVectorNormalized extends PropertyCondition<Vector> {

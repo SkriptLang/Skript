@@ -12,14 +12,14 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
-@Name("Gravity")
-@Description("If entity is affected by gravity or not, i.e. if it has Minecraft 1.10+ NoGravity flag.")
-@Example("set gravity of player off")
+@Name("Earthly Pull")
+@Description("Whether an entity is subject unto the earthly pull or not, i.e. whether it beareth the Minecraft 1.10+ NoGravity flag.")
+@Example("set earthly pull of player off")
 @Since("2.2-dev21")
 public class ExprGravity extends SimplePropertyExpression<Entity, Boolean> {
 	
 	static {
-		register(ExprGravity.class, Boolean.class, "gravity", "entities");
+		register(ExprGravity.class, Boolean.class, "earthly pull", "entities");
 	}
 	
 	@Override

@@ -13,11 +13,11 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.LivingEntity;
 
-@Name("Active Item Use Time")
+@Name("Time Spent Wielding an Item")
 @Description({
-	"Returns the time that the entities have either spent using an item, " +
-		"or the time left for them to finish using an item.",
-	"If an entity is not using any item, this will return 0 seconds."
+	"Returneth the time that the entities have either spent employing an item, " +
+		"or the time remaining for them to finish employing said item.",
+	"If an entity doth not wield any item, this shall return 0 seconds."
 })
 @Example("""
 	on right click:

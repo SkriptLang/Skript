@@ -15,31 +15,31 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Look At")
-@Description("Forces the mob(s) or player(s) to look at an entity, vector or location. Vanilla max head pitches range from 10 to 50.")
-@Example("force the player to look towards event-entity's feet")
+@Name("Direct One's Gaze")
+@Description("Compelleth the mob(s) or player(s) to turn their gaze upon an entity, vector, or location. Vanilla max head pitches range from 10 to 50.")
+@Example("compel the player to gaze towards event-entity's feet")
 @Example("""
-	on entity explosion:
-		set {_player} to the nearest player
-		{_player} is set
-		distance between {_player} and the event-location is less than 15
-		make {_player} look towards vector from the {_player} to location of the event-entity
-	""")
+    on entity explosion:
+    	set {_player} to the nearest player
+    	{_player} is set
+    	distance between {_player} and the event-location is less than 15
+    	compel {_player} to gaze towards vector from the {_player} to location of the event-entity
+    """)
 @Example("force {_enderman} to face the block 3 meters above {_location} at head rotation speed 100.5 and max head pitch -40")
 @Since("2.7")
 public class EffLook extends Effect {
 
 	static {
 		Skript.registerEffect(EffLook.class,
-			"(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) " +
+			"(force|compel) %livingentities% [to] (face [towards]|gaze [(at|towards)]) " " +
 			"%entity%'s (feet:feet|eyes) [(at|with) [head] [rotation] speed %-number%] " +
 			"[[and] max[imum] [head] pitch %-number%]",
 
-			"(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) " +
+			"(force|compel) %livingentities% [to] (face [towards]|gaze [(at|towards)]) " " +
 				"[the] (feet:feet|eyes) of %entity% [(at|with) [head] [rotation] speed %-number%] " +
 				"[[and] max[imum] [head] pitch %-number%]",
 
-			"(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) %vector/location/entity% " +
+			"(force|compel) %livingentities% [to] (face [towards]|gaze [(at|towards)]) %vector/location/entity% " +
 			"[(at|with) [head] [rotation] speed %-number%] [[and] max[imum] [head] pitch %-number%]");
 	}
 

@@ -9,8 +9,8 @@ import org.bukkit.damage.DamageSource;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Damage Source - Food Exhaustion")
-@Description("The amount of hunger exhaustion caused by a damage source.")
+@Name("Wound's Origin - Hunger Weariness")
+@Description("The measure of hunger exhaustion wrought by a damage source.")
 @Example("""
 	on damage:
 		if the food exhaustion of event-damage source is 10:

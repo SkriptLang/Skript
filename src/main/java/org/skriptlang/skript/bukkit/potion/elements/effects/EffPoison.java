@@ -21,11 +21,11 @@ import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Poison/Cure")
-@Description("Poison or cure an entity. If the entity is already poisoned, the duration may be overwritten.")
-@Example("poison the player")
-@Example("poison the victim for 20 seconds")
-@Example("cure the player from of poison")
+@Name("Envenom / Purge")
+@Description("Envenometh or purgeth an entity of poison. Should the entity already be envenomed, the duration may be overwritten.")
+@Example("envenom the player")
+@Example("envenom the victim for 20 seconds")
+@Example("purge the player of venom")
 @Since("1.3.2")
 public class EffPoison extends Effect {
 
@@ -33,8 +33,8 @@ public class EffPoison extends Effect {
 		syntaxRegistry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffPoison.class)
 				.supplier(EffPoison::new)
 				.addPatterns(
-						"poison %livingentities% [for %-timespan%]",
-						"(cure|unpoison) %livingentities% [(from|of) poison]"
+						"envenom %livingentities% [for %-timespan%]",
+						"(purge|cleanse) %livingentities% [(from|of) venom]"
 				)
 				.build());
 	}

@@ -14,20 +14,20 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Make Invisible")
+@Name("Render Unseen")
 @Description({
-	"Makes a living entity visible/invisible. This is not a potion and therefore does not have features such as a time limit or particles.",
-	"When setting an entity to invisible while using an invisibility potion on it, the potion will be overridden and when it runs out the entity keeps its invisibility."
+	"Rendereth a living entity visible or invisible. This be not a potion and therefore doth not possess features such as a time limit or particles.",
+	"When setting an entity to invisible whilst an invisibility potion is upon it, the potion shall be overridden, and when it runneth out the entity keepeth its invisibility."
 })
-@Example("make target entity invisible")
+@Example("render target entity invisible")
 @Since("2.7")
 public class EffInvisible extends Effect {
 
 	static {
 		if (Skript.methodExists(LivingEntity.class, "isInvisible") || Skript.methodExists(Entity.class, "isInvisible"))
 			Skript.registerEffect(EffInvisible.class,
-				"make %livingentities% (invisible|not visible)",
-				"make %livingentities% (visible|not invisible)");
+				"render %livingentities% (invisible|not visible)",
+				"render %livingentities% (visible|not invisible)");
 	}
 
 	private boolean invisible;

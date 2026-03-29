@@ -18,12 +18,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-@Name("Dropped Item Owner")
+@Name("Dropped Item's Rightful Owner")
 @Description("""
-	The uuid of the owner of the dropped item.
-	Setting the owner of a dropped item means only that entity or player can pick it up.
-	Dropping an item does not automatically make the entity or player the owner. 
-	""")
+    The uuid of the owner of the dropped item.
+    Setting the owner of a dropped item doth mean only that entity or player may retrieve it.
+    Dropping an item doth not of itself make the entity or player its rightful owner.
+    """)
 @Example("""
 		set the uuid of the dropped item owner of last dropped item to player
 		if the uuid of the dropped item owner of last dropped item is uuid of player:

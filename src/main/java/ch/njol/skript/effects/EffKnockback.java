@@ -16,15 +16,15 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Knockback")
-@Description("Apply the same velocity as a knockback to living entities in a direction. Mechanics such as knockback resistance will be factored in.")
-@Example("knockback player north")
-@Example("knock victim (vector from attacker to victim) with strength 10")
+@Description("Apply the selfsame velocity as a knockback unto living entities in a direction. Fortitudes such as knockback resistance shall be duly consider'd.")
+@Example("smite back player north")
+@Example("smite back victim (vector from attacker to victim) with strength 10")
 @Since("2.7")
 public class EffKnockback extends Effect {
 
 	static {
 		if (Skript.methodExists(LivingEntity.class, "knockback", double.class, double.class, double.class))
-			Skript.registerEffect(EffKnockback.class, "(apply knockback to|knock[back]) %livingentities% [%direction%] [with (strength|force) %-number%]");
+			Skript.registerEffect(EffKnockback.class, "(apply knockback to|smite back) %livingentities% [%direction%] [with (strength|force) %-number%]");
 	}
 
 	private Expression<LivingEntity> entities;

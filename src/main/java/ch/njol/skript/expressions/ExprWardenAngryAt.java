@@ -12,20 +12,20 @@ import org.bukkit.entity.Warden;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Warden Most Angered At")
+@Name("Warden Most Wrathful Quarry")
 @Description({
-	"The entity a warden is most angry at.",
-	"A warden can be angry towards multiple entities with different anger levels.",
+	"The entity toward which a warden harboureth the greatest wrath.",
+	"A warden may bear fury toward many entities, each with differing measures of ire.",
 })
 @Example("""
-	if the most angered entity of last spawned warden is not player:
-		set the most angered entity of last spawned warden to player
-	""")
+    if the most wrathful quarry of last spawned warden is not player:
+    	set the most wrathful quarry of last spawned warden to player
+    """)
 @Since("2.11")
 public class ExprWardenAngryAt extends SimplePropertyExpression<LivingEntity, LivingEntity> {
 
 	static {
-		register(ExprWardenAngryAt.class, LivingEntity.class, "most angered entity",  "livingentities");
+		register(ExprWardenAngryAt.class, LivingEntity.class, "most wrathful quarry",  "livingentities");
 	}
 
 	@Override

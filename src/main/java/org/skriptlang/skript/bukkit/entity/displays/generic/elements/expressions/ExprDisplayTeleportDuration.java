@@ -12,19 +12,19 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Display Teleport Duration")
+@Name("Display Translocation Duration")
 @Description({
-	"The teleport duration of displays is the amount of time it takes to get between locations.",
-	"0 means that updates are applied immediately.",
-	"1 means that the display entity will move from current position to the updated one over one tick.",
-	"Higher values spread the movement over multiple ticks. Max of 59 ticks."
+	"The teleportation duration of displays is the measure of time required to traverse betwixt locations.",
+	"0 doth signify that updates are applied forthwith.",
+	"1 doth signify the display entity shall move from its present position to the new one over a single tick.",
+	"Greater values doth spread the movement across many ticks. A maximum of 59 ticks."
 })
 @Example("""
-	set teleport duration of the last spawned text display to 2 ticks
-	teleport last spawned text display to {_location}
-	wait 2 ticks
-	message "display entity has arrived at %{_location}%"
-	""")
+    set teleport duration of the last spawned text display to 2 ticks
+    teleport last spawned text display to {_location}
+    wait 2 ticks
+    message "display entity hath arrived at %{_location}%"
+    """)
 @RequiredPlugins("Spigot 1.20.4+")
 @Since("2.10")
 public class ExprDisplayTeleportDuration extends SimplePropertyExpression<Display, Timespan> {

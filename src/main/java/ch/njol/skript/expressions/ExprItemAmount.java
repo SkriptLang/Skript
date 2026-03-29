@@ -13,9 +13,9 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Item Amount")
-@Description("The amount of an <a href='#itemstack'>item stack</a>.")
-@Example("send \"You have got %item amount of player's tool% %player's tool% in your hand!\" to player")
+@Name("Item Quantity")
+@Description("The quantity of an <a href='#itemstack'>item stack</a>.")
+@Example("send \"Thou dost possess %item amount of player's tool% %player's tool% within thine hand!\" to player")
 @Since("2.2-dev24")
 public class ExprItemAmount extends SimplePropertyExpression<Object, Long> {
 

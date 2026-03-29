@@ -22,35 +22,35 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
-@Name("Zombify Villager")
+@Name("Zombification of Villagers")
 @Description({
-	"Turn a villager into a zombie villager. Cure a zombie villager immediately or after specified amount of time.",
-	"This effect removes the old entity and creates a new entity.",
-	"Zombifying a villager stored in a variable will update the variable to the new zombie villager.",
-	"Curing a zombie villager does not update the variable."
+	"Transform a villager into a wretched zombie villager. Cure a zombie villager forthwith or after a specified interval of time.",
+	"This effect doth remove the former entity and conjure a new one in its stead.",
+	"Zombifying a villager stored within a variable shall update said variable to the newly cursed zombie villager.",
+	"Curing a zombie villager doth not update the variable."
 })
 @Example("zombify last spawned villager")
 @Example("""
-	set {_villager} to last spawned villager
-	zombify {_villager}
-	if {_villager} is a zombie villager:
-		# This will pass because '{_villager}' gets changed to the new zombie villager
-	""")
+    set {_villager} to last spawned villager
+    zombify {_villager}
+    if {_villager} is a zombie villager:
+    	# This shall pass, for '{_villager}' is changed to the new zombie villager
+    """)
 @Example("""
-	set {_villager} to last spawned villager
-	zombify last spawned villager
-	if {_villager} is a zombie villager:
-		# This will fail because the variable was not provided when zombifying
-	""")
-@Example("unzombify {_zombieVillager}")
-@Example("unzombify {_zombieVillager} after 2 seconds")
+    set {_villager} to last spawned villager
+    zombify last spawned villager
+    if {_villager} is a zombie villager:
+    	# This shall fail, for the variable was not provided when zombifying
+    """)
+@Example("cure {_zombieVillager}")
+@Example("cure {_zombieVillager} after 2 seconds")
 @Since("2.11")
 public class EffZombify extends Effect {
 
 	static {
 		Skript.registerEffect(EffZombify.class,
 			"zombify %livingentities%",
-			"unzombify %livingentities% [(in|after) %-timespan%]");
+			"cure %livingentities% [(in|after) %-timespan%]");
 	}
 
 	private Expression<LivingEntity> entities;

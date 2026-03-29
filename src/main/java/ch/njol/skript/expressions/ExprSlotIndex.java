@@ -13,20 +13,20 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.slot.SlotWithIndex;
 
-@Name("Slot Index")
+@Name("Index of the Slot")
 @Description({
-	"Index of an an inventory slot. Other types of slots may or may " +
-	"not have indices. Note that comparing slots with numbers is also " +
-	"possible; if index of slot is same as the number, comparison" +
-	"succeeds. This expression is mainly for the cases where you must " +
-	"for some reason save the slot numbers.",
+	"The index of an inventory slot. Other manners of slots may or may " +
+	"not possess indices. Mark well that comparing slots with numbers is also " +
+	"possible; if the index of a slot be the same as the number, the comparison " +
+	"succeedeth. This expression serveth chiefly for those cases where thou must " +
+	"for some reason preserve the slot numbers.",
 	"",
-	"Raw index of slot is unique for the view, see <a href=\"https://wiki.vg/Inventory\">Minecraft Wiki</a>",
+	"Raw index of a slot is unique unto the view, see <a href=\"https://wiki.vg/Inventory\">Minecraft Wiki</a>",
 })
 @Example("""
-	if index of event-slot is 10:
-		send "You bought a pie!"
-	""")
+    if index of event-slot is 10:
+    	send "Thou hast purchased a pie!"
+    """)
 @Example("""
 	if display name of player's top inventory is "Custom Menu": # 3 rows inventory
 		if raw index of event-slot > 27: # outside custom inventory

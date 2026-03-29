@@ -8,17 +8,17 @@ import ch.njol.skript.doc.Since;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Panda;
 
-@Name("Panda Is Sneezing")
-@Description("Whether a panda is sneezing.")
+@Name("Panda Doth Sneeze")
+@Description("Whether a panda be given to sneezing most vigorously.")
 @Example("""
-	if last spawned panda is sneezing:
-		make last spawned panda stop sneezing
-	""")
+    if last spawned panda is given to sneezing:
+    	make last spawned panda stop sneezing
+    """)
 @Since("2.11")
 public class CondPandaIsSneezing extends PropertyCondition<LivingEntity> {
 
 	static {
-		register(CondPandaIsSneezing.class, "sneezing", "livingentities");
+		register(CondPandaIsSneezing.class, "given to sneezing", "livingentities");
 	}
 
 	@Override

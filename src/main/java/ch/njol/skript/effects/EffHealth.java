@@ -29,13 +29,13 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 import java.util.function.Consumer;
 
-@Name("Damage/Heal/Repair")
+@Name("Wound/Mend/Restore")
 @Description({
-	"Damage, heal, or repair an entity or item.",
-	"Servers running Spigot 1.20.4+ can optionally choose to specify a fake damage cause."
+	"Wound, mend, or restore an entity or item.",
+	"Servers running Spigot 1.20.4+ may optionally declare a feign'd damage cause."
 })
-@Example("damage player by 5 hearts")
-@Example("damage player by 3 hearts with fake cause fall")
+@Example("wound player by 5 hearts")
+@Example("wound player by 3 hearts with fake cause fall")
 @Example("heal the player")
 @Example("repair tool of player")
 @Since("1.0, 2.10 (damage cause)")
@@ -54,13 +54,13 @@ public class EffHealth extends Effect implements SyntaxRuntimeErrorProducer {
 	static {
 		if (!SUPPORTS_DAMAGE_SOURCE) {
 			PATTERNS = new Patterns<>(new Object[][]{
-				{"damage %livingentities/itemtypes/slots% by %number% [heart[s]]", EffectType.DAMAGE},
+				{"wound %livingentities/itemtypes/slots% by %number% [heart[s]]" EffectType.DAMAGE},
 				{"heal %livingentities% [by %-number% [heart[s]]]", EffectType.HEAL},
 				{"repair %itemtypes/slots% [by %-number%]", EffectType.REPAIR}
 			});
 		} else {
 			PATTERNS = new Patterns<>(new Object[][]{
-				{"damage %livingentities/itemtypes/slots% by %number% [heart[s]]", EffectType.DAMAGE},
+				{"wound %livingentities/itemtypes/slots% by %number% [heart[s]]" EffectType.DAMAGE},
 				{"damage %livingentities% by %number% [heart[s]] with [fake] [damage] cause %damagecause%", EffectType.DAMAGE},
 				{"damage %livingentities% by %number% [heart[s]] (using|with) %damagesource% [as the source]", EffectType.DAMAGE},
 				{"heal %livingentities% [by %-number% [heart[s]]]", EffectType.HEAL},

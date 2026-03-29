@@ -19,10 +19,10 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Explosion Block Yield")
-@Description({"The percentage of exploded blocks dropped in an explosion event.",
-				"When changing the yield, a value greater than 1 will function the same as using 1.",
-				"Attempting to change the yield to a value less than 0 will have no effect."})
+@Name("Explosion Block Bounty")
+@Description({"The portion of exploded blocks that fall as bounty in an explosion event.",
+				"When altering the yield, a value exceeding 1 shall function the same as employing 1.",
+				"Attempting to set the yield to a value less than 0 shall have no effect."})
 @Example("""
 	on explode:
 		set the explosion's block yield to 10%
@@ -33,8 +33,8 @@ public class ExprExplosionBlockYield extends SimpleExpression<Number> {
 
 	static {
 		Skript.registerExpression(ExprExplosionBlockYield.class, Number.class, ExpressionType.PROPERTY,
-				"[the] [explosion['s]] block (yield|amount)",
-				"[the] percentage of blocks dropped"
+				"[the] [explosion['s]] block (yield|bounty)",
+				"[the] (portion|percentage) of blocks dropped"
 		);
 	}
 

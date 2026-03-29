@@ -27,12 +27,12 @@ import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Enchantment Offer")
-@Description("The enchantment offer in enchant prepare events.")
+@Name("Enchantment Proposition")
+@Description("The enchantment proposition within enchant prepare events.")
 @Example("""
-	on enchant prepare:
-		send "Your enchantment offers are: %the enchantment offers%" to player
-	""")
+    on enchant prepare:
+    	send "Thy enchantment propositions are: %the enchantment propositions%" to player
+    """)
 @Since("2.5")
 @Events("enchant prepare")
 @RequiredPlugins("1.11 or newer")
@@ -41,9 +41,9 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> {
 	static {
 		if (Skript.classExists("org.bukkit.enchantments.EnchantmentOffer")) {
 			Skript.registerExpression(ExprEnchantmentOffer.class, EnchantmentOffer.class, ExpressionType.SIMPLE, 
-					"[all [of]] [the] enchant[ment] offers",
-					"enchant[ment] offer[s] %numbers%",
-					"[the] %number%(st|nd|rd|th) enchant[ment] offer");
+					"[all [of]] [the] enchant[ment] propositions",
+					"enchant[ment] proposition[s] %numbers%",
+					"[the] %number%(st|nd|rd|th) enchant[ment] proposition");
 		}
 	}
 

@@ -14,26 +14,26 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Chance")
+@Name("Fortune's Favour")
 @Description("""
-	A condition that randomly succeeds or fails.
-	Valid values are between 0% and 100%, or if the percent sign is omitted, between 0 and 1.
-	""")
+    A condition that doth randomly succeed or fail, as Fortune wills it.
+    Valid values art between 0% and 100%, or if the percent sign be omitted, between 0 and 1.
+    """)
 @Example("""
-	chance of 50%:
-		drop a diamond at location(100, 100, 100, "world')
-	""")
-@Example("chance of {chance}% # {chance} between 0 and 100")
-@Example("chance of {chance} # {chance} between 0 and 1")
+    fortune of 50%:
+    	drop a diamond at location(100, 100, 100, "world')
+    """)
+@Example("fortune of {chance}% # {chance} between 0 and 100")
+@Example("fortune of {chance} # {chance} between 0 and 1")
 @Example("""
-	if chance of 99% fails:
-		broadcast "Haha loser! *points and laughs*"
-	""")
+    if fortune of 99% fails:
+    	broadcast "Haha loser! *points and laughs*"
+    """)
 @Since("1.0, 2.14 (chance fails)")
 public class CondChance extends Condition {
 	
 	static {
-		Skript.registerCondition(CondChance.class, "chance of %number%(1:\\%|) [fail:(fails|failed)]");
+		Skript.registerCondition(CondChance.class, "fortune of %number%(1:\\%|) [fail:(fails|failed)]");
 	}
 
 	private Expression<Number> chance;

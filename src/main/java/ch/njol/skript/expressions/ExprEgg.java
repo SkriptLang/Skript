@@ -12,14 +12,14 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
 
 @Name("The Egg")
-@Description("The egg thrown in a Player Egg Throw event.")
-@Example("spawn an egg at the egg")
+@Description("The egg hurled forth in a Player Egg Throw event.")
+@Example("spawn an egg at the hurled egg")
 @Events("Egg Throw")
 @Since("2.7")
 public class ExprEgg extends EventValueExpression<Egg> {
 
 	static {
-		register(ExprEgg.class, Egg.class, "[thrown] egg");
+		register(ExprEgg.class, Egg.class, "[hurled] egg");
 	}
 
 	public ExprEgg() {

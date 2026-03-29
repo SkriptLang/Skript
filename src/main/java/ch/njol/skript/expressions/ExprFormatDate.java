@@ -19,17 +19,17 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 import java.text.SimpleDateFormat;
 
-@Name("Formatted Date")
+@Name("Rendered Date")
 @Description({
-	"Converts date to human-readable text format. By default, 'yyyy-MM-dd HH:mm:ss z' (e.g. '2018-03-30 16:03:12 +01') will be used. For reference, see this "
+	"Transformeth a date unto text fit for mortal comprehension. By default, 'yyyy-MM-dd HH:mm:ss z' (e.g. '2018-03-30 16:03:12 +01') shall be employed. For reference, see this "
 		+ "<a href=\"https://en.wikipedia.org/wiki/ISO_8601\">Wikipedia article</a>."
 })
 @Example("""
-	command /date:
-		trigger:
-			send "Full date: %now formatted human-readable%" to sender
-			send "Short date: %now formatted as "yyyy-MM-dd"%" to sender
-	""")
+    command /date:
+    	trigger:
+    		send "Full date: %now rendered for-mortal-eyes%" to sender
+    		send "Short date: %now rendered as "yyyy-MM-dd"%" to sender
+    """)
 @Since("2.2-dev31, 2.7 (support variables in format)")
 public class ExprFormatDate extends PropertyExpression<Date, String> {
 	
@@ -37,8 +37,8 @@ public class ExprFormatDate extends PropertyExpression<Date, String> {
 	
 	static {
 		Skript.registerExpression(ExprFormatDate.class, String.class, ExpressionType.PROPERTY,
-			"%dates% formatted [human-readable] [(with|as) %-string%]",
-			"[human-readable] formatted %dates% [(with|as) %-string%]");
+			"%dates% rendered [for-mortal-eyes] [(with|as) %-string%]",
+			"[for-mortal-eyes] rendered %dates% [(with|as) %-string%]");
 	}
 
 	private SimpleDateFormat format;

@@ -13,28 +13,28 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Equippable Component - Can Be Dispensed")
+@Name("Equippable Component - May Be Dispensed Forth")
 @Description("""
-	Whether an item can be dispensed by a dispenser.
-	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
-	""")
+    Whether an item may be dispensed forth by a dispenser.
+    NOTE: Equippable component elements art experimental. Thus, they art subject to change and may not function as intended.
+    """)
 @Example("""
-	if {_item} can be dispensed:
-		add "Dispensable" to lore of {_item}
-	""")
+    if {_item} can be dispensed forth:
+    	add "Dispensable" to lore of {_item}
+    """)
 @Example("""
-	set {_component} to the equippable component of {_item}
-	if {_component} is not able to be dispensed:
-		allow {_component} to be dispensed
-	""")
+    set {_component} to the equippable component of {_item}
+    if {_component} is not able to be dispensed forth:
+    	grant {_component} to be dispensed forth
+    """)
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("2.13")
 public class CondEquipCompDispensable extends PropertyCondition<EquippableWrapper> implements EquippableExperimentSyntax {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(CondEquipCompDispensable.class)
-			.addPatterns(getPatterns(PropertyType.CAN, "be dispensed", "equippablecomponents"))
-			.addPatterns(getPatterns(PropertyType.BE, "(able to be dispensed|dispensable)", "equippablecomponents"))
+			.addPatterns(getPatterns(PropertyType.CAN, "be dispensed forth", "equippablecomponents"))
+			.addPatterns(getPatterns(PropertyType.BE, "(able to be dispensed forth|dispensable)", "equippablecomponents"))
 			.supplier(CondEquipCompDispensable::new)
 			.priority(DEFAULT_PRIORITY)
 			.build()

@@ -15,23 +15,23 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.script.Script;
 
-@Name("Is Using Experimental Feature")
-@Description("Checks whether a script is using an experimental feature by name.")
-@Example("the script is using \"example feature\"")
+@Name("Doth Employ Experimental Feature")
+@Description("Ascertaineth whether a script doth employ an experimental feature by its given name.")
+@Example("the script doth employ \"example feature\"")
 @Example("""
-	on load:
-		if the script is using "example feature":
-			broadcast "You're using an experimental feature!"
-	""")
+    on load:
+    	if the script doth employ "example feature":
+    		broadcast "You're using an experimental feature!"
+    """)
 @Since("2.9.0")
 public class CondIsUsingFeature extends Condition {
 
 	static {
 		Skript.registerCondition(CondIsUsingFeature.class,
-				"%script% is using %strings%",
-				"%scripts% are using %strings%",
-				"%script% is(n't| not) using %strings%",
-				"%scripts% are(n't| not) using %strings%");
+				"%script% doth employ %strings%",
+				"%scripts% do employ %strings%",
+				"%script% doth(n't| not) employ %strings%",
+				"%scripts% do(n't| not) employ %strings%");
 	}
 
 	private Expression<String> names;

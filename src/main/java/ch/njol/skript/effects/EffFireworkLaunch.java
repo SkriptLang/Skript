@@ -19,14 +19,14 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Launch firework")
-@Description("Launch firework effects at the given location(s).")
-@Example("launch ball large colored red, purple and white fading to light green and black at player's location with duration 1")
+@Name("Loose a Firework")
+@Description("Loose firework effects at the given location or locations.")
+@Example("loose ball large colored red, purple and white fading to light green and black at player's location with duration 1")
 @Since("2.4")
 public class EffFireworkLaunch extends Effect {
 	
 	static {
-		Skript.registerEffect(EffFireworkLaunch.class, "(launch|deploy) [[a] firework [with effect[s]]] %fireworkeffects% at %locations% [([with] (duration|power)|timed) %number%]");
+		Skript.registerEffect(EffFireworkLaunch.class, "(launch|loose) [[a] firework [with effect[s]]] %fireworkeffects% at %locations% [([with] (duration|power)|timed) %number%]");
 	}
 
 	@Nullable

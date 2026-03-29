@@ -17,12 +17,12 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Display Transformation Rotation")
+@Name("Display Transformation Gyration")
 @Description({
         "Returns or changes the transformation rotation of <a href='#display'>displays</a>.",
-        "The left rotation is applied first, with the right rotation then being applied based on the rotated axis."
+        "The left rotation is applied first, with the right rotation then being applied upon the rotated axis."
 })
-@Example("set left transformation rotation of last spawned block display to quaternion(1, 0, 0, 0) # reset block display")
+@Example("set left transformation rotation of last spawned block display to quaternion(1, 0, 0, 0) # restore block display to its original bearing")
 @Since("2.10")
 public class ExprDisplayTransformationRotation extends SimplePropertyExpression<Display, Quaternionf> {
 

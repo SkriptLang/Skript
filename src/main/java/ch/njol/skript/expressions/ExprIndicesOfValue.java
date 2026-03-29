@@ -25,19 +25,19 @@ import java.util.function.IntFunction;
 
 @Name("Indices of Value")
 @Description({
-	"Get the first, last or all positions of a character (or text) in another text using "
-		+ "'positions of %texts% in %text%'. Nothing is returned when the value does not occur in the text. "
+	"Obtain the first, last, or all positions of a character (or text) within another text using "
+		+ "'positions of %texts% in %text%'. Naught is returned when the value doth not appear in the text."
 		+ "Positions range from 1 to the <a href='#ExprIndicesOf'>length</a> of the text (inclusive).",
 	"",
-	"Using 'indices/positions of %objects% in %objects%', you can get the indices or positions of "
-		+ "a list where the value at that index is the provided value. "
-		+ "Indices are only supported for keyed expressions (e.g. variable lists) "
-		+ "and will return the string indices of the given value. "
-		+ "Positions can be used with any list and will return "
-		+ "the numerical position of the value in the list, counting up from 1. "
-		+ "Additionally, nothing is returned if the value is not found in the list.",
+	"Using 'indices/positions of %objects% in %objects%', thou canst obtain the indices or positions of "
+		+ "a list wherein the value at that index matcheth the provided value."
+		+ "Indices are supported only for keyed expressions (e.g. variable lists) "
+		+ "and shall return the string indices of the given value."
+		+ "Positions may be used with any list and shall return "
+		+ "the numerical position of the value in the list, counting upward from 1."
+		+ "Additionally, naught is returned if the value is not found within the list.",
 	"",
-	"Whether string comparison is case-sensitive or not can be configured in Skript's config file.",
+	"Whether string comparison respecteth case or not may be configured in Skript's config file.",
 })
 @Example("""
 	set {_first} to the first position of "@" in the text argument

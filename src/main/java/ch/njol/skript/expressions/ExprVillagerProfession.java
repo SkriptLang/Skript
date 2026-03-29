@@ -14,17 +14,17 @@ import org.bukkit.entity.ZombieVillager;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Villager Profession")
-@Description("Represents the profession of a villager/zombie villager.")
-@Example("set {_p} to villager profession of event-entity")
-@Example("villager profession of event-entity = nitwit profession")
-@Example("set villager profession of {_villager} to librarian profession")
-@Example("delete villager profession of event-entity")
+@Name("Villager Calling")
+@Description("Representeth the calling of a villager or zombie villager.")
+@Example("set {_p} to villager calling of event-entity")
+@Example("villager calling of event-entity = nitwit profession")
+@Example("set villager calling of {_villager} to librarian profession")
+@Example("delete villager calling of event-entity")
 @Since("2.10")
 public class ExprVillagerProfession extends SimplePropertyExpression<LivingEntity, Profession> {
 
 	static {
-		register(ExprVillagerProfession.class, Profession.class, "villager profession", "livingentities");
+		register(ExprVillagerProfession.class, Profession.class, "villager calling", "livingentities");
 	}
 
 	@Override

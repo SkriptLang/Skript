@@ -15,19 +15,19 @@ import org.bukkit.entity.Panda;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Make Panda Sneeze")
-@Description("Make a panda start/stop sneezing.")
+@Name("Bid Panda Sneeze")
+@Description("Bid a panda to commence or cease its sneezing.")
 @Example("""
-	if last spawned panda is not sneezing:
-		make last spawned panda start sneezing
-	""")
+    if last spawned panda is not sneezing:
+    	make last spawned panda commence sneezing
+    """)
 @Since("2.11")
 public class EffPandaSneezing extends Effect {
 
 	static {
 		Skript.registerEffect(EffPandaSneezing.class,
-			"make %livingentities% (start:(start sneezing|sneeze)|stop sneezing)",
-			"force %livingentities% to (:start|stop) sneezing");
+			"make %livingentities% (start:(commence sneezing|sneeze)|cease sneezing)",
+			"bid %livingentities% to (start:commence|cease) sneezing");
 	}
 
 	private Expression<LivingEntity> entities;

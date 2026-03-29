@@ -21,10 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-@Name("Raw String")
-@Description("Returns the string without formatting (colors etc.) and without stripping them from it, " +
-	"e.g. <code>raw \"&aHello There!\"</code> would output <code>&aHello There!</code>")
-@Example("send raw \"&aThis text is unformatted!\" to all players")
+@Name("Unadorned String")
+@Description("Returneth the string without adornment (colours and such) and without stripping them from it," +
+	"e.g. <code>raw \"&aHello There!\"</code> would yield <code>&aHello There!</code>")
+@Example("send raw \"&aThis text remaineth unadorned!\" to all players")
 @Since("2.7")
 public class ExprRawString extends SimpleExpression<String> {
 

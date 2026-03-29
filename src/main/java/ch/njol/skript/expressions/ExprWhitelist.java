@@ -19,20 +19,20 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Whitelist")
+@Name("Guest Ledger")
 @Description({
-	"An expression for obtaining and modifying the server's whitelist.",
-	"Players may be added and removed from the whitelist.",
-	"The whitelist can be enabled or disabled by setting the whitelist to true or false respectively."
+	"An expression for obtaining and amending the server's guest ledger.",
+	"Players may be inscribed upon or stricken from the guest ledger.",
+	"The guest ledger may be enabled or disabled by setting it to true or false respectively."
 })
-@Example("set the whitelist to false")
-@Example("add all players to whitelist")
-@Example("reset the whitelist")
+@Example("set the guest ledger to false")
+@Example("add all players to guest ledger")
+@Example("reset the guest ledger")
 @Since("2.5.2, 2.9.0 (delete)")
 public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 
 	static {
-		Skript.registerExpression(ExprWhitelist.class, OfflinePlayer.class, ExpressionType.SIMPLE, "[the] white[ ]list");
+		Skript.registerExpression(ExprWhitelist.class, OfflinePlayer.class, ExpressionType.SIMPLE, "[the] guest[ ]ledger");
 	}
 
 	@Override

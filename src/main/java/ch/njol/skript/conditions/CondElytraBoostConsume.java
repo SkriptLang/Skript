@@ -10,21 +10,21 @@ import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Will Consume Boosting Firework")
-@Description("Checks to see if the firework used in an 'elytra boost' event will be consumed.")
+@Name("Shall the Boosting Firework Be Consumed")
+@Description("Doth examine whether the firework employed in an 'elytra boost' occasion shall be consumed.")
 @Example("""
-	on elytra boost:
-		if the used firework will be consumed:
-			prevent the used firework from being consumed
-	""")
+    on elytra boost:
+    	if the employed firework shall be consumed:
+    		prevent the employed firework from being consumed
+    """)
 @Since("2.10")
 public class CondElytraBoostConsume extends Condition {
 
 	static {
 		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerElytraBoostEvent")) {
 			Skript.registerCondition(CondElytraBoostConsume.class,
-				"[the] (boosting|used) firework will be consumed",
-				"[the] (boosting|used) firework (will not|won't) be consumed");
+				"[the] (boosting|employed) firework shall be consumed",
+				"[the] (boosting|employed) firework (shall not|shan't) be consumed");
 		}
 	}
 

@@ -15,16 +15,16 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
-@Name("Enderman Teleport")
+@Name("Enderman Vanishment")
 @Description({
-	"Make an enderman teleport randomly or towards an entity.",
-	"Teleporting towards an entity teleports in the direction to the entity and not to them."
+	"Bid an enderman vanish to a place most random, or towards a given entity.",
+	"Vanishing towards an entity doth transport in the direction of said entity, not unto them."
 })
-@Example("make last spawned enderman teleport randomly")
+@Example("bid last spawned enderman vanish randomly")
 @Example("""
-	loop 10 times:
-		make all endermen teleport towards player
-	""")
+    loop 10 times:
+    	bid all endermen vanish towards player
+    """)
 @RequiredPlugins("Minecraft 1.20.1+")
 @Since("2.11")
 public class EffEndermanTeleport extends Effect {
@@ -32,10 +32,10 @@ public class EffEndermanTeleport extends Effect {
 	static {
 		if (Skript.isRunningMinecraft(1, 20, 1))
 			Skript.registerEffect(EffEndermanTeleport.class,
-				"make %livingentities% (randomly teleport|teleport randomly)",
-				"force %livingentities% to (randomly teleport|teleport randomly)",
-				"make %livingentities% teleport [randomly] towards %entity%",
-				"force %livingentities% to teleport [randomly] towards %entity%");
+				"bid %livingentities% (randomly vanish|vanish randomly)",
+				"compel %livingentities% to (randomly vanish|vanish randomly)",
+				"bid %livingentities% vanish [randomly] towards %entity%",
+				"compel %livingentities% to vanish [randomly] towards %entity%");
 	}
 
 	private Expression<LivingEntity> entities;

@@ -18,8 +18,8 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Vectors - Cross Product")
-@Description("Gets the cross product between two vectors.")
+@Name("Vectors — Cross Product")
+@Description("Obtaineth the cross product betwixt two vectors.")
 @Example("send \"%vector 1, 0, 0 cross vector 0, 1, 0%\"")
 @Since("2.2-dev28")
 public class ExprVectorCrossProduct extends SimpleExpression<Vector> {

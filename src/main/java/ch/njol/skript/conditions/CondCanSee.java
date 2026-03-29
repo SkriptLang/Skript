@@ -13,26 +13,26 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Can See")
-@Description("Checks whether the given players can see the provided entities.")
+@Name("May Perceive")
+@Description("Doth verify whether the given players can perceive the provided entities.")
 @Example("""
-	if sender can't see the player-argument:
-		message "who dat?"
-	""")
+    if sender can't perceive the player-argument:
+    	message "who dat?"
+    """)
 @Example("""
-	if the player can see the last spawned entity:
-		message "hello there!"
-	""")
+    if the player can perceive the last spawned entity:
+    	message "hello there!"
+    """)
 @Since("2.3, 2.10 (entities)")
 @RequiredPlugins("Minecraft 1.19+ (entities)")
 public class CondCanSee extends Condition {
 
 	static {
 		Skript.registerCondition(CondCanSee.class,
-				"%entities% (is|are) [visible|:invisible] for %players%",
-				"%players% can see %entities%",
-				"%entities% (is|are)(n't| not) [visible|:invisible] for %players%",
-				"%players% can('t| not) see %entities%");
+				"%entities% (is|are) [visible|:invisible] unto %players%",
+				"%players% can perceive %entities%",
+				"%entities% (is|are)(n't| not) [visible|:invisible] unto %players%",
+				"%players% can('t| not) perceive %entities%");
 	}
 
 	@SuppressWarnings("null")

@@ -21,11 +21,11 @@ import org.bukkit.event.server.BroadcastMessageEvent;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("deprecation")
-@Name("Message")
+@Name("Missive")
 @Description(
-	"The (chat) message of a chat event, the join message of a join event, the quit message of a quit event, " +
-	"the death message of a death event or the broadcasted message in a broadcast event. " +
-	"This expression is mostly useful for being changed."
+	"The (chat) missive of a chat event, the greeting of a join event, the farewell of a quit event," +
+	"the death proclamation of a death event, or the heralded message in a broadcast event." +
+	"This expression proveth most useful when altered."
 )
 @Example("""
 	on chat:
@@ -33,29 +33,29 @@ import org.jetbrains.annotations.Nullable;
 		set message to "&c%message%"
 	""")
 @Example("""
-	on first join:
-		set join message to "Welcome %player% to our awesome server!"
-	""")
+    on first join:
+    	set join message to "Welcome %player% to our most wondrous server!"
+    """)
 @Example("""
 	on join:
 		player has played before
 		set join message to "Welcome back, %player%!"
 	""")
 @Example("""
-	on quit:
-		if {vanish::%player's uuid%} is set:
-			clear quit message
-		else:
-			set quit message to "%player% left this awesome server!"
-	""")
+    on quit:
+    	if {vanish::%player's uuid%} is set:
+    		clear quit message
+    	else:
+    		set quit message to "%player% hath departed this wondrous server!"
+    """)
 @Example("""
-	on death:
-		set the death message to "%player% died!"
-	""")
+    on death:
+    	set the death message to "%player% hath perished!"
+    """)
 @Example("""
-	on broadcast:
-		set broadcast message to "&a[BROADCAST] %broadcast message%"
-	""")
+    on broadcast:
+    	set broadcast message to "&a[PROCLAMATION] %broadcast message%"
+    """)
 @Since("1.4.6 (chat message), 1.4.9 (join & quit messages), 2.0 (death message), 2.9.0 (clear message), 2.10 (broadcasted message)")
 @Events({"chat", "join", "quit", "death", "broadcast"})
 public class ExprMessage extends SimpleExpression<String> {

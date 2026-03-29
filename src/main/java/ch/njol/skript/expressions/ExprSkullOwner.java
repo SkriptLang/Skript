@@ -23,8 +23,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-@Name("Skull Owner")
-@Description("The skull owner of a player skull.")
+@Name("Master of the Skull")
+@Description("The owner of a player skull—the soul to whom the head doth belong.")
 @Example("set {_owner} to the skull owner of event-block")
 @Example("set skull owner of {_block} to \"Njol\" parsed as offlineplayer")
 @Example("set head owner of player's tool to {_player}")

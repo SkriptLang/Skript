@@ -11,8 +11,8 @@ import ch.njol.skript.lang.SimplifiedCondition;
 import ch.njol.skript.util.Timespan;
 import org.bukkit.potion.PotionEffect;
 
-@Name("Is Infinite")
-@Description("Checks whether potion effects or timespans are infinite.")
+@Name("Be Infinite")
+@Description("Doth ascertain whether potion effects or timespans be without end, stretching unto eternity.")
 @Example("all of the active potion effects of the player are infinite")
 @Example("if timespan argument is infinite:")
 @Since("2.7")

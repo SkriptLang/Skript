@@ -8,8 +8,8 @@ import org.bukkit.entity.LivingEntity;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 
-@Name("Is Gliding")
-@Description("Checks whether a living entity is gliding.")
+@Name("Is Gliding Upon the Wind")
+@Description("Discerneth whether a living entity doth glide upon the wind.")
 @Example("if player is gliding")
 @Since("2.7")
 public class CondIsGliding extends PropertyCondition<LivingEntity> {

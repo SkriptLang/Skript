@@ -13,11 +13,11 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Display Billboard")
+@Name("Display Placard Setting")
 @Description({
 	"Returns or changes the <a href='#billboard'>billboard</a> setting of <a href='#display'>displays</a>.",
-	"This describes the axes/points around which the display can pivot.",
-	"Displays spawn with the 'fixed' billboard by default. Resetting this expression will also set it to 'fixed'."
+	"This describeth the axes and points about which the display may pivot.",
+	"Displays are spawned with the 'fixed' billboard by default. Resetting this expression shall likewise set it to 'fixed'."
 })
 @Example("set billboard of the last spawned text display to center")
 @Since("2.10")

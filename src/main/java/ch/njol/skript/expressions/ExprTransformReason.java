@@ -12,8 +12,8 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ExpressionType;
 
-@Name("Transform Reason")
-@Description("The <a href='#transformreason'>transform reason</a> within an entity <a href='#entity transform'>entity transform</a> event.")
+@Name("Cause of Transformation")
+@Description("The <a href='#transformreason'>cause of transformation</a> within an <a href='#entity transform'>entity transform</a> event.")
 @Example("""
 	on entity transform:
 		transform reason is infection, drowned or frozen

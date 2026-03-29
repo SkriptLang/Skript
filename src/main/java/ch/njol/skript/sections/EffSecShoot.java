@@ -33,13 +33,13 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.function.Consumer;
 
-@Name("Shoot")
-@Description("Shoots a projectile (or any other entity) from a given entity or location.")
-@Example("shoot arrow from all players at speed 2")
+@Name("Loose Forth")
+@Description("Doth loose a projectile (or any other entity) from a given entity or location.")
+@Example("loose arrow from all players at speed 2")
 @Example("""
-	shoot a pig from all players:
-		add event-entity to {_projectiles::*}
-	""")
+    loose a pig from all players:
+    	add event-entity to {_projectiles::*}
+    """)
 @Since("2.10")
 public class EffSecShoot extends EffectSection {
 
@@ -152,8 +152,8 @@ public class EffSecShoot extends EffectSection {
 
 	static {
 		Skript.registerSection(EffSecShoot.class,
-			"shoot %entitydatas% [from %livingentities/locations%] [(at|with) (speed|velocity) %-number%] [%-direction%]",
-			"(make|let) %livingentities/locations% shoot %entitydatas% [(at|with) (speed|velocity) %-number%] [%-direction%]"
+			"loose %entitydatas% [from %livingentities/locations%] [(at|with) (speed|velocity) %-number%] [%-direction%]",
+			"(make|let) %livingentities/locations% loose %entitydatas% [(at|with) (speed|velocity) %-number%] [%-direction%]"
 		);
 		EventValues.registerEventValue(ShootEvent.class, Entity.class, ShootEvent::getProjectile);
 		EventValues.registerEventValue(ShootEvent.class, Projectile.class,

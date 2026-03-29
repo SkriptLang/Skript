@@ -19,18 +19,18 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Time")
+@Name("Hour of the Realm")
 @Description({
 	"The <a href='#time'>time</a> of a world.",
-	"Use the \"minecraft <a href='#timespan'>timespan</a>\" syntax to change the time according " +
-	"to Minecraft's time intervals.",
-	"Since Minecraft uses discrete intervals for time (ticks), " +
-	"changing the time by real-world minutes or real-world seconds only changes it approximately.",
-	"Removing an amount of time from a world's time will move the clock forward a day."
+	"Employ the \"minecraft <a href='#timespan'>timespan</a>\" syntax to alter the hour according " +
+	"to Minecraft's temporal intervals.",
+	"Since Minecraft doth use discrete intervals for time (ticks), " +
+	"altering the hour by real-world minutes or seconds shall change it only approximately.",
+	"Subtracting an amount of time from a world's hour shall advance the clock forward by a day."
 })
-@Example("set time of world \"world\" to 2:00")
-@Example("add 2 minecraft hours to time of world \"world\"")
-@Example("add 54 real seconds to time of world \"world\" # approximately 1 minecraft hour")
+@Example("set hour of world \"world\" to 2:00")
+@Example("add 2 minecraft hours to hour of world \"world\"")
+@Example("add 54 real seconds to hour of world \"world\" # approximately 1 minecraft hour")
 @Since("1.0")
 public class ExprTime extends PropertyExpression<World, Time> {
 
@@ -40,7 +40,7 @@ public class ExprTime extends PropertyExpression<World, Time> {
 
 	static {
 		Skript.registerExpression(ExprTime.class, Time.class, ExpressionType.PROPERTY,
-			"[the] time[s] [([with]in|of) %worlds%]", "%worlds%'[s] time[s]");
+			"[the] hour[s] [([with]in|of) %worlds%]", "%worlds%'[s] hour[s]");
 	}
 
 	@SuppressWarnings("unchecked")

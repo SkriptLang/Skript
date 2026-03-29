@@ -15,22 +15,22 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Update Block")
+@Name("Transmute Block")
 @Description({
-	"Updates the blocks by setting them to a selected block",
-	"Using 'without physics' will not send updates to the surrounding blocks of the blocks being set.",
-	"Example: Updating a block next to a sand block in the air 'without physics' will not cause the sand block to fall."
+	"Doth transmute blocks by setting them to a chosen substance.",
+	"Employing 'without physics' shall not dispatch tidings to the surrounding blocks of those being set.",
+	"For example: Transmuting a block beside a sand block suspended in the air 'without physics' shall not cause the sand block to fall."
 })
-@Example("update {_blocks::*} as gravel")
-@Example("update {_blocks::*} to be sand without physics updates")
-@Example("update {_blocks::*} as stone without neighbouring updates")
+@Example("transmute {_blocks::*} as gravel")
+@Example("transmute {_blocks::*} to be sand without physics updates")
+@Example("transmute {_blocks::*} as stone without neighbouring updates")
 @Since("2.10")
 // Originally sourced from SkBee by ShaneBee (https://github.com/ShaneBeee/SkBee/blob/master/src/main/java/com/shanebeestudios/skbee/elements/other/effects/EffBlockstateUpdate.java)
 public class EffBlockUpdate extends Effect {
 
 	static {
 		Skript.registerEffect(EffBlockUpdate.class,
-			"update %blocks% (as|to be) %blockdata% [physics:without [neighbo[u]r[ing]|adjacent] [physics] update[s]]");
+			"transmute %blocks% (as|to be) %blockdata% [physics:without [neighbo[u]r[ing]|adjacent] [physics] update[s]]");
 	}
 
 	private boolean physics;

@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Name("Item Flags")
-@Description("The item flags of an item. Can be modified.")
+@Description("The item flags of an item. May be altered at thy discretion.")
 @Example("set item flags of player's tool to hide enchants and hide attributes")
 @Example("add hide potion effects to item flags of player's held item")
 @Example("remove hide enchants from item flags of {legendary sword}")

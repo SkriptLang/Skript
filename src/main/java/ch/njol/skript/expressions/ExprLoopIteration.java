@@ -16,25 +16,25 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Loop Iteration")
-@Description("Returns the loop's current iteration count (for both normal and while loops).")
+@Name("Loop Tally")
+@Description("Returneth the loop's present iteration tally (for both ordinary and while loops).")
 @Example("""
-	while player is online:
-		give player 1 stone
-		wait 5 ticks
-		if loop-counter > 30:
-			stop loop
-	""")
+    while player is online:
+    	give player 1 stone
+    	wait 5 ticks
+    	if loop-tally > 30:
+    		stop loop
+    """)
 @Example("""
-	loop {top-balances::*}:
-		if loop-iteration <= 10:
-			broadcast "#%loop-iteration% %loop-index% has $%loop-value%"
-	""")
+    loop {top-balances::*}:
+    	if loop-iteration <= 10:
+    		broadcast "#%loop-iteration% %loop-index% hath $%loop-value%"
+    """)
 @Since("2.8.0")
 public class ExprLoopIteration extends SimpleExpression<Long> {
 
 	static {
-		Skript.registerExpression(ExprLoopIteration.class, Long.class, ExpressionType.SIMPLE, "[the] loop(-| )(counter|iteration)[-%-*number%]");
+		Skript.registerExpression(ExprLoopIteration.class, Long.class, ExpressionType.SIMPLE, "[the] loop(-| )(tally|iteration)[-%-*number%]");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")

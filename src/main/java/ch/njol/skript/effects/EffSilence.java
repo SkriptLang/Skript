@@ -14,18 +14,18 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-@Name("Silence Entity")
-@Description("Controls whether or not an entity is silent.")
-@Example("make target entity silent")
+@Name("Hush Entity")
+@Description("Governeth whether an entity be hushed into silence or permitted to speak.")
+@Example("render target entity mute")
 @Since("2.5")
 public class EffSilence extends Effect {
 	
 	static {
 		Skript.registerEffect(EffSilence.class,
-			"silence %entities%",
-			"unsilence %entities%",
-			"make %entities% silent",
-			"make %entities% not silent");
+			"hush %entities%",
+			"unhush %entities%",
+			"render %entities% mute",
+			"render %entities% not mute");
 	}
 	
 	@SuppressWarnings("null")

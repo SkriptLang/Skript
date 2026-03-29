@@ -15,21 +15,21 @@ import org.bukkit.block.EntityBlockStorage;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Entity Storage Is Full")
-@Description("Checks to see if the an entity block storage (i.e beehive) is full.")
+@Name("Creature Storage Be Full")
+@Description("Examineth whether a block's creature storage (such as a beehive) be filled to the brim.")
 @Example("""
-	if the entity storage of {_beehive} is full:
-		release the entity storage of {_beehive}
-	""")
+    if the creature storage of {_beehive} is full:
+    	release the creature storage of {_beehive}
+    """)
 @Since("2.11")
 public class CondEntityStorageIsFull extends Condition {
 
 	static {
 		Skript.registerCondition(CondEntityStorageIsFull.class, ConditionType.PROPERTY,
-			"[the] entity storage of %blocks% (is|are) full",
-			"%blocks%'[s] entity storage (is|are) full",
-			"[the] entity storage of %blocks% (isn't|is not|aren't|are not) full",
-			"%blocks%'[s] entity storage (isn't|is not|aren't|are not) full");
+			"[the] creature storage of %blocks% (is|are) full",
+			"%blocks%'[s] creature storage (is|are) full",
+			"[the] creature storage of %blocks% (isn't|is not|aren't|are not) full",
+			"%blocks%'[s] creature storage (isn't|is not|aren't|are not) full");
 	}
 
 	private Expression<Block> blocks;

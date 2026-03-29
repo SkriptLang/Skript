@@ -12,23 +12,23 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperime
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Equippable Component - Equipment Slot")
+@Name("Equippable Component - Armament Slot")
 @Description("""
-	The equipment slot an item can be equipped to.
-	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
-	""")
-@Example("set the equipment slot of {_item} to chest slot")
+    The armament slot unto which an item may be donned.
+    NOTE: Equippable component elements art experimental. Thus, they art subject to change and may not function as intended.
+    """)
+@Example("set the armament slot of {_item} to chest slot")
 @Example("""
-	set {_component} to the equippable component of {_item}
-	set the equipment slot of {_component} to boots slot
-	""")
+    set {_component} to the equippable component of {_item}
+    set the armament slot of {_component} to boots slot
+    """)
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("2.13")
 public class ExprEquipCompSlot extends SimplePropertyExpression<EquippableWrapper, EquipmentSlot> implements EquippableExperimentSyntax {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprEquipCompSlot.class, EquipmentSlot.class, "equipment slot", "equippablecomponents", true)
+			infoBuilder(ExprEquipCompSlot.class, EquipmentSlot.class, "armament slot", "equippablecomponents", true)
 				.supplier(ExprEquipCompSlot::new)
 				.build()
 		);

@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 public class EvtBookSign extends SkriptEvent{
 	
 	static {
-		Skript.registerEvent("Book Sign", EvtBookSign.class, PlayerEditBookEvent.class, "book sign[ing]")
+		Skript.registerEvent("Tome Signing", EvtBookSign.class, PlayerEditBookEvent.class, "tome sign[ing]")
 				.description("Called when a player signs a book.")
 				.examples("on book sign:")
 				.since("2.2-dev31");

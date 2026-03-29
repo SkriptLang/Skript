@@ -18,8 +18,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-@Name("Rounding")
-@Description("Rounds numbers normally, up (ceiling) or down (floor) respectively.")
+@Name("Rounding of Numbers")
+@Description("Doth round numbers in the customary fashion, upward (ceiling) or downward (floor) respectively.")
 @Example("set {var} to rounded health of player")
 @Example("set line 1 of the block to \"%rounded (1.5 * player's level)%\"")
 @Example("add rounded down argument to the player's health")

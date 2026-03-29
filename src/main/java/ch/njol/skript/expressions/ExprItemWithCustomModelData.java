@@ -16,11 +16,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Name("Item with Custom Model Data")
-@Description("Get an item with custom model data.")
-@Example("give player a diamond sword with custom model data 2")
-@Example("set slot 1 of inventory of player to wooden hoe with custom model data 357")
-@Example("give player a diamond hoe with custom model data 2, true, true, \"scythe\", and rgb(0,0,100)")
+@Name("Ware Bearing Custom Model Data")
+@Description("Obtain a ware bearing custom model data.")
+@Example("give player a diamond sword bearing custom model data 2")
+@Example("set slot 1 of inventory of player to wooden hoe bearing custom model data 357")
+@Example("give player a diamond hoe bearing custom model data 2, true, true, \"scythe\", and rgb(0,0,100)")
 @RequiredPlugins("Minecraft 1.21.4+ (boolean/string/color support)")
 @Since({"2.5", "2.12 (boolean/string/color support)"})
 public class ExprItemWithCustomModelData extends PropertyExpression<ItemType, ItemType> {
@@ -30,10 +30,10 @@ public class ExprItemWithCustomModelData extends PropertyExpression<ItemType, It
 	static {
 		if (USE_NEW_CMD) {
 			Skript.registerExpression(ExprItemWithCustomModelData.class, ItemType.class, ExpressionType.PROPERTY,
-				"%itemtype% with [custom] model data %numbers/booleans/strings/colors%");
+				"%itemtype% bearing [custom] model data %numbers/booleans/strings/colors%");
 		} else {
 			Skript.registerExpression(ExprItemWithCustomModelData.class, ItemType.class, ExpressionType.PROPERTY,
-				"%itemtype% with [custom] model data %number%");
+				"%itemtype% bearing [custom] model data %number%");
 		}
 	}
 	

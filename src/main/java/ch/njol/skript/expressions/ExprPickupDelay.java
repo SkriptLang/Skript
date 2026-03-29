@@ -13,15 +13,15 @@ import org.bukkit.entity.Item;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Pickup Delay")
-@Description("The amount of time before a dropped item can be picked up by an entity.")
+@Name("Gather-Up Tarrying")
+@Description("The measure of time that must pass ere a dropped item may be gathered up by an entity.")
 @Example("drop diamond sword at {_location} without velocity")
-@Example("set pickup delay of last dropped item to 5 seconds")
+@Example("set gather up tarrying of last dropped item to 5 seconds")
 @Since("2.7")
 public class ExprPickupDelay extends SimplePropertyExpression<Entity, Timespan> {
 
 	static {
-		register(ExprPickupDelay.class, Timespan.class, "pick[ ]up delay", "entities");
+		register(ExprPickupDelay.class, Timespan.class, "gather[ ]up tarrying", "entities");
 	}
 
 	@Override

@@ -12,14 +12,14 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SimplifiedCondition;
 import org.bukkit.Material;
 
-@Name("Is Fuel")
-@Description("Checks whether an item can be used as fuel in a furnace.")
+@Name("Is Furnace Fuel")
+@Description("Discerneth whether an item may serve as fuel within a furnace.")
 @Example("""
-	on right click on furnace:
-		if player's tool is not fuel:
-			send "Please hold a valid fuel item in your hand"
-			cancel event
-	""")
+    on right click on furnace:
+    	if player's tool is not fuel:
+    		send "Prithee, hold a proper fuel in thine hand"
+    		cancel event
+    """)
 @Since("2.5.1")
 public class CondIsFuel extends PropertyCondition<ItemType> {
 	

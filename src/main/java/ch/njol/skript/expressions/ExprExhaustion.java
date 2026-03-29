@@ -12,8 +12,8 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Exhaustion")
-@Description("The exhaustion of a player. This is mainly used to determine the rate of hunger depletion.")
+@Name("Weariness")
+@Description("The exhaustion of a player. This is chiefly employed to determine the rate of hunger's depletion.")
 @Example("set exhaustion of all players to 1")
 @Since("2.2-dev35")
 public class ExprExhaustion extends SimplePropertyExpression<Player, Number>{

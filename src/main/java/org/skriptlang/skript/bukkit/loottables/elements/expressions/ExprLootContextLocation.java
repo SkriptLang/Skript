@@ -15,15 +15,15 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Loot Location of Loot Context")
-@Description("Returns the loot location of a loot context.")
+@Name("Locale of Plunder Context")
+@Description("Returneth the locale of plunder from a loot context.")
 @Example("""
-	set {_player} to player
-	set {_context} to a loot context at player:
-		if {_player} is in "world_nether":
-			set loot location to location of last spawned pig
-	send loot location of {_context} to player
-	""")
+    set {_player} to player
+    set {_context} to a plunder context at player:
+    	if {_player} is in "world_nether":
+    		set plundering locale to location of last spawned pig
+    send plundering locale of {_context} to player
+    """)
 @Since("2.10")
 public class ExprLootContextLocation extends SimplePropertyExpression<LootContext, Location> {
 
@@ -33,7 +33,7 @@ public class ExprLootContextLocation extends SimplePropertyExpression<LootContex
 			infoBuilder(
 				ExprLootContextLocation.class,
 				Location.class,
-				"loot[ing] [context] location",
+				"plunder[ing] [context] locale",
 				"lootcontexts",
 				true
 			)

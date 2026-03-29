@@ -20,12 +20,12 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Hatching Entity Type")
-@Description("The type of the entity that will be hatched in a Player Egg Throw event.")
+@Name("Hatching Creature Type")
+@Description("The manner of creature that shall be hatched in a Player Egg Throw event.")
 @Example("""
-	on player egg throw:
-		set the hatching entity type to a primed tnt
-	""")
+    on player egg throw:
+    	set the hatching creature type to a primed tnt
+    """)
 @Events("Egg Throw")
 @Since("2.7")
 public class ExprHatchingType extends SimpleExpression<EntityData<?>> {
@@ -33,7 +33,7 @@ public class ExprHatchingType extends SimpleExpression<EntityData<?>> {
 	static {
 		//noinspection unchecked
 		Skript.registerExpression(ExprHatchingType.class, (Class<EntityData<?>>) (Class<?>) EntityData.class, ExpressionType.SIMPLE,
-				"[the] hatching entity [type]"
+				"[the] hatching creature [type]"
 		);
 	}
 

@@ -14,10 +14,10 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
-@Name("Language")
-@Description({"Currently selected game language of a player. The value of the language is not defined properly.",
-			"The vanilla Minecraft client will use lowercase language / country pairs separated by an underscore, but custom resource packs may use any format they wish."})
-@Example("message player's current language")
+@Name("Tongue of the Player")
+@Description({"The presently chosen game tongue of a player. The value of the tongue is not defined with certainty.",
+			"The vanilla Minecraft client shall employ lowercase language / country pairs separated by an underscore, yet custom resource packs may employ any format they so desire."})
+@Example("message player's current tongue")
 @Since("2.3")
 public class ExprLanguage extends SimplePropertyExpression<Player, String> {
 
@@ -27,7 +27,7 @@ public class ExprLanguage extends SimplePropertyExpression<Player, String> {
 	private static final MethodHandle getLocaleMethod;
 
 	static {
-		register(ExprLanguage.class, String.class, "[([currently] selected|current)] [game] (language|locale) [setting]", "players");
+		register(ExprLanguage.class, String.class, "[([presently] chosen|current)] [game] (tongue|locale) [setting]", "players");
 		
 		MethodHandle handle;
 		try {

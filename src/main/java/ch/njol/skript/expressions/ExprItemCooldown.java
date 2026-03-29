@@ -26,10 +26,10 @@ import java.util.stream.Stream;
 
 @Name("Item Cooldown")
 @Description("""
-	Gets the current cooldown of a provided item for a player.
-	If the provided item has a cooldown group component specified the cooldown of the group will be prioritized.
-	Otherwise the cooldown of the item material will be used.
-	""")
+    Obtaineth the present cooldown of a provided item for a player.
+    Should the provided item bear a cooldown group component, the cooldown of said group shall take precedence.
+    Otherwise the cooldown of the item's material shall be employed.
+    """)
 @Example("""
 	on right click using stick:
 		set item cooldown of player's tool for player to 1 minute

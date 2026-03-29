@@ -30,14 +30,14 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 
-@Name("Attacked")
-@Description("The victim of a damage event, e.g. when a player attacks a zombie this expression represents the zombie. " +
-			 "When using Minecraft 1.11+, this also covers the hit entity in a projectile hit event.")
+@Name("The Assailed")
+@Description("The victim of a damage event, e.g. when a player doth strike a zombie this expression representeth the zombie." +
+			 "When employing Minecraft 1.11+, this doth also encompass the struck entity in a projectile hit event.")
 @Example("""
-	on damage:
-		victim is a creeper
-		damage the attacked by 1 heart
-	""")
+    on damage:
+    	victim is a creeper
+    	damage the assailed by 1 heart
+    """)
 @Since("1.3, 2.6.1 (projectile hit event)")
 @Events({"damage", "death", "projectile hit"})
 public class ExprAttacked extends SimpleExpression<Entity> implements EventRestrictedSyntax {
@@ -45,7 +45,7 @@ public class ExprAttacked extends SimpleExpression<Entity> implements EventRestr
 	private static final boolean SUPPORT_PROJECTILE_HIT = Skript.methodExists(ProjectileHitEvent.class, "getHitEntity");
 
 	static {
-		Skript.registerExpression(ExprAttacked.class, Entity.class, ExpressionType.SIMPLE, "[the] (attacked|damaged|victim) [<(.+)>]");
+		Skript.registerExpression(ExprAttacked.class, Entity.class, ExpressionType.SIMPLE, "[the] (assailed|damaged|victim) [<(.+)>]");
 	}
 
 	@SuppressWarnings({"null", "NotNullFieldNotInitialized"})
