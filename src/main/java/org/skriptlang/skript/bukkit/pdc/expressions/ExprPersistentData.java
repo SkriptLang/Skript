@@ -41,6 +41,8 @@ import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Consumer;
 
+import static ch.njol.skript.classes.Changer.ChangerUtils.getArithmeticChangeTypes;
+
 @Name("Persistent Data Value")
 @Description("""
 	Provides access to the 'persistent data container' Bukkit provides on many objects. These values are stored on the \
@@ -190,6 +192,7 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 				}
 
 				if (parsedType != null) {
+					// we have a specific type to aim for
 					ClassInfo<?> classInfo = parsedType.getClassInfo();
 
 					if (plural) {
@@ -251,8 +254,11 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 					if (changer != null) {
 						yield changer.acceptChange(mode);
 					}
-					if (mode == ChangeMode.SET)
+					if (mode == ChangeMode.SET) {
 						yield CollectionUtils.array(type.getC());
+					} else if (mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) {
+						yield getArithmeticChangeTypes(type.getC(), mode, operation -> type.getC().isAssignableFrom(operation.returnType()));
+					}
 					yield null;
 				}
 				yield CollectionUtils.array(plural ? Object[].class : Object.class);
