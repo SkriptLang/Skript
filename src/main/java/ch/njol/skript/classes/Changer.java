@@ -112,7 +112,7 @@ public interface Changer<T> {
 		 * @param <T> The type to get arithmetic change types for.
 		 */
 		public static <T> Class<?>[] getArithmeticChangeTypes(Class<T> type, ChangeMode mode, Predicate<OperationInfo<T, ? ,?>> filter) {
-			Preconditions.checkState(mode == ChangeMode.ADD || mode == ChangeMode.REMOVE, "Only ADD and REMOVE modes are supported for arithmetic change types");
+			Preconditions.checkArgument(mode == ChangeMode.ADD || mode == ChangeMode.REMOVE, "Only ADD and REMOVE modes are supported for arithmetic change types");
 			List<OperationInfo<T, ?, ?>> opInfos;
 			if (mode == ChangeMode.ADD) {
 				opInfos = Arithmetics.getOperations(Operator.ADDITION, type);
