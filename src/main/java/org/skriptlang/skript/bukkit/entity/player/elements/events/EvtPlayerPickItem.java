@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.misc.events;
+package org.skriptlang.skript.bukkit.entity.player.elements.events;
 
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.data.DefaultComparators;

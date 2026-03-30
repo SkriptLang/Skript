@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.entity.player.elements;
+package org.skriptlang.skript.bukkit.entity.player.elements.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;

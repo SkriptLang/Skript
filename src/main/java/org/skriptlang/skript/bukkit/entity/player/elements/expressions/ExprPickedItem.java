@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.misc.elements.expressions;
+package org.skriptlang.skript.bukkit.entity.player.elements.expressions;
 
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.*;
