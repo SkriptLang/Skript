@@ -6,6 +6,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.variables.Variables;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.Yggdrasil;
+import com.google.common.primitives.Primitives;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.persistence.PersistentDataAdapterContext;
@@ -257,9 +258,7 @@ public class PDCSerializer {
 	}
 
 	private static boolean isPrimitiveWrapper(Class<?> key) {
-		return key == Byte.class || key == Short.class || key == Integer.class ||
-			key == Long.class || key == Double.class || key == Float.class ||
-			key == Boolean.class || key == Character.class;
+		return Primitives.isWrapperType(key);
 	}
 
 }

@@ -365,22 +365,27 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 	 * @param consumer Code to run with the container
 	 */
 	private void getPersistentDataContainer(Object holder, Consumer<PersistentDataContainerView> consumer) {
-		if (holder instanceof PersistentDataHolder dataHolder) {
-			consumer.accept(dataHolder.getPersistentDataContainer());
-		} else if (holder instanceof ItemType itemType) {
-			var meta = itemType.getItemMeta();
-			consumer.accept(meta.getPersistentDataContainer());
-		} else if (holder instanceof ItemStack itemStack) {
-			if (!itemStack.hasItemMeta())
-				return;
-			consumer.accept(itemStack.getPersistentDataContainer());
-		} else if (holder instanceof Slot slot) {
-			var item =  slot.getItem();
-			if (item == null || !item.hasItemMeta())
-				return;
-			consumer.accept(item.getPersistentDataContainer());
-		} else if (holder instanceof Block block && block.getState() instanceof TileState tileState) {
-			consumer.accept(tileState.getPersistentDataContainer());
+		switch (holder) {
+			case PersistentDataHolder dataHolder -> consumer.accept(dataHolder.getPersistentDataContainer());
+			case ItemType itemType -> {
+				var meta = itemType.getItemMeta();
+				consumer.accept(meta.getPersistentDataContainer());
+			}
+			case ItemStack itemStack -> {
+				if (!itemStack.hasItemMeta())
+					return;
+				consumer.accept(itemStack.getPersistentDataContainer());
+			}
+			case Slot slot -> {
+				var item = slot.getItem();
+				if (item == null || !item.hasItemMeta())
+					return;
+				consumer.accept(item.getPersistentDataContainer());
+			}
+			case Block block when block.getState() instanceof TileState tileState ->
+				consumer.accept(tileState.getPersistentDataContainer());
+			case null, default -> {
+			}
 		}
 
 	}
@@ -391,25 +396,31 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 	 * @param consumer The method to run to edit the PDC.
 	 */
 	private void editPersistentDataContainer(Object holder, Consumer<PersistentDataContainer> consumer) {
-		if (holder instanceof PersistentDataHolder dataHolder) {
-			consumer.accept(dataHolder.getPersistentDataContainer());
-		} else if (holder instanceof ItemType itemType) {
-			var meta = itemType.getItemMeta();
-			consumer.accept(meta.getPersistentDataContainer());
-			itemType.setItemMeta(meta);
-		} else if (holder instanceof ItemStack itemStack) {
-			if (!itemStack.hasItemMeta())
-				return;
-			itemStack.editPersistentDataContainer(consumer);
-		} else if (holder instanceof Slot slot) {
-			var item =  slot.getItem();
-			if (item == null || !item.hasItemMeta())
-				return;
-			item.editPersistentDataContainer(consumer);
-			slot.setItem(item);
-		} else if (holder instanceof Block block && block.getState() instanceof TileState tileState) {
-			consumer.accept(tileState.getPersistentDataContainer());
-			tileState.update();
+		switch (holder) {
+			case PersistentDataHolder dataHolder -> consumer.accept(dataHolder.getPersistentDataContainer());
+			case ItemType itemType -> {
+				var meta = itemType.getItemMeta();
+				consumer.accept(meta.getPersistentDataContainer());
+				itemType.setItemMeta(meta);
+			}
+			case ItemStack itemStack -> {
+				if (!itemStack.hasItemMeta())
+					return;
+				itemStack.editPersistentDataContainer(consumer);
+			}
+			case Slot slot -> {
+				var item = slot.getItem();
+				if (item == null || !item.hasItemMeta())
+					return;
+				item.editPersistentDataContainer(consumer);
+				slot.setItem(item);
+			}
+			case Block block when block.getState() instanceof TileState tileState -> {
+				consumer.accept(tileState.getPersistentDataContainer());
+				tileState.update();
+			}
+			case null, default -> {
+			}
 		}
 	}
 
