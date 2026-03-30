@@ -1,6 +1,6 @@
-package org.skriptlang.skript.common.properties.expressions;
+package org.skriptlang.skript.common.properties.elements.expressions;
 
-import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
@@ -9,7 +9,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
@@ -17,23 +16,21 @@ import org.skriptlang.skript.lang.properties.PropertyBaseExpression;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Amount")
+@Name("Number Of")
 @Description("""
-	The amount of something.
-	Using 'amount of {list::*}' will return the length of the list, so if you want the amounts of the things inside the \
-	lists, use 'amounts of {list::*}'.
+	The number of something.
+	Using 'number of {list::*}' will return the length of the list, so if you want the numbers of the things inside the \
+	lists, use 'numbers of {list::*}'.
 	""")
-@Example("message \"There are %amount of all players% players online!\"")
-@Example("if amount of player's tool > 5:")
-@Example("if amounts of player's tool and player's offhand tool > 5:")
-@Since({"1.0", "2.13 (amounts of)"})
-@RelatedProperty("amount")
-public class PropExprAmount extends PropertyBaseExpression<ExpressionPropertyHandler<?, ?>> {
+@Example("message \"There are %number of all players% players online!\"")
+@Since({"1.0", "2.13 (numbers of)"})
+@RelatedProperty("number")
+public class PropExprNumber extends PropertyBaseExpression<ExpressionPropertyHandler<?, ?>> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
-			PropertyExpression.infoBuilder(PropExprAmount.class, Object.class, "amount[:s]", "objects", false)
-				.supplier(PropExprAmount::new)
+			PropertyExpression.infoBuilder(PropExprNumber.class, Object.class, "number[:s]", "objects", false)
+				.supplier(PropExprNumber::new)
 				.build());
 	}
 
@@ -42,34 +39,17 @@ public class PropExprAmount extends PropertyBaseExpression<ExpressionPropertyHan
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		// amount[s] of x -> property
-		// amounts of x, y -> property
-		// amount of x, y -> list length
+		// size[s] of x -> property
+		// sizes of x, y -> property
+		// size of x, y -> list length
 		useProperties = parseResult.hasTag("s") || expressions[0].isSingle();
 		if (useProperties) {
 			return super.init(expressions, matchedPattern, isDelayed, parseResult);
 		} else {
 			// if exprlist or varlist, count elements
-			this.exprs = asExprList(expressions[0]);
+			this.exprs = PropExprAmount.asExprList(expressions[0]);
 			return LiteralUtils.canInitSafely(this.exprs);
 		}
-	}
-
-	/**
-	 * Wraps non-expressionlists in a expression list.
-	 * @param expr The expression to wrap
-	 * @return An ExpressionList containing the original expression, or the original expression if it was already a list.
-	 *   		Null if the expression could not be converted to a valid expression list.
-	 */
-	@ApiStatus.Internal
-	public static ExpressionList<?> asExprList(Expression<?> expr) {
-		ExpressionList<?> exprs;
-		if (expr instanceof ExpressionList<?> exprList) {
-			exprs = exprList;
-		} else {
-			exprs = new ExpressionList<>(new Expression<?>[]{ expr }, Object.class, false);
-		}
-		return (ExpressionList<?>) LiteralUtils.defendExpression(exprs);
 	}
 
 	@Override
@@ -80,7 +60,7 @@ public class PropExprAmount extends PropertyBaseExpression<ExpressionPropertyHan
 	}
 
 	@Override
-	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
 		if (useProperties)
 			return super.acceptChange(mode);
 		return null;
@@ -88,7 +68,7 @@ public class PropExprAmount extends PropertyBaseExpression<ExpressionPropertyHan
 
 	@Override
 	public @NotNull Property<ExpressionPropertyHandler<?, ?>> getProperty() {
-		return Property.AMOUNT;
+		return Property.NUMBER;
 	}
 
 	@Override
@@ -116,7 +96,7 @@ public class PropExprAmount extends PropertyBaseExpression<ExpressionPropertyHan
 	public String toString(Event event, boolean debug) {
 		if (useProperties)
 			return super.toString(event, debug);
-		return "amount of " + this.exprs.toString(event, debug);
+		return "number of " + this.exprs.toString(event, debug);
 	}
 
 }

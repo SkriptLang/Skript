@@ -1,4 +1,4 @@
-package org.skriptlang.skript.common.expressions;
+package org.skriptlang.skript.common.elements.expressions;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -10,6 +10,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.util.Color;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Hex Code")
 @Description("""
@@ -21,8 +22,11 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.14")
 public class ExprHexCode extends SimplePropertyExpression<Color, String> {
 
-	static {
-		register(ExprHexCode.class, String.class, "hex[adecimal] code", "colors");
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprHexCode.class, String.class, "hex[adecimal] code", "colors", false)
+				.supplier(ExprHexCode::new)
+				.build());
 	}
 
 	@Override

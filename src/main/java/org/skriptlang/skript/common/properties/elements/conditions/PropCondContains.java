@@ -1,4 +1,4 @@
-package org.skriptlang.skript.common.properties.conditions;
+package org.skriptlang.skript.common.properties.elements.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;

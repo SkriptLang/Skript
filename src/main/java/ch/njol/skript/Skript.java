@@ -549,8 +549,6 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		new DefaultComparators();
 		new DefaultConverters();
-		new DefaultFunctions();
-		new DefaultOperations();
 
 		ChatMessages.registerListeners();
 
@@ -564,6 +562,9 @@ public final class Skript extends JavaPlugin implements Listener {
 			setEnabled(false);
 			return;
 		}
+
+		new DefaultFunctions();
+		new DefaultOperations();
 
 		// todo: remove completely 2.11 or 2.12
 		CompletableFuture<Boolean> aliases = Aliases.loadAsync();

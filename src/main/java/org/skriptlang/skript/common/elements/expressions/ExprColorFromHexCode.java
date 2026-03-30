@@ -1,19 +1,19 @@
-package org.skriptlang.skript.common.expressions;
+package org.skriptlang.skript.common.elements.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.util.Color;
 import ch.njol.skript.util.ColorRGB;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Color from Hex Code")
 @Description("Returns a proper argb color from a hex code string. The hex code must contain RRGGBB values, but can also " +
@@ -24,9 +24,12 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.14")
 public class ExprColorFromHexCode extends SimplePropertyExpression<String, Color> {
 
-	static {
-		Skript.registerExpression(ExprColorFromHexCode.class, Color.class, ExpressionType.PROPERTY,
-				"[the] colo[u]r[s] (from|of) hex[adecimal] code[s] %strings%");
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprColorFromHexCode.class, Color.class)
+			.supplier(ExprColorFromHexCode::new)
+			.priority(DEFAULT_PRIORITY)
+			.addPattern("[the] colo[u]r[s] (from|of) hex[adecimal] code[s] %strings%")
+			.build());
 	}
 
 	@Override

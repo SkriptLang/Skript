@@ -1,4 +1,4 @@
-package org.skriptlang.skript.common.properties.expressions;
+package org.skriptlang.skript.common.properties.elements.expressions;
 
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.PropertyExpression;

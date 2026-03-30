@@ -1,4 +1,4 @@
-package org.skriptlang.skript.common.properties.expressions;
+package org.skriptlang.skript.common.properties.elements.expressions;
 
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.*;
@@ -16,21 +16,21 @@ import org.skriptlang.skript.lang.properties.PropertyBaseExpression;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Number Of")
+@Name("Size")
 @Description("""
-	The number of something.
-	Using 'number of {list::*}' will return the length of the list, so if you want the numbers of the things inside the \
-	lists, use 'numbers of {list::*}'.
+	The size of something.
+	Using 'size of {list::*}' will return the length of the list, so if you want the sizes of the things inside the \
+	lists, use 'sizes of {list::*}'.
 	""")
-@Example("message \"There are %number of all players% players online!\"")
-@Since({"1.0", "2.13 (numbers of)"})
-@RelatedProperty("number")
-public class PropExprNumber extends PropertyBaseExpression<ExpressionPropertyHandler<?, ?>> {
+@Example("message \"There are %size of all players% players online!\"")
+@Since({"1.0", "2.13 (sizes of)"})
+@RelatedProperty("size")
+public class PropExprSize extends PropertyBaseExpression<ExpressionPropertyHandler<?, ?>> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
-			PropertyExpression.infoBuilder(PropExprNumber.class, Object.class, "number[:s]", "objects", false)
-				.supplier(PropExprNumber::new)
+			PropertyExpression.infoBuilder(PropExprSize.class, Object.class, "size[:s]", "objects", false)
+				.supplier(PropExprSize::new)
 				.build());
 	}
 
@@ -68,7 +68,7 @@ public class PropExprNumber extends PropertyBaseExpression<ExpressionPropertyHan
 
 	@Override
 	public @NotNull Property<ExpressionPropertyHandler<?, ?>> getProperty() {
-		return Property.NUMBER;
+		return Property.SIZE;
 	}
 
 	@Override
@@ -96,7 +96,7 @@ public class PropExprNumber extends PropertyBaseExpression<ExpressionPropertyHan
 	public String toString(Event event, boolean debug) {
 		if (useProperties)
 			return super.toString(event, debug);
-		return "number of " + this.exprs.toString(event, debug);
+		return "size of " + this.exprs.toString(event, debug);
 	}
 
 }
