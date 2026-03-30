@@ -57,11 +57,11 @@ public class ExprTagsOf extends PropertyExpression<Object, Tag> {
 	@Override
 	protected Tag<?> @Nullable [] get(Event event, Object @NotNull [] source) {
 		if (source.length == 0)
-			return null;
+			return new Tag[0];
 		boolean isAny = (source[0] instanceof ItemType itemType && !itemType.isAll());
 		Keyed[] values = TagModule.getKeyed(source[0]);
 		if (values == null)
-			return null;
+			return new Tag[0];
 		// choose single material if it's something like `any log`
 		if (isAny) {
 			ThreadLocalRandom random = ThreadLocalRandom.current();
@@ -110,7 +110,7 @@ public class ExprTagsOf extends PropertyExpression<Object, Tag> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		String registry = types.length > 1 ? "" : " " + types[0].toString();
-		return  origin.toString(datapackOnly) + registry + " tags of " + getExpr().toString(event, debug);
+		return origin.toString(datapackOnly) + registry + " tags of " + getExpr().toString(event, debug);
 	}
 
 }
