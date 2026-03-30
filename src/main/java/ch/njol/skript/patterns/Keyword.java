@@ -27,6 +27,48 @@ abstract class Keyword {
 	abstract boolean isPresent(String expr);
 
 	/**
+	 * Computes the minimum length of input required to match a pattern.
+	 * Walks the linked list of pattern elements and sums mandatory character counts.
+	 * @param first The first element of the pattern.
+	 * @return The minimum number of characters an input must have to possibly match.
+	 */
+	public static int computeMinLength(PatternElement first) {
+		int length = 0;
+		PatternElement next = first;
+		while (next != null) {
+			switch (next) {
+				case LiteralPatternElement ignored -> {
+					// Only count non-space characters since spaces are somewhat flexible
+					// underestimation is safe, over is not.
+					String literal = next.toString();
+					for (int i = 0; i < literal.length(); i++) {
+						if (literal.charAt(i) != ' ')
+							length++;
+					}
+				}
+				case ChoicePatternElement choicePatternElement -> {
+					// get min length of options
+					int min = Integer.MAX_VALUE;
+					for (PatternElement choice : choicePatternElement.getPatternElements()) {
+						int choiceLen = computeMinLength(choice);
+						if (choiceLen < min)
+							min = choiceLen;
+					}
+					if (min != Integer.MAX_VALUE)
+						length += min;
+				}
+				case GroupPatternElement groupPatternElement ->
+					length += computeMinLength(groupPatternElement.getPatternElement());
+				default -> {
+					// OptionalPatternElement, TypePatternElement, RegexPatternElement, ParseTagPatternElement: 0 min length
+				}
+			}
+			next = next.originalNext;
+		}
+		return length;
+	}
+
+	/**
 	 * Builds a list of keywords starting from the provided pattern element.
 	 * @param first The pattern to build keywords from.
 	 * @return A list of all keywords within <b>first</b>.
@@ -47,24 +89,30 @@ abstract class Keyword {
 		List<Keyword> keywords = new ArrayList<>();
 		PatternElement next = first;
 		while (next != null) {
-			if (next instanceof LiteralPatternElement) { // simple literal strings are keywords
-				String literal = next.toString().trim();
-				while (literal.contains("  "))
-					literal = literal.replace("  ", " ");
-				if (!literal.isEmpty()) // empty string is not useful
-					keywords.add(new SimpleKeyword(literal, starting, next.next == null));
-			} else if (depth <= 1 && next instanceof ChoicePatternElement) { // attempt to build keywords from choices
-				final boolean finalStarting = starting;
-				final int finalDepth = depth;
-				// build the keywords for each choice
-				Set<Set<Keyword>> choices = ((ChoicePatternElement) next).getPatternElements().stream()
-					.map(element -> buildKeywords(element, finalStarting, finalDepth))
-					.map(ImmutableSet::copyOf)
-					.collect(Collectors.toSet());
-				if (choices.stream().noneMatch(Collection::isEmpty)) // each choice must have a keyword for this to work
-					keywords.add(new ChoiceKeyword(choices)); // a keyword where only one choice much
-			} else if (next instanceof GroupPatternElement) { // add in keywords from the group
-				Collections.addAll(keywords, buildKeywords(((GroupPatternElement) next).getPatternElement(), starting, depth + 1));
+			switch (next) {
+				case LiteralPatternElement ignored -> {
+					String literal = next.toString().trim();
+					while (literal.contains("  "))
+						literal = literal.replace("  ", " ");
+					if (!literal.isEmpty()) // empty string is not useful
+						keywords.add(new SimpleKeyword(literal, starting, next.next == null));
+				}
+				case ChoicePatternElement choicePatternElement when depth <= 1 -> {
+					final boolean finalStarting = starting;
+					final int finalDepth = depth;
+					// build the keywords for each choice
+					Set<Set<Keyword>> choices = choicePatternElement.getPatternElements().stream()
+						.map(element -> buildKeywords(element, finalStarting, finalDepth))
+						.map(ImmutableSet::copyOf)
+						.collect(Collectors.toSet());
+					if (choices.stream().noneMatch(Collection::isEmpty)) // each choice must have a keyword for this to work
+						keywords.add(new ChoiceKeyword(choices)); // a keyword where only one choice much
+				}
+				case GroupPatternElement groupPatternElement ->  // add in keywords from the group
+					Collections.addAll(keywords, buildKeywords(groupPatternElement.getPatternElement(), starting, depth + 1));
+				default -> {
+						// OptionalPatternElement, TypePatternElement, RegexPatternElement, ParseTagPatternElement: do not contribute keywords
+				}
 			}
 
 			// a parse tag does not represent actual content in a pattern, therefore it should not affect starting
@@ -108,12 +156,11 @@ abstract class Keyword {
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (!(obj instanceof SimpleKeyword))
+			if (!(obj instanceof SimpleKeyword simpleKeyword))
 				return false;
-			SimpleKeyword other = (SimpleKeyword) obj;
-			return this.keyword.equals(other.keyword) &&
-					this.starting == other.starting &&
-					this.ending == other.ending;
+			return this.keyword.equals(simpleKeyword.keyword) &&
+					this.starting == simpleKeyword.starting &&
+					this.ending == simpleKeyword.ending;
 		}
 
 		@Override
@@ -152,9 +199,9 @@ abstract class Keyword {
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (!(obj instanceof ChoiceKeyword))
+			if (!(obj instanceof ChoiceKeyword choiceKeyword))
 				return false;
-			return choices.equals(((ChoiceKeyword) obj).choices);
+			return choices.equals(choiceKeyword.choices);
 		}
 
 		@Override
