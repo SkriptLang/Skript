@@ -26,6 +26,7 @@ import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
 import ch.njol.skript.update.UpdateManifest;
 import ch.njol.skript.util.*;
+import ch.njol.skript.util.Date;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Closeable;
