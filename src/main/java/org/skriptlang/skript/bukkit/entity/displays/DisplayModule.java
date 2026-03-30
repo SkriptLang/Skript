@@ -20,7 +20,7 @@ import org.joml.Vector3f;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.entity.displays.generic.elements.expressions.*;
+import org.skriptlang.skript.bukkit.entity.displays.elements.expressions.*;
 import org.skriptlang.skript.bukkit.entity.displays.item.elements.expressions.ExprItemDisplayTransform;
 import org.skriptlang.skript.bukkit.entity.displays.text.elements.conditions.CondTextDisplayHasDropShadow;
 import org.skriptlang.skript.bukkit.entity.displays.text.elements.conditions.CondTextDisplaySeeThroughBlocks;

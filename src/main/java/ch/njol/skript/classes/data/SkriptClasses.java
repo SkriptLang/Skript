@@ -21,8 +21,6 @@ import ch.njol.skript.util.*;
 import ch.njol.yggdrasil.Fields;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.base.types.ItemTypeClassInfo;
-import org.skriptlang.skript.bukkit.base.types.SlotClassInfo;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.ContainsHandler;
 import org.skriptlang.skript.lang.properties.handlers.TypedValueHandler;
@@ -143,8 +141,6 @@ public class SkriptClasses {
 
 				})
 				.serializer(new EnumSerializer<>(WeatherType.class)));
-
-		Classes.registerClass(new ItemTypeClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(Time.class, "time")
 				.user("times?")
@@ -346,8 +342,6 @@ public class SkriptClasses {
 					}
 				})
 				.serializer(new YggdrasilSerializer<>()));
-
-		Classes.registerClass(new SlotClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(Color.class, "color")
 				.user("colou?rs?")

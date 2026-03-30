@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.text.elements.ExprColored;
+import org.skriptlang.skript.bukkit.text.elements.expressions.ExprColored;
 import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 

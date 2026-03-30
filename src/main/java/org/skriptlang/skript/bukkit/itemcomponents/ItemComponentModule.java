@@ -9,7 +9,7 @@ import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableModule;
-import org.skriptlang.skript.bukkit.itemcomponents.generic.elements.expressions.ExprItemCompCopy;
+import org.skriptlang.skript.bukkit.itemcomponents.elements.expressions.ExprItemCompCopy;
 
 import java.util.List;
 
@@ -37,19 +37,19 @@ public class ItemComponentModule extends HierarchicalAddonModule {
 			.description("Represents an item component for items. i.e. equippable components.")
 			.since("2.13")
 			.requiredPlugins("Minecraft 1.21.2+")
-			.parser(new Parser<>() {
+			.parser(new Parser<ComponentWrapper<?, ?>>() {
 				@Override
 				public boolean canParse(ParseContext context) {
 					return false;
 				}
 
 				@Override
-				public String toString(ComponentWrapper wrapper, int flags) {
+				public String toString(ComponentWrapper<?, ?> wrapper, int flags) {
 					return "item component";
 				}
 
 				@Override
-				public String toVariableNameString(ComponentWrapper wrapper) {
+				public String toVariableNameString(ComponentWrapper<?, ?> wrapper) {
 					return "item component#" + wrapper.hashCode();
 				}
 			})
