@@ -7,10 +7,10 @@ import ch.njol.skript.lang.SkriptParser.ExprInfo;
 import ch.njol.skript.lang.parser.ExpressionParseCache;
 import ch.njol.skript.lang.parser.LiteralParseCache;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.jetbrains.annotations.NotNull;
@@ -103,20 +103,20 @@ public class TypePatternElement extends PatternElement {
 			while (exprOffset != -1) {
 				loopLog.clear();
 
-				// match rest of pattern to determine our range to work in
-				MatchResult copy = matchResult.copy();
-				copy.exprOffset = exprOffset;
-				MatchResult tailMatch = matchNext(expr, copy);
-				if (tailMatch == null) {
-					exprOffset = advanceOffset(expr, exprOffset, matchResult.parseContext, state);
-					continue;
-				}
-
 				// Check if this substring has already failed.
 				String substring = expr.substring(matchResult.exprOffset, exprOffset);
 				int effectiveFlags = matchResult.flags & flagMask;
 				var cacheKey = new ExpressionParseCache.Failure(substring, effectiveFlags, classes, isPlural, isNullable, time);
 				if (parseCache.contains(cacheKey)) {
+					exprOffset = advanceOffset(expr, exprOffset, matchResult.parseContext, state);
+					continue;
+				}
+
+				// match rest of pattern to determine our range to work in
+				MatchResult copy = matchResult.copy();
+				copy.exprOffset = exprOffset;
+				MatchResult tailMatch = matchNext(expr, copy);
+				if (tailMatch == null) {
 					exprOffset = advanceOffset(expr, exprOffset, matchResult.parseContext, state);
 					continue;
 				}
@@ -139,12 +139,22 @@ public class TypePatternElement extends PatternElement {
 					}
 
 					tailMatch.expressions[expressionIndex] = expression;
+					/*
+					 * the parser will return unparsed literals in cases where it cannot interpret an input and object is the desired return type.
+					 * in those cases, it is up to the expression to interpret the input.
+					 * however, this presents a problem for input that is not intended as being one of these object-accepting expressions.
+					 * these object-accepting expressions will be matched instead but their parsing will fail as they cannot interpret the unparsed literals.
+					 * even though it can't interpret them, this loop will have returned a match and thus parsing has ended (and the correct interpretation never attempted).
+					 * to avoid this issue, while also permitting unparsed literals in cases where they are justified,
+					 *  the code below forces the loop to continue in hopes of finding a match without unparsed literals.
+					 * if it is unsuccessful, a backup of the first successful match (with unparsed literals) is saved to be returned.
+					 */
 					if (!hasUnparsedLiterals(tailMatch)) {
 						exprLog.printLog();
 						loopLog.printLog();
 						return tailMatch;
 					}
-					if (matchBackup == null) {
+					if (matchBackup == null) { // only backup the first occurrence of unparsed literals
 						matchBackup = tailMatch;
 						loopLogBackup = loopLog.backup();
 						exprLogBackup = exprLog.backup();
@@ -157,7 +167,7 @@ public class TypePatternElement extends PatternElement {
 				exprOffset = advanceOffset(expr, exprOffset, matchResult.parseContext, state);
 			}
 		} finally {
-			if (loopLogBackup != null) {
+			if (loopLogBackup != null) { // print backup logs if applicable
 				loopLog.restore(loopLogBackup);
 				assert exprLogBackup != null;
 				exprLogBackup.printLog();
@@ -165,7 +175,8 @@ public class TypePatternElement extends PatternElement {
 			if (!loopLog.isStopped())
 				loopLog.printError();
 		}
-
+		// if there were unparsed literals, we will return the backup now
+		// if there were not, this returns null
 		return matchBackup;
 	}
 
@@ -179,11 +190,11 @@ public class TypePatternElement extends PatternElement {
 		if (expression instanceof Literal)
 			return false;
 		if (ParserInstance.get().getHasDelayBefore() == Kleenean.TRUE) {
-			Skript.error("Cannot use time states after the event has already passed", ErrorQuality.SEMANTIC_ERROR);
+			Skript.error("Cannot use time states after the event has already passed");
 			return false;
 		}
 		if (!expression.setTime(time)) {
-			Skript.error(expression + " does not have a " + (time == -1 ? "past" : "future") + " state", ErrorQuality.SEMANTIC_ERROR);
+			Skript.error(expression + " does not have a " + (time == EventValues.TIME_PAST ? "past" : "future") + " state");
 			return false;
 		}
 		return true;
@@ -236,20 +247,14 @@ public class TypePatternElement extends PatternElement {
 		state.nextLiteral = next.toString();
 		state.nextLiteralIsWhitespace = state.nextLiteral.trim().isEmpty();
 
-		if (!state.nextLiteralIsWhitespace) {
-			// trim trailing whitespace
-			int len = state.nextLiteral.length();
-			for (int i = len; i > 0; i--) {
-				if (state.nextLiteral.charAt(i - 1) != ' ') {
-					if (i != len)
-						state.nextLiteral = state.nextLiteral.substring(0, i);
-					break;
-				}
-			}
+		if (!state.nextLiteralIsWhitespace) { // Don't do this for literal patterns that are *only* whitespace - they have their own special handling
+			// trim trailing whitespace - it can cause issues with optional patterns following the literal
+			state.nextLiteral = state.nextLiteral.stripTrailing();
 		}
 
 		int offset = SkriptParser.nextOccurrence(expr, state.nextLiteral, matchResult.exprOffset, matchResult.parseContext, false);
-		if (offset == -1 && state.nextLiteralIsWhitespace) {
+		if (offset == -1 && state.nextLiteralIsWhitespace) { // We need to tread more carefully here
+			// This may be because the next PatternElement is optional or an empty choice (there may be other cases too)
 			state.nextLiteral = null;
 			offset = SkriptParser.next(expr, matchResult.exprOffset, matchResult.parseContext);
 		}
@@ -265,6 +270,8 @@ public class TypePatternElement extends PatternElement {
 
 		int newOffset = SkriptParser.nextOccurrence(expr, state.nextLiteral, currentOffset + 1, parseContext, false);
 		if (newOffset == -1 && state.nextLiteralIsWhitespace) {
+			// This may be because the next PatternElement is optional or an empty choice (there may be other cases too)
+			// So, from this point on, we're going to go character by character
 			state.nextLiteral = null;
 			return SkriptParser.next(expr, currentOffset, parseContext);
 		}

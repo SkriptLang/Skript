@@ -111,6 +111,7 @@ abstract class Keyword {
 				case GroupPatternElement groupPatternElement ->  // add in keywords from the group
 					Collections.addAll(keywords, buildKeywords(groupPatternElement.getPatternElement(), starting, depth + 1));
 				default -> {
+						// OptionalPatternElement, TypePatternElement, RegexPatternElement, ParseTagPatternElement: do not contribute keywords
 				}
 			}
 
