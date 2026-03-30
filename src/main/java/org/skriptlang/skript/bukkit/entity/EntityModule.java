@@ -8,8 +8,10 @@ import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.entity.displays.DisplayModule;
 import org.skriptlang.skript.bukkit.entity.interactions.InteractionModule;
+import org.skriptlang.skript.bukkit.entity.misc.ExprDeathMessage;
 import org.skriptlang.skript.bukkit.entity.nautilus.NautilusData;
 import org.skriptlang.skript.bukkit.entity.nautilus.ZombieNautilusData;
+import org.skriptlang.skript.bukkit.entity.player.PlayerModule;
 
 import java.util.List;
 
@@ -19,11 +21,11 @@ public class EntityModule extends HierarchicalAddonModule {
 		super(parentModule);
 	}
 
-	@Override
 	public Iterable<AddonModule> children() {
 		return List.of(
 			new DisplayModule(this),
-			new InteractionModule(this)
+			new InteractionModule(this),
+			new PlayerModule(this)
 		);
 	}
 
@@ -34,6 +36,11 @@ public class EntityModule extends HierarchicalAddonModule {
 			ZombieNautilusData.register();
 			SimpleEntityData.addSuperEntity("any nautilus", AbstractNautilus.class);
 		}
+
+		// miscellaneous syntax
+		register(addon,
+			ExprDeathMessage::register
+		);
 	}
 
 	@Override

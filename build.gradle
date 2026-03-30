@@ -27,7 +27,6 @@ allprojects {
 dependencies {
 	shadow group: 'io.papermc', name: 'paperlib', version: '1.0.8'
 	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.1.0'
-	shadow group: 'net.kyori', name: 'adventure-text-serializer-bungeecord', version: '4.4.1'
 
 	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.21.11-R0.1-SNAPSHOT'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
@@ -105,7 +104,6 @@ tasks.withType(ShadowJar).configureEach {
 		include(dependency('io.papermc:paperlib'))
 		include(dependency('org.bstats:bstats-bukkit'))
 		include(dependency('org.bstats:bstats-base'))
-		include(dependency('net.kyori:adventure-text-serializer-bungeecord'))
 	}
 	relocate 'io.papermc.lib', 'ch.njol.skript.paperlib'
 	relocate 'org.bstats', 'ch.njol.skript.bstats'

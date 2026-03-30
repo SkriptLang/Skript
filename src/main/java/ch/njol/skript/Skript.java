@@ -26,8 +26,6 @@ import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
 import ch.njol.skript.update.UpdateManifest;
 import ch.njol.skript.util.*;
-import ch.njol.skript.util.Date;
-import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Closeable;
@@ -63,8 +61,10 @@ import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.bukkit.BukkitModule;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.common.CommonModule;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.comparator.Comparator;
@@ -473,6 +473,11 @@ public final class Skript extends JavaPlugin implements Listener {
 		skript.storeRegistry(PropertyRegistry.class, new PropertyRegistry(this));
 		Property.registerDefaultProperties();
 
+		EventValueRegistry eventValueRegistry = EventValueRegistry.empty(this);
+		skript.storeRegistry(EventValueRegistry.class, eventValueRegistry);
+		//noinspection removal
+		EventValues.setEventValueRegistry(eventValueRegistry);
+
 		// Load classes which are always safe to use
 		new JavaClasses(); // These may be needed in configuration
 
@@ -539,7 +544,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		skriptCommand.setTabCompleter(new SkriptCommandTabCompleter());
 
 		// Load Bukkit stuff. It is done after platform check, because something might be missing!
-		new BukkitEventValues();
+		BukkitEventValues.register(eventValueRegistry);
 
 		new DefaultComparators();
 		new DefaultConverters();
@@ -798,8 +803,8 @@ public final class Skript extends JavaPlugin implements Listener {
 						return;
 
 					Skript.info(player, SkriptUpdater.m_update_available.toString(update.id, Skript.getVersion()));
-					player.spigot().sendMessage(BungeeConverter.convert(ChatMessages.parseToArray(
-						"Download it at: <aqua><u><link:" + update.downloadUrl + ">" + update.downloadUrl)));
+					player.sendMessage(TextComponentParser.instance()
+						.parse("Download it at: <aqua><underlined><click:open_url:" + update.downloadUrl + ">" + update.downloadUrl));
 				}
 			};
 		}
@@ -2134,7 +2139,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 		logEx("Thread: " + (thread == null ? Thread.currentThread() : thread).getName());
 		logEx("Language: " + Language.getName());
-		logEx("Link parse mode: " + ChatMessages.linkParseMode);
+		logEx("Link parse mode: " + TextComponentParser.instance().linkParseMode());
 	}
 
 	static void logEx() {
@@ -2153,7 +2158,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	public static void info(final CommandSender sender, final String info) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles(getSkriptPrefix() + info));
+		sender.sendMessage(TextComponentParser.instance().parseSafe(getSkriptPrefix() + info));
 	}
 
 	/**
@@ -2162,7 +2167,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @see #adminBroadcast(String)
 	 */
 	public static void broadcast(final String message, final String permission) {
-		Bukkit.broadcast(Utils.replaceEnglishChatStyles(getSkriptPrefix() + message), permission);
+		Bukkit.broadcast(TextComponentParser.instance().parseSafe(getSkriptPrefix() + message), permission);
 	}
 
 	public static void adminBroadcast(final String message) {
@@ -2176,11 +2181,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param info
 	 */
 	public static void message(final CommandSender sender, final String info) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles(info));
+		sender.sendMessage(TextComponentParser.instance().parseSafe(info));
 	}
 
 	public static void error(final CommandSender sender, final String error) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles(getSkriptPrefix() + ChatColor.DARK_RED + error));
+		sender.sendMessage(TextComponentParser.instance().parseSafe(getSkriptPrefix() + "<dark_red>" + error));
 	}
 
 	/**

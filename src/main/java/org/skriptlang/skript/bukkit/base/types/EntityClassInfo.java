@@ -13,6 +13,7 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.util.Experience;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.coll.CollectionUtils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -51,13 +52,14 @@ public class EntityClassInfo extends ClassInfo<Entity> {
 			.parser(new EntityParser())
 			.changer(new EntityChanger())
 			.property(Property.NAME,
-				"The entity's custom name, if it has one, as text. Can be set or reset.",
+				"The entity's name, if it has one, as text." +
+					"Note that the regular name cannot be changed, meaning the entity's custom (display) name will be changed instead.",
 				Skript.instance(),
-				new EntityNameHandler(Property.NAME))
+				EntityNameHandler.name())
 			.property(Property.DISPLAY_NAME,
 				"The entity's custom name, if it has one, as text. Can be set or reset.",
 				Skript.instance(),
-				new EntityNameHandler(Property.DISPLAY_NAME));
+				EntityNameHandler.displayName());
 	}
 
 	private static class EntityParser extends Parser<Entity> {
@@ -152,48 +154,52 @@ public class EntityClassInfo extends ClassInfo<Entity> {
 		//</editor-fold>
 	}
 
-	private static class EntityNameHandler implements ExpressionPropertyHandler<Entity, String> {
+	private static class EntityNameHandler implements ExpressionPropertyHandler<Entity, Component> {
 		//<editor-fold desc="entity name handler" defaultstate="collapsed">
-		private final boolean displayName;
+		private final boolean isDisplayName;
 
-		public EntityNameHandler(Property<ExpressionPropertyHandler<?, ?>> property) {
-			this.displayName = switch (property.name()) {
-				case "name" -> false;
-				case "display name" -> true;
-				default -> throw new IllegalArgumentException("Property must be either NAME or DISPLAY_NAME");
-			};
+		public static EntityNameHandler name() {
+			return new EntityNameHandler(false);
+		}
+
+		public static EntityNameHandler displayName() {
+			return new EntityNameHandler(true);
+		}
+
+		private EntityNameHandler(boolean isDisplayName) {
+			this.isDisplayName = isDisplayName;
 		}
 
 		@Override
-		@SuppressWarnings("deprecation")
-		public String convert(Entity propertyHolder) {
-			if (displayName)
-				return propertyHolder.getCustomName();
-			return propertyHolder.getName();
+		public Component convert(Entity entity) {
+			if (isDisplayName) {
+				return entity.customName();
+			}
+			return entity.name();
 		}
 
 		@Override
 		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 			return switch (mode) {
-				case SET, RESET, DELETE -> new Class[] {String.class};
+				case SET, RESET, DELETE -> new Class[] {Component.class};
 				default -> null;
 			};
 		}
 
 		@Override
-		@SuppressWarnings("deprecation")
 		public void change(Entity entity, Object @Nullable [] delta, ChangeMode mode) {
-			String name = delta != null ? (String) delta[0] : null;
-			entity.setCustomName(name);
-			if (displayName || mode == ChangeMode.RESET)
+			Component name = delta == null ? null : (Component) delta[0];
+
+			entity.customName(name);
+			if (isDisplayName || mode == ChangeMode.RESET)
 				entity.setCustomNameVisible(name != null);
 			if (entity instanceof LivingEntity living)
 				living.setRemoveWhenFarAway(name == null);
 		}
 
 		@Override
-		public @NotNull Class<String> returnType() {
-			return String.class;
+		public @NotNull Class<Component> returnType() {
+			return Component.class;
 		}
 		//</editor-fold>
 	}

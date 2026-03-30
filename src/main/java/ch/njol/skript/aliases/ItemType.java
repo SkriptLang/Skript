@@ -23,6 +23,7 @@ import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.Fields.FieldContext;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import com.google.common.collect.Iterators;
+import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -38,6 +39,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
@@ -1636,6 +1638,12 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	@Override
+	public @UnknownNullability Component nameComponent() {
+		ItemMeta meta = this.getItemMeta();
+		return meta.hasDisplayName() ? meta.displayName() : null;
+	}
+
+	@Override
 	public boolean supportsNameChange() {
 		return true;
 	}
@@ -1644,6 +1652,13 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	public void setName(String name) {
 		ItemMeta meta = this.getItemMeta();
 		meta.setDisplayName(name);
+		this.setItemMeta(meta);
+	}
+
+	@Override
+	public void setName(Component name) {
+		ItemMeta meta = this.getItemMeta();
+		meta.displayName(name);
 		this.setItemMeta(meta);
 	}
 
@@ -1658,7 +1673,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	@Override
-	public void setAmount(@Nullable Number amount) throws UnsupportedOperationException {
+	public void setAmount(@Nullable Number amount) {
 		this.setAmount(amount != null ? amount.intValue() : 0);
 	}
 

@@ -13,6 +13,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.LogHandler.LogResult;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 /**
  * @author Peter Güttinger
@@ -165,7 +166,7 @@ public abstract class SkriptLogger {
 			}
 		}
 		entry.logged();
-		sendFormatted(Bukkit.getConsoleSender(), "[Skript] " + entry.toFormattedString());
+		sendFormatted(Bukkit.getConsoleSender(), Skript.getSkriptPrefix() + entry.toFormattedString());
 	}
 	
 	public static void logAll(Collection<LogEntry> entries) {
@@ -191,10 +192,11 @@ public abstract class SkriptLogger {
 	 */
 	public static void sendFormatted(CommandSender commandSender, String message) {
 		if (commandSender instanceof ConsoleCommandSender) {
-			for (String s : message.split("\n"))
-				Bukkit.getConsoleSender().sendMessage(s);
+			for (String s : message.split("\n")) {
+				commandSender.sendMessage(TextComponentParser.instance().parse(s));
+			}
 		} else {
-			commandSender.sendMessage(message);
+			commandSender.sendMessage(TextComponentParser.instance().parse(message));
 		}
 	}
 
