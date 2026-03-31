@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.SequencedCollection;
 import java.util.function.Supplier;
 
 final class BukkitSyntaxInfosImpl {
@@ -28,8 +29,8 @@ final class BukkitSyntaxInfosImpl {
 		private final String name;
 		private final String id;
 		private final @Nullable String documentationId;
-		private final Collection<String> since;
-		private final Collection<String> description;
+		private final SequencedCollection<String> since;
+		private final SequencedCollection<String> description;
 		private final Collection<String> examples;
 		private final Collection<String> keywords;
 		private final Collection<String> requiredPlugins;
@@ -96,12 +97,12 @@ final class BukkitSyntaxInfosImpl {
 		}
 
 		@Override
-		public Collection<String> since() {
+		public SequencedCollection<String> since() {
 			return since;
 		}
 
 		@Override
-		public Collection<String> description() {
+		public SequencedCollection<String> description() {
 			return description;
 		}
 
@@ -183,7 +184,7 @@ final class BukkitSyntaxInfosImpl {
 
 		@Override
 		@Unmodifiable
-		public Collection<String> patterns() {
+		public SequencedCollection<String> patterns() {
 			return defaultInfo.patterns();
 		}
 

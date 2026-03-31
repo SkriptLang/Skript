@@ -98,7 +98,7 @@ public abstract class Region implements YggdrasilExtendedSerializable {
 		}
 		if (r == null) {
 			if (error)
-				Skript.error("Region '" + s + "' could not be found");
+				Skript.error("Region '" + s + "' could not be found. Ensure that the region name is correct, in the proper world, and that the region data for that world is loaded.");
 			return null;
 		}
 		return r;

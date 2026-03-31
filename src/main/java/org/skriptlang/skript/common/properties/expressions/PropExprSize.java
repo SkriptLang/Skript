@@ -11,7 +11,6 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyBaseExpression;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
@@ -28,10 +27,9 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @RelatedProperty("size")
 public class PropExprSize extends PropertyBaseExpression<ExpressionPropertyHandler<?, ?>> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			PropertyExpression.infoBuilder(PropExprSize.class, Object.class, "size[:s]", "objects", false)
-				.origin(origin)
 				.supplier(PropExprSize::new)
 				.build());
 	}

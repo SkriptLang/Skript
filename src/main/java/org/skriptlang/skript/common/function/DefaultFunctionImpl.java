@@ -305,6 +305,10 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			this(name, type, Set.of(modifiers));
 		}
 
+		@Override
+		public @NotNull String toString() {
+			return toFormattedString();
+		}
 	}
 
 }

@@ -13,12 +13,10 @@ import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import org.bukkit.Particle;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.particles.particleeffects.ParticleEffect;
 import org.skriptlang.skript.bukkit.particles.registration.DataParticles;
 import org.skriptlang.skript.bukkit.particles.registration.EffectInfo;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -41,7 +39,7 @@ public class ExprParticleWithData extends SimpleExpression<ParticleEffect> {
 
 	private static Patterns<EffectInfo<Particle, Object>> PATTERNS;
 
-	public static void register(@NotNull SyntaxRegistry registry, @NotNull Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		// create Patterns object
 		Object[][] patterns = new Object[DataParticles.getParticleInfos().size()][2];
 		int i = 0;
@@ -56,7 +54,6 @@ public class ExprParticleWithData extends SimpleExpression<ParticleEffect> {
 			.addPatterns(PATTERNS.getPatterns())
 			.supplier(ExprParticleWithData::new)
 			.priority(SyntaxInfo.COMBINED)
-			.origin(origin)
 			.build());
 	}
 

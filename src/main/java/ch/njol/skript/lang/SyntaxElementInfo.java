@@ -15,8 +15,8 @@ import org.skriptlang.skript.util.Priority;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
+import java.util.SequencedCollection;
 
 /**
  * @param <E> the syntax element this info is for
@@ -139,7 +139,7 @@ public class SyntaxElementInfo<E extends SyntaxElement> implements SyntaxInfo<E>
 
 	@Override
 	@ApiStatus.Internal
-	public @Unmodifiable Collection<String> patterns() {
+	public @Unmodifiable SequencedCollection<String> patterns() {
 		if (source != null)
 			return source.patterns();
 		return List.of(getPatterns());

@@ -46,8 +46,23 @@ test "expression sections that don't work":
 	assert last parse logs contain {_expected} with "section was allowed with multiple headers"
 
 	# Regular section and a section expression in one line!
-	set {_expected} to "The syntax 'if {_var} is equal to a new runnable' tried to claim the current section, but it was already claimed by 'a new runnable'. You cannot have two section-starters in the same line."
+	set {_expected} to "The syntax 'a new runnable' tried to claim the current section, but it was already claimed by 'if {_var} is a new runnable'. You cannot have two section-starters in the same line."
 	parse:
 		if {_var} is a new runnable:
 			broadcast "NO BAD"
-	assert last parse logs contain {_expected} with "section was allowed with multiple headers: %last parse logs%"
+	assert last parse logs contain {_expected} with "section was allowed with multiple headers"
+
+	parse:
+		{_n} has potion effect of speed:
+			hide the particles
+	assert last parse logs contain "There's no potion effect in an on test case event" with "exprsec claimed over secConditional"
+
+	parse:
+		if {_n} has potion effect of speed:
+			broadcast "hi!"
+	assert last parse logs are not set with "failed to parse as an if section"
+
+	parse:
+		apply potion effect of blindness 1 for 1 day to {_p}:
+			hide the particles
+	assert last parse logs are not set with "failed to parse potion exprsec"

@@ -25,7 +25,7 @@ import java.util.List;
 @Name("Shuffled List")
 @Description("Shuffles given list randomly.")
 @Example("set {_list::*} to shuffled {_list::*}")
-@Since("2.2-dev32, INSERT VERSION (retain indices when looping)")
+@Since("2.2-dev32, 2.14 (retain indices when looping)")
 public class ExprShuffledList extends SimpleExpression<Object> implements KeyedIterableExpression<Object> {
 
 	static{

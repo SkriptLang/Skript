@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 	if chance of 99% fails:
 		broadcast "Haha loser! *points and laughs*"
 	""")
-@Since("1.0, INSERT VERSION (chance fails)")
+@Since("1.0, 2.14 (chance fails)")
 public class CondChance extends Condition {
 	
 	static {

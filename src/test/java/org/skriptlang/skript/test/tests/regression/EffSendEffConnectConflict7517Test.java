@@ -5,6 +5,7 @@ import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 import ch.njol.skript.variables.Variables;
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.easymock.Capture;
@@ -15,7 +16,7 @@ import org.junit.Test;
 
 public class EffSendEffConnectConflict7517Test extends SkriptJUnitTest {
 
-	private static final String MESSAGE = "Hello, world!";
+	private static final Component MESSAGE = Component.text("Hello, world!");
 
 	private CommandSender sender;
 	private Effect sendEffect;
@@ -31,10 +32,10 @@ public class EffSendEffConnectConflict7517Test extends SkriptJUnitTest {
 	@Test
 	public void test() {
 		Event event = ContextlessEvent.get();
-		Variables.setVariable("sender", sender, event, true);
 		Variables.setVariable("message", MESSAGE, event, true);
+		Variables.setVariable("sender", sender, event, true);
 
-		Capture<String> messageCapture = EasyMock.newCapture();
+		Capture<Component> messageCapture = EasyMock.newCapture();
 		sender.sendMessage(EasyMock.capture(messageCapture));
 		EasyMock.replay(sender);
 

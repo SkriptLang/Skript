@@ -13,7 +13,6 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyBaseExpression;
 import org.skriptlang.skript.lang.properties.PropertyBaseSyntax;
@@ -43,10 +42,9 @@ import java.util.stream.Stream;
 @RelatedProperty("typed value")
 public class PropExprValueOf extends PropertyBaseExpression<TypedValueHandler<?, ?>> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			PropertyExpression.infoBuilder(PropExprValueOf.class, Object.class, "[%-*classinfo%] value", "objects", false)
-				.origin(origin)
 				.supplier(PropExprValueOf::new)
 				.build());
 	}

@@ -97,7 +97,11 @@ public class ParticleEffect extends ParticleBuilder implements Debuggable {
 		Matcher matcher = LEADING_NUMBER_PATTERN.matcher(input);
 		int count = 1;
 		if (matcher.matches()) {
-			count = Math.clamp(Integer.parseInt(matcher.group(1)), 0, 16_384); // drawing more than the maximum display count of 16,384 is likely unintended and can crash users.
+			try {
+				count = Math.clamp(Integer.parseInt(matcher.group(1)), 0, 16_384); // drawing more than the maximum display count of 16,384 is likely unintended and can crash users.
+			} catch (NumberFormatException e) {
+				return null;
+			}
 			input = matcher.group(2);
 		}
 		Particle particle = ENUM_PARSER.parse(input.toLowerCase(Locale.ENGLISH), context);

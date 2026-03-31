@@ -1,18 +1,19 @@
 package ch.njol.skript.util;
 
+import ch.njol.skript.SkriptConfig;
 import org.skriptlang.skript.lang.converter.Converter;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.zip.Deflater;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * @author Peter Güttinger
@@ -57,20 +58,62 @@ public abstract class FileUtils {
 		}
 	}
 
-	public static File backup(final File f) throws IOException {
-		String name = f.getName();
-		final int c = name.lastIndexOf('.');
-		final String ext = c == -1 ? null : name.substring(c + 1);
-		if (c != -1)
-			name = name.substring(0, c);
-		final File backupFolder = new File(f.getParentFile(), "backups" + File.separator);
-		if (!backupFolder.exists() && !backupFolder.mkdirs())
-			throw new IOException("Cannot create backups folder");
-		final File backup = new File(backupFolder, name + "_" + getBackupSuffix() + (ext == null ? "" : "." + ext));
-		if (backup.exists())
-			throw new IOException("Backup file " + backup.getName() + " does already exist");
-		copy(f, backup);
-		return backup;
+	/**
+	 * Creates backup of the provided file in {@code backups} subdirectory.
+	 * <p>
+	 * If compression is enabled using {@link SkriptConfig#compressBackups}, the file is
+	 * compressed using GZIP.
+	 *
+	 * @param file file to create the backup for
+	 * @return the created backup file
+	 * @throws IOException If the backup folder cannot be created, if file with the backup filename
+	 * already exists, or if IO exception occurs during the copy/compress operation.
+	 */
+	public static File backup(File file) throws IOException {
+		Path source = file.toPath();
+		Path backupFolder = source.getParent().resolve("backups");
+		if (!Files.exists(backupFolder))
+			Files.createDirectories(backupFolder);
+
+		String originalName = file.getName();
+		String name;
+		String ext;
+
+		int dotIdx = originalName.lastIndexOf('.');
+		if (dotIdx != -1) {
+			name = originalName.substring(0, dotIdx);
+			ext = originalName.substring(dotIdx); // contains the '.' symbol
+		} else {
+			name = originalName;
+			ext = "";
+		}
+
+		String newFileName = name + "_" + getBackupSuffix() + ext;
+		boolean compress = SkriptConfig.compressBackups.value();
+		if (compress)
+			newFileName += ".gz";
+
+		Path backup = backupFolder.resolve(newFileName);
+		if (Files.exists(backup))
+			throw new IOException("Backup file " + backup.getFileName() + " already exists");
+
+		class GZIPOutputStreamWithLevel extends GZIPOutputStream {
+			public GZIPOutputStreamWithLevel(OutputStream out, int level) throws IOException {
+				super(out);
+				def.setLevel(level);
+			}
+		}
+
+		if (compress) {
+			try (OutputStream os = Files.newOutputStream(backup);
+				 var gzipOs = new GZIPOutputStreamWithLevel(os, Deflater.BEST_COMPRESSION)) {
+				Files.copy(source, gzipOs);
+			}
+		} else {
+			copy(source, backup);
+		}
+
+		return backup.toFile();
 	}
 
 	public static File move(final File from, final File to, final boolean replace) throws IOException {
@@ -85,8 +128,12 @@ public abstract class FileUtils {
 		return to;
 	}
 
-	public static void copy(final File from, final File to) throws IOException {
-		Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
+	public static void copy(File from, File to) throws IOException {
+		copy(from.toPath(), to.toPath());
+	}
+
+	public static void copy(Path from, Path to) throws IOException {
+		Files.copy(from, to, StandardCopyOption.COPY_ATTRIBUTES);
 	}
 
 	/**

@@ -2,7 +2,10 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.BukkitUtils;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.Delay;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
@@ -10,7 +13,6 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
@@ -23,6 +25,7 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
 
 @Name("Tool")
 @Description("The item an entity is holding in their main or off hand.")
@@ -95,9 +98,9 @@ public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
 				@Override
 				public String toString(@Nullable Event event, boolean debug) {
 					SyntaxStringBuilder syntaxBuilder = new SyntaxStringBuilder(event, debug);
-					switch (getTime()) {
-						case EventValues.TIME_FUTURE -> syntaxBuilder.append("future");
-						case EventValues.TIME_PAST -> syntaxBuilder.append("former");
+					switch (EventValue.Time.of(getTime())) {
+						case FUTURE -> syntaxBuilder.append("future");
+						case PAST -> syntaxBuilder.append("former");
 					}
 					if (offHand)
 						syntaxBuilder.append("off hand");

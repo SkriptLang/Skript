@@ -3,6 +3,7 @@ package ch.njol.skript.util.slot;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyNamed;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -55,6 +56,16 @@ public abstract class Slot implements Debuggable, AnyNamed, AnyAmount {
 	}
 
 	@Override
+	public @UnknownNullability Component nameComponent() {
+		ItemStack stack = this.getItem();
+		if (stack != null && stack.hasItemMeta()) {
+			ItemMeta meta = stack.getItemMeta();
+			return meta.hasDisplayName() ? meta.displayName() : null;
+		}
+		return null;
+	}
+
+	@Override
 	public boolean supportsNameChange() {
 		return true;
 	}
@@ -68,6 +79,17 @@ public abstract class Slot implements Debuggable, AnyNamed, AnyAmount {
 		if (stack != null && !ItemUtils.isAir(stack.getType())) {
 			ItemMeta meta = stack.hasItemMeta() ? stack.getItemMeta() : Bukkit.getItemFactory().getItemMeta(stack.getType());
 			meta.setDisplayName(name);
+			stack.setItemMeta(meta);
+			this.setItem(stack);
+		}
+	}
+
+	@Override
+	public void setName(Component name) {
+		ItemStack stack = this.getItem();
+		if (stack != null && !ItemUtils.isAir(stack.getType())) {
+			ItemMeta meta = stack.hasItemMeta() ? stack.getItemMeta() : Bukkit.getItemFactory().getItemMeta(stack.getType());
+			meta.displayName(name);
 			stack.setItemMeta(meta);
 			this.setItem(stack);
 		}

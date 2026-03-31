@@ -21,7 +21,7 @@ import java.util.Iterator;
 @Name("Alphabetical Sort")
 @Description("Sorts given strings in alphabetical order.")
 @Example("set {_list::*} to alphabetically sorted {_strings::*}")
-@Since("2.2-dev18b, INSERT VERSION (retain indices when looping)")
+@Since("2.2-dev18b, 2.14 (retain indices when looping)")
 public class ExprAlphabetList extends SimpleExpression<String> implements KeyedIterableExpression<String> {
 
 	static{

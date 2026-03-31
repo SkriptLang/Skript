@@ -24,7 +24,7 @@ import java.util.ListIterator;
 @Name("Reversed List")
 @Description("Reverses given list.")
 @Example("set {_list::*} to reversed {_list::*}")
-@Since("2.4, INSERT VERSION (retain indices when looping)")
+@Since("2.4, 2.14 (retain indices when looping)")
 public class ExprReversedList extends SimpleExpression<Object> implements KeyedIterableExpression<Object> {
 
 	static {
