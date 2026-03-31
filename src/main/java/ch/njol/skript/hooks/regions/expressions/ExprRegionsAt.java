@@ -17,6 +17,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 import java.util.ArrayList;
 
@@ -54,6 +55,7 @@ public class ExprRegionsAt extends SimpleExpression<Region> {
 		if (matchedPattern == 1)
 			Skript.warning("Most regions plugins can have multiple intersecting regions at a the same location, thus it is recommended to use \"regions at ...\" instead of \"region at...\" for clarity.");
 		locs = Direction.combine((Expression<? extends Direction>) exprs[0], (Expression<? extends Location>) exprs[1]);
+		ScriptWarning.printDeprecationWarning(RegionsPlugin.DEPRECATION_MESSAGE);
 		return true;
 	}
 	
