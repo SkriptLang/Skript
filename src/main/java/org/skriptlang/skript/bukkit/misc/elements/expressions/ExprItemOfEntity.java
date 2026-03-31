@@ -8,6 +8,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.slot.*;
 import org.bukkit.entity.*;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Item of an Entity")
 @Description({
@@ -23,9 +24,11 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.2-dev35, 2.2-dev36 (improved), 2.5.2 (throwable projectiles), 2.10 (item displays), 2.14.1 (arrows)")
 public class ExprItemOfEntity extends SimplePropertyExpression<Entity, Slot> {
 
-
-	static {
-		register(ExprItemOfEntity.class, Slot.class, "item [inside]", "entities");
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprItemOfEntity.class, Slot.class, "item [inside]", "entities", false)
+				.supplier(ExprItemOfEntity::new)
+				.build());
 	}
 
 	@Override

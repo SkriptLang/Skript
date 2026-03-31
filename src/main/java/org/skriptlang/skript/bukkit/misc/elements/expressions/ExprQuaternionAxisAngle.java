@@ -20,6 +20,7 @@ import org.joml.AxisAngle4f;
 import org.joml.Math;
 import org.joml.Quaternionf;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Rotation Axis/Angle")
 @Description({
@@ -35,9 +36,14 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 @Since("2.10")
 public class ExprQuaternionAxisAngle extends SimplePropertyExpression<Quaternionf, Object> {
 
-	static {
-		if (Skript.classExists("org.joml.Quaternionf"))
-			register(ExprQuaternionAxisAngle.class, Object.class, "rotation (angle|:axis)", "quaternions");
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		if (!Skript.classExists("org.joml.Quaternionf")) {
+			return;
+		}
+		syntaxRegistry.register(SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprQuaternionAxisAngle.class, Object.class, "rotation (angle|:axis)", "quaternions", false)
+				.supplier(ExprQuaternionAxisAngle::new)
+				.build());
 	}
 
 	private boolean isAxis;
