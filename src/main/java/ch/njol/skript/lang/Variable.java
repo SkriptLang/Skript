@@ -14,6 +14,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.structures.StructVariables.DefaultVariables;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
+import org.skriptlang.skript.util.IndexTrackingTreeMap;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Pair;
@@ -594,6 +595,11 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 						}
 					} else {
 						assert mode == ChangeMode.ADD;
+						if (map instanceof IndexTrackingTreeMap<Object> indexTrackingMap) {
+							for (Object value : delta)
+								indexTrackingMap.add(value);
+							return;
+						}
 						int i = 1;
 						for (Object value : delta) {
 							if (map != null)
