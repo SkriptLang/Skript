@@ -10,7 +10,6 @@ import java.util.Objects;
 
 /**
  * Used to describe the intention of a {@link TriggerItem}.
- * As of now, it is only used to tell whether the item halts the execution or not and print the appropriate warnings.
  *
  * @see TriggerItem#executionIntent()
  */
