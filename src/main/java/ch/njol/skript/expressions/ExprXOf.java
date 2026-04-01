@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Name("X of Item/Entity Type")
-@Description("An expression for using an item or entity type with a different amount.")
+@Name("X of Item or Entity Kind")
+@Description("An expression for employing an item or entity kind with a differing quantity.")
 @Example("give level of player of iron pickaxes to the player")
 @Since("1.2")
 @Keywords("amount")

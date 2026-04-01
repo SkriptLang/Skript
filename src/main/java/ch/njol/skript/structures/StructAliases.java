@@ -17,7 +17,7 @@ import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 
 @Name("Aliases")
-@Description("Used for registering custom aliases for a script.")
+@Description("Employed for the registering of bespoke aliases within a script.")
 @Example("""
 	# Example aliases for a script
 	aliases:

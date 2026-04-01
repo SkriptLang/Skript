@@ -15,15 +15,15 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("World from Name")
-@Description("Returns the world from a string.")
-@Example("world named {game::world-name}")
-@Example("the world \"world\"")
+@Name("Realm from Name")
+@Description("Returneth the realm from a string of characters.")
+@Example("realm christened {game::world-name}")
+@Example("the realm \"world\"")
 @Since("2.6.1")
 public class ExprWorldFromName extends SimpleExpression<World> {
 
 	static {
-		Skript.registerExpression(ExprWorldFromName.class, World.class, ExpressionType.SIMPLE, "[the] world [(named|with name)] %string%");
+		Skript.registerExpression(ExprWorldFromName.class, World.class, ExpressionType.SIMPLE, "[the] realm [(christened|bearing the name)] %string%");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")

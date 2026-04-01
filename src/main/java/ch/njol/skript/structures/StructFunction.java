@@ -35,11 +35,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Name("Function")
+@Name("Function — A Named Procedure")
 @Description({
-	"Functions are structures that can be executed with arguments/parameters to run code.",
-	"They can also return a value to the trigger that is executing the function.",
-	"Note that local functions come before global functions execution"
+	"Functions art structures that may be summoned with arguments to execute their enclosed code.",
+	"They may furthermore return a value unto the trigger that hath called upon them.",
+	"Mark well that local functions taketh precedence o'er global functions in execution."
 })
 @Example("""
 	function sayMessage(message: text):

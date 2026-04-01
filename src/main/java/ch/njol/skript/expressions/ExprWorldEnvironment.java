@@ -9,8 +9,8 @@ import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.jetbrains.annotations.Nullable;
 
-@Name("World Environment")
-@Description("The environment of a world")
+@Name("Realm Environment")
+@Description("The environment of a realm")
 @Example("""
 	if environment of player's world is nether:
 		apply fire resistance to player for 10 minutes
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprWorldEnvironment extends SimplePropertyExpression<World, Environment> {
 
 	static {
-		register(ExprWorldEnvironment.class, Environment.class, "[world] environment", "worlds");
+		register(ExprWorldEnvironment.class, Environment.class, "[realm] environment", "worlds");
 	}
 
 	@Override

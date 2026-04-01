@@ -15,14 +15,14 @@ import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Warning Time of World Border")
-@Description("The warning time of a world border. If the border is shrinking, the player's screen will be tinted red once the border will catch the player within this time period.")
-@Example("set world border warning time of {_worldborder} to 1 second")
+@Name("Warning Time of the Realm's Boundary")
+@Description("The warning time of a realm's boundary. Should the boundary be contracting, the player's vision shall be tinged crimson once the boundary would overtake the player within this span of time.")
+@Example("set realm boundary warning time of {_worldborder} to 1 second")
 @Since("2.11")
 public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBorder, Timespan> {
 
 	static {
-		registerDefault(ExprWorldBorderWarningTime.class, Timespan.class, "world[ ]border warning time", "worldborders");
+		registerDefault(ExprWorldBorderWarningTime.class, Timespan.class, "realm[ ]boundary warning time", "worldborders");
 	}
 
 	@Override

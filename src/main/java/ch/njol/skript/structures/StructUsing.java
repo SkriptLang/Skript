@@ -14,11 +14,11 @@ import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.structure.Structure;
 
-@Name("Using Experimental Feature")
+@Name("Employing an Experimental Feature")
 @Description({
-	"Place at the top of a script file to enable an optional experimental feature.",
-	"Experimental features may change behavior in Skript and may contain bugs. Use at your own discretion.",
-	"A list of the available experimental features can be found in the changelog for your version of Skript."
+	"Place at the head of a script to invoke an optional experimental feature.",
+	"Experimental features may alter the behaviour of Skript and may harbour imperfections. Employ them at thine own peril.",
+	"A catalogue of the available experimental features may be found within the changelog for thy version of Skript."
 })
 @Example("using 1.21")
 @Example("using the experiment my-cool-addon-feature")

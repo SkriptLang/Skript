@@ -23,10 +23,10 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 import java.util.Locale;
 
-@Name("Vector/Quaternion - WXYZ Component")
+@Name("Vector/Quaternion — WXYZ Component")
 @Description({
-	"Gets or changes the W, X, Y or Z component of <a href='#vector'>vectors</a>/<a href='#quaternion'>quaternions</a>.",
-	"You cannot use the W component with vectors; it is for quaternions only."
+	"Getteth or altereth the W, X, Y, or Z component of <a href='#vector'>vectors</a>/<a href='#quaternion'>quaternions</a>.",
+	"Thou canst not employ the W component with vectors; it is reserved for quaternions alone."
 })
 @Example("""
 	set {_v} to vector 1, 2, 3

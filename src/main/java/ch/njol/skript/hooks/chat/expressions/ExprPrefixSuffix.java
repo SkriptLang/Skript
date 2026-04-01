@@ -18,8 +18,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
-@Name("Prefix/Suffix")
-@Description("The prefix or suffix as defined in the server's chat plugin.")
+@Name("Fore-Title/After-Title")
+@Description("The prefix or suffix as ordained within the server's chat plugin.")
 @Example("""
 	on chat:
 		cancel event
@@ -31,7 +31,7 @@ import java.util.concurrent.CompletableFuture;
 @RequiredPlugins({"Vault", "a chat plugin that supports Vault"})
 public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
 	static {
-		register(ExprPrefixSuffix.class, String.class, "[chat] (1:prefix|2:suffix)", "players");
+		register(ExprPrefixSuffix.class, String.class, "[parlour] (1:prefix|2:suffix)", "players");
 	}
 	
 	private boolean prefix;

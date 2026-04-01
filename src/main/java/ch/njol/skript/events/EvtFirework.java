@@ -21,7 +21,7 @@ public class EvtFirework extends SkriptEvent {
 	static {
 		if (Skript.classExists("org.bukkit.event.entity.FireworkExplodeEvent"))
 			//Making the event argument type fireworkeffects, led to Skript having troubles parsing for some reason.
-			Skript.registerEvent("Firework Explode", EvtFirework.class, FireworkExplodeEvent.class,
+			Skript.registerEvent("Firework Burst", EvtFirework.class, FireworkExplodeEvent.class,
 					"[a] firework explo(d(e|ing)|sion) [colo[u]red %-colors%]")
 					.description("Called when a firework explodes.")
 					.examples(

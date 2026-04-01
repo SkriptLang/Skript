@@ -36,8 +36,8 @@ import java.util.*;
 
 @Name("Variables")
 @Description({
-	"Used for defining variables present within a script.",
-	"This section is not required, but it ensures that a variable has a value if it doesn't exist when the script is loaded."
+	"Employed for the declaration of variables present within a script.",
+	"This section is not required, yet it doth ensure that a variable possesseth a value should it not exist when the script is laden."
 })
 @Example("""
 	variables:

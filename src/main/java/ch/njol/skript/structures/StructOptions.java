@@ -23,11 +23,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 
-@Name("Options")
+@Name("Options — Proclaimed Substitutions")
 @Description({
-	"Options are used for replacing parts of a script with something else.",
-	"For example, an option may represent a message that appears in multiple locations.",
-	"Take a look at the example below that showcases this."
+	"Options serve to replace portions of a script with some other substance.",
+	"For instance, an option may represent a message that doth appear in many a place.",
+	"Pray observe the example below, which doth showcase this manner of use."
 })
 @Example("""
 	options:

@@ -17,17 +17,17 @@ import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
 import org.skriptlang.skript.lang.structure.Structure;
 
 @NoDoc
-@Name("Example")
+@Name("Exemplar")
 @Description({
-	"Examples are structures that are parsed, but will never be run.",
-	"They are used as miniature tutorials for demonstrating code snippets in the example files.",
-	"Scripts containing an example are seen as 'examples' by the parser and may have special safety restrictions."
+	"Exemplars art structures that are parsed, yet shall never be executed.",
+	"They serve as miniature treatises for demonstrating passages of code within the example files.",
+	"Scripts containing an exemplar are regarded as 'examples' by the parser and may bear special safeguards."
 })
 @Example("""
-	example:
-		broadcast "hello world"
-		# this is never run
-	""")
+    exemplar:
+    	broadcast "hello world"
+    	# this is never run
+    """)
 @Since("2.10")
 public class StructExample extends Structure implements SimpleExperimentalSyntax {
 
@@ -37,7 +37,7 @@ public class StructExample extends Structure implements SimpleExperimentalSyntax
 
 	static {
 		Skript.registerStructure(StructExample.class,
-			"example"
+			"exemplar"
 		);
 	}
 
@@ -62,7 +62,7 @@ public class StructExample extends Structure implements SimpleExperimentalSyntax
 		// This acts like a 'function' except without some of the features (e.g. returns)
 		// The code is parsed and loaded, but then discarded since it will never be run
 		// This allows things like parse problems and errors to be detected.
-		parser.setCurrentEvent("example", FunctionEvent.class);
+		parser.setCurrentEvent("exemplar", FunctionEvent.class);
 		ScriptLoader.loadItems(source);
 		parser.deleteCurrentEvent();
 		return true;
@@ -75,7 +75,7 @@ public class StructExample extends Structure implements SimpleExperimentalSyntax
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "example";
+		return "exemplar";
 	}
 
 }

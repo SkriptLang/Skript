@@ -17,18 +17,18 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Yaw / Pitch")
+@Name("Yaw and Pitch")
 @Description({
 	"The yaw or pitch of a location or vector.",
-	"A yaw of 0 or 360 represents the positive z direction. Adding a positive number to the yaw of a player will rotate it clockwise.",
-	"A pitch of 90 represents the negative y direction, or downward facing. A pitch of -90 represents upward facing. Adding a positive number to the pitch will rotate the direction downwards.",
-	"Only Paper 1.19+ users may directly change the yaw/pitch of players."
+	"A yaw of 0 or 360 denoteth the positive z direction. Adding a positive number to a player's yaw shall rotate them clockwise.",
+	"A pitch of 90 denoteth the negative y direction, or a downward gaze. A pitch of -90 denoteth an upward gaze. Adding a positive number to the pitch shall rotate the direction earthward.",
+	"Only Paper 1.19+ users may directly alter the yaw or pitch of players."
 })
 @Example("log \"%player%: %location of player%, %player's yaw%, %player's pitch%\" to \"playerlocs.log\"")
 @Example("set {_yaw} to yaw of player")
 @Example("set {_p} to pitch of target entity")
-@Example("set pitch of player to -90 # Makes the player look upwards, Paper 1.19+ only")
-@Example("add 180 to yaw of target of player # Makes the target look behind themselves")
+@Example("set pitch of player to -90 # Maketh the player gaze heavenward, Paper 1.19+ only")
+@Example("add 180 to yaw of target of player # Maketh the target look behind themselves")
 @Since("2.0, 2.2-dev28 (vector yaw/pitch), 2.9.0 (entity changers)")
 public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 

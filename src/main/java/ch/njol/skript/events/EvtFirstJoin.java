@@ -14,7 +14,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
  */
 public class EvtFirstJoin extends SkriptEvent {
 	static {
-		Skript.registerEvent("First Join", EvtFirstJoin.class, PlayerJoinEvent.class, "first (join|login)")
+		Skript.registerEvent("First Arrival", EvtFirstJoin.class, PlayerJoinEvent.class, "first (arrival|login)")
 				.description("Called when a player joins the server for the first time.")
 				.examples("on first join:",
 						"\tbroadcast \"Welcome %player% to the server!\"")

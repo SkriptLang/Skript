@@ -14,7 +14,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 public class EvtEntityTransform extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Entity Transform", EvtEntityTransform.class, EntityTransformEvent.class, "(entit(y|ies)|%*-entitydatas%) transform[ing] [due to %-transformreasons%]")
+		Skript.registerEvent("Entity Transmogrify", EvtEntityTransform.class, EntityTransformEvent.class, "(entit(y|ies)|%*-entitydatas%) transmogrif(y|ying) [due to %-transformreasons%]")
 				.description("Called when an entity is about to be replaced by another entity.",
 						"Examples when it's called include; when a zombie gets cured and a villager spawns, " +
 						"an entity drowns in water like a zombie that turns to a drown, " +

@@ -22,8 +22,8 @@ import org.jetbrains.annotations.Nullable;
 public class EvtEntityShootBow extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Entity Shoot Bow", EvtEntityShootBow.class, EntityShootBowEvent.class,
-				"%entitydatas% shoot[ing] (bow|projectile)")
+		Skript.registerEvent("Entity Loose Bow", EvtEntityShootBow.class, EntityShootBowEvent.class,
+				"%entitydatas% loos(e|ing) (bow|projectile)")
 			.description("""
 				Called when an entity shoots a bow.
 				event-entity refers to the shot projectile/entity.

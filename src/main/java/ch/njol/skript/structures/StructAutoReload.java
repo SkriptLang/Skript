@@ -37,17 +37,17 @@ import java.io.File;
 import java.util.*;
 import java.util.logging.Level;
 
-@Name("Auto Reload")
+@Name("Automatic Reloading of Scripts")
 @Description("""
-	Place at the top of a script file to enable and configure automatic reloading of the script.
-	When the script is saved, Skript will automatically reload the script.
-	The config.sk node 'script loader thread size' must be set to a positive number (async or parallel loading) \
-	for this to be enabled.
-	
-	available optional nodes:
-		recipients: The players to send reload messages to. Defaults to console.
-		permission: The permission required to receive reload messages. 'recipients' will override this node.
-	""")
+    Place at the crown of a script file to enable and configure the automatic reloading thereof.
+    When the script is saved, Skript shall automatically reload it forthwith.
+    The config.sk node 'script loader thread size' must be set to a positive number (asynchronous or parallel loading) \
+    for this to be enabled.
+    
+    available optional nodes:
+    	recipients: The players unto whom reload messages shall be sent. Defaults to console.
+    	permission: The permission required to receive reload messages. 'recipients' shall override this node.
+    """)
 @Example("auto reload")
 @Example("""
 	auto reload:

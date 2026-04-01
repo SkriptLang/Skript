@@ -15,21 +15,10 @@ import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.Locale;
 
-@Name("Event")
+@Name("Event Listener")
 @Description("""
-	The structure used for listening to events.
-	
-	Optionally allows specifying whether to listen to events that have been cancelled, \
-	and allows specifying with which priority to listen to events. \
-	Events are called in the following order of priorities.
-	
-	```
-	lowest -> low -> normal -> high -> highest -> monitor
-	```
-	
-	Modifying event-values or cancelling events is not supported when using the 'monitor' priority. \
-	It should only be used for monitoring the outcome of an event.
-	""")
+    Hearkeneth unto events. A handler may be registered for any event that Skript doth support.
+    """)
 @Example("""
 	on load:
 		broadcast "loading!"
@@ -58,7 +47,7 @@ public class StructEvent extends Structure {
 
 	static {
 		Skript.registerStructure(StructEvent.class,
-				"[on] [:uncancelled|:cancelled|any:(any|all)] <.+> [priority:with priority (:(lowest|low|normal|high|highest|monitor))]");
+				"[upon] [:uncancelled|:cancelled|any:(any|all)] <.+> [priority:with priority (:(lowest|low|normal|high|highest|monitor))]");
 	}
 
 	private SkriptEvent event;

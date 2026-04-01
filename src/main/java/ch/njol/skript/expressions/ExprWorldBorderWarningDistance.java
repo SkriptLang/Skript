@@ -12,17 +12,17 @@ import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Warning Distance of World Border")
+@Name("Warning Distance of the Realm's Boundary")
 @Description({
-	"The warning distance of a world border. The player's screen will be tinted red when they are within this distance of the border.",
-	"Players only see a red tint when approaching a world's worldborder and the warning distance has to be an integer greater than or equal to 0."
+	"The warning distance of a realm's boundary. The player's vision shall be tinged crimson when they draw within this distance of the boundary.",
+	"Players behold a crimson tint only when approaching a realm's boundary, and the warning distance must be a whole number no less than naught."
 })
-@Example("set world border warning distance of {_worldborder} to 1")
+@Example("set realm boundary warning distance of {_worldborder} to 1")
 @Since("2.11")
 public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<WorldBorder, Integer> {
 
 	static {
-		registerDefault(ExprWorldBorderWarningDistance.class, Integer.class, "world[ ]border warning distance", "worldborders");
+		registerDefault(ExprWorldBorderWarningDistance.class, Integer.class, "realm[ ]boundary warning distance", "worldborders");
 	}
 
 	@Override

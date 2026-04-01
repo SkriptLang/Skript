@@ -44,22 +44,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Name("Command")
-@Description("Used for registering custom commands.")
+@Name("Royal Decree")
+@Description("Employed for the registration of bespoke decrees, by which the realm's subjects may issue commands.")
 @Example("""
-	command /broadcast <string>:
-		usage: A command for broadcasting a message to all players.
-		permission: skript.command.broadcast
-		permission message: You don't have permission to broadcast messages
-		aliases: /bc
-		executable by: players and console
-		cooldown: 15 seconds
-		cooldown message: You last broadcast a message %elapsed time% ago. You can broadcast another message in %remaining time%.
-		cooldown bypass: skript.command.broadcast.admin
-		cooldown storage: {cooldown::%player%}
-		trigger:
-			broadcast the argument
-	""")
+    decree /broadcast <string>:
+    	usage: A decree for heralding a message unto all souls present.
+    	permission: skript.command.broadcast
+    	permission message: Thou hast not the authority to herald messages
+    	aliases: /bc
+    	executable by: players and console
+    	cooldown: 15 seconds
+    	cooldown message: Thou didst last herald a message %elapsed time% hence. Thou mayest herald another in %remaining time%.
+    	cooldown bypass: skript.command.broadcast.admin
+    	cooldown storage: {cooldown::%player%}
+    	trigger:
+    		broadcast the argument
+    """)
 @Since("1.0")
 public class StructCommand extends Structure {
 
@@ -125,7 +125,7 @@ public class StructCommand extends Structure {
 					"Unexpected entry '" + key + "'. Check that it's spelled correctly, and ensure that you have put all code into a trigger."
 				)
 				.build(),
-			"command <.+>"
+			"decree <.+>"
 		);
 	}
 

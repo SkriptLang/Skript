@@ -16,17 +16,17 @@ import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Size of World Border")
+@Name("Breadth of the Realm's Boundary")
 @Description({
-	"The size of a world border.",
-	"The size can not be smaller than 1."
+	"The breadth of a realm's boundary.",
+	"The breadth cannot be smaller than one."
 })
-@Example("set world border radius of {_worldborder} to 10")
+@Example("set realm boundary half-breadth of {_worldborder} to 10")
 @Since("2.11")
 public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, Double> {
 
 	static {
-		registerDefault(ExprWorldBorderSize.class, Double.class, "world[ ]border (size|diameter|:radius)", "worldborders");
+		registerDefault(ExprWorldBorderSize.class, Double.class, "realm[ ]boundary (size|diameter|radius:half-breadth)", "worldborders");
 	}
 
 	private boolean radius;

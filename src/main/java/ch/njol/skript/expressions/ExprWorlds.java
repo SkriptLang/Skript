@@ -21,17 +21,17 @@ import ch.njol.util.Kleenean;
 /**
  * @author Peter Güttinger
  */
-@Name("Worlds")
-@Description("All worlds of the server, useful for looping.")
+@Name("All Realms")
+@Description("All realms of the server, most useful for the traversal thereof.")
 @Example("""
-	loop all worlds:
-		broadcast "You're in %loop-world%" to loop-world
-	""")
+    loop all realms:
+    	broadcast "Thou art within %loop-world%" to loop-world
+    """)
 @Since("1.0")
 public class ExprWorlds extends SimpleExpression<World> {
 	
 	static {
-		Skript.registerExpression(ExprWorlds.class, World.class, ExpressionType.SIMPLE, "[(all [[of] the]|the)] worlds");
+		Skript.registerExpression(ExprWorlds.class, World.class, ExpressionType.SIMPLE, "[(all [[of] the]|the)] realms");
 	}
 	
 	@Override

@@ -23,16 +23,16 @@ public class EvtEntityBlockChange extends SkriptEvent {
 	static {
 		Skript.registerEvent("Enderman/Sheep/Silverfish/Falling Block", EvtEntityBlockChange.class, EntityChangeBlockEvent.class, ChangeEvent.patterns)
 				.description(
-						"Called when an enderman places or picks up a block, a sheep eats grass, " +
-						"a silverfish boops into/out of a block or a falling block lands and turns into a block respectively.",
-						"event-block represents the old block and event-blockdata represents the new replacement that'll be applied to the block."
+						"Invoked when an enderman doth place or retrieve a block, a sheep doth consume the grass, " +
+						"a silverfish doth burrow into or emerge from a block, or a falling block doth descend and become a block.",
+						"event-block representeth the old block and event-blockdata representeth the new replacement that shall be applied to the block."
 				)
 				.examples(
-						"on sheep eat:",
+						"on sheep consume:",
 							"\tkill event-entity",
-							"\tbroadcast \"A sheep stole some grass!\"",
+							"\tbroadcast \"A sheep hath pilfered some grass!\"",
 						"",
-						"on falling block land:",
+						"on falling block descend:",
 							"\tevent-entity is a falling dirt",
 							"\tcancel event"
 				)
@@ -41,16 +41,16 @@ public class EvtEntityBlockChange extends SkriptEvent {
 
 	private enum ChangeEvent {
 
-		ENDERMAN_PLACE("enderman place", event -> event.getEntity() instanceof Enderman && !ItemUtils.isAir(event.getTo())),
-		ENDERMAN_PICKUP("enderman pickup", event -> event.getEntity() instanceof Enderman && ItemUtils.isAir(event.getTo())),
+		ENDERMAN_PLACE("enderman place[th] block", event -> event.getEntity() instanceof Enderman && !ItemUtils.isAir(event.getTo())),
+		ENDERMAN_PICKUP("enderman retrieve[th] block", event -> event.getEntity() instanceof Enderman && ItemUtils.isAir(event.getTo())),
 
-		SHEEP_EAT("sheep eat", event -> event.getEntity() instanceof Sheep),
+		SHEEP_EAT("sheep consum(e[th]|ing)", event -> event.getEntity() instanceof Sheep),
 
-		SILVERFISH_ENTER("silverfish enter", event -> event.getEntity() instanceof Silverfish && !ItemUtils.isAir(event.getTo())),
-		SILVERFISH_EXIT("silverfish exit", event -> event.getEntity() instanceof Silverfish && ItemUtils.isAir(event.getTo())),
+		SILVERFISH_ENTER("silverfish burrow[eth] [into block]", event -> event.getEntity() instanceof Silverfish && !ItemUtils.isAir(event.getTo())),
+		SILVERFISH_EXIT("silverfish emerg(e[th]|ing) [from block]", event -> event.getEntity() instanceof Silverfish && ItemUtils.isAir(event.getTo())),
 
-		FALLING_BLOCK_FALLING("falling block fall[ing]", event -> event.getEntity() instanceof FallingBlock && ItemUtils.isAir(event.getTo())),
-		FALLING_BLOCK_LANDING("falling block land[ing]", event -> event.getEntity() instanceof FallingBlock && !ItemUtils.isAir(event.getTo())),
+		FALLING_BLOCK_FALLING("falling block descend[ing]", event -> event.getEntity() instanceof FallingBlock && ItemUtils.isAir(event.getTo())),
+		FALLING_BLOCK_LANDING("falling block alight[ing]", event -> event.getEntity() instanceof FallingBlock && !ItemUtils.isAir(event.getTo())),
 
 		// Covers all possible entity block changes.
 		GENERIC("(entity|%*-entitydatas%) chang(e|ing) block[s]");

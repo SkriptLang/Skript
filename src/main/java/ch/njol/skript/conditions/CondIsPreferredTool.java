@@ -17,15 +17,15 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Is Preferred Tool")
+@Name("Is Favoured Implement")
 @Description(
-		"Checks whether an item is the preferred tool for a block. A preferred tool is one that will drop the block's item " +
-		"when used. For example, a wooden pickaxe is a preferred tool for grass and stone blocks, but not for iron ore."
+		"Checks whether an item is the favoured implement for a block. A favoured implement is one that shall cause the block to yield its item " +
+		"when employed. For example, a wooden pickaxe is a favoured implement for grass and stone blocks, but not for iron ore."
 )
 @Example("""
 	on left click:
 		event-block is set
-		if player's tool is the preferred tool for event-block:
+		if player's tool is the favoured implement for event-block:
 			break event-block naturally using player's tool
 		else:
 			cancel event
@@ -41,10 +41,10 @@ public class CondIsPreferredTool extends Condition {
 			types += "/blockdatas";
 
 		Skript.registerCondition(CondIsPreferredTool.class,
-				"%itemtypes% (is|are) %" + types + "%'s preferred tool[s]",
-				"%itemtypes% (is|are) [the|a] preferred tool[s] (for|of) %" + types + "%",
-				"%itemtypes% (is|are)(n't| not) %" + types + "%'s preferred tool[s]",
-				"%itemtypes% (is|are)(n't| not) [the|a] preferred tool[s] (for|of) %" + types + "%"
+				"%itemtypes% (is|are) %" + types + "%'s favoured implement[s]",
+				"%itemtypes% (is|are) [the|a] favoured implement[s] (for|of) %" + types + "%",
+				"%itemtypes% (is|are)(n't| not) %" + types + "%'s favoured implement[s]",
+				"%itemtypes% (is|are)(n't| not) [the|a] favoured implement[s] (for|of) %" + types + "%"
 		);
 	}
 
@@ -76,6 +76,6 @@ public class CondIsPreferredTool extends Condition {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return items.toString(event, debug) + " is the preferred tool for " + blocks.toString(event, debug);
+		return items.toString(event, debug) + " is the favoured implement for " + blocks.toString(event, debug);
 	}
 }

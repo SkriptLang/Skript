@@ -16,17 +16,17 @@ import org.bukkit.entity.Snowman;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Shear")
+@Name("Fleece")
 @Description({
-	"Shears or un-shears a shearable entity with drops by shearing and a 'sheared' sound. Using with 'force' will force this effect despite the entity's 'shear state'.",
-	"\nPlease note that..:",
-	"\n- Force-shearing or un-shearing on a sheared mushroom cow is not possible"
+	"Fleeceth or un-fleeceth a shearable entity, with drops by the shearing and a 'sheared' sound. Employing 'force' shall compel this effect despite the entity's 'shear state'.",
+	"\nPrithee note that..:",
+	"\n- Force-fleecing or un-fleecing on a sheared mushroom cow is not possible"
 })
 @Example("""
 	on rightclick on a sheep holding a sword:
-		shear the clicked sheep
+		fleece the clicked sheep
 		chance of 10%
-		force shear the clicked sheep
+		force fleece the clicked sheep
 	""")
 @Since("2.0 (cows, sheep & snowmen), 2.8.0 (all shearable entities)")
 public class EffShear extends Effect {
@@ -35,8 +35,8 @@ public class EffShear extends Effect {
 
 	static {
 		Skript.registerEffect(EffShear.class,
-				(INTERFACE_METHOD ? "[:force] " : "") + "shear %livingentities%",
-				"un[-]shear %livingentities%");
+				(INTERFACE_METHOD ? "[:force] " : "") + "fleece %livingentities%",
+				"un[-]fleece %livingentities%");
 	}
 
 	private Expression<LivingEntity> entity;
@@ -74,7 +74,7 @@ public class EffShear extends Effect {
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (shear ? "" : "un") + "shear " + entity.toString(event, debug);
+		return (shear ? "" : "un") + "fleece " + entity.toString(event, debug);
 	}
 	
 }

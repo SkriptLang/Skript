@@ -21,13 +21,13 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-@Name("Inventory Holder/Viewers/Rows/Slots")
-@Description({"Gets the amount of rows/slots, viewers and holder of an inventory.",
+@Name("Inventory Keeper/Beholders/Rows/Chambers")
+@Description({"Fetcheth the number of rows/chambers, beholders and keeper of an inventory.",
 	"",
-	"NOTE: 'Viewers' expression returns a list of players viewing the inventory. Note that a player is considered to be viewing their own inventory and internal crafting screen even when said inventory is not open."})
-@Example("event-inventory's amount of rows")
-@Example("holder of player's top inventory")
-@Example("{_inventory}'s viewers")
+	"NOTE: The 'beholders' expression returneth a list of players viewing the inventory. Prithee note that a player is considered to be viewing their own inventory and internal crafting screen even when said inventory is not open."})
+@Example("event-inventory's number of rows")
+@Example("keeper of player's top inventory")
+@Example("{_inventory}'s beholders")
 @Since("2.2-dev34, 2.5 (slots)")
 public class ExprInventoryInfo extends SimpleExpression<Object> {
 	
@@ -35,8 +35,8 @@ public class ExprInventoryInfo extends SimpleExpression<Object> {
 	
 	static {
 		Skript.registerExpression(ExprInventoryInfo.class, Object.class, ExpressionType.PROPERTY,
-				"(" + HOLDER + "¦holder[s]|" + VIEWERS + "¦viewers|" + ROWS + "¦[amount of] rows|" + SLOTS + "¦[amount of] slots)" + " of %inventories%",
-				"%inventories%'[s] (" + HOLDER + "¦holder[s]|" + VIEWERS + "¦viewers|" + ROWS + "¦[amount of] rows|" + SLOTS + "¦[amount of] slots)");
+				"(" + HOLDER + "¦keeper[s]|" + VIEWERS + "¦beholders|" + ROWS + "¦[number of] rows|" + SLOTS + "¦[number of] chambers)" + " of %inventories%",
+				"%inventories%'[s] (" + HOLDER + "¦keeper[s]|" + VIEWERS + "¦beholders|" + ROWS + "¦[number of] rows|" + SLOTS + "¦[number of] chambers)");
 	}
 	
 	@SuppressWarnings("null")
@@ -101,7 +101,7 @@ public class ExprInventoryInfo extends SimpleExpression<Object> {
 	
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return (type == HOLDER ? "holder of " : type == ROWS ? "rows of " : type == SLOTS ? "slots of " : "viewers of ") + inventories.toString(e, debug);
+		return (type == HOLDER ? "keeper of " : type == ROWS ? "rows of " : type == SLOTS ? "chambers of " : "beholders of ") + inventories.toString(e, debug);
 	}
 
 }
