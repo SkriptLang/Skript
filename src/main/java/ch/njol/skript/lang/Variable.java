@@ -596,8 +596,10 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 					} else {
 						assert mode == ChangeMode.ADD;
 						if (map instanceof IndexTrackingTreeMap<Object> indexTrackingMap) {
-							for (Object value : delta)
-								indexTrackingMap.add(value);
+							for (Object value : delta) {
+								int index = indexTrackingMap.nextOpenIndex();
+								setIndex(event, String.valueOf(index), value);
+							}
 							return;
 						}
 						int i = 1;

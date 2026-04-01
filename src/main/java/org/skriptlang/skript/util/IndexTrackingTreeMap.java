@@ -1,5 +1,6 @@
 package org.skriptlang.skript.util;
 
+import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.VisibleForTesting;
 
 import java.util.*;
@@ -31,7 +32,7 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 	@Override
 	public V put(String key, V value) {
 		V previous = super.put(key, value);
-		if (previous == null && isInt(key)) {
+		if (previous == null && value != null && isInt(key)) {
 			try {
 				int index = Integer.parseInt(key);
 				int pos = Collections.binarySearch(numericalIndices, index);
@@ -46,9 +47,10 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 	/**
 	 * Adds the given value under the first available positive integer key.
 	 *
-	 * @param value the value to add
+	 * @param value the value to add, cannot be null
 	 */
 	public void add(V value) {
+		Preconditions.checkNotNull(value, "value");
 		int index = nextOpenIndex();
 		super.put(String.valueOf(index), value);
 		numericalIndices.add(index - 1, index);
