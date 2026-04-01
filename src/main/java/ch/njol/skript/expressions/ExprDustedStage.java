@@ -95,7 +95,7 @@ public class ExprDustedStage extends PropertyExpression<Object, Integer> {
 				case REMOVE -> Math2.addClamped(currentValue, -value);
 				default -> throw new IllegalArgumentException("Change mode " + mode + " is not valid for ExprDustedStage!");
 			};
-			brushable.setDusted( Math.clamp(newValue, 0, maxValue));
+			brushable.setDusted(Math.clamp(newValue, 0, maxValue));
 			if (obj instanceof Block block) {
 				block.setBlockData(brushable);
 			}

@@ -1,4 +1,4 @@
-test "dusting progress" when running minecraft "1.20":
+test "dusting progress":
 	set {_old} to block data of test-block
 	set block at test-block to suspicious gravel
 	set {_block} to block at test-block
