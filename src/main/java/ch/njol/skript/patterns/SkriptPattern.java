@@ -16,6 +16,7 @@ public class SkriptPattern {
 	private final int expressionAmount;
 
 	private final Keyword[] keywords;
+	private final int minLength;
 	@Nullable
 	private List<TypePatternElement> types;
 
@@ -23,12 +24,15 @@ public class SkriptPattern {
 		this.first = first;
 		this.expressionAmount = expressionAmount;
 		keywords = Keyword.buildKeywords(first);
+		minLength = Keyword.computeMinLength(first);
 	}
 
 	@Nullable
 	public MatchResult match(String expr, int flags, ParseContext parseContext) {
 		// Matching shortcut
 		String lowerExpr = expr.toLowerCase(Locale.ENGLISH);
+		if (lowerExpr.length() < minLength)
+			return null;
 		for (Keyword keyword : keywords) {
 			if (!keyword.isPresent(lowerExpr))
 				return null;
