@@ -4,6 +4,8 @@ import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.util.ValidationResult;
 import org.bukkit.NamespacedKey;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.RuntimeErrorProducer;
 
 /**
  * Utility class for {@link NamespacedKey}
@@ -78,6 +80,24 @@ public class NamespacedUtils {
 				namespacedKey);
 		}
 		return new ValidationResult<>(true, namespacedKey);
+	}
+
+	/**
+	 * A helper method to run {@link #checkValidation} and send the appropriate runtime errors/warnings.
+	 * @param string The string to parse as a namespaced key.
+	 * @param producer The producer from which to send runtime errors.
+	 * @return The key, if parsed without errors, otherwise null.
+	 */
+	public static @Nullable NamespacedKey checkValidationAndSend(String string, RuntimeErrorProducer producer) {
+		ValidationResult<NamespacedKey> validationResult = NamespacedUtils.checkValidation(string);
+		String validationMessage = validationResult.message();
+		if (!validationResult.valid()) {
+			producer.error(validationMessage + ". " + NamespacedUtils.NAMEDSPACED_FORMAT_MESSAGE);
+			return null;
+		} else if (validationMessage != null) {
+			producer.warning(validationMessage);
+		}
+		return validationResult.data();
 	}
 
 	/**

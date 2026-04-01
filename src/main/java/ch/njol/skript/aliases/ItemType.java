@@ -1618,15 +1618,28 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
-	 * Returns a base item type of this. Essentially, this calls
-	 * {@link ItemData#aliasCopy()} on all datas and creates a new type
+	 * Returns a base item type of this. i.e. an item type where all item datas only contain
+	 * the minimum ItemMeta info to represent the item, in the case of potions/goat horns.
 	 * containing the results.
 	 * @return Base item type.
 	 */
 	public ItemType getBaseType() {
 		ItemType copy = new ItemType();
 		for (ItemData data : types) {
-			copy.add_(data.aliasCopy());
+			copy.add_(data.getBaseCopy());
+		}
+		return copy;
+	}
+
+	/**
+	 * Returns a plain version of this item type, i.e. an item type where all item datas are plain and only contain
+	 * the minimum ItemMeta info to represent the item, in the case of potions/goat horns.
+	 * @return Plain item type.
+	 */
+	public ItemType getPlainType() {
+		ItemType copy = getBaseType();
+		for (ItemData data : copy.types) {
+			data.setPlain(true);
 		}
 		return copy;
 	}
