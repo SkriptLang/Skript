@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.misc.elements.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -13,6 +12,7 @@ import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.text.TextComponentUtils;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Arrays;
 
@@ -25,15 +25,12 @@ import java.util.Arrays;
 @Since("2.10")
 public class ExprTextOf extends SimplePropertyExpression<Object, Component> {
 
-	static {
-		String types = "";
-		if (Skript.classExists("org.bukkit.entity.Display")) {
-			types += "displays";
-		}
-		// This is because this expression is set up to support future types.
-		// Remove this if non-versioning.
-		if (!types.isEmpty())
-			register(ExprTextOf.class, Component.class, "text[s]", types);
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		// TODO turn this into a property
+		syntaxRegistry.register(SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprTextOf.class, Component.class, "text[s]", "displays", false)
+				.supplier(ExprTextOf::new)
+				.build());
 	}
 
 	@Override

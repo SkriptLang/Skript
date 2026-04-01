@@ -14,9 +14,9 @@ import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
-import org.skriptlang.skript.bukkit.text.elements.ExprColored;
+import org.skriptlang.skript.bukkit.text.elements.expressions.ExprColored;
 import org.skriptlang.skript.bukkit.potion.elements.conditions.CondHasPotion;
-import org.skriptlang.skript.common.properties.conditions.PropCondContains;
+import org.skriptlang.skript.common.properties.elements.conditions.PropCondContains;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.registration.SyntaxInfo;
 

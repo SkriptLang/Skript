@@ -141,7 +141,25 @@ but this is not strictly required:
   String string = "example string " +
         "with more to add";
   ```
-  
+
+#### Module Organization
+
+When creating modules, they should be organized in the following manner:
+```text
+module
+|- elements
+|  |- expressions
+|  |  |- ExprX.java
+|  |- effects
+|  |  |- EffY.java
+|- submodule
+|  |- elements
+|  |- Submodule.java
+|- Module.java
+```
+
+#### Syntax Class Organization
+
 * When extending one of following classes: SimpleExpression, SimplePropertyExpression, Effect, Condition...
   - Put overridden methods in order
   - Put static registration before all methods
@@ -152,7 +170,6 @@ but this is not strictly required:
   - PropertyCondition: (init) -> check -> (getPropertyType) -> getPropertyName
   - Section: init -> walk -> toString
   - Structure: init -> (preLoad) -> load -> (postLoad) -> unload -> (postUnload) -> (getPriority) -> toString
-
 
 ### Naming
 * Class names are written in `UpperCamelCase`

@@ -31,7 +31,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.common.properties.expressions.PropExprName;
+import org.skriptlang.skript.common.properties.elements.expressions.PropExprName;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.util.ArrayList;

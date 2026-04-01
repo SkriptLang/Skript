@@ -3,7 +3,7 @@ package ch.njol.skript.lang.util.common;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.bukkit.text.TextComponentParser;
-import org.skriptlang.skript.common.properties.expressions.PropExprName;
+import org.skriptlang.skript.common.properties.elements.expressions.PropExprName;
 import org.skriptlang.skript.lang.properties.Property;
 
 /**

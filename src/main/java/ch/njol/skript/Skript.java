@@ -60,6 +60,7 @@ import org.junit.After;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
+import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.bukkit.BukkitModule;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
@@ -479,23 +480,23 @@ public final class Skript extends JavaPlugin implements Listener {
 		//noinspection removal
 		EventValues.setEventValueRegistry(eventValueRegistry);
 
-		// Load classes which are always safe to use
-		new JavaClasses(); // These may be needed in configuration
+		// TODO this upcoming portion is a bad circular dependency
+		// some modules depend on the config
+		// the config depends on some modules (for the types they register)
+
+		// load classes
+		new JavaClasses();
+		new SkriptClasses();
+		new BukkitClasses();
+
+		// load the config
+		SkriptConfig.load();
 
 		// Check server software, Minecraft version, etc.
 		if (!checkServerPlatform()) {
 			disabled = true; // Nothing was loaded, nothing needs to be unloaded
 			setEnabled(false); // Cannot continue; user got errors in console to tell what happened
 			return;
-		}
-
-		// And then not-so-safe classes
-		Throwable classLoadError = null;
-		try {
-			new SkriptClasses();
-			new BukkitClasses();
-		} catch (Throwable e) {
-			classLoadError = e;
 		}
 
 		// Warn about pausing
@@ -508,14 +509,8 @@ public final class Skript extends JavaPlugin implements Listener {
 			}
 		}
 
-
-		// Config must be loaded after Java and Skript classes are parseable
-		// ... but also before platform check, because there is a config option to ignore some errors
-		SkriptConfig.load();
-
 		// Register the runtime error refresh after loading, so we can do the first instantiation manually.
 		SkriptConfig.eventRegistry().register(SkriptConfig.ReloadEvent.class, RuntimeErrorManager::refresh);
-
 		// init runtime error manager and add bukkit consumer.
 		RuntimeErrorManager.refresh();
 		getRuntimeErrorManager().addConsumer(new BukkitRuntimeErrorConsumer());
@@ -532,35 +527,48 @@ public final class Skript extends JavaPlugin implements Listener {
 			updater.updateCheck(console);
 		}
 
-		// If loading can continue (platform ok), check for potentially thrown error
-		if (classLoadError != null) {
-			exception(classLoadError);
-			setEnabled(false);
-			return;
-		}
-
 		PluginCommand skriptCommand = getCommand("skript");
 		assert skriptCommand != null; // It is defined, unless build is corrupted or something like that
 		skriptCommand.setExecutor(new SkriptCommand());
 		skriptCommand.setTabCompleter(new SkriptCommandTabCompleter());
 
-		// Load Bukkit stuff. It is done after platform check, because something might be missing!
-		BukkitEventValues.register(eventValueRegistry);
+		final AddonModule legacyModule = new AddonModule() {
 
-		new DefaultComparators();
-		new DefaultConverters();
-		new DefaultFunctions();
-		new DefaultOperations();
+			@Override
+			public void init(org.skriptlang.skript.addon.SkriptAddon addon) {
+				new DefaultComparators();
+				new DefaultConverters();
 
-		ChatMessages.registerListeners();
+				// legacy listeners
+				//noinspection removal
+				ChatMessages.registerListeners();
+			}
+
+			@Override
+			public void load(org.skriptlang.skript.addon.SkriptAddon addon) {
+				try {
+					//noinspection removal
+					getAddonInstance().loadClasses("ch.njol.skript",
+						"conditions", "effects", "events", "expressions", "entity", "literals", "sections", "structures");
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+				BukkitEventValues.register(eventValueRegistry);
+				new DefaultFunctions();
+				new DefaultOperations();
+			}
+
+			@Override
+			public String name() {
+				return "legacy";
+			}
+
+		};
 
 		try {
-			getAddonInstance().loadClasses("ch.njol.skript",
-				"conditions", "effects", "events", "expressions", "entity", "literals", "sections", "structures");
-			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "misc");
-			skript.loadModules(new CommonModule(), new BukkitModule());
+			skript.loadModules(legacyModule, new CommonModule(), new BukkitModule());
 		} catch (final Exception e) {
-			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
+			exception(e, "Failed to load one of Skript's modules: " + e.getLocalizedMessage());
 			setEnabled(false);
 			return;
 		}

@@ -1,12 +1,10 @@
 package org.skriptlang.skript.bukkit.misc.elements.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -22,6 +20,8 @@ import org.skriptlang.skript.bukkit.misc.rotation.NonMutatingVectorRotator;
 import org.skriptlang.skript.bukkit.misc.rotation.Rotator;
 import org.skriptlang.skript.bukkit.misc.rotation.Rotator.Axis;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -44,12 +44,14 @@ import java.util.Objects;
 @Since("2.10")
 public class ExprRotate extends SimpleExpression<Object> {
 
-	static {
-		Skript.registerExpression(ExprRotate.class, Object.class, ExpressionType.SIMPLE,
-				"%quaternions/vectors% rotated around [the] [global] (:x|:y|:z)(-| )axis by %number%",
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprRotate.class, Object.class)
+			.supplier(ExprRotate::new)
+			.addPatterns("%quaternions/vectors% rotated around [the] [global] (:x|:y|:z)(-| )axis by %number%",
 				"%quaternions% rotated around [the|its|their] local (:x|:y|:z)(-| )ax(i|e)s by %number%",
 				"%quaternions/vectors% rotated around [the] %vector% by %number%",
-				"%quaternions% rotated by x %number%, y %number%(, [and]| and) z %number%");
+				"%quaternions% rotated by x %number%, y %number%(, [and]| and) z %number%")
+			.build());
 	}
 
 	private Expression<?> toRotate;

@@ -49,8 +49,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.metadata.Metadatable;
 import org.bukkit.util.CachedServerIcon;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.base.types.*;
-import org.skriptlang.skript.bukkit.base.types.EntityClassInfo.EntityChanger;
+import org.skriptlang.skript.bukkit.types.EntityClassInfo.EntityChanger;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
@@ -66,8 +65,6 @@ public class BukkitClasses {
 	public BukkitClasses() {}
 
 	static {
-		Classes.registerClass(new EntityClassInfo());
-
 		Classes.registerClass(new ClassInfo<>(LivingEntity.class, "livingentity")
 				.user("living ?entit(y|ies)")
 				.name("Living Entity")
@@ -90,8 +87,6 @@ public class BukkitClasses {
 				.since("1.0")
 				.defaultExpression(new EventValueExpression<>(Projectile.class))
 				.changer(DefaultChangers.nonLivingEntityChanger));
-
-		Classes.registerClass(new BlockClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(BlockData.class, "blockdata")
 				.user("block ?datas?")
@@ -153,9 +148,6 @@ public class BukkitClasses {
 						return false;
 					}
 				}).cloner(BlockData::clone));
-
-		Classes.registerClass(new LocationClassInfo());
-		Classes.registerClass(new VectorClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(World.class, "world")
 				.user("worlds?")
@@ -231,8 +223,6 @@ public class BukkitClasses {
 					ExpressionPropertyHandler.of(World::getName, String.class)
 				));
 
-		Classes.registerClass(new InventoryClassInfo());
-
 		Classes.registerClass(new EnumClassInfo<>(InventoryAction.class, "inventoryaction", "inventory actions")
 				.user("inventory ?actions?")
 				.name("Inventory Action")
@@ -254,10 +244,6 @@ public class BukkitClasses {
 				.description("Minecraft has several different inventory types with their own use cases.")
 				.examples("")
 				.since("2.2-dev32"));
-
-		Classes.registerClass(new PlayerClassInfo());
-
-		Classes.registerClass(new OfflinePlayerClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(CommandSender.class, "commandsender")
 				.user("((commands?)? ?)?(sender|executor)s?")
@@ -300,8 +286,6 @@ public class BukkitClasses {
 					ExpressionPropertyHandler.of(CommandSender::name, Component.class)
 				));
 
-		Classes.registerClass(new NameableClassInfo());
-
 		Classes.registerClass(new ClassInfo<>(InventoryHolder.class, "inventoryholder")
 				.name(ClassInfo.NO_DOC)
 				.defaultExpression(new EventValueExpression<>(InventoryHolder.class))
@@ -340,8 +324,6 @@ public class BukkitClasses {
 				.examples("player's gamemode is survival",
 						"set the player argument's game mode to creative")
 				.since("1.0"));
-
-		Classes.registerClass(new ItemStackClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(Item.class, "itementity")
 				.name(ClassInfo.NO_DOC)

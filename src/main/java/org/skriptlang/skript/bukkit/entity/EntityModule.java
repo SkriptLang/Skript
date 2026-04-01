@@ -8,9 +8,9 @@ import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.entity.displays.DisplayModule;
 import org.skriptlang.skript.bukkit.entity.interactions.InteractionModule;
-import org.skriptlang.skript.bukkit.entity.misc.ExprDeathMessage;
-import org.skriptlang.skript.bukkit.entity.nautilus.NautilusData;
-import org.skriptlang.skript.bukkit.entity.nautilus.ZombieNautilusData;
+import org.skriptlang.skript.bukkit.entity.elements.expressions.ExprDeathMessage;
+import org.skriptlang.skript.bukkit.entity.entitydata.NautilusData;
+import org.skriptlang.skript.bukkit.entity.entitydata.ZombieNautilusData;
 import org.skriptlang.skript.bukkit.entity.player.PlayerModule;
 
 import java.util.List;
@@ -37,7 +37,6 @@ public class EntityModule extends HierarchicalAddonModule {
 			SimpleEntityData.addSuperEntity("any nautilus", AbstractNautilus.class);
 		}
 
-		// miscellaneous syntax
 		register(addon,
 			ExprDeathMessage::register
 		);
