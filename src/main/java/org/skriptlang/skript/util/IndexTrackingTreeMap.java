@@ -1,6 +1,7 @@
 package org.skriptlang.skript.util;
 
 import com.google.common.base.Preconditions;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.jetbrains.annotations.VisibleForTesting;
 
 import java.util.*;
@@ -20,6 +21,7 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 
 	@VisibleForTesting
 	final List<Integer> numericalIndices = new ArrayList<>();
+	private final Set<String> mapIndices = new HashSet<>();
 
 	public IndexTrackingTreeMap() {
 		super();
@@ -32,15 +34,30 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 	@Override
 	public V put(String key, V value) {
 		V previous = super.put(key, value);
+
+		if (previous != null && value == null) {
+			handleRemove(key, previous);
+			return previous;
+		}
+
 		if (previous == null && value != null && isInt(key)) {
 			try {
 				int index = Integer.parseInt(key);
-				int pos = Collections.binarySearch(numericalIndices, index);
-				numericalIndices.add(-pos - 1, index);
+				if (consecutive() && index > numericalIndices.size()) {
+					numericalIndices.add(index);
+				} else {
+					int pos = Collections.binarySearch(numericalIndices, index);
+					numericalIndices.add(-pos - 1, index);
+				}
 			} catch (NumberFormatException ignore) {}
-		} else if (previous != null && value == null) {
-			handleRemove(key);
 		}
+
+		if (value instanceof Map) {
+			mapIndices.add(key);
+		} else if (previous instanceof Map) {
+			mapIndices.remove(key);
+		}
+
 		return previous;
 	}
 
@@ -52,15 +69,18 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 	public void add(V value) {
 		Preconditions.checkNotNull(value, "value");
 		int index = nextOpenIndex();
-		super.put(String.valueOf(index), value);
+		String key = String.valueOf(index);
+		super.put(key, value);
 		numericalIndices.add(index - 1, index);
+		if (value instanceof Map)
+			mapIndices.add(key);
 	}
 
 	@Override
 	public V remove(Object key) {
 		V value = super.remove(key);
 		if (value != null && key instanceof String index)
-			handleRemove(index);
+			handleRemove(index, value);
 		return value;
 	}
 
@@ -68,6 +88,14 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 	public void clear() {
 		super.clear();
 		numericalIndices.clear();
+		mapIndices.clear();
+	}
+
+	public boolean consecutive() {
+		int size = numericalIndices.size();
+		if (size == 0)
+			return true;
+		return numericalIndices.getLast() == size;
 	}
 
 	/**
@@ -87,6 +115,9 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 		if (numericalIndices.getFirst() > 1)
 			return 1;
 
+		if (consecutive())
+			return numericalIndices.size() + 1;
+
 		int left = 0;
 		int right = size - 1;
 
@@ -103,7 +134,28 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 		return left + 1;
 	}
 
-	private void handleRemove(String index) {
+	/**
+	 * Returns an unmodifiable view of the tracked numerical indices.
+	 *
+	 * @return a collection of all tracked positive integer keys
+	 */
+	public @UnmodifiableView Collection<Integer> numericalIndices() {
+		return Collections.unmodifiableCollection(numericalIndices);
+	}
+
+	/**
+	 * Returns an unmodifiable view of the keys that map to other {@link Map} instances.
+	 *
+	 * @return a collection of all keys pointing to a map
+	 */
+	public @UnmodifiableView Collection<String> mapIndices() {
+		return Collections.unmodifiableCollection(mapIndices);
+	}
+
+	private void handleRemove(String index, Object previous) {
+		if (previous instanceof Map)
+			mapIndices.remove(index);
+
 		if (!isInt(index))
 			return;
 		int pos = Collections.binarySearch(numericalIndices, Integer.parseInt(index));

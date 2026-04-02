@@ -6,6 +6,7 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.Variable;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -37,6 +38,7 @@ public class PropExprSize extends PropertyBaseExpression<ExpressionPropertyHandl
 	}
 
 	private ExpressionList<?> exprs;
+	private @Nullable Variable<?> list;
 	private boolean useProperties;
 
 	@Override
@@ -45,19 +47,24 @@ public class PropExprSize extends PropertyBaseExpression<ExpressionPropertyHandl
 		// sizes of x, y -> property
 		// size of x, y -> list length
 		useProperties = parseResult.hasTag("s") || expressions[0].isSingle();
-		if (useProperties) {
+		if (useProperties)
 			return super.init(expressions, matchedPattern, isDelayed, parseResult);
-		} else {
-			// if exprlist or varlist, count elements
-			this.exprs = PropExprAmount.asExprList(expressions[0]);
-			return LiteralUtils.canInitSafely(this.exprs);
-		}
+
+		// if exprlist or varlist, count elements
+		this.exprs = PropExprAmount.asExprList(expressions[0]);
+		if (expressions[0] instanceof Variable<?> variable)
+			this.list = variable;
+		return LiteralUtils.canInitSafely(this.exprs);
 	}
 
 	@Override
 	protected Object @Nullable [] get(Event event) {
 		if (useProperties)
 			return super.get(event);
+
+		if (list != null)
+			return new Long[]{(long) list.size(event)};
+
 		return new Long[]{(long) exprs.getArray(event).length};
 	}
 

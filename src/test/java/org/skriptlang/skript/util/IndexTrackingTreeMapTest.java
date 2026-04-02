@@ -2,6 +2,7 @@ package org.skriptlang.skript.util;
 
 import org.junit.Test;
 
+import java.util.Collection;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -217,6 +218,67 @@ public class IndexTrackingTreeMapTest {
 		map.put("a1", "value");
 
 		assertEquals(1, map.nextOpenIndex());
+	}
+
+	@Test
+	public void numericalIndicesViewIsCorrect() {
+		IndexTrackingTreeMap<String> map = newMap();
+		map.put("1", "one");
+		map.put("3", "three");
+		map.put("foo", "foo");
+
+		Collection<Integer> indices = map.numericalIndices();
+		assertEquals(2, indices.size());
+		assertTrue(indices.contains(1));
+		assertTrue(indices.contains(3));
+
+		assertThrows(UnsupportedOperationException.class, () -> indices.add(2));
+	}
+
+	@Test
+	public void mapIndicesViewIsCorrect() {
+		IndexTrackingTreeMap<Object> map = new IndexTrackingTreeMap<>();
+		map.put("1", "one");
+		Map<String, String> subMap = Map.of("a", "b");
+		map.put("sub", subMap);
+
+		Collection<String> indices = map.mapIndices();
+		assertEquals(1, indices.size());
+		assertTrue(indices.contains("sub"));
+
+		assertThrows(UnsupportedOperationException.class, () -> indices.add("other"));
+	}
+
+	@Test
+	public void putNullValueRemovesMapping() {
+		IndexTrackingTreeMap<String> map = newMap();
+		map.put("1", "one");
+		map.put("1", null);
+
+		assertNull(map.get("1"));
+		assertEquals(1, map.nextOpenIndex());
+		assertTrue(map.numericalIndices().isEmpty());
+	}
+
+	@Test
+	public void addMapValueUpdatesMapIndices() {
+		IndexTrackingTreeMap<Object> map = new IndexTrackingTreeMap<>();
+		Map<String, String> subMap = Map.of("a", "b");
+		map.add(subMap);
+
+		assertEquals(subMap, map.get("1"));
+		assertTrue(map.mapIndices().contains("1"));
+	}
+
+	@Test
+	public void removeMapValueUpdatesMapIndices() {
+		IndexTrackingTreeMap<Object> map = new IndexTrackingTreeMap<>();
+		Map<String, String> subMap = Map.of("a", "b");
+		map.put("sub", subMap);
+		assertTrue(map.mapIndices().contains("sub"));
+
+		map.remove("sub");
+		assertFalse(map.mapIndices().contains("sub"));
 	}
 
 	@Test
