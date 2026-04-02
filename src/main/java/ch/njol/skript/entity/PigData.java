@@ -21,7 +21,7 @@ public class PigData extends EntityData<Pig> {
 	private static final boolean VARIANTS_ENABLED;
 	private static final Object[] VARIANTS;
 	private static final Patterns<Kleenean> PATTERNS = new Patterns<>(new Object[][]{
-		{"swine", Kleenean.UNKNOWN},
+		{"pig", Kleenean.UNKNOWN},
 		{"saddled pig", Kleenean.TRUE},
 		{"unsaddled pig", Kleenean.FALSE}
 	});
@@ -46,7 +46,7 @@ public class PigData extends EntityData<Pig> {
 			.requiredPlugins("Minecraft 1.21.5+")
 			.documentationId("PigVariant"));
 
-		register(PigData.class, "swine", Pig.class, 0, PATTERNS.getPatterns());
+		register(PigData.class, "pig", Pig.class, 0, PATTERNS.getPatterns());
 		if (Skript.classExists("org.bukkit.entity.Pig$Variant")) {
 			VARIANTS_ENABLED = true;
 			VARIANTS = Iterators.toArray(Classes.getExactClassInfo(Pig.Variant.class).getSupplier().get(), Pig.Variant.class);

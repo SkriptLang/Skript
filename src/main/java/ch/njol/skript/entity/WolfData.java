@@ -23,7 +23,7 @@ public class WolfData extends EntityData<Wolf> {
 	public record WolfStates(Kleenean angry, Kleenean tamed) {}
 
 	private static final Patterns<WolfStates> PATTERNS = new Patterns<>(new Object[][]{
-		{"hound", new WolfStates(Kleenean.UNKNOWN, Kleenean.UNKNOWN)},
+		{"wolf", new WolfStates(Kleenean.UNKNOWN, Kleenean.UNKNOWN)},
 		{"wild wolf", new WolfStates(Kleenean.UNKNOWN, Kleenean.FALSE)},
 		{"tamed wolf", new WolfStates(Kleenean.UNKNOWN, Kleenean.TRUE)},
 		{"angry wolf", new WolfStates(Kleenean.TRUE, Kleenean.UNKNOWN)},
@@ -53,7 +53,7 @@ public class WolfData extends EntityData<Wolf> {
 			.requiredPlugins("Minecraft 1.21+")
 			.documentationId("WolfVariant"));
 
-		EntityData.register(WolfData.class, "hound", Wolf.class, 0, PATTERNS.getPatterns());
+		EntityData.register(WolfData.class, "wolf", Wolf.class, 0, PATTERNS.getPatterns());
 		if (Skript.classExists("org.bukkit.entity.Wolf$Variant")) {
 			VARIANTS_ENABLED = true;
 			VARIANTS = Iterators.toArray(Classes.getExactClassInfo(Wolf.Variant.class).getSupplier().get(), Wolf.Variant.class);

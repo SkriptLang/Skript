@@ -31,11 +31,11 @@ public class EffLook extends Effect {
 
 	static {
 		Skript.registerEffect(EffLook.class,
-			"(force|compel) %livingentities% [to] (face [towards]|gaze [(at|towards)]) " " +
+			"(force|compel) %livingentities% [to] (face [towards]|gaze [(at|towards)]) " +
 			"%entity%'s (feet:feet|eyes) [(at|with) [head] [rotation] speed %-number%] " +
 			"[[and] max[imum] [head] pitch %-number%]",
 
-			"(force|compel) %livingentities% [to] (face [towards]|gaze [(at|towards)]) " " +
+			"(force|compel) %livingentities% [to] (face [towards]|gaze [(at|towards)]) " +
 				"[the] (feet:feet|eyes) of %entity% [(at|with) [head] [rotation] speed %-number%] " +
 				"[[and] max[imum] [head] pitch %-number%]",
 

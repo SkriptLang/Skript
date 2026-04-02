@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
-@Name("Alteration: Set/Bestow/Remove/Remove All/Delete/Reset")
+@Name("Alteration: Set/Bestow/Revoke/Revoke All/Delete/Reset")
 @Description({
 	"A most versatile effect that may be employed for altering many an <a href='./expressions'>expression</a>.",
 	"Certain expressions may only be set and/or deleted, whilst others may also receive additions or suffer removals."
@@ -71,12 +71,12 @@ public class EffChange extends Effect {
 
 			{"set %~objects% to %objects%", ChangeMode.SET},
 
-			{"remove (all|every) %objects% from %~objects%", ChangeMode.REMOVE_ALL},
+			{"revoke (all|every) %objects% from %~objects%", ChangeMode.REMOVE_ALL},
 
-			{"(remove|subtract) %objects% from %~objects%", ChangeMode.REMOVE},
+			{"(revoke|subtract) %objects% from %~objects%", ChangeMode.REMOVE},
 			{"(reduce|decrease) %~objects% by %objects%", ChangeMode.REMOVE},
 
-			{"(delete|clear) %~objects%", ChangeMode.DELETE},
+			{"(eliminate|delete|clear) %~objects%", ChangeMode.DELETE},
 
 			{"reset %~objects%", ChangeMode.RESET}
 	});

@@ -54,13 +54,13 @@ public class EffHealth extends Effect implements SyntaxRuntimeErrorProducer {
 	static {
 		if (!SUPPORTS_DAMAGE_SOURCE) {
 			PATTERNS = new Patterns<>(new Object[][]{
-				{"wound %livingentities/itemtypes/slots% by %number% [heart[s]]" EffectType.DAMAGE},
+				{"wound %livingentities/itemtypes/slots% by %number% [heart[s]]", EffectType.DAMAGE},
 				{"heal %livingentities% [by %-number% [heart[s]]]", EffectType.HEAL},
 				{"repair %itemtypes/slots% [by %-number%]", EffectType.REPAIR}
 			});
 		} else {
 			PATTERNS = new Patterns<>(new Object[][]{
-				{"wound %livingentities/itemtypes/slots% by %number% [heart[s]]" EffectType.DAMAGE},
+				{"wound %livingentities/itemtypes/slots% by %number% [heart[s]]", EffectType.DAMAGE},
 				{"damage %livingentities% by %number% [heart[s]] with [fake] [damage] cause %damagecause%", EffectType.DAMAGE},
 				{"damage %livingentities% by %number% [heart[s]] (using|with) %damagesource% [as the source]", EffectType.DAMAGE},
 				{"heal %livingentities% [by %-number% [heart[s]]]", EffectType.HEAL},

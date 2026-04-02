@@ -15,7 +15,7 @@ public class ZombieVillagerData extends EntityData<ZombieVillager> {
 
 	private static final Profession[] PROFESSIONS;
 	private static final Patterns<Profession> PATTERNS = new Patterns<>(new Object[][]{
-		{"undead villager", null},
+		{"zombie villager", null},
 		{"zombie normal", Profession.NONE},
 		{"zombie armorer", Profession.ARMORER},
 		{"zombie butcher", Profession.BUTCHER},
@@ -34,7 +34,7 @@ public class ZombieVillagerData extends EntityData<ZombieVillager> {
 	});
 
 	static {
-		EntityData.register(ZombieVillagerData.class, "undead villager", ZombieVillager.class, 0, PATTERNS.getPatterns());
+		EntityData.register(ZombieVillagerData.class, "zombie villager", ZombieVillager.class, 0, PATTERNS.getPatterns());
 		PROFESSIONS = new Profession[] {Profession.NONE, Profession.ARMORER, Profession.BUTCHER, Profession.CARTOGRAPHER,
 			Profession.CLERIC, Profession.FARMER, Profession.FISHERMAN, Profession.FLETCHER, Profession.LEATHERWORKER,
 			Profession.LIBRARIAN, Profession.MASON, Profession.NITWIT, Profession.SHEPHERD, Profession.TOOLSMITH,
