@@ -246,9 +246,10 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 }
 
 def java21 = 21
+def java25 = 25
 
 def env = project.testEnv + ".json"
-def latestJava = java21
+def latestJava = java25
 def oldestJava = java21
 
 def latestJUnitEnv = env
@@ -268,6 +269,7 @@ String environments = 'src/test/skript/environments/';
 int envJava = project.property('testEnvJavaVersion') == null ? latestJava : Integer.parseInt(project.property('testEnvJavaVersion') as String)
 createTestTask('quickTest', 'Runs tests on one environment being the latest supported Java and Minecraft.', environments + env, latestJava, 0)
 createTestTask('skriptTestJava21', 'Runs tests on all Java 21 environments.', environments + 'java21', java21, 0)
+createTestTask('skriptTestJava25', 'Runs tests on all Java 25 environments.', environments + 'java25', java25, 0)
 createTestTask('skriptTestDev', 'Runs testing server and uses \'system.in\' for command input, stop server to finish.', environments + env, envJava, 0, Modifiers.DEV_MODE, Modifiers.DEBUG)
 createTestTask('skriptProfile', 'Starts the testing server with JProfiler support.', environments + env, latestJava, -1, Modifiers.PROFILE)
 createTestTask('genNightlyDocs', 'Generates the Skript documentation website html files.', environments + env, envJava, 0, Modifiers.GEN_NIGHTLY_DOCS)
@@ -279,6 +281,7 @@ tasks.register('skriptTest') {
 
 createTestTask('JUnitQuick', 'Runs JUnit tests on one environment being the latest supported Java and Minecraft.', environments + latestJUnitEnv, latestJUnitJava, 0, Modifiers.JUNIT)
 createTestTask('JUnitJava21', 'Runs JUnit tests on all Java 21 environments.', environments + 'java21', java21, 0, Modifiers.JUNIT)
+createTestTask('JUnitJava25', 'Runs JUnit tests on all Java 25 environments.', environments + 'java25', java25, 0, Modifiers.JUNIT)
 tasks.register('JUnit') {
 	description = 'Runs JUnit tests on all environments.'
 	dependsOn JUnitJava21
