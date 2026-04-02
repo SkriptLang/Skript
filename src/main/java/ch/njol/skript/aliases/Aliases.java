@@ -3,6 +3,7 @@ package ch.njol.skript.aliases;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
@@ -18,6 +19,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
@@ -399,6 +401,10 @@ public abstract class Aliases {
 	 * The returned value is true if the loading was successful, false otherwise.
 	 */
 	public static CompletableFuture<Boolean> loadAsync() {
+		// Argument provider service will not load correctly if that load occurs from another thread
+		// Make a call now to force it to load
+		// See https://github.com/PaperMC/Paper/pull/12829
+		ItemUtils.applyComponentData(ItemStack.empty(), "[]");
 		return CompletableFuture.supplyAsync(() -> {
 			try {
 				long start = System.currentTimeMillis();
