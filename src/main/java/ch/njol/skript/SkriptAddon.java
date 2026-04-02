@@ -11,6 +11,10 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Version;
+import ch.njol.skript.variables.VariableStorage;
+import ch.njol.skript.variables.Variables;
+
+import org.jetbrains.annotations.ApiStatus;
 import org.skriptlang.skript.localization.Localizer;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.Registry;
@@ -74,6 +78,20 @@ public final class SkriptAddon implements org.skriptlang.skript.addon.SkriptAddo
 	 */
 	public SkriptAddon loadClasses(String basePackage, String... subPackages) throws IOException {
 		Utils.getClasses(plugin, basePackage, subPackages);
+		return this;
+	}
+
+	/**
+	 * Register a VariableStorage class for Skript to create if the user config value matches.
+	 * 
+	 * @param <T> A class to extend VariableStorage.
+	 * @param storage The class of the VariableStorage implementation.
+	 * @param names The names used in the config of Skript to select this VariableStorage.
+	 * @return This SkriptAddon for method chaining.
+	 * @throws SkriptAPIException if the operation was not successful because the storage class is already registered.
+	 */
+	public <T extends VariableStorage> SkriptAddon registerStorage(Class<T> storage, String... names) throws SkriptAPIException {
+		Variables.registerStorage(this, storage, names);
 		return this;
 	}
 
