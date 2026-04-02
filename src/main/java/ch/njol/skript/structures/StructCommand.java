@@ -68,7 +68,7 @@ public class StructCommand extends Structure {
 
 	public static final Priority PRIORITY = new Priority(500);
 
-	private static final Pattern COMMAND_PATTERN = Pattern.compile("(?i)^command\\s+/?(\\S+)\\s*(\\s+(.+))?$");
+	private static final Pattern COMMAND_PATTERN = Pattern.compile("(?i)^decree\\s+/?(\\S+)\\s*(\\s+(.+))?$");
 	private static final Pattern ARGUMENT_PATTERN = Pattern.compile("<\\s*(?:([^>]+?)\\s*:\\s*)?(.+?)\\s*(?:=\\s*(" + SkriptParser.WILDCARD + "))?\\s*>");
 	private static final Pattern DESCRIPTION_PATTERN = Pattern.compile("(?<!\\\\)%-?(.+?)%");
 
@@ -180,7 +180,7 @@ public class StructCommand extends Structure {
 		ScriptCommand existingCommand = Commands.getScriptCommand(command);
 		if (existingCommand != null && existingCommand.getLabel().equals(command)) {
 			Script script = existingCommand.getScript();
-			Skript.error("A command with the name /" + existingCommand.getName() + " is already defined"
+			Skript.error("A decree with the name /" + existingCommand.getName() + " is already defined"
 				+ (script != null ? (" in " + script.getConfig().getFileName()) : "")
 			);
 			getParser().deleteCurrentEvent();
@@ -213,7 +213,7 @@ public class StructCommand extends Structure {
 			}
 			Parser<?> parser = c.getParser();
 			if (parser == null || !parser.canParse(ParseContext.COMMAND)) {
-				Skript.error("Can't use " + c + " as argument of a command");
+				Skript.error("Can't use " + c + " as argument of a decree");
 				getParser().deleteCurrentEvent();
 				return false;
 			}
@@ -257,7 +257,7 @@ public class StructCommand extends Structure {
 		String permission = entryContainer.get("permission", String.class, true);
 		VariableString permissionMessage = entryContainer.getOptional("permission message", VariableString.class, false);
 		if (permissionMessage != null && permission.isEmpty())
-			Skript.warning("command /" + command + " has a permission message set, but not a permission");
+			Skript.warning("decree /" + command + " has a permission message set, but not a permission");
 
 		List<String> aliases = entryContainer.get("aliases", List.class,true);
 		int executableBy = entryContainer.get("executable by", Integer.class, true);
@@ -265,21 +265,21 @@ public class StructCommand extends Structure {
 		Timespan cooldown = entryContainer.getOptional("cooldown", Timespan.class, false);
 		VariableString cooldownMessage = entryContainer.getOptional("cooldown message", VariableString.class, false);
 		if (cooldownMessage != null && cooldown == null)
-			Skript.warning("command /" + command + " has a cooldown message set, but not a cooldown");
+			Skript.warning("decree /" + command + " has a cooldown message set, but not a cooldown");
 		String cooldownBypass = entryContainer.getOptional("cooldown bypass", String.class, false);
 		if (cooldownBypass == null) {
 			cooldownBypass = "";
 		} else if (cooldownBypass.isEmpty() && cooldown == null) {
-			Skript.warning("command /" + command + " has a cooldown bypass set, but not a cooldown");
+			Skript.warning("decree /" + command + " has a cooldown bypass set, but not a cooldown");
 		}
 		VariableString cooldownStorage = entryContainer.getOptional("cooldown storage", VariableString.class, false);
 		if (cooldownStorage != null && cooldown == null)
-			Skript.warning("command /" + command + " has a cooldown storage set, but not a cooldown");
+			Skript.warning("decree /" + command + " has a cooldown storage set, but not a cooldown");
 
 		SectionNode node = entryContainer.getSource();
 
 		if (Skript.debug() || node.debug())
-			Skript.debug("command " + desc + ":");
+			Skript.debug("decree " + desc + ":");
 
 		Commands.currentArguments = currentArguments;
 		try {
@@ -291,7 +291,7 @@ public class StructCommand extends Structure {
 		}
 
 		if (Skript.logVeryHigh() && !Skript.debug())
-			Skript.info("Registered command " + desc);
+			Skript.info("Registered decree " + desc);
 
 		getParser().deleteCurrentEvent();
 
