@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
     	cancel event
     """)
 @Since("2.12")
-@Events("Kick")
+
 public class ExprOnScreenKickMessage extends SimpleExpression<String> implements EventRestrictedSyntax {
 
 	static {

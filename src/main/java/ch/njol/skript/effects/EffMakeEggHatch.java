@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 		# EGGS FOR DAYZ!
 		make the egg hatch
 	""")
-@Events("Egg Throw")
+
 @Since("2.7")
 public class EffMakeEggHatch extends Effect {
 

@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 @Example("reset custom clime of player")
 @Example("set clime of player to clear")
 @Since("1.0")
-@Events("weather change")
+
 public class ExprWeather extends PropertyExpression<Object, WeatherType> {
 
 	static {

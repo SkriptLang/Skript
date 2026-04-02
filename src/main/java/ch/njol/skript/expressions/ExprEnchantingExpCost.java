@@ -27,7 +27,7 @@ import ch.njol.util.coll.CollectionUtils;
     on enchant:
     	send "Toll: %the displayed enchanting toll%" to player
     """)
-@Events("enchant")
+
 @Since("2.5")
 public class ExprEnchantingExpCost extends SimpleExpression<Long> {
 

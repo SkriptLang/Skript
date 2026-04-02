@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
     		cancel event
     """)
 @Since("2.8.0")
-@Events("ready arrow")
+
 public class ExprReadiedArrow extends SimpleExpression<ItemStack> {
 
 	static {

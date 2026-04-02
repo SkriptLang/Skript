@@ -25,7 +25,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
     on fish approach:
     	set fishing bite tarry time to 5 seconds
     """)
-@Events("Fishing")
+
 @Since("2.10")
 public class ExprFishingBiteTime extends SimpleExpression<Timespan> {
 

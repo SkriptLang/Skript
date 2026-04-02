@@ -37,7 +37,7 @@ import ch.njol.util.Math2;
     	cancel event
     """)
 @Since("2.0")
-@Events("level change")
+
 public class ExprLevelProgress extends SimplePropertyExpression<Player, Number> {
 	
 	static {

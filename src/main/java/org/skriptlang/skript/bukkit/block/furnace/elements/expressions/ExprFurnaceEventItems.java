@@ -44,7 +44,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
     	broadcast smelting item
     	clear smelting item
     """)
-@Events({"smelt", "fuel burn", "start smelt", "furnace item extract"})
+
 @Since("2.10")
 public class ExprFurnaceEventItems extends PropertyExpression<Block, ItemStack> {
 

@@ -17,7 +17,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
     	if fish hook is in open waters:
     		send "Thou shalt soon catch a shark!"
     """)
-@Events("Fishing")
+
 @Since("2.10")
 public class CondIsInOpenWater extends PropertyCondition<Entity> {
 

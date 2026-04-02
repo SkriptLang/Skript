@@ -17,7 +17,7 @@ import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
     	mending reason is satiated
     	send "Thou hast supped enough and regained thy full vigour!"
     """)
-@Events("heal")
+
 @Since("2.5")
 public class ExprHealReason extends EventValueExpression<RegainReason> {
 

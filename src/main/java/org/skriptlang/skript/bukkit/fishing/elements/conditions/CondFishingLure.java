@@ -19,7 +19,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
     	if lure enchantment boon is bestowed:
     		cancel event
     """)
-@Events("Fishing")
+
 @Since("2.10")
 public class CondFishingLure extends Condition {
 

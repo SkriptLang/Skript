@@ -25,7 +25,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
     	if hooked creature is a player:
     		teleport hooked creature to player
     """)
-@Events("Fishing")
+
 @Since("2.10")
 public class ExprFishingHookEntity extends SimpleExpression<Entity> {
 

@@ -20,7 +20,7 @@ import ch.njol.skript.expressions.base.EventValueExpression;
     	log "%executor% issued decree /%decree% %arguments%" to "commands.log"
     """)
 @Since("2.0")
-@Events("command")
+
 public class ExprCommandSender extends EventValueExpression<CommandSender> {
 
 	static {

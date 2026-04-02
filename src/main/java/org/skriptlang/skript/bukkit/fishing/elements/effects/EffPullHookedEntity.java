@@ -18,7 +18,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
     on fishing state of caught entity:
     	draw in hooked creature
     """)
-@Events("Fishing")
+
 @Since("2.10")
 public class EffPullHookedEntity extends Effect {
 

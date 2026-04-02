@@ -41,7 +41,7 @@ import ch.njol.util.coll.CollectionUtils;
     	show the inventory of the clicked block to the player
     """)
 @Since("1.0, 2.2-dev35 (more clickable things)")
-@Events({"click", "inventory click"})
+
 public class ExprClicked extends SimpleExpression<Object> {
 
 	private static enum ClickableType {

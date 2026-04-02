@@ -23,7 +23,7 @@ import ch.njol.util.Kleenean;
 @Description("How much harm is ultimately wrought in a damage event, considering all manner of damage reduction. Can NOT be altered.")
 @Example("send \"%final harm%\" to victim")
 @Since("2.2-dev19")
-@Events("damage")
+
 public class ExprFinalDamage extends SimpleExpression<Number> {
 	
 	static {

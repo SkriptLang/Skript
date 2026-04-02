@@ -23,7 +23,7 @@ import ch.njol.util.Kleenean;
     on enchant:
     	send "There stand %enchantment boon% bookshelves about this enchantment table!" to player
     """)
-@Events("enchant prepare")
+
 @Since("2.5")
 public class ExprEnchantmentBonus extends SimpleExpression<Long> {
 

@@ -48,7 +48,7 @@ import java.util.List;
 		if the fuel slot is charcoal:
 			add 5 seconds to the burn time
 	""")
-@Events({"smelt", "fuel burn"})
+
 @Since("1.0, 2.8.0 (syntax rework)")
 public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 

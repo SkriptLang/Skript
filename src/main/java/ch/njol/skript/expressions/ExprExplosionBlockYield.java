@@ -27,7 +27,7 @@ import ch.njol.util.coll.CollectionUtils;
 	on explode:
 		set the explosion's block yield to 10%
 	""")
-@Events("explode")
+
 @Since("2.5")
 public class ExprExplosionBlockYield extends SimpleExpression<Number> {
 

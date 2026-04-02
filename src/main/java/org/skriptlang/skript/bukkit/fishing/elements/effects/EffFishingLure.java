@@ -18,7 +18,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
     on fishing line cast:
     	bestow lure enchantment boon
     """)
-@Events("Fishing")
+
 @Since("2.10")
 public class EffFishingLure extends Effect {
 

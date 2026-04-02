@@ -30,7 +30,7 @@ import java.util.function.BiConsumer;
     set secondary enchantment of {_block} to resistance
     """
 )
-@Events({"Beacon Effect", "Beacon Toggle", "Beacon Change Effect"})
+
 @Since("2.10")
 public class ExprBeaconEffects extends PropertyExpression<Block, PotionEffectType> {
 

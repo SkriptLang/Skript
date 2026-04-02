@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 	on player egg throw:
 		set the hatching number to 10
 	""")
-@Events("Egg Throw")
+
 @Since("2.7")
 public class ExprHatchingNumber extends SimpleExpression<Byte> {
 

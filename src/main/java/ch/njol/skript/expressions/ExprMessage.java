@@ -57,7 +57,7 @@ import org.jetbrains.annotations.Nullable;
     	set broadcast message to "&a[PROCLAMATION] %broadcast message%"
     """)
 @Since("1.4.6 (chat message), 1.4.9 (join & quit messages), 2.0 (death message), 2.9.0 (clear message), 2.10 (broadcasted message)")
-@Events({"chat", "join", "quit", "death", "broadcast"})
+
 public class ExprMessage extends SimpleExpression<String> {
 	
 	@SuppressWarnings("unchecked")

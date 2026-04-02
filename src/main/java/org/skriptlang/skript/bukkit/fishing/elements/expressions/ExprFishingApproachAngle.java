@@ -29,7 +29,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
     	then:
     		cancel event
     """)
-@Events("Fishing")
+
 @Since("2.10")
 public class ExprFishingApproachAngle extends SimpleExpression<Float> {
 

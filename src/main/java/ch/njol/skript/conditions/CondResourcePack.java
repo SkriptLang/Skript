@@ -24,7 +24,7 @@ import ch.njol.util.Kleenean;
     		kick the player due to "Thou must install the resource pack to partake in this server!"
     """)
 @Since("2.4")
-@Events("resource pack request response")
+
 public class CondResourcePack extends Condition {
 
 	static {

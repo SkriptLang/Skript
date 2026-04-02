@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
     	holder of event-initiator-inventory is a chest
     	broadcast "Item transport transpiring at %location at holder of event-initiator-inventory%!"
     """)
-@Events("Inventory Item Move")
+
 @Since("2.8.0")
 public class ExprEvtInitiator extends SimpleExpression<Inventory> {
 

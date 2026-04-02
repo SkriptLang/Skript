@@ -34,7 +34,7 @@ import ch.njol.util.Kleenean;
     			cancel the event
     """)
 @Since("2.0, 2.7 (support for script commands)")
-@Events("command")
+
 public class ExprCommand extends SimpleExpression<String> implements EventRestrictedSyntax {
 
 	static {

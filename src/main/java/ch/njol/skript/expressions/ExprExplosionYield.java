@@ -27,7 +27,7 @@ import ch.njol.util.coll.CollectionUtils;
     on explosion prime:
     	set the magnitude of the explosion to 10
     """)
-@Events("explosion prime")
+
 @Since("2.5")
 public class ExprExplosionYield extends SimpleExpression<Number> {
 

@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
     	set the rendition string to "&lt;light green&gt;Rendition: &lt;orange&gt;%minecraft rendition%"
     """)
 @Since("2.3")
-@Events("Server List Ping")
+
 public class ExprVersionString extends SimpleExpression<String> {
 
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");

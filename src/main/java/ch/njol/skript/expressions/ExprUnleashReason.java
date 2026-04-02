@@ -19,7 +19,7 @@ import ch.njol.util.Kleenean;
     if the unleashing reason is distance:
     	broadcast "The tether hath been snapped asunder."
     """)
-@Events("Leash / Unleash")
+
 @Since("2.10")
 public class ExprUnleashReason extends EventValueExpression<UnleashReason> {
 

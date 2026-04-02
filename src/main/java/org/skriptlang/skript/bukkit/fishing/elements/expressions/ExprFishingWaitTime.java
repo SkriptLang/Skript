@@ -26,7 +26,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
     	set min fish tarrying time to 10 seconds
     	set max fishing tarrying time to 20 seconds
     """)
-@Events("Fishing")
+
 @Since("2.10")
 public class ExprFishingWaitTime extends SimpleExpression<Timespan> {
 

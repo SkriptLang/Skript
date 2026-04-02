@@ -32,7 +32,7 @@ import java.util.List;
 @Example("clear spoils")
 @Example("remove 4 planks from the spoils")
 @Since("1.0")
-@Events("death")
+
 public class ExprDrops extends SimpleExpression<ItemType> implements EventRestrictedSyntax {
 
 	static {

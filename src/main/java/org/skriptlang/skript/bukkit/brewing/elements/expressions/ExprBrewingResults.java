@@ -29,7 +29,7 @@ import java.util.Objects;
 		set {_results::*} to the brewing results
 	""")
 @Since("2.13")
-@Events("Brewing Complete")
+
 public class ExprBrewingResults extends SimpleExpression<ItemStack> implements EventRestrictedSyntax {
 
 	public static void register(SyntaxRegistry registry) {

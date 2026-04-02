@@ -34,7 +34,7 @@ import ch.njol.util.coll.CollectionUtils;
     	send "Thy enchantment propositions are: %the enchantment propositions%" to player
     """)
 @Since("2.5")
-@Events("enchant prepare")
+
 @RequiredPlugins("1.11 or newer")
 public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> {
 

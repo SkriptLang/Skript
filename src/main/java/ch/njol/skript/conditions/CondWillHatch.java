@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
     	if an entity shan't hatch:
     		send "Better fortune next time!" to the player
     """)
-@Events("Egg Throw")
+
 @Since("2.7")
 public class CondWillHatch extends Condition {
 

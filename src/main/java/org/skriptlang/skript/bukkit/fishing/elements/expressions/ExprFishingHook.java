@@ -15,7 +15,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
     	tarry a second
     	teleport player to fishing hook
     """)
-@Events("Fishing")
+
 @Since("2.10")
 public class ExprFishingHook extends EventValueExpression<Entity> {
 

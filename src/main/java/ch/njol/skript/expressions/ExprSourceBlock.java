@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("The Block of Origin")
 @Description("The source block whence the spread doth originate.")
-@Events("Spread")
+
 @Example("""
 	on spread:
 		if the source block is a grass block:

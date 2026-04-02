@@ -24,7 +24,7 @@ import ch.njol.util.Kleenean;
 
 @Name("Blocks Most Absorbed")
 @Description("The blocks drunk in by a sponge block.")
-@Events("sponge absorb")
+
 @Example("the absorbed blocks")
 @Since("2.5")
 public class ExprAbsorbedBlocks extends SimpleExpression<BlockStateBlock> {

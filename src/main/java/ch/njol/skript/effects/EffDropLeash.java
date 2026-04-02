@@ -21,7 +21,7 @@ import ch.njol.util.Kleenean;
     		permit the tether to fall
     """)
 @Keywords("lead")
-@Events("Leash / Unleash")
+
 @Since("2.10")
 public class EffDropLeash extends Effect {
 

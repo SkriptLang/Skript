@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 @Example("conceal player related information in the server list")
 @Example("reveal all player related info")
 @Since("2.3")
-@Events("server list ping")
+
 public class EffPlayerInfoVisibility extends Effect {
 
 	static {

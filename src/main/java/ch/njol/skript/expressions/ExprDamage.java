@@ -38,7 +38,7 @@ import ch.njol.util.coll.CollectionUtils;
     	increase the harm by 2
     """)
 @Since("1.3.5, 2.8.0 (item damage event)")
-@Events({"Damage", "Vehicle Damage", "Item Damage"})
+
 public class ExprDamage extends SimpleExpression<Number> {
 	
 	static {

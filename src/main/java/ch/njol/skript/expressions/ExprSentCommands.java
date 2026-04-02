@@ -35,7 +35,7 @@ import java.util.List;
 		remove "help" from command list
 	""")
 @Since("2.8.0")
-@Events("send command list")
+
 public class ExprSentCommands extends SimpleExpression<String> {
 
 	static {

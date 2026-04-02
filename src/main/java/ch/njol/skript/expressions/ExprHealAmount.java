@@ -27,7 +27,7 @@ import ch.njol.util.coll.CollectionUtils;
     	increase the mending amount by 2
     	remove 0.5 from the mending amount
     """)
-@Events("heal")
+
 @Since("2.5.1")
 public class ExprHealAmount extends SimpleExpression<Double> {
 

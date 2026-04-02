@@ -28,7 +28,7 @@ import ch.njol.util.coll.CollectionUtils;
     on enchant:
     	set the applied enchantments to sharpness 10 and fire aspect 5
     """)
-@Events("enchant")
+
 @Since("2.5")
 public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> {
 

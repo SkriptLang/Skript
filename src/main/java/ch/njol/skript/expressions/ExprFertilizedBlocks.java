@@ -24,7 +24,7 @@ import ch.njol.util.Kleenean;
 @Name("Fertilised Blocks")
 @Description("The blocks made fertile in block fertilize events.")
 @RequiredPlugins("Minecraft 1.13 or newer")
-@Events("block fertilize")
+
 @Example("the fertilized blocks")
 @Since("2.5")
 public class ExprFertilizedBlocks extends SimpleExpression<BlockStateBlock> {

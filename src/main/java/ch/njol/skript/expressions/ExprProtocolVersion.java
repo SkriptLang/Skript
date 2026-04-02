@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
     	set the protocol version to 0 # 13w41a (1.7) - thus the player shall behold the custom version string nearly always
     """)
 @Since("2.3")
-@Events("server list ping")
+
 public class ExprProtocolVersion extends SimpleExpression<Long> {
 
 	static {

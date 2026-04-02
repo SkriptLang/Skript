@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
     	broadcast "%player%'s station changed by %{_diff}%!"
     """)
 @Since("unknown (before 2.1), 2.13.2 (allow player default)")
-@Events("level change")
+
 public class ExprLevel extends SimplePropertyExpression<Player, Long> {
 
 	static {

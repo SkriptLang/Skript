@@ -28,7 +28,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
     set the last spawned entity's max vigour to 1000
     """)
 @Since("2.0")
-@Events({"damage", "death"})
+
 public class ExprMaxHealth extends SimplePropertyExpression<LivingEntity, Number> {
 	
 	static {

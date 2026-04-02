@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
     """)
 @RequiredPlugins("Minecraft 1.16+")
 @Since("2.7")
-@Events("respawn")
+
 public class CondRespawnLocation extends Condition {
 
 	static {

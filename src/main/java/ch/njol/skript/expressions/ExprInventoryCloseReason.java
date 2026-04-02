@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
     	inventory closing reason is teleport
     	send "Thine inventory was shut by virtue of teleportation!" to player
     """)
-@Events("Inventory Close")
+
 @Since("2.8.0")
 public class ExprInventoryCloseReason extends EventValueExpression<InventoryCloseEvent.Reason> {
 	

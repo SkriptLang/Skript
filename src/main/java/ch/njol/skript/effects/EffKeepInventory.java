@@ -24,7 +24,7 @@ import ch.njol.util.Kleenean;
     		preserve the inventory and experiences
     """)
 @Since("2.4")
-@Events("death")
+
 public class EffKeepInventory extends Effect {
 
 	static {

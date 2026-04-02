@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
     	else if applied effect = secondary effect:
     		broadcast "'Tis Secondary"
     """)
-@Events("Beacon Effect")
+
 @Since("2.10")
 public class ExprAppliedEffect extends SimpleExpression<PotionEffectType> {
 

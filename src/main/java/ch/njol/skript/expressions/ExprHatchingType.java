@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
     on player egg throw:
     	set the hatching creature type to a primed tnt
     """)
-@Events("Egg Throw")
+
 @Since("2.7")
 public class ExprHatchingType extends SimpleExpression<EntityData<?>> {
 

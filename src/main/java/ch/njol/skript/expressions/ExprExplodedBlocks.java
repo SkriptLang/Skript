@@ -47,7 +47,7 @@ import ch.njol.util.Kleenean;
 	on explode:
 		add blocks above event-entity to exploded blocks
 	""")
-@Events("explode")
+
 @Since("2.5, 2.8.6 (modify blocks)")
 public class ExprExplodedBlocks extends SimpleExpression<Block> implements EventRestrictedSyntax {
 
