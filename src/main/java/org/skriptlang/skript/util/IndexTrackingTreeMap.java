@@ -37,7 +37,7 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 		V previous = super.put(key, value);
 
 		if (previous == null && value != null) {
-			handleInsert(key, value);
+			handleInsert(key, parsePositiveInt(key), value);
 		} else if (previous != null && value == null) {
 			handleRemove(key, previous);
 		} else if (previous != null) {
@@ -57,13 +57,7 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 		String key = String.valueOf(nextIndex);
 
 		super.put(key, value);
-		numericalIndices.add(nextIndex);
-
-		maxIndex = Math.max(nextIndex, maxIndex);
-		advanceNextIndex();
-
-		if (value instanceof Map)
-			mapIndices.add(key);
+		handleInsert(key, nextIndex, value);
 	}
 
 	@Override
@@ -109,11 +103,10 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 		return Collections.unmodifiableCollection(mapIndices);
 	}
 
-	public void handleInsert(String key, V value) {
+	private void handleInsert(String key, int index, V value) {
 		if (value instanceof Map)
 			mapIndices.add(key);
 
-		int index = parsePositiveInt(key);
 		if (index < 0)
 			return;
 
@@ -123,7 +116,7 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 		advanceNextIndex();
 	}
 
-	public void handleReplace(String key, V previous, V value) {
+	private void handleReplace(String key, V previous, V value) {
 		if (value instanceof Map) {
 			mapIndices.add(key);
 		} else if (previous instanceof Map) {
