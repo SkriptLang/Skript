@@ -221,21 +221,6 @@ public class IndexTrackingTreeMapTest {
 	}
 
 	@Test
-	public void numericalIndicesViewIsCorrect() {
-		IndexTrackingTreeMap<String> map = newMap();
-		map.put("1", "one");
-		map.put("3", "three");
-		map.put("foo", "foo");
-
-		Collection<Integer> indices = map.numericalIndices();
-		assertEquals(2, indices.size());
-		assertTrue(indices.contains(1));
-		assertTrue(indices.contains(3));
-
-		assertThrows(UnsupportedOperationException.class, () -> indices.add(2));
-	}
-
-	@Test
 	public void mapIndicesViewIsCorrect() {
 		IndexTrackingTreeMap<Object> map = new IndexTrackingTreeMap<>();
 		map.put("1", "one");
@@ -257,7 +242,6 @@ public class IndexTrackingTreeMapTest {
 
 		assertNull(map.get("1"));
 		assertEquals(1, map.nextOpenIndex());
-		assertTrue(map.numericalIndices().isEmpty());
 	}
 
 	@Test
@@ -311,9 +295,8 @@ public class IndexTrackingTreeMapTest {
 	public void largeNonParsableIntegerStringThrows() {
 		IndexTrackingTreeMap<String> map = newMap();
 		map.put("999999999999999999999999", "huge");
-		assertTrue(map.numericalIndices.isEmpty());
-		//noinspection SimplifiableAssertion
-		assertTrue(map.size() == 1);
+		assertEquals(1, map.size());
+		assertEquals(1, map.nextOpenIndex());
 		assertEquals("huge", map.get("999999999999999999999999"));
 	}
 

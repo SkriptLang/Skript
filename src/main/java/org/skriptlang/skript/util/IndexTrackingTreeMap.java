@@ -2,7 +2,6 @@ package org.skriptlang.skript.util;
 
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.UnmodifiableView;
-import org.jetbrains.annotations.VisibleForTesting;
 
 import java.util.*;
 
@@ -19,8 +18,7 @@ import java.util.*;
  */
 public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 
-	@VisibleForTesting
-	final List<Integer> numericalIndices = new ArrayList<>();
+	private final NavigableSet<Integer> freeIndices = new TreeSet<>();
 	private final Set<String> mapIndices = new HashSet<>();
 
 	public IndexTrackingTreeMap() {
@@ -35,27 +33,12 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 	public V put(String key, V value) {
 		V previous = super.put(key, value);
 
-		if (previous != null && value == null) {
+		if (previous == null && value != null) {
+			handleInsert(key, value);
+		} else if (previous != null && value == null) {
 			handleRemove(key, previous);
-			return previous;
-		}
-
-		if (previous == null && value != null && isInt(key)) {
-			try {
-				int index = Integer.parseInt(key);
-				if (consecutive() && index > numericalIndices.size()) {
-					numericalIndices.add(index);
-				} else {
-					int pos = Collections.binarySearch(numericalIndices, index);
-					numericalIndices.add(-pos - 1, index);
-				}
-			} catch (NumberFormatException ignore) {}
-		}
-
-		if (value instanceof Map) {
-			mapIndices.add(key);
-		} else if (previous instanceof Map) {
-			mapIndices.remove(key);
+		} else if (previous != null) {
+			handleReplace(key, previous, value);
 		}
 
 		return previous;
@@ -68,10 +51,14 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 	 */
 	public void add(V value) {
 		Preconditions.checkNotNull(value, "value");
-		int index = nextOpenIndex();
+		int index = freeIndices.removeFirst();
 		String key = String.valueOf(index);
+
 		super.put(key, value);
-		numericalIndices.add(index - 1, index);
+
+		if (freeIndices.isEmpty())
+			freeIndices.add(index + 1);
+
 		if (value instanceof Map)
 			mapIndices.add(key);
 	}
@@ -87,15 +74,9 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 	@Override
 	public void clear() {
 		super.clear();
-		numericalIndices.clear();
+		freeIndices.clear();
+		freeIndices.add(1);
 		mapIndices.clear();
-	}
-
-	public boolean consecutive() {
-		int size = numericalIndices.size();
-		if (size == 0)
-			return true;
-		return numericalIndices.getLast() == size;
 	}
 
 	/**
@@ -108,39 +89,7 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 	 * @return the next available positive integer index
 	 */
 	public int nextOpenIndex() {
-		int size = numericalIndices.size();
-		if (size == 0)
-			return 1;
-
-		if (numericalIndices.getFirst() > 1)
-			return 1;
-
-		if (consecutive())
-			return numericalIndices.size() + 1;
-
-		int left = 0;
-		int right = size - 1;
-
-		while (left <= right) {
-			int midpoint = left + (right - left >>> 1);
-
-			if (numericalIndices.get(midpoint) == midpoint + 1) {
-				left = midpoint + 1;
-			} else {
-				right = midpoint - 1;
-			}
-		}
-
-		return left + 1;
-	}
-
-	/**
-	 * Returns an unmodifiable view of the tracked numerical indices.
-	 *
-	 * @return a collection of all tracked positive integer keys
-	 */
-	public @UnmodifiableView Collection<Integer> numericalIndices() {
-		return Collections.unmodifiableCollection(numericalIndices);
+		return freeIndices.first();
 	}
 
 	/**
@@ -152,26 +101,56 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 		return Collections.unmodifiableCollection(mapIndices);
 	}
 
-	private void handleRemove(String index, Object previous) {
-		if (previous instanceof Map)
-			mapIndices.remove(index);
+	public void handleInsert(String key, V value) {
+		if (value instanceof Map)
+			mapIndices.add(key);
 
-		if (!isInt(index))
+		int index = parsePositiveInt(key);
+		if (index < 0)
 			return;
-		int pos = Collections.binarySearch(numericalIndices, Integer.parseInt(index));
-		if (pos >= 0)
-			numericalIndices.remove(pos);
+
+		freeIndices.remove(index);
+
+		if (!containsKey(String.valueOf(index + 1)))
+			freeIndices.add(index + 1);
 	}
 
-	private boolean isInt(String string) {
+	public void handleReplace(String key, V previous, V value) {
+		if (value instanceof Map) {
+			mapIndices.add(key);
+		} else if (previous instanceof Map) {
+			mapIndices.remove(key);
+		}
+	}
+
+	private void handleRemove(String key, V previous) {
+		if (previous instanceof Map)
+			mapIndices.remove(key);
+
+		int index = parsePositiveInt(key);
+		if (index < 0)
+			return;
+
+		freeIndices.add(Integer.parseInt(key));
+	}
+
+	private int parsePositiveInt(String string) {
 		if (string == null || string.isBlank() || string.charAt(0) == '0') // Don't handle leading-zero integers
-			return false;
-		for (int i = 0; i < string.length(); i++) {
-			if (!isDigit(string.charAt(i)))
-				return false;
+			return -1;
+
+		int value = 0;
+		try {
+			for (int i = 0; i < string.length(); i++) {
+				char c = string.charAt(i);
+				if (!isDigit(c))
+					return -1;
+				value = Math.addExact(value * 10, c - '0');
+			}
+		} catch (ArithmeticException e) { // overflow
+			return -1;
 		}
 
-		return true;
+		return value;
 	}
 
 	private boolean isDigit(int codepoint) {
