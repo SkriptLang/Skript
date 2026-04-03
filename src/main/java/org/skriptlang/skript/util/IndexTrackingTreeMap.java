@@ -18,8 +18,11 @@ import java.util.*;
  */
 public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 
-	private final NavigableSet<Integer> freeIndices = new TreeSet<>();
 	private final Set<String> mapIndices = new HashSet<>();
+
+	private final Set<Integer> numericalIndices = new HashSet<>();
+	private int nextIndex = 1;
+	private int maxIndex = -1;
 
 	public IndexTrackingTreeMap() {
 		super();
@@ -51,13 +54,13 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 	 */
 	public void add(V value) {
 		Preconditions.checkNotNull(value, "value");
-		int index = freeIndices.removeFirst();
-		String key = String.valueOf(index);
+		String key = String.valueOf(nextIndex);
 
 		super.put(key, value);
+		numericalIndices.add(nextIndex);
 
-		if (freeIndices.isEmpty())
-			freeIndices.add(index + 1);
+		maxIndex = Math.max(nextIndex, maxIndex);
+		advanceNextIndex();
 
 		if (value instanceof Map)
 			mapIndices.add(key);
@@ -74,9 +77,10 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 	@Override
 	public void clear() {
 		super.clear();
-		freeIndices.clear();
-		freeIndices.add(1);
+		numericalIndices.clear();
 		mapIndices.clear();
+		nextIndex = 1;
+		maxIndex = -1;
 	}
 
 	/**
@@ -89,7 +93,11 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 	 * @return the next available positive integer index
 	 */
 	public int nextOpenIndex() {
-		return freeIndices.first();
+		return nextIndex;
+	}
+
+	public boolean consecutive() {
+		return nextIndex == maxIndex + 1;
 	}
 
 	/**
@@ -109,10 +117,10 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 		if (index < 0)
 			return;
 
-		freeIndices.remove(index);
+		numericalIndices.add(index);
 
-		if (!containsKey(String.valueOf(index + 1)))
-			freeIndices.add(index + 1);
+		maxIndex = Math.max(maxIndex, index);
+		advanceNextIndex();
 	}
 
 	public void handleReplace(String key, V previous, V value) {
@@ -131,7 +139,25 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 		if (index < 0)
 			return;
 
-		freeIndices.add(Integer.parseInt(key));
+		numericalIndices.remove(index);
+
+		if (index == maxIndex)
+			recomputeMaxIndex();
+		nextIndex = Math.min(nextIndex, index);
+	}
+
+	private void advanceNextIndex() {
+		if (nextIndex == maxIndex) {
+			nextIndex++;
+			return;
+		}
+		while (numericalIndices.contains(nextIndex))
+			nextIndex++;
+	}
+
+	private void recomputeMaxIndex() {
+		while (maxIndex >= 0 && !numericalIndices.contains(maxIndex))
+			maxIndex--;
 	}
 
 	private int parsePositiveInt(String string) {
