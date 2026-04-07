@@ -38,8 +38,6 @@ public class EffHidePlayerFromServerList extends Effect implements EventRestrict
 				"hide %players%'[s] info[rmation] (in|on|from) [the] server list");
 	}
 
-	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
-
 	@SuppressWarnings("null")
 	private Expression<Player> players;
 
