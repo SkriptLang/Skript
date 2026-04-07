@@ -1,0 +1,61 @@
+
+test "has persistent data tag - basic":
+	set {_item} to a diamond sword
+	assert {_item} does not have persistent data tag "skript:test" with "item should not have tag before setting"
+	set persistent data tag "skript:test" of {_item} to "hello"
+	assert {_item} has persistent data tag "skript:test" with "item should have tag after setting"
+	delete persistent data tag "skript:test" of {_item}
+	assert {_item} does not have data tag "skript:test" with "item should not have tag after deleting"
+
+test "has persistent data tag - multiple keys (and)":
+	set {_item} to a diamond sword
+	set persistent data tag "skript:key1" of {_item} to 1
+	set persistent data tag "skript:key2" of {_item} to 2
+	assert {_item} has persistent data tags "skript:key1" and "skript:key2" with "item should have both tags"
+	delete persistent data tag "skript:key1" of {_item}
+	assert {_item} does not have persistent data tags "skript:key1" and "skript:key2" with "item should not have both tags when one is deleted"
+	assert {_item} has data tag "skript:key2" with "item should still have remaining tag"
+	delete persistent data tag "skript:key2" of {_item}
+
+test "has persistent data tag - entity":
+	spawn a pig at test-location:
+		set {_pig} to entity
+	assert {_pig} does not have persistent data tag "skript:test" with "entity should not have tag before setting"
+	set persistent data tag "skript:test" of {_pig} to 42
+	assert {_pig} has persistent data tag "skript:test" with "entity should have tag after setting"
+	delete persistent data tag "skript:test" of {_pig}
+	delete entity within {_pig}
+
+test "has persistent data tag - block":
+	set block at test-location to a chest
+	assert block at test-location does not have persistent data tag "skript:test" with "block should not have tag before setting"
+	set persistent data tag "skript:test" of block at test-location to "block data"
+	assert block at test-location has persistent data tag "skript:test" with "block should have tag after setting"
+	delete persistent data tag "skript:test" of block at test-location
+	set block at test-location to air
+
+test "has persistent data tag - world":
+	assert world "world" does not have persistent data tag "skript:world_test" with "world should not have tag before setting"
+	set persistent data tag "skript:world_test" of world "world" to true
+	assert world "world" has persistent data tag "skript:world_test" with "world should have tag after setting"
+	delete persistent data tag "skript:world_test" of world "world"
+
+test "has persistent data tag - chunk":
+	set {_chunk} to chunk at test-location
+	assert {_chunk} does not have persistent data tag "skript:chunk_test" with "chunk should not have tag before setting"
+	set persistent data tag "skript:chunk_test" of {_chunk} to 99
+	assert {_chunk} has persistent data tag "skript:chunk_test" with "chunk should have tag after setting"
+	delete persistent data tag "skript:chunk_test" of {_chunk}
+
+test "has persistent data tag - multiple holders":
+	set {_item1} to a diamond sword
+	set {_item2} to a diamond sword
+	set persistent data tag "skript:test" of {_item1} to "a"
+	assert {_item1} has persistent data tag "skript:test" with "item1 should have tag"
+	assert {_item2} does not have persistent data tag "skript:test" with "item2 should not have tag"
+	delete persistent data tag "skript:test" of {_item1}
+
+test "has persistent data tag - invalid key":
+	set {_item} to a diamond sword
+	# An invalid key should not match
+	assert {_item} does not have persistent data tag "not a valid:key:!" with "invalid key should not match"
