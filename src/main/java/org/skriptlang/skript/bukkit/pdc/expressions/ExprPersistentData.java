@@ -254,9 +254,14 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 					if (changer != null) {
 						yield changer.acceptChange(mode);
 					}
+					Class<?> changeType = type.getC();
+					if (plural)
+						changeType = changeType.arrayType();
 					if (mode == ChangeMode.SET) {
-						yield CollectionUtils.array(type.getC());
+						yield CollectionUtils.array(changeType);
 					} else if (mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) {
+						if (plural)
+							yield CollectionUtils.array(changeType);
 						yield getArithmeticChangeTypes(type.getC(), mode, operation -> type.getC().isAssignableFrom(operation.returnType()));
 					}
 					yield null;
