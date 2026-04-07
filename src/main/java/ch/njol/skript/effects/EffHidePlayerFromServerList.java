@@ -58,8 +58,7 @@ public class EffHidePlayerFromServerList extends Effect implements EventRestrict
 	public Class<? extends Event>[] supportedEvents() {
 		if (!PAPER_EVENT_EXISTS) {
 			return CollectionUtils.array(ServerListPingEvent.class);
-		}
-		else {
+		} else {
 			return CollectionUtils.array(ServerListPingEvent.class, PaperServerListPingEvent.class);
 		}
 	}
