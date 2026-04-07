@@ -44,7 +44,6 @@ public class ExprOnlinePlayersCount extends SimpleExpression<Long> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		// TODO: Ers
 		boolean isPaperEvent = PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class);
 		if (parseResult.mark == 2) {
 			if (!PAPER_EVENT_EXISTS && getParser().isCurrentEvent(ServerListPingEvent.class)) {
