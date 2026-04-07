@@ -44,6 +44,7 @@ public class EffHidePlayerFromServerList extends Effect {
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		// TODO: can we replace that with event restricted syntax properly?
 		boolean isServerPingEvent = getParser().isCurrentEvent(ServerListPingEvent.class) ||
 				(PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class));
 		if (!isServerPingEvent) {

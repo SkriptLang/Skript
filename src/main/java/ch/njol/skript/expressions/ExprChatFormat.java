@@ -1,5 +1,7 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.coll.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -22,7 +24,7 @@ import ch.njol.util.Kleenean;
 		"represented by [player] or [sender], and the message by [message] or [msg].")
 @Example("set the chat format to \"&lt;yellow&gt;[player]&lt;light gray&gt;: &lt;green&gt;[message]\"")
 @Since("2.2-dev31")
-public class ExprChatFormat extends SimpleExpression<String>{
+public class ExprChatFormat extends SimpleExpression<String> implements EventRestrictedSyntax {
 	static {
 		Skript.registerExpression(ExprChatFormat.class, String.class, ExpressionType.SIMPLE, "[the] (message|chat) format[ting]");
 	}
@@ -48,11 +50,12 @@ public class ExprChatFormat extends SimpleExpression<String>{
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(AsyncPlayerChatEvent.class)){
-			Skript.error("The expression 'chat format' may only be used in chat events");
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(AsyncPlayerChatEvent.class);
 	}
 	
 	@Override

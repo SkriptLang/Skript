@@ -41,6 +41,7 @@ public class ExprServerIcon extends SimpleExpression<CachedServerIcon> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		// TODO: ers
 		if (!PAPER_EVENT_EXISTS) {
 			Skript.error("The server icon expression requires Paper 1.12.2 or newer");
 			return false;

@@ -51,6 +51,7 @@ public class ExprSpectatorTarget extends SimpleExpression<Entity> {
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		players = (Expression<Player>) expressions[0];
+		// todo: ERS
 		if (players == null && !EVENT_SUPPORT) {
 			Skript.error("Your server platform does not support using 'spectator target' without players defined." +
 					"'spectator target of event-player'");

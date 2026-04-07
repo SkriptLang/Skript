@@ -2,6 +2,7 @@ package ch.njol.skript.expressions;
 
 import java.util.Set;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -25,7 +26,7 @@ import ch.njol.util.coll.CollectionUtils;
 @Description("Recipients of chat events where this is called.")
 @Example("chat recipients")
 @Since("2.2-Fixes-v7, 2.2-dev35 (clearing recipients)")
-public class ExprChatRecipients extends SimpleExpression<Player> {
+public class ExprChatRecipients extends SimpleExpression<Player> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprChatRecipients.class, Player.class, ExpressionType.SIMPLE, "[chat][( |-)]recipients");
@@ -48,11 +49,12 @@ public class ExprChatRecipients extends SimpleExpression<Player> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!(getParser().isCurrentEvent(AsyncPlayerChatEvent.class))) {
-			Skript.error("Cannot use chat recipients expression outside of a chat event", ErrorQuality.SEMANTIC_ERROR);
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(AsyncPlayerChatEvent.class);
 	}
 
 	@Override

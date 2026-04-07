@@ -40,6 +40,7 @@ public class ExprHanging extends SimpleExpression<Entity> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isRemover = parseResult.hasTag("remover");
 
+		// todo: ERS?
 		if (isRemover && !getParser().isCurrentEvent(HangingBreakEvent.class)) {
 			Skript.error("The expression 'hanging remover' can only be used in break event");
 			return false;
