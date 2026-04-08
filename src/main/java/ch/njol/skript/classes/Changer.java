@@ -1,11 +1,18 @@
 package ch.njol.skript.classes;
 
+import com.google.common.base.Preconditions;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.classes.data.DefaultChangers;
 import ch.njol.skript.lang.Expression;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import org.skriptlang.skript.lang.arithmetic.OperationInfo;
+import org.skriptlang.skript.lang.arithmetic.Operator;
+
+import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * An interface to declare changeable values. All Expressions implement something similar like this by default, but refuse any change if {@link Expression#acceptChange(ChangeMode)}
@@ -92,6 +99,30 @@ public interface Changer<T> {
 				}
 			}
 			return false;
+		}
+
+		/**
+		 * Gets the types that can be added/removed via arithmetic for the given type.
+		 * This is used to determine accepted change types for add/remove when no changer is present.
+		 * @param type The type to get arithmetic change types for.
+		 * @param mode Whether to get addition or subtraction types. Only {@link ChangeMode#ADD} and {@link ChangeMode#REMOVE} are supported.
+		 * @param filter A filter to apply to the available operations. Used for custom constraints on the operations, like
+		 *               ensuring the return type matches the left type.
+		 * @return The types that can be added/removed via arithmetic for the given type and mode, after applying the filter.
+		 * @param <T> The type to get arithmetic change types for.
+		 */
+		public static <T> Class<?>[] getArithmeticChangeTypes(Class<T> type, ChangeMode mode, Predicate<OperationInfo<T, ? ,?>> filter) {
+			Preconditions.checkArgument(mode == ChangeMode.ADD || mode == ChangeMode.REMOVE, "Only ADD and REMOVE modes are supported for arithmetic change types");
+			List<OperationInfo<T, ?, ?>> opInfos;
+			if (mode == ChangeMode.ADD) {
+				opInfos = Arithmetics.getOperations(Operator.ADDITION, type);
+			} else {
+				opInfos = Arithmetics.getOperations(Operator.SUBTRACTION, type);
+			}
+			return opInfos.stream()
+				.filter(filter)
+				.map(OperationInfo::right)
+				.toArray(Class[]::new);
 		}
 
 	}

@@ -4,6 +4,8 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.log.ParseLogHandler;
+import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
@@ -34,13 +36,37 @@ public class ExpressionSection extends Section {
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		SectionContext context = getParser().getData(SectionContext.class);
-		assert context != null;
 		if (context.sectionNode == null && expression.isSectionOnly()) {
 			Skript.error("This expression requires a section.");
 			return false;
 		}
-		return this.init(expressions, matchedPattern, isDelayed, parseResult, context.sectionNode, context.triggerItems)
-			&& context.claim(expression);
+		// log handler to prevent claim error from showing up if we fail to claim the section but can init without it
+		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
+			// try to claim section
+			boolean claimedSection = context.claim(this, parseResult.expr);
+			if (claimedSection) {
+				// now that we have claimed the section, we have to commit
+				boolean init = expression.init(expressions, matchedPattern, isDelayed, parseResult, context.sectionNode, context.triggerItems);
+				if (init) {
+					log.printLog();
+					return true;
+				} else {
+					context.unclaim(this);
+					log.printError();
+					return false;
+				}
+			}
+			// section already claimed
+			// we would also like to error if there are 2 expression sections claiming the same section, as the user
+			// has no actual control over which one gets to claim it, causing ambiguity and bad user experience
+			if (expression.isSectionOnly() || context.owner instanceof ExpressionSection) {
+				log.printError();
+				return false;
+			}
+			// need to clear the error caused by failing to claim the section, since the following init may succeed
+			log.clear();
+		}
+		return expression.init(expressions, matchedPattern, isDelayed, parseResult, null, null);
 	}
 
 	@Override

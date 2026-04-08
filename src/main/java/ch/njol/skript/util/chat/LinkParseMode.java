@@ -1,8 +1,12 @@
 package ch.njol.skript.util.chat;
 
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
+
 /**
  * Parse mode for links in chat messages.
+ * @deprecated See {@link TextComponentParser}.
  */
+@Deprecated(since = "2.15", forRemoval = true)
 public enum LinkParseMode {
 	
 	/**

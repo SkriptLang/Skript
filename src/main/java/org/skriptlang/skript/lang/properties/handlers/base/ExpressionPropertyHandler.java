@@ -3,6 +3,7 @@ package org.skriptlang.skript.lang.properties.handlers.base;
 
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.lang.Expression;
+import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +26,20 @@ public interface ExpressionPropertyHandler<Type, ReturnType> extends PropertyHan
 
 	/**
 	 * Converts the given object to the property value. This method may return arrays if the property is multi-valued.
+	 * Prefer putting the majority of logic in {@link #convert(Object)} and delegating to it where possible.
+	 * This method should contain event-specific logic only.
+	 *
+	 * @param event The event this is taking place in.
+	 * @param propertyHolder The object to convert.
+	 * @return The property value.
+	 */
+	default @Nullable ReturnType convert(Event event, Type propertyHolder) {
+		return convert(propertyHolder);
+	}
+
+	/**
+	 * Converts the given object to the property value. This method may return arrays if the property is multi-valued.
+	 * Callers should always prefer {@link #convert(Event, Object)}.
 	 *
 	 * @param propertyHolder The object to convert.
 	 * @return The property value.

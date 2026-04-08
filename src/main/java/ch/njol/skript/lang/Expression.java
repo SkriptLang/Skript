@@ -204,6 +204,19 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T>, S
 	}
 
 	/**
+	 * Whether this expression <b>might</b> return any of the following types.
+	 * @param returnTypes The types to test
+	 * @return true if any of the arguments are within the bounds of the return types
+	 */
+	default boolean canReturnAnyOf(Class<?>... returnTypes) {
+		for (Class<?> type : returnTypes) {
+			if (canReturn(type))
+				return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Returns true if this expression returns all possible values, false if it only returns some of them.
 	 * <p>
 	 * This method significantly influences {@link #check(Event, Predicate)}, {@link #check(Event, Predicate, boolean)} and {@link CondIsSet} and thus breaks conditions that use this
