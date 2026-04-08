@@ -13,6 +13,7 @@ import ch.njol.skript.util.Utils;
 import com.google.common.base.MoreObjects;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converter;
 
 import java.util.*;
@@ -26,14 +27,14 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 
 	private final Class<E> eventClass;
 	private final Class<V> valueClass;
-	private final String @Nullable [] patterns;
+	private final @Nullable List<String> patterns;
 	private final boolean hasCustomInputValidator;
 	private final @Nullable BiPredicate<String, ParseResult> inputValidator;
 	private final @Nullable Function<Class<?>, Validation> eventValidator;
 	private final Converter<E, V> converter;
 	private final Map<ChangeMode, Changer<E, V>> changers;
 	private final Time time;
-	private final Class<? extends E> @Nullable [] excludedEvents;
+	private final @Nullable List<Class<? extends E>> excludedEvents;
 	private final @Nullable String excludedErrorMessage;
 
 	private SkriptPattern[] compiledPatterns;
@@ -63,8 +64,8 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 	}
 
 	@Override
-	public String @Nullable [] patterns() {
-		return patterns != null ? patterns.clone() : null;
+	public @Nullable @Unmodifiable List<String> patterns() {
+		return patterns;
 	}
 
 	@Override
@@ -96,7 +97,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 	private SkriptPattern[] compilePatterns() {
 		if (compiledPatterns != null)
 			return compiledPatterns;
-		compiledPatterns = patterns == null ? patternsFromType(valueClass) : Arrays.stream(patterns)
+		compiledPatterns = patterns == null ? patternsFromType(valueClass) : patterns.stream()
 			.map(PatternCompiler::compile)
 			.toArray(SkriptPattern[]::new);
 		return compiledPatterns;
@@ -145,8 +146,8 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 	}
 
 	@Override
-	public Class<? extends E> @Nullable [] excludedEvents() {
-		return excludedEvents != null ? excludedEvents.clone() : null;
+	public @Nullable @Unmodifiable List<Class<? extends E>> excludedEvents() {
+		return excludedEvents;
 	}
 
 	@Override
@@ -161,7 +162,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 			&& hasCustomInputValidator == other.hasCustomInputValidator
 			&& (!hasCustomInputValidator || inputValidator == other.inputValidator)
 			&& eventValidator == other.eventValidator
-			&& Arrays.equals(excludedEvents, other.excludedEvents);
+			&& Objects.equals(excludedEvents, other.excludedEvents);
 	}
 
 	@Override
@@ -197,13 +198,13 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 		private final Class<E> eventClass;
 		private final Class<V> valueClass;
 		private final Map<ChangeMode, Changer<E, V>> changers = new EnumMap<>(ChangeMode.class);
-		private String @Nullable [] patterns;
+		private @Nullable List<String> patterns;
 		private boolean hasCustomInputValidator;
 		private @Nullable BiPredicate<String, ParseResult> inputValidator;
 		private @Nullable Function<Class<?>, Validation> eventValidator;
 		private Converter<E, V> converter;
 		private Time time = Time.NOW;
-		private Class<? extends E> @Nullable [] excludedEvents;
+		private @Nullable List<Class<? extends E>> excludedEvents;
 		private @Nullable String excludedErrorMessage;
 
 		BuilderImpl(Class<E> eventClass, Class<V> valueClass) {
@@ -213,7 +214,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 
 		@Override
 		public Builder<E,V> patterns(String... patterns) {
-			this.patterns = patterns;
+			this.patterns = patterns != null ? List.of(patterns) : null;
 			return this;
 		}
 
@@ -251,7 +252,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 		@Override
 		@SafeVarargs
 		public final Builder<E, V> excludes(Class<? extends E>... events) {
-			this.excludedEvents = events;
+			this.excludedEvents = events != null ? List.of(events) : null;
 			return this;
 		}
 

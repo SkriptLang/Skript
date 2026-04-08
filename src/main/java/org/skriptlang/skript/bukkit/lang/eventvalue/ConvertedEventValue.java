@@ -3,11 +3,13 @@ package org.skriptlang.skript.bukkit.lang.eventvalue;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -124,7 +126,7 @@ record ConvertedEventValue<SourceEvent extends Event, ConvertedEvent extends Eve
 	}
 
 	@Override
-	public String @Nullable [] patterns() {
+	public @Nullable @Unmodifiable List<String> patterns() {
 		return source.patterns();
 	}
 
@@ -163,10 +165,6 @@ record ConvertedEventValue<SourceEvent extends Event, ConvertedEvent extends Eve
 		return source.changer(mode).map(changer -> (event, value) -> {
 			if (!source.eventClass().isAssignableFrom(event.getClass()))
 				return;
-			if (changer instanceof EventValue.NoValueChanger) {
-				changer.change(source.eventClass().cast(event), null);
-				return;
-			}
 			if (reverseConverter == null)
 				return;
 			SourceValue sourceValue = reverseConverter.convert(value);
@@ -181,14 +179,14 @@ record ConvertedEventValue<SourceEvent extends Event, ConvertedEvent extends Eve
 	}
 
 	@Override
-	public Class<? extends ConvertedEvent> @Nullable [] excludedEvents() {
-		Class<? extends SourceEvent>[] excludedEvents = source.excludedEvents();
+	public List<Class<? extends ConvertedEvent>> excludedEvents() {
+		List<Class<? extends SourceEvent>> excludedEvents = source.excludedEvents();
 		if (excludedEvents == null)
 			return null;
-		//noinspection unchecked
-		return Arrays.stream(excludedEvents)
+		//noinspection unchecked,rawtypes
+		return (List) excludedEvents.stream()
 			.filter(eventClass::isAssignableFrom)
-			.toArray(Class[]::new);
+			.toList();
 	}
 
 	@Override
