@@ -197,6 +197,11 @@ record ConvertedEventValue<SourceEvent extends Event, ConvertedEvent extends Eve
 	}
 
 	@Override
+	public boolean matches(EventValue<?, ?> eventValue) {
+		return matches(eventValue.eventClass(), eventValue.valueClass(), eventValue.patterns());
+	}
+
+	@Override
 	public @Nullable <NewEvent extends Event, NewValue> EventValue<NewEvent, NewValue> getConverted(
 		Class<NewEvent> newEventClass,
 		Class<NewValue> newValueClass

@@ -27,6 +27,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 	private final Class<E> eventClass;
 	private final Class<V> valueClass;
 	private final String @Nullable [] patterns;
+	private final boolean hasCustomInputValidator;
 	private final @Nullable BiPredicate<String, ParseResult> inputValidator;
 	private final @Nullable Function<Class<?>, Validation> eventValidator;
 	private final Converter<E, V> converter;
@@ -37,28 +38,18 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 
 	private SkriptPattern[] compiledPatterns;
 
-	EventValueImpl(
-		Class<E> eventClass,
-		Class<V> valueClass,
-		String @Nullable [] patterns,
-		@Nullable BiPredicate<String, ParseResult> inputValidator,
-		@Nullable Function<Class<?>, Validation> eventValidator,
-		Converter<E, V> converter,
-		Map<ChangeMode, Changer<E, V>> changers,
-		Time time,
-		Class<? extends E> @Nullable [] excludedEvents,
-		@Nullable String excludedErrorMessage
-	) {
-		this.eventClass = eventClass;
-		this.valueClass = valueClass;
-		this.patterns = patterns;
-		this.inputValidator = inputValidator;
-		this.eventValidator = eventValidator;
-		this.converter = converter;
-		this.changers = changers;
-		this.time = time;
-		this.excludedEvents = excludedEvents;
-		this.excludedErrorMessage = excludedErrorMessage;
+	private EventValueImpl(BuilderImpl<E, V> builder) {
+		this.eventClass = builder.eventClass;
+		this.valueClass = builder.valueClass;
+		this.patterns = builder.patterns;
+		this.hasCustomInputValidator = builder.hasCustomInputValidator;
+		this.inputValidator = builder.inputValidator;
+		this.eventValidator = builder.eventValidator;
+		this.converter = builder.converter;
+		this.changers = builder.changers;
+		this.time = builder.time;
+		this.excludedEvents = builder.excludedEvents;
+		this.excludedErrorMessage = builder.excludedErrorMessage;
 	}
 
 	@Override
@@ -164,6 +155,16 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 	}
 
 	@Override
+	public boolean matches(EventValue<?, ?> eventValue) {
+		return matches(eventValue.eventClass(), eventValue.valueClass(), eventValue.patterns())
+			&& eventValue instanceof EventValueImpl<?,?> other
+			&& hasCustomInputValidator == other.hasCustomInputValidator
+			&& (!hasCustomInputValidator || inputValidator == other.inputValidator)
+			&& eventValidator == other.eventValidator
+			&& Arrays.equals(excludedEvents, other.excludedEvents);
+	}
+
+	@Override
 	public @Nullable <ConvertedEvent extends Event, ConvertedValue> EventValue<ConvertedEvent, ConvertedValue> getConverted(
 		Class<ConvertedEvent> newEventClass,
 		Class<ConvertedValue> newValueClass
@@ -197,6 +198,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 		private final Class<V> valueClass;
 		private final Map<ChangeMode, Changer<E, V>> changers = new EnumMap<>(ChangeMode.class);
 		private String @Nullable [] patterns;
+		private boolean hasCustomInputValidator;
 		private @Nullable BiPredicate<String, ParseResult> inputValidator;
 		private @Nullable Function<Class<?>, Validation> eventValidator;
 		private Converter<E, V> converter;
@@ -218,6 +220,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 		@Override
 		public Builder<E,V> inputValidator(BiPredicate<String, ParseResult> inputValidator) {
 			this.inputValidator = inputValidator;
+			hasCustomInputValidator = inputValidator != null;
 			return this;
 		}
 
@@ -272,18 +275,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 				}
 			}
 
-			return new EventValueImpl<>(
-				eventClass,
-				valueClass,
-				patterns,
-				inputValidator,
-				eventValidator,
-				converter,
-				changers,
-				time,
-				excludedEvents,
-				excludedErrorMessage
-			);
+			return new EventValueImpl<>(this);
 		}
 
 		private static <T, U> BiPredicate<T, U> combinePredicates(

@@ -28,6 +28,9 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 
 	@Override
 	public <E extends Event> void register(EventValue<E, ?> eventValue) {
+		Preconditions.checkNotNull(eventValue, "eventValue");
+		if (eventValue instanceof ConvertedEventValue)
+			throw new SkriptAPIException("Cannot register a converted event value: " + eventValue);
 		if (isRegistered(eventValue))
 			throw new SkriptAPIException(eventValue + " is already registered");
 		List<EventValue<?, ?>> eventValues = eventValues(eventValue.time());
@@ -45,8 +48,8 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 
 	@Override
 	public boolean isRegistered(EventValue<?, ?> eventValue) {
-		for (EventValue<?, ?> eventValue2 : eventValues(eventValue.time())) {
-			if (eventValue.matches(eventValue2))
+		for (EventValue<?, ?> existing : eventValues(eventValue.time())) {
+			if (existing.matches(eventValue))
 				return true;
 		}
 		return false;

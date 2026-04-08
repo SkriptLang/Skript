@@ -149,9 +149,7 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	 * @param eventValue the event value to compare against
 	 * @return {@code true} if they match
 	 */
-	default boolean matches(EventValue<?, ?> eventValue) {
-		return matches(eventValue.eventClass(), eventValue.valueClass(), eventValue.patterns());
-	}
+	boolean matches(EventValue<?, ?> eventValue);
 
 	/**
 	 * Checks whether this event value matches the provided event class, value class,
