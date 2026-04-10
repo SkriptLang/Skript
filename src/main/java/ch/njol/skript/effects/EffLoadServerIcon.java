@@ -36,7 +36,7 @@ import java.nio.file.Paths;
 		set the icon to a random server icon out of {server-icons::*}
 	""")
 @Since("2.3")
-public class EffLoadServerIcon extends AsyncEffect implements EventRestrictedSyntax {
+public class EffLoadServerIcon extends AsyncEffect {
 
 	static {
 		Skript.registerEffect(EffLoadServerIcon.class, "load [the] server icon (from|of) [the] [image] [file] %string%");
@@ -54,11 +54,6 @@ public class EffLoadServerIcon extends AsyncEffect implements EventRestrictedSyn
 		getParser().setHasDelayBefore(Kleenean.TRUE);
 		path = (Expression<String>) exprs[0];
 		return true;
-	}
-
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(PaperServerListPingEvent.class);
 	}
 
     @Override
