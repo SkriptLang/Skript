@@ -8,6 +8,7 @@ import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.SequencedCollection;
 
@@ -178,9 +179,9 @@ record ConvertedEventValue<SourceEvent extends Event, ConvertedEvent extends Eve
 	}
 
 	@Override
-	public @Unmodifiable SequencedCollection<Class<? extends ConvertedEvent>> excludedEvents() {
+	public @Unmodifiable Collection<Class<? extends ConvertedEvent>> excludedEvents() {
 		//noinspection unchecked,rawtypes
-		return (SequencedCollection) source.excludedEvents().stream()
+		return (Collection) source.excludedEvents().stream()
 			.filter(eventClass::isAssignableFrom)
 			.toList();
 	}

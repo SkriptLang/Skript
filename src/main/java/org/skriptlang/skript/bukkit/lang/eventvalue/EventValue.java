@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converter;
 
-import java.util.Objects;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.SequencedCollection;
 import java.util.function.BiPredicate;
@@ -145,7 +145,7 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	 * @return a list of excluded event classes
 	 */
 	@Contract(pure = true)
-	@Unmodifiable SequencedCollection<Class<? extends E>> excludedEvents();
+	@Unmodifiable Collection<Class<? extends E>> excludedEvents();
 
 	/**
 	 * An optional error message shown when this value is excluded for a matching event.

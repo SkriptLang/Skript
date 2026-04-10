@@ -34,7 +34,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 	private final Converter<E, V> converter;
 	private final Map<ChangeMode, Changer<E, V>> changers;
 	private final Time time;
-	private final SequencedCollection<Class<? extends E>> excludedEvents;
+	private final Collection<Class<? extends E>> excludedEvents;
 	private final @Nullable String excludedErrorMessage;
 
 	private SkriptPattern[] compiledPatterns;
@@ -146,7 +146,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 	}
 
 	@Override
-	public @Unmodifiable SequencedCollection<Class<? extends E>> excludedEvents() {
+	public @Unmodifiable Collection<Class<? extends E>> excludedEvents() {
 		return excludedEvents;
 	}
 
@@ -204,7 +204,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 		private @Nullable Function<Class<?>, Validation> eventValidator;
 		private Converter<E, V> converter;
 		private Time time = Time.NOW;
-		private SequencedCollection<Class<? extends E>> excludedEvents = Collections.emptyList();
+		private Collection<Class<? extends E>> excludedEvents = Collections.emptyList();
 		private @Nullable String excludedErrorMessage;
 
 		BuilderImpl(Class<E> eventClass, Class<V> valueClass) {
@@ -214,7 +214,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 
 		@Override
 		public Builder<E,V> patterns(String... patterns) {
-			this.patterns = List.of(patterns);
+			this.patterns = patterns != null ? List.of(patterns) : Collections.emptyList();
 			return this;
 		}
 
@@ -252,7 +252,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 		@Override
 		@SafeVarargs
 		public final Builder<E, V> excludes(Class<? extends E>... events) {
-			this.excludedEvents = List.of(events);
+			this.excludedEvents = events != null ? List.of(events) : Collections.emptyList();
 			return this;
 		}
 
