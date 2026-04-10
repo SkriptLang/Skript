@@ -8,9 +8,8 @@ import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
+import java.util.SequencedCollection;
 
 /**
  * An {@link EventValue} that is a converted version of another event value.
@@ -126,7 +125,7 @@ record ConvertedEventValue<SourceEvent extends Event, ConvertedEvent extends Eve
 	}
 
 	@Override
-	public @Nullable @Unmodifiable List<String> patterns() {
+	public @Unmodifiable SequencedCollection<String> patterns() {
 		return source.patterns();
 	}
 
@@ -179,12 +178,9 @@ record ConvertedEventValue<SourceEvent extends Event, ConvertedEvent extends Eve
 	}
 
 	@Override
-	public List<Class<? extends ConvertedEvent>> excludedEvents() {
-		List<Class<? extends SourceEvent>> excludedEvents = source.excludedEvents();
-		if (excludedEvents == null)
-			return null;
+	public @Unmodifiable SequencedCollection<Class<? extends ConvertedEvent>> excludedEvents() {
 		//noinspection unchecked,rawtypes
-		return (List) excludedEvents.stream()
+		return (SequencedCollection) source.excludedEvents().stream()
 			.filter(eventClass::isAssignableFrom)
 			.toList();
 	}

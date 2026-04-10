@@ -315,7 +315,7 @@ public class EventValues {
 					})
 					.orElse(eventValue.converter()),
 				eventValue.excludedErrorMessage(),
-				eventValue.excludedEvents() != null ? eventValue.excludedEvents().toArray(new Class[0]) : null,
+				eventValue.excludedEvents().toArray(new Class[0]),
 				eventValue.time().value()
 			);
 		}

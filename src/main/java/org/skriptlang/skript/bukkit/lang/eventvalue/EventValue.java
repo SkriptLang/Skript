@@ -9,7 +9,9 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converter;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.SequencedCollection;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
@@ -74,7 +76,7 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	 * @return the patterns
 	 */
 	@Contract(pure = true)
-	@Nullable @Unmodifiable List<String> patterns();
+	@Unmodifiable SequencedCollection<String> patterns();
 
 	/**
 	 * Validates that this event value can be used in the provided event context.
@@ -140,10 +142,10 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	/**
 	 * Event types explicitly excluded from using this event value.
 	 *
-	 * @return a list of excluded event classes or {@code null} if none
+	 * @return a list of excluded event classes
 	 */
 	@Contract(pure = true)
-	@Nullable @Unmodifiable List<Class<? extends E>> excludedEvents();
+	@Unmodifiable SequencedCollection<Class<? extends E>> excludedEvents();
 
 	/**
 	 * An optional error message shown when this value is excluded for a matching event.
@@ -173,8 +175,8 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	 * @return {@code true} if they match
 	 */
 	@Contract(pure = true)
-	default boolean matches(Class<? extends Event> eventClass, Class<?> valueClass, Collection<String> patterns) {
-		return matches(eventClass, valueClass) && Objects.equals(patterns(), patterns);
+	default boolean matches(Class<? extends Event> eventClass, Class<?> valueClass, SequencedCollection<String> patterns) {
+		return matches(eventClass, valueClass) && patterns().equals(patterns);
 	}
 
 	/**
