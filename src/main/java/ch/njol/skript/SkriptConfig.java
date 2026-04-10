@@ -240,40 +240,44 @@ public class SkriptConfig {
 				SkriptTimings.setEnabled(t); // Config option will be used
 			});
 
-	public static final Option<String> parseLinks = new Option<>("parse links in chat messages", "disabled")
-			.setter(t -> {
-				try {
-					switch (t) {
-						case "false":
-						case "disabled":
-							TextComponentParser.instance().linkParseMode(LinkParseMode.DISABLED);
-							break;
-						case "true":
-						case "lenient":
-							TextComponentParser.instance().linkParseMode(LinkParseMode.LENIENT);
-							break;
-						case "strict":
-							TextComponentParser.instance().linkParseMode(LinkParseMode.STRICT);
-							break;
-						default:
-							TextComponentParser.instance().linkParseMode(LinkParseMode.DISABLED);
-							Skript.warning("Unknown link parse mode: " + t + ", please use disabled, strict or lenient");
-					}
-				} catch (Error e) {
-					// Ignore it, we're on unsupported server platform and class loading failed
-				}
-			});
-
 	public static final Option<Boolean> caseInsensitiveVariables = new Option<>("case-insensitive variables", true)
 			.setter(t -> Variables.caseInsensitiveVariables = t);
 
 	public static final Option<Boolean> caseInsensitiveCommands = new Option<>("case-insensitive commands", false)
 		.optional(true);
 
+	public static final Option<String[]> safeTags = new Option<>("safe tags",
+			new String[]{"color", "decorations", "gradient", "rainbow", "reset", "transition", "pride", "shadowColor"},
+			raw -> raw.split(", "))
+		.setter(tags -> {
+			try {
+				TextComponentParser.instance().setSafeTags(tags);
+			} catch (Error e) {
+				// Ignore it, we're on unsupported server platform and class loading failed
+			}
+		});
+
+	public static final Option<String> parseLinks = new Option<>("parse links in chat messages", "disabled")
+		.setter(mode -> {
+			try {
+				TextComponentParser.instance().linkParseMode(switch (mode) {
+					case "false", "disabled" -> LinkParseMode.DISABLED;
+					case "true", "lenient" -> LinkParseMode.LENIENT;
+					case "strict" -> LinkParseMode.STRICT;
+					default -> {
+						Skript.warning("Unknown link parse mode: " + mode + ", please use disabled, strict or lenient");
+						yield LinkParseMode.DISABLED;
+					}
+				});
+			} catch (Error e) {
+				// Ignore it, we're on unsupported server platform and class loading failed
+			}
+		});
+
 	public static final Option<Boolean> colorResetCodes = new Option<>("color codes reset formatting", true)
-			.setter(t -> {
+			.setter(causeReset -> {
 				try {
-					TextComponentParser.instance().colorsCauseReset(t);
+					TextComponentParser.instance().colorsCauseReset(causeReset);
 				} catch (Error e) {
 					// Ignore it, we're on unsupported server platform and class loading failed
 				}
