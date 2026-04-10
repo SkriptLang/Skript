@@ -3,6 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -10,8 +11,6 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
-import com.destroystokyo.paper.profile.PlayerProfile;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -37,7 +36,7 @@ import java.util.UUID;
 	""")
 @Since("2.3")
 @Events("server list ping")
-public class ExprHoverList extends SimpleExpression<String> {
+public class ExprHoverList extends SimpleExpression<String> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprHoverList.class, String.class, ExpressionType.SIMPLE,
@@ -45,19 +44,14 @@ public class ExprHoverList extends SimpleExpression<String> {
 			"[the] [custom] player [hover|sample] list");
 	}
 
-	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
-	private static final boolean HAS_NEW_LISTED_PLAYER_INFO = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent$ListedPlayerInfo");
-
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!PAPER_EVENT_EXISTS) {
-			Skript.error("The hover list expression requires Paper 1.12.2 or newer");
-			return false;
-		} else if (!getParser().isCurrentEvent(PaperServerListPingEvent.class)) {
-			Skript.error("The hover list expression can't be used outside of a server list ping event");
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(PaperServerListPingEvent.class);
 	}
 
 	@Override
@@ -66,15 +60,9 @@ public class ExprHoverList extends SimpleExpression<String> {
 		if (!(event instanceof PaperServerListPingEvent))
 			return null;
 
-		if (HAS_NEW_LISTED_PLAYER_INFO) {
-			return ((PaperServerListPingEvent) event).getListedPlayers().stream()
-				.map(PaperServerListPingEvent.ListedPlayerInfo::name)
-				.toArray(String[]::new);
-		} else {
-			return ((PaperServerListPingEvent) event).getPlayerSample().stream()
-				.map(PlayerProfile::getName)
-				.toArray(String[]::new);
-		}
+		return ((PaperServerListPingEvent) event).getListedPlayers().stream()
+			.map(PaperServerListPingEvent.ListedPlayerInfo::name)
+			.toArray(String[]::new);
 	}
 
 	@Override
@@ -101,53 +89,19 @@ public class ExprHoverList extends SimpleExpression<String> {
 		if (!(event instanceof PaperServerListPingEvent))
 			return;
 
-		if (HAS_NEW_LISTED_PLAYER_INFO) {
-			List<PaperServerListPingEvent.ListedPlayerInfo> values = new ArrayList<>();
-			if (mode != ChangeMode.DELETE && mode != ChangeMode.RESET && mode != ChangeMode.REMOVE) {
-				for (Object object : delta) {
-					if (object instanceof Player) {
-						Player player = (Player) object;
-						values.add(new PaperServerListPingEvent.ListedPlayerInfo(player.getName(), player.getUniqueId()));
-					} else {
-						values.add(new PaperServerListPingEvent.ListedPlayerInfo((String) object, UUID.randomUUID()));
-					}
-				}
-			}
-
-			List<PaperServerListPingEvent.ListedPlayerInfo> sample = ((PaperServerListPingEvent) event).getListedPlayers();
-			switch (mode) {
-				case SET:
-					sample.clear();
-					// $FALL-THROUGH$
-				case ADD:
-					sample.addAll(values);
-					break;
-				case REMOVE:
-					for (Object value : delta) {
-						sample.removeIf(profile -> profile.name().equals(value));
-					}
-					break;
-				case DELETE:
-				case RESET:
-					sample.clear();
-					break;
-			}
-			return;
-		}
-
-		List<PlayerProfile> values = new ArrayList<>();
+		List<PaperServerListPingEvent.ListedPlayerInfo> values = new ArrayList<>();
 		if (mode != ChangeMode.DELETE && mode != ChangeMode.RESET && mode != ChangeMode.REMOVE) {
 			for (Object object : delta) {
 				if (object instanceof Player) {
 					Player player = (Player) object;
-					values.add(Bukkit.createProfile(player.getUniqueId(), player.getName()));
+					values.add(new PaperServerListPingEvent.ListedPlayerInfo(player.getName(), player.getUniqueId()));
 				} else {
-					values.add(Bukkit.createProfile(UUID.randomUUID(), (String) object));
+					values.add(new PaperServerListPingEvent.ListedPlayerInfo((String) object, UUID.randomUUID()));
 				}
 			}
 		}
 
-		List<PlayerProfile> sample = ((PaperServerListPingEvent) event).getPlayerSample();
+		List<PaperServerListPingEvent.ListedPlayerInfo> sample = ((PaperServerListPingEvent) event).getListedPlayers();
 		switch (mode) {
 			case SET:
 				sample.clear();
@@ -157,7 +111,7 @@ public class ExprHoverList extends SimpleExpression<String> {
 				break;
 			case REMOVE:
 				for (Object value : delta) {
-					sample.removeIf(profile -> profile.getName() != null && profile.getName().equals(value));
+					sample.removeIf(profile -> profile.name().equals(value));
 				}
 				break;
 			case DELETE:
@@ -181,5 +135,4 @@ public class ExprHoverList extends SimpleExpression<String> {
 	public String toString(@Nullable Event e, boolean debug) {
 		return "the hover list";
 	}
-
 }
