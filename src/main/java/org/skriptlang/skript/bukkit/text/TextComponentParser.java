@@ -157,7 +157,7 @@ public final class TextComponentParser {
 		}
 	}
 
-	private TextComponentParser() {
+	TextComponentParser() {
 		registerCompatibilityTags();
 	}
 
@@ -382,19 +382,15 @@ public final class TextComponentParser {
 	}
 
 	/**
-	 * @return Whether color codes cause a reset of existing formatting.
-	 * Essentially, this setting controls whether all color tags should be prepended with a {@code <reset>} tag.
-	 * @see ParserDirective#RESET
+	 * @return Whether color codes cause a reset of styling (i.e. close all open style tags).
 	 */
 	public boolean colorsCauseReset() {
 		return colorsCauseReset;
 	}
 
 	/**
-	 * Sets whether color codes cause a reset of existing formatting.
-	 * Essentially, this setting controls whether all color tags should be prepended with a {@code <reset>} tag.
-	 * @param colorsCauseReset Whether color codes should cause a reset.
-	 * @see ParserDirective#RESET
+	 * Sets whether color codes cause a reset of styling (i.e. close all open style tags).
+	 * @param colorsCauseReset Whether color codes should cause a reset of styling.
 	 */
 	public void colorsCauseReset(boolean colorsCauseReset) {
 		this.colorsCauseReset = colorsCauseReset;
