@@ -70,14 +70,12 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 
 	@Override
 	public Validation validate(Class<?> event) {
-		if (excludedEvents != null) {
-			for (Class<? extends E> excludedEvent : excludedEvents) {
-				if (!excludedEvent.isAssignableFrom(event))
-					continue;
-				if (excludedErrorMessage != null)
-					Skript.error(excludedErrorMessage);
-				return Validation.ABORT;
-			}
+		for (Class<? extends E> excludedEvent : excludedEvents) {
+			if (!excludedEvent.isAssignableFrom(event))
+				continue;
+			if (excludedErrorMessage != null)
+				Skript.error(excludedErrorMessage);
+			return Validation.ABORT;
 		}
 		if (eventValidator == null)
 			return Validation.VALID;
@@ -97,7 +95,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 	private SkriptPattern[] compilePatterns() {
 		if (compiledPatterns != null)
 			return compiledPatterns;
-		compiledPatterns = patterns == null ? patternsFromType(valueClass) : patterns.stream()
+		compiledPatterns = patterns.isEmpty() ? patternsFromType(valueClass) : patterns.stream()
 			.map(PatternCompiler::compile)
 			.toArray(SkriptPattern[]::new);
 		return compiledPatterns;
