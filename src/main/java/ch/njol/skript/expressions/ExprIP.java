@@ -74,14 +74,15 @@ public class ExprIP extends SimpleExpression<String> {
 	protected String[] get(Event e) {
 		if (!isProperty) {
 			InetAddress address;
-			if (e instanceof PlayerLoginEvent)
+			if (e instanceof PlayerLoginEvent loginEvent) {
 				// Return IP address of the connected player in connect event
-				address = ((PlayerLoginEvent) e).getAddress();
-			else if (e instanceof ServerListPingEvent)
+				address = loginEvent.getAddress();
+			} else if (e instanceof ServerListPingEvent pingEvent)
 				// Return IP address of the pinger in server list ping event
-				address = ((ServerListPingEvent) e).getAddress();
-			else
+				address = pingEvent.getAddress();
+			else {
 				return null;
+			}
 			return CollectionUtils.array(address.getHostAddress());
 		}
 
