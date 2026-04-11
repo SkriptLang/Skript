@@ -57,10 +57,10 @@ public class ExprHoverList extends SimpleExpression<String> implements EventRest
 	@Override
 	@SuppressWarnings({"removal"})
 	public String @Nullable [] get(Event event) {
-		if (!(event instanceof PaperServerListPingEvent))
+		if (!(event instanceof PaperServerListPingEvent pingEvent))
 			return null;
 
-		return ((PaperServerListPingEvent) event).getListedPlayers().stream()
+		return pingEvent.getListedPlayers().stream()
 			.map(PaperServerListPingEvent.ListedPlayerInfo::name)
 			.toArray(String[]::new);
 	}
@@ -86,7 +86,7 @@ public class ExprHoverList extends SimpleExpression<String> implements EventRest
 	@Override
 	@SuppressWarnings({"null", "removal"})
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (!(event instanceof PaperServerListPingEvent))
+		if (!(event instanceof PaperServerListPingEvent pingEvent))
 			return;
 
 		List<PaperServerListPingEvent.ListedPlayerInfo> values = new ArrayList<>();
@@ -101,7 +101,7 @@ public class ExprHoverList extends SimpleExpression<String> implements EventRest
 			}
 		}
 
-		List<PaperServerListPingEvent.ListedPlayerInfo> sample = ((PaperServerListPingEvent) event).getListedPlayers();
+		List<PaperServerListPingEvent.ListedPlayerInfo> sample = pingEvent.getListedPlayers();
 		switch (mode) {
 			case SET:
 				sample.clear();
