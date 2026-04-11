@@ -11,7 +11,10 @@ import org.bukkit.persistence.PersistentDataHolder;
 
 import java.util.function.Consumer;
 
-public class PDCUtils {
+/**
+ * Utilities for working with {@link PersistentDataContainer}s.
+ */
+public final class PDCUtils {
 
 	/**
 	 * Gets the data container of an object.

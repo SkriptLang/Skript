@@ -13,11 +13,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.pdc.PDCUtils;
-import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
-
-import static ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
-import static ch.njol.skript.conditions.base.PropertyCondition.getPatterns;
 
 @Name("Has Persistent Data Tag")
 @Description("""
@@ -46,8 +42,9 @@ public class CondHasPersistentDataTag extends Condition {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.CONDITION,
-			SyntaxInfo.builder(CondHasPersistentDataTag.class)
-				.addPatterns(getPatterns(PropertyType.HAVE, "[persistent] data tag[s] %strings%", "objects"))
+			PropertyCondition.infoBuilder(
+					CondHasPersistentDataTag.class, PropertyCondition.PropertyType.HAVE,
+					"[persistent] data tag[s] %strings%", "objects")
 				.supplier(CondHasPersistentDataTag::new)
 				.build());
 	}
@@ -83,7 +80,7 @@ public class CondHasPersistentDataTag extends Condition {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.HAVE, event, debug, holders, "persistent data tag " + keys.toString(event, debug));
+		return PropertyCondition.toString(this, PropertyCondition.PropertyType.HAVE, event, debug, holders, "persistent data tag " + keys.toString(event, debug));
 	}
 
 }

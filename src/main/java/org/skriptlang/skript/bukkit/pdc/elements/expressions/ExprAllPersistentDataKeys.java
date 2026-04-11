@@ -10,6 +10,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.pdc.PDCUtils;
+import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
@@ -37,7 +38,12 @@ public class ExprAllPersistentDataKeys extends PropertyExpression<Object, String
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprAllPersistentDataKeys.class, String.class, "[persistent] data [tag] key[s]", "objects", false)
+			SyntaxInfo.Expression.builder(ExprAllPersistentDataKeys.class, String.class)
+				.addPatterns(
+					"[all [[of] the]] [persistent] data [tag] keys of %objects%",
+					"[all of] %objects%'[s] [persistent] data [tag] keys"
+				)
+				.priority(DEFAULT_PRIORITY)
 				.supplier(ExprAllPersistentDataKeys::new)
 				.build());
 	}
