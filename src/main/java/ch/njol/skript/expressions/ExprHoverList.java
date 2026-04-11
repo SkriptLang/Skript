@@ -135,4 +135,5 @@ public class ExprHoverList extends SimpleExpression<String> implements EventRest
 	public String toString(@Nullable Event e, boolean debug) {
 		return "the hover list";
 	}
+
 }

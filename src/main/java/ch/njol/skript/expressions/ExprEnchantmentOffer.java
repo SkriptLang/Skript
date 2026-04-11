@@ -194,4 +194,5 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 			default: return 1;
 		}
 	}
+
 }

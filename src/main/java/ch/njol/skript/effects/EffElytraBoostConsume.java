@@ -56,4 +56,5 @@ public class EffElytraBoostConsume extends Effect implements EventRestrictedSynt
 			return "allow the boosting firework to be consumed";
 		return "prevent the boosting firework from being consumed";
 	}
+
 }
