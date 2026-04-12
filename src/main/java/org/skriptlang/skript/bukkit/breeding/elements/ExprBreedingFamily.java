@@ -5,11 +5,13 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import io.papermc.paper.event.entity.EntityFertilizeEggEvent;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
@@ -24,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 		"they make a %bred offspring%\" to breeder"
 })
 @Since("2.10")
-public class ExprBreedingFamily extends SimpleExpression<LivingEntity> {
+public class ExprBreedingFamily extends SimpleExpression<LivingEntity> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprBreedingFamily.class, LivingEntity.class, ExpressionType.SIMPLE,
@@ -37,13 +39,14 @@ public class ExprBreedingFamily extends SimpleExpression<LivingEntity> {
 	private int pattern;
 
 	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EntityBreedEvent.class, EntityFertilizeEggEvent.class);
+	}
+
+	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
 						Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EntityBreedEvent.class) && !getParser().isCurrentEvent(EntityFertilizeEggEvent.class)) {
-			Skript.error("The 'breeding family' expression can only be used in an breed or fertilize egg event.");
-			return false;
-		}
-		if (getParser().isCurrentEvent(EntityFertilizeEggEvent.class) && matchedPattern >= 2){
+		if (getParser().isCurrentEvent(EntityFertilizeEggEvent.class) && matchedPattern >= 2) {
 			Skript.error("The 'bred child' expression cannot be used in a 'fertilize egg' event.");
 			return false;
 		}
