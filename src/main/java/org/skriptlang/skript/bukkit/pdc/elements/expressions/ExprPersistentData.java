@@ -1,7 +1,6 @@
-package org.skriptlang.skript.bukkit.pdc.expressions;
+package org.skriptlang.skript.bukkit.pdc.elements.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.NamespacedUtils;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -14,7 +13,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.ClassInfoReference;
-import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -23,9 +21,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.TileState;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataHolder;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.pdc.PDCSerializer;
@@ -42,6 +38,8 @@ import java.util.*;
 import java.util.function.Consumer;
 
 import static ch.njol.skript.classes.Changer.ChangerUtils.getArithmeticChangeTypes;
+import static org.skriptlang.skript.bukkit.pdc.PDCUtils.editPersistentDataContainer;
+import static org.skriptlang.skript.bukkit.pdc.PDCUtils.getPersistentDataContainer;
 
 @Name("Persistent Data Value")
 @Description("""
@@ -360,72 +358,6 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 			Block[] blocks = invalidBlocks.stream().limit(3).toArray(Block[]::new);
 			warning("Could not set persistent data on blocks (" + Classes.toString(blocks, true)
 					+ ") as they are not tile entities (chests, furnaces, signs, etc.).");
-		}
-	}
-
-	/**
-	 * Gets the data container of an object. The returned container should not be modified.
-	 * Use {@link #editPersistentDataContainer(Object, Consumer)} if editing is desired.
-	 * @param holder Source of the container
-	 * @param consumer Code to run with the container
-	 */
-	private void getPersistentDataContainer(Object holder, Consumer<PersistentDataContainerView> consumer) {
-		switch (holder) {
-			case PersistentDataHolder dataHolder -> consumer.accept(dataHolder.getPersistentDataContainer());
-			case ItemType itemType -> {
-				var meta = itemType.getItemMeta();
-				consumer.accept(meta.getPersistentDataContainer());
-			}
-			case ItemStack itemStack -> {
-				if (!itemStack.hasItemMeta())
-					return;
-				consumer.accept(itemStack.getPersistentDataContainer());
-			}
-			case Slot slot -> {
-				var item = slot.getItem();
-				if (item == null || !item.hasItemMeta())
-					return;
-				consumer.accept(item.getPersistentDataContainer());
-			}
-			case Block block when block.getState() instanceof TileState tileState ->
-				consumer.accept(tileState.getPersistentDataContainer());
-			case null, default -> {
-			}
-		}
-
-	}
-
-	/**
-	 * Helper to easily edit PDCs.
-	 * @param holder The holder of the PDC.
-	 * @param consumer The method to run to edit the PDC.
-	 */
-	private void editPersistentDataContainer(Object holder, Consumer<PersistentDataContainer> consumer) {
-		switch (holder) {
-			case PersistentDataHolder dataHolder -> consumer.accept(dataHolder.getPersistentDataContainer());
-			case ItemType itemType -> {
-				var meta = itemType.getItemMeta();
-				consumer.accept(meta.getPersistentDataContainer());
-				itemType.setItemMeta(meta);
-			}
-			case ItemStack itemStack -> {
-				if (!itemStack.hasItemMeta())
-					return;
-				itemStack.editPersistentDataContainer(consumer);
-			}
-			case Slot slot -> {
-				var item = slot.getItem();
-				if (item == null || !item.hasItemMeta())
-					return;
-				item.editPersistentDataContainer(consumer);
-				slot.setItem(item);
-			}
-			case Block block when block.getState() instanceof TileState tileState -> {
-				consumer.accept(tileState.getPersistentDataContainer());
-				tileState.update();
-			}
-			case null, default -> {
-			}
 		}
 	}
 
