@@ -8,11 +8,11 @@ test "EvtFertilizeEggTest" when running Junit:
 	add "fertilize egg event - father" to {_evt::*}
 	ensure junit test {@test} completes {_evt::*}
 
-on fertilize:
+on fertilize egg:
 	junit test is {@test}
 	complete objective "fertilize egg event - general" for {@test}
 
-on fertilize of frog:
+on fertilize egg of frog:
 	junit test is {@test}
 	complete objective "fertilize egg event - specified entity" for {@test}
 	breeding mother is frog
