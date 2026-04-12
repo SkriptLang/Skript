@@ -80,6 +80,9 @@ log effect commands: false
 # Whether Skript should log the usage of effect commands.
 # They will be logged as [INFORMATION] in this format: '<player> issued effect command: <command>'
 
+compress backups: true
+# Whether Skript should compress backup files (configs and variables).
+# If true, those files will be zipped to save disk space.
 
 load default aliases: true
 # Whether Skript should use the default, Skript-provided aliases for items.
@@ -164,13 +167,15 @@ case-insensitive commands: false
 
 disable variable will not be saved warnings: false
 # Disables the "... i.e contents cannot be saved ..." warning when reloading and something in your scripts sets a variable(non local) to a value that is not serializable.
-# By Mirre.
 
 disable variable missing and/or warnings: false
 # Disables the "List is missing 'and' or 'or', defaulting to 'and'" warning when reloading your script.
 
 disable starting a variable's name with an expression warnings: false
 # Disables the "Starting a variable's name with an expression is discouraged..." warnings
+
+disable single colon in variable name warnings: false
+# Disables the "... its name should contain '::'. Having a single ':' does nothing!" warnings for variable names.
 
 disable unreachable code warnings: false
 # Disables the "Unreachable code. The previous statement stops further execution." warnings.
@@ -186,6 +191,11 @@ enable timings: false
 # Note that this requires Paper (https://papermc.io/downloads/paper) to work; on Bukkit/Spigot this option has no effect.
 # Warning: Paper no longer supports Timings as of 1.19.4. This option has no effect on versions 1.19.4 and above.
 # When false, timings are not enabled for scripts even if you're running Paper.
+
+safe tags: color, decorations, gradient, rainbow, reset, transition, pride, shadowColor
+# This list defines the tags that Skript will process by default, without the usage of the "formatted" expression.
+# By default, this simply includes color and decoration applying tags.
+# Tags are listed by their names or internal groups. They should be separated by only a comma and a space (', ').
 
 parse links in chat messages: disabled
 # Controls how Skript will try to parse links in chat messages.
@@ -213,6 +223,11 @@ script loader thread size: 0
 # You may also set this option to 'processor count' (without apostrophes) to use the number of available processors.
 # Do note that though, this option may cause issues with addons and possibly some scripts! Do NOT enable this option unless you have really long
 #   script load times AND you take the risk of lost data and full responsibility!
+
+use type properties: true
+# Enables type properties, which allows addons to hook into common syntaxes like `if x is empty` or `name of x`.
+# You should only disable this if you are encountering issues with Skript being unable to figure out the properties,
+# and you should make an issue on SkriptLang's GitHub.
 
 disable hooks:
 	vault: false

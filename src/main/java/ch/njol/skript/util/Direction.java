@@ -94,7 +94,7 @@ public class Direction implements YggdrasilRobustSerializable {
 		yawOrY = v.getY();
 		lengthOrZ = v.getZ();
 	}
-	
+
 	public Location getRelative(final Location l) {
 		return l.clone().add(getDirection(l));
 	}
@@ -263,6 +263,48 @@ public class Direction implements YggdrasilRobustSerializable {
 			}
 		}
 		return r;
+	}
+
+	/**
+	 * Calculates the nearest {@link BlockFace} to an arbitrary unit {@link Vector}.
+	 *
+	 * @param vector a normalized vector
+	 * @return the block face most closely aligned to the input vector
+	 */
+	public static BlockFace toNearestBlockFace(Vector vector) {
+		double maxDot = -1;
+		double dot;
+		BlockFace nearest = BlockFace.NORTH;
+		for (BlockFace face : BlockFace.values()){
+			dot = face.getDirection().dot(vector);
+			if (dot > maxDot) {
+				maxDot = dot;
+				nearest = face;
+			}
+		}
+		return nearest;
+	}
+
+	/**
+	 * Calculates the nearest cartesian {@link BlockFace} to an arbitrary unit {@link Vector}.
+	 *
+	 * @param vector a normalized vector
+	 * @return the block face most closely aligned to the input vector
+	 */
+	public static @Nullable BlockFace toNearestCartesianBlockFace(Vector vector) {
+		double maxDot = -1;
+		double dot;
+		BlockFace nearest = null;
+		for (BlockFace face : new BlockFace[] {
+				BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST,
+				BlockFace.UP, BlockFace.DOWN}) {
+			dot = face.getDirection().dot(vector);
+			if (dot > maxDot) {
+				maxDot = dot;
+				nearest = face;
+			}
+		}
+		return nearest;
 	}
 	
 	@Override

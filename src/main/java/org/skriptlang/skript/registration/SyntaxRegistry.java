@@ -5,9 +5,9 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.Statement;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.util.Registry;
 import org.skriptlang.skript.util.ViewProvider;
@@ -17,7 +17,6 @@ import java.util.Collection;
 /**
  * A syntax registry is a central container for all {@link SyntaxInfo}s.
  */
-@ApiStatus.Experimental
 public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<SyntaxInfo<?>> {
 
 	/**
@@ -59,6 +58,17 @@ public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<S
 	@Contract("-> new")
 	static SyntaxRegistry empty() {
 		return new SyntaxRegistryImpl();
+	}
+
+	/**
+	 * Constructs a syntax registry that applies an origin to all syntax infos registered through it
+	 *  with the {@link Origin#UNKNOWN} origin.
+	 * @param syntaxRegistry The syntax registry providing the implementation.
+	 * @param origin The origin to apply.
+	 * @return A syntax registry that applies an origin.
+	 */
+	static SyntaxRegistry withOrigin(SyntaxRegistry syntaxRegistry, Origin origin) {
+		return new SyntaxRegistryImpl.OriginApplyingRegistry(syntaxRegistry, origin);
 	}
 
 	/**
@@ -116,7 +126,6 @@ public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<S
 	 * Represents a syntax element type.
 	 * @param <I> The syntax type.
 	 */
-	@ApiStatus.Experimental
 	interface Key<I extends SyntaxInfo<?>> {
 
 		/**
@@ -141,7 +150,6 @@ public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<S
 	 * @param <I> The child key's syntax type.
 	 * @param <P> The parent key's syntax type.
 	 */
-	@ApiStatus.Experimental
 	interface ChildKey<I extends P, P extends SyntaxInfo<?>> extends Key<I> {
 
 		/**

@@ -18,20 +18,14 @@ import ch.njol.skript.localization.Noun;
 import ch.njol.skript.localization.RegexMessage;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.*;
-import ch.njol.skript.util.visual.VisualEffect;
-import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.base.types.ItemTypeClassInfo;
-import org.skriptlang.skript.bukkit.base.types.SlotClassInfo;
-import org.skriptlang.skript.common.types.QueueClassInfo;
-import org.skriptlang.skript.common.types.ScriptClassInfo;
 import org.skriptlang.skript.lang.properties.Property;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.TypedValuePropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.ContainsHandler;
+import org.skriptlang.skript.lang.properties.handlers.TypedValueHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ConditionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 import org.skriptlang.skript.util.Executable;
 
 import java.io.File;
@@ -147,8 +141,6 @@ public class SkriptClasses {
 
 				})
 				.serializer(new EnumSerializer<>(WeatherType.class)));
-
-		Classes.registerClass(new ItemTypeClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(Time.class, "time")
 				.user("times?")
@@ -351,8 +343,6 @@ public class SkriptClasses {
 				})
 				.serializer(new YggdrasilSerializer<>()));
 
-		Classes.registerClass(new SlotClassInfo());
-
 		Classes.registerClass(new ClassInfo<>(Color.class, "color")
 				.user("colou?rs?")
 				.name("Color")
@@ -475,35 +465,6 @@ public class SkriptClasses {
 				})
 				.serializer(new YggdrasilSerializer<>()));
 
-		Classes.registerClass(new ClassInfo<>(VisualEffect.class, "visualeffect")
-				.name("Visual Effect")
-				.description("A visible effect, e.g. particles.")
-				.examples("show wolf hearts on the clicked wolf",
-						"play mob spawner flames at the targeted block to the player")
-				.usage(VisualEffects.getAllNames())
-				.since("2.1")
-				.user("(visual|particle) effects?")
-				.after("itemtype")
-				.parser(new Parser<VisualEffect>() {
-					@Override
-					@Nullable
-					public VisualEffect parse(String s, ParseContext context) {
-						return VisualEffects.parse(s);
-					}
-
-					@Override
-					public String toString(VisualEffect e, int flags) {
-						return e.toString(flags);
-					}
-
-					@Override
-					public String toVariableNameString(VisualEffect e) {
-						return e.toString();
-					}
-
-				})
-				.serializer(new YggdrasilSerializer<>()));
-
 		Classes.registerClass(new ClassInfo<>(GameruleValue.class, "gamerulevalue")
 				.user("gamerule values?")
 				.name("Gamerule Value")
@@ -513,8 +474,6 @@ public class SkriptClasses {
 				.since("2.5")
 				.serializer(new YggdrasilSerializer<GameruleValue>())
 		);
-
-		Classes.registerClass(new QueueClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(Config.class, "config")
 			.user("configs?")
@@ -583,7 +542,7 @@ public class SkriptClasses {
 			.property(Property.TYPED_VALUE,
 				"The value of the node, if it is an entry node, as text.",
 				Skript.instance(),
-				new TypedValuePropertyHandler<Node, String>() {
+				new TypedValueHandler<Node, String>() {
 
 					@Override
 					public @Nullable String convert(Node propertyHolder) {
@@ -597,8 +556,6 @@ public class SkriptClasses {
 						return String.class;
 					}
 				}));
-
-		Classes.registerClass(new ScriptClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(Executable.class, "executable")
 			.user("executables?")
@@ -751,7 +708,7 @@ public class SkriptClasses {
 			.property(Property.TYPED_VALUE,
 				"The value of something. Can be set.",
 				Skript.instance(),
-				new TypedValuePropertyHandler<AnyValued, Object>() {
+				new TypedValueHandler<AnyValued, Object>() {
 					@Override
 					public Object convert(AnyValued propertyHolder) {
 						return propertyHolder.value();

@@ -3,7 +3,6 @@ package ch.njol.skript.classes.data;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.KeyedValue;
-import org.skriptlang.skript.common.function.DefaultFunction;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.lang.function.SimpleJavaFunction;
@@ -26,6 +25,7 @@ import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.common.function.DefaultFunction;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.math.BigDecimal;
@@ -353,6 +353,83 @@ public class DefaultFunctions {
 					"set {_clamped::*} to clamp({_values::*}, 0, 10)")
 			.since("2.8.0");
 
+		Functions.register(DefaultFunction.builder(skript, "toBase", String[].class)
+			.description("""
+				Turns a number in a string using a specific base (decimal, hexadecimal, octal).
+				For example, converting 32 to hexadecimal (base 16) would be 'toBase(32, 16)', which would return "20".
+				You can use any base between 2 and 36.
+				""")
+			.examples(
+				"send \"Decode this binary number for a prize! %toBase({_guess}, 2)%\""
+			)
+			.since("2.14")
+			.parameter("n", Long[].class)
+			.parameter("base", Long.class, Modifier.ranged(2, 36))
+			.contract(new Contract() {
+				@Override
+				public boolean isSingle(Expression<?>... arguments) {
+					return arguments[0].isSingle();
+				}
+
+				@Override
+				public Class<?> getReturnType(Expression<?>... arguments) {
+					return String.class;
+				}
+			})
+			.build(args -> {
+				Long[] n = args.get("n");
+				Long base = args.get("base");
+				String[] results = new String[n.length];
+				for (int i = 0; i < n.length; i++) {
+					results[i] = Long.toString(n[i], base.intValue());
+				}
+				return results;
+			}));
+
+		Functions.register(DefaultFunction.builder(skript, "fromBase", Long[].class)
+			.description("""
+				Turns a text version of a number in a specific base (decimal, hexadecimal, octal) into an actual number.
+				For example, converting "20" in hexadecimal (base 16) would be 'fromBase("20", 16)', which would return 32.
+				You can use any base between 2 and 36.
+				""")
+			.examples("""
+				# /binaryText 01110011 01101011 01110010 01101001 01110000 01110100 00100001
+				# sends "skript!"
+				command binaryText <text>:
+					trigger:
+					set {_characters::*} to argument split at " " without trailing empty string
+						transform {_characters::*} with fromBase(input, 2) # convert to codepoints
+						transform {_characters::*} with character from codepoint input # convert to characters
+						send join {_characters::*}
+				""")
+			.since("2.14")
+			.parameter("string value", String[].class)
+			.parameter("base", Long.class, Modifier.ranged(2, 36))
+			.contract(new Contract() {
+				@Override
+				public boolean isSingle(Expression<?>... arguments) {
+					return arguments[0].isSingle();
+				}
+
+				@Override
+				public Class<?> getReturnType(Expression<?>... arguments) {
+					return Long.class;
+				}
+			})
+			.build(args -> {
+				String[] n = args.get("string value");
+				Long base = args.get("base");
+				Long[] results = new Long[n.length];
+				try {
+					for (int i = 0; i < n.length; i++) {
+						results[i] = Long.parseLong(n[i], base.intValue());
+					}
+				} catch (NumberFormatException e) {
+					return null;
+				}
+				return results;
+			}));
+
 		// misc
 
 		Functions.registerFunction(new SimpleJavaFunction<World>("world", new Parameter[] {
@@ -478,6 +555,16 @@ public class DefaultFunctions {
 						"A time zone and DST offset can be specified as well (in minutes), if they are left out the server's time zone and DST offset are used (the created date will not retain this information).")
 			.examples("date(2014, 10, 1) # 0:00, 1st October 2014", "date(1990, 3, 5, 14, 30) # 14:30, 5th May 1990", "date(1999, 12, 31, 23, 59, 59, 999, -3*60, 0) # almost year 2000 in parts of Brazil (-3 hours offset, no DST)")
 			.since("2.2"));
+
+		Functions.register(DefaultFunction.builder(skript, "vector", Vector.class)
+			.description("Creates a vector from a single argument. Equivalent to vector(n, n, n).")
+			.examples("vector(1) # = vector(1, 1, 1)")
+			.since("2.15")
+			.parameter("n", Number.class)
+			.build(args -> {
+				double value = args.<Number>get("n").doubleValue();
+				return new Vector(value, value, value);
+			}));
 
 		Functions.register(DefaultFunction.builder(skript, "vector", Vector.class)
 			.description("Creates a new vector, which can be used with various expressions, effects and functions.")

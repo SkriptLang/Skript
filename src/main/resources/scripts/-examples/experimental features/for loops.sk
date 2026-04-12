@@ -1,9 +1,5 @@
 using examples
 
-# This flag enables the experimental 'for each loops' feature within this file
-using for loops
-
-
 example: # A simple loop
 
 	# For-loops allow you to extract the loop value directly into a variable

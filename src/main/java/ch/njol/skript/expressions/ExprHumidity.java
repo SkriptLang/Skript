@@ -1,7 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -9,7 +9,7 @@ import org.bukkit.block.Block;
 
 @Name("Humidity")
 @Description("Humidity of given blocks.")
-@Examples("set {_humidity} to event-block's humidity")
+@Example("set {_humidity} to event-block's humidity")
 @Since("2.2-dev35")
 public class ExprHumidity extends SimplePropertyExpression<Block, Number> {
 

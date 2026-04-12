@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -25,11 +25,9 @@ import ch.njol.util.coll.CollectionUtils;
 	"The custom chat completion suggestions. You can add, set, remove, and clear them. Removing the names of online players with this expression is ineffective.",
 	"This expression will not return anything due to Bukkit limitations."
 })
-@Examples({
-	"add \"Skript\" and \"Njol\" to chat completions of all players",
-	"remove \"text\" from {_p}'s chat completions",
-	"clear player's chat completions"
-})
+@Example("add \"Skript\" and \"Njol\" to chat completions of all players")
+@Example("remove \"text\" from {_p}'s chat completions")
+@Example("clear player's chat completions")
 @RequiredPlugins("Spigot 1.19+")
 @Since("2.10")
 public class ExprPlayerChatCompletions extends SimplePropertyExpression<Player, String> {

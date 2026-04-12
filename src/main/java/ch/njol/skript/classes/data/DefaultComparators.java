@@ -30,7 +30,6 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
@@ -276,8 +275,6 @@ public class DefaultComparators {
 
 			if (e instanceof Item)
 				return Relation.get(i.isOfType(((Item) e).getItemStack()));
-//			if (e instanceof ThrownPotion)
-//				return Relation.get(i.isOfType(Material.POTION.getId(), PotionEffectUtils.guessData((ThrownPotion) e)));
 //			if (Skript.classExists("org.bukkit.entity.WitherSkull") && e instanceof WitherSkull)
 //				return Relation.get(i.isOfType(Material.SKULL_ITEM.getId(), (short) 1));
 			if (e instanceof BoatData)
@@ -636,9 +633,6 @@ public class DefaultComparators {
 				return false;
 			}
 		});
-
-		// Potion Effect Type
-		Comparators.registerComparator(PotionEffectType.class, PotionEffectType.class, (one, two) -> Relation.get(one.equals(two)));
 
 		// Color - Color
 		Comparators.registerComparator(Color.class, Color.class, (one, two) -> Relation.get(one.asBukkitColor().equals(two.asBukkitColor())));

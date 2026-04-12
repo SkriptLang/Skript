@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -17,11 +17,13 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Number of Characters")
 @Description("The number of uppercase, lowercase, or digit characters in a string.")
-@Examples({"#Simple Chat Filter",
-			"on chat:",
-			"\tif number of uppercase chars in message / length of message > 0.5",
-			"\t\tcancel event",
-			"\t\tsend \"&lt;red&gt;Your message has to many caps!\" to player"})
+@Example("""
+	#Simple Chat Filter
+	on chat:
+		if number of uppercase chars in message / length of message > 0.5
+			cancel event
+			send "&lt;red&gt;Your message has to many caps!" to player
+	""")
 @Since("2.5")
 public class ExprNumberOfCharacters extends SimpleExpression<Long> {
 

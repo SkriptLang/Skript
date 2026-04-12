@@ -4,3 +4,9 @@ local function f(x: worldborder):
 test "load expr secs in functions":
     f(a worldborder):
         set worldborder warning time to 20 ticks
+
+    # ensure it fails for unclaimed sections
+    parse:
+        f({_null}):
+            stop
+    assert first element of last parse logs contains "is a valid function call but cannot function as a section" with "failed to correctly error for unclaimed section"

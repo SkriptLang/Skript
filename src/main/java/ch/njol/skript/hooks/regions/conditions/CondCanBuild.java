@@ -12,6 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 import java.util.function.Predicate;
 
@@ -20,15 +21,15 @@ import java.util.function.Predicate;
 	"Tests whether a player is allowed to build at a certain location.",
 	"This condition requires a supported <a href='#region'>regions</a> plugin to be installed."
 })
-@Examples({
-	"command /setblock &lt;material&gt;:",
-		"\tdescription: set the block at your crosshair to a different type",
-		"\ttrigger:",
-			"\t\tplayer cannot build at the targeted block:",
-				"\t\t\tmessage \"You do not have permission to change blocks there!\"",
-				"\t\t\tstop",
-			"\t\tset the targeted block to argument"
-})
+@Example("""
+	command /setblock <material>:
+		description: set the block at your crosshair to a different type
+		trigger:
+			player cannot build at the targeted block:
+				message "You do not have permission to change blocks there!"
+				stop
+			set the targeted block to argument
+	""")
 @Since("2.0")
 @RequiredPlugins("Supported regions plugin")
 public class CondCanBuild extends Condition {
@@ -49,6 +50,7 @@ public class CondCanBuild extends Condition {
 		players = (Expression<Player>) exprs[0];
 		locations = Direction.combine((Expression<? extends Direction>) exprs[1], (Expression<? extends Location>) exprs[2]);
 		setNegated(matchedPattern == 1);
+		ScriptWarning.printDeprecationWarning(RegionsPlugin.DEPRECATION_MESSAGE);
 		return true;
 	}
 

@@ -3,7 +3,7 @@
 	Because it relies on view distance to be accurate
 ###
 
-test "view distance" when running minecraft "1.21":
+test "view distance" when running minecraft "1.21.2":
 	set the view distance of world "world" to 5
 	assert the view distance of world "world" is 5 with "World View Distance was not set"
 	set the simulation distance of world "world" to 5

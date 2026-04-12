@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -16,7 +16,7 @@ import ch.njol.util.Kleenean;
 
 @Name("Inverse Boolean")
 @Description("An expression to obtain the inverse value of a boolean")
-@Examples("set {_gravity} to inverse of player's flight mode")
+@Example("set {_gravity} to inverse of player's flight mode")
 @Since("2.12")
 public class ExprInverse extends SimpleExpression<Boolean> {
 

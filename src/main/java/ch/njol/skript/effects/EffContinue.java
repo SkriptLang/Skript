@@ -3,7 +3,7 @@ package ch.njol.skript.effects;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.data.JavaClasses;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
@@ -20,22 +20,23 @@ import java.util.List;
 @Name("Continue")
 @Description("Moves the loop to the next iteration. You may also continue an outer loop from an inner one." +
 	" The loops are labelled from 1 until the current loop, starting with the outermost one.")
-@Examples({
-	"# Broadcast online moderators",
-	"loop all players:",
-		"\tif loop-value does not have permission \"moderator\":",
-			"\t\tcontinue # filter out non moderators",
-		"\tbroadcast \"%loop-player% is a moderator!\" # Only moderators get broadcast",
-	" ",
-	"# Game starting counter",
-	"set {_counter} to 11",
-	"while {_counter} > 0:",
-		"\tremove 1 from {_counter}",
-		"\twait a second",
-		"\tif {_counter} != 1, 2, 3, 5 or 10:",
-			"\t\tcontinue # only print when counter is 1, 2, 3, 5 or 10",
-		"\tbroadcast \"Game starting in %{_counter}% second(s)\"",
-})
+@Example("""
+	# Broadcast online moderators
+	loop all players:
+		if loop-value does not have permission "moderator":
+			continue # filter out non moderators
+		broadcast "%loop-player% is a moderator!" # Only moderators get broadcast
+	""")
+@Example("""
+	# Game starting counter
+	set {_counter} to 11
+	while {_counter} > 0:
+		remove 1 from {_counter}
+		wait a second
+		if {_counter} != 1, 2, 3, 5 or 10:
+			continue # only print when counter is 1, 2, 3, 5 or 10
+		broadcast "Game starting in %{_counter}% second(s)"
+	""")
 @Since("2.2-dev37, 2.7 (while loops), 2.8.0 (outer loops)")
 public class EffContinue extends Effect {
 

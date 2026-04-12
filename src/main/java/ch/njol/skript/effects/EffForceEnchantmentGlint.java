@@ -14,10 +14,8 @@ import ch.njol.util.Kleenean;
 
 @Name("Force Enchantment Glint")
 @Description("Forces the items to glint or not, or removes its existing enchantment glint enforcement.")
-@Examples({
-	"force {_items::*} to glint",
-	"force the player's tool to stop glinting"
-})
+@Example("force {_items::*} to glint")
+@Example("force the player's tool to stop glinting")
 @RequiredPlugins("Spigot 1.20.5+")
 @Since("2.10")
 public class EffForceEnchantmentGlint extends Effect {

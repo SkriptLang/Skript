@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.events.EvtPlayerCommandSend;
@@ -29,11 +29,11 @@ import java.util.List;
 	"Modifications will affect what commands show up for the player to tab complete. They will not affect what commands the player can actually run.",
 	"Adding new commands to the list is illegal behavior and will be ignored."
 })
-@Examples({
-	"on send command list:",
-		"\tset command list to command list where [input does not contain \":\"]",
-		"\tremove \"help\" from command list"
-})
+@Example("""
+	on send command list:
+		set command list to command list where [input does not contain ":"]
+		remove "help" from command list
+	""")
 @Since("2.8.0")
 @Events("send command list")
 public class ExprSentCommands extends SimpleExpression<String> {

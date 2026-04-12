@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -17,8 +17,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Explode Creeper")
 @Description("Starts the explosion process of a creeper or instantly explodes it.")
-@Examples({"start explosion of the last spawned creeper",
-			"stop ignition of the last spawned creeper"})
+@Example("start explosion of the last spawned creeper")
+@Example("stop ignition of the last spawned creeper")
 @Since("2.5")
 public class EffExplodeCreeper extends Effect {
 

@@ -5,7 +5,7 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -24,10 +24,8 @@ import java.util.Arrays;
 
 @Name("Is Wearing")
 @Description("Checks whether an entity is wearing some items (usually armor).")
-@Examples({
-	"player is wearing an iron chestplate and iron leggings",
-	"target is wearing wolf armor"
-})
+@Example("player is wearing an iron chestplate and iron leggings")
+@Example("target is wearing wolf armor")
 @Since("1.0")
 public class CondIsWearing extends Condition {
 

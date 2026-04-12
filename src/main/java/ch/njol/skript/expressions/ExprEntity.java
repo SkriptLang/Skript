@@ -8,7 +8,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
@@ -29,10 +29,10 @@ import ch.njol.util.StringUtils;
 @Name("Creature/Entity/Player/Projectile/Villager/Powered Creeper/etc.")
 @Description({"The entity involved in an event (an entity is a player, a creature or an inanimate object like ignited TNT, a dropped item or an arrow).",
 		"You can use the specific type of the entity that's involved in the event, e.g. in a 'death of a creeper' event you can use 'the creeper' instead of 'the entity'."})
-@Examples({"give a diamond sword of sharpness 3 to the player",
-		"kill the creeper",
-		"kill all powered creepers in the wolf's world",
-		"projectile is an arrow"})
+@Example("give a diamond sword of sharpness 3 to the player")
+@Example("kill the creeper")
+@Example("kill all powered creepers in the wolf's world")
+@Example("projectile is an arrow")
 @Since("1.0")
 public class ExprEntity extends SimpleExpression<Entity> {
 	static {

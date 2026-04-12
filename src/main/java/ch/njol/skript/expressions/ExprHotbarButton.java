@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -17,8 +17,10 @@ import ch.njol.util.Kleenean;
 
 @Name("Hotbar Button")
 @Description("The hotbar button clicked in an <a href='#inventory_click'>inventory click</a> event.")
-@Examples({"on inventory click:",
-		"	send \"You clicked the hotbar button %hotbar button%!\""})
+@Example("""
+	on inventory click:
+		send "You clicked the hotbar button %hotbar button%!"
+	""")
 @Since("2.5")
 public class ExprHotbarButton extends SimpleExpression<Long> {
 	

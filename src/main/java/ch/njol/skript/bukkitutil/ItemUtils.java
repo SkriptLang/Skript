@@ -4,6 +4,9 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.profile.PlayerProfile;
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -36,6 +39,26 @@ public class ItemUtils {
 	public static final boolean CAN_CREATE_PLAYER_PROFILE = Skript.methodExists(Bukkit.class, "createPlayerProfile", UUID.class, String.class);
 	// paper does not do texture lookups by default
 	public static final boolean REQUIRES_TEXTURE_LOOKUP = Skript.classExists("com.destroystokyo.paper.profile.PlayerProfile") && Skript.isRunningMinecraft(1, 19, 4);
+
+	/**
+	 * Applies string format of component data to an item stack.
+	 * <b>Note: This overwrites the entire {@link ItemMeta} of the item.</b>
+	 * @param itemStack The item stack to apply data to.
+	 * @param data The data to apply.
+	 *  This data is expected to be in the format used by the Brigadier item stack parser.
+	 *  For example {@code [{minecraft:potion_contents={"potion":"minecraft:invisibility"}}]}
+	 */
+	public static void applyComponentData(ItemStack itemStack, String data) {
+		// need to include item id: "minecraft:dirt[<components>]"
+		// use the same one as the stack to be safe (likely needed for obtaining correct item meta)
+		data = itemStack.getType().getKey() + data;
+		try {
+			ItemStack parsed = ArgumentTypes.itemStack().parse(new StringReader(data));
+			itemStack.setItemMeta(parsed.getItemMeta());
+		} catch (CommandSyntaxException e) {
+			throw Skript.exception(e, "Failed to apply component data to ItemStack");
+		}
+	}
 
 	/**
 	 * Gets damage/durability of an item, or 0 if it does not have damage.

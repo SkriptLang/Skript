@@ -5,7 +5,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -20,11 +20,11 @@ import org.jetbrains.annotations.Nullable;
 @Name("Source Block")
 @Description("The source block in a spread event.")
 @Events("Spread")
-@Examples({
-	"on spread:",
-		"\tif the source block is a grass block:",
-			"\t\tset the source block to dirt"
-})
+@Example("""
+	on spread:
+		if the source block is a grass block:
+			set the source block to dirt
+	""")
 @Since("2.7")
 public class ExprSourceBlock extends SimpleExpression<Block> {
 

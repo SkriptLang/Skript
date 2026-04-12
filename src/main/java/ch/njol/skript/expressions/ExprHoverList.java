@@ -11,12 +11,15 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import com.destroystokyo.paper.profile.PlayerProfile;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,13 +31,13 @@ import java.util.UUID;
 	"And note that, for example if there are 5 online players (includes <a href='#ExprOnlinePlayersCount'>fake online count</a>) " +
 	"in the server and the hover list is set to 3 values, Minecraft will show \"... and 2 more ...\" at end of the list."
 })
-@Examples({
-	"on server list ping:",
-		"\tclear the hover list",
-		"\tadd \"&aWelcome to the &6Minecraft &aserver!\" to the hover list",
-		"\tadd \"\" to the hover list # A blank line",
-		"\tadd \"&cThere are &6%online players count% &conline players!\" to the hover list"
-})
+@Example("""
+	on server list ping:
+		clear the hover list
+		add "&aWelcome to the &6Minecraft &aserver!" to the hover list
+		add "" to the hover list # A blank line
+		add "&cThere are &6%online players count% &conline players!" to the hover list
+	""")
 @Since("2.3")
 @Events("server list ping")
 public class ExprHoverList extends SimpleExpression<String> {
@@ -90,7 +93,7 @@ public class ExprHoverList extends SimpleExpression<String> {
 			case REMOVE:
 			case DELETE:
 			case RESET:
-				return CollectionUtils.array(String[].class, Player[].class);
+				return CollectionUtils.array(Component[].class, Player[].class);
 		}
 		return null;
 	}
@@ -100,6 +103,13 @@ public class ExprHoverList extends SimpleExpression<String> {
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (!(event instanceof PaperServerListPingEvent))
 			return;
+
+		// convert components to legacy strings
+		if (delta != null) {
+			delta = Arrays.stream(delta)
+				.map(obj -> obj instanceof Component component ? TextComponentParser.instance().toLegacyString(component) : obj)
+				.toArray();
+		}
 
 		if (HAS_NEW_LISTED_PLAYER_INFO) {
 			List<PaperServerListPingEvent.ListedPlayerInfo> values = new ArrayList<>();

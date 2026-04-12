@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -17,7 +17,7 @@ import ch.njol.util.Kleenean;
 
 @Name("Now")
 @Description("The current <a href='#date'>system time</a> of the server. Use <a href='#ExprTime'>time</a> to get the <a href='#time'>Minecraft time</a> of a world.")
-@Examples({"broadcast \"Current server time: %now%\""})
+@Example("broadcast \"Current server time: %now%\"")
 @Since("1.4")
 public class ExprNow extends SimpleExpression<Date> {
 	

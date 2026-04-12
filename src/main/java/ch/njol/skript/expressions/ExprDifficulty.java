@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -15,7 +15,7 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Difficulty")
 @Description("The difficulty of a world.")
-@Examples("set the difficulty of \"world\" to hard")
+@Example("set the difficulty of \"world\" to hard")
 @Since("2.3")
 public class ExprDifficulty extends SimplePropertyExpression<World, Difficulty> {
 

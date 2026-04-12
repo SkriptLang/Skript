@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -22,7 +22,7 @@ import ch.njol.util.Kleenean;
 
 @Name("Gamerule Value")
 @Description("The gamerule value of a world.")
-@Examples({"set the gamerule commandBlockOutput of world \"world\" to false"})
+@Example("set the gamerule commandBlockOutput of world \"world\" to false")
 @Since("2.5")
 public class ExprGameRule extends SimpleExpression<GameruleValue> {
 	

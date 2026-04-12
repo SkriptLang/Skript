@@ -5,17 +5,17 @@ import org.bukkit.entity.Tameable;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
 @Name("Is Tameable")
 @Description("Check if an entity is tameable.")
-@Examples({
-	"on damage:",
-		"\tif victim is tameable:",
-			"\t\tcancel event"
-})
+@Example("""
+	on damage:
+		if victim is tameable:
+			cancel event
+	""")
 @Since("2.5")
 public class CondIsTameable extends PropertyCondition<LivingEntity> {
 	

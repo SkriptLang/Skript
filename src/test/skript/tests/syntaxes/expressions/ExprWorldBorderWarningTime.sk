@@ -1,5 +1,6 @@
 test "worldborder warning time":
-	set {_max} to 2147483647 seconds
+	# cannot be perfect max due to internal handling to convert between ticks and seconds
+	set {_max} to 2147483647 ticks - 0.35 seconds
 	set {_border} to worldborder of world("world")
 	assert worldborder warning time of {_border} is 15 seconds with "Default warning time is not 15 seconds"
 	set worldborder warning time of {_border} to 10 seconds

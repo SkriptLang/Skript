@@ -4,7 +4,7 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -20,15 +20,14 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerProfile;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 @Name("Skull Owner")
 @Description("The skull owner of a player skull.")
-@Examples({
-	"set {_owner} to the skull owner of event-block",
-	"set skull owner of {_block} to \"Njol\" parsed as offlineplayer",
-	"set head owner of player's tool to {_player}"
-})
+@Example("set {_owner} to the skull owner of event-block")
+@Example("set skull owner of {_block} to \"Njol\" parsed as offlineplayer")
+@Example("set head owner of player's tool to {_player}")
 @Since("2.9.0, 2.10 (of items)")
 public class ExprSkullOwner extends SimplePropertyExpression<Object, OfflinePlayer> {
 
@@ -39,13 +38,25 @@ public class ExprSkullOwner extends SimplePropertyExpression<Object, OfflinePlay
 	@Override
 	public @Nullable OfflinePlayer convert(Object object) {
 		if (object instanceof Block block && block.getState() instanceof Skull skull) {
-			return skull.getOwningPlayer();
+			return getOfflinePlayer(skull.getPlayerProfile());
 		} else {
 			ItemStack skullItem = ItemUtils.asItemStack(object);
 			if (skullItem == null || !(skullItem.getItemMeta() instanceof SkullMeta skullMeta))
 				return null;
-			return skullMeta.getOwningPlayer();
+			return getOfflinePlayer(skullMeta.getPlayerProfile());
 		}
+	}
+
+	private @Nullable OfflinePlayer getOfflinePlayer(com.destroystokyo.paper.profile.PlayerProfile profile) {
+		if (profile == null)
+			return null;
+		UUID uuid = profile.getId();
+		if (uuid != null)
+			return Bukkit.getOfflinePlayer(uuid);
+		String name = profile.getName();
+		if (name != null)
+			return Bukkit.getOfflinePlayer(name);
+		return null;
 	}
 
 	@Override

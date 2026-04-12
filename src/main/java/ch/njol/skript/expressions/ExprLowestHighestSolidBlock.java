@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -22,10 +22,8 @@ import org.jetbrains.annotations.Nullable;
 	"An expression to obtain the lowest or highest solid (impassable) block at a location.",
 	"Note that the y-coordinate of the location is not taken into account for this expression."
 })
-@Examples({
-	"teleport the player to the block above the highest block at the player",
-	"set the highest solid block at the player's location to the lowest solid block at the player's location"
-})
+@Example("teleport the player to the block above the highest block at the player")
+@Example("set the highest solid block at the player's location to the lowest solid block at the player's location")
 @Since("2.2-dev34, 2.9.0 (lowest solid block, 'non-air' option removed, additional syntax option)")
 public class ExprLowestHighestSolidBlock extends SimplePropertyExpression<Location, Block> {
 

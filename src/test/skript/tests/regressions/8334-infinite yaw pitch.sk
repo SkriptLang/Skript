@@ -1,0 +1,23 @@
+test "infinite yaw or pitch":
+	spawn pig at test-location:
+		assert yaw of pig is 0
+		set yaw of pig to positive infinity
+		assert yaw of pig is 0
+		set yaw of pig to negative infinity
+		assert yaw of pig is 0
+		set yaw of pig to NaN
+		assert yaw of pig is 0
+
+		set yaw of pig to 365
+		assert yaw of pig is 5
+
+		assert pitch of pig is 0
+		set pitch of pig to positive infinity
+		assert pitch of pig is 0
+		set pitch of pig to negative infinity
+		assert pitch of pig is 0
+		set pitch of pig to NaN
+		assert pitch of pig is 0
+
+		set pitch of pig to 365
+		assert pitch of pig is 90

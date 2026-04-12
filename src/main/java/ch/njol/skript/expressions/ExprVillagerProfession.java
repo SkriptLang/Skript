@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -16,12 +16,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Villager Profession")
 @Description("Represents the profession of a villager/zombie villager.")
-@Examples({
-	"set {_p} to villager profession of event-entity",
-	"villager profession of event-entity = nitwit profession",
-	"set villager profession of {_villager} to librarian profession",
-	"delete villager profession of event-entity"
-})
+@Example("set {_p} to villager profession of event-entity")
+@Example("villager profession of event-entity = nitwit profession")
+@Example("set villager profession of {_villager} to librarian profession")
+@Example("delete villager profession of event-entity")
 @Since("2.10")
 public class ExprVillagerProfession extends SimplePropertyExpression<LivingEntity, Profession> {
 

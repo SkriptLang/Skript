@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -17,9 +17,11 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Arrow Knockback Strength")
 @Description("An arrow's knockback strength.")
-@Examples({"on shoot:",
-	"\tevent-projectile is an arrow",
-	"\tset arrow knockback strength of event-projectile to 10"})
+@Example("""
+	on shoot:
+		event-projectile is an arrow
+		set arrow knockback strength of event-projectile to 10
+	""")
 @Since("2.5.1")
 public class ExprArrowKnockbackStrength extends SimplePropertyExpression<Projectile, Long> {
 	

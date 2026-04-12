@@ -25,13 +25,12 @@ import org.jetbrains.annotations.UnknownNullability;
 	"",
 	"Note: all previously hidden entities (including players) will be visible when a player leaves and rejoins.",
 })
-@Examples({
-	"on spawn:",
-		"\tif event-entity is a chicken:",
-			"\t\thide event-entity",
-	"",
-	"reveal hidden players of players"
-})
+@Example("""
+	on spawn:
+		if event-entity is a chicken:
+			hide event-entity
+	""")
+@Example("reveal hidden players of players")
 @Since("2.3, 2.10 (entities)")
 @RequiredPlugins("Minecraft 1.19+ (entities)")
 public class EffEntityVisibility extends Effect {

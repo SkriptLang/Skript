@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.Property.PropertyInfo;
-import org.skriptlang.skript.lang.properties.PropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.PropertyHandler;
 
 import java.util.*;
 import java.util.function.Supplier;

@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.EffDrop;
@@ -31,16 +31,20 @@ import ch.njol.util.Kleenean;
 @Description("Holds the entity that was spawned most recently with the spawn effect (section), dropped with the <a href='../effects/#EffDrop'>drop effect</a>, shot with the <a href='../effects/#EffShoot'>shoot effect</a> or created with the <a href='../effects/#EffLightning'>lightning effect</a>. " +
 		"Please note that even though you can spawn multiple mobs simultaneously (e.g. with 'spawn 5 creepers'), only the last spawned mob is saved and can be used. " +
 		"If you spawn an entity, shoot a projectile and drop an item you can however access all them together.")
-@Examples({
-	"spawn a priest",
-	"set {healer::%spawned priest%} to true",
-	"shoot an arrow from the last spawned entity",
-	"ignite the shot projectile",
-	"drop a diamond sword",
-	"push last dropped item upwards",
-	"teleport player to last struck lightning",
-	"delete last launched firework"
-})
+@Example("""
+	spawn a priest
+	set {healer::%spawned priest%} to true
+	""")
+@Example("""
+	shoot an arrow from the last spawned entity
+	ignite the shot projectile
+	""")
+@Example("""
+	drop a diamond sword
+	push last dropped item upwards
+	""")
+@Example("teleport player to last struck lightning")
+@Example("delete last launched firework")
 @Since("1.3 (spawned entity), 2.0 (shot entity), 2.2-dev26 (dropped item), 2.7 (struck lightning, firework)")
 public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 	
