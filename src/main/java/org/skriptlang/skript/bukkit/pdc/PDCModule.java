@@ -4,7 +4,9 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.pdc.expressions.ExprPersistentData;
+import org.skriptlang.skript.bukkit.pdc.elements.conditions.CondHasPersistentDataTag;
+import org.skriptlang.skript.bukkit.pdc.elements.expressions.ExprAllPersistentDataKeys;
+import org.skriptlang.skript.bukkit.pdc.elements.expressions.ExprPersistentData;
 
 public class PDCModule extends HierarchicalAddonModule {
 
@@ -14,7 +16,10 @@ public class PDCModule extends HierarchicalAddonModule {
 
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
-		register(addon, ExprPersistentData::register);
+		register(addon,
+			CondHasPersistentDataTag::register,
+			ExprAllPersistentDataKeys::register,
+			ExprPersistentData::register);
 	}
 
 	@Override
