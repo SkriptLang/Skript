@@ -18,6 +18,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
@@ -698,6 +699,19 @@ public class DefaultFunctions {
 			)
 			.since("2.8.0, 2.9.0 (prevent lookups)");
 		} // end offline player function
+
+		Functions.register(DefaultFunction.builder(skript, "entity", Entity.class)
+			.description("Returns an entity from a given UUID")
+			.examples(
+				"set {_entity} to entity({_uuid})"
+			)
+			.since("2.15.0")
+			.parameter("uuid", UUID.class)
+			.build(args -> {
+				UUID uuid = args.get("uuid");
+				return Bukkit.getEntity(uuid);
+			})
+		);
 
 		Functions.registerFunction(new SimpleJavaFunction<Boolean>("isNaN", numberParam, DefaultClasses.BOOLEAN, true) {
 			@Override
