@@ -511,7 +511,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 						setIndex(event, index, null);
 					}
 				}
-				lastUsedIndex = -1;
+				lastElementAddedIndex = -1;
 				set(event, null);
 				break;
 			case SET:
@@ -580,7 +580,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 							assert index != null;
 							setIndex(event, index, null);
 						}
-						lastUsedIndex = -1;
+						lastElementAddedIndex = -1;
 					} else if (mode == ChangeMode.REMOVE_ALL) {
 						if (map == null)
 							return;
@@ -595,11 +595,11 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 							assert index != null;
 							setIndex(event, index, null);
 						}
-						lastUsedIndex = -1;
+						lastElementAddedIndex = -1;
 					} else {
 						assert mode == ChangeMode.ADD;
 						int i = 1;
-						if (lastUsedIndex != -1) i = lastUsedIndex+1;
+						if (lastElementAddedIndex != -1) i = lastElementAddedIndex+1;
 						for (Object value : delta) {
 							if (map != null) {
 								if (map.containsKey("" + i)) { // to ensure the expensive map.keySet() is used as little as possible
@@ -609,7 +609,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 								}
 							}
 							setIndex(event, "" + i, value);
-							lastUsedIndex = i;
+							lastElementAddedIndex = i;
 							i++;
 						}
 					}
