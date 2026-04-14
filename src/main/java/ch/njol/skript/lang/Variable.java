@@ -72,6 +72,8 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 
 	private ListProvider listProvider = new ShallowListProvider();
 
+	private int lastUsedIndex = -1; // Used for the "add" syntax in lists
+
 	@SuppressWarnings("unchecked")
 	private Variable(VariableString name, Class<? extends T>[] types, boolean local, boolean ephemeral, boolean list, @Nullable Variable<?> source) {
 		assert types.length > 0;
@@ -237,8 +239,8 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 					infos[i] = Classes.getSuperClassInfo(types[i]);
 				}
 				ClassInfo<?>[] hintInfos = hints.stream()
-						.map(Classes::getSuperClassInfo)
-						.toArray(ClassInfo[]::new);
+					.map(Classes::getSuperClassInfo)
+					.toArray(ClassInfo[]::new);
 				String isTypes = Utils.a(Classes.toString(hintInfos, false));
 				String notTypes = Utils.a(Classes.toString(infos, false));
 				Skript.error("Expected variable '{_" + variableString.toString(null) + "}' to be " + notTypes + ", but it is " + isTypes);
@@ -509,7 +511,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 						setIndex(event, index, null);
 					}
 				}
-
+				lastUsedIndex = -1;
 				set(event, null);
 				break;
 			case SET:
@@ -578,6 +580,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 							assert index != null;
 							setIndex(event, index, null);
 						}
+						lastUsedIndex = -1;
 					} else if (mode == ChangeMode.REMOVE_ALL) {
 						if (map == null)
 							return;
@@ -592,14 +595,21 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 							assert index != null;
 							setIndex(event, index, null);
 						}
+						lastUsedIndex = -1;
 					} else {
 						assert mode == ChangeMode.ADD;
 						int i = 1;
+						if (lastUsedIndex != -1) i = lastUsedIndex+1;
 						for (Object value : delta) {
-							if (map != null)
-								while (map.containsKey("" + i))
-									i++;
+							if (map != null) {
+								if (map.containsKey("" + i)) { // to ensure the expensive map.keySet() is used as little as possible
+									HashSet<String> keys = new HashSet<>(map.keySet());
+									while (keys.contains("" + i))
+										i++;
+								}
+							}
 							setIndex(event, "" + i, value);
+							lastUsedIndex = i;
 							i++;
 						}
 					}
