@@ -239,8 +239,8 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 					infos[i] = Classes.getSuperClassInfo(types[i]);
 				}
 				ClassInfo<?>[] hintInfos = hints.stream()
-					.map(Classes::getSuperClassInfo)
-					.toArray(ClassInfo[]::new);
+						.map(Classes::getSuperClassInfo)
+						.toArray(ClassInfo[]::new);
 				String isTypes = Utils.a(Classes.toString(hintInfos, false));
 				String notTypes = Utils.a(Classes.toString(infos, false));
 				Skript.error("Expected variable '{_" + variableString.toString(null) + "}' to be " + notTypes + ", but it is " + isTypes);
