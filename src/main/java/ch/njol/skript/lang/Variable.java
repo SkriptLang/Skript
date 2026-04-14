@@ -72,7 +72,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 
 	private ListProvider listProvider = new ShallowListProvider();
 
-	private int lastUsedIndex = -1; // Used for the "add" syntax in lists
+	private int lastElementAddedIndex = -1;
 
 	@SuppressWarnings("unchecked")
 	private Variable(VariableString name, Class<? extends T>[] types, boolean local, boolean ephemeral, boolean list, @Nullable Variable<?> source) {
