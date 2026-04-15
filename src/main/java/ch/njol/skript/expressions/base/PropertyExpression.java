@@ -1,6 +1,7 @@
 package ch.njol.skript.expressions.base;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -194,6 +195,14 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	@Override
 	public final T[] getAll(Event event) {
 		T[] result = get(event, expr.getAll(event));
+		if (result == null) {
+			throw new SkriptAPIException("PropertyExpression must not return a null array");
+		}
+		for (T t : result) {
+			if (t == null) {
+				throw new SkriptAPIException("PropertyExpression must not return an array containing null elements");
+			}
+		}
 		return Arrays.copyOf(result, result.length);
 	}
 

@@ -2,19 +2,18 @@ package ch.njol.skript.patterns;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ExprInfo;
-import ch.njol.skript.lang.UnparsedLiteral;
+import ch.njol.skript.lang.parser.ExpressionParseCache;
+import ch.njol.skript.lang.parser.LiteralParseCache;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
-import ch.njol.util.NonNullPair;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -77,156 +76,206 @@ public class TypePatternElement extends PatternElement {
 		boolean[] isPlural = new boolean[classes.length];
 
 		for (int i = 0; i < classes.length; i++) {
-			NonNullPair<String, Boolean> p = Utils.getEnglishPlural(classes[i]);
-			classInfos[i] = Classes.getClassInfo(p.getFirst());
-			isPlural[i] = p.getSecond();
+			Utils.PluralResult p = Utils.isPlural(classes[i]);
+			classInfos[i] = Classes.getClassInfo(p.updated());
+			isPlural[i] = p.plural();
 		}
 
 		return new TypePatternElement(classInfos, isPlural, isNullable, flagMask, time, expressionIndex);
 	}
 
 	@Override
-	@Nullable
-	public MatchResult match(String expr, MatchResult matchResult) {
-		int newExprOffset;
-
-		String nextLiteral = null;
-		boolean nextLiteralIsWhitespace = false;
-
-		if (next == null) {
-			newExprOffset = expr.length();
-		} else if (next instanceof LiteralPatternElement) {
-			nextLiteral = next.toString();
-
-			nextLiteralIsWhitespace = nextLiteral.trim().isEmpty();
-
-			if (!nextLiteralIsWhitespace) { // Don't do this for literal patterns that are *only* whitespace - they have their own special handling
-				// trim trailing whitespace - it can cause issues with optional patterns following the literal
-				int nextLength = nextLiteral.length();
-				for (int i = nextLength; i > 0; i--) {
-					if (nextLiteral.charAt(i - 1) != ' ') {
-						if (i != nextLength)
-							nextLiteral = nextLiteral.substring(0, i);
-						break;
-					}
-				}
-			}
-
-			newExprOffset = SkriptParser.nextOccurrence(expr, nextLiteral, matchResult.exprOffset, matchResult.parseContext, false);
-			if (newExprOffset == -1 && nextLiteralIsWhitespace) { // We need to tread more carefully here
-				// This may be because the next PatternElement is optional or an empty choice (there may be other cases too)
-				nextLiteral = null;
-				newExprOffset = SkriptParser.next(expr, matchResult.exprOffset, matchResult.parseContext);
-			}
-		} else {
-			newExprOffset = SkriptParser.next(expr, matchResult.exprOffset, matchResult.parseContext);
-		}
-
-		if (newExprOffset == -1)
+	public @Nullable MatchResult match(String expr, MatchResult matchResult) {
+		OffsetState state = new OffsetState();
+		int exprOffset = initOffset(expr, matchResult, state);
+		if (exprOffset == -1)
 			return null;
 
 		ExprInfo exprInfo = getExprInfo();
+		ExpressionParseCache parseCache = ParserInstance.get().getExpressionParseCache();
 
 		MatchResult matchBackup = null;
-		ParseLogHandler loopLogHandlerBackup = null;
-		ParseLogHandler expressionLogHandlerBackup = null;
+		ParseLogHandler loopLogBackup = null;
+		ParseLogHandler exprLogBackup = null;
 
-		ParseLogHandler loopLogHandler = SkriptLogger.startParseLogHandler();
+		ParseLogHandler loopLog = SkriptLogger.startParseLogHandler();
 		try {
-			while (newExprOffset != -1) {
-				loopLogHandler.clear();
+			while (exprOffset != -1) {
+				loopLog.clear();
 
-				MatchResult matchResultCopy = matchResult.copy();
-				matchResultCopy.exprOffset = newExprOffset;
-
-				MatchResult newMatchResult = matchNext(expr, matchResultCopy);
-
-				if (newMatchResult != null) {
-					ParseLogHandler expressionLogHandler = SkriptLogger.startParseLogHandler();
-					try {
-						Expression<?> expression = new SkriptParser(expr.substring(matchResult.exprOffset, newExprOffset), matchResult.flags & flagMask, matchResult.parseContext).parseExpression(exprInfo);
-						if (expression != null) {
-							if (time != 0) {
-								if (expression instanceof Literal)
-									return null;
-
-								if (ParserInstance.get().getHasDelayBefore() == Kleenean.TRUE) {
-									Skript.error("Cannot use time states after the event has already passed", ErrorQuality.SEMANTIC_ERROR);
-									return null;
-								}
-
-								if (!expression.setTime(time)) {
-									Skript.error(expression + " does not have a " + (time == -1 ? "past" : "future") + " state", ErrorQuality.SEMANTIC_ERROR);
-									return null;
-								}
-							}
-
-							newMatchResult.expressions[expressionIndex] = expression;
-
-							/*
-							 * the parser will return unparsed literals in cases where it cannot interpret an input and object is the desired return type.
-							 * in those cases, it is up to the expression to interpret the input.
-							 * however, this presents a problem for input that is not intended as being one of these object-accepting expressions.
-							 * these object-accepting expressions will be matched instead but their parsing will fail as they cannot interpret the unparsed literals.
-							 * even though it can't interpret them, this loop will have returned a match and thus parsing has ended (and the correct interpretation never attempted).
-							 * to avoid this issue, while also permitting unparsed literals in cases where they are justified,
-							 *  the code below forces the loop to continue in hopes of finding a match without unparsed literals.
-							 * if it is unsuccessful, a backup of the first successful match (with unparsed literals) is saved to be returned.
-							 */
-							boolean hasUnparsedLiteral = false;
-							for (int i = expressionIndex + 1; i < newMatchResult.expressions.length; i++) {
-								if (newMatchResult.expressions[i] instanceof UnparsedLiteral) {
-									hasUnparsedLiteral = Classes.parse(((UnparsedLiteral) newMatchResult.expressions[i]).getData(), Object.class, newMatchResult.parseContext) == null;
-									if (hasUnparsedLiteral) {
-										break;
-									}
-								}
-							}
-
-							if (!hasUnparsedLiteral) {
-								expressionLogHandler.printLog();
-								loopLogHandler.printLog();
-								return newMatchResult;
-							} else if (matchBackup == null) { // only backup the first occurrence of unparsed literals
-								matchBackup = newMatchResult;
-								loopLogHandlerBackup = loopLogHandler.backup();
-								expressionLogHandlerBackup = expressionLogHandler.backup();
-							}
-						}
-					} finally {
-						if (!expressionLogHandler.isStopped()) { // we have already printed the logs
-							expressionLogHandler.printError();
-						}
-					}
+				// Check if this substring has already failed.
+				String substring = expr.substring(matchResult.exprOffset, exprOffset);
+				int effectiveFlags = matchResult.flags & flagMask;
+				var cacheKey = new ExpressionParseCache.Failure(substring, effectiveFlags, classes, isPlural, isNullable, time);
+				if (parseCache.contains(cacheKey)) {
+					exprOffset = advanceOffset(expr, exprOffset, matchResult.parseContext, state);
+					continue;
 				}
 
-				if (nextLiteral != null) {
-					int oldNewExprOffset = newExprOffset;
-					newExprOffset = SkriptParser.nextOccurrence(expr, nextLiteral, newExprOffset + 1, matchResult.parseContext, false);
-					if (newExprOffset == -1 && nextLiteralIsWhitespace) {
-						// This may be because the next PatternElement is optional or an empty choice (there may be other cases too)
-						// So, from this point on, we're going to go character by character
-						nextLiteral = null;
-						newExprOffset = SkriptParser.next(expr, oldNewExprOffset, matchResult.parseContext);
-					}
-				} else {
-					newExprOffset = SkriptParser.next(expr, newExprOffset, matchResult.parseContext);
+				// match rest of pattern to determine our range to work in
+				MatchResult copy = matchResult.copy();
+				copy.exprOffset = exprOffset;
+				MatchResult tailMatch = matchNext(expr, copy);
+				if (tailMatch == null) {
+					exprOffset = advanceOffset(expr, exprOffset, matchResult.parseContext, state);
+					continue;
 				}
+
+				// actually attempt to parse the substring, adding to cache if failed.
+				ParseLogHandler exprLog = SkriptLogger.startParseLogHandler();
+				try {
+					Expression<?> expression = new SkriptParser(substring, effectiveFlags, matchResult.parseContext)
+																.parseExpression(exprInfo);
+
+					if (expression == null) {
+						parseCache.add(cacheKey);
+						exprOffset = advanceOffset(expr, exprOffset, matchResult.parseContext, state);
+						continue;
+					}
+					// time states need to match and be valid
+					if (!applyTimeState(expression)) {
+						loopLog.printError();
+						return null;
+					}
+
+					tailMatch.expressions[expressionIndex] = expression;
+					/*
+					 * the parser will return unparsed literals in cases where it cannot interpret an input and object is the desired return type.
+					 * in those cases, it is up to the expression to interpret the input.
+					 * however, this presents a problem for input that is not intended as being one of these object-accepting expressions.
+					 * these object-accepting expressions will be matched instead but their parsing will fail as they cannot interpret the unparsed literals.
+					 * even though it can't interpret them, this loop will have returned a match and thus parsing has ended (and the correct interpretation never attempted).
+					 * to avoid this issue, while also permitting unparsed literals in cases where they are justified,
+					 *  the code below forces the loop to continue in hopes of finding a match without unparsed literals.
+					 * if it is unsuccessful, a backup of the first successful match (with unparsed literals) is saved to be returned.
+					 */
+					if (!hasUnparsedLiterals(tailMatch)) {
+						exprLog.printLog();
+						loopLog.printLog();
+						return tailMatch;
+					}
+					if (matchBackup == null) { // only backup the first occurrence of unparsed literals
+						matchBackup = tailMatch;
+						loopLogBackup = loopLog.backup();
+						exprLogBackup = exprLog.backup();
+					}
+				} finally {
+					if (!exprLog.isStopped())
+						exprLog.printError();
+				}
+
+				exprOffset = advanceOffset(expr, exprOffset, matchResult.parseContext, state);
 			}
 		} finally {
-			if (loopLogHandlerBackup != null) { // print backup logs if applicable
-				loopLogHandler.restore(loopLogHandlerBackup);
-				assert expressionLogHandlerBackup != null;
-				expressionLogHandlerBackup.printLog();
+			if (loopLogBackup != null) { // print backup logs if applicable
+				loopLog.restore(loopLogBackup);
+				assert exprLogBackup != null;
+				exprLogBackup.printLog();
 			}
-			if (!loopLogHandler.isStopped()) {
-				loopLogHandler.printError();
-			}
+			if (!loopLog.isStopped())
+				loopLog.printError();
 		}
-
 		// if there were unparsed literals, we will return the backup now
 		// if there were not, this returns null
 		return matchBackup;
+	}
+
+	/**
+	 * Applies time state to the expression. Returns false if the time state
+	 * cannot be applied, meaning matching should fail entirely.
+	 */
+	private boolean applyTimeState(Expression<?> expression) {
+		if (time == 0)
+			return true;
+		if (expression instanceof Literal)
+			return false;
+		if (ParserInstance.get().getHasDelayBefore() == Kleenean.TRUE) {
+			Skript.error("Cannot use time states after the event has already passed");
+			return false;
+		}
+		if (!expression.setTime(time)) {
+			Skript.error(expression + " does not have a " + (time == EventValues.TIME_PAST ? "past" : "future") + " state");
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Checks whether any expressions after this one are unparsed literals
+	 * that cannot be parsed as Object. If so, the loop should continue
+	 * to try to find a match without unparsed literals.
+	 */
+	private boolean hasUnparsedLiterals(@NotNull MatchResult matchResult) {
+		LiteralParseCache literalCache = ParserInstance.get().getLiteralParseCache();
+		for (int i = expressionIndex + 1; i < matchResult.expressions.length; i++) {
+			if (!(matchResult.expressions[i] instanceof UnparsedLiteral unparsed))
+				continue;
+			var key = new LiteralParseCache.Failure(unparsed.getData(), matchResult.parseContext);
+			if (literalCache.contains(key))
+				return true;
+			if (Classes.parse(unparsed.getData(), Object.class, matchResult.parseContext) == null) {
+				literalCache.add(key);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// -- Offset computation --
+
+	/**
+	 * Mutable state for a single match() invocation's offset iteration.
+	 * Kept separate from the element so the element is thread-safe.
+	 */
+	private static final class OffsetState {
+		@Nullable String nextLiteral; // string value of next literal element (for finding right boundary)
+		boolean nextLiteralIsWhitespace; // whether that next literal is just whitespace
+	}
+
+	/**
+	 * Computes the initial expression offset based on the next pattern element.
+	 */
+	private int initOffset(String expr, MatchResult matchResult, OffsetState state) {
+		if (next == null)
+			return expr.length();
+
+		if (!(next instanceof LiteralPatternElement)) {
+			state.nextLiteral = null;
+			return SkriptParser.next(expr, matchResult.exprOffset, matchResult.parseContext);
+		}
+
+		state.nextLiteral = next.toString();
+		state.nextLiteralIsWhitespace = state.nextLiteral.trim().isEmpty();
+
+		if (!state.nextLiteralIsWhitespace) { // Don't do this for literal patterns that are *only* whitespace - they have their own special handling
+			// trim trailing whitespace - it can cause issues with optional patterns following the literal
+			state.nextLiteral = state.nextLiteral.stripTrailing();
+		}
+
+		int offset = SkriptParser.nextOccurrence(expr, state.nextLiteral, matchResult.exprOffset, matchResult.parseContext, false);
+		if (offset == -1 && state.nextLiteralIsWhitespace) { // We need to tread more carefully here
+			// This may be because the next PatternElement is optional or an empty choice (there may be other cases too)
+			state.nextLiteral = null;
+			offset = SkriptParser.next(expr, matchResult.exprOffset, matchResult.parseContext);
+		}
+		return offset;
+	}
+
+	/**
+	 * Advances the expression offset to the next candidate split point.
+	 */
+	private int advanceOffset(String expr, int currentOffset, ParseContext parseContext, OffsetState state) {
+		if (state.nextLiteral == null)
+			return SkriptParser.next(expr, currentOffset, parseContext);
+
+		int newOffset = SkriptParser.nextOccurrence(expr, state.nextLiteral, currentOffset + 1, parseContext, false);
+		if (newOffset == -1 && state.nextLiteralIsWhitespace) {
+			// This may be because the next PatternElement is optional or an empty choice (there may be other cases too)
+			// So, from this point on, we're going to go character by character
+			state.nextLiteral = null;
+			return SkriptParser.next(expr, currentOffset, parseContext);
+		}
+		return newOffset;
 	}
 
 	@Override

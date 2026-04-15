@@ -51,6 +51,7 @@ public final class ParserInstance implements Experimented {
 	public void setInactive() {
 		this.isActive = false;
 		reset();
+		this.literalParseCache.clear();
 		setCurrentScript((Script) null);
 	}
 
@@ -92,6 +93,30 @@ public final class ParserInstance implements Experimented {
 		this.node = null;
 		this.hintManager = new HintManager(this.hintManager.isActive());
 		dataMap.clear();
+		this.expressionParseCache.clear();
+	}
+
+	// Expression parse failure cache
+
+	private final ExpressionParseCache expressionParseCache = new ExpressionParseCache();
+
+	/**
+	 * @return The expression parse failure cache for this parser instance.
+	 */
+	public ExpressionParseCache getExpressionParseCache() {
+		return expressionParseCache;
+	}
+
+	// Literal parse failure cache - can persist a little longer than Expression,
+	// since ClassInfo parsers don't rely on nearly as much context. Keep an eye on it, though.
+
+	private final LiteralParseCache literalParseCache = new LiteralParseCache();
+
+	/**
+	 * @return The literal parse failure cache for this parser instance.
+	 */
+	public LiteralParseCache getLiteralParseCache() {
+		return literalParseCache;
 	}
 
 	// Script API
