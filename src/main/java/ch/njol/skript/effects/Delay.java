@@ -102,7 +102,7 @@ public class Delay extends EffectSection {
 		if (duration == null)
 			return trigger != null ? super.walk(event, false) : null;
 
-		long ticks = Math.max(duration.getAs(Timespan.TimePeriod.TICK), 1);
+		long ticks = Math.max(duration.getAs(Timespan.TimePeriod.TICK), 1); // Minimum delay is one tick, less than it is useless!
 
 		if (trigger != null) {
 			
@@ -126,7 +126,7 @@ public class Delay extends EffectSection {
 					TriggerItem.walk(body, event);
 				} finally {
 					Variables.setLocalVariables(event, outerLocals);
-					SkriptTimings.stop(timing);
+					SkriptTimings.stop(timing); // Stop timing if it was even started
 				}
 			}, ticks);
 			return super.walk(event, false);
@@ -152,7 +152,7 @@ public class Delay extends EffectSection {
 				}
 
 				TriggerItem.walk(next, event);
-				Variables.removeLocals(event);
+				Variables.removeLocals(event); // Clean up local vars, we may be exiting now
 
 				SkriptTimings.stop(timing);
 			}, ticks);
