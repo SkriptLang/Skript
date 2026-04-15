@@ -3,6 +3,7 @@ package ch.njol.skript.variables;
 import ch.njol.skript.lang.Variable;
 import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.util.IndexTrackingTreeMap;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -216,7 +217,7 @@ final class VariablesMap {
 					break;
 				} else if (value != null) {
 					// Create child node, add it to parent and continue iteration
-					childNode = new TreeMap<>(VARIABLE_NAME_COMPARATOR);
+					childNode = new IndexTrackingTreeMap<>(VARIABLE_NAME_COMPARATOR);
 
 					parent.put(childNodeName, childNode);
 					parent = (TreeMap<String, Object>) childNode;
@@ -269,7 +270,7 @@ final class VariablesMap {
 					break;
 				} else if (value != null) {
 					// Need to continue iteration, create new child node and put old value in it
-					TreeMap<String, Object> newChildNodeMap = new TreeMap<>(VARIABLE_NAME_COMPARATOR);
+					TreeMap<String, Object> newChildNodeMap = new IndexTrackingTreeMap<>(VARIABLE_NAME_COMPARATOR);
 					newChildNodeMap.put(null, childNode);
 
 					// Add new child node to parent
@@ -334,7 +335,7 @@ final class VariablesMap {
 	 */
 	@SuppressWarnings("unchecked")
 	private static TreeMap<String, Object> copyTreeMap(TreeMap<String, Object> original) {
-		TreeMap<String, Object> copy = new TreeMap<>(VARIABLE_NAME_COMPARATOR);
+		TreeMap<String, Object> copy = new IndexTrackingTreeMap<>(VARIABLE_NAME_COMPARATOR);
 
 		for (Entry<String, Object> child : original.entrySet()) {
 			String key = child.getKey();

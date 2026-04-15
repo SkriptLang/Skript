@@ -11,6 +11,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.util.LiteralUtils;
@@ -42,6 +43,7 @@ public class ExprAmount extends SimpleExpression<Number> {
 	@SuppressWarnings("null")
 	private ExpressionList<?> exprs;
 	private @Nullable Expression<AnyAmount> any;
+	private @Nullable Variable<?> list;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -54,7 +56,6 @@ public class ExprAmount extends SimpleExpression<Number> {
 		this.exprs = exprs[0] instanceof ExpressionList<?> exprList
 				? exprList
 				: new ExpressionList<>(new Expression<?>[]{ exprs[0] }, Object.class, false);
-
 		this.exprs = (ExpressionList<?>) LiteralUtils.defendExpression(this.exprs);
 		if (!LiteralUtils.canInitSafely(this.exprs)) {
 			return false;
@@ -65,6 +66,9 @@ public class ExprAmount extends SimpleExpression<Number> {
 			return false;
 		}
 
+		if (exprs[0] instanceof Variable<?> variable)
+			this.list = variable;
+
 		return true;
 	}
 
@@ -72,6 +76,10 @@ public class ExprAmount extends SimpleExpression<Number> {
 	protected Number[] get(Event event) {
 		if (any != null)
 			return new Number[] {any.getOptionalSingle(event).orElse(() -> 0).amount()};
+
+		if (list != null)
+			return new Long[]{(long) list.size(event)};
+
 		return new Long[]{(long) exprs.getArray(event).length};
 	}
 

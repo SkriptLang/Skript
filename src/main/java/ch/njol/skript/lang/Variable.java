@@ -14,6 +14,8 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.structures.StructVariables.DefaultVariables;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
+import com.google.common.base.Preconditions;
+import org.skriptlang.skript.util.IndexTrackingTreeMap;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Pair;
@@ -446,7 +448,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	}
 
 	private void set(Event event, @Nullable Object value) {
-		Variables.setVariable("" + name.toString(event), value, event, local);
+		Variables.setVariable(name.toString(event), value, event, local);
 	}
 
 	private void setIndex(Event event, String index, @Nullable Object value) {
@@ -454,6 +456,33 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		String name = this.name.toString(event);
 		assert name.endsWith(SEPARATOR + "*") : name + "; " + this.name;
 		Variables.setVariable(name.substring(0, name.length() - 1) + index, value, event, local);
+	}
+
+	public int size(Event event) {
+		Preconditions.checkState(list, "Cannot get the size of a single variable");
+		Map<?, ?> map = (Map<?, ?>) getRaw(event);
+		if (map == null)
+			return 0;
+
+		int size = map.size();
+		if (map.containsKey(null)) // if we're trying to get the size of {_list::*}, exclude {_list} from being counted
+			size--;
+
+		if (!(map instanceof IndexTrackingTreeMap<?> indexTrackingMap)) {
+			for (Object value : map.values()) {
+				if (value instanceof Map<?, ?> sublist && !sublist.containsKey(null))
+					size--;
+			}
+			return size;
+		}
+
+		Collection<String> sublistIndices = indexTrackingMap.mapIndices();
+		for (String sublistIndex : sublistIndices) {
+			if (!((Map<?, ?>) map.get(sublistIndex)).containsKey(null))
+				size--;
+		}
+
+		return size;
 	}
 
 	@Override
@@ -494,22 +523,6 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) throws UnsupportedOperationException {
 		switch (mode) {
 			case DELETE:
-				if (list) {
-					ArrayList<String> toDelete = new ArrayList<>();
-					Map<String, Object> map = (Map<String, Object>) getRaw(event);
-					if (map == null)
-						return;
-					for (Entry<String, Object> entry : map.entrySet()) {
-						if (entry.getKey() != null){
-							toDelete.add(entry.getKey());
-						}
-					}
-					for (String index : toDelete) {
-						assert index != null;
-						setIndex(event, index, null);
-					}
-				}
-
 				set(event, null);
 				break;
 			case SET:
@@ -594,6 +607,13 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 						}
 					} else {
 						assert mode == ChangeMode.ADD;
+						if (map instanceof IndexTrackingTreeMap<Object> indexTrackingMap) {
+							for (Object value : delta) {
+								int index = indexTrackingMap.nextOpenIndex();
+								setIndex(event, String.valueOf(index), value);
+							}
+							return;
+						}
 						int i = 1;
 						for (Object value : delta) {
 							if (map != null)
