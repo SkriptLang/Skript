@@ -701,7 +701,7 @@ public class DefaultFunctions {
 		} // end offline player function
 
 		Functions.register(DefaultFunction.builder(skript, "entity", Entity.class)
-edw			.description(
+			.description(
 				"Returns an entity from a given UUID.",
 				"If the entity is unloaded or an offline player, the function will return nothing."
 			)
