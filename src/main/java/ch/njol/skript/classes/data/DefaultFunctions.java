@@ -714,7 +714,6 @@ public class DefaultFunctions {
 			.parameter("uuid", UUID.class)
 			.build(args -> {
 				UUID uuid = args.get("uuid");
-				if (uuid == null) return null;
 				return Bukkit.getEntity(uuid);
 			})
 		);
