@@ -701,14 +701,20 @@ public class DefaultFunctions {
 		} // end offline player function
 
 		Functions.register(DefaultFunction.builder(skript, "entity", Entity.class)
-			.description("Returns an entity from a given UUID")
+edw			.description(
+				"Returns an entity from a given UUID.",
+				"If the entity is unloaded or an offline player, the function will return nothing."
+			)
 			.examples(
-				"set {_entity} to entity({_uuid})"
+				"set {_entity} to entity({uuid})",
+				"kill entity({uuid})",
+				"set {_type} to type of entity({uuid})"
 			)
 			.since("2.15.0")
 			.parameter("uuid", UUID.class)
 			.build(args -> {
 				UUID uuid = args.get("uuid");
+				if (uuid == null) return null;
 				return Bukkit.getEntity(uuid);
 			})
 		);
