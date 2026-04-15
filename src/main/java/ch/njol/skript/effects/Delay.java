@@ -1,11 +1,12 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.EffectSection;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -20,29 +21,47 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 
 @Name("Delay")
-@Description("Delays the script's execution by a given timespan. Please note that delays are not persistent, e.g. trying to create a tempban script with <code>ban player → wait 7 days → unban player</code> will not work if you restart your server anytime within these 7 days. You also have to be careful even when using small delays!")
+@Description({
+	"Delays the script's execution by a given timespan.",
+	"",
+	"When used as an effect, all code after the <code>wait</code> runs once the delay elapses. The whole trigger pauses.",
+	"",
+	"When used as a section, only the section body is deferred. Code after the section continues immediately, and the body runs on the same event once the delay elapses. This is useful for scheduling follow-up work without blocking the rest of the trigger.",
+	"",
+	"Note that delays are not persistent. For example, <code>ban player → wait 7 days → unban player</code> will not resume if the server restarts during the delay.",
+	"",
+	"Inside a section body, outer <code>loop-value</code>s are not available because the body is parsed as a separate trigger. Event values (like <code>player</code>) still work. If you need a variable's value from before the delay, copy it to a local variable &mdash; local variables are snapshotted when the section is scheduled."
+})
 @Example("wait 2 minutes")
 @Example("halt for 5 minecraft hours")
 @Example("wait a tick")
-@Since("1.4")
-public class Delay extends Effect {
+@Example("""
+	# Section form: outer continues immediately, body runs 3 seconds later.
+	send "hello" to player
+	wait 3 seconds:
+		send "...and goodbye" to player
+	""")
+@Since("1.4, 2.15")
+public class Delay extends EffectSection {
 
 	static {
-		Skript.registerEffect(Delay.class, "(wait|halt) [for] %timespan%");
+		Skript.registerSection(Delay.class, "(wait|halt) [for] %timespan%");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	protected Expression<Timespan> duration;
 
+	private @Nullable Trigger trigger;
+
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		getParser().setHasDelayBefore(Kleenean.TRUE);
-
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult,
+						@Nullable SectionNode sectionNode, @Nullable List<TriggerItem> triggerItems) {
 		duration = (Expression<Timespan>) exprs[0];
 		if (duration instanceof Literal) { // If we can, do sanity check for delays
 			Timespan timespan = ((Literal<Timespan>) duration).getSingle();
@@ -56,51 +75,89 @@ public class Delay extends Effect {
 			}
 		}
 
+		if (hasSection()) {
+			assert sectionNode != null;
+			// Parse the body under the outer event context so event values still resolve inside it.
+			// Locals are isolated at runtime via the swap dance in walk().
+			Class<? extends Event>[] outerEvents = getParser().getCurrentEvents();
+			Runnable beforeLoading = () -> getParser().setHasDelayBefore(Kleenean.TRUE);
+			trigger = loadCode(sectionNode, "wait", beforeLoading, null, outerEvents);
+			// Outer trigger is NOT delayed - code after the section runs immediately.
+			return trigger != null;
+		}
+
+		getParser().setHasDelayBefore(Kleenean.TRUE);
 		return true;
 	}
 
 	@Override
-	@Nullable
-	protected TriggerItem walk(Event event) {
+	protected @Nullable TriggerItem walk(Event event) {
 		debug(event, true);
 		long start = Skript.debug() ? System.nanoTime() : 0;
-		TriggerItem next = getNext();
-		if (next != null && Skript.getInstance().isEnabled()) { // See https://github.com/SkriptLang/Skript/issues/3702
 
-			Timespan duration = this.duration.getSingle(event);
-			if (duration == null)
-				return null;
+		if (!Skript.getInstance().isEnabled()) // See https://github.com/SkriptLang/Skript/issues/3702
+			return trigger != null ? super.walk(event, false) : null;
+
+		Timespan duration = this.duration.getSingle(event);
+		if (duration == null)
+			return trigger != null ? super.walk(event, false) : null;
+
+		long ticks = Math.max(duration.getAs(Timespan.TimePeriod.TICK), 1);
+
+		if (trigger != null) {
 			
-			// Back up local variables
+			Object snapshot = Variables.copyLocalVariables(event);
+			Trigger body = trigger;
+			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
+				Skript.debug(getIndentation() + "... running delayed section after " + (System.nanoTime() - start) / 1_000_000_000. + "s");
+
+				
+				Object outerLocals = Variables.removeLocals(event);
+				if (snapshot != null)
+					Variables.setLocalVariables(event, snapshot);
+
+				Object timing = null;
+				if (SkriptTimings.enabled()) {
+					Trigger parentTrigger = getTrigger();
+					if (parentTrigger != null)
+						timing = SkriptTimings.start(parentTrigger.getDebugLabel());
+				}
+				try {
+					TriggerItem.walk(body, event);
+				} finally {
+					Variables.setLocalVariables(event, outerLocals);
+					SkriptTimings.stop(timing);
+				}
+			}, ticks);
+			return super.walk(event, false);
+		}
+
+		
+		TriggerItem next = getNext();
+		if (next != null) {
 			Object localVars = Variables.removeLocals(event);
-			
+
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
 				addDelayedEvent(event);
 				Skript.debug(getIndentation() + "... continuing after " + (System.nanoTime() - start) / 1_000_000_000. + "s");
 
-				// Re-set local variables
 				if (localVars != null)
 					Variables.setLocalVariables(event, localVars);
 
-				Object timing = null; // Timings reference must be kept so that it can be stopped after TriggerItem execution
-				if (SkriptTimings.enabled()) { // getTrigger call is not free, do it only if we must
-					Trigger trigger = getTrigger();
-					if (trigger != null)
-						timing = SkriptTimings.start(trigger.getDebugLabel());
+				Object timing = null;
+				if (SkriptTimings.enabled()) {
+					Trigger parentTrigger = getTrigger();
+					if (parentTrigger != null)
+						timing = SkriptTimings.start(parentTrigger.getDebugLabel());
 				}
 
 				TriggerItem.walk(next, event);
-				Variables.removeLocals(event); // Clean up local vars, we may be exiting now
+				Variables.removeLocals(event);
 
-				SkriptTimings.stop(timing); // Stop timing if it was even started
-			}, Math.max(duration.getAs(Timespan.TimePeriod.TICK), 1)); // Minimum delay is one tick, less than it is useless!
+				SkriptTimings.stop(timing);
+			}, ticks);
 		}
 		return null;
-	}
-
-	@Override
-	protected void execute(Event event) {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override
