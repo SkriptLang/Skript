@@ -4,6 +4,7 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -21,7 +22,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.particles.GameEffect;
 import org.skriptlang.skript.bukkit.particles.particleeffects.ParticleEffect;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -43,9 +43,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Example("force draw 10 red dust particles of size 3 for player")
 @Example("play blue instant splash potion break effect with a view radius of 10")
 @Example("play ravager attack animation on player's target")
+@Since("2.14")
 public class EffPlayEffect extends Effect {
 
-	public static void register(@NotNull SyntaxRegistry registry, @NotNull Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffPlayEffect.class)
 				.addPatterns(
 					"[:force] (play|show|draw) %gameeffects/particles% [%-directions% %locations%] [as %-player%]",
@@ -54,7 +55,6 @@ public class EffPlayEffect extends Effect {
 					"(play|show|draw) %entityeffects% on %entities%"
 				)
 				.supplier(EffPlayEffect::new)
-				.origin(origin)
 				.build());
 	}
 

@@ -1,0 +1,347 @@
+
+using error catching
+
+on load:
+	set {-pdc::string} to "hello"
+	set {-pdc::integer} to 42
+	set {-pdc::number} to 3.14
+	set {-pdc::boolean} to true
+	set {-pdc::long} to 100000000000
+	set {-pdc::location} to location(1, 2, 3, world "world")
+	set {-pdc::world} to world "world"
+	set {-pdc::damage type} to lightning (damage type)
+	set {-pdc::vector} to vector(1, 2, 3)
+	set {-pdc::time} to 7:00
+	set {-pdc::timespan} to 5 seconds
+	set {-pdc::gamemode} to creative
+	set {-pdc::difficulty} to hard
+	set {-pdc::weather type} to rain
+	set {-pdc::firework type} to ball
+	set {-pdc::click type} to left mouse button
+	set {-pdc::direction} to left
+	set {-pdc::teleport cause} to ender pearl (teleport cause)
+	set {-pdc::sound category} to master category
+	set {-pdc::inventory type} to chest inventory (inventory type)
+	set {-pdc::spawn reason} to natural
+	set {-pdc::damage cause} to fall (damage cause)
+	set {-pdc::equipment slot} to main hand
+	set {-pdc::item type} to diamond sword
+	set {-pdc::block} to block at location(0, 0, 0, world "world")
+	set {-pdc::uuid} to uuid of world "world"
+	set {-pdc::offlineplayer} to offlineplayer("Jeb_")
+
+local function test_pdc(holder: object):
+	loop {-pdc::*}:
+		set persistent data tag "skript:test" of {_holder} to loop-value
+		assert persistent data tag "skript:test" of {_holder} is loop-value with "failed to store %loop-index% on %{_holder}%"
+	delete persistent data tag "skript:test" of {_holder}
+	assert persistent data tag "skript:test" of {_holder} is not set with "failed to delete tag on %{_holder}%"
+
+test "persistent data on entity":
+	spawn a pig at test-location:
+		set {_pig} to entity
+	test_pdc({_pig})
+	delete entity within {_pig}
+
+test "persistent data on item type":
+	set {_item} to a diamond sword
+	test_pdc({_item})
+
+test "persistent data on block":
+	set block at test-location to a chest
+	test_pdc(block at test-location)
+	set block at test-location to air
+
+test "persistent data on chunk":
+	set {_chunk} to chunk at test-location
+	test_pdc({_chunk})
+
+test "persistent data on world":
+	test_pdc(world "world")
+
+test "persistent data list storage and retrieval":
+	set {_item} to a diamond sword
+	# Test with strings
+	set list data tag "skript:list_test" of {_item} to "hello", "world", and "foo"
+	set {_values::*} to list data tag "skript:list_test" of {_item}
+	assert size of {_values::*} is 3 with "expected 3 string values"
+	assert {_values::1} is "hello" with "expected first value to be hello"
+	# Test with integers
+	set list data tag "skript:list_test" of {_item} to 1, 2, and 3
+	set {_values::*} to list data tag "skript:list_test" of {_item}
+	assert size of {_values::*} is 3 with "expected 3 integer values"
+	assert {_values::1} is 1 with "expected first value to be 1"
+	# Test with mixed types
+	set list data tag "skript:list_test" of {_item} to "hello", 42, and true
+	set {_values::*} to list data tag "skript:list_test" of {_item}
+	assert size of {_values::*} is 3 with "expected 3 mixed values"
+	assert {_values::2} is 42 with "expected second mixed value to be 42"
+	# Test with compound types (locations)
+	set {_loc1} to location(1, 2, 3, world "world")
+	set {_loc2} to location(4, 5, 6, world "world")
+	set list data tag "skript:list_test" of {_item} to {_loc1} and {_loc2}
+	set {_values::*} to list data tag "skript:list_test" of {_item}
+	assert size of {_values::*} is 2 with "expected 2 locations"
+	assert {_values::1} is {_loc1} with "expected first location to match"
+	# Cleanup and verify deletion
+	delete persistent data tag "skript:list_test" of {_item}
+	assert persistent data tag "skript:list_test" of {_item} is not set with "failed to delete list tag"
+
+test "persistent data list and single value overwrite":
+	set {_item} to a diamond sword
+	# Store a list, then overwrite with a single value
+	set list data tag "skript:overwrite" of {_item} to "a", "b", and "c"
+	set persistent data tag "skript:overwrite" of {_item} to "only"
+	set {_val} to persistent data tag "skript:overwrite" of {_item}
+	assert {_val} is "only" with "expected single value after overwrite"
+	# Store a single value, then overwrite with a list
+	set list data tag "skript:overwrite" of {_item} to 1, 2, and 3
+	set {_values::*} to list data tag "skript:overwrite" of {_item}
+	assert size of {_values::*} is 3 with "expected 3 values after list overwrite"
+	delete persistent data tag "skript:overwrite" of {_item}
+
+test "persistent data nonexistent and delete":
+	set {_item} to a diamond sword
+	# Nonexistent tag should not be set
+	assert persistent data tag "skript:does_not_exist" of {_item} is not set with "nonexistent tag should not be set"
+	set {_values::*} to list data tag "skript:does_not_exist" of {_item}
+	assert size of {_values::*} is 0 with "nonexistent tag should return empty list"
+	# Deleting nonexistent should not error
+	delete persistent data tag "skript:does_not_exist" of {_item}
+
+test "persistent data typed get":
+	set {_item} to a diamond sword
+	# String type
+	set persistent data tag "skript:typed" of {_item} to "hello"
+	set {_val} to string data tag "skript:typed" of {_item}
+	assert {_val} is "hello" with "typed string get should return value"
+	# Integer type
+	set persistent data tag "skript:typed" of {_item} to 42
+	set {_val} to integer data tag "skript:typed" of {_item}
+	assert {_val} is 42 with "typed integer get should return 42"
+	# Number type (float)
+	set persistent data tag "skript:typed" of {_item} to 3.14
+	set {_val} to number data tag "skript:typed" of {_item}
+	assert {_val} is 3.14 with "typed number get should return 3.14"
+	# Compound type (location)
+	set {_loc} to location(1, 2, 3, world "world")
+	set persistent data tag "skript:typed" of {_item} to {_loc}
+	set {_val} to persistent location data tag "skript:typed" of {_item}
+	assert {_val} is {_loc} with "typed location get should return location"
+	# Untyped get should also work
+	set persistent data tag "skript:typed" of {_item} to true
+	set {_val} to persistent data tag "skript:typed" of {_item}
+	assert {_val} is true with "untyped get should find boolean value"
+	delete persistent data tag "skript:typed" of {_item}
+
+test "persistent data typed get with supertype":
+	set {_item} to a diamond sword
+	# Store an integer, retrieve as number (supertype)
+	set persistent data tag "skript:supertype" of {_item} to 42
+	set {_val} to number data tag "skript:supertype" of {_item}
+	assert {_val} is 42 with "getting integer as number should work"
+	# Store a long, retrieve as number
+	set persistent data tag "skript:supertype" of {_item} to 100000000000
+	set {_val} to number data tag "skript:supertype" of {_item}
+	assert {_val} is 100000000000 with "getting long as number should work"
+	delete persistent data tag "skript:supertype" of {_item}
+
+test "persistent data typed get type mismatch":
+	set {_item} to a diamond sword
+	set persistent data tag "skript:mismatch" of {_item} to "hello"
+	# Wrong primitive type should error
+	catch runtime errors:
+		set {_wrong} to integer data tag "skript:mismatch" of {_item}
+	assert last caught runtime errors contains "The data in tag 'skript:mismatch' was of type text, not the expected type integer." with "wrong type should error"
+	assert {_wrong} is not set with "wrong type get should return nothing"
+	# Wrong compound type should error
+	catch runtime errors:
+		set {_wrong} to persistent location data tag "skript:mismatch" of {_item}
+	assert last caught runtime errors contains "The data in tag 'skript:mismatch' was of type text, not the expected type location." with "compound type mismatch should error"
+	delete persistent data tag "skript:mismatch" of {_item}
+
+test "persistent data singular access on list errors":
+	set {_item} to a diamond sword
+	set list data tag "skript:singular_list" of {_item} to "hello", "world", and "foo"
+	# Typed singular access should error
+	catch runtime errors:
+		set {_val} to string data tag "skript:singular_list" of {_item}
+	assert last caught runtime errors contains "The data in tag 'skript:singular_list' is a list, not a single value. Use 'list data tag' instead of 'data tag'." with "typed singular access on list should error"
+	assert {_val} is not set with "should return nothing on list/singular mismatch"
+	# Untyped singular access should also error
+	catch runtime errors:
+		set {_val} to persistent data tag "skript:singular_list" of {_item}
+	assert last caught runtime errors contains "The data in tag 'skript:singular_list' is a list, not a single value. Use 'list data tag' instead of 'data tag'." with "untyped singular access on list should error"
+	delete persistent data tag "skript:singular_list" of {_item}
+
+test "persistent data typed list filtering":
+	set {_item} to a diamond sword
+	set list data tag "skript:typed_list" of {_item} to "hello", 42, "world", and 100
+	# Plural type filters (strings data tag)
+	catch runtime errors:
+		set {_strings::*} to strings data tag "skript:typed_list" of {_item}
+	assert size of {_strings::*} is 2 with "should get 2 strings from mixed list"
+	assert {_strings::1} is "hello" with "first string should be hello"
+	# Singular type with list tag also filters (string list data tag)
+	catch runtime errors:
+		set {_vals::*} to string list data tag "skript:typed_list" of {_item}
+	assert size of {_vals::*} is 2 with "string list should filter to 2 strings"
+	# Integer filtering
+	catch runtime errors:
+		set {_ints::*} to integers data tag "skript:typed_list" of {_item}
+	assert size of {_ints::*} is 2 with "should get 2 integers from mixed list"
+	delete persistent data tag "skript:typed_list" of {_item}
+
+test "persistent data list access on single errors":
+	set {_item} to a diamond sword
+	set persistent data tag "skript:single_val" of {_item} to 42
+	# Plural type access should error
+	catch runtime errors:
+		set {_vals::*} to integers data tag "skript:single_val" of {_item}
+	assert last caught runtime errors contains "The data in tag 'skript:single_val' is a single value, not a list. Use 'data tag' instead of 'list data tag'." with "plural access on single should error"
+	assert size of {_vals::*} is 0 with "should return nothing"
+	# List tag access should also error
+	catch runtime errors:
+		set {_values::*} to list data tag "skript:single_val" of {_item}
+	assert last caught runtime errors contains "The data in tag 'skript:single_val' is a single value, not a list. Use 'data tag' instead of 'list data tag'." with "list access on single should error"
+	delete persistent data tag "skript:single_val" of {_item}
+
+test "persistent data single element stored as list":
+	set {_item} to a diamond sword
+	# Setting with list syntax stores as list, even for single element
+	set list data tag "skript:single_in_list" of {_item} to "only"
+	# Must use list syntax to retrieve
+	set {_values::*} to list data tag "skript:single_in_list" of {_item}
+	assert size of {_values::*} is 1 with "should have 1 element"
+	assert {_values::1} is "only" with "element should be only"
+	# Singular syntax should error because it's stored as a list
+	catch runtime errors:
+		set {_val} to persistent data tag "skript:single_in_list" of {_item}
+	assert last caught runtime errors contains "The data in tag 'skript:single_in_list' is a list, not a single value. Use 'list data tag' instead of 'data tag'." with "singular access on list-stored single should error"
+	delete persistent data tag "skript:single_in_list" of {_item}
+
+test "persistent data add to singular value":
+	set {_item} to a diamond sword
+	# Add to a number (arithmetic)
+	set persistent data tag "skript:add_single" of {_item} to 10
+	add 5 to persistent data tag "skript:add_single" of {_item}
+	set {_val} to persistent data tag "skript:add_single" of {_item}
+	assert {_val} is 15 with "adding to number should work"
+	# Subtract from a number
+	remove 3 from persistent data tag "skript:add_single" of {_item}
+	set {_val} to persistent data tag "skript:add_single" of {_item}
+	assert {_val} is 12 with "removing from number should work"
+	delete persistent data tag "skript:add_single" of {_item}
+
+test "persistent data add to singular value of differing type":
+	set {_item} to a diamond sword
+	set {_now} to now
+	set date data tag "date" of {_item} to {_now}
+	add 1 day to date data tag "date" of {_item}
+	assert date data tag "date" of {_item} is {_now} + 1 day with "adding to date should work"
+	parse:
+		add "hello" to date data tag "date" of {_item}
+	assert last parse logs contains """hello"" can't be added to date data tag ""date"" of {_item} because the former is not a time span" with "adding incompatible type should error"
+
+test "persistent data add to list":
+	set {_item} to a diamond sword
+	# Start with a list, then add to it
+	set list data tag "skript:add_list" of {_item} to "a" and "b"
+	add "c" to list data tag "skript:add_list" of {_item}
+	set {_values::*} to list data tag "skript:add_list" of {_item}
+	assert size of {_values::*} is 3 with "list should have 3 elements after add"
+	assert {_values::3} is "c" with "third element should be c"
+	# Add multiple
+	add "d" and "e" to list data tag "skript:add_list" of {_item}
+	set {_values::*} to list data tag "skript:add_list" of {_item}
+	assert size of {_values::*} is 5 with "list should have 5 elements after adding 2"
+	delete persistent data tag "skript:add_list" of {_item}
+
+test "persistent data add to nonexistent list":
+	set {_item} to a diamond sword
+	# Adding to a tag that doesn't exist should create a new list
+	add "first" to list data tag "skript:add_new" of {_item}
+	set {_values::*} to list data tag "skript:add_new" of {_item}
+	assert size of {_values::*} is 1 with "adding to nonexistent should create list"
+	assert {_values::1} is "first" with "element should be first"
+	delete persistent data tag "skript:add_new" of {_item}
+
+test "persistent data remove from list":
+	set {_item} to a diamond sword
+	set list data tag "skript:remove_list" of {_item} to "a", "b", "c", and "d"
+	# Remove a single element
+	remove "b" from list data tag "skript:remove_list" of {_item}
+	set {_values::*} to list data tag "skript:remove_list" of {_item}
+	assert size of {_values::*} is 3 with "list should have 3 elements after remove"
+	assert {_values::1} is "a" with "first element should still be a"
+	assert {_values::2} is "c" with "second element should now be c"
+	# Remove multiple elements
+	remove "a" and "d" from list data tag "skript:remove_list" of {_item}
+	set {_values::*} to list data tag "skript:remove_list" of {_item}
+	assert size of {_values::*} is 1 with "list should have 1 element after removing 2"
+	assert {_values::1} is "c" with "remaining element should be c"
+	delete persistent data tag "skript:remove_list" of {_item}
+
+test "persistent data remove nonexistent element from list":
+	set {_item} to a diamond sword
+	set list data tag "skript:remove_noop" of {_item} to "a" and "b"
+	# Removing an element that doesn't exist should not change the list
+	remove "z" from list data tag "skript:remove_noop" of {_item}
+	set {_values::*} to list data tag "skript:remove_noop" of {_item}
+	assert size of {_values::*} is 2 with "list should still have 2 elements"
+	delete persistent data tag "skript:remove_noop" of {_item}
+
+test "persistent data non-serializable type errors":
+	set {_item} to a diamond sword
+	set {_inv} to chest inventory with 1 row
+	# SET with non-serializable should error
+	set persistent data tag "skript:valid" of {_item} to "safe"
+	catch runtime errors:
+		set persistent data tag "skript:valid" of {_item} to {_inv}
+	assert last caught runtime errors contains "Skript cannot serialize inventories as persistent data!" with "set should error on non-serializable type"
+	set {_val} to persistent data tag "skript:valid" of {_item}
+	assert {_val} is "safe" with "invalid set should not overwrite existing data"
+	# ADD to list with non-serializable should error
+	set list data tag "skript:valid" of {_item} to "a" and "b"
+	catch runtime errors:
+		add {_inv} to list data tag "skript:valid" of {_item}
+	set {_values::*} to list data tag "skript:valid" of {_item}
+	assert size of {_values::*} is 2 with "list should be unchanged after adding non-serializable"
+	delete persistent data tag "skript:valid" of {_item}
+
+test "persistent data add incompatible types":
+	set {_item} to a diamond sword
+	# Adding a string to a number should not change it (no arithmetic defined)
+	set persistent data tag "skript:add_incompat" of {_item} to 10
+	add "hello" to persistent data tag "skript:add_incompat" of {_item}
+	set {_val} to persistent data tag "skript:add_incompat" of {_item}
+	assert {_val} is 10 with "adding string to number should not change value"
+	# Adding a number to a string should not change it
+	set persistent data tag "skript:add_incompat" of {_item} to "hello"
+	add 5 to persistent data tag "skript:add_incompat" of {_item}
+	set {_val} to persistent data tag "skript:add_incompat" of {_item}
+	assert {_val} is "hello" with "adding number to string should not change value"
+	delete persistent data tag "skript:add_incompat" of {_item}
+
+test "persistent data add/remove with mismatched syntax errors":
+	set {_item} to a diamond sword
+	# Add to list syntax when singular exists - should error
+	set persistent data tag "skript:mismatch" of {_item} to "single"
+	catch runtime errors:
+		add "new" to list data tag "skript:mismatch" of {_item}
+	assert last caught runtime errors contains "The data in tag 'skript:mismatch' is a single value, not a list. Use 'data tag' instead of 'list data tag'." with "add to list when singular exists should error"
+	set {_val} to persistent data tag "skript:mismatch" of {_item}
+	assert {_val} is "single" with "value should still be single"
+	# Remove from list syntax when singular exists - should error
+	catch runtime errors:
+		remove "single" from list data tag "skript:mismatch" of {_item}
+	assert last caught runtime errors contains "The data in tag 'skript:mismatch' is a single value, not a list. Use 'data tag' instead of 'list data tag'." with "remove from list when singular exists should error"
+	delete persistent data tag "skript:mismatch" of {_item}
+	# Add to singular syntax when list exists - should error
+	set list data tag "skript:mismatch" of {_item} to 10, 20, and 30
+	catch runtime errors:
+		add 5 to persistent data tag "skript:mismatch" of {_item}
+	assert last caught runtime errors contains "The data in tag 'skript:mismatch' is a list, not a single value. Use 'list data tag' instead of 'data tag'." with "add to singular when list exists should error"
+	set {_values::*} to list data tag "skript:mismatch" of {_item}
+	assert size of {_values::*} is 3 with "list should be unchanged"
+	delete persistent data tag "skript:mismatch" of {_item}

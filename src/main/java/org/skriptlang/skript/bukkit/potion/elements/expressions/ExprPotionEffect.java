@@ -24,7 +24,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayDeque;
@@ -48,13 +47,12 @@ import java.util.List;
 @Since("2.14")
 public class ExprPotionEffect extends PropertyExpression<Object, SkriptPotionEffect> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(ExprPotionEffect.class, SkriptPotionEffect.class,
 			"[:active|:hidden|both:(active and hidden|hidden and active)] %potioneffecttypes% [potion] effect[s]",
 			"livingentities/itemtypes",
 			false)
 				.supplier(ExprPotionEffect::new)
-				.origin(origin)
 				.build());
 	}
 

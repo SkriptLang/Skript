@@ -23,6 +23,7 @@ import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.Fields.FieldContext;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import com.google.common.collect.Iterators;
+import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -38,6 +39,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
@@ -1616,15 +1618,28 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
-	 * Returns a base item type of this. Essentially, this calls
-	 * {@link ItemData#aliasCopy()} on all datas and creates a new type
+	 * Returns a base item type of this. i.e. an item type where all item datas only contain
+	 * the minimum ItemMeta info to represent the item, in the case of potions/goat horns.
 	 * containing the results.
 	 * @return Base item type.
 	 */
 	public ItemType getBaseType() {
 		ItemType copy = new ItemType();
 		for (ItemData data : types) {
-			copy.add_(data.aliasCopy());
+			copy.add_(data.getBaseCopy());
+		}
+		return copy;
+	}
+
+	/**
+	 * Returns a plain version of this item type, i.e. an item type where all item datas are plain and only contain
+	 * the minimum ItemMeta info to represent the item, in the case of potions/goat horns.
+	 * @return Plain item type.
+	 */
+	public ItemType getPlainType() {
+		ItemType copy = getBaseType();
+		for (ItemData data : copy.types) {
+			data.setPlain(true);
 		}
 		return copy;
 	}
@@ -1633,6 +1648,12 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	public @Nullable String name() {
 		ItemMeta meta = this.getItemMeta();
 		return meta.hasDisplayName() ? meta.getDisplayName() : null;
+	}
+
+	@Override
+	public @UnknownNullability Component nameComponent() {
+		ItemMeta meta = this.getItemMeta();
+		return meta.hasDisplayName() ? meta.displayName() : null;
 	}
 
 	@Override
@@ -1648,6 +1669,13 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	@Override
+	public void setName(Component name) {
+		ItemMeta meta = this.getItemMeta();
+		meta.displayName(name);
+		this.setItemMeta(meta);
+	}
+
+	@Override
 	public @NotNull Number amount() {
 		return this.getAmount();
 	}
@@ -1658,7 +1686,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	@Override
-	public void setAmount(@Nullable Number amount) throws UnsupportedOperationException {
+	public void setAmount(@Nullable Number amount) {
 		this.setAmount(amount != null ? amount.intValue() : 0);
 	}
 
