@@ -26,7 +26,7 @@ public class EvtPlayerToggleEntityAge extends SkriptEvent {
 						cancel event
 						send "You cannot toggle the age lock of entities!" to the player
 					""")
-				.addSince("2.10")
+				.addSince("INSERT HERE")
 				.supplier(EvtPlayerToggleEntityAge::new)
 				.build()
 		);
