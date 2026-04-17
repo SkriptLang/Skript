@@ -20,11 +20,10 @@ public class EvtPlayerToggleEntityAge extends SkriptEvent {
 			BukkitSyntaxInfos.Event.builder(EvtPlayerToggleEntityAge.class, "Player Toggle Entity Age Lock")
 				.addEvent(PlayerToggleEntityAgeLockEvent.class)
 				.addPatterns("[player] [toggle[ing]] entity age lock")
-				.addDescription("Called when a player toggles the age lock of an entity using the pick block key (default middle mouse button).")
+				.addDescription("Called when a player toggles the age lock of an entity using a golden dandelion")
 				.addExample("""
 					on player toggling of an entity age lock:
 						cancel event
-						send "You cannot toggle the age lock of entities!" to the player
 					""")
 				.addSince("INSERT HERE")
 				.supplier(EvtPlayerToggleEntityAge::new)
