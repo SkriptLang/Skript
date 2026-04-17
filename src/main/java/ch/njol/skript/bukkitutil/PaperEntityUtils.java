@@ -107,6 +107,19 @@ public class PaperEntityUtils {
 				}
 			} else if (entity instanceof Mob) {
 				mobLookAt(target, headRotationSpeed, maxHeadPitch, (Mob) entity);
+			} else {
+				if (target instanceof Vector vector) {
+					Location loc = entity.getEyeLocation().add(vector);
+					entity.lookAt(loc.getX(), loc.getY(), loc.getZ(), entityAnchor);
+				} else if (target instanceof LivingEntity targetEntity) {
+					Location loc = entityAnchor == LookAnchor.EYES ? targetEntity.getEyeLocation() : targetEntity.getLocation();
+					entity.lookAt(loc.getX(), loc.getY(), loc.getZ(), entityAnchor);
+				} else if (target instanceof Entity targetEntity) {
+					Location loc = targetEntity.getLocation();
+					entity.lookAt(loc.getX(), loc.getY(), loc.getZ(), entityAnchor);
+				} else if (target instanceof Location location) {
+					entity.lookAt(location.getX(), location.getY(), location.getZ(), entityAnchor);
+				}
 			}
 		}
 	}

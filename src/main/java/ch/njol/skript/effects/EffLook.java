@@ -1,6 +1,5 @@
 package ch.njol.skript.effects;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.PaperEntityUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -14,9 +13,11 @@ import io.papermc.paper.entity.LookAnchor;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Look At")
-@Description("Forces the mob(s) or player(s) to look at an entity, vector or location. Vanilla max head pitches range from 10 to 50.")
+@Description("Forces living entities to look at an entity, vector or location. Vanilla max head pitches range from 10 to 50.")
 @Example("force the player to look towards event-entity's feet")
 @Example("""
 	on entity explosion:
@@ -29,18 +30,25 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.7")
 public class EffLook extends Effect {
 
-	static {
-		Skript.registerEffect(EffLook.class,
-			"(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) " +
-			"%entity%'s (feet:feet|eyes) [(at|with) [head] [rotation] speed %-number%] " +
-			"[[and] max[imum] [head] pitch %-number%]",
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EFFECT,
+			SyntaxInfo.builder(EffLook.class)
+				.addPatterns(
+					"(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) " +
+					"%entity%'s (feet:feet|eyes) [(at|with) [head] [rotation] speed %-number%] " +
+					"[[and] max[imum] [head] pitch %-number%]",
 
-			"(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) " +
-				"[the] (feet:feet|eyes) of %entity% [(at|with) [head] [rotation] speed %-number%] " +
-				"[[and] max[imum] [head] pitch %-number%]",
+					"(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) " +
+					"[the] (feet:feet|eyes) of %entity% [(at|with) [head] [rotation] speed %-number%] " +
+					"[[and] max[imum] [head] pitch %-number%]",
 
-			"(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) %vector/location/entity% " +
-			"[(at|with) [head] [rotation] speed %-number%] [[and] max[imum] [head] pitch %-number%]");
+					"(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) %vector/location/entity% " +
+					"[(at|with) [head] [rotation] speed %-number%] [[and] max[imum] [head] pitch %-number%]"
+				)
+				.supplier(EffLook::new)
+				.build()
+		);
 	}
 
 	private LookAnchor anchor = LookAnchor.EYES;

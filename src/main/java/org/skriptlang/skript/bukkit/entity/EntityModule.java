@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.entity;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.effects.EffLook;
 import ch.njol.skript.entity.SimpleEntityData;
 import org.bukkit.entity.AbstractNautilus;
 import org.skriptlang.skript.addon.AddonModule;
@@ -38,6 +39,7 @@ public class EntityModule extends HierarchicalAddonModule {
 		}
 
 		register(addon,
+			EffLook::register,
 			ExprDeathMessage::register
 		);
 	}
