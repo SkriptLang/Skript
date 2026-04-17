@@ -25,18 +25,31 @@ public final class SectionUtils {
 	private SectionUtils() { }
 
 	/**
+	 * Equivalent to {@link #loadLinkedCode(String, boolean, BiFunction)} with {@code allowDelays} set to {@code false}.
+	 * @see #loadLinkedCode(String, boolean, BiFunction)
+	 */
+	public static @Nullable Trigger loadLinkedCode(String name, BiFunction<Runnable, Runnable, Trigger> triggerSupplier) {
+		return loadLinkedCode(name, false, triggerSupplier);
+	}
+
+	/**
 	 * This method is used for loading a section into a {@link Trigger} under different context ({@link Event}s).
 	 * However, unlike the traditional methods such as {@link Section#loadCode(SectionNode, String, Runnable, Runnable, Class[])},
 	 * this method assumes some level of linkage between the returned trigger and the section it was loaded from.
 	 * These assumptions are:
 	 * <ul>
 	 *     <li>Local variables (and at parse time, type hints) will be shared between the two sections.</li>
-	 *     <li>Delays within the trigger are not permitted.</li>
+	 *     <li>Delays within the trigger may or may not be permitted, depending on {@code allowDelays}.</li>
 	 * </ul>
-	 * As a result, this method takes action to ensure that type hints are shared and that delays are not permitted.
+	 * As a result, this method takes action to ensure that type hints are shared and, when {@code allowDelays} is
+	 * {@code false}, that delays are not permitted. When {@code allowDelays} is {@code true}, the caller is responsible
+	 * for correctly handling any delays encountered while executing the returned trigger (e.g. by scheduling execution
+	 * on a separate tick).
 	 * At runtime, local variables will need to be copied by the caller
 	 *  using a method such as {@link Variables#withLocalVariables(Event, Event, Runnable)}
 	 * @param name The name of the section being loaded.
+	 * @param allowDelays Whether delays are permitted within the loaded trigger. When {@code false}, a parse-time error
+	 *  is emitted and {@code null} is returned if the body contains a delay.
 	 * @param triggerSupplier A function to load code using a trigger.
 	 *  The function has two runnable arguments. When using a method like {@link Section#loadCode(SectionNode, String, Runnable, Runnable, Class[])},
 	 *   the runnable arguments represent the parameters {@code beforeLoading} and {@code afterLoading}, respectively.
@@ -45,10 +58,11 @@ public final class SectionUtils {
 	 * @return The result of {@code triggerSupplier}, or null if some issue occurred.
 	 */
 	@SuppressWarnings("JavadocReference")
-	public static @Nullable Trigger loadLinkedCode(String name, BiFunction<Runnable, Runnable, Trigger> triggerSupplier) {
+	public static @Nullable Trigger loadLinkedCode(String name, boolean allowDelays,
+												   BiFunction<Runnable, Runnable, Trigger> triggerSupplier) {
 		AtomicBoolean delayed = new AtomicBoolean(false);
 		AtomicReference<Backup> hintBackup = new AtomicReference<>();
-		// Copy hints and ensure no delays
+		// Copy hints and record whether the body was delayed
 		Runnable beforeLoading = () -> ParserInstance.get().getHintManager().enterScope(false);
 		Runnable afterLoading = () -> {
 			ParserInstance parser = ParserInstance.get();
@@ -60,7 +74,7 @@ public final class SectionUtils {
 
 		Trigger trigger = triggerSupplier.apply(beforeLoading, afterLoading);
 
-		if (delayed.get()) {
+		if (!allowDelays && delayed.get()) {
 			Skript.error("Delays can't be used within a '" + name + "' section");
 			return null;
 		}
