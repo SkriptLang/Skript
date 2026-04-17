@@ -7,10 +7,14 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Entity AI")
@@ -27,7 +31,13 @@ public class ExprAI extends SimplePropertyExpression<LivingEntity, Boolean> {
 				.build()
 		);
 	}
-	
+
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		ScriptWarning.printDeprecationWarning("This expression has been deprecated. Use the new effect and existing condition instead.");
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
+	}
+
 	@Override
 	public @Nullable Boolean convert(LivingEntity entity) {
 		return entity.hasAI();

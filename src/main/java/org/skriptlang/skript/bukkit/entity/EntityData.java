@@ -92,7 +92,7 @@ public abstract class EntityData<E extends Entity>
 	public static final Adjective m_baby = new Adjective(LANGUAGE_NODE + ".age adjectives.baby"),
 			m_adult = new Adjective(LANGUAGE_NODE + ".age adjectives.adult");
 
-	// must be here to be initialised before 'new SimpleLiteral' is called in the register block below
+	// must be here to be initialized before 'new SimpleLiteral' is called in the register block below
 	private static final List<EntityDataInfo<EntityData<?>, ?>> INFOS = new ArrayList<>();
 
 	private static final List<EntityData> ALL_ENTITY_DATAS = new ArrayList<>();

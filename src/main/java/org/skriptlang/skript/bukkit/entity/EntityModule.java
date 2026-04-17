@@ -132,6 +132,7 @@ public class EntityModule implements AddonModule {
 
 	//<editor-fold desc="register effects" defaultstate="collapsed">
 	private void registerEffects(SyntaxRegistry registry) {
+		EffAI.register(registry);
 		EffCharge.register(registry);
 		EffCustomName.register(registry);
 		EffDancing.register(registry);
@@ -183,7 +184,7 @@ public class EntityModule implements AddonModule {
 		ExprLastDamageCause.register(registry);
 		ExprLastSpawnedEntity.register(registry);
 		ExprLeashHolder.register(registry);
-		ExprMaxFreezeTicks.register(registry);
+		ExprMaxFreezeTime.register(registry);
 		ExprMaxHealth.register(registry);
 		ExprNoDamageTime.register(registry);
 		ExprPickupDelay.register(registry);

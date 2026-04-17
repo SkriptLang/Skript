@@ -28,6 +28,7 @@ public class CondIsCustomNameVisible extends PropertyCondition<Entity> {
 					"custom name of %entities% (is|are) visible",
 					"custom name of %entities% (isn't|is not|are not|aren't) visible"
 				).supplier(CondIsCustomNameVisible::new)
+				.priority(DEFAULT_PRIORITY)
 				.build()
 		);
 	}

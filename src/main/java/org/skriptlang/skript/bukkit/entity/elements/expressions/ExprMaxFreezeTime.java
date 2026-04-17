@@ -18,13 +18,13 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		send "you're about to freeze!" to the player
 	""")
 @Since("2.7")
-public class ExprMaxFreezeTicks extends SimplePropertyExpression<Entity, Timespan> {
+public class ExprMaxFreezeTime extends SimplePropertyExpression<Entity, Timespan> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprMaxFreezeTicks.class, Timespan.class, "max[imum] freeze time", "entities", false)
-				.supplier(ExprMaxFreezeTicks::new)
+			infoBuilder(ExprMaxFreezeTime.class, Timespan.class, "max[imum] freeze time", "entities", false)
+				.supplier(ExprMaxFreezeTime::new)
 				.build()
 		);
 	}

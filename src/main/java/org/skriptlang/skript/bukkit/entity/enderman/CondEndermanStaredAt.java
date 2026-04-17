@@ -14,7 +14,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	Checks to see if an enderman has been stared at.
 	This will return true as long as the entity that stared at the enderman is still alive.
 	""")
-@Example("if last spawned enderman has been stared at:")
+@Example("""
+	if the last spawned enderman has been stared at:
+		make last spawned enderman scream
+	""")
 @Since("2.11")
 public class CondEndermanStaredAt extends PropertyCondition<LivingEntity> {
 

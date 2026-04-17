@@ -12,6 +12,7 @@ public class StriderModule implements AddonModule {
 
 		SyntaxRegistry registry = addon.syntaxRegistry();
 		EffStriderShivering.register(registry);
+		CondStriderIsShivering.register(registry);
 	}
 
 	@Override

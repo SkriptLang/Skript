@@ -58,19 +58,27 @@ public class EffPathfind extends Effect {
 	protected void execute(Event event) {
 		Object target = this.target != null ? this.target.getSingle(event) : null;
 		double speed = this.speed != null ? this.speed.getOptionalSingle(event).orElse(1).doubleValue() : 1;
-		Consumer<Mob> consumer;
-		if (target instanceof LivingEntity entity) {
-			consumer = mob -> mob.getPathfinder().moveTo(entity, speed);
-		} else if (target instanceof Location location) {
-			consumer = mob -> mob.getPathfinder().moveTo(location, speed);
-		} else {
-			consumer = mob -> mob.getPathfinder().stopPathfinding();
-		}
+		Consumer<Mob> consumer = getConsumer(target, speed);
 		for (LivingEntity entity : entities.getArray(event)) {
 			if (!(entity instanceof Mob mob))
 				continue;
 			consumer.accept(mob);
 		}
+	}
+
+	/**
+	 * Helper method for getting the consumer to be run for each entity.
+	 * @param target The target entity or location, null to stop pathfinding.
+	 * @param speed The speed at which the entity should move.
+	 * @return The consumer.
+	 */
+	private Consumer<Mob> getConsumer(Object target, double speed) {
+		if (target instanceof LivingEntity entity) {
+			return mob -> mob.getPathfinder().moveTo(entity, speed);
+		} else if (target instanceof Location location) {
+			return mob -> mob.getPathfinder().moveTo(location, speed);
+		}
+		return mob -> mob.getPathfinder().stopPathfinding();
 	}
 
 	@Override

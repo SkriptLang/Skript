@@ -1,4 +1,4 @@
-package ch.njol.skript.conditions;
+package org.skriptlang.skript.bukkit.entity.strider;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Strider;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Strider Is Shivering")
 @Description("Whether a strider is shivering.")
@@ -17,8 +18,13 @@ import org.bukkit.entity.Strider;
 @Since("2.12")
 public class CondStriderIsShivering extends PropertyCondition<LivingEntity> {
 
-	static {
-		register(CondStriderIsShivering.class, "shivering", "livingentities");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			infoBuilder(CondStriderIsShivering.class, PropertyType.BE, "shivering", "livingentities")
+				.supplier(CondStriderIsShivering::new)
+				.build()
+		);
 	}
 
 	@Override

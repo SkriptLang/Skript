@@ -13,6 +13,9 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.yggdrasil.YggdrasilSerializable;
 
+/**
+ * Class that represents x amount of an {@link EntityData}
+ */
 public class EntityType
 	extends ch.njol.skript.entity.EntityType
 	implements Cloneable, YggdrasilSerializable {
