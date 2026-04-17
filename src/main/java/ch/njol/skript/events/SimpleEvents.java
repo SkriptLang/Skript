@@ -451,8 +451,10 @@ public class SimpleEvents {
 			.since("2.5.1");
 		Skript.registerEvent("Block Fertilize", SimpleEvent.class, BlockFertilizeEvent.class, "[block] (fertilize|bone[ ]meal)")
 			.description("Called when a player uses bonemeals on blocks.")
-			.examples("on block bonemeal:",
-				"\tsend \"%size of fertilized blocks% blocks got bonemealed.\"")
+			.examples("""
+				on block bonemeal:
+					send "%size of fertilized blocks% blocks got bonemealed."
+				""")
 			.since("2.5");
 		Skript.registerEvent("Arm Swing", SimpleEvent.class, PlayerAnimationEvent.class, "[player] arm swing")
 			.description("Called when a player swings their arm.")
