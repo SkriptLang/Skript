@@ -25,6 +25,8 @@ public class EvtFertilizeEgg extends SkriptEvent {
 				.addExample("""
 					on fertilizing egg of turtles:
 						broadcast "A turtle just fertilized an egg!"
+					""")
+				.addExample("""
 					on fertilizing egg:
 						if event-entity is a frog:
 							broadcast "A frog just became pregnant!"

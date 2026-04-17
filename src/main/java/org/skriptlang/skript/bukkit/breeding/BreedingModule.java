@@ -1,13 +1,17 @@
 package org.skriptlang.skript.bukkit.breeding;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.events.EvtFertilizeEgg;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.util.Experience;
 import io.papermc.paper.event.entity.EntityFertilizeEggEvent;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityEnterLoveModeEvent;
+import org.bukkit.inventory.ItemStack;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
@@ -66,11 +70,24 @@ public class BreedingModule extends HierarchicalAddonModule {
 		EventValues.registerEventValue(EntityEnterLoveModeEvent.class, LivingEntity.class, EntityEnterLoveModeEvent::getEntity);
 		EventValues.registerEventValue(EntityEnterLoveModeEvent.class, HumanEntity.class, EntityEnterLoveModeEvent::getHumanEntity);
 
-		addon.registry(EventValueRegistry.class).register(
+		EventValueRegistry eventValueRegistry = addon.registry(EventValueRegistry.class);
+		eventValueRegistry.register(
 			EventValue.builder(EntityFertilizeEggEvent.class, Entity.class)
 				.getter(EntityFertilizeEggEvent::getEntity)
 				.excludedErrorMessage("Use 'mother' and/or 'father' in fertilize egg events")
 				.excludes(EntityFertilizeEggEvent.class)
+				.build()
+		);
+		eventValueRegistry.register(
+			EventValue.simple(EntityFertilizeEggEvent.class, Player.class, EntityFertilizeEggEvent::getBreeder)
+		);
+		eventValueRegistry.register(
+			EventValue.simple(EntityFertilizeEggEvent.class, ItemStack.class, EntityFertilizeEggEvent::getBredWith)
+		);
+		eventValueRegistry.register(
+			EventValue.builder(EntityFertilizeEggEvent.class, Experience.class)
+				.getter(event -> new Experience(event.getExperience()))
+				.registerChanger(ChangeMode.SET, (event, value) -> event.setExperience(value.getXP()))
 				.build()
 		);
 	}
