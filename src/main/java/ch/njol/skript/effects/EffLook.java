@@ -10,14 +10,14 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import io.papermc.paper.entity.LookAnchor;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Look At")
-@Description("Forces living entities to look at an entity, vector or location. Vanilla max head pitches range from 10 to 50.")
+@Description("Forces entities to look at an entity, vector or location. Vanilla max head pitches range from 10 to 50.")
 @Example("force the player to look towards event-entity's feet")
 @Example("""
 	on entity explosion:
@@ -35,15 +35,15 @@ public class EffLook extends Effect {
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffLook.class)
 				.addPatterns(
-					"(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) " +
+					"(force|make) %entities% [to] (face [towards]|look [(at|towards)]) " +
 					"%entity%'s (feet:feet|eyes) [(at|with) [head] [rotation] speed %-number%] " +
 					"[[and] max[imum] [head] pitch %-number%]",
 
-					"(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) " +
+					"(force|make) %entities% [to] (face [towards]|look [(at|towards)]) " +
 					"[the] (feet:feet|eyes) of %entity% [(at|with) [head] [rotation] speed %-number%] " +
 					"[[and] max[imum] [head] pitch %-number%]",
 
-					"(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) %vector/location/entity% " +
+					"(force|make) %entities% [to] (face [towards]|look [(at|towards)]) %vector/location/entity% " +
 					"[(at|with) [head] [rotation] speed %-number%] [[and] max[imum] [head] pitch %-number%]"
 				)
 				.supplier(EffLook::new)
@@ -52,7 +52,7 @@ public class EffLook extends Effect {
 	}
 
 	private LookAnchor anchor = LookAnchor.EYES;
-	private Expression<LivingEntity> entities;
+	private Expression<Entity> entities;
 
 	@Nullable
 	private Expression<Number> speed, maxPitch;
@@ -65,7 +65,7 @@ public class EffLook extends Effect {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		entities = (Expression<LivingEntity>) exprs[0];
+		entities = (Expression<Entity>) exprs[0];
 		target = exprs[1];
 		speed = (Expression<Number>) exprs[2];
 		maxPitch = (Expression<Number>) exprs[3];
