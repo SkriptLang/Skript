@@ -7,7 +7,7 @@ test "EvtFertilizeEggTest" when running Junit:
 	add "fertilize egg event - mother" to {_evt::*}
 	add "fertilize egg event - father" to {_evt::*}
 	add "fertilize egg event - breeder is player" to {_evt::*}
-	add "fertilize egg event - item is slimeball" to {_evt::*}
+	add "fertilize egg event - item is slime ball" to {_evt::*}
 	add "fertilize egg event - experience is 5" to {_evt::*}
 	ensure junit test {@test} completes {_evt::*}
 
@@ -24,7 +24,7 @@ on fertilize egg of frog:
 	complete objective "fertilize egg event - father" for {@test}
 	if event-player is a player:
 		complete objective "fertilize egg event - breeder is player" for {@test}
-	if event-item is slimeball:
-		complete objective "fertilize egg event - item is slimeball" for {@test}
+	if event-item is slime ball:
+		complete objective "fertilize egg event - item is slime ball" for {@test}
 	if event-experience is 5:
 		complete objective "fertilize egg event - experience is 5" for {@test}
