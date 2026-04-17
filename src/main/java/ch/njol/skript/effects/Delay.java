@@ -28,13 +28,9 @@ import java.util.WeakHashMap;
 @Name("Delay")
 @Description({
 	"Delays the script's execution by a given timespan.",
-	"",
 	"When used as an effect, all code after the <code>wait</code> runs once the delay elapses. The whole trigger pauses.",
-	"",
 	"When used as a section, only the section body is deferred. Code after the section continues immediately, and the body runs on the same event once the delay elapses. This is useful for scheduling follow-up work without blocking the rest of the trigger.",
-	"",
 	"Note that delays are not persistent. For example, <code>ban player → wait 7 days → unban player</code> will not resume if the server restarts during the delay.",
-	"",
 	"Inside a section body, outer <code>loop-value</code>s are not available because the body is parsed as a separate trigger. Event values (like <code>player</code>) still work. If you need a variable's value from before the delay, copy it to a local variable &mdash; local variables are snapshotted when the section is scheduled."
 })
 @Example("wait 2 minutes")
@@ -46,7 +42,7 @@ import java.util.WeakHashMap;
 	wait 3 seconds:
 		send "...and goodbye" to player
 	""")
-@Since("1.4, 2.15")
+@Since("1.4, INSERT VERSION (Delayed Sections)")
 public class Delay extends EffectSection {
 
 	static {
@@ -104,43 +100,17 @@ public class Delay extends EffectSection {
 
 		long ticks = Math.max(duration.getAs(Timespan.TimePeriod.TICK), 1); // Minimum delay is one tick, less than it is useless!
 
-		if (trigger != null) {
-
-			Object snapshot = Variables.copyLocalVariables(event);
-			Trigger body = trigger;
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
-				Skript.debug(getIndentation() + "... running delayed section after " + (System.nanoTime() - start) / 1_000_000_000. + "s");
-
-
-				Object outerLocals = Variables.removeLocals(event);
-				if (snapshot != null)
-					Variables.setLocalVariables(event, snapshot);
-
-				Object timing = null;
-				if (SkriptTimings.enabled()) {
-					Trigger parentTrigger = getTrigger();
-					if (parentTrigger != null)
-						timing = SkriptTimings.start(parentTrigger.getDebugLabel());
-				}
-				try {
-					TriggerItem.walk(body, event);
-				} finally {
-					Variables.setLocalVariables(event, outerLocals);
-					SkriptTimings.stop(timing); // Stop timing if it was even started
-				}
-			}, ticks);
-			return super.walk(event, false);
-		}
-
-
-		TriggerItem next = getNext();
-		if (next != null) {
-			Object localVars = Variables.removeLocals(event);
+		TriggerItem afterDelay = trigger != null ? trigger : getNext();
+		if (afterDelay != null) {
+			boolean isSection = trigger != null;
+			Object localVars = isSection ? Variables.copyLocalVariables(event) : Variables.removeLocals(event);
 
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
-				addDelayedEvent(event);
+				if (!isSection)
+					addDelayedEvent(event);
 				Skript.debug(getIndentation() + "... continuing after " + (System.nanoTime() - start) / 1_000_000_000. + "s");
 
+				Object outerLocals = isSection ? Variables.removeLocals(event) : null;
 				if (localVars != null)
 					Variables.setLocalVariables(event, localVars);
 
@@ -151,12 +121,19 @@ public class Delay extends EffectSection {
 						timing = SkriptTimings.start(parentTrigger.getDebugLabel());
 				}
 
-				TriggerItem.walk(next, event);
-				Variables.removeLocals(event); // Clean up local vars, we may be exiting now
+				TriggerItem.walk(afterDelay, event);
+
+				if (isSection)
+					Variables.setLocalVariables(event, outerLocals);
+				else
+					Variables.removeLocals(event); // Clean up local vars, we may be exiting now
 
 				SkriptTimings.stop(timing);
 			}, ticks);
 		}
+
+		if (trigger != null)
+			return super.walk(event, false);
 		return null;
 	}
 
