@@ -24,12 +24,11 @@ import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Attacker")
-@Description({"The attacker of a damage event, e.g. when a player attacks a zombie this expression represents the player.",
-		"Please note that the attacker can also be a block, e.g. a cactus or lava, but this expression will not be set in these cases."})
+@Description("""
+	The attacker of a damage event, e.g. when a player attacks a zombie this expression represents the player.",
+	Please note that the attacker can also be a block, e.g. a cactus or lava, but this expression will not be set in these cases.
+	""")
 @Example("""
 	on damage:
 		attacker is a player
@@ -37,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 		damage victim by 1 heart
 	""")
 @Since("1.3")
-@Events({"damage", "death", "vehicle destroy"})
+@Events({"damage", "death", "vehicle destroy", "attempt attack"})
 public class ExprAttacker extends SimpleExpression<Entity> implements EventRestrictedSyntax {
 
 	static {
@@ -52,7 +51,7 @@ public class ExprAttacker extends SimpleExpression<Entity> implements EventRestr
 	@Override
 	public Class<? extends Event>[] supportedEvents() {
 		return CollectionUtils.array(EntityDamageEvent.class, EntityDeathEvent.class,
-			VehicleDamageEvent.class, VehicleDestroyEvent.class);
+			VehicleDamageEvent.class, VehicleDestroyEvent.class, PrePlayerAttackEntityEvent.class);
 	}
 
 	@Override
@@ -61,31 +60,38 @@ public class ExprAttacker extends SimpleExpression<Entity> implements EventRestr
 	}
 	
 	@Nullable
-	public static Entity getAttacker(@Nullable Event e) {
-		if (e == null)
+	static Entity getAttacker(@Nullable Event event) {
+		if (event == null) {
 			return null;
-		if (e instanceof EntityDamageByEntityEvent) {
-			EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) e;
-			if (edbee.getDamager() instanceof Projectile) {
-				Projectile p = (Projectile) edbee.getDamager();
-				Object o = p.getShooter();
-				if (o instanceof Entity)
-					return (Entity) o;
+		}
+
+		if (event instanceof EntityDamageByEntityEvent damageEvent) {
+			Entity damager = damageEvent.getDamager();
+
+			if (damager instanceof Projectile projectile) {
+				Object shooter = projectile.getShooter();
+				if (shooter instanceof Entity shooterEntity) {
+					return shooterEntity;
+				}
 				return null;
 			}
-			return edbee.getDamager();
-//		} else if (e instanceof EntityDamageByBlockEvent) {
-//			return ((EntityDamageByBlockEvent) e).getDamager();
-		} else if (e instanceof EntityDeathEvent) {
-			return getAttacker(((EntityDeathEvent) e).getEntity().getLastDamageCause());
-		} else if (e instanceof VehicleDamageEvent) {
-			return ((VehicleDamageEvent) e).getAttacker();
-		} else if (e instanceof VehicleDestroyEvent) {
-			return ((VehicleDestroyEvent) e).getAttacker();
+
+			return damager;
+		// } else if (event instanceof EntityDamageByBlockEvent blockDamageEvent) {
+		//     return blockDamageEvent.getDamager();
+		} else if (event instanceof EntityDeathEvent deathEvent) {
+			return getAttacker(deathEvent.getEntity().getLastDamageCause());
+		} else if (event instanceof VehicleDamageEvent vehicleDamageEvent) {
+			return vehicleDamageEvent.getAttacker();
+		} else if (event instanceof VehicleDestroyEvent vehicleDestroyEvent) {
+			return vehicleDestroyEvent.getAttacker();
+		} else if (event instanceof PrePlayerAttackEntityEvent preAttackEvent) {
+			return preAttackEvent.getPlayer();
 		}
+
 		return null;
 	}
-	
+
 	@Override
 	public Class<? extends Entity> getReturnType() {
 		return Entity.class;

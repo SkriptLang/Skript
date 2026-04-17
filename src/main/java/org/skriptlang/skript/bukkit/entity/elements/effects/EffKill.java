@@ -56,7 +56,7 @@ public class EffKill extends Effect {
 
 			if (entity instanceof Damageable damageable) {
 				EntityDamageEvent.DamageCause cause = EntityDamageEvent.DamageCause.KILL;
-				HealthUtils.damage(damageable, 100 + damageable.getHealth(), DamageUtils.getDamageSourceFromCause(cause));
+				HealthUtils.damage(damageable, Double.POSITIVE_INFINITY, DamageUtils.getDamageSourceFromCause(cause));
 			}
 
 			// if everything done so far has failed to kill this thing

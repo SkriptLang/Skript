@@ -24,6 +24,10 @@ import ch.njol.yggdrasil.ClassResolver;
  */
 // REMIND support more plugins?
 public abstract class RegionsPlugin<P extends Plugin> extends Hook<P> {
+
+	public static final String DEPRECATION_MESSAGE =
+		"Skript's region syntaxes are deprecated and will be removed in a future release." +
+			" For WorldGuard support, we recommend using skript-worldguard: https://github.com/SkriptLang/skript-worldguard";
 	
 	public RegionsPlugin() throws IOException {}
 	
@@ -54,6 +58,9 @@ public abstract class RegionsPlugin<P extends Plugin> extends Hook<P> {
 	@Override
 	protected boolean init() {
 		plugins.add(this);
+		Skript.warning("Loaded regions hook for " + getName() + "." +
+			" Please note that Skript's region hooks are deprecated and will be removed in a future release." +
+			" For WorldGuard support, we recommend using skript-worldguard: https://github.com/SkriptLang/skript-worldguard");
 		return true;
 	}
 	

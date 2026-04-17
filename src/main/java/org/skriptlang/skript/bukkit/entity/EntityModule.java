@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.entity;
 
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.entity.allay.AllayModule;
 import org.skriptlang.skript.bukkit.entity.axolotl.AxolotlModule;
@@ -23,7 +24,19 @@ import org.skriptlang.skript.bukkit.entity.villager.VillagerModule;
 import org.skriptlang.skript.bukkit.entity.warden.WardenModule;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-public class EntityModule implements AddonModule {
+public class EntityModule extends HierarchicalAddonModule {
+
+	public EntityModule(AddonModule parentModule) {
+		super(parentModule);
+	}
+
+	public Iterable<AddonModule> children() {
+		return List.of(
+			new DisplayModule(this),
+			new InteractionModule(this),
+			new PlayerModule(this)
+		);
+	}
 
 	@Override
 	public void load(SkriptAddon addon) {
@@ -37,6 +50,18 @@ public class EntityModule implements AddonModule {
 		registerConditions(registry);
 		registerEffects(registry);
 		registerExpressions(registry);
+	}
+
+	protected void loadSelf(SkriptAddon addon) {
+		if (Skript.classExists("org.bukkit.entity.Nautilus")) {
+			NautilusData.register();
+			ZombieNautilusData.register();
+			SimpleEntityData.addSuperEntity("any nautilus", AbstractNautilus.class);
+		}
+
+		register(addon,
+			ExprDeathMessage::register
+		);
 	}
 
 	@Override

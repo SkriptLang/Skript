@@ -23,7 +23,7 @@ import java.util.*;
 @Example("set {_sum} to {_numbers::*} reduced with [reduced value + input]")
 @Example("set {_product} to {_values::*} reduced with [reduced value * input]")
 @Example("set {_concatenated} to {_strings::*} reduced with [\"%reduced value%%input%\"]")
-@Since("INSERT VERSION")
+@Since("2.15")
 @Keywords({"input", "reduced value", "accumulator"})
 public class ExprReduce extends SimpleExpression<Object> implements InputSource {
 

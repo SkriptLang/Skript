@@ -6,6 +6,7 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.hooks.regions.RegionsPlugin;
 import ch.njol.skript.hooks.regions.classes.Region;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
@@ -14,6 +15,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 import java.util.function.Predicate;
 
@@ -52,6 +54,7 @@ public class CondIsMember extends Condition {
 		regions = (Expression<Region>) exprs[1];
 		owner = parseResult.mark == 1;
 		setNegated(matchedPattern == 1);
+		ScriptWarning.printDeprecationWarning(RegionsPlugin.DEPRECATION_MESSAGE);
 		return true;
 	}
 

@@ -16,8 +16,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.skriptlang.skript.bukkit.entity.elements.expressions.ExprArmorSlot;
 import org.skriptlang.skript.bukkit.entity.elements.expressions.ExprEntitySound;
+import org.skriptlang.skript.bukkit.text.elements.expressions.ExprColored;
 import org.skriptlang.skript.bukkit.potion.elements.conditions.CondHasPotion;
-import org.skriptlang.skript.common.properties.conditions.PropCondContains;
+import org.skriptlang.skript.common.properties.elements.conditions.PropCondContains;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.registration.SyntaxInfo;
 
@@ -417,7 +418,7 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 		// TODO - Fix these conflicts
 		// Exclusions by amount of conflicts
 		// 1 conflict
-		EXCLUSIONS.add(new Exclusion("formatted %*%", ExprFormatDate.class, ExprColoured.class));
+		EXCLUSIONS.add(new Exclusion("formatted %*%", ExprFormatDate.class, ExprColored.class));
 		EXCLUSIONS.add(new Exclusion("unload %*%", EffScriptFile.class, EffWorldLoad.class));
 		EXCLUSIONS.add(new Exclusion("the %*% of %*%", ExprArmorSlot.class, ExprEntities.class));
 		EXCLUSIONS.add(new Exclusion("%*% of %*%", ExprArmorSlot.class, ExprEntities.class, ExprXOf.class));
@@ -426,6 +427,7 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 		EXCLUSIONS.add(new Exclusion(ExprNewBannerPattern.class, ExprFireworkEffect.class));
 		EXCLUSIONS.add(new Exclusion(ExprInventoryAction.class, ExprClicked.class));
 		EXCLUSIONS.add(new Exclusion(ExprEntities.class, ExprValueWithin.class));
+		EXCLUSIONS.add(new Exclusion(ExprEventExpression.class, ExprEntity.class));
 
 		// 4 conflicts
 		EXCLUSIONS.add(new Exclusion(ExprEntitySound.class, ExprBlockSound.class));

@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.util.coll.CollectionUtils;
+
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -13,6 +14,7 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleEvent;
+import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -31,15 +33,14 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 
 @Name("Attacked")
-@Description("The victim of a damage event, e.g. when a player attacks a zombie this expression represents the zombie. " +
-			 "When using Minecraft 1.11+, this also covers the hit entity in a projectile hit event.")
+@Description("The victim of a damage event, e.g. when a player attacks a zombie this expression represents the zombie.")
 @Example("""
 	on damage:
 		victim is a creeper
 		damage the attacked by 1 heart
 	""")
 @Since("1.3, 2.6.1 (projectile hit event)")
-@Events({"damage", "death", "projectile hit"})
+@Events({"damage", "death", "projectile hit", "attempt attack"})
 public class ExprAttacked extends SimpleExpression<Entity> implements EventRestrictedSyntax {
 
 	private static final boolean SUPPORT_PROJECTILE_HIT = Skript.methodExists(ProjectileHitEvent.class, "getHitEntity");
@@ -70,27 +71,34 @@ public class ExprAttacked extends SimpleExpression<Entity> implements EventRestr
 	@Override
 	public Class<? extends Event>[] supportedEvents() {
 		return CollectionUtils.array(EntityDamageEvent.class, EntityDeathEvent.class,
-			VehicleDamageEvent.class, VehicleDestroyEvent.class, ProjectileHitEvent.class);
+			VehicleDamageEvent.class, VehicleDestroyEvent.class, ProjectileHitEvent.class, PrePlayerAttackEntityEvent.class);
 	}
 
 	@Override
 	@Nullable
-	protected Entity[] get(Event e) {
+	protected Entity[] get(Event event) {
 		Entity[] one = (Entity[]) Array.newInstance(type.getType(), 1);
 		Entity entity;
-		if (e instanceof EntityEvent)
-			if (SUPPORT_PROJECTILE_HIT && e instanceof ProjectileHitEvent)
-				entity = ((ProjectileHitEvent) e).getHitEntity();
-			else
-				entity = ((EntityEvent) e).getEntity();
-		else if (e instanceof VehicleEvent)
-			entity = ((VehicleEvent) e).getVehicle();
-		else
+
+		if (event instanceof EntityEvent entityEvent) {
+			if (SUPPORT_PROJECTILE_HIT && event instanceof ProjectileHitEvent projectileHitEvent) {
+				entity = projectileHitEvent.getHitEntity();
+			} else {
+				entity = entityEvent.getEntity();
+			}
+		} else if (event instanceof VehicleEvent vehicleEvent) {
+			entity = vehicleEvent.getVehicle();
+		} else if (event instanceof PrePlayerAttackEntityEvent preAttackEvent) {
+			entity = preAttackEvent.getAttacked();
+		} else {
 			return null;
+		}
+
 		if (type.isInstance(entity)) {
 			one[0] = entity;
 			return one;
 		}
+
 		return null;
 	}
 

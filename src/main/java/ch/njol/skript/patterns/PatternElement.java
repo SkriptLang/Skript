@@ -51,7 +51,7 @@ public abstract class PatternElement {
 	/**
 	 * @deprecated Use {@link #toFullString(StringificationProperties)}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.15", forRemoval = true)
 	public String toFullString() {
 		return toFullString(StringificationProperties.DEFAULT);
 	}
