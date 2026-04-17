@@ -1,38 +1,37 @@
 package ch.njol.skript.events;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.registrations.EventValues;
 import io.papermc.paper.event.entity.EntityFertilizeEggEvent;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class EvtFertilizeEgg extends SkriptEvent {
 
-	static {
-		Skript.registerEvent("Entity Fertilize", EvtFertilizeEgg.class, EntityFertilizeEggEvent.class,
-				"[entity] fertiliz(e|ing) [an] egg [of %-entitytypes%]")
-			.description(
-				"Called whenever an entity fertilizes an egg (e.g. a turtle has an egg, a frog becomes pregnant, or a " +
-					"sniffer finds a sniffer egg).")
-			.examples("""
-				on fertilizing egg of turtles:
-					broadcast "A turtle just fertilized an egg!"
-				on fertilizing egg:
-					if event-entity is a frog:
-						broadcast "A frog just became pregnant!"
-				""")
-			.since("INSERT VERSION");
-
-		EventValues.registerEventValue(EntityFertilizeEggEvent.class, Entity.class, event -> {
-			return event.getEntity();
-		}, EventValues.TIME_NOW,
-			"Use 'mother' and/or 'father' in fertilize egg events",
-			EntityFertilizeEggEvent.class
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.builder(EvtFertilizeEgg.class, "Entity Fertilize")
+				.addEvent(EntityFertilizeEggEvent.class)
+				.addPatterns("[entity] fertiliz(e|ing) [an] egg [of %-entitytypes%]")
+				.addDescription(
+					"Called whenever an entity fertilizes an egg (e.g. a turtle has an egg, a frog becomes pregnant, or a " +
+						"sniffer finds a sniffer egg).")
+				.addExample("""
+					on fertilizing egg of turtles:
+						broadcast "A turtle just fertilized an egg!"
+					on fertilizing egg:
+						if event-entity is a frog:
+							broadcast "A frog just became pregnant!"
+					""")
+				.addSince("INSERT VERSION")
+				.supplier(EvtFertilizeEgg::new)
+				.build()
 		);
 	}
 

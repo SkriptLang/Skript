@@ -1,7 +1,10 @@
 package org.skriptlang.skript.bukkit.breeding;
 
+import ch.njol.skript.events.EvtFertilizeEgg;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.registrations.EventValues;
+import io.papermc.paper.event.entity.EntityFertilizeEggEvent;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityEnterLoveModeEvent;
@@ -15,6 +18,8 @@ import org.skriptlang.skript.bukkit.breeding.elements.effects.EffMakeAdultOrBaby
 import org.skriptlang.skript.bukkit.breeding.elements.events.EvtBreed;
 import org.skriptlang.skript.bukkit.breeding.elements.expressions.ExprBreedingFamily;
 import org.skriptlang.skript.bukkit.breeding.elements.expressions.ExprLoveTime;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 
 public class BreedingModule extends HierarchicalAddonModule {
@@ -37,6 +42,7 @@ public class BreedingModule extends HierarchicalAddonModule {
 			EffMakeAdultOrBaby::register,
 
 			EvtBreed::register,
+			EvtFertilizeEgg::register,
 
 			ExprBreedingFamily::register,
 			ExprLoveTime::register
@@ -59,6 +65,14 @@ public class BreedingModule extends HierarchicalAddonModule {
 
 		EventValues.registerEventValue(EntityEnterLoveModeEvent.class, LivingEntity.class, EntityEnterLoveModeEvent::getEntity);
 		EventValues.registerEventValue(EntityEnterLoveModeEvent.class, HumanEntity.class, EntityEnterLoveModeEvent::getHumanEntity);
+
+		addon.registry(EventValueRegistry.class).register(
+			EventValue.builder(EntityFertilizeEggEvent.class, Entity.class)
+				.getter(EntityFertilizeEggEvent::getEntity)
+				.excludedErrorMessage("Use 'mother' and/or 'father' in fertilize egg events")
+				.excludes(EntityFertilizeEggEvent.class)
+				.build()
+		);
 	}
 
 	@Override
