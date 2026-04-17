@@ -6,6 +6,7 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.util.Timespan;
 import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Creeper;
@@ -15,59 +16,61 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Fuse Ticks")
-@Description("The fuse ticks of a creeper or primed TNT. This is how many ticks remain before the entity explodes.")
+@Name("Fuse Duration")
+@Description("The fuse duration of a creeper or primed TNT. For creepers, this is the total fuse duration before explosion. For primed TNT, this is the remaining time before explosion.")
 @Example("""
 	on spawn of a creeper:
-		set the fuse ticks of the event-entity to 100
+		set the fuse duration of the event-entity to 5 seconds
 	""")
 @Example("""
 	on spawn of primed tnt:
-		set fuse ticks of event-entity to 200
+		set fuse duration of event-entity to 10 seconds
 	""")
 @Since("INSERT VERSION")
-public class ExprFuseTicks extends SimplePropertyExpression<Entity, Number> {
+public class ExprFuseDuration extends SimplePropertyExpression<Entity, Timespan> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprFuseTicks.class, Number.class, "fuse tick[s]", "entities", false).build()
+			infoBuilder(ExprFuseDuration.class, Timespan.class, "fuse (duration|time)", "entities", false).build()
 		);
 	}
 
 	@Override
-	public @Nullable Number convert(Entity entity) {
+	public @Nullable Timespan convert(Entity entity) {
 		if (entity instanceof Creeper creeper)
-			return creeper.getMaxFuseTicks();
+			return new Timespan(Timespan.TimePeriod.TICK, creeper.getMaxFuseTicks());
 		else if (entity instanceof TNTPrimed tnt)
-			return tnt.getFuseTicks();
+			return new Timespan(Timespan.TimePeriod.TICK, tnt.getFuseTicks());
 		return null;
 	}
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case SET, DELETE, ADD, REMOVE -> CollectionUtils.array(Number.class);
+			case SET, DELETE, ADD, REMOVE -> CollectionUtils.array(Timespan.class);
 			default -> null;
 		};
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		int value = delta != null ? Math2.fit(0, ((Number) delta[0]).intValue(), Integer.MAX_VALUE) : 0;
+		int ticks = delta != null && delta[0] instanceof Timespan ts
+			? (int) Math2.fit(0, ts.get(Timespan.TimePeriod.TICK), Integer.MAX_VALUE)
+			: 0;
 		for (Entity entity : getExpr().getArray(event)) {
 			if (entity instanceof Creeper creeper) {
 				creeper.setMaxFuseTicks(Math2.fit(0, switch (mode) {
-					case SET, DELETE -> value;
-					case ADD -> creeper.getMaxFuseTicks() + value;
-					case REMOVE -> creeper.getMaxFuseTicks() - value;
+					case SET, DELETE -> ticks;
+					case ADD -> creeper.getMaxFuseTicks() + ticks;
+					case REMOVE -> creeper.getMaxFuseTicks() - ticks;
 					default -> throw new IllegalArgumentException("Unexpected mode: " + mode);
 				}, Integer.MAX_VALUE));
 			} else if (entity instanceof TNTPrimed tnt) {
 				tnt.setFuseTicks(Math2.fit(0, switch (mode) {
-					case SET, DELETE -> value;
-					case ADD -> tnt.getFuseTicks() + value;
-					case REMOVE -> tnt.getFuseTicks() - value;
+					case SET, DELETE -> ticks;
+					case ADD -> tnt.getFuseTicks() + ticks;
+					case REMOVE -> tnt.getFuseTicks() - ticks;
 					default -> throw new IllegalArgumentException("Unexpected mode: " + mode);
 				}, Integer.MAX_VALUE));
 			}
@@ -75,13 +78,13 @@ public class ExprFuseTicks extends SimplePropertyExpression<Entity, Number> {
 	}
 
 	@Override
-	public Class<Number> getReturnType() {
-		return Number.class;
+	public Class<Timespan> getReturnType() {
+		return Timespan.class;
 	}
 
 	@Override
 	protected String getPropertyName() {
-		return "fuse ticks";
+		return "fuse duration";
 	}
 
 }

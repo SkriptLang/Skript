@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.entity;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.entity.SimpleEntityData;
-import ch.njol.skript.expressions.ExprFuseTicks;
+import ch.njol.skript.expressions.ExprFuseDuration;
 import org.bukkit.entity.AbstractNautilus;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
@@ -40,7 +40,7 @@ public class EntityModule extends HierarchicalAddonModule {
 
 		register(addon,
 			ExprDeathMessage::register,
-			ExprFuseTicks::register
+			ExprFuseDuration::register
 		);
 	}
 
