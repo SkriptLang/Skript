@@ -1,18 +1,23 @@
 package org.skriptlang.skript.bukkit.entity.minecart;
 
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
-public class MinecartModule implements AddonModule {
+public class MinecartModule extends HierarchicalAddonModule {
+
+	public MinecartModule(AddonModule parentModule) {
+		super(parentModule);
+	}
 
 	@Override
-	public void load(SkriptAddon addon) {
+	protected void loadSelf(SkriptAddon addon) {
 		MinecartData.register();
-
-		SyntaxRegistry registry = addon.syntaxRegistry();
-		ExprMaxMinecartSpeed.register(registry);
-		ExprMinecartDerailedFlyingVelocity.register(registry);
+		
+		register(addon,
+			ExprMaxMinecartSpeed::register,
+			ExprMinecartDerailedFlyingVelocity::register
+		);
 	}
 
 	@Override

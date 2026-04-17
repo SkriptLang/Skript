@@ -1,17 +1,20 @@
 package org.skriptlang.skript.bukkit.entity.creeper;
 
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
-public class CreeperModule implements AddonModule {
+public class CreeperModule extends HierarchicalAddonModule {
+
+	public CreeperModule(AddonModule parentModule) {
+		super(parentModule);
+	}
 
 	@Override
-	public void load(SkriptAddon addon) {
+	protected void loadSelf(SkriptAddon addon) {
 		CreeperData.register();
 
-		SyntaxRegistry registry = addon.syntaxRegistry();
-		EffExplodeCreeper.register(registry);
+		register(addon, EffExplodeCreeper::register);
 	}
 
 	@Override

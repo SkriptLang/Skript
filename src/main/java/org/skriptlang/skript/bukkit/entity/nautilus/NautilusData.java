@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.entity.entitydata;
+package org.skriptlang.skript.bukkit.entity.nautilus;
 
 import org.bukkit.entity.EntityType;
 import org.skriptlang.skript.bukkit.entity.EntityData;

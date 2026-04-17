@@ -1,18 +1,23 @@
 package org.skriptlang.skript.bukkit.entity.item;
 
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
-public class ItemModule implements AddonModule {
+public class ItemModule extends HierarchicalAddonModule {
+
+	public ItemModule(AddonModule parentModule) {
+		super(parentModule);
+	}
 
 	@Override
-	public void load(SkriptAddon addon) {
+	protected void loadSelf(SkriptAddon addon) {
 		DroppedItemData.register();
-
-		SyntaxRegistry registry = addon.syntaxRegistry();
-		ExprItemOwner.register(registry);
-		ExprItemThrower.register(registry);
+		
+		register(addon,
+			ExprItemOwner::register,
+			ExprItemThrower::register
+		);
 	}
 
 	@Override

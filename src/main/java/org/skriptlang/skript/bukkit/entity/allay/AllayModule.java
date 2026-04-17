@@ -2,21 +2,27 @@ package org.skriptlang.skript.bukkit.entity.allay;
 
 import org.bukkit.entity.Allay;
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.entity.data.SimpleEntityData;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
-public class AllayModule implements AddonModule {
+public class AllayModule extends HierarchicalAddonModule {
+
+	public AllayModule(AddonModule parentModule) {
+		super(parentModule);
+	}
 
 	@Override
-	public void load(SkriptAddon addon) {
+	protected void loadSelf(SkriptAddon addon) {
 		SimpleEntityData.addSimpleEntity(Allay.class, "allay¦s @an", "allay[plural:s]");
 
-		SyntaxRegistry registry = addon.syntaxRegistry();
-		CondAllayCanDuplicate.register(registry);
-		EffAllayCanDuplicate.register(registry);
-		EffAllayDuplicate.register(registry);
-		ExprAllayJukebox.register(registry);
+
+		register(addon,
+			CondAllayCanDuplicate::register,
+			EffAllayCanDuplicate::register,
+			EffAllayDuplicate::register,
+			ExprAllayJukebox::register
+		);
 	}
 
 	@Override

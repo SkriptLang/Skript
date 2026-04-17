@@ -1,19 +1,24 @@
 package org.skriptlang.skript.bukkit.entity.goat;
 
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
-public class GoatModule implements AddonModule {
+public class GoatModule extends HierarchicalAddonModule {
+
+	public GoatModule(AddonModule parentModule) {
+		super(parentModule);
+	}
 
 	@Override
-	public void load(SkriptAddon addon) {
+	protected void loadSelf(SkriptAddon addon) {
 		GoatData.register();
-
-		SyntaxRegistry registry = addon.syntaxRegistry();
-		CondGoatHasHorns.register(registry);
-		EffGoatHorns.register(registry);
-		EffGoatRam.register(registry);
+		
+		register(addon,
+			CondGoatHasHorns::register,
+			EffGoatHorns::register,
+			EffGoatRam::register
+		);
 	}
 
 	@Override

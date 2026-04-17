@@ -1,18 +1,23 @@
 package org.skriptlang.skript.bukkit.entity.strider;
 
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
-public class StriderModule implements AddonModule {
+public class StriderModule extends HierarchicalAddonModule {
+
+	public StriderModule(AddonModule parentModule) {
+		super(parentModule);
+	}
 
 	@Override
-	public void load(SkriptAddon addon) {
+	protected void loadSelf(SkriptAddon addon) {
 		StriderData.register();
-
-		SyntaxRegistry registry = addon.syntaxRegistry();
-		EffStriderShivering.register(registry);
-		CondStriderIsShivering.register(registry);
+		
+		register(addon,
+			EffStriderShivering::register,
+			CondStriderIsShivering::register
+		);
 	}
 
 	@Override

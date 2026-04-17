@@ -1,19 +1,24 @@
 package org.skriptlang.skript.bukkit.entity.enderman;
 
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
-public class EndermanModule implements AddonModule {
+public class EndermanModule extends HierarchicalAddonModule {
+
+	public EndermanModule(AddonModule parentModule) {
+		super(parentModule);
+	}
 
 	@Override
-	public void load(SkriptAddon addon) {
+	protected void loadSelf(SkriptAddon addon) {
 		EndermanData.register();
-
-		SyntaxRegistry registry = addon.syntaxRegistry();
-		CondEndermanStaredAt.register(registry);
-		EffEndermanTeleport.register(registry);
-		ExprCarryingBlockData.register(registry);
+		
+		register(addon,
+			CondEndermanStaredAt::register,
+			EffEndermanTeleport::register,
+			ExprCarryingBlockData::register
+		);
 	}
 
 	@Override

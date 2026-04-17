@@ -2,18 +2,21 @@ package org.skriptlang.skript.bukkit.entity.camel;
 
 import org.bukkit.entity.Camel;
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.entity.data.SimpleEntityData;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
-public class CamelModule implements AddonModule {
+public class CamelModule extends HierarchicalAddonModule {
+
+	public CamelModule(AddonModule parentModule) {
+		super(parentModule);
+	}
 
 	@Override
-	public void load(SkriptAddon addon) {
+	protected void loadSelf(SkriptAddon addon) {
 		SimpleEntityData.addSimpleEntity(Camel.class, "camel¦s @a", "camel[plural:s]");
 
-		SyntaxRegistry registry = addon.syntaxRegistry();
-		CondIsDashing.register(registry);
+		register(addon, CondIsDashing::register);
 	}
 
 	@Override

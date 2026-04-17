@@ -14,10 +14,13 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.entity.EntityDataInfo;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.util.function.Consumer;
+
+import static org.skriptlang.skript.bukkit.entity.EntityData.getInfo;
 
 /**
  * @deprecated Use {@link org.skriptlang.skript.bukkit.entity.EntityData} instead.
@@ -31,7 +34,40 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	public static final Adjective m_baby = org.skriptlang.skript.bukkit.entity.EntityData.m_baby,
 			m_adult = org.skriptlang.skript.bukkit.entity.EntityData.m_adult;
 
-	public static Serializer<org.skriptlang.skript.bukkit.entity.EntityData> serializer = org.skriptlang.skript.bukkit.entity.EntityData.serializer;
+	public static Serializer<EntityData> serializer = new Serializer<>() {
+		@Override
+		public Fields serialize(EntityData entityData) throws NotSerializableException {
+			return org.skriptlang.skript.bukkit.entity.EntityData.serializer.serialize((org.skriptlang.skript.bukkit.entity.EntityData) entityData);
+		}
+
+		@Override
+		public boolean canBeInstantiated() {
+			return false;
+		}
+
+		@Override
+		public void deserialize(EntityData entityData, Fields fields) throws NotSerializableException, StreamCorruptedException {
+			org.skriptlang.skript.bukkit.entity.EntityData.serializer.deserialize((org.skriptlang.skript.bukkit.entity.EntityData) entityData, fields);
+		}
+
+		@Override
+		protected EntityData deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
+			String codeName = fields.getAndRemoveObject("codeName", String.class);
+			if (codeName == null)
+				throw new StreamCorruptedException();
+			EntityDataInfo<?, ?> info = getInfo(codeName);
+			if (info == null)
+				throw new StreamCorruptedException("Invalid EntityData code name " + codeName);
+			EntityData<?> entityData = info.instance();
+			entityData.deserialize(fields);
+			return entityData;
+		}
+
+		@Override
+		public boolean mustSyncDeserialization() {
+			return false;
+		}
+	};
 
 	/**
 	 * Prints errors.

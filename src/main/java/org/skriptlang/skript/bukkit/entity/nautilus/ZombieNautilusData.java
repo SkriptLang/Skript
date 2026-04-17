@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.entity.entitydata;
+package org.skriptlang.skript.bukkit.entity.nautilus;
 
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import org.bukkit.entity.EntityType;

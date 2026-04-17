@@ -19,10 +19,6 @@ import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.registration.SyntaxRegistry;
-
-import java.util.ArrayList;
-import java.util.List;
 import org.skriptlang.skript.bukkit.entity.EntityData;
 
 public class DisplayData extends EntityData<Display> {
@@ -41,7 +37,7 @@ public class DisplayData extends EntityData<Display> {
 			"text display entit(y|plural:ies)")
 	);
 
-	static {
+	public static void register() {
 		registerInfo(
 			infoBuilder(DisplayData.class, "display")
 				.dataPatterns(GROUPS)
