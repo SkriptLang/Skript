@@ -21,10 +21,10 @@ public class EvtPlayerToggleEntityAge extends SkriptEvent {
 			BukkitSyntaxInfos.Event.KEY,
 			BukkitSyntaxInfos.Event.builder(EvtPlayerToggleEntityAge.class, "Player Toggle Entity Age Lock")
 				.addEvent(PlayerToggleEntityAgeLockEvent.class)
-				.addPatterns("[player] [toggle[ing]] entity age lock [of %-entitytypes%]")
+				.addPatterns("[player] entity age (0¦lock|1¦unlock|2¦toggle) [of %-entitytypes%]")
 				.addDescription("Called when a player toggles the age lock of an entity using a golden dandelion")
 				.addExample("""
-					on player toggling entity age lock:
+					on player entity age lock toggle:
 						cancel event
 					""")
 				.addSince("INSERT VERSION")
@@ -39,9 +39,15 @@ public class EvtPlayerToggleEntityAge extends SkriptEvent {
 
 	private @Nullable Literal<EntityType> entitiesLiteral;
 	private EntityType @Nullable [] entities;
+	private @Nullable Boolean entityAgeLocked;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
+		entityAgeLocked = switch (parseResult.mark) {
+			case 0 -> true;
+			case 1 -> false;
+			default -> null;
+		};
 		if (args[0] != null) {
 			//noinspection unchecked
 			entitiesLiteral = ((Literal<EntityType>) args[0]);
@@ -52,7 +58,9 @@ public class EvtPlayerToggleEntityAge extends SkriptEvent {
 
 	@Override
 	public boolean check(Event event) {
-		return event instanceof PlayerToggleEntityAgeLockEvent e && checkEntity(e.getEntity());
+		return event instanceof PlayerToggleEntityAgeLockEvent e
+			&& (entityAgeLocked == null || entityAgeLocked == e.isAgeLocked())
+			&& checkEntity(e.getEntity());
 	}
 
 	private boolean checkEntity(Entity entity) {
@@ -68,7 +76,10 @@ public class EvtPlayerToggleEntityAge extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "player toggling entity age lock" + (entitiesLiteral == null ? "" : " of " + entitiesLiteral);
+		String state = (entityAgeLocked == null ? "lock/unlock" : (entityAgeLocked ? "lock" : "unlock"));
+		String entities = (entitiesLiteral == null ? "" : " of " + entitiesLiteral.toString(event, debug));
+
+		return "player toggling entity age " + state + entities;
 	}
 
 }
