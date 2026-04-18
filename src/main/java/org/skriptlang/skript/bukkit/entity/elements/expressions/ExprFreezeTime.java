@@ -56,8 +56,8 @@ public class ExprFreezeTime extends SimplePropertyExpression<Entity, Timespan> {
 		}
 		for (Entity entity : getExpr().getArray(event)) {
 			switch (mode) {
-				case SET, DELETE, RESET -> entity.setFreezeTicks(time);
-				case ADD, REMOVE -> entity.setFreezeTicks((int) Math2.addClamped(entity.getFreezeTicks(), time));
+				case SET, DELETE, RESET -> setFreezeTicks(entity, time);
+				case ADD, REMOVE -> setFreezeTicks(entity, (int) Math2.addClamped(entity.getFreezeTicks(), time));
 			}
 		}
 	}

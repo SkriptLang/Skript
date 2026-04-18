@@ -44,7 +44,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		String name,
 		String... patterns
 	) {
-		SimpleEntityDataInfo info = new SimpleEntityDataInfo(entityClass, false, allowSpawning);
+		SimpleEntityDataInfo info = new SimpleEntityDataInfo(name, entityClass, false, allowSpawning);
 		PatternGroup<SimpleEntityDataInfo> group = new PatternGroup<>(PATTERN_GROUPS.size(), name, info, patterns);
 		addGroup(group);
 	}
@@ -65,7 +65,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		String name,
 		String... patterns
 	) {
-		SimpleEntityDataInfo info = new SimpleEntityDataInfo(entityClass, true, allowSpawning);
+		SimpleEntityDataInfo info = new SimpleEntityDataInfo(name, entityClass, true, allowSpawning);
 		PatternGroup<SimpleEntityDataInfo> group = new PatternGroup<>(PATTERN_GROUPS.size(), name, info, patterns);
 		addGroup(group);
 	}
@@ -454,29 +454,29 @@ public class SimpleEntityData extends EntityData<Entity> {
 	@Override
 	public Fields serialize() throws NotSerializableException {
 		Fields fields = super.serialize();
-		fields.putObject("info.entityClass", simpleInfo.entityClass());
+		fields.putObject("info.name", simpleInfo.name());
 		return fields;
 	}
 
 	@Override
 	public void deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
-		Class<?> entityClass = fields.getAndRemoveObject("info.entityClass", Class.class);
-		if (entityClass == null)
+		String name = fields.getAndRemoveObject("info.name", String.class);
+		if (name == null)
 			return;
 		for (PatternGroup<SimpleEntityDataInfo> group : PATTERN_GROUPS) {
 			SimpleEntityDataInfo groupInfo = group.data();
 			assert groupInfo != null;
-			if (entityClass.equals(groupInfo.entityClass())) {
+			if (name.equals(groupInfo.name())) {
 				this.simpleInfo = groupInfo;
 				super.groupIndex = group.index();
 				super.deserialize(fields);
 				return;
 			}
 		}
-		throw new StreamCorruptedException("Invalid SimpleEntityDataInfo Entity Class " + entityClass.getSimpleName());
+		throw new StreamCorruptedException("Invalid SimpleEntityDataInfo Name: " + name);
 	}
 
-	public record SimpleEntityDataInfo(Class<? extends Entity> entityClass, boolean isSuperType, Kleenean allowSpawning) {}
+	public record SimpleEntityDataInfo(String name, Class<? extends Entity> entityClass, boolean isSuperType, Kleenean allowSpawning) {}
 
 	private static class SimpleEntityDataPatterns extends EntityDataPatterns<SimpleEntityDataInfo> {
 
@@ -486,11 +486,13 @@ public class SimpleEntityData extends EntityData<Entity> {
 		private PatternGroup<SimpleEntityDataInfo> genericGroup;
 		private final SequencedCollection<EntityNoun> names = new ArrayList<>();
 
+		@SafeVarargs
 		public SimpleEntityDataPatterns(PatternGroup<SimpleEntityDataInfo>... patternGroups) {
 			update(patternGroups);
 		}
 
-		public void update(PatternGroup<SimpleEntityDataInfo>... patternGroups) {
+		@SafeVarargs
+		public final void update(PatternGroup<SimpleEntityDataInfo>... patternGroups) {
 			groupMap.clear();
 			dataMap.clear();
 			names.clear();
