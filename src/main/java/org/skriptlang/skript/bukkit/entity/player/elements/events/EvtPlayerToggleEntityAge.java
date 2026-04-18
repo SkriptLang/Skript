@@ -29,7 +29,7 @@ public class EvtPlayerToggleEntityAge extends SkriptEvent {
 					""")
 				.addSince("INSERT VERSION")
 				.supplier(EvtPlayerToggleEntityAge::new)
-				.addRequiredPlugin("26.1+")
+				.addRequiredPlugin("Paper 26.1+")
 				.build()
 		);
 
