@@ -4,7 +4,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.localization.Adjective;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
@@ -18,6 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.entity.EntityData;
+import org.skriptlang.skript.bukkit.entity.EntityNoun;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.Arrays;
@@ -37,8 +37,9 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 				.build()
 		);
 	}
-	
-	private static final Adjective m_adjective = new Adjective("entities.thrown potion.adjective");
+
+	private static final EntityNoun ADJECTIVE = new EntityNoun("thrown");
+
 	private static final boolean LINGERING_POTION_ENTITY_USED = !Skript.isRunningMinecraft(1, 14);
 	// LingeringPotion class deprecated and marked for removal
 	@SuppressWarnings("removal")
@@ -171,7 +172,7 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 			return super.toString(flags);
 		StringBuilder builder = new StringBuilder();
 		builder.append(Noun.getArticleWithSpace(types[0].getTypes().get(0).getGender(), flags));
-		builder.append(m_adjective.toString(types[0].getTypes().get(0).getGender(), flags));
+		builder.append(ADJECTIVE.toString(flags));
 		builder.append(" ");
 		builder.append(Classes.toString(types, flags & Language.NO_ARTICLE_MASK, false));
 		return builder.toString();

@@ -4,8 +4,6 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Adjective;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.Noun;
 import ch.njol.skript.util.Color;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.Kleenean;
@@ -15,8 +13,11 @@ import org.bukkit.entity.Sheep;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.entity.EntityData;
+import org.skriptlang.skript.bukkit.entity.EntityNoun;
 
 import java.util.Arrays;
+
+import static ch.njol.skript.localization.Language.NO_ARTICLE_MASK;
 
 public class SheepData extends EntityData<Sheep> {
 
@@ -139,10 +140,17 @@ public class SheepData extends EntityData<Sheep> {
 				if (colors[i] instanceof SkriptColor skriptColor)
 					adjectives[i] = skriptColor.getAdjective();
 		}
-		Noun name = getName();
-		Adjective age = getAgeAdjective();
-		return name.getArticleWithSpace(flags) + (age == null ? "" : age.toString(name.getGender(), flags) + " ")
-			+ Adjective.toString(adjectives, name.getGender(), flags, false) + " " + name.toString(flags & Language.NO_ARTICLE_MASK);
+		EntityNoun name = getName();
+		EntityNoun age = getAgeNoun();
+		StringBuilder builder = new StringBuilder();
+		builder.append(name.getArticleWithSpace(flags));
+		if (age != null)
+			builder.append(age.toString(flags));
+		builder.append(" ");
+		builder.append(Adjective.toString(adjectives, name.getGender(), flags, false));
+		builder.append(" ");
+		builder.append(name.toString(flags & NO_ARTICLE_MASK));
+		return builder.toString();
 	}
 
 }

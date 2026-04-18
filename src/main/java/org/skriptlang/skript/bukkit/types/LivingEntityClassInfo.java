@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.base.types;
+package org.skriptlang.skript.bukkit.types;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
@@ -10,7 +10,7 @@ import org.bukkit.entity.Phantom;
 import org.bukkit.entity.Slime;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
-import org.skriptlang.skript.bukkit.base.types.EntityClassInfo.EntityChanger;
+import org.skriptlang.skript.bukkit.types.EntityClassInfo.EntityChanger;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
 public class LivingEntityClassInfo extends ClassInfo<LivingEntity> {

@@ -2,8 +2,6 @@ package ch.njol.skript.entity;
 
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.SyntaxElement;
-import ch.njol.skript.localization.Adjective;
-import ch.njol.skript.localization.Message;
 import ch.njol.util.Kleenean;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
@@ -29,10 +27,6 @@ import static org.skriptlang.skript.bukkit.entity.EntityData.getInfo;
 public abstract class EntityData<E extends Entity> implements SyntaxElement, YggdrasilExtendedSerializable {
 
 	public static final String LANGUAGE_NODE = "entities";
-
-	public static final Message m_age_pattern = org.skriptlang.skript.bukkit.entity.EntityData.m_age_pattern;
-	public static final Adjective m_baby = org.skriptlang.skript.bukkit.entity.EntityData.m_baby,
-			m_adult = org.skriptlang.skript.bukkit.entity.EntityData.m_adult;
 
 	public static Serializer<EntityData> serializer = new Serializer<>() {
 		@Override

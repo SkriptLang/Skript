@@ -1,7 +1,6 @@
 package org.skriptlang.skript.bukkit.entity;
 
 import ch.njol.skript.bukkitutil.EntityUtils;
-import ch.njol.skript.localization.Noun;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +19,7 @@ import java.util.SequencedCollection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import static org.skriptlang.skript.bukkit.entity.EntityData.m_age_pattern;
+import static org.skriptlang.skript.bukkit.entity.EntityData.AGE_PATTERN;
 
 final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends EntityData<E>, E extends Entity>
 	implements EntityDataInfo<Data, E> {
@@ -31,7 +30,6 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 	private final String dataName;
 	private final EntityDataPatterns<?> dataPatterns;
 	private final int defaultIndex;
-	private final PatternGroup<?> defaultGroup;
 	private final @Nullable EntityType entityType;
 	private final Class<? extends E> entityClass;
 
@@ -56,7 +54,6 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 		this.dataName = dataName;
 		this.dataPatterns = dataPatterns;
 		this.defaultIndex = defaultIndex;
-		this.defaultGroup = dataPatterns.getPatternGroup(defaultIndex);
 		if (entityType == null) {
 			this.entityType = EntityUtils.toBukkitEntityType(entityClass);
 		} else {
@@ -68,7 +65,7 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 		for (PatternGroup<?> group : dataPatterns.getPatternGroups()) {
 			int patternCount = 0;
 			for (String pattern : group.patterns()) {
-				pattern = pattern.replace("<age>", m_age_pattern.toString());
+				pattern = pattern.replace("<age>", AGE_PATTERN);
 				// correlates '#init.matchedPattern' to 'PatternGroup'
 				matchedPatternToGroup.put(allPatterns.size(), group);
 				// correlates '#init.matchedPattern' to pattern index in 'PatternGroup'
@@ -107,7 +104,7 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 
 	@Override
 	public PatternGroup<?> defaultGroup() {
-		return defaultGroup;
+		return dataPatterns.getPatternGroup(defaultIndex);
 	}
 
 	@Override
@@ -116,7 +113,7 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 	}
 
 	@Override
-	public SequencedCollection<Noun> names() {
+	public SequencedCollection<EntityNoun> names() {
 		return dataPatterns.getNames();
 	}
 

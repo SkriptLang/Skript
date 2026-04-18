@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.entity;
 
+import ch.njol.skript.Skript;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
@@ -58,10 +59,16 @@ public class EntityModule extends HierarchicalAddonModule {
 	}
 
 	protected void loadSelf(SkriptAddon addon) {
+		Skript.adminBroadcast("Loading Entity Module");
 		SimpleEntityData.register();
+		Skript.adminBroadcast("Init Simple Entity Data");
 		EntityData.register();
+		Skript.adminBroadcast("Registered Entity Data");
 		EntityType.register();
+		Skript.adminBroadcast("Register Entity Type");
 		registerEntityDatas();
+		Skript.adminBroadcast("Registered Entity Datas");
+		loadChildren(addon);
 
 		registerConditions(addon);
 		registerEffects(addon);

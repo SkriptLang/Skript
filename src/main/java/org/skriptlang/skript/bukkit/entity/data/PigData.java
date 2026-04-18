@@ -24,7 +24,8 @@ public class PigData extends EntityData<Pig> {
 
 	private static final EntityDataPatterns<Kleenean> GROUPS = new EntityDataPatterns<>(
 		new PatternGroup<>(0, "pig¦s @a", Kleenean.UNKNOWN,
-			"<age> [%-pigvariant%] pig[plural:s]", "[%-pigvariant%] <age> pig[plural:s]"),
+			"<age> [%-pigvariant%] pig[plural:s]", "[%-pigvariant%] <age> pig[plural:s]",
+			"baby:[%-pigvariant%] piglet[plural:s]"),
 		new PatternGroup<>(1, "saddled pig¦s @a", Kleenean.TRUE,
 			"saddled [%-pigvariant%] pig[plural:s]", "[%-pigvariant%] saddled pig[plural:s]"),
 		new PatternGroup<>(2, "unsaddled pig¦s @an", Kleenean.FALSE,

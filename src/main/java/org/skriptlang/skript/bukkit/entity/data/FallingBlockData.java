@@ -5,9 +5,7 @@ import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.localization.Adjective;
 import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
@@ -18,6 +16,7 @@ import org.bukkit.entity.FallingBlock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.entity.EntityData;
+import org.skriptlang.skript.bukkit.entity.EntityNoun;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -26,8 +25,8 @@ import java.util.function.Consumer;
 
 public class FallingBlockData extends EntityData<FallingBlock> {
 
-	private final static Message m_not_a_block_error = new Message("entities.falling block.not a block error");
-	private final static Adjective m_adjective = new Adjective("entities.falling block.adjective");
+	private final static String ERROR_MESSAGE = "Falling blocks must be blocks, not items";
+	private final static EntityNoun ADJECTIVE = new EntityNoun("falling");
 
 	private static final EntityDataPatterns<?> GROUP = EntityDataPatterns.of("falling block¦s @a",
 		"falling block[plural:s]", "unknown_plural:falling %-itemtype% [block[s]]");
@@ -76,7 +75,7 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 				.filter(Objects::nonNull)
 				.toArray(ItemType[]::new);
 			if (types.length == 0) {
-				Skript.error(m_not_a_block_error.toString());
+				Skript.error(ERROR_MESSAGE);
 				return false;
 			}
 		}
@@ -165,7 +164,7 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 			return super.toString(flags);
 		StringBuilder builder = new StringBuilder();
 		builder.append(Noun.getArticleWithSpace(types[0].getTypes().get(0).getGender(), flags));
-		builder.append(m_adjective.toString(types[0].getTypes().get(0).getGender(), flags));
+		builder.append(ADJECTIVE.toString(flags));
 		builder.append(" ");
 		builder.append(Classes.toString(types, flags & Language.NO_ARTICLE_MASK, false));
 		return builder.toString();

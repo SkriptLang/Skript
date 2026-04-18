@@ -13,8 +13,6 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.localization.Adjective;
-import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.variables.Variables;
@@ -88,9 +86,9 @@ public abstract class EntityData<E extends Entity>
 	}
 	public static final String LANGUAGE_NODE = "entities";
 
-	public static final Message m_age_pattern = new Message(LANGUAGE_NODE + ".age pattern");
-	public static final Adjective m_baby = new Adjective(LANGUAGE_NODE + ".age adjectives.baby"),
-			m_adult = new Adjective(LANGUAGE_NODE + ".age adjectives.adult");
+	public static final String AGE_PATTERN = "(unknown_age:|baby:(baby|young)|adult:(adult|grown(-| )up))";
+	public static final EntityNoun AGE_BABY = new EntityNoun("baby");
+	public static final EntityNoun AGE_ADULT = new EntityNoun("adult");
 
 	// must be here to be initialized before 'new SimpleLiteral' is called in the register block below
 	private static final List<EntityDataInfo<EntityData<?>, ?>> INFOS = new ArrayList<>();
@@ -373,25 +371,25 @@ public abstract class EntityData<E extends Entity>
 		return toString(0);
 	}
 
-	protected Noun getName() {
+	protected EntityNoun getName() {
 		return info.dataPatterns().getName(groupIndex);
 	}
 
-	protected @Nullable Adjective getAgeAdjective() {
+	protected @Nullable EntityNoun getAgeNoun() {
 		if (baby.isTrue()) {
-			return m_baby;
+			return AGE_BABY;
 		} else if (baby.isFalse()) {
-			return m_adult;
+			return AGE_ADULT;
 		}
 		return null;
 	}
 
 	public String toString(int flags) {
-		Noun name = getName();
+		EntityNoun name = getName();
 		if (baby.isTrue()) {
-			return m_baby.toString(name, flags);
+			return AGE_BABY.toString(name, flags);
 		} else if (baby.isFalse()) {
-			return m_adult.toString(name, flags);
+			return AGE_ADULT.toString(name, flags);
 		}
 		return name.toString(flags);
 	}
@@ -865,7 +863,7 @@ public abstract class EntityData<E extends Entity>
 		private final Map<Integer, PatternGroup<Data>> groupMap = new HashMap<>();
 		private final Map<Data, PatternGroup<Data>> dataMap = new HashMap<>();
 		private PatternGroup<Data> genericGroup;
-		private final SequencedCollection<Noun> names = new ArrayList<>();
+		private final SequencedCollection<EntityNoun> names = new ArrayList<>();
 
 		@SafeVarargs
 		public EntityDataPatterns(PatternGroup<Data>... patternGroups) {
@@ -883,7 +881,7 @@ public abstract class EntityData<E extends Entity>
 			return genericGroup;
 		}
 
-		public SequencedCollection<Noun> getNames() {
+		public SequencedCollection<EntityNoun> getNames() {
 			return names;
 		}
 
@@ -891,16 +889,24 @@ public abstract class EntityData<E extends Entity>
 			return patternGroups;
 		}
 
+		protected Map<Integer, PatternGroup<Data>> getGroupMap() {
+			return groupMap;
+		}
+
+		protected Map<Data, PatternGroup<Data>> getDataMap() {
+			return dataMap;
+		}
+
 		public PatternGroup<Data> getPatternGroup(int index) {
-			if (!groupMap.containsKey(index))
-				return genericGroup;
-			return groupMap.get(index);
+			if (!getGroupMap().containsKey(index))
+				return getGenericGroup();
+			return getGroupMap().get(index);
 		}
 
 		public PatternGroup<Data> getPatternGroup(@Nullable Data data) {
-			if (!dataMap.containsKey(data))
-				return genericGroup;
-			return dataMap.get(data);
+			if (!getDataMap().containsKey(data))
+				return getGenericGroup();
+			return getDataMap().get(data);
 		}
 
 		public int getIndex(@Nullable Data data) {
@@ -911,24 +917,24 @@ public abstract class EntityData<E extends Entity>
 			return getPatternGroup(index).data();
 		}
 
-		public Noun getName(int index) {
+		public EntityNoun getName(int index) {
 			return getPatternGroup(index).name();
 		}
 
-		public Noun getName(@Nullable Data data) {
+		public EntityNoun getName(@Nullable Data data) {
 			return getPatternGroup(data).name();
 		}
 
 	}
 
-	public record PatternGroup<Data>(int index, Noun name, @Nullable Data data, String... patterns) {
+	public record PatternGroup<Data>(int index, EntityNoun name, @Nullable Data data, String... patterns) {
 
-		public PatternGroup(int index, Noun name, String... patterns) {
+		public PatternGroup(int index, EntityNoun name, String... patterns) {
 			this(index, name, null, patterns);
 		}
 
 		public PatternGroup(int index, String name, @Nullable Data data, String... patterns) {
-			this(index, new Noun(name), data, patterns);
+			this(index, new EntityNoun(name), data, patterns);
 		}
 
 		public PatternGroup(int index, String name, String... patterns) {

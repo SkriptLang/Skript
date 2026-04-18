@@ -22,7 +22,7 @@ public class GoatData extends EntityData<Goat> {
 		String second = "baby:goat (kid[plural:s]|child[plural:ren])";
 		if (!prefix.isEmpty()) {
 			first = "<age> " + prefix + " goat[plural:s]";
-			second = "baby:" + prefix + " goaat (kid[plural:s]|child[plural:ren])";
+			second = "baby:" + prefix + " goat (kid[plural:s]|child[plural:ren])";
 		}
 		return new String[]{first, second};
 	}

@@ -12,19 +12,21 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.entity.EntityData;
+import org.skriptlang.skript.bukkit.entity.EntityNoun;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.SequencedCollection;
 
 public class SimpleEntityData extends EntityData<Entity> {
 
-	public record SimpleEntityDataInfo(Class<? extends Entity> entityClass, boolean isSuperType, Kleenean allowSpawning) {}
-
 	private static final List<PatternGroup<SimpleEntityDataInfo>> PATTERN_GROUPS = new ArrayList<>();
 
-	private static EntityDataPatterns<SimpleEntityDataInfo> GROUPS;
+	private static SimpleEntityDataPatterns GROUPS;
 
 	@Internal
 	public static void addSimpleEntity(
@@ -44,7 +46,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 	) {
 		SimpleEntityDataInfo info = new SimpleEntityDataInfo(entityClass, false, allowSpawning);
 		PatternGroup<SimpleEntityDataInfo> group = new PatternGroup<>(PATTERN_GROUPS.size(), name, info, patterns);
-		PATTERN_GROUPS.add(group);
+		addGroup(group);
 	}
 
 	@Internal
@@ -65,7 +67,16 @@ public class SimpleEntityData extends EntityData<Entity> {
 	) {
 		SimpleEntityDataInfo info = new SimpleEntityDataInfo(entityClass, true, allowSpawning);
 		PatternGroup<SimpleEntityDataInfo> group = new PatternGroup<>(PATTERN_GROUPS.size(), name, info, patterns);
+		addGroup(group);
+	}
+
+	@Internal
+	private static void addGroup(PatternGroup<SimpleEntityDataInfo> group) {
 		PATTERN_GROUPS.add(group);
+		if (GROUPS == null)
+			return;
+		//noinspection unchecked
+		GROUPS.update(PATTERN_GROUPS.toArray(PatternGroup[]::new));
 	}
 
 	//<editor-fold desc="register" defaultstate="collapsed">
@@ -75,11 +86,13 @@ public class SimpleEntityData extends EntityData<Entity> {
 		//<editor-fold desc="Alpha + Beta" defaultstate="collapsed">
 		addSimpleEntity(Arrow.class, "arrow¦s @an", "arrow[plural:s]");
 		addSimpleEntity(CaveSpider.class, "cave spider¦s @a", "cave[ ]spider[plural:s]");
+		addSimpleEntity(DragonFireball.class, "dragon fireball¦s @a", "dragon fire[ ]ball[plural:s]");
 		addSimpleEntity(Egg.class, "egg¦s @an", "egg[plural:s]");
 		addSimpleEntity(EnderCrystal.class, "ender crystal¦s @an", "end[er][ ]crystal[plural:s]");
 		addSimpleEntity(EnderDragon.class, "ender dragon¦s @an", "ender[ ]dragon[plural:s]");
 		addSimpleEntity(EnderPearl.class, "ender pearl¦s @an", "ender[ ]pearl[plural:s]");
 		addSimpleEntity(FishHook.class, "fish hook¦s @a", "fish[ ]hook[plural:s]");
+		addSimpleEntity(Ghast.class, "ghast¦s @a", "ghast[plural:s]");
 		addSimpleEntity(Giant.class, "giant¦s @a", "giant[plural:s]");
 		addSimpleEntity(LargeFireball.class, "large fireball¦s @a", "large fire[ ]ball[plural:s]");
 		addSimpleEntity(LightningStrike.class, "lightning bolt¦s @a", "lightning bolt[plural:s]");
@@ -106,7 +119,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		//<editor-fold desc="1.2" defaultstate="collapsed">
 		addSimpleEntity(IronGolem.class, "iron golem¦s @an", "iron golem[plural:s]");
 		addSimpleEntity(Ocelot.class, "ocelot¦s @an", "[wild|untamed] <age> ocelot[plural:s]");
-		addSimpleEntity(PigZombie.class, "zombie pig¦man¦men|zombified piglin @a",
+		addSimpleEntity(PigZombie.class, "zombie pig¦man¦men|zombified piglin¦s @a",
 			"<age> zombie pigm(an|plural:en)", "<age> zombified piglin[plural:s]", "baby:zombie pigletboy[plural:s]",
 			"baby:zombified piglin (kid[plural:s]|child[plural:ren])");
 		addSimpleEntity(ThrownExpBottle.class, "bottle¦ of enchanting¦s of enchanting @a",
@@ -206,9 +219,12 @@ public class SimpleEntityData extends EntityData<Entity> {
 		//</editor-fold>
 
 		//<editor-fold desc="1.19" defaultstate="collapsed">
+		addSimpleEntity(Allay.class, "allay¦s @an", "allay[plural:s]");
+		addSimpleEntity(Camel.class, "camel¦s @a", "camel[plural:s]");
 		addSimpleEntity(Interaction.class, "interaction¦s @an", "interaction([plural:s]| entit(plural:ies|y))");
 		addSimpleEntity(Sniffer.class, "sniffer¦s @a", "sniffer[plural:s]");
 		addSimpleEntity(Tadpole.class, "tadpole¦s @a", "tadpole[plural:s]");
+		addSimpleEntity(Warden.class, "warden¦s @a", "warden[plural:s]");
 		//</editor-fold>
 
 		//<editor-fold desc="1.20" defaultstate="collapsed">
@@ -250,6 +266,11 @@ public class SimpleEntityData extends EntityData<Entity> {
 		}
 		//</editor-fold>
 
+		if (Skript.classExists("org.bukkit.entity.HappyGhast")) { // 1.21.6
+			addSimpleEntity(HappyGhast.class, "happy ghast¦s @a", "<age> happy ghast[plural:s]",
+				"baby:[happy] ghastling[plural:s]");
+		}
+
 		if (Skript.isRunningMinecraft(1, 21, 9)) {
 			addSimpleEntity(CopperGolem.class, "copper golem¦s @a", "copper golem[plural:s]");
 			addSimpleEntity(Mannequin.class, "mannequin¦s @a", "mannequin[plural:s]");
@@ -278,6 +299,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSuperEntity(LivingEntity.class, "living entit¦y¦ies @a", "<age> living entit(y|plural:ies)");
 		addSuperEntity(Mob.class, "mob¦s @a", "mob[plural:s]");
 		addSuperEntity(Monster.class, "monster¦s @a", "monster[plural:s]");
+		addSuperEntity(Projectile.class, "projectile¦s @a", "projectile[plural:s]");
 		addSuperEntity(Raider.class, "raider¦s @a", "raider[plural:s]");
 		addSuperEntity(Spellcaster.class, "spellcaster¦s @a", "spellcaster[plural:s]");
 		addSuperEntity(Tameable.class, "tameable creature¦s @a", "tameable creature[plural:s]");
@@ -285,7 +307,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		//</editor-fold>
 
 		//noinspection unchecked
-		GROUPS = new EntityDataPatterns<>(PATTERN_GROUPS.toArray(PatternGroup[]::new));
+		GROUPS = new SimpleEntityDataPatterns(PATTERN_GROUPS.toArray(PatternGroup[]::new));
 
 		registerInfo(
 			infoBuilder(SimpleEntityData.class, "simple")
@@ -382,7 +404,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 			assert groupInfo != null;
 			Class<? extends Entity> infoEntityClass = groupInfo.entityClass;
 			if (infoEntityClass.isInstance(entity)) {
-				if (closest == null || closest.entityClass.isInstance(infoEntityClass))
+				if (closest == null || closest.entityClass.isAssignableFrom(infoEntityClass))
 					closest = groupInfo;
 			}
 		}
@@ -452,6 +474,59 @@ public class SimpleEntityData extends EntityData<Entity> {
 			}
 		}
 		throw new StreamCorruptedException("Invalid SimpleEntityDataInfo Entity Class " + entityClass.getSimpleName());
+	}
+
+	public record SimpleEntityDataInfo(Class<? extends Entity> entityClass, boolean isSuperType, Kleenean allowSpawning) {}
+
+	private static class SimpleEntityDataPatterns extends EntityDataPatterns<SimpleEntityDataInfo> {
+
+		private PatternGroup<SimpleEntityDataInfo>[] patternGroups;
+		private final Map<Integer, PatternGroup<SimpleEntityDataInfo>> groupMap = new HashMap<>();
+		private final Map<SimpleEntityDataInfo, PatternGroup<SimpleEntityDataInfo>> dataMap = new HashMap<>();
+		private PatternGroup<SimpleEntityDataInfo> genericGroup;
+		private final SequencedCollection<EntityNoun> names = new ArrayList<>();
+
+		public SimpleEntityDataPatterns(PatternGroup<SimpleEntityDataInfo>... patternGroups) {
+			update(patternGroups);
+		}
+
+		public void update(PatternGroup<SimpleEntityDataInfo>... patternGroups) {
+			groupMap.clear();
+			dataMap.clear();
+			names.clear();
+
+			this.patternGroups = patternGroups;
+			for (PatternGroup<SimpleEntityDataInfo> group : patternGroups) {
+				groupMap.put(group.index(), group);
+				dataMap.put(group.data(), group);
+				names.add(group.name());
+				if (group.data() == null)
+					genericGroup = group;
+			}
+		}
+
+		@Override
+		public PatternGroup<SimpleEntityDataInfo> getGenericGroup() {
+			return genericGroup;
+		}
+
+		@Override
+		public SequencedCollection<EntityNoun> getNames() {
+			return names;
+		}
+
+		@Override
+		public PatternGroup<SimpleEntityDataInfo>[] getPatternGroups() {
+			return patternGroups;
+		}
+
+		protected Map<Integer, PatternGroup<SimpleEntityDataInfo>> getGroupMap() {
+			return groupMap;
+		}
+
+		protected Map<SimpleEntityDataInfo, PatternGroup<SimpleEntityDataInfo>> getDataMap() {
+			return dataMap;
+		}
 	}
 
 }

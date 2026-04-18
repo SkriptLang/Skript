@@ -4,7 +4,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.localization.Adjective;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
@@ -17,13 +16,14 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.entity.EntityData;
+import org.skriptlang.skript.bukkit.entity.EntityNoun;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
 
 public class DroppedItemData extends EntityData<Item> {
 
-	private final static Adjective ADJECTIVE = new Adjective("entities.dropped item.adjective");
+	private final static EntityNoun ADJECTIVE = new EntityNoun("dropped");
 
 	private static final EntityDataPatterns<?> GROUP = EntityDataPatterns.of("dropped item¦s @a",
 		"dropped item[plural:s]", "unknown_plural:dropped %-itemtypes%", "dropped item entit(y|plural:ies)");
@@ -131,7 +131,7 @@ public class DroppedItemData extends EntityData<Item> {
 			return super.toString(flags);
 		int gender = types[0].getTypes().get(0).getGender();
 		return Noun.getArticleWithSpace(gender, flags) +
-				ADJECTIVE.toString(gender, flags) +
+				ADJECTIVE.toString(flags) +
 				" " +
 				Classes.toString(types, flags & Language.NO_ARTICLE_MASK, false);
 	}

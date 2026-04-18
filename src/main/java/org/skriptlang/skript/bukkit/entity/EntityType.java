@@ -47,7 +47,7 @@ public class EntityType
 				.serializer(new YggdrasilSerializer<>()));
 	}
 
-	public int amount;
+	public int amount = -1;
 
 	public EntityData<?> data;
 	
@@ -77,7 +77,6 @@ public class EntityType
 	
 	public EntityType(Entity entity) {
 		data = EntityData.fromEntity(entity);
-		amount = 1;
 	}
 	
 	public EntityType(EntityType other) {
@@ -91,19 +90,19 @@ public class EntityType
 	
 	@Override
 	public String toString() {
-		if (amount == 1)
+		if (getAmount() == 1)
 			return data.toString(0);
 		return amount + " " + data.toString(Language.F_PLURAL);
 	}
 	
 	public String toString(int flags) {
-		if (amount == 1)
+		if (getAmount() == 1)
 			return data.toString(flags);
 		return amount + " " + data.toString(flags | Language.F_PLURAL);
 	}
 	
 	public int getAmount() {
-		return amount;
+		return amount == -1 ? 1 : amount;
 	}
 
 	public EntityData<?> getData() {

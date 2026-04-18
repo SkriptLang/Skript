@@ -485,26 +485,6 @@ directions:
 #	the tag "baby" is to indicate the pattern is referencing the baby state of an entity
 #	the tag "adult" is to indicate the pattern is referencing the adult state of an entity
 #	the tag "unknown_age" is to indicate the pattern is not referencing a specific age state of an entity
-entities:
-	age pattern: (unknown_age:|baby:(baby|young)|adult:(adult|grown(-| )up))
-	age adjectives:
-		baby: baby
-		adult: adult
-
-	# DroppedItemData
-	dropped item:
-		adjective: dropped
-
-	# FallingBlockData
-	falling block:
-		adjective: falling
-		not a block error: Falling blocks must be blocks, not items
-
-	# ThrownPotionData
-	thrown potion:
-		adjective: thrown
-
-
 
 # -- Heal Reasons --
 heal reasons:

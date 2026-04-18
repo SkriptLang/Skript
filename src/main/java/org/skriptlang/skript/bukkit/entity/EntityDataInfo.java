@@ -1,7 +1,6 @@
 package org.skriptlang.skript.bukkit.entity;
 
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.localization.Noun;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -43,9 +42,9 @@ public interface EntityDataInfo<Data extends EntityData<E>, E extends Entity> ex
 	int defaultGroupIndex();
 
 	/**
-	 * @return The {@link Noun} format of the 'name' node for each code name in the lang file.
+	 * @return The {@link EntityNoun} format of the 'name' node for each code name in the lang file.
 	 */
-	SequencedCollection<Noun> names();
+	SequencedCollection<EntityNoun> names();
 
 	/**
 	 * @return The entity type this info correlates to.
