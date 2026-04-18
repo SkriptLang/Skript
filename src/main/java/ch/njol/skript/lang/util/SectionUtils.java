@@ -46,7 +46,7 @@ public final class SectionUtils {
 	 */
 	@SuppressWarnings("JavadocReference")
 	public static @Nullable Trigger loadLinkedCode(String name, BiFunction<Runnable, Runnable, Trigger> triggerSupplier) {
-		return loadLinkedCode0(name, false, triggerSupplier);
+		return loadLinkedCode(name, false, triggerSupplier);
 	}
 
 	/**
@@ -61,11 +61,11 @@ public final class SectionUtils {
 	 * @return The result of {@code triggerSupplier}, or null if some issue occurred.
 	 */
 	public static @Nullable Trigger loadDelayableLinkedCode(String name, BiFunction<Runnable, Runnable, Trigger> triggerSupplier) {
-		return loadLinkedCode0(name, true, triggerSupplier);
+		return loadLinkedCode(name, true, triggerSupplier);
 	}
 
-	private static @Nullable Trigger loadLinkedCode0(String name, boolean allowDelays,
-													 BiFunction<Runnable, Runnable, Trigger> triggerSupplier) {
+	private static @Nullable Trigger loadLinkedCode(String name, boolean allowDelays,
+													BiFunction<Runnable, Runnable, Trigger> triggerSupplier) {
 		AtomicBoolean delayed = new AtomicBoolean(false);
 		AtomicReference<Backup> hintBackup = new AtomicReference<>();
 		// Copy hints and record whether the body was delayed
