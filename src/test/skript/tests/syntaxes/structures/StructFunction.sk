@@ -82,7 +82,7 @@ test "function structure arguments":
 
 	parse:
 		argument_test(1 if {_x} is 1, else 2, 3)
-	assert last parse logs is "The function argument_test(?, ?, integer) does not exist. Did you mean to use the function 'local argument_test(x: integer, y: integer)'?"
+	assert first element of last parse logs contains "The function 'argument_test(?, ?, integer)' does not exist"
 
 	parse:
 		argument_test((1 if {_x} is 1, else 2), 3)

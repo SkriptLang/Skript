@@ -1,4 +1,4 @@
-package org.skriptlang.skript.common.sections;
+package org.skriptlang.skript.common.elements.sections;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
@@ -26,6 +26,9 @@ import org.skriptlang.skript.common.function.FunctionReference;
 import org.skriptlang.skript.common.function.FunctionReference.Argument;
 import org.skriptlang.skript.common.function.FunctionReference.ArgumentType;
 import org.skriptlang.skript.common.function.FunctionReferenceParser;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.util.Executable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,18 +38,24 @@ import java.util.regex.Pattern;
 
 @Name("Function Section")
 @Description("""
-	Runs a function with the specified arguments.
-	""")
+		Runs a function with the specified arguments.
+		""")
 @Example("""
-	local function multiply(x: number, y: number) returns number:
-		return {_x} * {_y}
-	
-	set {_x} to result of function multiply with arguments:
-		x set to 2
-		y set to 3
-	
-	broadcast "%{_x}%" # returns 6
-	""")
+		local function multiply(x: number, y: number) returns number:
+			return {_x} * {_y}
+		
+		set {_x} to result of function multiply with arguments:
+			x set to 2
+			y set to 3
+		
+		broadcast "%{_x}%" # returns 6
+		""")
+@Example("""
+		set {_function} to the function named "myFunction"
+		set {_result} to the result of {_function}
+		set {_list::*} to the results of {_function}
+		set {_result} to the result of {_function} with arguments 13 and true
+		""")
 @Since("INSERT VERSION")
 public class ExprSecFunction extends SectionExpression<Object> {
 
@@ -61,17 +70,45 @@ public class ExprSecFunction extends SectionExpression<Object> {
 	 */
 	private static final Pattern ARGUMENT_PATTERN = Pattern.compile("(?:argument )?(?<name>%s) set to (?<value>.+)".formatted(FUNCTION_NAME_PATTERN.toString()));
 
-	static {
-		Skript.registerExpression(ExprSecFunction.class, Object.class, ExpressionType.SIMPLE,
-				"[the] result[s] of [running|executing] function <.+> with [the] arg[ument][s]");
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprSecFunction.class, Object.class)
+				.supplier(ExprSecFunction::new)
+				.addPattern("[the] result[plural:s] of [running|executing] %executable% [arguments:with arg[ument]s %-objects%]")
+				.addPattern("[the] result[s] of [running|executing] function <.+> with [the] arg[ument][s]")
+				.build());
 	}
+
+	private boolean usesExecutable;
+	private Expression<Executable<Event, Object>> executable;
+	private Expression<?>[] executableArguments = null;
 
 	private FunctionReference<?> reference;
 	private final List<Argument<String>> arguments = new ArrayList<>();
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result,
-						@Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
+	public boolean init(
+			Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result,
+			@Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems
+	) {
+		usesExecutable = pattern == 0;
+
+		if (usesExecutable) {
+			//noinspection unchecked
+			executable = (Expression<Executable<Event, Object>>) expressions[0];
+			if (result.hasTag("arguments")) {
+				Expression<Object> expression = LiteralUtils.defendExpression(expressions[1]);
+				if (expression instanceof ExpressionList<?> list) {
+					executableArguments = list.getExpressions();
+				} else {
+					executableArguments = new Expression[]{expression};
+				}
+
+				return LiteralUtils.canInitSafely(executableArguments);
+			}
+
+			return true;
+		}
+
 		assert node != null;
 
 		if (node.isEmpty()) {
@@ -123,7 +160,7 @@ public class ExprSecFunction extends SectionExpression<Object> {
 	/**
 	 * Prints the error for when a function does not exist.
 	 *
-	 * @param name      The function name.
+	 * @param name The function name.
 	 */
 	private void doesNotExist(String name) {
 		StringJoiner joiner = new StringJoiner(", ");
@@ -150,6 +187,29 @@ public class ExprSecFunction extends SectionExpression<Object> {
 
 	@Override
 	protected Object @Nullable [] get(Event event) {
+		if (usesExecutable) {
+			Executable<Event, Object> executable = this.executable.getSingle(event);
+			if (executable == null) {
+				return null;
+			}
+
+			Object result;
+			if (executableArguments == null) {
+				result = executable.execute(event);
+			} else {
+				Object[] arguments = new Object[executableArguments.length];
+				for (int i = 0; i < arguments.length; i++) {
+					arguments[i] = executableArguments[i].getArray(event);
+				}
+
+				result = executable.execute(event, arguments);
+			}
+			if (result instanceof Object[] results) {
+				return results;
+			}
+			return new Object[]{result};
+		}
+
 		if (reference == null) {
 			return null;
 		}
@@ -169,38 +229,49 @@ public class ExprSecFunction extends SectionExpression<Object> {
 		if (result.getClass().isArray()) {
 			return (Object[]) result;
 		} else {
-			return new Object[] { result };
+			return new Object[]{result};
 		}
 	}
 
 	@Override
 	public boolean isSingle() {
-		return reference.isSingle();
-	}
-
-	@Override
-	public boolean isSectionOnly() {
-		return true;
+		return usesExecutable ? executable.isSingle() : reference.isSingle();
 	}
 
 	@Override
 	public Class<?> getReturnType() {
-		return reference.signature().returnType() != null ? Utils.getComponentType(reference.signature().returnType()) : null;
+		return usesExecutable ? executable.getReturnType() : (reference.signature().returnType() != null ? Utils.getComponentType(reference.signature().returnType()) : null);
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug)
-				.append("run function")
-				.append(reference.name());
+				.append("the result of function");
+
+		if (usesExecutable) {
+			builder.append(executable.toString(event, debug));
+		} else {
+			builder.append(reference.name());
+		}
 
 		if (arguments.size() > 1) {
 			builder.append("with arguments");
-		} else {
+		} else if (arguments.size() == 1) {
 			builder.append("with argument");
+		} else {
+			return builder.toString();
 		}
 
-		arguments.forEach(argument -> builder.append(argument.name() + ": " + argument.value() + ", "));
+		if (usesExecutable) {
+			StringJoiner joiner = new StringJoiner(", ");
+			for (Expression<?> argument : executableArguments) {
+				joiner.add(argument.toString(event, debug));
+			}
+
+			builder.append(joiner);
+		} else {
+			arguments.forEach(argument -> builder.append(argument.name() + ": " + argument.value() + ", "));
+		}
 
 		return builder.toString();
 	}
