@@ -22,7 +22,7 @@ public class EvtPlayerToggleEntityAge extends SkriptEvent {
 			BukkitSyntaxInfos.Event.builder(EvtPlayerToggleEntityAge.class, "Player Toggle Entity Age Lock")
 				.addEvent(PlayerToggleEntityAgeLockEvent.class)
 				.addPatterns("[player] entity age ([:un]lock|toggle:toggle) [of %-entitytypes%]")
-				.addDescription("Called when a player toggles the age lock of an entity using a golden dandelion")
+				.addDescription("Called when a player toggles the age lock of an entity using a golden dandelion.")
 				.addExample("""
 					on player entity age lock toggle:
 						cancel event
