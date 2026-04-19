@@ -32,6 +32,7 @@ public final class FunctionReference<T> implements Debuggable {
 	private final Signature<T> signature;
 	private final Argument<Expression<?>>[] arguments;
 
+	private boolean unloaded = false;
 	private Function<T> cachedFunction;
 	private LinkedHashMap<String, ArgInfo> cachedArguments;
 
@@ -40,9 +41,9 @@ public final class FunctionReference<T> implements Debuggable {
 	}
 
 	public FunctionReference(@Nullable String namespace,
-							 @NotNull String name,
-							 @NotNull Signature<T> signature,
-							 @NotNull Argument<Expression<?>>[] arguments) {
+	                         @NotNull String name,
+	                         @NotNull Signature<T> signature,
+	                         @NotNull Argument<Expression<?>>[] arguments) {
 		Preconditions.checkNotNull(name, "name cannot be null");
 		Preconditions.checkNotNull(signature, "signature cannot be null");
 		Preconditions.checkNotNull(arguments, "arguments cannot be null");
@@ -57,7 +58,7 @@ public final class FunctionReference<T> implements Debuggable {
 	 * Invalidate the cached function used in this reference.
 	 */
 	public void invalidateCache() {
-		cachedFunction = null;
+		unloaded = true;
 	}
 
 	/**
@@ -98,6 +99,20 @@ public final class FunctionReference<T> implements Debuggable {
 
 				// all good
 				cachedArguments.put(target.name(), new ArgInfo(converted, target.type(), target.modifiers()));
+			}
+		}
+
+		if (unloaded || cachedFunction == null) {
+			Class<?>[] parameters = Arrays.stream(signature.parameters().all())
+					.map(Parameter::type)
+					.toArray(Class[]::new);
+
+			Retrieval<ch.njol.skript.lang.function.Function<?>> retrieval = FunctionRegistry.getRegistry().getFunction(namespace, name, parameters);
+
+			if (retrieval.result() == RetrievalResult.EXACT) {
+				//noinspection unchecked
+				cachedFunction = (Function<T>) retrieval.retrieved();
+				unloaded = false;
 			}
 		}
 
@@ -225,19 +240,6 @@ public final class FunctionReference<T> implements Debuggable {
 	 * @return The function referred to by this reference.
 	 */
 	public Function<T> function() {
-		if (cachedFunction == null) {
-			Class<?>[] parameters = Arrays.stream(signature.parameters().all())
-					.map(Parameter::type)
-					.toArray(Class[]::new);
-
-			Retrieval<ch.njol.skript.lang.function.Function<?>> retrieval = FunctionRegistry.getRegistry().getFunction(namespace, name, parameters);
-
-			if (retrieval.result() == RetrievalResult.EXACT) {
-				//noinspection unchecked
-				cachedFunction = (Function<T>) retrieval.retrieved();
-			}
-		}
-
 		return cachedFunction;
 	}
 
