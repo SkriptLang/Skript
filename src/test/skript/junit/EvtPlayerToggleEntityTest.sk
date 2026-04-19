@@ -29,7 +29,8 @@ parse:
             junit test is {_test}
             complete objective "age toggle event" for {_test}
 
-test "EvtPlayerToggleEntityAge" if running minecraft "26.1":
+test "EvtPlayerToggleEntityAge":
+    if running minecraft "26.1":
         assert recursive size of {EvtPlayerToggleEntityAge::parse::*} is 0 with "Player toggle entity age lock event failed to parse in 26.1 and above"
     else:
         assert recursive size of {EvtPlayerToggleEntityAge::parse::*} isn't 0 with "Player toggle entity age lock event successfully parsed below 26.1"

@@ -4,6 +4,7 @@ import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.registrations.EventValues;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -24,7 +25,7 @@ public class EvtPlayerToggleEntityAge extends SkriptEvent {
 				.addPatterns("[player] entity age ([:un]lock|toggle:toggle) [of %-entitytypes%]")
 				.addDescription("Called when a player toggles the age lock of an entity using a golden dandelion.")
 				.addExample("""
-					on player entity age lock toggle:
+					on player entity age lock:
 						cancel event
 					""")
 				.addSince("INSERT VERSION")
@@ -43,11 +44,13 @@ public class EvtPlayerToggleEntityAge extends SkriptEvent {
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		entityAgeLocked = switch (parseResult.mark) {
-			case 0 -> true;
-			case 1 -> false;
-			default -> null;
-		};
+		if (parseResult.hasTag("toggle")) {
+			entityAgeLocked = null;
+		} else if (parseResult.hasTag("un")) {
+			entityAgeLocked = false;
+		} else {
+			entityAgeLocked = true;
+		}
 		if (args[0] != null) {
 			//noinspection unchecked
 			entitiesLiteral = ((Literal<EntityType>) args[0]);
@@ -59,7 +62,7 @@ public class EvtPlayerToggleEntityAge extends SkriptEvent {
 	@Override
 	public boolean check(Event event) {
 		return event instanceof PlayerToggleEntityAgeLockEvent e
-			&& (entityAgeLocked == null || entityAgeLocked == e.isAgeLocked())
+			&& (entityAgeLocked == null || entityAgeLocked.equals(e.isAgeLocked()))
 			&& checkEntity(e.getEntity());
 	}
 
@@ -76,10 +79,11 @@ public class EvtPlayerToggleEntityAge extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		String state = (entityAgeLocked == null ? "lock/unlock" : (entityAgeLocked ? "lock" : "unlock"));
-		String entities = (entitiesLiteral == null ? "" : " of " + entitiesLiteral.toString(event, debug));
-
-		return "player toggling entity age " + state + entities;
+		return new SyntaxStringBuilder(event, debug)
+			.append("player toggling entity age")
+			.append(entityAgeLocked == null ? "lock/unlock" : (entityAgeLocked ? "lock" : "unlock"))
+			.append(entitiesLiteral)
+			.toString();
 	}
 
 }
