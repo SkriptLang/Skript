@@ -6,10 +6,12 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converter;
 
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.SequencedCollection;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
@@ -57,6 +59,7 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	 *
 	 * @return the event type this event value is defined for
 	 */
+	@Contract(pure = true)
 	Class<E> eventClass();
 
 	/**
@@ -64,6 +67,7 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	 *
 	 * @return the value type
 	 */
+	@Contract(pure = true)
 	Class<V> valueClass();
 
 	/**
@@ -71,7 +75,8 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	 *
 	 * @return the patterns
 	 */
-	String @Nullable [] patterns();
+	@Contract(pure = true)
+	@Unmodifiable SequencedCollection<String> patterns();
 
 	/**
 	 * Validates that this event value can be used in the provided event context.
@@ -88,6 +93,7 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	 * @param input the identifier provided by the user
 	 * @return {@code true} if the validation succeeds
 	 */
+	@Contract(pure = true)
 	boolean matchesInput(String input);
 
 	/**
@@ -96,6 +102,7 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	 * @param event the event instance
 	 * @return the value obtained from the event, which may be {@code null}
 	 */
+	@Contract(pure = true)
 	V get(E event);
 
 	/**
@@ -103,6 +110,7 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	 *
 	 * @return the converter
 	 */
+	@Contract(pure = true)
 	Converter<E, V> converter();
 
 	/**
@@ -111,6 +119,7 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	 * @param mode the change mode
 	 * @return {@code true} if a changer is supported
 	 */
+	@Contract(pure = true)
 	boolean hasChanger(ChangeMode mode);
 
 	/**
@@ -119,6 +128,7 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	 * @param mode the change mode
 	 * @return an {@link Optional} containing the changer if available
 	 */
+	@Contract(pure = true)
 	Optional<Changer<E, V>> changer(ChangeMode mode);
 
 	/**
@@ -126,20 +136,23 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	 *
 	 * @return the time state
 	 */
+	@Contract(pure = true)
 	Time time();
 
 	/**
 	 * Event types explicitly excluded from using this event value.
 	 *
-	 * @return an array of excluded event classes or {@code null} if none
+	 * @return a list of excluded event classes
 	 */
-	Class<? extends E> @Nullable [] excludedEvents();
+	@Contract(pure = true)
+	@Unmodifiable Collection<Class<? extends E>> excludedEvents();
 
 	/**
 	 * An optional error message shown when this value is excluded for a matching event.
 	 *
 	 * @return the exclusion error message or {@code null}
 	 */
+	@Contract(pure = true)
 	@Nullable String excludedErrorMessage();
 
 	/**
@@ -149,9 +162,8 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	 * @param eventValue the event value to compare against
 	 * @return {@code true} if they match
 	 */
-	default boolean matches(EventValue<?, ?> eventValue) {
-		return matches(eventValue.eventClass(), eventValue.valueClass(), eventValue.patterns());
-	}
+	@Contract(pure = true)
+	boolean matches(EventValue<?, ?> eventValue);
 
 	/**
 	 * Checks whether this event value matches the provided event class, value class,
@@ -162,8 +174,9 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	 * @param patterns the patterns to compare against
 	 * @return {@code true} if they match
 	 */
-	default boolean matches(Class<? extends Event> eventClass, Class<?> valueClass, String[] patterns) {
-		return matches(eventClass, valueClass) && Arrays.equals(patterns(), patterns);
+	@Contract(pure = true)
+	default boolean matches(Class<? extends Event> eventClass, Class<?> valueClass, SequencedCollection<String> patterns) {
+		return matches(eventClass, valueClass) && patterns().equals(patterns);
 	}
 
 	/**
@@ -173,6 +186,7 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	 * @param valueClass the value class to compare against
 	 * @return {@code true} if they match
 	 */
+	@Contract(pure = true)
 	default boolean matches(Class<? extends Event> eventClass, Class<?> valueClass) {
 		return eventClass().equals(eventClass) && valueClass().equals(valueClass);
 	}
@@ -316,37 +330,6 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 		 * @param value the value to apply (may be {@code null} depending on mode)
 		 */
 		void change(E event, V value);
-
-	}
-
-	/**
-	 * A changer that does not require a value to be passed (e.g. for {@link ChangeMode#DELETE} or {@link ChangeMode#RESET}).
-	 *
-	 * @param <E> the event type
-	 * @param <V> the value type
-	 */
-	@FunctionalInterface
-	interface NoValueChanger<E extends Event, V> extends Changer<E, V> {
-
-		/**
-		 * Applies a change to the given event instance without a value.
-		 *
-		 * @param event the event instance
-		 */
-		void change(E event);
-
-		/**
-		 * {@inheritDoc}
-		 * <p>
-		 * This implementation ignores the provided value and calls {@link #change(Event)}.
-		 *
-		 * @param event the event instance
-		 * @param value the value (ignored)
-		 */
-		@Override
-		default void change(E event, V value) {
-			change(event);
-		}
 
 	}
 

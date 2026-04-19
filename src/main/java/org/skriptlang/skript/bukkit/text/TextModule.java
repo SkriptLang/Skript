@@ -1,18 +1,13 @@
 package org.skriptlang.skript.bukkit.text;
 
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
-import org.bukkit.command.CommandSender;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.text.elements.effects.*;
 import org.skriptlang.skript.bukkit.text.elements.expressions.*;
+import org.skriptlang.skript.bukkit.text.types.*;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.comparator.Comparators;
@@ -26,57 +21,8 @@ public class TextModule extends HierarchicalAddonModule {
 
 	@Override
 	public void initSelf(SkriptAddon addon) {
-		Classes.registerClass(new ClassInfo<>(Component.class, "textcomponent")
-			.user("text ?components?")
-			.name("Text Component")
-			.description("Text components are used to represent how text is displayed in Minecraft.",
-				"This includes colors, decorations, and more.")
-			.examples("\"<red><bold>This text is red and bold!\"")
-			.since("2.15")
-			.parser(new Parser<>() {
-				@Override
-				public boolean canParse(ParseContext context) {
-					return false;
-				}
-
-				@Override
-				public String toString(Component component, int flags) {
-					return TextComponentParser.instance().toString(component);
-				}
-
-				@Override
-				public String toVariableNameString(Component component) {
-					return "textcomponent:" + component;
-				}
-			}));
-
-		Classes.registerClass(new ClassInfo<>(Audience.class, "audience")
-			.user("audiences?")
-			.name("Audience")
-			.description("An audience is a receiver of media, such as individual players, the console, or groups of players (such as those on a team or in a world).")
-			.examples("send \"Hello world!\" to the player",
-				"send action bar \"ALERT! A horde of zombies has overrun the central village.\" to the world")
-			.since("2.15")
-			// note: CommandSender is purposefully used here as there may be many Audiences in a single event
-			// for example, there is a conflict in events with Player and World (e.g. all player events)
-			// we continue to use CommandSender for retaining existing behavior
-			.defaultExpression(new EventValueExpression<>(CommandSender.class))
-			.parser(new Parser<>() {
-				@Override
-				public boolean canParse(ParseContext context) {
-					return false;
-				}
-
-				@Override
-				public String toString(Audience audience, int flags) {
-					return "audience";
-				}
-
-				@Override
-				public String toVariableNameString(Audience audience) {
-					return "audience";
-				}
-			}));
+		Classes.registerClass(new TextComponentClassInfo());
+		Classes.registerClass(new AudienceClassInfo());
 
 		Converters.registerConverter(String.class, Component.class,
 			string -> TextComponentParser.instance().parseSafe(string));

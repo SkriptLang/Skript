@@ -297,6 +297,7 @@ public class EventValues {
 		}
 
 		public static <E extends Event, T> EventValueInfo<E, T> fromModern(EventValue<E, T> eventValue) {
+			//noinspection unchecked
 			return new EventValueInfo<>(
 				eventValue.eventClass(),
 				eventValue.valueClass(),
@@ -314,7 +315,7 @@ public class EventValues {
 					})
 					.orElse(eventValue.converter()),
 				eventValue.excludedErrorMessage(),
-				eventValue.excludedEvents(),
+				eventValue.excludedEvents().toArray(new Class[0]),
 				eventValue.time().value()
 			);
 		}

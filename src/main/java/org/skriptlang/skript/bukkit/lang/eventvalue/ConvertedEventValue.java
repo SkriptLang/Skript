@@ -3,12 +3,14 @@ package org.skriptlang.skript.bukkit.lang.eventvalue;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.SequencedCollection;
 
 /**
  * An {@link EventValue} that is a converted version of another event value.
@@ -124,7 +126,7 @@ record ConvertedEventValue<SourceEvent extends Event, ConvertedEvent extends Eve
 	}
 
 	@Override
-	public String @Nullable [] patterns() {
+	public @Unmodifiable SequencedCollection<String> patterns() {
 		return source.patterns();
 	}
 
@@ -163,10 +165,6 @@ record ConvertedEventValue<SourceEvent extends Event, ConvertedEvent extends Eve
 		return source.changer(mode).map(changer -> (event, value) -> {
 			if (!source.eventClass().isAssignableFrom(event.getClass()))
 				return;
-			if (changer instanceof EventValue.NoValueChanger) {
-				changer.change(source.eventClass().cast(event), null);
-				return;
-			}
 			if (reverseConverter == null)
 				return;
 			SourceValue sourceValue = reverseConverter.convert(value);
@@ -181,19 +179,21 @@ record ConvertedEventValue<SourceEvent extends Event, ConvertedEvent extends Eve
 	}
 
 	@Override
-	public Class<? extends ConvertedEvent> @Nullable [] excludedEvents() {
-		Class<? extends SourceEvent>[] excludedEvents = source.excludedEvents();
-		if (excludedEvents == null)
-			return null;
-		//noinspection unchecked
-		return Arrays.stream(excludedEvents)
+	public @Unmodifiable Collection<Class<? extends ConvertedEvent>> excludedEvents() {
+		//noinspection unchecked,rawtypes
+		return (Collection) source.excludedEvents().stream()
 			.filter(eventClass::isAssignableFrom)
-			.toArray(Class[]::new);
+			.toList();
 	}
 
 	@Override
 	public @Nullable String excludedErrorMessage() {
 		return source.excludedErrorMessage();
+	}
+
+	@Override
+	public boolean matches(EventValue<?, ?> eventValue) {
+		return matches(eventValue.eventClass(), eventValue.valueClass(), eventValue.patterns());
 	}
 
 	@Override

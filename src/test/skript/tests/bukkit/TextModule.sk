@@ -1,2 +1,8 @@
 test "component equality":
 	assert (formatted "<rainbow>Hello!") is (formatted "<rainbow>Hello!") with "components with virtual components failed comparison"
+
+test "component serialization":
+	# verify no warning
+	parse:
+		set {x} to line 1 of lore of {_item}
+	assert last parse logs are not set

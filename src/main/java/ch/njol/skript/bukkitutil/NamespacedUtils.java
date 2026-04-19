@@ -1,6 +1,5 @@
 package ch.njol.skript.bukkitutil;
 
-import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.util.ValidationResult;
 import org.bukkit.NamespacedKey;
@@ -12,7 +11,7 @@ import org.skriptlang.skript.log.runtime.RuntimeErrorProducer;
  */
 public class NamespacedUtils {
 
-	public static final Message NAMEDSPACED_FORMAT_MESSAGE = new ArgsMessage("misc.namespacedutils.format");
+	public static final Message NAMEDSPACED_FORMAT_MESSAGE = new Message("misc.namespacedutils.format");
 
 	/**
 	 * Check if {@code character} is a valid {@link Character} for the namespace section of a {@link NamespacedKey}.

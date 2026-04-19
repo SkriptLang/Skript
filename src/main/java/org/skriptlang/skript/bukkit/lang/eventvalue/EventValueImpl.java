@@ -13,6 +13,7 @@ import ch.njol.skript.util.Utils;
 import com.google.common.base.MoreObjects;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converter;
 
 import java.util.*;
@@ -26,39 +27,30 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 
 	private final Class<E> eventClass;
 	private final Class<V> valueClass;
-	private final String @Nullable [] patterns;
+	private final SequencedCollection<String> patterns;
+	private final boolean hasCustomInputValidator;
 	private final @Nullable BiPredicate<String, ParseResult> inputValidator;
 	private final @Nullable Function<Class<?>, Validation> eventValidator;
 	private final Converter<E, V> converter;
 	private final Map<ChangeMode, Changer<E, V>> changers;
 	private final Time time;
-	private final Class<? extends E> @Nullable [] excludedEvents;
+	private final Collection<Class<? extends E>> excludedEvents;
 	private final @Nullable String excludedErrorMessage;
 
 	private SkriptPattern[] compiledPatterns;
 
-	EventValueImpl(
-		Class<E> eventClass,
-		Class<V> valueClass,
-		String @Nullable [] patterns,
-		@Nullable BiPredicate<String, ParseResult> inputValidator,
-		@Nullable Function<Class<?>, Validation> eventValidator,
-		Converter<E, V> converter,
-		Map<ChangeMode, Changer<E, V>> changers,
-		Time time,
-		Class<? extends E> @Nullable [] excludedEvents,
-		@Nullable String excludedErrorMessage
-	) {
-		this.eventClass = eventClass;
-		this.valueClass = valueClass;
-		this.patterns = patterns;
-		this.inputValidator = inputValidator;
-		this.eventValidator = eventValidator;
-		this.converter = converter;
-		this.changers = changers;
-		this.time = time;
-		this.excludedEvents = excludedEvents;
-		this.excludedErrorMessage = excludedErrorMessage;
+	private EventValueImpl(BuilderImpl<E, V> builder) {
+		this.eventClass = builder.eventClass;
+		this.valueClass = builder.valueClass;
+		this.patterns = builder.patterns;
+		this.hasCustomInputValidator = builder.hasCustomInputValidator;
+		this.inputValidator = builder.inputValidator;
+		this.eventValidator = builder.eventValidator;
+		this.converter = builder.converter;
+		this.changers = builder.changers;
+		this.time = builder.time;
+		this.excludedEvents = builder.excludedEvents;
+		this.excludedErrorMessage = builder.excludedErrorMessage;
 	}
 
 	@Override
@@ -72,20 +64,18 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 	}
 
 	@Override
-	public String @Nullable [] patterns() {
-		return patterns != null ? patterns.clone() : null;
+	public @Unmodifiable SequencedCollection<String> patterns() {
+		return patterns;
 	}
 
 	@Override
 	public Validation validate(Class<?> event) {
-		if (excludedEvents != null) {
-			for (Class<? extends E> excludedEvent : excludedEvents) {
-				if (!excludedEvent.isAssignableFrom(event))
-					continue;
-				if (excludedErrorMessage != null)
-					Skript.error(excludedErrorMessage);
-				return Validation.ABORT;
-			}
+		for (Class<? extends E> excludedEvent : excludedEvents) {
+			if (!excludedEvent.isAssignableFrom(event))
+				continue;
+			if (excludedErrorMessage != null)
+				Skript.error(excludedErrorMessage);
+			return Validation.ABORT;
 		}
 		if (eventValidator == null)
 			return Validation.VALID;
@@ -105,7 +95,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 	private SkriptPattern[] compilePatterns() {
 		if (compiledPatterns != null)
 			return compiledPatterns;
-		compiledPatterns = patterns == null ? patternsFromType(valueClass) : Arrays.stream(patterns)
+		compiledPatterns = patterns.isEmpty() ? patternsFromType(valueClass) : patterns.stream()
 			.map(PatternCompiler::compile)
 			.toArray(SkriptPattern[]::new);
 		return compiledPatterns;
@@ -154,13 +144,23 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 	}
 
 	@Override
-	public Class<? extends E> @Nullable [] excludedEvents() {
-		return excludedEvents != null ? excludedEvents.clone() : null;
+	public @Unmodifiable Collection<Class<? extends E>> excludedEvents() {
+		return excludedEvents;
 	}
 
 	@Override
 	public @Nullable String excludedErrorMessage() {
 		return excludedErrorMessage;
+	}
+
+	@Override
+	public boolean matches(EventValue<?, ?> eventValue) {
+		return matches(eventValue.eventClass(), eventValue.valueClass(), eventValue.patterns())
+			&& eventValue instanceof EventValueImpl<?,?> other
+			&& hasCustomInputValidator == other.hasCustomInputValidator
+			&& (!hasCustomInputValidator || inputValidator == other.inputValidator)
+			&& eventValidator == other.eventValidator
+			&& excludedEvents.equals(other.excludedEvents);
 	}
 
 	@Override
@@ -196,12 +196,13 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 		private final Class<E> eventClass;
 		private final Class<V> valueClass;
 		private final Map<ChangeMode, Changer<E, V>> changers = new EnumMap<>(ChangeMode.class);
-		private String @Nullable [] patterns;
+		private SequencedCollection<String> patterns = Collections.emptyList();
+		private boolean hasCustomInputValidator;
 		private @Nullable BiPredicate<String, ParseResult> inputValidator;
 		private @Nullable Function<Class<?>, Validation> eventValidator;
 		private Converter<E, V> converter;
 		private Time time = Time.NOW;
-		private Class<? extends E> @Nullable [] excludedEvents;
+		private Collection<Class<? extends E>> excludedEvents = Collections.emptyList();
 		private @Nullable String excludedErrorMessage;
 
 		BuilderImpl(Class<E> eventClass, Class<V> valueClass) {
@@ -211,13 +212,14 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 
 		@Override
 		public Builder<E,V> patterns(String... patterns) {
-			this.patterns = patterns;
+			this.patterns = patterns != null ? List.of(patterns) : Collections.emptyList();
 			return this;
 		}
 
 		@Override
 		public Builder<E,V> inputValidator(BiPredicate<String, ParseResult> inputValidator) {
 			this.inputValidator = inputValidator;
+			hasCustomInputValidator = inputValidator != null;
 			return this;
 		}
 
@@ -248,7 +250,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 		@Override
 		@SafeVarargs
 		public final Builder<E, V> excludes(Class<? extends E>... events) {
-			this.excludedEvents = events;
+			this.excludedEvents = events != null ? List.of(events) : Collections.emptyList();
 			return this;
 		}
 
@@ -272,18 +274,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 				}
 			}
 
-			return new EventValueImpl<>(
-				eventClass,
-				valueClass,
-				patterns,
-				inputValidator,
-				eventValidator,
-				converter,
-				changers,
-				time,
-				excludedEvents,
-				excludedErrorMessage
-			);
+			return new EventValueImpl<>(this);
 		}
 
 		private static <T, U> BiPredicate<T, U> combinePredicates(
