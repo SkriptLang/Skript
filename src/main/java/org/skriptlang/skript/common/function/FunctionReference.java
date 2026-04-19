@@ -114,6 +114,10 @@ public final class FunctionReference<T> implements Debuggable {
 				cachedFunction = (Function<T>) retrieval.retrieved();
 				unloaded = false;
 			}
+
+			if (cachedFunction == null) {
+				return false;
+			}
 		}
 
 		signature.addCall(this);
