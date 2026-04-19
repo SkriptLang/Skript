@@ -15,6 +15,7 @@ import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import ch.njol.util.coll.iterator.ArrayIterator;
 import ch.njol.util.coll.iterator.EmptyIterator;
 import com.google.common.collect.Iterators;
 import org.apache.commons.lang.ArrayUtils;
@@ -157,8 +158,6 @@ public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderEx
 
 	@Override
 	protected T @Nullable [] get(Event event) {
-		if (expr.isSingle() && expr.getSingle(event) instanceof SkriptQueue queue)
-			return this.getFromQueue(event, queue);
 		if (keyed) {
 			KeyedValue.UnzippedKeyValues<T> unzipped = KeyedValue.unzip(keyedIterator(event));
 			cache.put(event, unzipped.keys());
@@ -166,7 +165,19 @@ public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderEx
 			T[] empty = (T[]) Array.newInstance(getReturnType(), 0);
 			return unzipped.values().toArray(empty);
 		}
-		Iterator<? extends T> iterator = iterator(event);
+
+		Iterator<? extends T> iterator;
+		if (expr.isSingle()) {
+			T single = expr.getSingle(event);
+			if (single instanceof SkriptQueue queue) {
+				return this.getFromQueue(event, queue);
+			} else {
+				iterator = new ArrayIterator<>(CollectionUtils.array(single));
+			}
+		} else {
+			iterator = transformIterator(event, expr.iterator(event));
+		}
+
 		assert iterator != null;
 		//noinspection unchecked
 		return Iterators.toArray(iterator, (Class<T>) getReturnType());
