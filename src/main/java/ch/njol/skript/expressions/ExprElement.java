@@ -10,7 +10,6 @@ import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
@@ -48,17 +47,17 @@ import java.util.function.Function;
 public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderExpression<T> {
 
 	private static final Patterns<ElementType[]> PATTERNS = new Patterns<>(new Object[][]{
-		{"[the] (first|1:last) element [out] of %objects%", new ElementType[] {ElementType.FIRST_ELEMENT, ElementType.LAST_ELEMENT}},
-		{"[the] (first|1:last) %integer% elements [out] of %objects%", new ElementType[] {ElementType.FIRST_X_ELEMENTS, ElementType.LAST_X_ELEMENTS}},
-		{"[a] random element [out] of %objects%", new ElementType[] {ElementType.RANDOM}},
-		{"[the] %integer%(st|nd|rd|th) [1:[to] last] element [out] of %objects%", new ElementType[] {ElementType.ORDINAL, ElementType.TAIL_END_ORDINAL}},
-		{"[the] elements (from|between) %integer% (to|and) %integer% [out] of %objects%", new ElementType[] {ElementType.RANGE}},
+			{"[the] (first|1:last) element [out] of %objects%", new ElementType[]{ElementType.FIRST_ELEMENT, ElementType.LAST_ELEMENT}},
+			{"[the] (first|1:last) %integer% elements [out] of %objects%", new ElementType[]{ElementType.FIRST_X_ELEMENTS, ElementType.LAST_X_ELEMENTS}},
+			{"[a] random element [out] of %objects%", new ElementType[]{ElementType.RANDOM}},
+			{"[the] %integer%(st|nd|rd|th) [1:[to] last] element [out] of %objects%", new ElementType[]{ElementType.ORDINAL, ElementType.TAIL_END_ORDINAL}},
+			{"[the] elements (from|between) %integer% (to|and) %integer% [out] of %objects%", new ElementType[]{ElementType.RANGE}},
 
-		{"[the] (first|next|1:last) element (of|in) %queue%", new ElementType[] {ElementType.FIRST_ELEMENT, ElementType.LAST_ELEMENT}},
-		{"[the] (first|1:last) %integer% elements (of|in) %queue%", new ElementType[] {ElementType.FIRST_X_ELEMENTS, ElementType.LAST_X_ELEMENTS}},
-		{"[a] random element (of|in) %queue%", new ElementType[] {ElementType.RANDOM}},
-		{"[the] %integer%(st|nd|rd|th) [1:[to] last] element (of|in) %queue%", new ElementType[] {ElementType.ORDINAL, ElementType.TAIL_END_ORDINAL}},
-		{"[the] elements (from|between) %integer% (to|and) %integer% (of|in) %queue%", new ElementType[] {ElementType.RANGE}},
+			{"[the] (first|next|1:last) element (of|in) %queue%", new ElementType[]{ElementType.FIRST_ELEMENT, ElementType.LAST_ELEMENT}},
+			{"[the] (first|1:last) %integer% elements (of|in) %queue%", new ElementType[]{ElementType.FIRST_X_ELEMENTS, ElementType.LAST_X_ELEMENTS}},
+			{"[a] random element (of|in) %queue%", new ElementType[]{ElementType.RANDOM}},
+			{"[the] %integer%(st|nd|rd|th) [1:[to] last] element (of|in) %queue%", new ElementType[]{ElementType.ORDINAL, ElementType.TAIL_END_ORDINAL}},
+			{"[the] elements (from|between) %integer% (to|and) %integer% (of|in) %queue%", new ElementType[]{ElementType.RANGE}},
 	});
 
 	static {
@@ -132,23 +131,16 @@ public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderEx
 	private final Map<Event, List<String>> cache = new WeakHashMap<>();
 
 	private Expression<? extends T> expr;
-	private	@Nullable Expression<Integer> startIndex, endIndex;
+	private @Nullable Expression<Integer> startIndex, endIndex;
 	private ElementType type;
-	private boolean queue;
 	private boolean keyed;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		ElementType[] types = PATTERNS.getInfo(matchedPattern);
-		this.queue = matchedPattern > 4;
-		if (queue && !this.getParser().hasExperiment(Feature.QUEUES))
-			return false;
-		if (queue) {
-			this.expr = (Expression<T>) expressions[expressions.length - 1];
-		} else {
-			this.expr = LiteralUtils.defendExpression(expressions[expressions.length - 1]);
-		}
+		this.expr = LiteralUtils.defendExpression(expressions[expressions.length - 1]);
+
 		switch (type = types[parseResult.mark]) {
 			case RANGE:
 				endIndex = (Expression<Integer>) expressions[1];
@@ -160,13 +152,13 @@ public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderEx
 				break;
 		}
 		this.keyed = KeyProviderExpression.canReturnKeys(this.expr);
-		return queue || LiteralUtils.canInitSafely(expr);
+		return LiteralUtils.canInitSafely(expr);
 	}
 
 	@Override
 	protected T @Nullable [] get(Event event) {
-		if (queue)
-			return this.getFromQueue(event);
+		if (expr.isSingle() && expr.getSingle(event) instanceof SkriptQueue queue)
+			return this.getFromQueue(event, queue);
 		if (keyed) {
 			KeyedValue.UnzippedKeyValues<T> unzipped = KeyedValue.unzip(keyedIterator(event));
 			cache.put(event, unzipped.keys());
@@ -191,8 +183,8 @@ public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderEx
 
 	@Override
 	public @Nullable Iterator<? extends T> iterator(Event event) {
-		if (queue)
-			return Optional.ofNullable(getFromQueue(event)).map(Iterators::forArray).orElse(null);
+		if (expr.isSingle() && expr.getSingle(event) instanceof SkriptQueue queue)
+			return Optional.ofNullable(getFromQueue(event, queue)).map(Iterators::forArray).orElse(null);
 		Iterator<? extends T> iterator = expr.iterator(event);
 		return transformIterator(event, iterator);
 	}
@@ -224,8 +216,7 @@ public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderEx
 	}
 
 	@SuppressWarnings("unchecked")
-	private T @Nullable [] getFromQueue(Event event) {
-		SkriptQueue queue = (SkriptQueue) expr.getSingle(event);
+	private T @Nullable [] getFromQueue(Event event, SkriptQueue queue) {
 		if (queue == null)
 			return null;
 		Integer startIndex = 0, endIndex = 0;
@@ -284,7 +275,6 @@ public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderEx
 		exprElement.startIndex = startIndex;
 		exprElement.endIndex = endIndex;
 		exprElement.type = type;
-		exprElement.queue = queue;
 		return exprElement;
 	}
 
@@ -295,37 +285,29 @@ public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderEx
 
 	@Override
 	public Class<? extends T> getReturnType() {
-		if (queue)
-			return (Class<? extends T>) Object.class;
-		return expr.getReturnType();
+		return (Class<? extends T>) Object.class;
 	}
 
 	@Override
 	public Class<? extends T>[] possibleReturnTypes() {
-		if (!queue) {
-			return expr.possibleReturnTypes();
-		}
-		return super.possibleReturnTypes();
+		return expr.possibleReturnTypes();
 	}
 
 	@Override
 	public boolean canReturn(Class<?> returnType) {
-		if (!queue) {
-			return expr.canReturn(returnType);
-		}
-		return super.canReturn(returnType);
+		return expr.canReturn(returnType);
 	}
-  
-  @Override
+
+	@Override
 	public Expression<? extends T> simplify() {
-		if (!queue && expr instanceof Literal<?>
-			&& type != ElementType.RANDOM
-			&& (startIndex == null || startIndex instanceof Literal<Integer>)
-			&& (endIndex == null || endIndex instanceof Literal<Integer>)) {
+		if (expr instanceof Literal<?>
+				&& type != ElementType.RANDOM
+				&& (startIndex == null || startIndex instanceof Literal<Integer>)
+				&& (endIndex == null || endIndex instanceof Literal<Integer>)) {
 			return SimplifiedLiteral.fromExpression(this);
 		}
 		return this;
-  }
+	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {

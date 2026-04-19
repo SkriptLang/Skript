@@ -1,0 +1,7 @@
+using queues
+
+test "8548 first queue element":
+    set {queue} to a new queue
+    add "hello" and "there" to {queue}
+    assert the first element of {queue} is "hello"
+    assert the first element of {queue} is "there"
