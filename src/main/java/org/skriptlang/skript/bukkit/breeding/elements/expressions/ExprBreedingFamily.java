@@ -46,11 +46,6 @@ public class ExprBreedingFamily extends SimpleExpression<LivingEntity> implement
 	private int pattern;
 
 	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(EntityBreedEvent.class, EntityFertilizeEggEvent.class);
-	}
-
-	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
 						Kleenean isDelayed, ParseResult parseResult) {
 		if (getParser().isCurrentEvent(EntityFertilizeEggEvent.class) && matchedPattern >= 2) {
@@ -59,6 +54,11 @@ public class ExprBreedingFamily extends SimpleExpression<LivingEntity> implement
 		}
 		pattern = matchedPattern;
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EntityBreedEvent.class, EntityFertilizeEggEvent.class);
 	}
 
 	@Override
