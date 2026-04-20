@@ -64,9 +64,6 @@ public class ExprParse extends SimpleExpression<Object> {
 			"%string% parsed as (%-*classinfo%|\"<.*>\")");
 	}
 
-	@Nullable
-	static String lastError = null;
-
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<String> text;
 
@@ -149,7 +146,7 @@ public class ExprParse extends SimpleExpression<Object> {
 
 		ParseLogHandler parseLogHandler = SkriptLogger.startParseLogHandler();
 		try {
-			lastError = null;
+			ExprParseError.clearErrors();
 
 			if (classInfo != null) {
 				Parser<?> parser = classInfo.getParser();
@@ -209,12 +206,12 @@ public class ExprParse extends SimpleExpression<Object> {
 
 			LogEntry error = parseLogHandler.getError();
 			if (error != null) {
-				lastError = error.toString();
+				ExprParseError.addError(error.toString());
 			} else {
 				if (classInfo != null) {
-					lastError = text + " could not be parsed as " + classInfo.getName().withIndefiniteArticle();
+					ExprParseError.addError(text + " could not be parsed as " + classInfo.getName().withIndefiniteArticle());
 				} else {
-					lastError = text + " could not be parsed as \"" + pattern + "\"";
+					ExprParseError.addError(text + " could not be parsed as \"" + pattern + "\"");
 				}
 			}
 			return null;
