@@ -72,19 +72,22 @@ public class ExprAffectedEntities extends SimpleExpression<LivingEntity> {
 		if (!(event instanceof AreaEffectCloudApplyEvent areaEvent))
 			return;
 
-		LivingEntity[] entities = (LivingEntity[]) delta;
+		if (mode != ChangeMode.RESET && mode != ChangeMode.DELETE && delta == null) {
+			return;
+		}
+
 		switch (mode) {
 			case REMOVE:
-				for (LivingEntity entity : entities) {
-					areaEvent.getAffectedEntities().remove(entity);
+				for (Object entity : delta) {
+					areaEvent.getAffectedEntities().remove((LivingEntity) entity);
 				}
 				break;
 			case SET:
 				areaEvent.getAffectedEntities().clear();
 				// FALLTHROUGH
 			case ADD:
-				for (LivingEntity entity : entities) {
-					areaEvent.getAffectedEntities().add(entity);
+				for (Object entity : delta) {
+					areaEvent.getAffectedEntities().add((LivingEntity) entity);
 				}
 				break;
 			case RESET, DELETE:
