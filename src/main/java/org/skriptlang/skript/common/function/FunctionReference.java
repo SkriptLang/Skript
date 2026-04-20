@@ -102,24 +102,6 @@ public final class FunctionReference<T> implements Debuggable {
 			}
 		}
 
-		if (unloaded || cachedFunction == null) {
-			Class<?>[] parameters = Arrays.stream(signature.parameters().all())
-					.map(Parameter::type)
-					.toArray(Class[]::new);
-
-			Retrieval<ch.njol.skript.lang.function.Function<?>> retrieval = FunctionRegistry.getRegistry().getFunction(namespace, name, parameters);
-
-			if (retrieval.result() == RetrievalResult.EXACT) {
-				//noinspection unchecked
-				cachedFunction = (Function<T>) retrieval.retrieved();
-				unloaded = false;
-			}
-
-			if (cachedFunction == null) {
-				return false;
-			}
-		}
-
 		signature.addCall(this);
 
 		return true;
@@ -244,6 +226,20 @@ public final class FunctionReference<T> implements Debuggable {
 	 * @return The function referred to by this reference.
 	 */
 	public Function<T> function() {
+		if (unloaded || cachedFunction == null) {
+			Class<?>[] parameters = Arrays.stream(signature.parameters().all())
+					.map(Parameter::type)
+					.toArray(Class[]::new);
+
+			Retrieval<ch.njol.skript.lang.function.Function<?>> retrieval = FunctionRegistry.getRegistry().getFunction(namespace, name, parameters);
+
+			if (retrieval.result() == RetrievalResult.EXACT) {
+				//noinspection unchecked
+				cachedFunction = (Function<T>) retrieval.retrieved();
+				unloaded = false;
+			}
+		}
+
 		return cachedFunction;
 	}
 
