@@ -25,9 +25,18 @@ public class EvtPlayerToggleEntityAge extends SkriptEvent {
 				.addPatterns("[player] entity age ([:un]lock|toggle:toggle) [of %-entitytypes%]")
 				.addDescription("Called when a player toggles the age lock of an entity using a golden dandelion.")
 				.addExample("""
-					on player entity age lock:
-						cancel event
-					""")
+                    on player entity age lock:
+                        send "You have locked the age lock of %event-entity%" to player
+                        
+                    on player entity age unlock of pig:
+                    	if name of event-entity is "Small Pig":
+                    		cancel event
+                    		send "You can't unlock the age of this pig" to player
+                    		
+                    on player entity age toggle:
+                    	if event-entity is a baby cow:
+							send "You just toggled the age of a baby cow" to player
+                    """)
 				.addSince("INSERT VERSION")
 				.supplier(EvtPlayerToggleEntityAge::new)
 				.addRequiredPlugin("Paper 26.1+")
@@ -38,18 +47,22 @@ public class EvtPlayerToggleEntityAge extends SkriptEvent {
 		EventValues.registerEventValue(PlayerToggleEntityAgeLockEvent.class, ItemStack.class, PlayerToggleEntityAgeLockEvent::getItem);
 	}
 
+	private enum AgeLockAction {
+		LOCK, UNLOCK, TOGGLE
+	}
+
 	private @Nullable Literal<EntityType> entitiesLiteral;
 	private EntityType @Nullable [] entities;
-	private @Nullable Boolean entityAgeLocked;
+	private AgeLockAction ageLockAction;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		if (parseResult.hasTag("toggle")) {
-			entityAgeLocked = null;
+			ageLockAction = AgeLockAction.TOGGLE;
 		} else if (parseResult.hasTag("un")) {
-			entityAgeLocked = false;
+			ageLockAction = AgeLockAction.UNLOCK;
 		} else {
-			entityAgeLocked = true;
+			ageLockAction = AgeLockAction.LOCK;
 		}
 		if (args[0] != null) {
 			//noinspection unchecked
@@ -62,7 +75,7 @@ public class EvtPlayerToggleEntityAge extends SkriptEvent {
 	@Override
 	public boolean check(Event event) {
 		return event instanceof PlayerToggleEntityAgeLockEvent e
-			&& (entityAgeLocked == null || entityAgeLocked.equals(e.isAgeLocked()))
+			&& (ageLockAction == AgeLockAction.TOGGLE || (ageLockAction == AgeLockAction.LOCK) == e.isAgeLocked())
 			&& checkEntity(e.getEntity());
 	}
 
@@ -79,11 +92,15 @@ public class EvtPlayerToggleEntityAge extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
+		String action = switch (ageLockAction) {
+			case LOCK -> "lock";
+			case UNLOCK -> "unlock";
+			case TOGGLE -> "toggle";
+		};
 		return new SyntaxStringBuilder(event, debug)
-			.append("player toggling entity age")
-			.append(entityAgeLocked == null ? "lock/unlock" : (entityAgeLocked ? "lock" : "unlock"))
+			.append("player entity age")
+			.append(action)
 			.append(entitiesLiteral)
 			.toString();
 	}
-
 }
