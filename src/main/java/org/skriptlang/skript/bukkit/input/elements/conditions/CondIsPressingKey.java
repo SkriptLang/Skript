@@ -15,6 +15,8 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInputEvent;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.input.InputKey;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Is Pressing Key")
 @Description("Checks if a player is pressing a certain input key.")
@@ -28,20 +30,19 @@ import org.skriptlang.skript.bukkit.input.InputKey;
 @RequiredPlugins("Minecraft 1.21.2+")
 public class CondIsPressingKey extends Condition {
 
-	static {
-		if (Skript.classExists("org.bukkit.event.player.PlayerInputEvent")) {
-			Skript.registerCondition(CondIsPressingKey.class,
-				"%players% (is|are) pressing %inputkeys%",
-				"%players% (isn't|is not|aren't|are not) pressing %inputkeys%",
-				"%players% (was|were) pressing %inputkeys%",
-				"%players% (wasn't|was not|weren't|were not) pressing %inputkeys%"
-			);
-		} else {
-			Skript.registerCondition(CondIsPressingKey.class,
-				"%players% (is|are) pressing %inputkeys%",
-				"%players% (isn't|is not|aren't|are not) pressing %inputkeys%"
-			);
-		}
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			SyntaxInfo.builder(CondIsPressingKey.class)
+				.addPatterns(
+					"%players% (is|are) pressing %inputkeys%",
+					"%players% (isn't|is not|aren't|are not) pressing %inputkeys%",
+					"%players% (was|were) pressing %inputkeys%",
+					"%players% (wasn't|was not|weren't|were not) pressing %inputkeys%"
+				)
+				.supplier(CondIsPressingKey::new)
+				.build()
+		);
 	}
 
 	private Expression<Player> players;

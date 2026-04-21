@@ -6,38 +6,50 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableModule;
-import org.skriptlang.skript.bukkit.itemcomponents.generic.ExprItemCompCopy;
+import org.skriptlang.skript.bukkit.itemcomponents.elements.expressions.ExprItemCompCopy;
 
-public class ItemComponentModule implements AddonModule {
+import java.util.List;
+
+public class ItemComponentModule extends HierarchicalAddonModule {
+
+	public ItemComponentModule(AddonModule parentModule) {
+		super(parentModule);
+	}
 
 	@Override
-	public boolean canLoad(SkriptAddon addon) {
+	protected boolean canLoadSelf(SkriptAddon addon) {
 		return Skript.classExists("io.papermc.paper.datacomponent.BuildableDataComponent");
 	}
 
 	@Override
-	public void init(SkriptAddon addon) {
+	public Iterable<AddonModule> children() {
+		return List.of(new EquippableModule(this));
+	}
+
+	@Override
+	protected void initSelf(SkriptAddon addon) {
 		Classes.registerClass(new ClassInfo<>(ComponentWrapper.class, "itemcomponent")
 			.user("item ?components?")
 			.name("Item Component")
 			.description("Represents an item component for items. i.e. equippable components.")
 			.since("2.13")
 			.requiredPlugins("Minecraft 1.21.2+")
-			.parser(new Parser<>() {
+			.parser(new Parser<ComponentWrapper<?, ?>>() {
 				@Override
 				public boolean canParse(ParseContext context) {
 					return false;
 				}
 
 				@Override
-				public String toString(ComponentWrapper wrapper, int flags) {
+				public String toString(ComponentWrapper<?, ?> wrapper, int flags) {
 					return "item component";
 				}
 
 				@Override
-				public String toVariableNameString(ComponentWrapper wrapper) {
+				public String toVariableNameString(ComponentWrapper<?, ?> wrapper) {
 					return "item component#" + wrapper.hashCode();
 				}
 			})
@@ -46,10 +58,8 @@ public class ItemComponentModule implements AddonModule {
 	}
 
 	@Override
-	public void load(SkriptAddon addon) {
-		addon.loadModules(new EquippableModule());
-
-		ExprItemCompCopy.register(addon.syntaxRegistry());
+	protected void loadSelf(SkriptAddon addon) {
+		register(addon, ExprItemCompCopy::register);
 	}
 
 	@Override

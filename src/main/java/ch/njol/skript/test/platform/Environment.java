@@ -21,6 +21,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -180,8 +183,33 @@ public class Environment {
 		for (Resource resource : resources) {
 			Path source = dataRoot.resolve(resource.getSource());
 			Path target = env.resolve(resource.getTarget());
-			Files.createDirectories(target.getParent());
-			Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+
+			if (Files.isDirectory(source)) {
+				Files.walkFileTree(source, new SimpleFileVisitor<>() {
+
+					@Override
+					public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+							throws IOException {
+						Path relative = source.relativize(dir);
+						Path dest = target.resolve(relative);
+						Files.createDirectories(dest);
+						return FileVisitResult.CONTINUE;
+					}
+
+					@Override
+					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+							throws IOException {
+						Path relative = source.relativize(file);
+						Path dest = target.resolve(relative);
+						Files.createDirectories(dest.getParent());
+						Files.copy(file, dest, StandardCopyOption.REPLACE_EXISTING);
+						return FileVisitResult.CONTINUE;
+					}
+				});
+			} else {
+				Files.createDirectories(target.getParent());
+				Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+			}
 		}
 
 		List<Resource> downloads = new ArrayList<>();

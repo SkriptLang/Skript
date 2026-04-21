@@ -6,7 +6,12 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.hooks.regions.RegionsPlugin;
 import ch.njol.skript.hooks.regions.classes.Region;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Region")
 @Description({
@@ -24,6 +29,12 @@ public class ExprRegion extends EventValueExpression<Region> {
 
 	static {
 		register(ExprRegion.class, Region.class, "[event-]region");
+	}
+
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+		ScriptWarning.printDeprecationWarning(RegionsPlugin.DEPRECATION_MESSAGE);
+		return super.init(expressions, matchedPattern, isDelayed, parser);
 	}
 
 	public ExprRegion() {

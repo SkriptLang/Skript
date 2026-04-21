@@ -15,12 +15,12 @@ import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.util.Patterns;
-import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.Kleenean;
 import com.google.common.collect.Iterables;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.lang.condition.Conditional;
 import org.skriptlang.skript.lang.condition.Conditional.Operator;
 
@@ -111,7 +111,7 @@ public class SecConditional extends Section {
 				 *    set {_uh oh} to true
 				 */
 				SecConditional precedingConditional = getPrecedingConditional(triggerItems, null);
-				if (precedingConditional == null || !precedingConditional.multiline) {
+				if (precedingConditional == null || !precedingConditional.multiline || precedingConditional.type == ConditionalType.THEN) {
 					Skript.error("'then' has to placed just after a multiline 'if' or 'else if' section");
 					return false;
 				}
@@ -123,8 +123,6 @@ public class SecConditional extends Section {
 						Skript.error("'else if' has to be placed just after another 'if' or 'else if' section");
 					} else if (type == ConditionalType.ELSE) {
 						Skript.error("'else' has to be placed just after another 'if' or 'else if' section");
-					} else if (type == ConditionalType.THEN) {
-						Skript.error("'then' has to placed just after a multiline 'if' or 'else if' section");
 					}
 					return false;
 				}
@@ -222,7 +220,7 @@ public class SecConditional extends Section {
 			if ((Skript.debug() || sectionNode.debug()) && conditionals.size() > 1) {
 				String indentation = parser.getIndentation() + "    ";
 				for (Conditional<?> condition : conditionals)
-					Skript.debug(indentation + SkriptColor.replaceColorChar(condition.toString(null, true)));
+					Skript.debug(indentation + TextComponentParser.instance().escape(condition.toString(null, true)));
 			}
 
 			conditional = Conditional.compound(ifAny ? Operator.OR : Operator.AND, conditionals);
@@ -386,27 +384,28 @@ public class SecConditional extends Section {
 			TriggerItem triggerItem = triggerItems.get(i);
 			if (!(triggerItem instanceof SecConditional conditional))
 				break;
-			if (conditional.type == ConditionalType.ELSE)
-				// if the conditional is an else, break because it belongs to a different condition and ends
-				// this one
-				break;
 			conditionals.add(conditional);
+			if (conditional.type == ConditionalType.IF)
+				// if the conditional is an if, break because it is the root of our conditional
+				break;
 		}
 		return conditionals;
 	}
 
-	private static @Nullable Kleenean getPrecedingShouldDelayAfter(List<TriggerItem> triggerItems) {
+	private @Nullable Kleenean getPrecedingShouldDelayAfter(List<TriggerItem> triggerItems) {
+		if (this.type == ConditionalType.IF)
+			// this is the head, meaning there is no preceding conditional
+			return null;
 		// loop through the triggerItems in reverse order so that we find the most recent items first
 		for (int i = triggerItems.size() - 1; i >= 0; i--) {
 			TriggerItem triggerItem = triggerItems.get(i);
-			if (!(triggerItem instanceof SecConditional conditional))
+			if (!(triggerItem instanceof SecConditional precedingSecConditional))
 				break;
-			if (conditional.type == ConditionalType.ELSE)
-				// if the conditional is an else, break because it belongs to a different condition and ends
-				// this one
+			if (precedingSecConditional.shouldDelayAfter != null)
+				return precedingSecConditional.shouldDelayAfter;
+			if (precedingSecConditional.type == ConditionalType.IF)
+				// this is the head of the conditional, meaning the search failed
 				break;
-			if (conditional.shouldDelayAfter != null)
-				return conditional.shouldDelayAfter;
 		}
 		return null;
 	}
