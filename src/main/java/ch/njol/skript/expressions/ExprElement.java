@@ -296,7 +296,9 @@ public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderEx
 
 	@Override
 	public Class<? extends T> getReturnType() {
-		return (Class<? extends T>) Object.class;
+		Class<? extends T> returnType = expr.getReturnType();
+		//noinspection unchecked
+		return returnType == SkriptQueue.class ? (Class<? extends T>) Object.class : returnType;
 	}
 
 	@Override
