@@ -1,7 +1,6 @@
 package org.skriptlang.skript.bukkit.text;
 
 import ch.njol.skript.registrations.Classes;
-import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
@@ -21,7 +20,6 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,6 +33,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -118,6 +118,18 @@ public final class TextComponentParser {
 	 * For example, {@code <dark red>}.
 	 */
 	private static final Pattern MULTI_WORD_COLOR_PATTERN = Pattern.compile("(\\\\*)<([a-zA-Z]+ [a-zA-Z]+)>");
+
+	/**
+	 * A pattern for matching legacy hex codes ({@code &x&1&2&3&4&5&6}).
+	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
+	 */
+	static final Pattern LEGACY_CODE_PATTERN = Pattern.compile("(\\\\*)([&§][a-f0-9])");
+
+	/**
+	 * A pattern for matching standard legacy codes ({@code &1}).
+	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
+	 */
+	static final Pattern LEGACY_HEX_PATTERN = Pattern.compile("(\\\\*)([&§]x(?:[&§]x){6})");
 
 	static {
 		INSTANCE = new TextComponentParser();
@@ -444,17 +456,16 @@ public final class TextComponentParser {
 	public String reformatText(String text) {
 		// TODO improve...
 		// replace spaces with underscores for simple tags
-		text = StringUtils.replaceAll(text, MULTI_WORD_COLOR_PATTERN, matcher -> {
-			if (matcher.group(1).length() % 2 == 1) { // tag is escaped
-				return Matcher.quoteReplacement(matcher.group());
+		text = MULTI_WORD_COLOR_PATTERN.matcher(text).replaceAll(result -> {
+			if (result.group(1).length() % 2 == 1) { // tag is escaped
+				return Matcher.quoteReplacement(result.group());
 			}
-			String mappedTag = matcher.group(2).replace(" ", "_");
+			String mappedTag = result.group(2).replace(" ", "_");
 			if (simplePlaceholders.containsKey(mappedTag) || StandardTags.color().has(mappedTag)) { // only replace if it makes a valid tag
-				return Matcher.quoteReplacement(matcher.group(1) + "<" + mappedTag + ">");
+				return Matcher.quoteReplacement(result.group(1) + "<" + mappedTag + ">");
 			}
-			return Matcher.quoteReplacement(matcher.group());
+			return Matcher.quoteReplacement(result.group());
 		});
-		assert text != null;
 
 		// legacy compatibility, transform color codes into tags
 		text = TextComponentUtils.replaceLegacyFormattingCodes(text);
@@ -471,24 +482,14 @@ public final class TextComponentParser {
 	public String escape(String string) {
 		// legacy compatibility, escape color codes
 		if (string.contains("&") || string.contains("§")) {
-			StringBuilder reconstructedString = new StringBuilder();
-			char[] messageChars = string.toCharArray();
-			for (int i = 0; i < messageChars.length; i++) {
-				char current = messageChars[i];
-				char next = (i + 1 != messageChars.length) ? messageChars[i + 1] : ' ';
-				boolean isCode = (current == '&' || current == '§') && (i == 0 || messageChars[i - 1] != '\\');
-				if (isCode && next == 'x' && i + 13 <= messageChars.length) { // assume hex -> &x&1&2&3&4&5&6
-					reconstructedString.append('\\');
-					for (int i2 = i; i2 < i + 14; i2++) { // append the rest of the hex code, don't escape these symbols
-						reconstructedString.append(messageChars[i2]);
-					}
-					i += 13; // skip to the end
-				} else if (isCode && ChatColor.getByChar(next) != null) {
-					reconstructedString.append('\\');
+			Function<MatchResult, String> replacer = result -> {
+				if (result.group(1).length() % 2 == 1) { // tag is already escaped
+					return Matcher.quoteReplacement(result.group());
 				}
-				reconstructedString.append(current);
-			}
-			string = reconstructedString.toString();
+				return Matcher.quoteReplacement('\\' + result.group());
+			};
+			string = LEGACY_HEX_PATTERN.matcher(string).replaceAll(replacer);
+			string = LEGACY_CODE_PATTERN.matcher(string).replaceAll(replacer);
 		}
 		return parser.escapeTags(string);
 	}
