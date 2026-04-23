@@ -30,7 +30,7 @@ import java.util.function.Predicate;
 
 public class EvtClick extends SkriptEvent {
 
-	// remove when 26.1.1 is the minimum supported version
+	// TODO: UNTIL MC 26.1.1
 	private final static boolean USE_OLD_PIAEE_BEHAVIOR = !Skript.isRunningMinecraft(26,1,1);
 
 	/**
