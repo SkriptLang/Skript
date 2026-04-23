@@ -65,13 +65,14 @@ public final class SkriptEventHandler {
 	 * @param event The event to find pairs from.
 	 * @return A List containing all Triggers registered under the provided Event class.
 	 */
-	private static Set<Trigger> getTriggers(Class<? extends Event> event) {
+	private static List<Trigger> getTriggers(Class<? extends Event> event) {
 		HandlerList eventHandlerList = getHandlerList(event);
 		assert eventHandlerList != null; // It had one at some point so this should remain true
 		return triggers.asMap().entrySet().stream()
 				.filter(entry -> entry.getKey().isAssignableFrom(event) && getHandlerList(entry.getKey()) == eventHandlerList)
 				.flatMap(entry -> entry.getValue().stream())
-				.collect(Collectors.toSet()); // forces evaluation now and prevents us from having to call getTriggers again if very high logging is enabled
+				.distinct()
+				.collect(Collectors.toList()); // forces evaluation now and prevents us from having to call getTriggers again if very high logging is enabled
 	}
 
 	/**
@@ -83,7 +84,7 @@ public final class SkriptEventHandler {
 	 */
 	private static void check(Event event, EventPriority priority) {
 		// get all triggers for this event, return if none
-		Set<Trigger> triggers = getTriggers(event.getClass());
+		List<Trigger> triggers = getTriggers(event.getClass());
 		if (triggers.isEmpty())
 			return;
 
