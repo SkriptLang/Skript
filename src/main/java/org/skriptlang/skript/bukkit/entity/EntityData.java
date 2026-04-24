@@ -84,7 +84,6 @@ public abstract class EntityData<E extends Entity>
 			}
 		}
 	}
-	public static final String LANGUAGE_NODE = "entities";
 
 	public static final String AGE_PATTERN = "(unknown_age:|baby:(baby|young)|adult:(adult|grown(-| )up))";
 	public static final EntityNoun AGE_BABY = new EntityNoun("baby");
@@ -847,12 +846,30 @@ public abstract class EntityData<E extends Entity>
 		return from == to;
 	}
 
+	/**
+	 * Collection of {@link PatternGroup}s to be parsed and retrieved.
+	 * @param <Data> The type of object representing the state(s) of the entities in the {@link PatternGroup}s.
+	 */
 	public static class EntityDataPatterns<Data> {
 
+		/**
+		 * Create a simple {@link EntityDataPatterns} with only one {@link PatternGroup} from the provided parameters.
+		 * @param name The name of the entity.
+		 * @param patterns The patterns that refer to the entity.
+		 * @return The constructed {@link EntityDataPatterns}.
+		 */
 		public static EntityDataPatterns<?> of(String name, String... patterns) {
 			return of(name, null, patterns);
 		}
 
+		/**
+		 * Create a simple {@link EntityDataPatterns} with only one {@link PatternGroup} from the provided parameters.
+		 * @param name The name of the entity.
+		 * @param data The data correlating to the entity.
+		 * @param patterns The patterns that refer to the entity.
+		 * @return The constructed {@link EntityDataPatterns}.
+		 * @param <Data> The type of data correlating to the entity.
+		 */
 		public static <Data> EntityDataPatterns<Data> of(String name, @Nullable Data data, String... patterns) {
 			return new EntityDataPatterns<>(
 				new PatternGroup<>(0, name, data, patterns)
@@ -877,56 +894,114 @@ public abstract class EntityData<E extends Entity>
 			}
 		}
 
+		/**
+		 * Gets the generic group. A group is considered generic when it does not correlate to any {@code Data}.
+		 * @return The generic group.
+		 */
 		public PatternGroup<Data> getGenericGroup() {
 			return genericGroup;
 		}
 
+		/**
+		 * Gets the {@link EntityNoun}s from all the {@link PatternGroup}s.
+		 * @return The {@link EntityNoun}s.
+		 */
 		public SequencedCollection<EntityNoun> getNames() {
 			return names;
 		}
 
+		/**
+		 * Gets the {@link PatternGroup}s provided when constructed.
+		 * @return The {@link PatternGroup}s.
+		 */
 		public PatternGroup<Data>[] getPatternGroups() {
 			return patternGroups;
 		}
 
+		/**
+		 * Gets the {@link Map} that correlates index to a {@link PatternGroup}.
+		 * @return The {@link Map}.
+		 */
 		protected Map<Integer, PatternGroup<Data>> getGroupMap() {
 			return groupMap;
 		}
 
+		/**
+		 * Gets the {@link Map} that correlates {@code Data} to a {@link PatternGroup}.
+		 * @return The {@link Map}.
+		 */
 		protected Map<Data, PatternGroup<Data>> getDataMap() {
 			return dataMap;
 		}
 
+		/**
+		 * Gets the {@link PatternGroup} correlating to {@code index}.
+		 * @param index The index of the {@link PatternGroup} to grab.
+		 * @return The {@link PatternGroup} if found, otherwise the generic group.
+		 */
 		public PatternGroup<Data> getPatternGroup(int index) {
 			if (!getGroupMap().containsKey(index))
 				return getGenericGroup();
 			return getGroupMap().get(index);
 		}
 
+		/**
+		 * Gets the {@link PatternGroup} correlating to {@code data}.
+		 * @param data The data of the {@link PatternGroup} to grab.
+		 * @return The {@link PatternGroup} if found, otherwise the generic group.
+		 */
 		public PatternGroup<Data> getPatternGroup(@Nullable Data data) {
 			if (!getDataMap().containsKey(data))
 				return getGenericGroup();
 			return getDataMap().get(data);
 		}
 
+		/**
+		 * Gets the index that the {@link PatternGroup} with {@code data}.
+		 * @param data The data of the {@link PatternGroup} to grab the index from.
+		 * @return The index.
+		 */
 		public int getIndex(@Nullable Data data) {
 			return getPatternGroup(data).index();
 		}
 
+		/**
+		 * Gets the data of the {@link PatternGroup} at the {@code index}.
+		 * @param index The index of the {@link PatternGroup} to grab the data from.
+		 * @return The data.
+		 */
 		public @Nullable Data getData(int index) {
 			return getPatternGroup(index).data();
 		}
 
+		/**
+		 * Gets the {@link EntityNoun} of the {@link PatternGroup} at the {@code index}.
+		 * @param index The index of {@link PatternGroup} to grab the {@link EntityNoun} from.
+		 * @return The {@link EntityNoun}.
+		 */
 		public EntityNoun getName(int index) {
 			return getPatternGroup(index).name();
 		}
 
+		/**
+		 * Gets the {@link EntityNoun} of the {@link PatternGroup} with {@code data}.
+		 * @param data The data of the {@link PatternGroup} to grab the {@link EntityNoun} from.
+		 * @return The {@link EntityNoun}.
+		 */
 		public EntityNoun getName(@Nullable Data data) {
 			return getPatternGroup(data).name();
 		}
 
 	}
 
+	/**
+	 * Grouping of data for an entity that is to be parsed and retrievable.
+	 * @param index The index of the entity/this {@link PatternGroup}.
+	 * @param name The name of the entity.
+	 * @param data The object representing a state of the entity.
+	 * @param patterns The patterns that could be used to refer to the entity/this {@link PatternGroup}.
+	 * @param <Data> The object for representing a state of the entity.
+	 */
 	public record PatternGroup<Data>(int index, EntityNoun name, @Nullable Data data, String... patterns) {
 
 		public PatternGroup(int index, EntityNoun name, String... patterns) {

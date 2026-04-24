@@ -124,6 +124,11 @@ public abstract class HierarchicalAddonModule implements AddonModule {
 		loadChildren(addon);
 	}
 
+	/**
+	 * Loads the children provided via {@link #children()}.
+	 * By default, the children are automatically loaded after the execution of {@link #loadSelf(SkriptAddon)}.
+	 * @param addon The addon this module belongs to.
+	 */
 	public final void loadChildren(SkriptAddon addon) {
 		if (childrenLoaded)
 			return;

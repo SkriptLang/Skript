@@ -83,8 +83,6 @@ public class EntityModule extends HierarchicalAddonModule {
 	//<editor-fold desc="register entity datas" defaultstate="collapsed">
 	private void registerEntityDatas() {
 		BeeData.register();
-		BoatChestData.register();
-		BoatData.register();
 		CatData.register();
 		ChickenData.register();
 		CowData.register();
