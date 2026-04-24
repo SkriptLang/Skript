@@ -118,6 +118,12 @@ public final class TextComponentParser {
 	private static final Pattern MULTI_WORD_COLOR_PATTERN = Pattern.compile("(\\\\*)<([a-zA-Z]+ [a-zA-Z]+)>");
 
 	/**
+	 * A pattern for matching double hashtag hex color tags ({@code <##123456>}).
+	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
+	 */
+	private static final Pattern LEGACY_DOUBLE_HASHTAG_PATTERN = Pattern.compile("(\\\\*)<(##[a-f0-9]{6})>");
+
+	/**
 	 * A pattern for matching legacy hex codes ({@code &x&1&2&3&4&5&6}).
 	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
 	 */
@@ -459,6 +465,17 @@ public final class TextComponentParser {
 			return Matcher.quoteReplacement(result.group());
 		});
 
+		text = LEGACY_DOUBLE_HASHTAG_PATTERN.matcher(text).replaceAll(result -> {
+			if (result.group(1).length() % 2 == 1) { // tag is escaped
+				return Matcher.quoteReplacement(result.group());
+			}
+			String mappedTag = result.group(2).substring(1);
+			if (StandardTags.color().has(mappedTag)) {
+				return Matcher.quoteReplacement("<" + mappedTag + ">");
+			}
+			return Matcher.quoteReplacement(result.group());
+		});
+
 		// legacy compatibility, transform color codes into tags
 		text = TextComponentUtils.replaceLegacyFormattingCodes(text);
 
@@ -481,6 +498,16 @@ public final class TextComponentParser {
 				return Matcher.quoteReplacement('\\' + result.group());
 			});
 		}
+		string = LEGACY_DOUBLE_HASHTAG_PATTERN.matcher(string).replaceAll(result -> {
+			if (result.group(1).length() % 2 == 1) { // tag is escaped
+				return Matcher.quoteReplacement(result.group());
+			}
+			String mappedTag = result.group(2).substring(1);
+			if (StandardTags.color().has(mappedTag)) {
+				return Matcher.quoteReplacement("\\<#" + mappedTag) + ">";
+			}
+			return Matcher.quoteReplacement(result.group());
+		});
 		return parser.escapeTags(string);
 	}
 
