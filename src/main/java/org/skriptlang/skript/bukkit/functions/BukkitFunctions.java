@@ -3,20 +3,16 @@ package org.skriptlang.skript.bukkit.functions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.util.ColorRGB;
-import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Utils;
-import ch.njol.util.Math2;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.common.function.DefaultFunction;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 
-import java.util.Calendar;
 import java.util.UUID;
 
 public class BukkitFunctions {
@@ -88,9 +84,9 @@ public class BukkitFunctions {
 					long exp;
 					if (level <= 0) {
 						exp = 0;
-					} else if (level >= 1 && level <= 15) {
+					} else if (level <= 15) {
 						exp = level * level + 6 * level;
-					} else if (level >= 16 && level <= 30) { // Truncating decimal parts probably works
+					} else if (level <= 30) { // Truncating decimal parts probably works
 						exp = (int) (2.5 * level * level - 40.5 * level + 360);
 					} else { // Half experience points do not exist, anyway
 						exp = (int) (4.5 * level * level - 162.5 * level + 2220);
@@ -181,8 +177,6 @@ public class BukkitFunctions {
 					result = Bukkit.getOfflinePlayer(uuid); // doesn't do lookups
 				} else if (hasIfCached && !args.getOrDefault("allowLookups", true)) {
 					result = Bukkit.getOfflinePlayerIfCached(name);
-					if (result == null)
-						return null;
 				} else {
 					result = Bukkit.getOfflinePlayer(name);
 				}

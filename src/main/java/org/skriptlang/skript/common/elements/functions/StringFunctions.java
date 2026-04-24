@@ -28,13 +28,14 @@ public class StringFunctions {
 								"A hashtag '#' represents a digit, a comma ',' is used to separate numbers, and a period '.' is used for decimals. ",
 						"Will return none if the format is invalid.",
 						"For further reference, see this <a href=\"https://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html\" target=\"_blank\">article</a>.")
-				.examples(
-						"command /balance:",
-						"\taliases: bal",
-						"\texecutable by: players",
-						"\ttrigger:",
-						"\t\tset {_money} to formatNumber({money::%sender's uuid%})",
-						"\t\tsend \"Your balance: %{_money}%\" to sender")
+				.examples("""
+						command /balance:
+							aliases: bal
+							executable by: players
+							trigger:
+								set {_money} to formatNumber({money::%sender's uuid%})
+								send "Your balance: %{_money}%" to sender
+						""")
 				.since("2.10")
 				.parameter("number", Number.class)
 				.parameter("format", String.class, Modifier.OPTIONAL)
@@ -71,9 +72,10 @@ public class StringFunctions {
 
 		Functions.register(DefaultFunction.builder(skript, "concat", String.class)
 				.description("Joins the provided texts (and other things) into a single text.")
-				.examples(
-						"concat(\"hello \", \"there\") # hello there",
-						"concat(\"foo \", 100, \" bar\") # foo 100 bar"
+				.examples("""
+						concat("hello ", "there") # hello there
+						concat("foo ", 100, " bar") # foo 100 bar
+						"""
 				)
 				.since("2.9.0")
 				.parameter("texts", Object[].class)
