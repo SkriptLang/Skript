@@ -2,11 +2,13 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import com.destroystokyo.paper.event.block.BeaconEffectEvent;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffectType;
@@ -23,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 	""")
 @Events("Beacon Effect")
 @Since("2.10")
-public class ExprAppliedEffect extends SimpleExpression<PotionEffectType> {
+public class ExprAppliedEffect extends SimpleExpression<PotionEffectType> implements EventRestrictedSyntax {
 
 	static {
 		if (Skript.classExists("com.destroystokyo.paper.event.block.BeaconEffectEvent")) {
@@ -34,11 +36,12 @@ public class ExprAppliedEffect extends SimpleExpression<PotionEffectType> {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(BeaconEffectEvent.class)) {
-			Skript.error("You can only use 'applied effect' in a beacon effect event.");
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(BeaconEffectEvent.class);
 	}
 
 	@Override
