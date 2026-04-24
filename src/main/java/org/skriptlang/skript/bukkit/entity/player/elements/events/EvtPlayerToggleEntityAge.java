@@ -74,9 +74,9 @@ public class EvtPlayerToggleEntityAge extends SkriptEvent {
 
 	@Override
 	public boolean check(Event event) {
-		return event instanceof PlayerToggleEntityAgeLockEvent e
-			&& (ageLockAction == AgeLockAction.TOGGLE || (ageLockAction == AgeLockAction.LOCK) == e.isAgeLocked())
-			&& checkEntity(e.getEntity());
+		return event instanceof PlayerToggleEntityAgeLockEvent ageLockEvent
+			&& (ageLockAction == AgeLockAction.TOGGLE || (ageLockAction == AgeLockAction.LOCK) == ageLockEvent.isAgeLocked())
+			&& checkEntity(ageLockEvent.getEntity());
 	}
 
 	private boolean checkEntity(Entity entity) {
@@ -100,7 +100,7 @@ public class EvtPlayerToggleEntityAge extends SkriptEvent {
 		return new SyntaxStringBuilder(event, debug)
 			.append("player entity age")
 			.append(action)
-			.append(entitiesLiteral)
+			.appendIf(entitiesLiteral != null, "of", entitiesLiteral)
 			.toString();
 	}
 }
