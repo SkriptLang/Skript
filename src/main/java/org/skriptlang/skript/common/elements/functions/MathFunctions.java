@@ -226,7 +226,7 @@ public class MathFunctions {
 				.build(args -> {
 					Number[] ns = args.get("ns");
 					if (ns.length == 0)
-						return 0;
+						return null;
 
 					double sum = ns[0].doubleValue();
 					for (int i = 1; i < ns.length; i++)
@@ -242,7 +242,7 @@ public class MathFunctions {
 				.build(args -> {
 					Number[] ns = args.get("ns");
 					if (ns.length == 0)
-						return 0;
+						return null;
 
 					double product = ns[0].doubleValue();
 					for (int i = 1; i < ns.length; i++)
@@ -258,7 +258,7 @@ public class MathFunctions {
 				.build(args -> {
 					Number[] ns = args.get("ns");
 					if (ns.length == 0)
-						return 0;
+						return null;
 
 					double max = ns[0].doubleValue();
 					for (int i = 1; i < ns.length; i++) {
@@ -277,7 +277,7 @@ public class MathFunctions {
 				.build(args -> {
 					Number[] ns = args.get("ns");
 					if (ns.length == 0)
-						return 0;
+						return null;
 
 					double min = ns[0].doubleValue();
 					for (int i = 1; i < ns.length; i++) {
@@ -325,7 +325,7 @@ public class MathFunctions {
 						if (!Double.isNaN(value) && !Double.isNaN(trueMin) && !Double.isNaN(trueMax)) {
 							clampedValues[i] = Math.clamp(value, trueMin, trueMax);
 						} else {
-							clampedValues[i] = 0d;
+							clampedValues[i] = Double.NaN;
 						}
 					}
 					return clampedValues;
