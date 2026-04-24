@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Utilities for working with {@link Component}s.
@@ -73,6 +74,12 @@ public final class TextComponentUtils {
 	}
 
 	/**
+	 * A pattern for matching standard legacy codes ({@code &1}).
+	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
+	 */
+	private static final Pattern LEGACY_HEX_PATTERN = Pattern.compile("[&§]x(?:[&§][a-f0-9]){6}");
+
+	/**
 	 * Replaces all legacy formatting codes in a string with {@link net.kyori.adventure.text.minimessage.MiniMessage} equivalents.
 	 * @param text The string to reformat.
 	 * @return Reformatted {@code text}.
@@ -82,15 +89,9 @@ public final class TextComponentUtils {
 			return text;
 		}
 
-		text = TextComponentParser.LEGACY_HEX_PATTERN.matcher(text).replaceAll(result -> {
-			String backslashes = result.group(1);
-			if (backslashes.length() % 2 == 1) { // tag is escaped
-				return Matcher.quoteReplacement(result.group().substring(1));
-			} else if (!backslashes.isEmpty()) {
-				backslashes = backslashes.substring(1);
-			}
-			String hex = result.group(2);
-			StringBuilder replacement = new StringBuilder(backslashes);
+		text = LEGACY_HEX_PATTERN.matcher(text).replaceAll(result -> {
+			String hex = result.group();
+			StringBuilder replacement = new StringBuilder();
 			replacement.append("<#");
 			for (int i = 3; i <= 13; i += 2) { // isolate the specific numbers
 				replacement.append(hex.charAt(i));

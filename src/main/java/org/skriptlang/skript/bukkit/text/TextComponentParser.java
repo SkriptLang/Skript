@@ -33,8 +33,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -124,12 +122,6 @@ public final class TextComponentParser {
 	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
 	 */
 	static final Pattern LEGACY_CODE_PATTERN = Pattern.compile("(\\\\*)([&§][a-f0-9])");
-
-	/**
-	 * A pattern for matching standard legacy codes ({@code &1}).
-	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
-	 */
-	static final Pattern LEGACY_HEX_PATTERN = Pattern.compile("(\\\\*)([&§]x(?:[&§]x){6})");
 
 	static {
 		INSTANCE = new TextComponentParser();
@@ -482,14 +474,12 @@ public final class TextComponentParser {
 	public String escape(String string) {
 		// legacy compatibility, escape color codes
 		if (string.contains("&") || string.contains("§")) {
-			Function<MatchResult, String> replacer = result -> {
+			string = LEGACY_CODE_PATTERN.matcher(string).replaceAll(result -> {
 				if (result.group(1).length() % 2 == 1) { // tag is already escaped
 					return Matcher.quoteReplacement(result.group());
 				}
 				return Matcher.quoteReplacement('\\' + result.group());
-			};
-			string = LEGACY_HEX_PATTERN.matcher(string).replaceAll(replacer);
-			string = LEGACY_CODE_PATTERN.matcher(string).replaceAll(replacer);
+			});
 		}
 		return parser.escapeTags(string);
 	}
