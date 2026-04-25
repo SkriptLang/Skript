@@ -6,6 +6,8 @@ import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 
+import java.util.SequencedCollection;
+
 /**
  * A function that has been implemented in Java, instead of in Skript.
  * <p>
@@ -133,6 +135,17 @@ public sealed interface DefaultFunction<T>
 		 * @return The final function.
 		 */
 		DefaultFunction<T> build(@NotNull java.util.function.Function<FunctionArguments, T> execute);
+
+		/**
+		 * Completes this builder with the code to execute on call of this function.
+		 * Adds a function for setting the returned keys by this function.
+		 *
+		 * @param keys The function which sets the return keys.
+		 * @param execute The code to execute and the key consumer.
+		 * @return The final function.
+		 */
+		DefaultFunction<T> buildKeyed(@NotNull java.util.function.Function<FunctionArguments, SequencedCollection<String>> keys,
+									  @NotNull java.util.function.Function<FunctionArguments, T> execute);
 
 	}
 

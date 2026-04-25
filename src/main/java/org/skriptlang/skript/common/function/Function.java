@@ -7,6 +7,8 @@ import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.SequencedCollection;
+
 /**
  * Represents a function implementation.
  *
@@ -41,7 +43,6 @@ public interface Function<T> {
 	/**
 	 * @return The returned keys.
 	 */
-	@Experimental
-	@NotNull String @Nullable [] returnedKeys();
+	@NotNull SequencedCollection<String> getReturnedKeys();
 
 }

@@ -19,12 +19,15 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	private final SkriptAddon source;
 	private final SequencedMap<String, Parameter<?>> parameters;
 	private final Function<FunctionArguments, T> execute;
+	private final Function<FunctionArguments, SequencedCollection<String>> keys;
 
 	private final List<String> description;
 	private final List<String> since;
 	private final List<String> examples;
 	private final List<String> keywords;
 	private final List<String> requires;
+
+	private SequencedCollection<String> returnedKeys;
 
 	DefaultFunctionImpl(
 			SkriptAddon source,
@@ -33,6 +36,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			Class<T> returnType, boolean single,
 			@Nullable ch.njol.skript.util.Contract contract,
 			Function<FunctionArguments, T> execute,
+			Function<FunctionArguments, SequencedCollection<String>> keys,
 			String[] description, String[] since, String[] examples,
 			String[] keywords, String[] requires
 	) {
@@ -47,6 +51,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		this.source = source;
 		this.parameters = parameters;
 		this.execute = execute;
+		this.keys = keys;
 		this.description = description != null ? List.of(description) : Collections.emptyList();
 		this.since = since != null ? List.of(since) : Collections.emptyList();
 		this.examples = examples != null ? List.of(examples) : Collections.emptyList();
@@ -100,6 +105,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		}
 
 		FunctionArgumentsImpl arguments = new FunctionArgumentsImpl(args);
+		returnedKeys = keys.apply(arguments);
 		T result = execute.apply(arguments);
 
 		if (result == null) {
@@ -133,12 +139,23 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			}
 		}
 
+		returnedKeys = keys.apply(arguments);
 		return execute.apply(arguments);
 	}
 
 	@Override
 	public boolean resetReturnValue() {
 		return true;
+	}
+
+	@Override
+	public @NotNull String @Nullable [] returnedKeys() {
+		return returnedKeys.toArray(new String[0]);
+	}
+
+	@Override
+	public @NotNull SequencedCollection<String> getReturnedKeys() {
+		return returnedKeys;
 	}
 
 	@Override
@@ -273,7 +290,19 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			Preconditions.checkNotNull(execute, "execute cannot be null");
 
 			return new DefaultFunctionImpl<>(source, name, parameters,
-					returnType, !returnType.isArray(), contract, execute,
+					returnType, !returnType.isArray(), contract, execute, (_) -> Collections.emptyList(),
+					description, since, examples, keywords, requires);
+		}
+
+		@Override
+		public DefaultFunction<T> buildKeyed(@NotNull Function<FunctionArguments, SequencedCollection<String>> keys,
+		                                     @NotNull Function<FunctionArguments, T> execute) {
+			Preconditions.checkNotNull(execute, "execute cannot be null");
+			Preconditions.checkArgument(parameters.values().stream().anyMatch(it -> it.hasModifier(Modifier.KEYED)),
+					"buildKeyed cannot be called without any keyed arguments");
+
+			return new DefaultFunctionImpl<>(source, name, parameters,
+					returnType, !returnType.isArray(), contract, execute, keys,
 					description, since, examples, keywords, requires);
 		}
 
@@ -293,10 +322,10 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	/**
 	 * A parameter for a {@link DefaultFunction}.
 	 *
-	 * @param name The name.
-	 * @param type The type's class.
+	 * @param name      The name.
+	 * @param type      The type's class.
 	 * @param modifiers The modifiers.
-	 * @param <T> The type.
+	 * @param <T>       The type.
 	 */
 	record DefaultParameter<T>(String name, Class<T> type, Set<Modifier> modifiers)
 			implements Parameter<T> {

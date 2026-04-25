@@ -2,6 +2,7 @@ package org.skriptlang.skript.common.elements.functions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.KeyedValue;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.util.Contract;
 import ch.njol.util.Math2;
@@ -298,7 +299,7 @@ public class MathFunctions {
 						"clamp((5, 0, 10, 9, 13), 7, 10) = (7, 7, 10, 9, 10)",
 						"set {_clamped::*} to clamp({_values::*}, 0, 10)")
 				.since("2.8.0")
-				.parameter("values", Number[].class)
+				.parameter("values", Number[].class, Modifier.KEYED)
 				.parameter("min", Number.class)
 				.parameter("max", Number.class)
 				.contract(new Contract() {
@@ -312,8 +313,11 @@ public class MathFunctions {
 						return Number.class;
 					}
 				})
-				.build(args -> {
-					Number[] values = args.get("values");
+				.buildKeyed(args -> {
+					KeyedValue<Number>[] values = args.get("values");
+					return KeyedValue.unzip(values).keys();
+				}, args -> {
+					KeyedValue<Number>[] values = args.get("values");
 					Double[] clampedValues = new Double[values.length];
 					double min = args.<Number>get("min").doubleValue();
 					double max = args.<Number>get("max").doubleValue();
@@ -321,7 +325,7 @@ public class MathFunctions {
 					double trueMin = Math.min(min, max);
 					double trueMax = Math.max(min, max);
 					for (int i = 0; i < values.length; i++) {
-						double value = values[i].doubleValue();
+						double value = values[i].value().doubleValue();
 						if (!Double.isNaN(value) && !Double.isNaN(trueMin) && !Double.isNaN(trueMax)) {
 							clampedValues[i] = Math.clamp(value, trueMin, trueMax);
 						} else {
