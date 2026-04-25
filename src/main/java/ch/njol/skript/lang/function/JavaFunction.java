@@ -14,7 +14,6 @@ import org.skriptlang.skript.common.function.Parameters;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.SequencedCollection;
 
 /**
  * @deprecated Use {@link DefaultFunction} instead.
