@@ -305,7 +305,7 @@ public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderEx
 	public Class<? extends T>[] possibleReturnTypes() {
 		Class<? extends T> returnType = expr.getReturnType();
 		//noinspection unchecked
-		return returnType == SkriptQueue.class ? new Class[]{Object.class} : possibleReturnTypes();
+		return returnType == SkriptQueue.class ? new Class[]{Object.class} : expr.possibleReturnTypes();
 	}
 
 	@Override
