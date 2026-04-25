@@ -1,7 +1,5 @@
 package ch.njol.skript.effects;
 
-import ch.njol.skript.lang.EventRestrictedSyntax;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +30,7 @@ import ch.njol.util.Kleenean;
 			set the player's display name to arg-1
 	""")
 @Since("2.2-dev34")
-public class EffCancelCooldown extends Effect implements EventRestrictedSyntax {
+public class EffCancelCooldown extends Effect {
 
 	static {
 		Skript.registerEffect(EffCancelCooldown.class,
@@ -44,13 +42,12 @@ public class EffCancelCooldown extends Effect implements EventRestrictedSyntax {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+		if (!getParser().isCurrentEvent(ScriptCommandEvent.class)) {
+			Skript.error("The cancel cooldown effect may only be used in a command", ErrorQuality.SEMANTIC_ERROR);
+			return false;
+		}
 		cancel = matchedPattern == 0;
 		return true;
-	}
-
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(ScriptCommandEvent.class);
 	}
 
 	@Override

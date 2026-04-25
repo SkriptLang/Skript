@@ -7,7 +7,6 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -30,7 +29,7 @@ import java.util.List;
     		broadcast "it's not halloween yet!"
     """)
 @Since("2.10")
-public class ExprBarterDrops extends SimpleExpression<ItemType> implements EventRestrictedSyntax {
+public class ExprBarterDrops extends SimpleExpression<ItemType> {
 	
 	static {
 		if (Skript.classExists("org.bukkit.event.entity.PiglinBarterEvent")) {
@@ -43,14 +42,14 @@ public class ExprBarterDrops extends SimpleExpression<ItemType> implements Event
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult result) {
+		if (!getParser().isCurrentEvent(PiglinBarterEvent.class)) {
+			Skript.error("The expression 'barter drops' can only be used in the piglin bartering event");
+			return false;
+		}
+
 		delay = isDelayed;
 
 		return true;
-	}
-
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(PiglinBarterEvent.class);
 	}
 	
 	@Override

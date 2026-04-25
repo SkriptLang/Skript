@@ -3,8 +3,6 @@ package ch.njol.skript.expressions;
 import java.util.Iterator;
 import java.util.List;
 
-import ch.njol.skript.lang.EventRestrictedSyntax;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.event.Event;
@@ -32,7 +30,7 @@ import ch.njol.util.Kleenean;
 	""")
 @Since("2.4")
 @Events("portal_create")
-public class ExprPortal extends SimpleExpression<Block> implements EventRestrictedSyntax {
+public class ExprPortal extends SimpleExpression<Block> {
 
 	// 1.14+ returns List<BlockState>, 1.13.2 and below returns ArrayList<Block> 
 	private static final boolean USING_BLOCKSTATE = Skript.isRunningMinecraft(1, 14);
@@ -45,12 +43,10 @@ public class ExprPortal extends SimpleExpression<Block> implements EventRestrict
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		return true;
-	}
-
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(PortalCreateEvent.class);
+		if (getParser().isCurrentEvent(PortalCreateEvent.class))
+			return true;
+		Skript.error("The 'portal' expression may only be used in a portal creation event.");
+		return false;
 	}
 
 	@Nullable
