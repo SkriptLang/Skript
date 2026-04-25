@@ -154,11 +154,6 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	}
 
 	@Override
-	public @NotNull SequencedCollection<String> getReturnedKeys() {
-		return returnedKeys;
-	}
-
-	@Override
 	public @NotNull String name() {
 		return getName();
 	}
@@ -290,7 +285,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			Preconditions.checkNotNull(execute, "execute cannot be null");
 
 			return new DefaultFunctionImpl<>(source, name, parameters,
-					returnType, !returnType.isArray(), contract, execute, (_) -> Collections.emptyList(),
+					returnType, !returnType.isArray(), contract, execute, (args) -> Collections.emptyList(),
 					description, since, examples, keywords, requires);
 		}
 

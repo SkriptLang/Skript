@@ -190,8 +190,12 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 	}
 
 	@Override
-	public @NotNull SequencedCollection<String> getReturnedKeys() {
-		return Collections.emptyList();
+	public final @NotNull SequencedCollection<String> getReturnedKeys() {
+		String[] returnedKeys = returnedKeys();
+		if (returnedKeys == null || returnedKeys.length == 0) {
+			return Collections.emptyList();
+		}
+		return Arrays.asList(returnedKeys);
 	}
 
 	/**

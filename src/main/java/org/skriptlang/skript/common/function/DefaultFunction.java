@@ -140,12 +140,12 @@ public sealed interface DefaultFunction<T>
 		 * Completes this builder with the code to execute on call of this function.
 		 * Adds a function for setting the returned keys by this function.
 		 *
-		 * @param keys The function which sets the return keys.
+		 * @param keys    The function which sets the return keys.
 		 * @param execute The code to execute and the key consumer.
 		 * @return The final function.
 		 */
 		DefaultFunction<T> buildKeyed(@NotNull java.util.function.Function<FunctionArguments, SequencedCollection<String>> keys,
-									  @NotNull java.util.function.Function<FunctionArguments, T> execute);
+		                              @NotNull java.util.function.Function<FunctionArguments, T> execute);
 
 	}
 
