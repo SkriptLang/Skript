@@ -172,7 +172,7 @@ public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderEx
 			if (single instanceof SkriptQueue queue) {
 				return this.getFromQueue(event, queue);
 			} else {
-				iterator = new ArrayIterator<>(CollectionUtils.array(single));
+				iterator = transformIterator(event, Iterators.singletonIterator(single));
 			}
 		} else {
 			iterator = transformIterator(event, expr.iterator(event));
