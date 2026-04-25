@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -25,7 +25,7 @@ import ch.njol.util.Kleenean;
 @Name("Absorbed blocks")
 @Description("The blocks absorbed by a sponge block.")
 @Events("sponge absorb")
-@Examples("the absorbed blocks")
+@Example("the absorbed blocks")
 @Since("2.5")
 public class ExprAbsorbedBlocks extends SimpleExpression<BlockStateBlock> {
 	

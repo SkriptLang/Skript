@@ -8,6 +8,7 @@ import ch.njol.util.NonNullPair;
 import ch.njol.util.Pair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
@@ -22,6 +23,7 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -243,40 +245,74 @@ public abstract class Utils {
 	}
 
 	/**
-	 * @param word trimmed string
-	 * @return Pair of singular string + boolean whether it was plural
+	 * @deprecated Use {@link #isPlural(String)} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "2.14")
 	public static NonNullPair<String, Boolean> getEnglishPlural(String word) {
-		assert word != null;
-		if (word.isEmpty())
-			return new NonNullPair<>("", false);
-		if (!couldBeSingular(word)) {
-			for (final WordEnding ending : plurals) {
-				if (ending.isCompleteWord()) {
-					// Complete words shouldn't be used as partial pieces
-					if (word.length() != ending.plural().length())
-						continue;
+		PluralResult result = isPlural(word);
+		return new NonNullPair<>(result.updated, result.plural);
+	}
+
+	/**
+	 * Stores the result of {@link #isPlural(String)}.
+	 *
+	 * @param updated The singular version of the passed word, if a single variant exists.
+	 * @param plural Whether the word is plural.
+	 */
+	public record PluralResult(String updated, boolean plural) {
+
+	}
+
+	/**
+	 * Returns whether a word is plural. If it is, {@code updated} contains the single variant of the word.
+	 * Otherwise, {@code updated == word}.
+	 *
+	 * @param word The word to check.
+	 * @return A pair with the updated word and a boolean indicating whether it was plural.
+	 */
+	public static PluralResult isPlural(String word) {
+		Preconditions.checkNotNull(word, "word cannot be null");
+
+		if (word.isEmpty()) {
+			return new PluralResult("", false);
+		}
+
+		if (couldBeSingular(word)) {
+			return new PluralResult(word, false);
+		}
+
+		for (WordEnding ending : plurals) {
+			if (ending.isCompleteWord()) {
+				// Complete words shouldn't be used as partial pieces
+				if (word.length() != ending.plural().length()) {
+					continue;
 				}
-				if (word.endsWith(ending.plural()))
-					return new NonNullPair<>(
-						word.substring(0, word.length() - ending.plural().length()) + ending.singular(),
-						true
-					);
-				if (word.endsWith(ending.plural().toUpperCase(Locale.ENGLISH)))
-					return new NonNullPair<>(
-						word.substring(0, word.length() - ending.plural().length())
-							+ ending.singular().toUpperCase(Locale.ENGLISH),
-						true
-					);
+			}
+
+			if (word.endsWith(ending.plural())) {
+				return new PluralResult(
+					word.substring(0, word.length() - ending.plural().length()) + ending.singular(),
+					true
+				);
+			}
+
+			if (word.endsWith(ending.plural().toUpperCase(Locale.ENGLISH))) {
+				return new PluralResult(
+					word.substring(0, word.length() - ending.plural().length())
+						+ ending.singular().toUpperCase(Locale.ENGLISH),
+					true
+				);
 			}
 		}
-		return new NonNullPair<>(word, false);
+
+		return new PluralResult(word, false);
 	}
 
 	private static boolean couldBeSingular(String word) {
-		for (final WordEnding ending : plurals) {
+		for (WordEnding ending : plurals) {
 			if (ending.singular().isBlank())
 				continue;
+
 			if (ending.isCompleteWord() && ending.singular().length() != word.length())
 				continue; // Skip complete words
 
@@ -567,8 +603,11 @@ public abstract class Utils {
 		});
 	}
 
-	@Nullable
-	public static String getChatStyle(final String s) {
+	/**
+	 * @deprecated See {@link TextComponentParser}.
+	 */
+	@Deprecated(since = "2.15", forRemoval = true)
+	public static @Nullable String getChatStyle(final String s) {
 		SkriptColor color = SkriptColor.fromName(s);
 
 		if (color != null)
@@ -577,11 +616,9 @@ public abstract class Utils {
 	}
 
 	/**
-	 * Replaces &lt;chat styles&gt; in the message
-	 *
-	 * @param message
-	 * @return message with localised chat styles converted to Minecraft's format
+	 * @deprecated See {@link TextComponentParser}.
 	 */
+	@Deprecated(since = "2.15", forRemoval = true)
 	public static @NotNull String replaceChatStyles(String message) {
 		if (message.isEmpty())
 			return message;
@@ -590,13 +627,9 @@ public abstract class Utils {
 	}
 
 	/**
-	 * Replaces english &lt;chat styles&gt; in the message. This is used for messages in the language file as the
-	 * language of colour codes is not well defined while the language is
-	 * changing, and for some hardcoded messages.
-	 *
-	 * @param message
-	 * @return message with english chat styles converted to Minecraft's format
+	 * @deprecated See {@link TextComponentParser}.
 	 */
+	@Deprecated(since = "2.15", forRemoval = true)
 	public static @NotNull String replaceEnglishChatStyles(String message) {
 		if (message.isEmpty())
 			return message;
@@ -606,6 +639,10 @@ public abstract class Utils {
 
 	private final static Pattern STYLE_PATTERN = Pattern.compile("<([^<>]+)>");
 
+	/**
+	 * @deprecated See {@link TextComponentParser}.
+	 */
+	@Deprecated(since = "2.15", forRemoval = true)
 	private static @NotNull String replaceChatStyle(String message) {
 		String m = StringUtils.replaceAll(Matcher.quoteReplacement(message), STYLE_PATTERN, matcher -> {
 			SkriptColor color = SkriptColor.fromName(matcher.group(1));
@@ -641,11 +678,9 @@ public abstract class Utils {
 	private static final Pattern UNICODE_PATTERN = Pattern.compile("(?i)u(?:nicode)?:(?<code>[0-9a-f]{4,})");
 
 	/**
-	 * Tries to extract a Unicode character from the given string.
-	 *
-	 * @param string The string.
-	 * @return The Unicode character, or null if it could not be parsed.
+	 * @deprecated See {@link TextComponentParser}.
 	 */
+	@Deprecated(since = "2.15", forRemoval = true)
 	public static @Nullable String parseUnicode(String string) {
 		Matcher matcher = UNICODE_PATTERN.matcher(string);
 		if (!matcher.matches())
@@ -661,11 +696,9 @@ public abstract class Utils {
 	private static final Pattern HEX_PATTERN = Pattern.compile("(?i)#{0,2}(?<code>[0-9a-f]{6})");
 
 	/**
-	 * Tries to get a {@link ChatColor} from the given string.
-	 *
-	 * @param string The string code to parse.
-	 * @return The ChatColor, or null if it couldn't be parsed.
+	 * @deprecated See {@link TextComponentParser}.
 	 */
+	@Deprecated(since = "2.15", forRemoval = true)
 	public static @Nullable ChatColor parseHexColor(String string) {
 		Matcher matcher = HEX_PATTERN.matcher(string);
 		if (!matcher.matches())
@@ -724,8 +757,8 @@ public abstract class Utils {
 		assert classes.length > 0;
 		Class<?> chosen = classes[0];
 		outer:
-		for (final Class<?> checking : classes) {
-			assert checking != null && !checking.isArray() && !checking.isPrimitive() : checking;
+		for (Class<?> checking : classes) {
+			assert !checking.isArray() && !checking.isPrimitive() : "%s has no super".formatted(checking.getSimpleName());
 			if (chosen.isAssignableFrom(checking))
 				continue;
 			Class<?> superType = checking;
@@ -928,5 +961,14 @@ public abstract class Utils {
 
 		return true;
 	}
-
+	/**
+	 * @param cls The class.
+	 * @return The component of cls if cls is an array, otherwise cls.
+	 */
+	public static Class<?> getComponentType(Class<?> cls) {
+		if (cls != null && cls.isArray()) {
+			return cls.componentType();
+		}
+		return cls;
+	}
 }

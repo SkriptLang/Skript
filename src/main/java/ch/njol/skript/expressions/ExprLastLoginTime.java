@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -16,10 +16,12 @@ import ch.njol.util.Kleenean;
 
 @Name("Last/First Login Time")
 @Description("When a player last/first logged in the server. 'last login' requires paper to get the last login, otherwise it will get the last time they were seen on the server.")
-@Examples({"command /onlinefor:",
-	"\ttrigger:",
-	"\t\tsend \"You have been online for %difference between player's last login and now%.\"",
-	"\t\tsend \"You first joined the server %difference between player's first login and now% ago.\""})
+@Example("""
+    command /onlinefor:
+    	trigger:
+    		send "You have been online for %difference between player's last login and now%."
+    		send "You first joined the server %difference between player's first login and now% ago."
+    """)
 @Since("2.5")
 public class ExprLastLoginTime extends SimplePropertyExpression<OfflinePlayer, Date> {
 	

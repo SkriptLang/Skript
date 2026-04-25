@@ -52,7 +52,7 @@ public class PatternCompiler {
 		for (int i = 0; i < pattern.length(); i++) {
 			char c = pattern.charAt(i);
 			if (c == '[') {
-				if (literalBuilder.length() != 0) {
+				if (!literalBuilder.isEmpty()) {
 					first = appendElement(first, new LiteralPatternElement(literalBuilder.toString()));
 					literalBuilder = new StringBuilder();
 				}
@@ -64,7 +64,7 @@ public class PatternCompiler {
 
 				i = end;
 			} else if (c == '(') {
-				if (literalBuilder.length() != 0) {
+				if (!literalBuilder.isEmpty()) {
 					first = appendElement(first, new LiteralPatternElement(literalBuilder.toString()));
 					literalBuilder = new StringBuilder();
 				}
@@ -76,7 +76,7 @@ public class PatternCompiler {
 
 				i = end;
 			} else if (c == '|') {
-				if (literalBuilder.length() != 0) {
+				if (!literalBuilder.isEmpty()) {
 					first = appendElement(first, new LiteralPatternElement(literalBuilder.toString()));
 					literalBuilder = new StringBuilder();
 				}
@@ -110,7 +110,7 @@ public class PatternCompiler {
 
 				first = appendElement(first, parseTagPatternElement);
 			} else if (c == '%') {
-				if (literalBuilder.length() != 0) {
+				if (!literalBuilder.isEmpty()) {
 					first = appendElement(first, new LiteralPatternElement(literalBuilder.toString()));
 					literalBuilder = new StringBuilder();
 				}
@@ -125,7 +125,7 @@ public class PatternCompiler {
 
 				i = end;
 			} else if (c == '<') {
-				if (literalBuilder.length() != 0) {
+				if (!literalBuilder.isEmpty()) {
 					first = appendElement(first, new LiteralPatternElement(literalBuilder.toString()));
 					literalBuilder = new StringBuilder();
 				}
@@ -152,7 +152,7 @@ public class PatternCompiler {
 			}
 		}
 
-		if (literalBuilder.length() != 0) {
+		if (!literalBuilder.isEmpty()) {
 			first = appendElement(first, new LiteralPatternElement(literalBuilder.toString()));
 		}
 
@@ -168,24 +168,30 @@ public class PatternCompiler {
 	 * Returns the new first element of the list.
 	 */
 	private static PatternElement appendElement(@Nullable PatternElement first, PatternElement next) {
-		if (first == null || (first instanceof LiteralPatternElement && first.next == null && ((LiteralPatternElement) first).isEmpty())) {
+		// if "first" is null or not meaningful (empty), simply return "next"
+		if (first == null || (first instanceof LiteralPatternElement literalPatternElement && first.next == null && literalPatternElement.isEmpty())) {
 			return next;
-		} else {
-			if (first instanceof ChoicePatternElement) {
-				ChoicePatternElement choicePatternElement = (ChoicePatternElement) first;
-				PatternElement last = choicePatternElement.getLast();
-				choicePatternElement.setLast(appendElement(last, next));
-				return first;
-			}
+		}
 
-			PatternElement last = first;
-			while (last.next != null)
-				last = last.next;
-
-			last.setNext(next);
-			last.originalNext = next;
+		// if appending to a choice, we need to append to the last choice
+		// ex: appending "hello" to "a|b", result should be "a|b hello" where the choices are "a" and "b hello"
+		if (first instanceof ChoicePatternElement choicePatternElement) {
+			PatternElement last = choicePatternElement.getLast();
+			choicePatternElement.setLast(appendElement(last, next));
 			return first;
 		}
+
+		// get last element
+		PatternElement last = first;
+		while (last.next != null) {
+			last = last.next;
+		}
+
+		// append to this element
+		last.setNext(next);
+		last.originalNext = next;
+
+		return first;
 	}
 
 }

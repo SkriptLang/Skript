@@ -11,7 +11,7 @@ import org.skriptlang.skript.util.Priority;
  * @deprecated This has been replaced by {@link Priority}.
  * See the documentation of each element to determine their replacements.
  */
-@Deprecated(since = "INSERT VERSION", forRemoval = true)
+@Deprecated(since = "2.14", forRemoval = true)
 public enum ExpressionType {
 
 	/**

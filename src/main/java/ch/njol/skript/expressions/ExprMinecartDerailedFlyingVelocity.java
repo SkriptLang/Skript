@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -19,8 +19,10 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Minecart Derailed / Flying Velocity")
 @Description("The velocity of a minecart as soon as it has been derailed or as soon as it starts flying.")
-@Examples({"on right click on minecart:",
-	"\tset derailed velocity of event-entity to vector 2, 10, 2"})
+@Example("""
+	on right click on minecart:
+		set derailed velocity of event-entity to vector 2, 10, 2
+	""")
 @Since("2.5.1")
 public class ExprMinecartDerailedFlyingVelocity extends SimplePropertyExpression<Entity, Vector> {
 	

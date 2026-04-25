@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -23,10 +23,8 @@ import java.util.Objects;
 
 @Name("Function")
 @Description("Obtain a function by name, which can be executed.")
-@Examples({
-		"set {_function} to the function named \"myFunction\"",
-		"run {_function} with arguments 13 and true"
-})
+@Example("set {_function} to the function named \"myFunction\"")
+@Example("run {_function} with arguments 13 and true")
 @Since("2.10")
 @SuppressWarnings("rawtypes")
 public class ExprFunction extends SimpleExpression<DynamicFunctionReference> implements ReflectionExperimentSyntax {

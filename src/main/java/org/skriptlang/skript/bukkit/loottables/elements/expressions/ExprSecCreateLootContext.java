@@ -1,9 +1,8 @@
 package org.skriptlang.skript.bukkit.loottables.elements.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
@@ -12,8 +11,6 @@ import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Direction;
-import ch.njol.skript.variables.HintManager;
-import ch.njol.skript.variables.HintManager.Backup;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
@@ -22,27 +19,32 @@ import org.bukkit.loot.LootContext;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Name("Create Loot Context")
 @Description("Create a loot context.")
-@Examples({
-	"set {_player} to player",
-	"set {_context} to a loot context at player:",
-		"\tset loot luck value to 10",
-		"\tset looter to {_player}",
-		"\tset looted entity to last spawned pig",
-	"give player loot items of loot table \"minecraft:entities/iron_golem\" with loot context {_context}"
-})
+@Example("""
+    set {_player} to player
+    set {_context} to a loot context at player:
+        set loot luck value to 10
+        set looter to {_player}
+        set looted entity to last spawned pig
+    give player loot items of loot table "minecraft:entities/iron_golem" with loot context {_context}
+    """)
 @Since("2.10")
 public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 
-	static {
-		Skript.registerExpression(ExprSecCreateLootContext.class, LootContext.class, ExpressionType.COMBINED,
-			"[a] loot context %direction% %location%");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprSecCreateLootContext.class, LootContext.class)
+				.addPatterns("[a] loot context %direction% %location%")
+				.supplier(ExprSecCreateLootContext::new)
+				.build()
+		);
 		EventValues.registerEventValue(LootContextCreateEvent.class, LootContext.class, event -> event.getContextWrapper().getContext());
 	}
 

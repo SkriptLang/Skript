@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -29,22 +29,21 @@ import java.util.function.Function;
 	"Zombifying a villager stored in a variable will update the variable to the new zombie villager.",
 	"Curing a zombie villager does not update the variable."
 })
-@Examples({
-	"zombify last spawned villager",
-	"",
-	"set {_villager} to last spawned villager",
-	"zombify {_villager}",
-	"if {_villager} is a zombie villager:",
-		"\t# This will pass because '{_villager}' gets changed to the new zombie villager",
-	"",
-	"set {_villager} to last spawned villager",
-	"zombify last spawned villager",
-	"if {_villager} is a zombie villager:",
-		"\t# This will fail because the variable was not provided when zombifying",
-	"",
-	"unzombify {_zombieVillager}",
-	"unzombify {_zombieVillager} after 2 seconds"
-})
+@Example("zombify last spawned villager")
+@Example("""
+	set {_villager} to last spawned villager
+	zombify {_villager}
+	if {_villager} is a zombie villager:
+		# This will pass because '{_villager}' gets changed to the new zombie villager
+	""")
+@Example("""
+	set {_villager} to last spawned villager
+	zombify last spawned villager
+	if {_villager} is a zombie villager:
+		# This will fail because the variable was not provided when zombifying
+	""")
+@Example("unzombify {_zombieVillager}")
+@Example("unzombify {_zombieVillager} after 2 seconds")
 @Since("2.11")
 public class EffZombify extends Effect {
 

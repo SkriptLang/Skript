@@ -71,11 +71,11 @@ public class SyntaxStringBuilder {
 	 * {@link Debuggable#toString(Event, boolean)}.
 	 * 
 	 * @param condition The condition.
-	 * @param object The object to add.
+	 * @param object The object to add. Ensure this is not null.
 	 * @return The builder.
 	 * @see #append(Object) 
 	 */
-	public SyntaxStringBuilder appendIf(boolean condition, @NotNull Object object) {
+	public SyntaxStringBuilder appendIf(boolean condition, Object object) {
 		if (condition) {
 			append(object);
 		}
@@ -87,11 +87,11 @@ public class SyntaxStringBuilder {
 	 * Spaces are automatically added between the provided objects.
 	 *
 	 * @param condition The condition.
-	 * @param objects The objects to add.
+	 * @param objects The objects to add. Ensure this is not null.
 	 * @return The builder.
 	 * @see #append(Object...) 
 	 */
-	public SyntaxStringBuilder appendIf(boolean condition, @NotNull Object... objects) {
+	public SyntaxStringBuilder appendIf(boolean condition, Object... objects) {
 		if (condition) {
 			append(objects);
 		}

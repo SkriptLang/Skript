@@ -12,17 +12,18 @@ import ch.njol.util.Kleenean;
 
 @Name("Item Has Enchantment Glint Override")
 @Description("Checks whether an item has the enchantment glint overridden, or is forced to glint or not.")
-@Examples({
-	"if the player's tool has the enchantment glint override",
-		"\tsend \"Your tool has the enchantment glint override.\" to player",
-	"",
-	"if {_item} is forced to glint:",
-		"\tsend \"This item is forced to glint.\" to player",
-	"else if {_item} is forced to not glint:",
-		"\tsend \"This item is forced to not glint.\" to player",
-	"else:",
-		"\tsend \"This item does not have any glint override.\" to player"
-})
+@Example("""
+	if the player's tool has the enchantment glint override
+		send "Your tool has the enchantment glint override." to player
+	""")
+@Example("""
+	if {_item} is forced to glint:
+		send "This item is forced to glint." to player
+	else if {_item} is forced to not glint:
+		send "This item is forced to not glint." to player
+	else:
+		send "This item does not have any glint override." to player
+	""")
 @RequiredPlugins("Spigot 1.20.5+")
 @Since("2.10")
 public class CondItemEnchantmentGlint extends PropertyCondition<ItemType> {

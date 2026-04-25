@@ -3,14 +3,7 @@ package ch.njol.skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.bukkitutil.BurgerHelper;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.data.BukkitClasses;
-import ch.njol.skript.classes.data.BukkitEventValues;
-import ch.njol.skript.classes.data.DefaultComparators;
-import ch.njol.skript.classes.data.DefaultConverters;
-import ch.njol.skript.classes.data.DefaultFunctions;
-import ch.njol.skript.classes.data.DefaultOperations;
-import ch.njol.skript.classes.data.JavaClasses;
-import ch.njol.skript.classes.data.SkriptClasses;
+import ch.njol.skript.classes.data.*;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.events.EvtSkript;
@@ -18,40 +11,22 @@ import ch.njol.skript.expressions.arithmetic.ExprArithmetic;
 import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.Condition.ConditionType;
+import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.PluralizingArgsMessage;
-import ch.njol.skript.log.BukkitLoggerFilter;
-import ch.njol.skript.log.CountingLogHandler;
-import ch.njol.skript.log.ErrorDescLogHandler;
-import ch.njol.skript.log.ErrorQuality;
-import ch.njol.skript.log.LogEntry;
-import ch.njol.skript.log.LogHandler;
-import ch.njol.skript.log.SkriptLogger;
-import ch.njol.skript.log.TestingLogHandler;
-import ch.njol.skript.log.Verbosity;
+import ch.njol.skript.log.*;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.Feature;
-import ch.njol.skript.test.runner.EffObjectives;
-import ch.njol.skript.test.runner.SkriptAsyncJUnitTest;
-import ch.njol.skript.test.runner.SkriptJUnitTest;
-import ch.njol.skript.test.runner.SkriptTestEvent;
-import ch.njol.skript.test.runner.TestMode;
-import ch.njol.skript.test.runner.TestTracker;
+import ch.njol.skript.test.runner.*;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
 import ch.njol.skript.update.UpdateManifest;
+import ch.njol.skript.util.*;
 import ch.njol.skript.util.Date;
-import ch.njol.skript.util.EmptyStacktraceException;
-import ch.njol.skript.util.ExceptionUtils;
-import ch.njol.skript.util.FileUtils;
-import ch.njol.skript.util.Task;
-import ch.njol.skript.util.Utils;
-import ch.njol.skript.util.Version;
-import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Closeable;
@@ -62,12 +37,7 @@ import ch.njol.util.coll.iterator.EnumerationIterable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.bstats.bukkit.Metrics;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Server;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -90,21 +60,13 @@ import org.junit.After;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
+import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.bukkit.BukkitModule;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
-import org.skriptlang.skript.bukkit.breeding.BreedingModule;
-import org.skriptlang.skript.bukkit.brewing.BrewingModule;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceModule;
-import org.skriptlang.skript.bukkit.displays.DisplayModule;
-import org.skriptlang.skript.bukkit.entity.EntityModule;
-import org.skriptlang.skript.bukkit.fishing.FishingModule;
-import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
-import org.skriptlang.skript.bukkit.input.InputModule;
-import org.skriptlang.skript.bukkit.itemcomponents.ItemComponentModule;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
-import org.skriptlang.skript.bukkit.loottables.LootTableModule;
-import org.skriptlang.skript.bukkit.potion.PotionModule;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
-import org.skriptlang.skript.bukkit.tags.TagModule;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.common.CommonModule;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.comparator.Comparator;
@@ -449,7 +411,7 @@ public final class Skript extends JavaPlugin implements Listener {
 					if (!aliasesFolder.mkdirs())
 						throw new IOException("Could not create the directory " + aliasesFolder);
 				}
-				
+
 				f = new ZipFile(getFile());
 				for (ZipEntry e : new EnumerationIterable<ZipEntry>(f.entries())) {
 					if (e.isDirectory())
@@ -513,23 +475,28 @@ public final class Skript extends JavaPlugin implements Listener {
 		skript.storeRegistry(PropertyRegistry.class, new PropertyRegistry(this));
 		Property.registerDefaultProperties();
 
-		// Load classes which are always safe to use
-		new JavaClasses(); // These may be needed in configuration
+		EventValueRegistry eventValueRegistry = EventValueRegistry.empty(this);
+		skript.storeRegistry(EventValueRegistry.class, eventValueRegistry);
+		//noinspection removal
+		EventValues.setEventValueRegistry(eventValueRegistry);
+
+		// TODO this upcoming portion is a bad circular dependency
+		// some modules depend on the config
+		// the config depends on some modules (for the types they register)
+
+		// load classes
+		new JavaClasses();
+		new SkriptClasses();
+		new BukkitClasses();
+
+		// load the config
+		SkriptConfig.load();
 
 		// Check server software, Minecraft version, etc.
 		if (!checkServerPlatform()) {
 			disabled = true; // Nothing was loaded, nothing needs to be unloaded
 			setEnabled(false); // Cannot continue; user got errors in console to tell what happened
 			return;
-		}
-
-		// And then not-so-safe classes
-		Throwable classLoadError = null;
-		try {
-			new SkriptClasses();
-			new BukkitClasses();
-		} catch (Throwable e) {
-			classLoadError = e;
 		}
 
 		// Warn about pausing
@@ -542,14 +509,8 @@ public final class Skript extends JavaPlugin implements Listener {
 			}
 		}
 
-
-		// Config must be loaded after Java and Skript classes are parseable
-		// ... but also before platform check, because there is a config option to ignore some errors
-		SkriptConfig.load();
-
 		// Register the runtime error refresh after loading, so we can do the first instantiation manually.
 		SkriptConfig.eventRegistry().register(SkriptConfig.ReloadEvent.class, RuntimeErrorManager::refresh);
-
 		// init runtime error manager and add bukkit consumer.
 		RuntimeErrorManager.refresh();
 		getRuntimeErrorManager().addConsumer(new BukkitRuntimeErrorConsumer());
@@ -566,49 +527,48 @@ public final class Skript extends JavaPlugin implements Listener {
 			updater.updateCheck(console);
 		}
 
-		// If loading can continue (platform ok), check for potentially thrown error
-		if (classLoadError != null) {
-			exception(classLoadError);
-			setEnabled(false);
-			return;
-		}
-
 		PluginCommand skriptCommand = getCommand("skript");
 		assert skriptCommand != null; // It is defined, unless build is corrupted or something like that
 		skriptCommand.setExecutor(new SkriptCommand());
 		skriptCommand.setTabCompleter(new SkriptCommandTabCompleter());
 
-		// Load Bukkit stuff. It is done after platform check, because something might be missing!
-		new BukkitEventValues();
+		final AddonModule legacyModule = new AddonModule() {
 
-		new DefaultComparators();
-		new DefaultConverters();
-		new DefaultFunctions();
-		new DefaultOperations();
+			@Override
+			public void init(org.skriptlang.skript.addon.SkriptAddon addon) {
+				new DefaultComparators();
+				new DefaultConverters();
 
-		ChatMessages.registerListeners();
+				// legacy listeners
+				//noinspection removal
+				ChatMessages.registerListeners();
+			}
+
+			@Override
+			public void load(org.skriptlang.skript.addon.SkriptAddon addon) {
+				try {
+					//noinspection removal
+					getAddonInstance().loadClasses("ch.njol.skript",
+						"conditions", "effects", "events", "expressions", "entity", "literals", "sections", "structures");
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+				BukkitEventValues.register(eventValueRegistry);
+				new DefaultFunctions();
+				new DefaultOperations();
+			}
+
+			@Override
+			public String name() {
+				return "legacy";
+			}
+
+		};
 
 		try {
-			getAddonInstance().loadClasses("ch.njol.skript",
-				"conditions", "effects", "events", "expressions", "entity", "literals", "sections", "structures");
-			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "misc");
-			// todo: become proper module once registry api is merged
-			FishingModule.load();
-			BreedingModule.load();
-			DisplayModule.load();
-			InputModule.load();
-			TagModule.load();
-			FurnaceModule.load();
-			LootTableModule.load();
-			skript.loadModules(
-				new CommonModule(),
-				new BrewingModule(),
-				new EntityModule(),
-				new DamageSourceModule(),
-				new ItemComponentModule(),
-				new PotionModule());
+			skript.loadModules(legacyModule, new CommonModule(), new BukkitModule());
 		} catch (final Exception e) {
-			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
+			exception(e, "Failed to load one of Skript's modules: " + e.getLocalizedMessage());
 			setEnabled(false);
 			return;
 		}
@@ -852,8 +812,8 @@ public final class Skript extends JavaPlugin implements Listener {
 						return;
 
 					Skript.info(player, SkriptUpdater.m_update_available.toString(update.id, Skript.getVersion()));
-					player.spigot().sendMessage(BungeeConverter.convert(ChatMessages.parseToArray(
-						"Download it at: <aqua><u><link:" + update.downloadUrl + ">" + update.downloadUrl)));
+					player.sendMessage(TextComponentParser.instance()
+						.parse("Download it at: <aqua><underlined><click:open_url:" + update.downloadUrl + ">" + update.downloadUrl));
 				}
 			};
 		}
@@ -981,8 +941,8 @@ public final class Skript extends JavaPlugin implements Listener {
 				} catch (IOException e) {
 					Skript.exception(e, "Failed to write test results.");
 				}
-
-				Bukkit.getServer().shutdown();
+				// delay by 1 tick to avoid the watchdog from thinking the shutdown tick took too long.
+				Bukkit.getScheduler().runTaskLater(Skript.this, () -> Bukkit.getServer().shutdown(), 1);
 			}, shutdownDelay.get());
 		});
 	}
@@ -1434,7 +1394,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @deprecated Use {@link org.skriptlang.skript.Skript#registerAddon(Class, String)}.
 	 * Obtain a Skript instance with {@link #instance()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static SkriptAddon registerAddon(JavaPlugin plugin) {
 		checkAcceptRegistrations();
 		SkriptAddon addon = new SkriptAddon(plugin);
@@ -1447,7 +1407,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * Consider using {@link #getAddon(String)} with the name of the plugin ({@link JavaPlugin#getName()}).
 	 * Obtain a Skript instance with {@link #instance()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static @Nullable SkriptAddon getAddon(JavaPlugin plugin) {
 		if (plugin == Skript.getInstance()) {
 			return Skript.getAddonInstance();
@@ -1464,7 +1424,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @deprecated Use {@link org.skriptlang.skript.Skript#addon(String)}.
 	 * Obtain a Skript instance with {@link #instance()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static @Nullable SkriptAddon getAddon(String name) {
 		if (name.equals(Skript.getInstance().getName())) {
 			return Skript.getAddonInstance();
@@ -1481,7 +1441,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @deprecated Use {@link org.skriptlang.skript.Skript#addons()}.
 	 * Obtain a Skript instance with {@link #instance()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static @Unmodifiable Collection<SkriptAddon> getAddons() {
 		Set<SkriptAddon> addons = new HashSet<>(Skript.addons);
 		addons.addAll(instance().addons().stream()
@@ -1499,7 +1459,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @return A {@link SkriptAddon} representing Skript.
 	 * @deprecated Use {@link #instance()} instead.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static SkriptAddon getAddonInstance() {
 		if (addon == null) {
 			addon = SkriptAddon.fromModern(instance());
@@ -1514,7 +1474,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @deprecated This method exists solely for compatibility reasons.
 	 */
 	@ApiStatus.Internal
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static Origin getSyntaxOrigin(Class<?> source) {
 		JavaPlugin plugin;
 		try {
@@ -1538,7 +1498,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * Create a {@link SyntaxInfo} with {@link SyntaxInfo#builder(Class)}.
 	 * Obtain a {@link SyntaxRegistry} through {@link org.skriptlang.skript.addon.SkriptAddon#syntaxRegistry()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static <E extends Condition> void registerCondition(Class<E> conditionClass, String... patterns) throws IllegalArgumentException {
 		registerCondition(conditionClass, ConditionType.COMBINED, patterns);
 	}
@@ -1554,7 +1514,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * Specify a custom priority ({@link SyntaxInfo.Builder#priority(Priority)}) to replace {@code type}.
 	 * Obtain a {@link SyntaxRegistry} through {@link org.skriptlang.skript.addon.SkriptAddon#syntaxRegistry()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static <E extends Condition> void registerCondition(Class<E> conditionClass, ConditionType type, String... patterns) throws IllegalArgumentException {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(conditionClass)
@@ -1574,7 +1534,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * Create a {@link SyntaxInfo} with {@link SyntaxInfo#builder(Class)}.
 	 * Obtain a {@link SyntaxRegistry} through {@link org.skriptlang.skript.addon.SkriptAddon#syntaxRegistry()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static <E extends Effect> void registerEffect(Class<E> effectClass, String... patterns) throws IllegalArgumentException {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(effectClass)
@@ -1594,7 +1554,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * Create a {@link SyntaxInfo} with {@link SyntaxInfo#builder(Class)}.
 	 * Obtain a {@link SyntaxRegistry} through {@link org.skriptlang.skript.addon.SkriptAddon#syntaxRegistry()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static <E extends Section> void registerSection(Class<E> sectionClass, String... patterns) throws IllegalArgumentException {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.SECTION, SyntaxInfo.builder(sectionClass)
@@ -1608,7 +1568,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @deprecated Use {@link SyntaxRegistry#syntaxes(Key)} with {@link SyntaxRegistry#STATEMENT}.
 	 * Obtain a {@link SyntaxRegistry} through {@link org.skriptlang.skript.addon.SkriptAddon#syntaxRegistry()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static @Unmodifiable Collection<SyntaxElementInfo<? extends Statement>> getStatements() {
 		return instance().syntaxRegistry()
 				.syntaxes(SyntaxRegistry.STATEMENT).stream()
@@ -1620,7 +1580,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @deprecated Use {@link SyntaxRegistry#syntaxes(Key)} with {@link SyntaxRegistry#CONDITION}.
 	 * Obtain a {@link SyntaxRegistry} through {@link org.skriptlang.skript.addon.SkriptAddon#syntaxRegistry()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static @Unmodifiable Collection<SyntaxElementInfo<? extends Condition>> getConditions() {
 		return instance().syntaxRegistry()
 				.syntaxes(SyntaxRegistry.CONDITION).stream()
@@ -1632,7 +1592,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @deprecated Use {@link SyntaxRegistry#syntaxes(Key)} with {@link SyntaxRegistry#EFFECT}.
 	 * Obtain a {@link SyntaxRegistry} through {@link org.skriptlang.skript.addon.SkriptAddon#syntaxRegistry()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static @Unmodifiable Collection<SyntaxElementInfo<? extends Effect>> getEffects() {
 		return instance().syntaxRegistry()
 				.syntaxes(SyntaxRegistry.EFFECT).stream()
@@ -1644,7 +1604,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @deprecated Use {@link SyntaxRegistry#syntaxes(Key)} with {@link SyntaxRegistry#SECTION}.
 	 * Obtain a {@link SyntaxRegistry} through {@link org.skriptlang.skript.addon.SkriptAddon#syntaxRegistry()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static @Unmodifiable Collection<SyntaxElementInfo<? extends Section>> getSections() {
 		return instance().syntaxRegistry()
 				.syntaxes(SyntaxRegistry.SECTION).stream()
@@ -1667,7 +1627,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * Specify a custom priority ({@link SyntaxInfo.Builder#priority(Priority)}) to replace {@code type}.
 	 * Obtain a {@link SyntaxRegistry} through {@link org.skriptlang.skript.addon.SkriptAddon#syntaxRegistry()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static <E extends Expression<T>, T> void registerExpression(
 		Class<E> expressionClass, Class<T> returnType, ExpressionType type, String... patterns
 	) throws IllegalArgumentException {
@@ -1684,7 +1644,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @deprecated Use {@link SyntaxRegistry#syntaxes(Key)} with {@link SyntaxRegistry#EXPRESSION}.
 	 * Obtain a {@link SyntaxRegistry} through {@link org.skriptlang.skript.addon.SkriptAddon#syntaxRegistry()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static Iterator<ExpressionInfo<?, ?>> getExpressions() {
 		List<ExpressionInfo<?, ?>> list = new ArrayList<>();
 		for (SyntaxInfo.Expression<?, ?> info : instance().syntaxRegistry().syntaxes(SyntaxRegistry.EXPRESSION))
@@ -1697,7 +1657,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * Use {@link SyntaxRegistry#syntaxes(Key)} with {@link SyntaxRegistry#SECTION} and filter the results.
 	 * Obtain a {@link SyntaxRegistry} through {@link org.skriptlang.skript.addon.SkriptAddon#syntaxRegistry()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static Iterator<ExpressionInfo<?, ?>> getExpressions(Class<?>... returnTypes) {
 		return new CheckedIterator<>(getExpressions(), info -> {
 			if (info == null || info.returnType == Object.class)
@@ -1727,7 +1687,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * Obtain a {@link SyntaxRegistry} through {@link org.skriptlang.skript.addon.SkriptAddon#syntaxRegistry()}.
 	 */
 	@SuppressWarnings("unchecked")
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static <E extends SkriptEvent> SkriptEventInfo<E> registerEvent(String name, Class<E> c, Class<? extends Event> event, String... patterns) {
 		return registerEvent(name, c, new Class[] {event}, patterns);
 	}
@@ -1745,7 +1705,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * Obtain a {@link SyntaxRegistry} through {@link org.skriptlang.skript.addon.SkriptAddon#syntaxRegistry()}.
 	 */
 	@SuppressWarnings("ConstantConditions") // caused by bad array annotations
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static <E extends SkriptEvent> SkriptEventInfo<E> registerEvent(
 		String name, Class<E> eventClass, Class<? extends Event>[] events, String... patterns
 	) {
@@ -1762,7 +1722,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * Create a {@link SyntaxInfo.Structure} with {@link SyntaxInfo.Structure#builder(Class)}.
 	 * Obtain a {@link SyntaxRegistry} through {@link org.skriptlang.skript.addon.SkriptAddon#syntaxRegistry()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static <E extends Structure> void registerStructure(Class<E> structureClass, String... patterns) {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(structureClass)
@@ -1777,7 +1737,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * Create a {@link SyntaxInfo.Structure} with {@link SyntaxInfo.Structure#builder(Class)}.
 	 * Obtain a {@link SyntaxRegistry} through {@link org.skriptlang.skript.addon.SkriptAddon#syntaxRegistry()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static <E extends Structure> void registerSimpleStructure(Class<E> structureClass, String... patterns) {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(structureClass)
@@ -1793,7 +1753,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * Create a {@link SyntaxInfo.Structure} with {@link SyntaxInfo.Structure#builder(Class)}.
 	 * Obtain a {@link SyntaxRegistry} through {@link org.skriptlang.skript.addon.SkriptAddon#syntaxRegistry()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static <E extends Structure> void registerStructure(
 		Class<E> structureClass, EntryValidator entryValidator, String... patterns
 	) {
@@ -1805,7 +1765,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * Create a {@link SyntaxInfo.Structure} with {@link SyntaxInfo.Structure#builder(Class)}.
 	 * Obtain a {@link SyntaxRegistry} through {@link org.skriptlang.skript.addon.SkriptAddon#syntaxRegistry()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static <E extends Structure> void registerStructure(
 		Class<E> structureClass, EntryValidator entryValidator, DefaultSyntaxInfos.Structure.NodeType nodeType, String... patterns
 	) {
@@ -1823,7 +1783,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @deprecated Use {@link SyntaxRegistry#syntaxes(Key)} with {@link BukkitSyntaxInfos.Event#KEY}.
 	 * Obtain a {@link SyntaxRegistry} through {@link org.skriptlang.skript.addon.SkriptAddon#syntaxRegistry()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static @Unmodifiable Collection<SkriptEventInfo<?>> getEvents() {
 		return instance().syntaxRegistry()
 				.syntaxes(BukkitSyntaxInfos.Event.KEY).stream()
@@ -1835,7 +1795,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @deprecated Use {@link SyntaxRegistry#syntaxes(Key)} with {@link SyntaxRegistry#STRUCTURE}.
 	 * Obtain a {@link SyntaxRegistry} through {@link org.skriptlang.skript.addon.SkriptAddon#syntaxRegistry()}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static @Unmodifiable List<StructureInfo<? extends Structure>> getStructures() {
 		return instance().syntaxRegistry()
 				.syntaxes(SyntaxRegistry.STRUCTURE).stream()
@@ -2188,7 +2148,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 		logEx("Thread: " + (thread == null ? Thread.currentThread() : thread).getName());
 		logEx("Language: " + Language.getName());
-		logEx("Link parse mode: " + ChatMessages.linkParseMode);
+		logEx("Link parse mode: " + TextComponentParser.instance().linkParseMode());
 	}
 
 	static void logEx() {
@@ -2207,7 +2167,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	public static void info(final CommandSender sender, final String info) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles(getSkriptPrefix() + info));
+		sender.sendMessage(TextComponentParser.instance().parseSafe(getSkriptPrefix() + info));
 	}
 
 	/**
@@ -2216,7 +2176,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @see #adminBroadcast(String)
 	 */
 	public static void broadcast(final String message, final String permission) {
-		Bukkit.broadcast(Utils.replaceEnglishChatStyles(getSkriptPrefix() + message), permission);
+		Bukkit.broadcast(TextComponentParser.instance().parseSafe(getSkriptPrefix() + message), permission);
 	}
 
 	public static void adminBroadcast(final String message) {
@@ -2230,11 +2190,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param info
 	 */
 	public static void message(final CommandSender sender, final String info) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles(info));
+		sender.sendMessage(TextComponentParser.instance().parseSafe(info));
 	}
 
 	public static void error(final CommandSender sender, final String error) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles(getSkriptPrefix() + ChatColor.DARK_RED + error));
+		sender.sendMessage(TextComponentParser.instance().parseSafe(getSkriptPrefix() + "<dark_red>" + error));
 	}
 
 	/**

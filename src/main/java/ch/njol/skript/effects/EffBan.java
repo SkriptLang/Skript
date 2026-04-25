@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -29,11 +29,11 @@ import java.util.Date;
 	"",
 	"Note that banning people does not kick them from the server.",
 	"You can optionally use 'and kick' or consider using the <a href='#EffKick'>kick effect</a> after applying a ban."})
-@Examples({"unban player",
-	"ban \"127.0.0.1\"",
-	"IP-ban the player because \"he is an idiot\"",
-	"ban player due to \"inappropriate language\" for 2 days",
-	"ban and kick player due to \"inappropriate language\" for 2 days"})
+@Example("unban player")
+@Example("ban \"127.0.0.1\"")
+@Example("IP-ban the player because \"he is an idiot\"")
+@Example("ban player due to \"inappropriate language\" for 2 days")
+@Example("ban and kick player due to \"inappropriate language\" for 2 days")
 @Since("1.4, 2.1.1 (ban reason), 2.5 (timespan), 2.9.0 (kick)")
 public class EffBan extends Effect {
 

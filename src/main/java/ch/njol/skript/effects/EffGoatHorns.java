@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -17,11 +17,9 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Goat Horns")
 @Description("Make a goat have or not have a left, right, or both horns.")
-@Examples({
-	"remove the left horn of last spawned goat",
-	"regrow {_goat}'s horns",
-	"remove both horns of all goats"
-})
+@Example("remove the left horn of last spawned goat")
+@Example("regrow {_goat}'s horns")
+@Example("remove both horns of all goats")
 @Since("2.11")
 public class EffGoatHorns extends Effect {
 

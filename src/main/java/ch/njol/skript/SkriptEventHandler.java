@@ -7,13 +7,8 @@ import ch.njol.skript.util.Task;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import org.bukkit.Bukkit;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
+import org.bukkit.event.*;
 import org.bukkit.event.Event.Result;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.RegisteredListener;
@@ -21,13 +16,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class SkriptEventHandler {
@@ -130,25 +120,38 @@ public final class SkriptEventHandler {
 	 * @return Whether the event should be treated as cancelled.
 	 */
 	private static boolean isCancelled(Event event) {
-		return event instanceof Cancellable &&
-			(((Cancellable) event).isCancelled() && isResultDeny(event)) &&
-			// TODO: listenCancelled is deprecated and should be removed in 2.10
-			!listenCancelled.contains(event.getClass());
+		if (!(event instanceof Cancellable cancellable))
+			return false;
+		// PlayerInteractEvents act differently
+		if (event instanceof PlayerInteractEvent interactEvent)
+			return isPlayerInteractEventCancelled(interactEvent);
+		return cancellable.isCancelled();
 	}
 
 	/**
 	 * Helper method for when the provided Event is a {@link PlayerInteractEvent}.
-	 * These events are special in that they are called as cancelled when the player is left/right clicking on air.
-	 * We don't want to treat those as cancelled, so we need to check if the {@link PlayerInteractEvent#useItemInHand()} result is DENY.
-	 * That means the event was purposefully cancelled, and we should treat it as cancelled.
+	 * These events are special in that they are called as cancelled when one of the two interaction types is DENY.
+	 * Their true cancellation value should be as follows:
+	 * LEFT_CLICK_BLOCK -> useItemInHand == DENY || useInteractedBlock == DENY
+	 * RIGHT_CLICK_BLOCK -> useItemInHand == DENY && useInteractedBlock == DENY.
+	 * 						Note: Some of these events may be cancelled by denying only one of the two, like hoeing dirt.
+	 * 							  However, we cannot reliably determine when this is the case, so we have to err on the
+	 * 							  side of caution to avoid accidentally missing events that are clearly not cancelled,
+	 * 							  like shooting wind charges or enderpearls.
+	 * LEFT_CLICK_AIR -> useItemInHand == DENY
+	 * RIGHT_CLICK_AIR -> useItemInHand == DENY
+	 * PHYSICAL -> useInteractedBlock == DENY
 	 *
 	 * @param event The event to check.
 	 * @return Whether the event was a PlayerInteractEvent with air and the result was DENY.
 	 */
-	private static boolean isResultDeny(Event event) {
-		return !(event instanceof PlayerInteractEvent &&
-			(((PlayerInteractEvent) event).getAction() == Action.LEFT_CLICK_AIR || ((PlayerInteractEvent) event).getAction() == Action.RIGHT_CLICK_AIR) &&
-			((PlayerInteractEvent) event).useItemInHand() != Result.DENY);
+	private static boolean isPlayerInteractEventCancelled(PlayerInteractEvent event) {
+		return switch (event.getAction()) {
+			case LEFT_CLICK_AIR, RIGHT_CLICK_AIR -> event.useItemInHand() == Result.DENY;
+			case RIGHT_CLICK_BLOCK -> event.useItemInHand() == Result.DENY && event.useInteractedBlock() == Result.DENY;
+			case PHYSICAL -> event.useInteractedBlock() == Result.DENY;
+			default -> event.useItemInHand() == Result.DENY || event.useInteractedBlock() == Result.DENY;
+		};
 	}
 
 	/**

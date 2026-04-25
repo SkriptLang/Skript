@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -19,20 +19,20 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Case Text")
 @Description("Copy of given text in Lowercase, Uppercase, Proper Case, camelCase, PascalCase, Snake_Case, and Kebab-Case")
-@Examples({"\"Oops!\" in lowercase # oops!",
-	"\"oops!\" in uppercase # OOPS!",
-	"\"hellO i'm steve!\" in proper case # HellO I'm Steve!",
-	"\"hellO i'm steve!\" in strict proper case # Hello I'm Steve!",
-	"\"spAwn neW boSs ()\" in camel case # spAwnNeWBoSs()",
-	"\"spAwn neW boSs ()\" in strict camel case # spawnNewBoss()",
-	"\"geneRate ranDom numBer ()\" in pascal case # GeneRateRanDomNumBer()",
-	"\"geneRate ranDom numBer ()\" in strict pascal case # GenerateRandomNumber()",
-	"\"Hello Player!\" in snake case # Hello_Player!",
-	"\"Hello Player!\" in lower snake case # hello_player!",
-	"\"Hello Player!\" in upper snake case # HELLO_PLAYER!",
-	"\"What is your name?\" in kebab case # What-is-your-name?",
-	"\"What is your name?\" in lower kebab case # what-is-your-name?",
-	"\"What is your name?\" in upper kebab case # WHAT-IS-YOUR-NAME?"})
+@Example("\"Oops!\" in lowercase # oops!")
+@Example("\"oops!\" in uppercase # OOPS!")
+@Example("\"hellO i'm steve!\" in proper case # HellO I'm Steve!")
+@Example("\"hellO i'm steve!\" in strict proper case # Hello I'm Steve!")
+@Example("\"spAwn neW boSs ()\" in camel case # spAwnNeWBoSs()")
+@Example("\"spAwn neW boSs ()\" in strict camel case # spawnNewBoss()")
+@Example("\"geneRate ranDom numBer ()\" in pascal case # GeneRateRanDomNumBer()")
+@Example("\"geneRate ranDom numBer ()\" in strict pascal case # GenerateRandomNumber()")
+@Example("\"Hello Player!\" in snake case # Hello_Player!")
+@Example("\"Hello Player!\" in lower snake case # hello_player!")
+@Example("\"Hello Player!\" in upper snake case # HELLO_PLAYER!")
+@Example("\"What is your name?\" in kebab case # What-is-your-name?")
+@Example("\"What is your name?\" in lower kebab case # what-is-your-name?")
+@Example("\"What is your name?\" in upper kebab case # WHAT-IS-YOUR-NAME?")
 @Since("2.2-dev16 (lowercase and uppercase), 2.5 (advanced cases)")
 public class ExprStringCase extends SimpleExpression<String> {
 	

@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -17,9 +17,11 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Arrow Pierce Level")
 @Description("An arrow's pierce level.")
-@Examples({"on shoot:",
-	"\tevent-projectile is an arrow",
-	"\tset arrow pierce level of event-projectile to 5"})
+@Example("""
+	on shoot:
+		event-projectile is an arrow
+		set arrow pierce level of event-projectile to 5
+	""")
 @RequiredPlugins("Minecraft 1.14+")
 @Since("2.5.1")
 public class ExprArrowPierceLevel extends SimplePropertyExpression<Projectile, Long> {

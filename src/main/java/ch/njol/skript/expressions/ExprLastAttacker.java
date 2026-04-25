@@ -4,14 +4,14 @@ import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
 @Name("Last Attacker")
 @Description("The last block or entity that attacked an entity.")
-@Examples({"send \"%last attacker of event-entity%\""})
+@Example("send \"%last attacker of event-entity%\"")
 @Since("2.5.1")
 public class ExprLastAttacker extends SimplePropertyExpression<Entity, Entity> {
 

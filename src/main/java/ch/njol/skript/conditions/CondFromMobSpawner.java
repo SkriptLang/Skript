@@ -10,7 +10,7 @@ import org.bukkit.entity.Entity;
 
 @Name("Is From A Mob Spawner")
 @Description("Checks if an entity was spawned from a mob spawner.")
-@Examples("send whether target is from a mob spawner")
+@Example("send whether target is from a mob spawner")
 @Since("2.10")
 public class CondFromMobSpawner extends PropertyCondition<Entity> {
 

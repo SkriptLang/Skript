@@ -1,11 +1,9 @@
 package org.skriptlang.skript.test.tests.localization;
 
-import static org.junit.Assert.assertEquals;
-
+import ch.njol.skript.localization.Noun;
 import org.junit.Test;
 
-import ch.njol.skript.localization.Noun;
-import ch.njol.util.NonNullPair;
+import static org.junit.Assert.assertEquals;
 
 public class NounTest {
 
@@ -21,9 +19,9 @@ public class NounTest {
 				{"a¦b¦c¦d¦e¦f¦g", "abdeg", "acdfg"},
 		};
 		for (String[] test : tests) {
-			NonNullPair<String, String> p = Noun.getPlural(test[0]);
-			assertEquals(test[1], p.getFirst());
-			assertEquals(test[2], p.getSecond());
+			Noun.PluralPair p = Noun.parsePlural(test[0]);
+			assertEquals(test[1], p.singular());
+			assertEquals(test[2], p.plural());
 		}
 	}
 

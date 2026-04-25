@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -22,13 +22,11 @@ import org.jetbrains.annotations.Nullable;
 		"The load effect will create a new world if world doesn't already exist.",
 		"When attempting to load a normal vanilla world you must define it's environment i.e \"world_nether\" must be loaded with nether environment"
 })
-@Examples({
-		"load world \"world_nether\" with environment nether",
-		"load the world \"myCustomWorld\"",
-		"unload \"world_nether\"",
-		"unload \"world_the_end\" without saving",
-		"unload all worlds"
-})
+@Example("load world \"world_nether\" with environment nether")
+@Example("load the world \"myCustomWorld\"")
+@Example("unload \"world_nether\"")
+@Example("unload \"world_the_end\" without saving")
+@Example("unload all worlds")
 @Since("2.8.0")
 public class EffWorldLoad extends Effect {
 

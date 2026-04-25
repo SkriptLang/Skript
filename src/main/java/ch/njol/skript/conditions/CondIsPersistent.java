@@ -2,7 +2,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.block.Block;
@@ -20,11 +20,11 @@ import org.bukkit.entity.Entity;
 		+ "non-persistent chicken will become non-persistent. This does not apply to players.",
 	"By default, all entities are persistent."
 })
-@Examples({
-	"on spawn:",
-		"\tif event-entity is persistent:",
-			"\t\tmake event-entity not persistent"
-})
+@Example("""
+	on spawn:
+		if event-entity is persistent:
+			make event-entity not persistent
+	""")
 @Since("2.11")
 public class CondIsPersistent extends PropertyCondition<Object> {
 

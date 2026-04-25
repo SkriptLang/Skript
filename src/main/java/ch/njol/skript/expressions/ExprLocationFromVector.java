@@ -8,7 +8,7 @@ import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -23,9 +23,9 @@ import org.jetbrains.annotations.Nullable;
  */
 @Name("Vectors - Create Location from Vector")
 @Description("Creates a location from a vector in a world.")
-@Examples({"set {_loc} to {_v} to location in world \"world\"",
-		"set {_loc} to {_v} to location in world \"world\" with yaw 45 and pitch 90",
-		"set {_loc} to location of {_v} in \"world\" with yaw 45 and pitch 90"})
+@Example("set {_loc} to {_v} to location in world \"world\"")
+@Example("set {_loc} to {_v} to location in world \"world\" with yaw 45 and pitch 90")
+@Example("set {_loc} to location of {_v} in \"world\" with yaw 45 and pitch 90")
 @Since("2.2-dev28")
 public class ExprLocationFromVector extends SimpleExpression<Location> {
 

@@ -6,7 +6,6 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Potion Effect - Has Icon")
@@ -16,14 +15,13 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		if the potion effect has an icon:
 			hide the icon of event-potioneffecttype for event-entity
 	""")
-@Since("INSERT VERSION")
+@Since("2.14")
 public class CondPotionHasIcon extends PropertyCondition<SkriptPotionEffect> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.CONDITION, infoBuilder(CondPotionHasIcon.class, PropertyType.HAVE,
 			"([an] icon|icons)", "skriptpotioneffects")
 				.supplier(CondPotionHasIcon::new)
-				.origin(origin)
 				.build());
 	}
 

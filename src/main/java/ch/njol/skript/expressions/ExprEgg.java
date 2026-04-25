@@ -6,14 +6,14 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
 
 @Name("The Egg")
 @Description("The egg thrown in a Player Egg Throw event.")
-@Examples("spawn an egg at the egg")
+@Example("spawn an egg at the egg")
 @Events("Egg Throw")
 @Since("2.7")
 public class ExprEgg extends EventValueExpression<Egg> {

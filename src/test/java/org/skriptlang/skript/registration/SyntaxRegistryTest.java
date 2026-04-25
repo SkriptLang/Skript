@@ -1,7 +1,9 @@
 package org.skriptlang.skript.registration;
 
 import ch.njol.skript.lang.SyntaxElement;
+import org.easymock.EasyMock;
 import org.junit.Test;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxRegistry.Key;
 import org.skriptlang.skript.util.Priority;
 
@@ -109,6 +111,20 @@ public class SyntaxRegistryTest {
 		assertThrows(UnsupportedOperationException.class, () -> unmodifiable.unregister(info));
 		assertFalse(registry.elements().contains(info));
 		assertFalse(unmodifiable.elements().contains(info));
+	}
+
+	@Test
+	public void testDifferentOriginUnregistration() {
+		final Origin origin = EasyMock.mock(Origin.AddonOrigin.class);
+		EasyMock.expect(origin.name()).andStubReturn("TestOrigin");
+		EasyMock.replay(origin);
+
+		final SyntaxRegistry registry = syntaxRegistry();
+		SyntaxInfo<?> info = info();
+
+		registry.register(key(), info.toBuilder().origin(origin).build());
+		registry.unregister(key(), info);
+		assertTrue(registry.elements().isEmpty());
 	}
 
 }
