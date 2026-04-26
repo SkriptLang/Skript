@@ -28,7 +28,7 @@ import java.util.WeakHashMap;
 @Name("Delay")
 @Description({
 	"Delays the script's execution by a given timespan.",
-	"When used as an effect, all code after the <code>wait</code> runs once the delay elapses. The whole trigger pauses.",
+	"When used as an effect, all code after the <code>wait</code> runs once the delay elapses. The whole trigger pauses until the wait finishes.",
 	"When used as a section, only the section body is deferred. Code after the section continues immediately, and the body runs on the same event once the delay elapses. This is useful for scheduling follow-up work without blocking the rest of the trigger.",
 	"Note that delays are not persistent. For example, <code>ban player → wait 7 days → unban player</code> will not resume if the server restarts during the delay.",
 	"Inside a section body, outer <code>loop-value</code>s are not available because the body is parsed as a separate trigger. Event values (like <code>player</code>) still work. If you need a variable's value from before the delay, copy it to a local variable &mdash; local variables are snapshotted when the section is scheduled."
