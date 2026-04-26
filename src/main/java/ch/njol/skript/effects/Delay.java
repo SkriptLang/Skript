@@ -42,6 +42,12 @@ import java.util.WeakHashMap;
 	wait 3 seconds:
 		send "...and goodbye" to player
 	""")
+@Example("""
+	send "This runs first!" to player
+	wait 1 seconds:
+		send "This runs third! (one second later)" to player
+	send "This runs second!" to player
+	""")
 @Since("1.4, INSERT VERSION (Delayed Sections)")
 public class Delay extends EffectSection {
 
