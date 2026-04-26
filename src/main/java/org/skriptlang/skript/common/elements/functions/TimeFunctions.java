@@ -10,10 +10,35 @@ import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.util.Calendar;
 
+/**
+ * Contains all generic time functions.
+ */
 public class TimeFunctions {
 
 	static {
 		SkriptAddon skript = Skript.instance();
+
+		int[] fields = {
+				Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH,
+				Calendar.HOUR_OF_DAY, Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND,
+				Calendar.ZONE_OFFSET, Calendar.DST_OFFSET
+		};
+		int[] offsets = {
+				0, -1, 0,
+				0, 0, 0, 0,
+				0, 0
+		};
+		double[] scale = {
+				1, 1, 1,
+				1, 1, 1, 1,
+				1000 * 60, 1000 * 60
+		};
+		double[] relations = {
+				1. / 12, 1. / 30,
+				1. / 24, 1. / 60, 1. / 60, 1. / 1000,
+				0, 0,
+				0
+		};
 
 		Functions.register(DefaultFunction.builder(skript, "date", Date.class)
 				.description("Creates a date from a year, month, and day, and optionally also from hour, minute, second and millisecond.",
@@ -32,28 +57,6 @@ public class TimeFunctions {
 				.parameter("zone_offset", Number.class, Modifier.OPTIONAL)
 				.parameter("dst_offset", Number.class, Modifier.OPTIONAL)
 				.build(args -> {
-					int[] fields = {
-							Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH,
-							Calendar.HOUR_OF_DAY, Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND,
-							Calendar.ZONE_OFFSET, Calendar.DST_OFFSET
-					};
-					int[] offsets = {
-							0, -1, 0,
-							0, 0, 0, 0,
-							0, 0
-					};
-					double[] scale = {
-							1, 1, 1,
-							1, 1, 1, 1,
-							1000 * 60, 1000 * 60
-					};
-					double[] relations = {
-							1. / 12, 1. / 30,
-							1. / 24, 1. / 60, 1. / 60, 1. / 1000,
-							0, 0,
-							0
-					};
-
 					String[] paramNames = {"year", "month", "day", "hour", "minute", "second", "millisecond", "zone_offset", "dst_offset"};
 					Calendar c = Calendar.getInstance();
 					c.setLenient(true);

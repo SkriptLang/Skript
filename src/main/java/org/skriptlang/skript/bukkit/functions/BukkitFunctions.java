@@ -15,6 +15,9 @@ import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.util.UUID;
 
+/**
+ * Contains all functions using Bukkit classes which cannot easily be grouped.
+ */
 public class BukkitFunctions {
 
 	static {
@@ -78,7 +81,7 @@ public class BukkitFunctions {
 		Functions.register(DefaultFunction.builder(skript, "calcExperience", Long.class)
 				.description("Calculates the total amount of experience needed to achieve given level from scratch in Minecraft.")
 				.since("2.2-dev32")
-				.parameter("level", Long.class)
+				.parameter("level", Long.class, Modifier.ranged(0L, Long.MAX_VALUE))
 				.build(args -> {
 					long level = args.get("level");
 					long exp;
@@ -103,10 +106,10 @@ public class BukkitFunctions {
 						"set the colour of a text display to rgb(10, 50, 100, 50)"
 				)
 				.since("2.5, 2.10 (alpha)")
-				.parameter("red", Long.class)
-				.parameter("green", Long.class)
-				.parameter("blue", Long.class)
-				.parameter("alpha", Long.class, Modifier.OPTIONAL)
+				.parameter("red", Long.class, Modifier.ranged(0, 255))
+				.parameter("green", Long.class, Modifier.ranged(0, 255))
+				.parameter("blue", Long.class, Modifier.ranged(0, 255))
+				.parameter("alpha", Long.class, Modifier.OPTIONAL, Modifier.ranged(0, 255))
 				.build(args -> {
 					Long red = args.get("red");
 					Long green = args.get("green");
@@ -142,49 +145,40 @@ public class BukkitFunctions {
 					return uuid != null ? Bukkit.getPlayer(uuid) : (isExact ? Bukkit.getPlayerExact(name) : Bukkit.getPlayer(name));
 				}));
 
-		{ // offline player function
-			// TODO - remove this when Spigot support is dropped
-			boolean hasIfCached = Skript.methodExists(Bukkit.class, "getOfflinePlayerIfCached", String.class);
+		Functions.register(DefaultFunction.builder(skript, "offlineplayer", OfflinePlayer.class)
+				.description(
+						"Returns a offline player from their name or UUID. This function will still return the player if they're online. " +
+								"If Paper 1.16.5+ is used, the 'allowLookup' parameter can be set to false to prevent this function from doing a " +
+								"web lookup for players who have not joined before. Lookups can cause lag spikes of up to multiple seconds, so " +
+								"use offline players with caution."
+				)
+				.examples(
+						"set {_p} to offlineplayer(\"Notch\")",
+						"set {_p} to offlineplayer(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")",
+						"set {_p} to offlineplayer(\"Notch\", false)"
+				)
+				.since("2.8.0, 2.9.0 (prevent lookups)")
+				.parameter("nameOrUUID", String.class)
+				.parameter("allowLookups", Boolean.class, Modifier.OPTIONAL)
+				.build(args -> {
+					String name = args.get("nameOrUUID");
+					UUID uuid = null;
+					if (name.length() > 16 || name.contains("-")) { // shortcut
+						if (Utils.isValidUUID(name))
+							uuid = UUID.fromString(name);
+					}
+					OfflinePlayer result;
 
-			DefaultFunction.Builder<OfflinePlayer> builder = DefaultFunction.builder(skript, "offlineplayer", OfflinePlayer.class)
-					.description(
-							"Returns a offline player from their name or UUID. This function will still return the player if they're online. " +
-									"If Paper 1.16.5+ is used, the 'allowLookup' parameter can be set to false to prevent this function from doing a " +
-									"web lookup for players who have not joined before. Lookups can cause lag spikes of up to multiple seconds, so " +
-									"use offline players with caution."
-					)
-					.examples(
-							"set {_p} to offlineplayer(\"Notch\")",
-							"set {_p} to offlineplayer(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")",
-							"set {_p} to offlineplayer(\"Notch\", false)"
-					)
-					.since("2.8.0, 2.9.0 (prevent lookups)")
-					.parameter("nameOrUUID", String.class);
+					if (uuid != null) {
+						result = Bukkit.getOfflinePlayer(uuid); // doesn't do lookups
+					} else if (!args.getOrDefault("allowLookups", true)) {
+						result = Bukkit.getOfflinePlayerIfCached(name);
+					} else {
+						result = Bukkit.getOfflinePlayer(name);
+					}
 
-			if (hasIfCached)
-				builder.parameter("allowLookups", Boolean.class, Modifier.OPTIONAL);
-
-			Functions.register(builder.build(args -> {
-				String name = args.get("nameOrUUID");
-				UUID uuid = null;
-				if (name.length() > 16 || name.contains("-")) { // shortcut
-					if (Utils.isValidUUID(name))
-						uuid = UUID.fromString(name);
-				}
-				OfflinePlayer result;
-
-				if (uuid != null) {
-					result = Bukkit.getOfflinePlayer(uuid); // doesn't do lookups
-				} else if (hasIfCached && !args.getOrDefault("allowLookups", true)) {
-					result = Bukkit.getOfflinePlayerIfCached(name);
-				} else {
-					result = Bukkit.getOfflinePlayer(name);
-				}
-
-				return result;
-			}));
-		} // end offline player function
-
+					return result;
+				}));
 	}
 
 }

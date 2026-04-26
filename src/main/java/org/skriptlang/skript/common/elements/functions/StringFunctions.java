@@ -13,6 +13,9 @@ import org.skriptlang.skript.common.function.Parameter.Modifier;
 import java.text.DecimalFormat;
 import java.util.UUID;
 
+/**
+ * Contains all generic string functions.
+ */
 public class StringFunctions {
 
 	private static final DecimalFormat DEFAULT_INTEGER_FORMAT = new DecimalFormat("###,###");

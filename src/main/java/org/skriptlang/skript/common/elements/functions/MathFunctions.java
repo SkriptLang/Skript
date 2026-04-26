@@ -16,8 +16,15 @@ import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Contains all generic math functions.
+ */
 public class MathFunctions {
 
+	/**
+	 * @param n The number.
+	 * @return a number in a string representation with at most 4 digits after the decimal point.
+	 */
 	private static String str(double n) {
 		return StringUtils.toString(n, 4);
 	}
@@ -423,7 +430,7 @@ public class MathFunctions {
 						"factorial(171) = Infinity"
 				)
 				.since("2.11")
-				.parameter("number", Number.class)
+				.parameter("number", Number.class, Modifier.ranged(0L, Long.MAX_VALUE))
 				.build(args -> {
 					Double number = args.<Number>get("number").doubleValue();
 					if (number < 0) {
@@ -451,7 +458,7 @@ public class MathFunctions {
 				)
 				.since("2.11")
 				.parameter("n", Number.class)
-				.parameter("number", Number.class)
+				.parameter("number", Number.class, Modifier.ranged(0L, Long.MAX_VALUE))
 				.build(args -> {
 					Double n = args.<Number>get("n").doubleValue();
 					Double number = args.<Number>get("number").doubleValue();
@@ -482,8 +489,8 @@ public class MathFunctions {
 						"permutations(size of {some list::*}, 2)"
 				)
 				.since("2.11")
-				.parameter("options", Number.class)
-				.parameter("selected", Number.class)
+				.parameter("options", Number.class, Modifier.ranged(0L, Long.MAX_VALUE))
+				.parameter("selected", Number.class, Modifier.ranged(0L, Long.MAX_VALUE))
 				.build(args -> {
 					Double options = args.<Number>get("options").doubleValue();
 					Double selected = args.<Number>get("selected").doubleValue();
@@ -524,8 +531,8 @@ public class MathFunctions {
 						"combinations(size of {some list::*}, 2)"
 				)
 				.since("2.11")
-				.parameter("options", Number.class)
-				.parameter("selected", Number.class)
+				.parameter("options", Number.class, Modifier.ranged(0L, Long.MAX_VALUE))
+				.parameter("selected", Number.class, Modifier.ranged(0L, Long.MAX_VALUE))
 				.build(args -> {
 					Double options = args.<Number>get("options").doubleValue();
 					Double selected = args.<Number>get("selected").doubleValue();

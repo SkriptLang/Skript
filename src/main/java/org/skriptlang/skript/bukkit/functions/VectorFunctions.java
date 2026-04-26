@@ -9,6 +9,9 @@ import org.joml.Vector3f;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.common.function.DefaultFunction;
 
+/**
+ * Contains all functions using Bukkit vectors.
+ */
 public class VectorFunctions {
 
 	static {

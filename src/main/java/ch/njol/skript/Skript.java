@@ -557,12 +557,6 @@ public final class Skript extends JavaPlugin implements Listener {
 					throw new RuntimeException(e);
 				}
 				BukkitEventValues.register(eventValueRegistry);
-				{
-					// load functions
-					new MathFunctions();
-					new StringFunctions();
-					new TimeFunctions();
-				}
 				new DefaultOperations();
 			}
 
