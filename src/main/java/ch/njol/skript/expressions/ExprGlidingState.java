@@ -16,7 +16,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 @Description("Sets of gets gliding state of player. It allows you to set gliding state of entity even if they do not have an <a href=\"https://minecraft.wiki/w/Elytra\">Elytra</a> equipped.")
 @Example("set gliding of player to off")
 @Since("2.2-dev21")
-@Deprecated(since = "INSERT VERSION")
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class ExprGlidingState extends SimplePropertyExpression<LivingEntity, Boolean> {
 
 	static {
