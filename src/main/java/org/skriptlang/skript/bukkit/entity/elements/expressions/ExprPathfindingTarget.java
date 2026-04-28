@@ -49,7 +49,7 @@ public class ExprPathfindingTarget extends SimpleExpression<Entity> implements E
 	@Override
 	protected Entity[] get(Event event) {
 		if (!(event instanceof EntityPathfindEvent pathfindEvent))
-			return new Entity[0];
+			return null;
 		Entity target = pathfindEvent.getTargetEntity();
 		return target != null ? new Entity[]{target} : new Entity[0];
 	}
