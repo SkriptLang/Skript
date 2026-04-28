@@ -1,5 +1,8 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.util.Kleenean;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +25,11 @@ public class ExprGlidingState extends SimplePropertyExpression<LivingEntity, Boo
 	static {
 		register(ExprGlidingState.class, Boolean.class, "(gliding|glider) [state]", "livingentities");
 	}
-
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+        Skript.warning("This expression is deprecated. Consider using the glide effect instead.");
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
+	}
 	@Override
 	public Boolean convert(final LivingEntity e) {
 		return e.isGliding();
