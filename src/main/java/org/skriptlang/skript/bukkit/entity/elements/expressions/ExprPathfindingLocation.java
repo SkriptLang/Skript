@@ -50,7 +50,7 @@ public class ExprPathfindingLocation extends SimpleExpression<Location> implemen
 	@Override
 	protected Location[] get(Event event) {
 		if (!(event instanceof EntityPathfindEvent pathfindEvent))
-			return new Location[0];
+			return null;
 		Location location = pathfindEvent.getLoc();
 		return new Location[]{location};
 	}
