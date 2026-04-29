@@ -26,7 +26,7 @@ public class ExprGlidingState extends SimplePropertyExpression<LivingEntity, Boo
 		register(ExprGlidingState.class, Boolean.class, "(gliding|glider) [state]", "livingentities");
 	}
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
         Skript.warning("This expression is deprecated. Consider using the glide effect instead.");
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
