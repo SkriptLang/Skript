@@ -15,7 +15,6 @@ import org.skriptlang.skript.bukkit.entity.elements.expressions.ExprDeathMessage
 import org.skriptlang.skript.bukkit.entity.entitydata.NautilusData;
 import org.skriptlang.skript.bukkit.entity.entitydata.ZombieNautilusData;
 import org.skriptlang.skript.bukkit.entity.player.PlayerModule;
-import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -44,13 +43,18 @@ public class EntityModule extends HierarchicalAddonModule {
 		}
 		SyntaxRegistry syntaxRegistry = moduleRegistry(addon);
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Toggle Glide")
-			.addDescription("Called when an entity starts or stops gliding, or when the server the toggles gliding state of an entity forcibly.")
+			.addDescription("Called when an entity starts or stops gliding, or when the server toggles the gliding state of an entity forcibly.")
 			.addExample("""
 				on toggling gliding:
 					cancel the event # bad idea, but you CAN do it!
 				""")
-			.addSince("INSERT VERSION")
-			.addPattern("[on] (gliding state change|toggl(e|ing) glid(e|ing)|glid(e|ing) toggl(e|d))")
+			.addSince("2.2-dev21")
+			.addSince("INSERT VERSION","Pattern changed & moved to EntityModule")
+			.addPatterns(
+				"[on] gliding state change",
+				"[on] (toggle|toggling) glid(e|ing)",
+				"[on] glid(e|ing) toggl(e|d)"
+			)
 			.addEvent(EntityToggleGlideEvent.class)
 			.build());
 		register(addon,
