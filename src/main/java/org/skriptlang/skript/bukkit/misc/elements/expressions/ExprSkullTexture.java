@@ -22,7 +22,13 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import java.util.UUID;
 
 @Name("Skull Texture")
-@Description("The skull texture of a player head.")
+@Description("""
+	           The skull texture of a player head.
+	           Allows you to give a skull a custom texture (e.g. instead of it being a Steve head, it's Notch's head).
+	           For the %string% you input a base64 string (think of it like the ID/texture so Minecraft knows what the head should look like).
+	           (The most common place to get a base64 string is https://minecraft-heads.com)
+	           Resetting the texture of a skull will make it look like a Steve/Alex head.
+	""")
 @Example("set the skull texture of {_i} to \"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTM4NmRmZDc0Y2JhZmJkMWRiZTQ3OWY1ZTAzNzRjMDliZjJlYjRlMzg2NjExZmM0ZmM2OTlmMDJlY2E0ZGQyYyJ9fX0=\"")
 @Since("INSERT VERSION")
 public class ExprSkullTexture extends SimplePropertyExpression<ItemType, String> {
@@ -32,7 +38,7 @@ public class ExprSkullTexture extends SimplePropertyExpression<ItemType, String>
 			 infoBuilder(ExprSkullTexture.class, String.class, "skull texture", "itemtypes", false)
 			.supplier(ExprSkullTexture::new)
 			.priority(SyntaxInfo.SIMPLE)
-			.addPattern("[the] (skull|head)[ ]texture [of] %itemtypes%")
+			.addPattern("[the] (skull|head) texture [of] %itemtypes%")
 			.build());
 	}
 
@@ -57,7 +63,6 @@ public class ExprSkullTexture extends SimplePropertyExpression<ItemType, String>
 					SkullMeta meta = (SkullMeta) item.getItemMeta();
 					meta.setPlayerProfile(null);
 					item.setItemMeta(meta);
-
 				}
 				break;
 			case SET:
