@@ -51,6 +51,7 @@ public class ExprPlayerListPriority extends SimplePropertyExpression<Player, Int
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Integer amount = mode == ChangeMode.RESET ? null : (Integer) delta[0];
+
 		switch (mode) {
 			case ADD -> {
 				assert amount != null;
