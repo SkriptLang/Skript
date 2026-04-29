@@ -61,5 +61,6 @@ public class EffGlide extends Effect {
 			.append("glide")
 			.toString();
 	}
+
 }
 
