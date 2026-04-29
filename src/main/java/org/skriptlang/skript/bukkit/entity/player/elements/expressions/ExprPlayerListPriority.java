@@ -43,7 +43,7 @@ public class ExprPlayerListPriority extends SimplePropertyExpression<Player, Int
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case SET, ADD, RESET, REMOVE -> CollectionUtils.array(Integer.class);
+			case ADD, REMOVE, SET, RESET -> CollectionUtils.array(Integer.class);
 			default -> null;
 		};
 	}
@@ -59,6 +59,11 @@ public class ExprPlayerListPriority extends SimplePropertyExpression<Player, Int
 					player.setPlayerListOrder(Math.max(0, player.getPlayerListOrder() + amount));
 				}
 			}
+			case REMOVE -> {
+				for (Player player : getExpr().getArray(event)) {
+					player.setPlayerListOrder(Math.max(0,player.getPlayerListOrder() - amount));
+				}
+			}
 			case SET -> {
 				assert amount != null;
 				amount = Math.max(0, amount);
@@ -69,11 +74,6 @@ public class ExprPlayerListPriority extends SimplePropertyExpression<Player, Int
 			case RESET -> {
 				for (Player player : getExpr().getArray(event)) {
 					player.setPlayerListOrder(0);
-				}
-			}
-			case REMOVE -> {
-				for (Player player : getExpr().getArray(event)) {
-					player.setPlayerListOrder(Math.max(0,player.getPlayerListOrder() - amount));
 				}
 			}
 		}
