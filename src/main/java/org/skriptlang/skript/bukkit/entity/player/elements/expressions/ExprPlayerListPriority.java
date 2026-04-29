@@ -26,6 +26,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	""")
 @Since("INSERT VERSION")
 @Keywords({"tablist", "tab list"})
+// remove this comment had to put it for intellij to let me push...
 public class ExprPlayerListPriority extends SimplePropertyExpression<Player, Integer> {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
