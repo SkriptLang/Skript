@@ -17,7 +17,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Description("""
 	The priority of the player in the player list in the tab menu.
 	Used to sort players on the tab list. Lowest priority is at the bottom of tab and highest priority is at the top.
-	If 2 players have same priority then they will be sorted A-Z (but still be above those with lower priority)
+	If 2 players have same priority then they will be sorted A-Z (but still be above those with lower priority).
 	""")
 @Example("""
 	on join:
@@ -88,4 +88,5 @@ public class ExprPlayerListPriority extends SimplePropertyExpression<Player, Int
 	protected String getPropertyName() {
 		return "tablist priority";
 	}
+
 }
