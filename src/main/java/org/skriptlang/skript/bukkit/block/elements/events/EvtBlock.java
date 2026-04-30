@@ -1,14 +1,28 @@
 package org.skriptlang.skript.bukkit.block.elements.events;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.classes.data.DefaultComparators;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.util.coll.CollectionUtils;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.*;
+import org.bukkit.event.hanging.HangingBreakEvent;
+import org.bukkit.event.hanging.HangingEvent;
+import org.bukkit.event.hanging.HangingPlaceEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class EvtBlock extends SkriptEvent {
@@ -295,21 +309,186 @@ public class EvtBlock extends SkriptEvent {
 					.build()
 			);
 		}
+
+		registry.register(
+			BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.builder(EvtBlock.class, "Block Break / Mine")
+				.addEvents(CollectionUtils.array(BlockBreakEvent.class, PlayerBucketFillEvent.class, HangingBreakEvent.class))
+				.addPatterns("[block] (break[ing]|1¦min(e|ing)) [[of] %-itemtypes/blockdatas%]")
+				.addDescription("Called when a block is broken by a player. If you use 'on mine', only events where the broken block dropped something will call the trigger.")
+				.addExample("""
+					on mine:
+					on break of stone:
+					on break of chest[facing=north]:
+					on break of potatoes[age=7]:
+					""")
+				.addSince("1.0 (break), unknown (mine), 2.6 (BlockData support)")
+				.supplier(EvtBlock::new)
+				.build()
+		);
+
+		registry.register(
+			BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.builder(EvtBlock.class, "Block Burn")
+				.addEvent(BlockBurnEvent.class)
+				.addPatterns("[block] burn[ing] [[of] %-itemtypes/blockdatas%]")
+				.addDescription("Called when a block is destroyed by fire.")
+				.addExample("""
+					on burn:
+					on burn of oak wood, oak fences, or chests:
+					on burn of oak_log[axis=y]:
+					""")
+				.addSince("1.0, 2.6 (BlockData support)")
+				.supplier(EvtBlock::new)
+				.build()
+		);
+
+		registry.register(
+			BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.builder(EvtBlock.class, "Block Place")
+				.addEvents(CollectionUtils.array(BlockPlaceEvent.class, PlayerBucketEmptyEvent.class, HangingPlaceEvent.class))
+				.addPatterns("[block] (plac(e|ing)|build[ing]) [[of] %-itemtypes/blockdatas%]")
+				.addDescription("Called when a player places a block.")
+				.addExample("""
+					on place:
+					on place of a furnace, crafting table or chest:
+					on break of chest[type=right] or chest[type=left]
+					""")
+				.addSince("1.0, 2.6 (BlockData support)")
+				.supplier(EvtBlock::new)
+				.build()
+		);
+
+		registry.register(
+			BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.builder(EvtBlock.class, "Block Fade")
+				.addEvent(BlockFadeEvent.class)
+				.addPatterns("[block] fad(e|ing) [[of] %-itemtypes/blockdatas%]")
+				.addDescription("Called when a block 'fades away', e.g. ice or snow melts.")
+				.addExample("""
+					on fade of snow or blue ice:
+					on fade of snow[layers=2]:
+					""")
+				.addSince("1.0, 2.6 (BlockData support)")
+				.supplier(EvtBlock::new)
+				.build()
+		);
+
+		registry.register(
+			BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.builder(EvtBlock.class, "Form")
+				.addEvent(BlockFormEvent.class)
+				.addPatterns("[block] form[ing] [[of] %-itemtypes/blockdatas%]")
+				.addDescription("Called when a block is created, but not by a player, e.g. snow forms due to snowfall, water freezes in cold biomes. This isn't called when block spreads (mushroom growth, water physics etc.), as it has its own event (see <a href='#spread'>spread event</a>).")
+				.addExample("on form of snow:")
+				.addSince("1.0, 2.6 (BlockData support)")
+				.supplier(EvtBlock::new)
+				.build()
+		);
+
+		registry.register(
+			BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.builder(EvtBlock.class, "Block Drop")
+				.addEvent(BlockDropItemEvent.class)
+				.addPatterns("block drop[ping] [[of] %-itemtypes/blockdatas%]")
+				.addDescription(
+					"""
+					Called when a block broken by a player drops something.	
+					<ul>
+					<li>event-player: The player that broke the block</li>
+					<li>past event-block: The block that was broken</li>
+					<li>event-block: The block after being broken</li>
+					<li>event-items (or drops): The drops of the block</li>
+					<li>event-entities: The entities of the dropped items</li>
+					</ul>
+					
+					If the breaking of the block leads to others being broken, such as torches, they will appear in "event-items" and "event-entities".
+					""")
+				.addExample(
+					"""
+					on block drop:
+						broadcast event-player
+						broadcast past event-block
+						broadcast event-block
+						broadcast event-items
+						broadcast event-entities
+					on block drop of oak log:
+					""")
+				.addSince("2.10")
+				.supplier(EvtBlock::new)
+				.build()
+		);
+
 	}
 
+	@Nullable
+	private Literal<Object> types;
+
+	private boolean mine = false;
+
 	@Override
-	public boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
+	public boolean init(final Literal<?>[] args, final int matchedPattern, final ParseResult parser) {
+		types = args.length > 0 ? (Literal<Object>) args[0] : null;
+		mine = parser.mark == 1;
 		return true;
 	}
 
 	@Override
-	public boolean check(Event event) {
-		return true;
+	public boolean check(final Event event) {
+		if (mine && event instanceof BlockBreakEvent) {
+			if (((BlockBreakEvent) event).getBlock().getDrops(((BlockBreakEvent) event).getPlayer().getItemInHand()).isEmpty())
+				return false;
+		}
+		if (types == null)
+			return true;
+
+		ItemType item;
+		BlockData blockData = null;
+
+		if (event instanceof BlockFormEvent blockFormEvent) {
+			BlockState newState = blockFormEvent.getNewState();
+			item = new ItemType(newState.getBlockData());
+			blockData = newState.getBlockData();
+		} else if (event instanceof BlockDropItemEvent blockDropItemEvent) {
+			Block block = blockDropItemEvent.getBlock();
+			item = new ItemType(block);
+			blockData = block.getBlockData();
+		} else if (event instanceof BlockEvent blockEvent) {
+			Block block = blockEvent.getBlock();
+			item = new ItemType(block);
+			blockData = block.getBlockData();
+		} else if (event instanceof PlayerBucketFillEvent playerBucketFillEvent) {
+			Block block = playerBucketFillEvent.getBlockClicked();
+			item = new ItemType(block);
+			blockData = block.getBlockData();
+		} else if (event instanceof PlayerBucketEmptyEvent playerBucketEmptyEvent) {
+			item = new ItemType(playerBucketEmptyEvent.getItemStack());
+		} else if (event instanceof HangingEvent hangingEvent) {
+			final EntityData<?> d = EntityData.fromEntity(hangingEvent.getEntity());
+			return types.check(event, o -> {
+				if (o instanceof ItemType)
+					return Relation.EQUAL.isImpliedBy(DefaultComparators.entityItemComparator.compare(d, (ItemType) o));
+				return false;
+			});
+		} else {
+			return true;
+		}
+
+		final ItemType itemF = item;
+		BlockData finalBlockData = blockData;
+
+		return types.check(event, o -> {
+			if (o instanceof ItemType)
+				return ((ItemType) o).isSupertypeOf(itemF);
+			else if (o instanceof BlockData && finalBlockData != null)
+				return finalBlockData.matches((BlockData) o);
+			return false;
+		});
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "block event";
+		return "break/place/burn/fade/form/drop of " + Classes.toString(types);
 	}
 
 }

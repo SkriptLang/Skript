@@ -1,11 +1,18 @@
 package org.skriptlang.skript.bukkit.entity.elements.events;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.util.StringUtils;
 import com.destroystokyo.paper.event.entity.EntityJumpEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.*;
 import org.jetbrains.annotations.Nullable;
@@ -392,21 +399,78 @@ public class EvtEntity extends SkriptEvent {
 					.build()
 			);
 		}
+
+		registry.register(
+			BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.builder(EvtEntity.class, "Death")
+				.addEvent(EntityDeathEvent.class)
+				.addPatterns("death [of %-entitydatas%]")
+				.addDescription("Called when a living entity (including players) dies.")
+				.addExamples("on death:", "on death of player:", "on death of a wither or ender dragon:", "  broadcast \"A %entity% has been slain in %world%!\"")
+				.addSince("1.0")
+				.supplier(EvtEntity::new)
+				.build()
+		);
+
+		registry.register(
+			BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.builder(EvtEntity.class, "Spawn")
+				.addEvent(EntitySpawnEvent.class)
+				.addPatterns("spawn[ing] [of %-entitydatas%]")
+				.addDescription("Called when an entity spawns (excluding players).")
+				.addExamples("on spawn of a zombie:", "on spawn of an ender dragon:", "  broadcast \"A dragon has been sighted in %world%!\"")
+				.addSince("1.0, 2.5.1 (non-living entities)")
+				.supplier(EvtEntity::new)
+				.build()
+		);
+
 	}
 
+	@Nullable
+	private EntityData<?>[] types;
+
+	private boolean spawn;
+
 	@Override
-	public boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
+	@SuppressWarnings("unchecked")
+	public boolean init(final Literal<?>[] args, final int matchedPattern, final ParseResult parser) {
+		types = args.length > 0 && args[0] != null ? ((Literal<EntityData<?>>) args[0]).getAll() : null;
+		spawn = StringUtils.startsWithIgnoreCase(parser.expr, "spawn");
+		if (types != null) {
+			if (spawn) {
+				for (final EntityData<?> d : types) {
+					if (HumanEntity.class.isAssignableFrom(d.getType())) {
+						Skript.error("The spawn event does not work for human entities", ErrorQuality.SEMANTIC_ERROR);
+						return false;
+					}
+				}
+			} else {
+				for (final EntityData<?> d : types) {
+					if (!LivingEntity.class.isAssignableFrom(d.getType())) {
+						Skript.error("The death event only works for living entities", ErrorQuality.SEMANTIC_ERROR);
+						return false;
+					}
+				}
+			}
+		}
 		return true;
 	}
 
 	@Override
-	public boolean check(Event event) {
-		return true;
+	public boolean check(final Event event) {
+		if (types == null)
+			return true;
+		final Entity en = event instanceof EntityDeathEvent ? ((EntityDeathEvent) event).getEntity() : ((EntitySpawnEvent) event).getEntity();
+		for (final EntityData<?> d : types) {
+			if (d.isInstance(en))
+				return true;
+		}
+		return false;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "entity event";
+		return (spawn ? "spawn" : "death") + (types != null ? " of " + Classes.toString(types, false) : "");
 	}
 
 }

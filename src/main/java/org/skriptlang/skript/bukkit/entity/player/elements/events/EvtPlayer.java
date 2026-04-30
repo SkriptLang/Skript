@@ -52,6 +52,7 @@ public class EvtPlayer extends SkriptEvent {
 				.addDescription("Called when a player empties a bucket. You can also use the place event with a check for water or lava.")
 				.addExample("on bucket empty:")
 				.addSince("1.0")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
