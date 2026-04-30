@@ -1,9 +1,11 @@
 package org.skriptlang.skript.bukkit.text.types;
 
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.ParseContext;
+import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
@@ -35,7 +37,7 @@ public final class TextComponentClassInfo extends ClassInfo<Component> {
 					@Override
 					public boolean contains(Component container, Component element) {
 						var parser = org.skriptlang.skript.bukkit.text.TextComponentParser.instance();
-						return parser.toString(container).contains(parser.toString(element));
+						return StringUtils.contains(parser.toString(container), parser.toString(element), SkriptConfig.caseSensitive.value());
 					}
 
 					@Override
