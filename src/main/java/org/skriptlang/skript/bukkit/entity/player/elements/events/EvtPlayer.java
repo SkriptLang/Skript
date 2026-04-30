@@ -444,7 +444,6 @@ public class EvtPlayer extends SkriptEvent {
 						cancel event
 					""")
 					.addSince("2.3")
-					.supplier(EvtPlayer::new)
 					.build()
 			);
 		}
