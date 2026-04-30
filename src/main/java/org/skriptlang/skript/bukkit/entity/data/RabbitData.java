@@ -1,19 +1,22 @@
 package org.skriptlang.skript.bukkit.entity.data;
 
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Rabbit;
 import org.bukkit.entity.Rabbit.Type;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.entity.EntityData;
+import org.skriptlang.skript.bukkit.entity.ItemTypeComparable;
 
 import java.util.Objects;
 
-public class RabbitData extends EntityData<Rabbit> {
+public class RabbitData extends EntityData<Rabbit> implements ItemTypeComparable {
 
 	private static final Type[] TYPES = Type.values();
 
@@ -123,5 +126,10 @@ public class RabbitData extends EntityData<Rabbit> {
 			return false;
         return dataMatch(type, other.type);
     }
+
+	@Override
+	public boolean isOfItemType(ItemType itemType) {
+		return itemType.isOfType(Material.RABBIT);
+	}
 
 }
