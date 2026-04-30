@@ -23,6 +23,7 @@ public class EvtEntity extends SkriptEvent {
 				.addDescription("Called when a creeper is struck by lighting and gets powered. Cancel the event to prevent the creeper from being powered.")
 				.addExample("on creeper power:")
 				.addSince("1.0")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -34,6 +35,7 @@ public class EvtEntity extends SkriptEvent {
 				.addDescription("Called when a zombie is done breaking a wooden door. Can be cancelled to prevent the zombie from breaking the door.")
 				.addExample("on zombie breaking a wood door:")
 				.addSince("1.0")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -45,6 +47,7 @@ public class EvtEntity extends SkriptEvent {
 				.addDescription("Called when an entity is set on fire, e.g. by fire or lava, a fireball, or by standing in direct sunlight (zombies, skeletons).")
 				.addExample("on combust:")
 				.addSince("1.0")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -56,6 +59,7 @@ public class EvtEntity extends SkriptEvent {
 				.addDescription("Called when an entity (a primed TNT or a creeper) explodes.")
 				.addExample("on explosion:")
 				.addSince("1.0")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -67,6 +71,7 @@ public class EvtEntity extends SkriptEvent {
 				.addDescription("Called when an entity enters a nether portal or an end portal. Please note that this event will be fired many times for a nether portal.")
 				.addExample("on portal enter:")
 				.addSince("1.0")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -78,6 +83,7 @@ public class EvtEntity extends SkriptEvent {
 				.addDescription("Called when a player tames a wolf or ocelot. Can be cancelled to prevent the entity from being tamed.")
 				.addExample("on tame:")
 				.addSince("1.0")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -89,6 +95,7 @@ public class EvtEntity extends SkriptEvent {
 				.addDescription("Called when an explosive is primed, i.e. an entity will explode shortly. Creepers can abort the explosion if the player gets too far away, while TNT will explode for sure after a short time.")
 				.addExample("on explosion prime:")
 				.addSince("1.0")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -100,6 +107,7 @@ public class EvtEntity extends SkriptEvent {
 				.addDescription("Called when the hunger bar of a player changes, i.e. either increases by eating or decreases over time.")
 				.addExample("on food bar change:")
 				.addSince("1.4.4")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -111,6 +119,7 @@ public class EvtEntity extends SkriptEvent {
 				.addDescription("Called when a pig is stroke by lightning and transformed into a zombie pigman. Cancel the event to prevent the transformation.")
 				.addExample("on pig zap:")
 				.addSince("1.0")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -126,6 +135,7 @@ public class EvtEntity extends SkriptEvent {
 							delete event-projectile
 					""")
 				.addSince("1.0")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -141,6 +151,7 @@ public class EvtEntity extends SkriptEvent {
 							send "you shot an arrow!" to shooter
 					""")
 				.addSince("1.0")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -155,6 +166,7 @@ public class EvtEntity extends SkriptEvent {
 						cancel event
 					""")
 				.addSince("2.2-dev13b")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -169,6 +181,7 @@ public class EvtEntity extends SkriptEvent {
 						kill event-entity
 					""")
 				.addSince("2.2-dev13b")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -183,6 +196,7 @@ public class EvtEntity extends SkriptEvent {
 						cancel the event # bad idea, but you CAN do it!
 					""")
 				.addSince("2.2-dev21")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -194,6 +208,7 @@ public class EvtEntity extends SkriptEvent {
 				.addDescription("Called when area effect cloud applies its potion effect. This happens every 5 ticks by default.")
 				.addExample("on area cloud effect:")
 				.addSince("2.2-dev21")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -208,6 +223,7 @@ public class EvtEntity extends SkriptEvent {
 						cancel event
 					""")
 				.addSince("2.2-dev21")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -219,6 +235,7 @@ public class EvtEntity extends SkriptEvent {
 				.addDescription("Called when a slime splits. Usually this happens when a big slime dies.")
 				.addExample("on slime split:")
 				.addSince("2.2-dev26")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -235,6 +252,7 @@ public class EvtEntity extends SkriptEvent {
 						uncancel the event
 					""")
 				.addSince("2.2-dev28")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -251,6 +269,7 @@ public class EvtEntity extends SkriptEvent {
 						cancel event
 					""")
 				.addSince("2.3")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -265,6 +284,7 @@ public class EvtEntity extends SkriptEvent {
 						push event-entity upwards at speed 2
 					""")
 				.addSince("2.5.1")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -282,6 +302,7 @@ public class EvtEntity extends SkriptEvent {
 							cancel event
 					""")
 				.addSince("2.10")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -293,6 +314,7 @@ public class EvtEntity extends SkriptEvent {
 				.addDescription("Called when a bat attempts to go to sleep or wakes up.")
 				.addExample("on bat toggle sleep:")
 				.addSince("2.11")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -311,6 +333,7 @@ public class EvtEntity extends SkriptEvent {
 							cancel event
 					""")
 				.addSince("2.12")
+				.supplier(EvtEntity::new)
 				.build()
 		);
 
@@ -326,6 +349,7 @@ public class EvtEntity extends SkriptEvent {
 							teleport shooter of event-projectile to event-entity
 						""")
 					.addSince("2.5")
+					.supplier(EvtEntity::new)
 					.build()
 			);
 		}
@@ -343,6 +367,7 @@ public class EvtEntity extends SkriptEvent {
 								cancel event
 						""")
 					.addSince("2.7")
+					.supplier(EvtEntity::new)
 					.build()
 			);
 		}
@@ -363,6 +388,7 @@ public class EvtEntity extends SkriptEvent {
 								cancel event
 						""")
 					.addSince("2.9.0")
+					.supplier(EvtEntity::new)
 					.build()
 			);
 		}

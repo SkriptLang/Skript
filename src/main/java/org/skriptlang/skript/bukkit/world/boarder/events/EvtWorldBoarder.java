@@ -11,6 +11,8 @@ import org.bukkit.event.Event;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
+import javax.annotation.Nullable;
+
 public class EvtWorldBoarder extends SkriptEvent {
 
 	public static void register(SyntaxRegistry registry) {
@@ -82,5 +84,5 @@ public class EvtWorldBoarder extends SkriptEvent {
 	}
 
 	@Override
-	public String toString(Event event, boolean debug) { return "world boarder event"; }
+	public String toString(@Nullable Event event, boolean debug) { return "world boarder event"; }
 }

@@ -20,6 +20,7 @@ public class EvtVehicle extends SkriptEvent {
 				.addDescription("Called when a new vehicle is created, e.g. when a player places a boat or minecart.")
 				.addExample("on vehicle create:")
 				.addSince("1.0")
+				.supplier(EvtVehicle::new)
 				.build()
 		);
 
@@ -31,6 +32,7 @@ public class EvtVehicle extends SkriptEvent {
 				.addDescription("Called when a vehicle gets damage. Too much damage will destroy the vehicle.")
 				.addExample("on vehicle damage:")
 				.addSince("1.0")
+				.supplier(EvtVehicle::new)
 				.build()
 		);
 
@@ -45,6 +47,7 @@ public class EvtVehicle extends SkriptEvent {
 						cancel event
 					""")
 				.addSince("1.0")
+				.supplier(EvtVehicle::new)
 				.build()
 		);
 
@@ -60,6 +63,7 @@ public class EvtVehicle extends SkriptEvent {
 						cancel event
 					""")
 				.addSince("1.0")
+				.supplier(EvtVehicle::new)
 				.build()
 		);
 
@@ -75,6 +79,7 @@ public class EvtVehicle extends SkriptEvent {
 							kill event-entity
 					""")
 				.addSince("1.0")
+				.supplier(EvtVehicle::new)
 				.build()
 		);
 
@@ -92,6 +97,7 @@ public class EvtVehicle extends SkriptEvent {
 						broadcast event-location
 					""")
 				.addSince("2.10")
+				.supplier(EvtVehicle::new)
 				.build()
 		);
 	}

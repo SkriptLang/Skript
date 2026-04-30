@@ -8,6 +8,8 @@ import org.bukkit.event.Event;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
+import javax.annotation.Nullable;
+
 public class EvtServerListPing extends SkriptEvent {
 
 	public static void register(SyntaxRegistry registry) {
@@ -50,6 +52,6 @@ public class EvtServerListPing extends SkriptEvent {
 	}
 
 	@Override
-	public String toString(Event event, boolean debug) { return "server list ping event"; }
+	public String toString(@Nullable Event event, boolean debug) { return "server list ping event"; }
 
 }

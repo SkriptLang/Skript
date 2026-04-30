@@ -8,6 +8,8 @@ import org.bukkit.event.weather.LightningStrikeEvent;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
+import javax.annotation.Nullable;
+
 public class EvtLightningStrike extends SkriptEvent {
 
 	public static void register(SyntaxRegistry registry) {
@@ -40,6 +42,6 @@ public class EvtLightningStrike extends SkriptEvent {
 	}
 
 	@Override
-	public String toString(Event event, boolean debug) { return "lightning strike event"; }
+	public String toString(@Nullable Event event, boolean debug) { return "lightning strike event"; }
 
 }

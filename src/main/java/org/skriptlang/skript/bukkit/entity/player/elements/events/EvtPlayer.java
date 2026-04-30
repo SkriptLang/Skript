@@ -28,6 +28,7 @@ public class EvtPlayer extends SkriptEvent {
 				.addDescription("Called when a player starts sleeping.")
 				.addExample("on bed enter:")
 				.addSince("1.0")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -39,6 +40,7 @@ public class EvtPlayer extends SkriptEvent {
 				.addDescription("Called when a player leaves a bed.")
 				.addExample("on player leaving a bed:")
 				.addSince("1.0")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -61,6 +63,7 @@ public class EvtPlayer extends SkriptEvent {
 				.addDescription("Called when a player fills a bucket.")
 				.addExample("on player filling a bucket:")
 				.addSince("1.0")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -72,6 +75,7 @@ public class EvtPlayer extends SkriptEvent {
 				.addDescription("Called when a player throws an egg and it lands. This event allows modification of properties like the hatched entity type and the number of entities to hatch.")
 				.addExample("on throw of an egg:")
 				.addSince("1.0")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -83,6 +87,7 @@ public class EvtPlayer extends SkriptEvent {
 				.addDescription("Called when a player breaks their tool because its damage reached the maximum value.", "This event cannot be cancelled.")
 				.addExample("on tool break:")
 				.addSince("2.1.1")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -97,6 +102,7 @@ public class EvtPlayer extends SkriptEvent {
 						cancel event
 					""")
 				.addSince("2.5")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -108,6 +114,7 @@ public class EvtPlayer extends SkriptEvent {
 				.addDescription("Called whenever a player changes their held item by selecting a different slot (e.g. the keys 1-9 or the mouse wheel).")
 				.addExample("on player's held item change:")
 				.addSince("1.0")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -123,6 +130,7 @@ public class EvtPlayer extends SkriptEvent {
 						broadcast "%player% just joined the server!"
 					""")
 				.addSince("1.0")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -139,6 +147,7 @@ public class EvtPlayer extends SkriptEvent {
 						kick the player due to "The last 5 slots are reserved for VIP players."
 					""")
 				.addSince("2.0")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -150,6 +159,7 @@ public class EvtPlayer extends SkriptEvent {
 				.addDescription("Called when a player is kicked from the server.")
 				.addExample("on kick:")
 				.addSince("1.0")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -164,6 +174,7 @@ public class EvtPlayer extends SkriptEvent {
 					on disconnect:
 					""")
 				.addSince("1.0 (simple disconnection)")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -175,6 +186,7 @@ public class EvtPlayer extends SkriptEvent {
 				.addDescription("Called when a player respawns via death or entering the end portal in the end.")
 				.addExample("on respawn:")
 				.addSince("1.0")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -190,6 +202,7 @@ public class EvtPlayer extends SkriptEvent {
 						push the player upwards at speed 0.5
 					""")
 				.addSince("1.0")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -205,6 +218,7 @@ public class EvtPlayer extends SkriptEvent {
 						send "Run!"
 					""")
 				.addSince("1.0")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -220,6 +234,7 @@ public class EvtPlayer extends SkriptEvent {
 						send "Welcome to the City!"
 					""")
 				.addSince("2.2-dev28")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -235,6 +250,7 @@ public class EvtPlayer extends SkriptEvent {
 							cancel event
 					""")
 				.addSince("2.2-dev36")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -250,6 +266,7 @@ public class EvtPlayer extends SkriptEvent {
 							send "Hello!"
 					""")
 				.addSince("2.3")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -265,6 +282,7 @@ public class EvtPlayer extends SkriptEvent {
 						cancel event
 					""")
 				.addSince("2.3")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -279,6 +297,7 @@ public class EvtPlayer extends SkriptEvent {
 						send "You are riptiding!"
 					""")
 				.addSince("2.5")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -293,6 +312,7 @@ public class EvtPlayer extends SkriptEvent {
 						send "You swung your arm!"
 					""")
 				.addSince("2.5.1")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -310,6 +330,7 @@ public class EvtPlayer extends SkriptEvent {
 							send "Oops! Mending failed!" to player
 					""")
 				.addSince("2.5.1")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -325,6 +346,7 @@ public class EvtPlayer extends SkriptEvent {
 						teleport event-projectile to block 5 above event-projectile
 					""")
 				.addSince("2.8.0")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
@@ -339,10 +361,10 @@ public class EvtPlayer extends SkriptEvent {
 						broadcast xp cooldown change reason
 					""")
 				.addSince("2.10")
+				.supplier(EvtPlayer::new)
 				.build()
 		);
 
-		// Paper specific events
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerTradeEvent")) {
 			registry.register(
 				BukkitSyntaxInfos.Event.KEY,
@@ -351,6 +373,7 @@ public class EvtPlayer extends SkriptEvent {
 					.addPatterns("player trad(e|ing)")
 					.addDescription("Called when a player has traded with a villager.")
 					.addSince("2.7")
+					.supplier(EvtPlayer::new)
 					.build()
 			);
 		}
@@ -363,6 +386,7 @@ public class EvtPlayer extends SkriptEvent {
 					.addPatterns("[player] (stop|end) (using item|item use)")
 					.addDescription("Called when a player stops using an item.")
 					.addSince("2.8.0")
+					.supplier(EvtPlayer::new)
 					.build()
 			);
 		}
@@ -375,6 +399,7 @@ public class EvtPlayer extends SkriptEvent {
 					.addPatterns("[player] deep sleep[ing]")
 					.addDescription("Called when a player has slept long enough to count as passing the night/storm.")
 					.addSince("2.7")
+					.supplier(EvtPlayer::new)
 					.build()
 			);
 		}
@@ -387,6 +412,7 @@ public class EvtPlayer extends SkriptEvent {
 					.addPatterns("[player] inventory slot chang(e|ing)")
 					.addDescription("Called when a slot in a player's inventory is changed.")
 					.addSince("2.7")
+					.supplier(EvtPlayer::new)
 					.build()
 			);
 		}
@@ -399,6 +425,7 @@ public class EvtPlayer extends SkriptEvent {
 					.addPatterns("beacon change effect", "beacon effect change", "player chang(e[s]|ing) [of] beacon effect")
 					.addDescription("Called when a player changes the effects of a beacon.")
 					.addSince("2.10")
+					.supplier(EvtPlayer::new)
 					.build()
 			);
 		}
@@ -417,6 +444,7 @@ public class EvtPlayer extends SkriptEvent {
 						cancel event
 					""")
 					.addSince("2.3")
+					.supplier(EvtPlayer::new)
 					.build()
 			);
 		}
@@ -437,6 +465,7 @@ public class EvtPlayer extends SkriptEvent {
 							cancel event
 					""")
 					.addSince("2.8.0")
+					.supplier(EvtPlayer::new)
 					.build()
 			);
 		}
@@ -455,6 +484,7 @@ public class EvtPlayer extends SkriptEvent {
 								prevent the used firework from being consume
 						""")
 					.addSince("2.10")
+					.supplier(EvtPlayer::new)
 					.build()
 			);
 		}

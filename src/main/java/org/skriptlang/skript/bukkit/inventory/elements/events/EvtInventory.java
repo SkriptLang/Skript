@@ -24,6 +24,7 @@ public class EvtInventory extends SkriptEvent {
 							close player's inventory
 						""")
 				.addSince("2.2-dev21")
+				.supplier(EvtInventory::new)
 				.build()
 		);
 
@@ -40,6 +41,7 @@ public class EvtInventory extends SkriptEvent {
 								send "You exited the shop!"
 						""")
 				.addSince("2.2-dev21")
+				.supplier(EvtInventory::new)
 				.build()
 		);
 
@@ -54,6 +56,7 @@ public class EvtInventory extends SkriptEvent {
 						on inventory pickup:
 						""")
 				.addSince("2.5.1")
+				.supplier(EvtInventory::new)
 				.build()
 		);
 
@@ -72,6 +75,7 @@ public class EvtInventory extends SkriptEvent {
 								send "You're LUCKY! You got 50% discount." to player
 						""")
 				.addSince("2.7")
+				.supplier(EvtInventory::new)
 				.build()
 		);
 
@@ -89,6 +93,7 @@ public class EvtInventory extends SkriptEvent {
 								cancel event
 						""")
 				.addSince("2.7")
+				.supplier(EvtInventory::new)
 				.build()
 		);
 	}

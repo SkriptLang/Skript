@@ -27,6 +27,7 @@ public class EvtBlock extends SkriptEvent {
 							cancel event
 						""")
 				.addSince("1.0 (basic), 2.0 ([un]cancellable)")
+				.supplier(EvtBlock::new)
 				.build()
 		);
 
@@ -43,6 +44,7 @@ public class EvtBlock extends SkriptEvent {
 								send "You can't break the holy log!"
 						""")
 				.addSince("1.0")
+				.supplier(EvtBlock::new)
 				.build()
 		);
 
@@ -59,6 +61,7 @@ public class EvtBlock extends SkriptEvent {
 								broadcast "Build more dams! It's starting to get wet in here"
 						""")
 				.addSince("1.0")
+				.supplier(EvtBlock::new)
 				.build()
 		);
 
@@ -76,6 +79,7 @@ public class EvtBlock extends SkriptEvent {
 								cancel event
 						""")
 				.addSince("1.0")
+				.supplier(EvtBlock::new)
 				.build()
 		);
 
@@ -95,6 +99,7 @@ public class EvtBlock extends SkriptEvent {
 							cancel event
 						""")
 				.addSince("1.4.6")
+				.supplier(EvtBlock::new)
 				.build()
 		);
 
@@ -110,6 +115,7 @@ public class EvtBlock extends SkriptEvent {
 							broadcast "A piston is extending!"
 						""")
 				.addSince("1.0")
+				.supplier(EvtBlock::new)
 				.build()
 		);
 
@@ -125,6 +131,7 @@ public class EvtBlock extends SkriptEvent {
 							broadcast "A piston is retracting!"
 						""")
 				.addSince("1.0")
+				.supplier(EvtBlock::new)
 				.build()
 		);
 
@@ -140,6 +147,7 @@ public class EvtBlock extends SkriptEvent {
 							send "someone is using redstone" to console
 						""")
 				.addSince("1.0")
+				.supplier(EvtBlock::new)
 				.build()
 		);
 
@@ -151,6 +159,7 @@ public class EvtBlock extends SkriptEvent {
 				.addDescription("Called when a new block <a href='#form'>forms</a> as a result of a block that can spread, e.g. water or mushrooms.")
 				.addExample("on spread:")
 				.addSince("1.0")
+				.supplier(EvtBlock::new)
 				.build()
 		);
 
@@ -167,6 +176,7 @@ public class EvtBlock extends SkriptEvent {
 							set line 1 to "<red>%line 1%"
 						""")
 				.addSince("1.0")
+				.supplier(EvtBlock::new)
 				.build()
 		);
 
@@ -183,15 +193,18 @@ public class EvtBlock extends SkriptEvent {
 							send "Fertilized %size of fertilized blocks% blocks got fertilized."
 						""")
 				.addSince("2.5")
+				.supplier(EvtBlock::new)
 				.build()
 		);
 
 		registry.register(
 			BukkitSyntaxInfos.Event.KEY,
 			BukkitSyntaxInfos.Event.builder(EvtBlock.class, "Leaves Decay")
+				.addEvent(LeavesDecayEvent.class)
 				.addPatterns("leaves decay[ing]")
 				.addDescription("Called when a leaf block decays due to not being connected to a tree.")
 				.addSince("1.0")
+				.supplier(EvtBlock::new)
 				.build()
 		);
 
@@ -206,9 +219,10 @@ public class EvtBlock extends SkriptEvent {
 					"""
 						on sponge absorb:
 							loop absorbed blocks:
-								broadcast "%loop-block% was absorbed by a sponge"!
+								broadcast "%loop-block% was absorbed by a sponge!"
 						""")
 				.addSince("2.5")
+				.supplier(EvtBlock::new)
 				.build()
 		);
 
@@ -224,6 +238,7 @@ public class EvtBlock extends SkriptEvent {
 							send "<gold>Ding-dong!<reset>" to all players in radius 10 of event-block
 						""")
 				.addSince("2.9.0")
+				.supplier(EvtBlock::new)
 				.build()
 		);
 
@@ -239,6 +254,7 @@ public class EvtBlock extends SkriptEvent {
 							send "<red>Raiders are nearby!" to all players in radius 32 around event-block
 						""")
 				.addSince("2.9.0")
+				.supplier(EvtBlock::new)
 				.build()
 		);
 
@@ -256,11 +272,12 @@ public class EvtBlock extends SkriptEvent {
 								set event-item to a netherite ingot
 							""")
 					.addSince("2.12")
+					.supplier(EvtBlock::new)
 					.build()
 			);
 		}
 
-		if (Skript.classExists("org.bukkit.event.block.BlockBreakEvent")) {
+		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
 			registry.register(
 				BukkitSyntaxInfos.Event.KEY,
 				BukkitSyntaxInfos.Event.builder(EvtBlock.class, "Anvil Damage")
@@ -274,6 +291,7 @@ public class EvtBlock extends SkriptEvent {
 								cancel event
 							""")
 					.addSince("2.7")
+					.supplier(EvtBlock::new)
 					.build()
 			);
 		}
