@@ -7,6 +7,7 @@ import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.entity.displays.DisplayModule;
+import org.skriptlang.skript.bukkit.entity.elements.events.EvtEntity;
 import org.skriptlang.skript.bukkit.entity.interactions.InteractionModule;
 import org.skriptlang.skript.bukkit.entity.elements.expressions.ExprDeathMessage;
 import org.skriptlang.skript.bukkit.entity.entitydata.NautilusData;
@@ -38,7 +39,8 @@ public class EntityModule extends HierarchicalAddonModule {
 		}
 
 		register(addon,
-			ExprDeathMessage::register
+			ExprDeathMessage::register,
+			EvtEntity::register
 		);
 	}
 

@@ -12,6 +12,7 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceModule;
 import org.skriptlang.skript.bukkit.entity.EntityModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
+import org.skriptlang.skript.bukkit.inventory.InventoryModule;
 import org.skriptlang.skript.bukkit.item.ItemModule;
 import org.skriptlang.skript.bukkit.itemcomponents.ItemComponentModule;
 import org.skriptlang.skript.bukkit.loottables.LootTableModule;
@@ -22,6 +23,8 @@ import org.skriptlang.skript.bukkit.potion.PotionModule;
 import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.bukkit.text.TextModule;
 import org.skriptlang.skript.bukkit.types.*;
+import org.skriptlang.skript.bukkit.vehicle.VehicleModule;
+import org.skriptlang.skript.bukkit.world.WorldModule;
 
 import java.util.List;
 
@@ -42,6 +45,7 @@ public class BukkitModule extends HierarchicalAddonModule {
 			new EntityModule(this),
 			new FishingModule(this),
 			new InputModule(this),
+			new InventoryModule(this),
 			new ItemModule(this),
 			new ItemComponentModule(this),
 			new LootTableModule(this),
@@ -50,7 +54,9 @@ public class BukkitModule extends HierarchicalAddonModule {
 			new PDCModule(this),
 			new PotionModule(this),
 			new TagModule(this),
-			new TextModule(this)
+			new TextModule(this),
+			new VehicleModule(this),
+			new WorldModule(this)
 		);
 	}
 

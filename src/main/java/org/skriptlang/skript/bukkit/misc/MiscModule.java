@@ -4,6 +4,7 @@ import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.misc.elements.effects.EffRotate;
+import org.skriptlang.skript.bukkit.misc.elements.events.*;
 import org.skriptlang.skript.bukkit.misc.elements.expressions.*;
 
 public class MiscModule extends HierarchicalAddonModule {
@@ -22,7 +23,11 @@ public class MiscModule extends HierarchicalAddonModule {
 			ExprQuaternionAxisAngle::register,
 			ExprRotate::register,
 			ExprTextOf::register,
-			ExprWithYawPitch::register
+			ExprWithYawPitch::register,
+			EvtBroadcastMessage::register,
+			EvtEnchantItem::register,
+			EvtLightningStrike::register,
+			EvtServerListPing::register
 		);
 	}
 
