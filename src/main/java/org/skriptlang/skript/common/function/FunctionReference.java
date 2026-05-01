@@ -147,17 +147,17 @@ public final class FunctionReference<T> implements Debuggable {
 			return null;
 		}
 
-		LinkedHashMap<String, Object> args = new LinkedHashMap<>();
+		SequencedMap<String, Object> args = new LinkedHashMap<>();
 		cachedArguments.forEach((k, v) -> {
 			if (v.modifiers().contains(Modifier.KEYED)) {
-				args.put(k, evaluateKeyed(v.expression(), event));
+				args.put(k, Classes.clone(evaluateKeyed(v.expression(), event)));
 				return;
 			}
 
 			if (!v.type().isArray()) {
-				args.put(k, v.expression().getSingle(event));
+				args.put(k, Classes.clone(v.expression().getSingle(event)));
 			} else {
-				args.put(k, v.expression().getArray(event));
+				args.put(k, Classes.clone(v.expression().getArray(event)));
 			}
 		});
 
