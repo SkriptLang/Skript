@@ -51,4 +51,27 @@ public class TextComponentParserTest {
 		assertEquals(expected, parsed);
 	}
 
+	@Test
+	public void testLegacy() {
+		TextComponentParser parser = new TextComponentParser();
+		assertEquals(parser.parse("<red>hello"), parser.parse("&chello"));
+		assertEquals(parser.parse("<#123456>hello"), parser.parse("&x&1&2&3&4&5&6hello"));
+		assertEquals(Component.text("&chello"), parser.parse("\\&chello"));
+		assertEquals(Component.text("&x&1&2&3&4&5&6hello"), parser.parse("&x\\&1\\&2\\&3\\&4\\&5\\&6hello"));
+	}
+
+	@Test
+	public void testLegacyEscaping() {
+		TextComponentParser parser = new TextComponentParser();
+		assertEquals("\\&chello", parser.escape("&chello"));
+		assertEquals("&x\\&1\\&2\\&3\\&4\\&5\\&6hello &x", parser.escape("&x&1&2&3&4&5&6hello &x"));
+	}
+
+	@Test
+	public void testLegacyDoubleHashtag() {
+		TextComponentParser parser = new TextComponentParser();
+		assertEquals(parser.parse("<#123456>hello"), parser.parse("<##123456>hello"));
+		assertEquals("\\<##123456>hello", parser.escape("<##123456>hello"));
+	}
+
 }
