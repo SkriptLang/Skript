@@ -4,6 +4,8 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.ChatColor;
 import org.junit.Test;
 
 import java.util.Set;
@@ -58,6 +60,12 @@ public class TextComponentParserTest {
 		assertEquals(parser.parse("<#123456>hello"), parser.parse("&x&1&2&3&4&5&6hello"));
 		assertEquals(Component.text("&chello"), parser.parse("\\&chello"));
 		assertEquals(Component.text("&x&1&2&3&4&5&6hello"), parser.parse("&x\\&1\\&2\\&3\\&4\\&5\\&6hello"));
+
+		//noinspection deprecation - yes i know
+		for (ChatColor color : ChatColor.values()) {
+			String message = "&" + color.getChar() + "hello";
+			assertEquals(LegacyComponentSerializer.legacyAmpersand().deserialize(message), parser.parse(message));
+		}
 	}
 
 	@Test

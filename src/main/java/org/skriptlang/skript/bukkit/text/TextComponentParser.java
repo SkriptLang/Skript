@@ -127,7 +127,7 @@ public final class TextComponentParser {
 	 * A pattern for matching legacy hex codes ({@code &x&1&2&3&4&5&6}).
 	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
 	 */
-	static final Pattern LEGACY_CODE_PATTERN = Pattern.compile("(\\\\*)([&§][a-f0-9])");
+	static final Pattern LEGACY_CODE_PATTERN = Pattern.compile("(\\\\*)([&§][a-f0-9klomnr])");
 
 	static {
 		INSTANCE = new TextComponentParser();
