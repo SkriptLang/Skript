@@ -51,8 +51,11 @@ public class ExprHash extends PropertyExpression<String, String> {
 		String algorithm = parseResult.tags.get(0).toUpperCase(Locale.ENGLISH);
 		try {
 			digest = MessageDigest.getInstance(algorithm);
-			if (algorithm.equals("MD5") && !getParser().getCurrentScript().suppressesWarning(ScriptWarning.DEPRECATED_SYNTAX)) {
-				Skript.warning("MD5 is not secure and shouldn't be used if a cryptographically secure hashing algorithm is required.");
+			if (algorithm.equals("MD5")) {
+				try {
+					if (!getParser().getCurrentScript().suppressesWarning(ScriptWarning.DEPRECATED_SYNTAX))
+						Skript.warning("MD5 is not secure and shouldn't be used if a cryptographically secure hashing algorithm is required.");
+				} catch (Exception e) {}
 			}
 			return true;
 		} catch (NoSuchAlgorithmException e) {
