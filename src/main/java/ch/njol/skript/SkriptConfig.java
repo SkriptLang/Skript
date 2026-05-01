@@ -19,13 +19,13 @@ import ch.njol.skript.update.ReleaseChannel;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Version;
-import ch.njol.skript.util.chat.ChatMessages;
-import ch.njol.skript.util.chat.LinkParseMode;
 import ch.njol.skript.variables.FlatFileStorage;
 import ch.njol.skript.variables.Variables;
 import co.aikar.timings.Timings;
 import org.bukkit.event.EventPriority;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
+import org.skriptlang.skript.bukkit.text.TextComponentParser.LinkParseMode;
 import org.skriptlang.skript.util.event.EventRegistry;
 
 import java.io.File;
@@ -141,6 +141,8 @@ public class SkriptConfig {
 
 	public static final Option<Boolean> logEffectCommands = new Option<>("log effect commands", false);
 
+	public static final Option<Boolean> compressBackups = new Option<>("compress backups", false);
+
 	// everything handled by Variables
 	public static final OptionSection databases = new OptionSection("databases");
 
@@ -238,40 +240,44 @@ public class SkriptConfig {
 				SkriptTimings.setEnabled(t); // Config option will be used
 			});
 
-	public static final Option<String> parseLinks = new Option<>("parse links in chat messages", "disabled")
-			.setter(t -> {
-				try {
-					switch (t) {
-						case "false":
-						case "disabled":
-							ChatMessages.linkParseMode = LinkParseMode.DISABLED;
-							break;
-						case "true":
-						case "lenient":
-							ChatMessages.linkParseMode = LinkParseMode.LENIENT;
-							break;
-						case "strict":
-							ChatMessages.linkParseMode = LinkParseMode.STRICT;
-							break;
-						default:
-							ChatMessages.linkParseMode = LinkParseMode.DISABLED;
-							Skript.warning("Unknown link parse mode: " + t + ", please use disabled, strict or lenient");
-					}
-				} catch (Error e) {
-					// Ignore it, we're on unsupported server platform and class loading failed
-				}
-			});
-
 	public static final Option<Boolean> caseInsensitiveVariables = new Option<>("case-insensitive variables", true)
 			.setter(t -> Variables.caseInsensitiveVariables = t);
 
 	public static final Option<Boolean> caseInsensitiveCommands = new Option<>("case-insensitive commands", false)
 		.optional(true);
 
+	public static final Option<String[]> safeTags = new Option<>("safe tags",
+			new String[]{"color", "decorations", "gradient", "rainbow", "reset", "transition", "pride", "shadowColor"},
+			raw -> raw.split(", "))
+		.setter(tags -> {
+			try {
+				TextComponentParser.instance().setSafeTags(tags);
+			} catch (Error e) {
+				// Ignore it, we're on unsupported server platform and class loading failed
+			}
+		});
+
+	public static final Option<String> parseLinks = new Option<>("parse links in chat messages", "disabled")
+		.setter(mode -> {
+			try {
+				TextComponentParser.instance().linkParseMode(switch (mode) {
+					case "false", "disabled" -> LinkParseMode.DISABLED;
+					case "true", "lenient" -> LinkParseMode.LENIENT;
+					case "strict" -> LinkParseMode.STRICT;
+					default -> {
+						Skript.warning("Unknown link parse mode: " + mode + ", please use disabled, strict or lenient");
+						yield LinkParseMode.DISABLED;
+					}
+				});
+			} catch (Error e) {
+				// Ignore it, we're on unsupported server platform and class loading failed
+			}
+		});
+
 	public static final Option<Boolean> colorResetCodes = new Option<>("color codes reset formatting", true)
-			.setter(t -> {
+			.setter(causeReset -> {
 				try {
-					ChatMessages.colorResetCodes = t;
+					TextComponentParser.instance().colorsCauseReset(causeReset);
 				} catch (Error e) {
 					// Ignore it, we're on unsupported server platform and class loading failed
 				}

@@ -1,6 +1,7 @@
 package org.skriptlang.skript.test.tests.syntaxes.events;
 
 import ch.njol.skript.test.runner.SkriptJUnitTest;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Pig;
@@ -33,7 +34,7 @@ public class EvtBreedTest extends SkriptJUnitTest {
 		father.setCustomName("father");
 
 		player = EasyMock.niceMock(Player.class);
-		EasyMock.expect(player.getName()).andReturn("Efnilite");
+		EasyMock.expect(player.name()).andReturn(Component.text("Efnilite"));
 		EasyMock.replay(player);
 	}
 

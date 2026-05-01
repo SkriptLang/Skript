@@ -80,6 +80,9 @@ log effect commands: false
 # Whether Skript should log the usage of effect commands.
 # They will be logged as [INFORMATION] in this format: '<player> issued effect command: <command>'
 
+compress backups: true
+# Whether Skript should compress backup files (configs and variables).
+# If true, those files will be zipped to save disk space.
 
 load default aliases: true
 # Whether Skript should use the default, Skript-provided aliases for items.
@@ -188,6 +191,11 @@ enable timings: false
 # Note that this requires Paper (https://papermc.io/downloads/paper) to work; on Bukkit/Spigot this option has no effect.
 # Warning: Paper no longer supports Timings as of 1.19.4. This option has no effect on versions 1.19.4 and above.
 # When false, timings are not enabled for scripts even if you're running Paper.
+
+safe tags: color, decorations, gradient, rainbow, reset, transition, pride, shadowColor
+# This list defines the tags that Skript will process by default, without the usage of the "formatted" expression.
+# By default, this simply includes color and decoration applying tags.
+# Tags are listed by their names or internal groups. They should be separated by only a comma and a space (', ').
 
 parse links in chat messages: disabled
 # Controls how Skript will try to parse links in chat messages.

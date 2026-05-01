@@ -9,12 +9,13 @@ import ch.njol.skript.lang.parser.LiteralParseCache;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -47,19 +48,14 @@ public class TypePatternElement extends PatternElement {
 		flags:
 		do {
 			switch (string.charAt(caret)) {
-				case '-':
-					isNullable = true;
-					break;
-				case '*':
-					flagMask &= ~SkriptParser.PARSE_EXPRESSIONS;
-					break;
-				case '~':
-					flagMask &= ~SkriptParser.PARSE_LITERALS;
-					break;
-				default:
+				case '-' -> isNullable = true;
+				case '*' -> flagMask &= ~SkriptParser.PARSE_EXPRESSIONS;
+				case '~' -> flagMask &= ~SkriptParser.PARSE_LITERALS;
+				default -> {
 					break flags;
+				}
 			}
-			++caret;
+			caret++;
 		} while (true);
 
 		int time = 0;
@@ -98,6 +94,7 @@ public class TypePatternElement extends PatternElement {
 		ParseLogHandler loopLogBackup = null;
 		ParseLogHandler exprLogBackup = null;
 
+		//noinspection resource - managed manually due to other usages
 		ParseLogHandler loopLog = SkriptLogger.startParseLogHandler();
 		try {
 			while (exprOffset != -1) {
@@ -122,6 +119,7 @@ public class TypePatternElement extends PatternElement {
 				}
 
 				// actually attempt to parse the substring, adding to cache if failed.
+				//noinspection resource - managed manually due to other usages
 				ParseLogHandler exprLog = SkriptLogger.startParseLogHandler();
 				try {
 					Expression<?> expression = new SkriptParser(substring, effectiveFlags, matchResult.parseContext)
@@ -194,7 +192,7 @@ public class TypePatternElement extends PatternElement {
 			return false;
 		}
 		if (!expression.setTime(time)) {
-			Skript.error(expression + " does not have a " + (time == EventValues.TIME_PAST ? "past" : "future") + " state");
+			Skript.error(expression + " does not have a " + (time == EventValue.Time.PAST.value() ? "past" : "future") + " state");
 			return false;
 		}
 		return true;
@@ -280,26 +278,38 @@ public class TypePatternElement extends PatternElement {
 
 	@Override
 	public String toString() {
+		return toString(StringificationProperties.DEFAULT);
+	}
+
+	@Override
+	public String toString(StringificationProperties properties) {
 		StringBuilder stringBuilder = new StringBuilder().append("%");
-		if (isNullable)
-			stringBuilder.append("-");
-		if (flagMask != ~0) {
-			if ((flagMask & SkriptParser.PARSE_LITERALS) == 0)
-				stringBuilder.append("~");
-			else if ((flagMask & SkriptParser.PARSE_EXPRESSIONS) == 0)
-				stringBuilder.append("*");
+		if (!properties.excludeTypeFlags()) {
+			if (isNullable) {
+				stringBuilder.append("-");
+			}
+			if (flagMask != ~0) {
+				if ((flagMask & SkriptParser.PARSE_LITERALS) == 0) {
+					stringBuilder.append("~");
+				} else if ((flagMask & SkriptParser.PARSE_EXPRESSIONS) == 0) {
+					stringBuilder.append("*");
+				}
+			}
 		}
 		for (int i = 0; i < classes.length; i++) {
 			String codeName = classes[i].getCodeName();
-			if (isPlural[i])
+			if (isPlural[i]) {
 				stringBuilder.append(Utils.toEnglishPlural(codeName));
-			else
+			} else {
 				stringBuilder.append(codeName);
-			if (i != classes.length - 1)
+			}
+			if (i != classes.length - 1) {
 				stringBuilder.append("/");
+			}
 		}
-		if (time != 0)
+		if (!properties.excludeTypeFlags() && time != 0) {
 			stringBuilder.append("@").append(time);
+		}
 		return stringBuilder.append("%").toString();
 	}
 

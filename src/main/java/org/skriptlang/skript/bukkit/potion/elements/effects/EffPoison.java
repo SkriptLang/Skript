@@ -12,13 +12,12 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
-import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.skriptlang.skript.docs.Origin;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -30,10 +29,9 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("1.3.2")
 public class EffPoison extends Effect {
 
-	public static void register(SyntaxRegistry syntaxRegistry, Origin origin) {
+	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffPoison.class)
 				.supplier(EffPoison::new)
-				.origin(origin)
 				.addPatterns(
 						"poison %livingentities% [for %-timespan%]",
 						"(cure|unpoison) %livingentities% [(from|of) poison]"
