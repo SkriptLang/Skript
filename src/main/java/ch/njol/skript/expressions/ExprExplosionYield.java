@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +30,7 @@ import ch.njol.util.coll.CollectionUtils;
 	""")
 @Events("explosion prime")
 @Since("2.5")
-public class ExprExplosionYield extends SimpleExpression<Number> {
+public class ExprExplosionYield extends SimpleExpression<Number> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprExplosionYield.class, Number.class, ExpressionType.SIMPLE,
@@ -40,11 +41,12 @@ public class ExprExplosionYield extends SimpleExpression<Number> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(ExplosionPrimeEvent.class)) {
-			Skript.error("The explosion radius is only usable in explosion prime events", ErrorQuality.SEMANTIC_ERROR);
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(ExplosionPrimeEvent.class);
 	}
 
 	@Override
