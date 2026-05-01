@@ -602,7 +602,7 @@ public class DefaultFunctions {
 		}.description("Calculates the total amount of experience needed to achieve given level from scratch in Minecraft.")
 			.since("2.2-dev32"));
 
-		Functions.register(DefaultFunction.<Color>builder(skript, "rgb", Color.class)
+		Functions.register(DefaultFunction.builder(skript, "rgb", Color.class)
 			.description("Returns a RGB color from the given red, green and blue parameters. Alpha values can be added optionally, " +
 				"but these only take affect in certain situations, like text display backgrounds.")
 			.examples(
