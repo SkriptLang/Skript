@@ -13,6 +13,7 @@ import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.RuntimeErrorProducer;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -23,7 +24,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		enable projectile critical state of event-projectile
 	""")
 @Since("INSERT VERSION")
-public class EffProjectileCriticalState extends Effect {
+public class EffProjectileCriticalState extends Effect implements RuntimeErrorProducer {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
@@ -54,6 +55,8 @@ public class EffProjectileCriticalState extends Effect {
 		for (Projectile projectile : projectiles.getArray(event)) {
 			if (projectile instanceof AbstractArrow abstractArrow) {
 				abstractArrow.setCritical(!negated);
+			} else {
+				warning("This projectile is not supported. This only applies to arrows and tridents.");
 			}
 		}
 	}
