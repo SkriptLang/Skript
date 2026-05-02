@@ -7,6 +7,12 @@ import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.entity.displays.DisplayModule;
+import org.skriptlang.skript.bukkit.entity.elements.conditions.CondIsGlowing;
+import org.skriptlang.skript.bukkit.entity.elements.conditions.CondProjectileIsCritical;
+import org.skriptlang.skript.bukkit.entity.elements.effects.EffAI;
+import org.skriptlang.skript.bukkit.entity.elements.effects.EffGlowing;
+import org.skriptlang.skript.bukkit.entity.elements.effects.EffGravity;
+import org.skriptlang.skript.bukkit.entity.elements.effects.EffProjectileCriticalState;
 import org.skriptlang.skript.bukkit.entity.interactions.InteractionModule;
 import org.skriptlang.skript.bukkit.entity.elements.expressions.ExprDeathMessage;
 import org.skriptlang.skript.bukkit.entity.entitydata.NautilusData;
@@ -38,6 +44,14 @@ public class EntityModule extends HierarchicalAddonModule {
 		}
 
 		register(addon,
+			CondIsGlowing::register,
+			CondProjectileIsCritical::register,
+
+			EffAI::register,
+			EffGlowing::register,
+			EffGravity::register,
+			EffProjectileCriticalState::register,
+
 			ExprDeathMessage::register
 		);
 	}
