@@ -1,5 +1,9 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.util.Kleenean;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -16,10 +20,17 @@ import ch.njol.util.coll.CollectionUtils;
 @Description("Returns whether an entity has AI.")
 @Example("set artificial intelligence of target entity to false")
 @Since("2.5")
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class ExprAI extends SimplePropertyExpression<LivingEntity, Boolean> {
 	
 	static {
 		register(ExprAI.class, Boolean.class, "(ai|artificial intelligence)", "livingentities");
+	}
+
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+        Skript.warning("This expression is deprecated. Consider using the AI effect instead.");
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 	
 	@Override
