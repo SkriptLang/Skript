@@ -1,20 +1,26 @@
 package org.skriptlang.skript.bukkit.text.types;
 
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.ParseContext;
+import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import org.jetbrains.annotations.ApiStatus;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
+import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.handlers.ContainsHandler;
 
 import java.io.StreamCorruptedException;
 
 @ApiStatus.Internal
 public final class TextComponentClassInfo extends ClassInfo<Component> {
 
-	public TextComponentClassInfo() {
+	public TextComponentClassInfo(SkriptAddon addon) {
 		super(Component.class, "textcomponent");
 		this.user("text ?components?")
 			.name("Text Component")
@@ -23,7 +29,24 @@ public final class TextComponentClassInfo extends ClassInfo<Component> {
 			.examples("\"<red><bold>This text is red and bold!\"")
 			.since("2.15")
 			.parser(new TextComponentParser())
-			.serializer(new TextComponentSerializer());
+			.serializer(new TextComponentSerializer())
+			.property(Property.CONTAINS,
+				"Components can contain other components.",
+				addon,
+				new ContainsHandler<Component, Component>() {
+					@Override
+					public boolean contains(Component container, Component element) {
+						var parser = org.skriptlang.skript.bukkit.text.TextComponentParser.instance();
+						return StringUtils.contains(parser.toString(container), parser.toString(element), SkriptConfig.caseSensitive.value());
+					}
+
+					@Override
+					public Class<? extends Component>[] elementTypes() {
+						//noinspection unchecked
+						return new Class[]{Component.class};
+					}
+				}
+			);
 	}
 
 	private static final class TextComponentParser extends Parser<Component> {
