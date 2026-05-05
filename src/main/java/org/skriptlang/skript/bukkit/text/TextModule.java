@@ -21,7 +21,7 @@ public class TextModule extends HierarchicalAddonModule {
 
 	@Override
 	public void initSelf(SkriptAddon addon) {
-		Classes.registerClass(new TextComponentClassInfo());
+		Classes.registerClass(new TextComponentClassInfo(addon));
 		Classes.registerClass(new AudienceClassInfo());
 
 		Converters.registerConverter(String.class, Component.class,
