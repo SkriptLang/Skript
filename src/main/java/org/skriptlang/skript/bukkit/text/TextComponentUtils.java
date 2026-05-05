@@ -13,6 +13,8 @@ import org.skriptlang.skript.lang.converter.Converters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Utilities for working with {@link Component}s.
@@ -72,48 +74,47 @@ public final class TextComponentUtils {
 	}
 
 	/**
+	 * A pattern for matching standard legacy codes ({@code &1}).
+	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
+	 */
+	private static final Pattern LEGACY_HEX_PATTERN = Pattern.compile("[&§]x(?:[&§][a-f0-9]){6}");
+
+	/**
 	 * Replaces all legacy formatting codes in a string with {@link net.kyori.adventure.text.minimessage.MiniMessage} equivalents.
 	 * @param text The string to reformat.
 	 * @return Reformatted {@code text}.
 	 */
 	public static String replaceLegacyFormattingCodes(String text) {
-		char[] chars = text.toCharArray();
-		boolean hasLegacyFormatting = false;
-		for (char ch : chars) {
-			if (ch == '&' || ch == '§') {
-				hasLegacyFormatting = true;
-				break;
-			}
-		}
-		if (!hasLegacyFormatting) {
+		if (!text.contains("&") && !text.contains("§")) {
 			return text;
 		}
 
-		StringBuilder reconstructedMessage = new StringBuilder();
-		for (int i = 0; i < chars.length; i++) {
-			char current = chars[i];
-			char next = (i + 1 != chars.length) ? chars[i + 1] : ' ';
-			boolean isCode = (current == '&' || current == '§') && (i == 0 || chars[i - 1] != '\\');
-			if (isCode && next == 'x' && i + 13 <= chars.length) { // try to parse as hex -> &x&1&2&3&4&5&6
-				reconstructedMessage.append("<#");
-				for (int i2 = i + 3; i2 < i + 14; i2 += 2) { // isolate the specific numbers
-					reconstructedMessage.append(chars[i2]);
-				}
-				reconstructedMessage.append('>');
-				i += 13; // skip to the end
-			} else if (isCode) {
-				ChatColor color = ChatColor.getByChar(next);
-				if (color != null) { // this is a valid code
-					reconstructedMessage.append('<').append(color.asBungee().getName()).append('>');
-					i++; // skip to the end
-				} else { // not a valid color :(
-					reconstructedMessage.append(current);
-				}
-			} else {
-				reconstructedMessage.append(current);
+		text = LEGACY_HEX_PATTERN.matcher(text).replaceAll(result -> {
+			String hex = result.group();
+			StringBuilder replacement = new StringBuilder();
+			replacement.append("<#");
+			for (int i = 3; i <= 13; i += 2) { // isolate the specific numbers
+				replacement.append(hex.charAt(i));
 			}
-		}
-		return reconstructedMessage.toString();
+			replacement.append('>');
+			return Matcher.quoteReplacement(replacement.toString());
+		});
+
+		text = TextComponentParser.LEGACY_CODE_PATTERN.matcher(text).replaceAll(result -> {
+			String backslashes = result.group(1);
+			if (backslashes.length() % 2 == 1) { // tag is escaped
+				return Matcher.quoteReplacement(result.group().substring(1));
+			} else if (!backslashes.isEmpty()) {
+				backslashes = backslashes.substring(1);
+			}
+			StringBuilder replacement = new StringBuilder(backslashes);
+			ChatColor color = ChatColor.getByChar(result.group(2).charAt(1));
+			assert color != null;
+			replacement.append('<').append(color.asBungee().getName()).append('>');
+			return Matcher.quoteReplacement(replacement.toString());
+		});
+
+		return text;
 	}
 
 	/**
