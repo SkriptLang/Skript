@@ -25,7 +25,8 @@ public class PDCModule extends HierarchicalAddonModule {
 	@Override
 	protected void initSelf(SkriptAddon addon) {
 		Classes.registerClass(new ClassInfo<>(PersistentDataContainer.class, "persistentdatacontainer")
-			.user("persistent ?data ?containers?") // TODO possible "pdc" option?!?!?
+			.user("(?:persistent ?)data ?container|pdc")
+			.name("Persistent Data Container")
 			.parser(new Parser<>() {
 				@Override
 				public boolean canParse(ParseContext context) {
