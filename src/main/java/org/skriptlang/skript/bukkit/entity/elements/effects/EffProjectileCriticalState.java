@@ -31,7 +31,7 @@ public class EffProjectileCriticalState extends Effect implements RuntimeErrorPr
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffProjectileCriticalState.class)
 				.addPatterns(
-					"(enable|:disable) (projectile|arrow) critical (state|mode) of %projectiles%",
+					"(enable|:disable) (projectile|arrow) critical (state|mode) (of|for) %projectiles%",
 					"(enable|:disable) %projectiles%'s (projectile|arrow) critical (state|mode)"
 				)
 				.supplier(EffProjectileCriticalState::new)
@@ -64,8 +64,7 @@ public class EffProjectileCriticalState extends Effect implements RuntimeErrorPr
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return new SyntaxStringBuilder(event, debug)
-			.appendIf(!negated, "enable")
-			.appendIf(negated, "disable")
+			.append(negated ? "disable" : "enable")
 			.append("projectile critical state", projectiles)
 			.toString();
 	}

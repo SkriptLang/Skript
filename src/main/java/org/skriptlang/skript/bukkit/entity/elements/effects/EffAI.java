@@ -27,7 +27,7 @@ public class EffAI extends Effect {
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffAI.class)
 				.addPatterns(
-					"(enable|:disable) (ai|artificial intelligence) of %livingentities%",
+					"(enable|:disable) (ai|artificial intelligence) (of|for) %livingentities%",
 					"(enable|:disable) %livingentities%'s (ai|artificial intelligence)"
 				)
 				.supplier(EffAI::new)
@@ -56,8 +56,7 @@ public class EffAI extends Effect {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return new SyntaxStringBuilder(event, debug)
-			.appendIf(!negated, "enable")
-			.appendIf(negated, "disable")
+			.append(negated ? "disable" : "enable")
 			.append("ai of", entities)
 			.toString();
 	}

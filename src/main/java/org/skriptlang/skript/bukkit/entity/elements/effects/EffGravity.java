@@ -27,7 +27,7 @@ public class EffGravity extends Effect {
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffGravity.class)
 				.addPatterns(
-					"(enable|:disable) (gravity) of %entities%",
+					"(enable|:disable) (gravity) (of|for) %entities%",
 					"(enable|:disable) %entities%'s (gravity)"
 				)
 				.supplier(EffGravity::new)
@@ -56,8 +56,7 @@ public class EffGravity extends Effect {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return new SyntaxStringBuilder(event, debug)
-			.appendIf(!negated, "enable")
-			.appendIf(negated, "disable")
+			.append(negated ? "disable" : "enable")
 			.append("gravity of", entities)
 			.toString();
 	}

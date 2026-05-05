@@ -28,7 +28,8 @@ public class EffGlowing extends Effect {
 			SyntaxInfo.builder(EffGlowing.class)
 				.addPatterns(
 					"make %entities% [negate:not] glow",
-					"make %entities% (negate:stop|start) glowing"
+					"make %entities% (negate:stop|start) glowing",
+					"stop %entities% from glowing"
 				)
 				.supplier(EffGlowing::new)
 				.build()
@@ -42,7 +43,7 @@ public class EffGlowing extends Effect {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		//noinspection unchecked
 		entities = (Expression<LivingEntity>) expressions[0];
-		negated = parseResult.hasTag("negate");
+		negated = (parseResult.hasTag("negate") || matchedPattern == 2);
 		return true;
 	}
 
