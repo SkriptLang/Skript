@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -26,7 +27,6 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	""")
 @Since("INSERT VERSION")
 @Keywords({"tablist", "tab list"})
-// remove this comment had to put it for intellij to let me push...
 public class ExprPlayerListPriority extends SimplePropertyExpression<Player, Integer> {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
@@ -57,10 +57,11 @@ public class ExprPlayerListPriority extends SimplePropertyExpression<Player, Int
 			case ADD -> {
 				assert amount != null;
 				for (Player player : getExpr().getArray(event)) {
-					player.setPlayerListOrder(Math.max(0, player.getPlayerListOrder() + amount));
+					player.setPlayerListOrder((int) Math.max(0, Math2.addClamped(player.getPlayerListOrder(), amount)));
 				}
 			}
 			case REMOVE -> {
+				assert amount != null;
 				for (Player player : getExpr().getArray(event)) {
 					player.setPlayerListOrder(Math.max(0,player.getPlayerListOrder() - amount));
 				}
