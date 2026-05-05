@@ -47,6 +47,7 @@ public class PDCSerializer {
 		REPRESENTABLE_TYPES.put(Double.class, PersistentDataType.DOUBLE);
 		REPRESENTABLE_TYPES.put(Float.class, PersistentDataType.FLOAT);
 		REPRESENTABLE_TYPES.put(String.class, PersistentDataType.STRING);
+		REPRESENTABLE_TYPES.put(PersistentDataContainer.class, PersistentDataType.TAG_CONTAINER);
 	}
 
 	public static @Unmodifiable Collection<PersistentDataType<?, ?>> getRepresentablePDCTypes() {
@@ -77,6 +78,9 @@ public class PDCSerializer {
 		assert Bukkit.isPrimaryThread();
 
 		ClassInfo<?> classInfo = Classes.getSuperClassInfo(unserializedData.getClass());
+		if (classInfo.getCodeName().equals("persistentdatacontainer")) {
+			return (PersistentDataContainer) unserializedData;
+		}
 		if (classInfo.getSerializeAs() != null) {
 			classInfo = Classes.getExactClassInfo(classInfo.getSerializeAs());
 			if (classInfo == null) {
@@ -151,6 +155,9 @@ public class PDCSerializer {
 			throw new IllegalArgumentException("Cannot deserialize PDC because it has no type");
 		}
 		ClassInfo<?> classInfo = Classes.getClassInfo(typeName);
+		if (classInfo.getCodeName().equalsIgnoreCase("persistentdatacontainer")) {
+			return serializedData;
+		}
 		//noinspection unchecked
 		Serializer<Object> serializer = (Serializer<Object>) classInfo.getSerializer();
 		if (serializer == null) {

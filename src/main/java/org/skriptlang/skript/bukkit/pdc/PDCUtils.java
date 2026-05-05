@@ -64,6 +64,7 @@ public final class PDCUtils {
 	 */
 	public static void editPersistentDataContainer(Object holder, Consumer<PersistentDataContainer> consumer) {
 		switch (holder) {
+			case PersistentDataContainer container -> consumer.accept(container);
 			case PersistentDataHolder dataHolder -> consumer.accept(dataHolder.getPersistentDataContainer());
 			case ItemType itemType -> {
 				var meta = itemType.getItemMeta();

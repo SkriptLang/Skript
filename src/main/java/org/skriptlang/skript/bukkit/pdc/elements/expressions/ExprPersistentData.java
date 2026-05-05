@@ -80,7 +80,7 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 			infoBuilder(
 				ExprPersistentData.class, Object.class,
 				"[persistent] [%-*classinfo%] [:list] data (value|tag) %string%",
-					"chunks/worlds/entities/blocks/itemtypes/offlineplayers",
+					"chunks/worlds/entities/blocks/itemtypes/offlineplayers/persistentdatacontainers",
 				false
 			)
 			.supplier(ExprPersistentData::new)
