@@ -2902,6 +2902,7 @@ types:
 	directionalparticle: directional particle¦s @a
 	scalableparticle: scalable particle¦s @a
 	zombienautilusvariant: zombie nautilus variant¦s @a
+	persistentdatacontainer: persistent data container¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
