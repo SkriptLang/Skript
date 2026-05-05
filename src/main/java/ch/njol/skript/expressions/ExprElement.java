@@ -187,8 +187,13 @@ public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderEx
 
 	@Override
 	public @Nullable Iterator<? extends T> iterator(Event event) {
-		if (expr.isSingle() && expr.getSingle(event) instanceof SkriptQueue queue)
-			return Optional.ofNullable(getFromQueue(event, queue)).map(Iterators::forArray).orElse(null);
+		if (expr.isSingle()) {
+			T single = expr.getSingle(event);
+			if (single instanceof SkriptQueue queue) {
+				return Optional.ofNullable(getFromQueue(event, queue)).map(Iterators::forArray).orElse(null);
+			}
+			return Iterators.singletonIterator(single);
+		}
 		Iterator<? extends T> iterator = expr.iterator(event);
 		return transformIterator(event, iterator);
 	}
@@ -237,11 +242,13 @@ public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderEx
 		return switch (type) {
 			case FIRST_ELEMENT -> CollectionUtils.array((T) queue.pollFirst());
 			case LAST_ELEMENT -> CollectionUtils.array((T) queue.pollLast());
-			case RANDOM -> CollectionUtils.array((T) queue.removeSafely(ThreadLocalRandom.current().nextInt(0, queue.size())));
+			case RANDOM ->
+					CollectionUtils.array((T) queue.removeSafely(ThreadLocalRandom.current().nextInt(0, queue.size())));
 			case ORDINAL -> CollectionUtils.array((T) queue.removeSafely(startIndex - 1));
 			case TAIL_END_ORDINAL -> CollectionUtils.array((T) queue.removeSafely(queue.size() - startIndex));
 			case FIRST_X_ELEMENTS -> CollectionUtils.array((T[]) queue.removeRangeSafely(0, startIndex));
-			case LAST_X_ELEMENTS -> CollectionUtils.array((T[]) queue.removeRangeSafely(queue.size() - startIndex, queue.size()));
+			case LAST_X_ELEMENTS ->
+					CollectionUtils.array((T[]) queue.removeRangeSafely(queue.size() - startIndex, queue.size()));
 			case RANGE -> {
 				boolean reverse = startIndex > endIndex;
 				T[] elements = CollectionUtils.array((T[]) queue.removeRangeSafely(Math.min(startIndex, endIndex) - 1, Math.max(startIndex, endIndex)));
