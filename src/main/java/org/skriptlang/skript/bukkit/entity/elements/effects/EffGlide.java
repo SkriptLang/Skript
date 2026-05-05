@@ -29,7 +29,7 @@ public class EffGlide extends Effect {
 			SyntaxInfo.builder(EffGlide.class)
 				.addPatterns(
 					"make %livingentities% ((start|begin) gliding|glide)",
-					"make %livingentities% (stop[ ]gliding|no longer glide)"
+					"make %livingentities% (stop gliding|no longer glide)"
 				)
 				.supplier(EffGlide::new)
 				.build()
