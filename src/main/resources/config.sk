@@ -192,6 +192,11 @@ enable timings: false
 # Warning: Paper no longer supports Timings as of 1.19.4. This option has no effect on versions 1.19.4 and above.
 # When false, timings are not enabled for scripts even if you're running Paper.
 
+safe tags: color, decorations, gradient, rainbow, reset, transition, pride, shadowColor
+# This list defines the tags that Skript will process by default, without the usage of the "formatted" expression.
+# By default, this simply includes color and decoration applying tags.
+# Tags are listed by their names or internal groups. They should be separated by only a comma and a space (', ').
+
 parse links in chat messages: disabled
 # Controls how Skript will try to parse links in chat messages.
 # If 'disabled' or 'false', no links will be automatically parsed.

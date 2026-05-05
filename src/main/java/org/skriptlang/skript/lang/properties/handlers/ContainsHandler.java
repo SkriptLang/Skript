@@ -2,7 +2,7 @@ package org.skriptlang.skript.lang.properties.handlers;
 
 
 import org.jetbrains.annotations.ApiStatus;
-import org.skriptlang.skript.common.properties.conditions.PropCondContains;
+import org.skriptlang.skript.common.properties.elements.conditions.PropCondContains;
 import org.skriptlang.skript.lang.properties.handlers.base.PropertyHandler;
 
 /**

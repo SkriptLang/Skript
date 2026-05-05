@@ -18,7 +18,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.common.properties.expressions.PropExprValueOf;
+import org.skriptlang.skript.common.properties.elements.expressions.PropExprValueOf;
 
 /**
  * @deprecated This is being removed in favor of {@link PropExprValueOf}

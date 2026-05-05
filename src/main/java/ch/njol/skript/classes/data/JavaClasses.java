@@ -16,7 +16,6 @@ import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.common.types.QuaternionClassInfo;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.ContainsHandler;
 import org.skriptlang.skript.lang.properties.handlers.base.ConditionPropertyHandler;
@@ -249,7 +248,7 @@ public class JavaClasses {
 							case SCRIPT:
 							case EVENT:
 								if (VariableString.isQuotedCorrectly(s, true))
-									return Utils.replaceChatStyles("" + s.substring(1, s.length() - 1).replace("\"\"", "\""));
+									return s.substring(1, s.length() - 1).replace("\"\"", "\"");
 								return null;
 							case COMMAND:
 							case PARSE:
@@ -323,9 +322,6 @@ public class JavaClasses {
 				"Whether the string is empty, i.e. has no characters.",
 				Skript.instance(),
 				ConditionPropertyHandler.of(String::isEmpty)));
-
-		// joml type - for display entities
-		Classes.registerClass(new QuaternionClassInfo());
 
 
 		Classes.registerClass(new ClassInfo<>(UUID.class, "uuid")

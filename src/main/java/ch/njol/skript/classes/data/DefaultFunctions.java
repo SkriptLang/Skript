@@ -559,7 +559,7 @@ public class DefaultFunctions {
 		Functions.register(DefaultFunction.builder(skript, "vector", Vector.class)
 			.description("Creates a vector from a single argument. Equivalent to vector(n, n, n).")
 			.examples("vector(1) # = vector(1, 1, 1)")
-			.since("INSERT VERSION")
+			.since("2.15")
 			.parameter("n", Number.class)
 			.build(args -> {
 				double value = args.<Number>get("n").doubleValue();

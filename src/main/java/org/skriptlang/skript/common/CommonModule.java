@@ -1,23 +1,39 @@
 package org.skriptlang.skript.common;
 
-import ch.njol.skript.Skript;
+import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.common.elements.expressions.*;
 import org.skriptlang.skript.common.properties.PropertiesModule;
+import org.skriptlang.skript.common.types.*;
 
-import java.io.IOException;
+import java.util.List;
 
-public class CommonModule implements AddonModule {
+public class CommonModule extends HierarchicalAddonModule {
 
 	@Override
-	public void load(SkriptAddon addon) {
-		try {
-			Skript.getAddonInstance().loadClasses("org.skriptlang.skript.common", "expressions");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+	public Iterable<AddonModule> children() {
+		return List.of(
+			new PropertiesModule(this)
+		);
+	}
 
-		addon.loadModules(new PropertiesModule());
+	@Override
+	protected void initSelf(SkriptAddon addon) {
+		Classes.registerClass(new ScriptClassInfo());
+		// joml type - for display entities
+		Classes.registerClass(new QuaternionClassInfo());
+		Classes.registerClass(new QueueClassInfo());
+	}
+
+	@Override
+	protected void loadSelf(SkriptAddon addon) {
+		register(addon,
+			ExprColorFromHexCode::register,
+			ExprHexCode::register,
+			ExprRecursiveSize::register
+		);
 	}
 
 	@Override

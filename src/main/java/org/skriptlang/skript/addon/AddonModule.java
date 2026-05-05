@@ -62,7 +62,7 @@ public interface AddonModule {
 		 * @return The names of the modules providing this origin, in order from most specific to least.
 		 * @deprecated Use {@link #modules()} and call {@link AddonModule#name()} on each.
 		 */
-		@Deprecated(since="INSERT VERSION", forRemoval = true)
+		@Deprecated(since="2.15", forRemoval = true)
 		default String moduleName() {
 			return modules().stream()
 				.map(AddonModule::name)

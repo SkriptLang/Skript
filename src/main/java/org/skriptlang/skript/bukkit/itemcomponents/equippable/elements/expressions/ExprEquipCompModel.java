@@ -4,7 +4,6 @@ import ch.njol.skript.bukkitutil.NamespacedUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.skript.util.ValidationResult;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.key.Key;
 import org.bukkit.NamespacedKey;
@@ -57,15 +56,9 @@ public class ExprEquipCompModel extends SimplePropertyExpression<EquippableWrapp
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		NamespacedKey key = null;
 		if (delta != null && delta[0] instanceof String string) {
-			ValidationResult<NamespacedKey> validationResult = NamespacedUtils.checkValidation(string);
-			String validationMessage = validationResult.message();
-			if (!validationResult.valid()) {
-				error(validationMessage + ". " + NamespacedUtils.NAMEDSPACED_FORMAT_MESSAGE);
+			key = NamespacedUtils.checkValidationAndSend(string, this);
+			if (key == null)
 				return;
-			} else if (validationMessage != null) {
-				warning(validationMessage);
-			}
-			key = validationResult.data();
 		}
 		NamespacedKey finalKey = key;
 

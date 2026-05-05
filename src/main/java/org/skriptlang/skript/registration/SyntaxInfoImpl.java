@@ -34,6 +34,12 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 						return SyntaxInfo.PATTERN_MATCHES_EVERYTHING;
 					}
 					priority = SyntaxInfo.COMBINED;
+				} else if (chars[i] == '<') {
+					if (i > 0 && chars[i - 1] == '\\') { // skip escaped angle brackets
+						continue;
+					}
+					// regular expression string
+					return SyntaxInfo.PATTERN_MATCHES_EVERYTHING;
 				}
 			}
 		}
@@ -127,7 +133,7 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(origin(), type(), patterns(), priority());
+		return Objects.hash(type(), patterns(), priority());
 	}
 
 	@Override

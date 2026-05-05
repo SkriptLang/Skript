@@ -20,6 +20,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Yggdrasil is a simple data format to store object graphs.
@@ -193,9 +194,9 @@ public final class Yggdrasil {
 	public static String getID(Field field) {
 		YggdrasilID yid = field.getAnnotation(YggdrasilID.class);
 		if (yid != null) {
-			return yid.value();
+			return yid.value().toLowerCase(Locale.ENGLISH);
 		}
-		return "" + field.getName();
+		return field.getName().toLowerCase(Locale.ENGLISH);
 	}
 	
 	public static String getID(Enum<?> e) {
@@ -203,7 +204,7 @@ public final class Yggdrasil {
 			return getID(e.getDeclaringClass().getDeclaredField(e.name()));
 		} catch (NoSuchFieldException ex) {
 			assert false : e;
-			return "" + e.name();
+			return e.name().toLowerCase(Locale.ENGLISH);
 		}
 	}
 	
@@ -212,7 +213,7 @@ public final class Yggdrasil {
 		Field[] fields = type.getDeclaredFields();
 		for (Field field : fields) {
 			assert field != null;
-			if (getID(field).equals(id))
+			if (getID(field).equalsIgnoreCase(id))
 				return Enum.valueOf(type, field.getName());
 		}
 		if (YggdrasilRobustEnum.class.isAssignableFrom(type)) {

@@ -201,12 +201,9 @@ public class AliasesParser {
 				json = item.substring(firstBracket, jsonEndIndex + 1);
 				id = id + item.substring(jsonEndIndex + 2); // essentially rips out json part
 			}
-			if (Aliases.USING_ITEM_COMPONENTS) {
-				json = "[" + json.substring(1, json.length() - 1) + "]"; // replace brackets (not json :))
-				tags = Collections.singletonMap("components", json);
-			} else {
-				tags = provider.parseMojangson(json);
-			}
+			// add component data
+			json = "[" + json.substring(1, json.length() - 1) + "]"; // replace brackets (not json :))
+			tags = Collections.singletonMap("components", json);
 		}
 		
 		// Separate block state from id

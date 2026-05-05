@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.misc.elements.effects;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
@@ -22,6 +21,8 @@ import org.skriptlang.skript.bukkit.misc.rotation.QuaternionRotator;
 import org.skriptlang.skript.bukkit.misc.rotation.Rotator;
 import org.skriptlang.skript.bukkit.misc.rotation.Rotator.Axis;
 import org.skriptlang.skript.bukkit.misc.rotation.VectorRotator;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Locale;
 
@@ -46,13 +47,14 @@ import java.util.Locale;
 @Since("2.2-dev28, 2.10 (quaternions, displays)")
 public class EffRotate extends Effect {
 
-	static {
-		Skript.registerEffect(EffRotate.class,
-			"rotate %vectors/quaternions/displays% around [the] [global] (:x|:y|:z)(-| )axis by %number%",
-			"rotate %quaternions/displays% around [the|its|their] local (:x|:y|:z)(-| )ax(i|e)s by %number%",
-			"rotate %vectors/quaternions/displays% around [the] %vector% by %number%",
-			"rotate %quaternions/displays% by x %number%, y %number%(, [and]| and) z %number%"
-		);
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffRotate.class)
+			.supplier(EffRotate::new)
+			.addPatterns("rotate %vectors/quaternions/displays% around [the] [global] (:x|:y|:z)(-| )axis by %number%",
+				"rotate %quaternions/displays% around [the|its|their] local (:x|:y|:z)(-| )ax(i|e)s by %number%",
+				"rotate %vectors/quaternions/displays% around [the] %vector% by %number%",
+				"rotate %quaternions/displays% by x %number%, y %number%(, [and]| and) z %number%")
+			.build());
 	}
 
 	private Expression<?> toRotate;
