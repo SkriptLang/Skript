@@ -25,7 +25,7 @@ public class PDCModule extends HierarchicalAddonModule {
 	@Override
 	protected void initSelf(SkriptAddon addon) {
 		Classes.registerClass(new ClassInfo<>(PersistentDataContainer.class, "persistentdatacontainer")
-			.user("(?:persistent ?)data ?container|pdc")
+			.user("(persistent ?)?data ?containers?|pdcs?")
 			.name("Persistent Data Container")
 			.parser(new Parser<>() {
 				@Override
