@@ -30,11 +30,11 @@ import java.util.List;
 import java.util.Locale;
 
 @Name("Persistent Data Container Edit") // ?!??!
-@Description("") // IDEAS?
+@Description("Edit a Persistent Data Container within a supported object.") // IDEAS?
 @Examples("""
 	edit data container "my_stuff" of player's tool:
-		set data tag "health" of event-persistentdatacontainer to 1
-		set data tag "name" of event-persistentdatacontainer to "Some Name"
+		set data tag "health" of event-pdc to 1
+		set data tag "name" of event-pdc to "Some Name"
 	""")
 @Since("INSERT VERSION")
 @Keywords({"pdc", "persistent data container", "custom data", "nbt"})
