@@ -58,11 +58,24 @@ public class ExprSignText extends SimpleExpression<Component> {
 		block = (Expression<Block>) exprs[exprs.length - 1];
 		return true;
 	}
-	
+
+	private int getLine(Event event) {
+		Integer line = this.line.getSingle(event);
+		if (line == null) {
+			return -1;
+		}
+		if (line < 1 || line > 4) {
+			error("Signs only have lines from 1 to 4, but tried to obtain line " + line);
+			return -1;
+		}
+		line--; // we accept 1-indexed, convert to 0-indexed
+		return line;
+	}
+
 	@Override
 	protected Component[] get(Event event) {
-		Integer line = this.line.getSingle(event);
-		if (line == null || line < 0 || line > 3) {
+		int line = getLine(event);
+		if (line == -1) {
 			return new Component[0];
 		}
 		if (getTime() >= 0 && block.isDefault() && event instanceof SignChangeEvent signEvent && !Delay.isDelayed(event)) {
@@ -86,8 +99,8 @@ public class ExprSignText extends SimpleExpression<Component> {
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		Integer line = this.line.getSingle(event);
-		if (line == null || line < 0 || line > 3) {
+		int line = getLine(event);
+		if (line == -1) {
 			return;
 		}
 

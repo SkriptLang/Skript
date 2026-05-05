@@ -31,8 +31,10 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 		Preconditions.checkNotNull(eventValue, "eventValue");
 		if (eventValue instanceof ConvertedEventValue)
 			throw new SkriptAPIException("Cannot register a converted event value: " + eventValue);
-		if (isRegistered(eventValue))
-			throw new SkriptAPIException(eventValue + " is already registered");
+		if (isRegistered(eventValue)) {
+			Skript.warning(eventValue + " is already registered.");
+			return;
+		}
 		List<EventValue<?, ?>> eventValues = eventValues(eventValue.time());
 		eventValues.add(eventValue);
 		eventValuesCache.clear();
