@@ -296,7 +296,7 @@ public class MathFunctions {
 					return min;
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "clamp", Number[].class)
+		Functions.register(DefaultFunction.keyedBuilder(skript, "clamp", Number[].class)
 				.description("Clamps one or more values between two numbers.", "This function retains indices")
 				.examples(
 						"clamp(5, 0, 10) = 5",
@@ -320,7 +320,7 @@ public class MathFunctions {
 						return Number.class;
 					}
 				})
-				.buildKeyed(args -> {
+				.build(args -> {
 					KeyedValue<Number>[] values = args.get("values");
 					return KeyedValue.unzip(values).keys();
 				}, args -> {

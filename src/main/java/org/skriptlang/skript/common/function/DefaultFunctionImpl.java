@@ -193,7 +193,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		return getSignature();
 	}
 
-	static class BuilderImpl<T> implements DefaultFunctionImpl.Builder<T> {
+	static class BuilderImpl<T> implements Builder<T> {
 
 		private final SkriptAddon source;
 		private final String name;
@@ -289,29 +289,118 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 					description, since, examples, keywords, requires);
 		}
 
+	}
+
+	static class KeyedBuilderImpl<T> implements KeyedBuilder<T> {
+
+		private final SkriptAddon source;
+		private final String name;
+		private final Class<T> returnType;
+		private final SequencedMap<String, Parameter<?>> parameters = new LinkedHashMap<>();
+
+		private ch.njol.skript.util.Contract contract = null;
+
+		private String[] description;
+		private String[] since;
+		private String[] examples;
+		private String[] keywords;
+		private String[] requires;
+
+		KeyedBuilderImpl(@NotNull SkriptAddon source, @NotNull String name, @NotNull Class<T> returnType) {
+			Preconditions.checkNotNull(source, "source cannot be null");
+			Preconditions.checkNotNull(name, "name cannot be null");
+			Preconditions.checkNotNull(returnType, "return type cannot be null");
+
+			this.source = source;
+			this.name = name;
+			this.returnType = returnType;
+		}
+
 		@Override
-		public DefaultFunction<T> buildKeyed(@NotNull Function<FunctionArguments, SequencedCollection<String>> keys,
-		                                     @NotNull Function<FunctionArguments, T> execute) {
+		public KeyedBuilder<T> contract(@NotNull ch.njol.skript.util.Contract contract) {
+			Preconditions.checkNotNull(contract, "contract cannot be null");
+
+			this.contract = contract;
+			return this;
+		}
+
+		@Override
+		public KeyedBuilder<T> description(@NotNull String @NotNull ... description) {
+			Preconditions.checkNotNull(description, "description cannot be null");
+			checkNotNull(description, "description contents cannot be null");
+
+			this.description = description;
+			return this;
+		}
+
+		@Override
+		public KeyedBuilder<T> since(@NotNull String @NotNull ... since) {
+			Preconditions.checkNotNull(since, "since cannot be null");
+			checkNotNull(since, "since contents cannot be null");
+
+			this.since = since;
+			return this;
+		}
+
+		@Override
+		public KeyedBuilder<T> examples(@NotNull String @NotNull ... examples) {
+			Preconditions.checkNotNull(examples, "examples cannot be null");
+			checkNotNull(examples, "examples contents cannot be null");
+
+			this.examples = examples;
+			return this;
+		}
+
+		@Override
+		public KeyedBuilder<T> keywords(@NotNull String @NotNull ... keywords) {
+			Preconditions.checkNotNull(keywords, "keywords cannot be null");
+			checkNotNull(keywords, "keywords contents cannot be null");
+
+			this.keywords = keywords;
+			return this;
+		}
+
+		@Override
+		public KeyedBuilder<T> requires(@NotNull String @NotNull ... requires) {
+			Preconditions.checkNotNull(keywords, "requires cannot be null");
+			checkNotNull(keywords, "requires contents cannot be null");
+
+			this.requires = requires;
+			return this;
+		}
+
+		@Override
+		public KeyedBuilder<T> parameter(@NotNull String name, @NotNull Class<?> type, Modifier @NotNull ... modifiers) {
+			Preconditions.checkNotNull(name, "name cannot be null");
+			Preconditions.checkNotNull(type, "type cannot be null");
+
+			parameters.put(name, new DefaultParameter<>(name, type, modifiers));
+			return this;
+		}
+
+		@Override
+		public DefaultFunction<T> build(@NotNull Function<FunctionArguments, SequencedCollection<String>> keys,
+		                                @NotNull Function<FunctionArguments, T> execute) {
 			Preconditions.checkNotNull(execute, "execute cannot be null");
 			Preconditions.checkArgument(parameters.values().stream().anyMatch(it -> it.hasModifier(Modifier.KEYED)),
-					"buildKeyed cannot be called without any keyed arguments");
+					"build cannot be called without any keyed arguments");
 
 			return new DefaultFunctionImpl<>(source, name, parameters,
 					returnType, !returnType.isArray(), contract, execute, keys,
 					description, since, examples, keywords, requires);
 		}
 
-		/**
-		 * Checks whether the elements in a {@link String} array are null.
-		 *
-		 * @param strings The strings.
-		 */
-		private static void checkNotNull(@NotNull String[] strings, @NotNull String message) {
-			for (String string : strings) {
-				Preconditions.checkNotNull(string, message);
-			}
-		}
+	}
 
+	/**
+	 * Checks whether the elements in a {@link String} array are null.
+	 *
+	 * @param strings The strings.
+	 */
+	private static void checkNotNull(@NotNull String[] strings, @NotNull String message) {
+		for (String string : strings) {
+			Preconditions.checkNotNull(string, message);
+		}
 	}
 
 	/**

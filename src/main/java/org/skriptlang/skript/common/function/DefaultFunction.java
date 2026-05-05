@@ -52,6 +52,20 @@ public sealed interface DefaultFunction<T>
 	}
 
 	/**
+	 * Creates a new builder for a keyed function,
+	 * or a function which is able to return the keys that should be used.
+	 *
+	 * @param name       The name of the function.
+	 * @param returnType The type of the function.
+	 * @param <T>        The return type.
+	 * @return The keyed builder for a function.
+	 */
+	@Contract("_, _, _ -> new")
+	static <T> @NotNull KeyedBuilder<T> keyedBuilder(@NotNull SkriptAddon source, @NotNull String name, @NotNull Class<T> returnType) {
+		return new DefaultFunctionImpl.KeyedBuilderImpl<>(source, name, returnType);
+	}
+
+	/**
 	 * @return The addon this function was registered for.
 	 */
 	@NotNull SkriptAddon source();
@@ -136,6 +150,81 @@ public sealed interface DefaultFunction<T>
 		 */
 		DefaultFunction<T> build(@NotNull java.util.function.Function<FunctionArguments, T> execute);
 
+	}
+
+	/**
+	 * Represents a builder for {@link DefaultFunction DefaultFunctions}
+	 * which changes a variable's keys during execution.
+	 *
+	 * @param <T> The return type of the function.
+	 */
+	interface KeyedBuilder<T> {
+
+		/**
+		 * Sets this function builder's {@link ch.njol.skript.util.Contract}.
+		 *
+		 * @param contract The contract.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		KeyedBuilder<T> contract(@NotNull ch.njol.skript.util.Contract contract);
+
+		/**
+		 * Sets this function builder's description.
+		 *
+		 * @param description The description.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		KeyedBuilder<T> description(@NotNull String @NotNull ... description);
+
+		/**
+		 * Sets this function builder's version history.
+		 *
+		 * @param since The version information.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		KeyedBuilder<T> since(@NotNull String @NotNull ... since);
+
+		/**
+		 * Sets this function builder's examples.
+		 *
+		 * @param examples The examples.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		KeyedBuilder<T> examples(@NotNull String @NotNull ... examples);
+
+		/**
+		 * Sets this function builder's keywords.
+		 *
+		 * @param keywords The keywords.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		KeyedBuilder<T> keywords(@NotNull String @NotNull ... keywords);
+
+		/**
+		 * Sets this function builder's requires.
+		 *
+		 * @param requires The requirements.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		KeyedBuilder<T> requires(@NotNull String @NotNull ... requires);
+
+		/**
+		 * Adds a parameter to this function builder.
+		 *
+		 * @param name      The parameter name.
+		 * @param type      The type of the parameter.
+		 * @param modifiers The {@link Modifier}s to apply to this parameter.
+		 * @return This builder.
+		 */
+		@Contract("_, _, _ -> this")
+		KeyedBuilder<T> parameter(@NotNull String name, @NotNull Class<?> type, Modifier @NotNull ... modifiers);
+
 		/**
 		 * Completes this builder with the code to execute on call of this function.
 		 * Adds a function for setting the returned keys by this function.
@@ -144,8 +233,8 @@ public sealed interface DefaultFunction<T>
 		 * @param execute The code to execute and the key consumer.
 		 * @return The final function.
 		 */
-		DefaultFunction<T> buildKeyed(@NotNull java.util.function.Function<FunctionArguments, SequencedCollection<String>> keys,
-		                              @NotNull java.util.function.Function<FunctionArguments, T> execute);
+		DefaultFunction<T> build(@NotNull java.util.function.Function<FunctionArguments, SequencedCollection<String>> keys,
+		                         @NotNull java.util.function.Function<FunctionArguments, T> execute);
 
 	}
 
