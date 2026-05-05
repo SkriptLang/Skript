@@ -72,10 +72,6 @@ public class ExprAffectedEntities extends SimpleExpression<LivingEntity> {
 		if (!(event instanceof AreaEffectCloudApplyEvent areaEvent))
 			return;
 
-		if (mode != ChangeMode.RESET && mode != ChangeMode.DELETE && delta == null) {
-			return;
-		}
-
 		switch (mode) {
 			case REMOVE:
 				for (Object entity : delta) {

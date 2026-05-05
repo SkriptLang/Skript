@@ -15,7 +15,6 @@ import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
-import ch.njol.util.coll.iterator.ArrayIterator;
 import ch.njol.util.coll.iterator.EmptyIterator;
 import com.google.common.collect.Iterators;
 import org.apache.commons.lang.ArrayUtils;
@@ -48,17 +47,11 @@ import java.util.function.Function;
 public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderExpression<T> {
 
 	private static final Patterns<ElementType[]> PATTERNS = new Patterns<>(new Object[][]{
-			{"[the] (first|1:last) element [out] of %objects%", new ElementType[]{ElementType.FIRST_ELEMENT, ElementType.LAST_ELEMENT}},
-			{"[the] (first|1:last) %integer% elements [out] of %objects%", new ElementType[]{ElementType.FIRST_X_ELEMENTS, ElementType.LAST_X_ELEMENTS}},
-			{"[a] random element [out] of %objects%", new ElementType[]{ElementType.RANDOM}},
-			{"[the] %integer%(st|nd|rd|th) [1:[to] last] element [out] of %objects%", new ElementType[]{ElementType.ORDINAL, ElementType.TAIL_END_ORDINAL}},
-			{"[the] elements (from|between) %integer% (to|and) %integer% [out] of %objects%", new ElementType[]{ElementType.RANGE}},
-
-			{"[the] (first|next|1:last) element (of|in) %queue%", new ElementType[]{ElementType.FIRST_ELEMENT, ElementType.LAST_ELEMENT}},
-			{"[the] (first|1:last) %integer% elements (of|in) %queue%", new ElementType[]{ElementType.FIRST_X_ELEMENTS, ElementType.LAST_X_ELEMENTS}},
-			{"[a] random element (of|in) %queue%", new ElementType[]{ElementType.RANDOM}},
-			{"[the] %integer%(st|nd|rd|th) [1:[to] last] element (of|in) %queue%", new ElementType[]{ElementType.ORDINAL, ElementType.TAIL_END_ORDINAL}},
-			{"[the] elements (from|between) %integer% (to|and) %integer% (of|in) %queue%", new ElementType[]{ElementType.RANGE}},
+			{"[the] (first|1:last) element [out] (of|in) %objects%", new ElementType[]{ElementType.FIRST_ELEMENT, ElementType.LAST_ELEMENT}},
+			{"[the] (first|1:last) %integer% elements [out] (of|in) %objects%", new ElementType[]{ElementType.FIRST_X_ELEMENTS, ElementType.LAST_X_ELEMENTS}},
+			{"[a] random element [out] (of|in) %objects%", new ElementType[]{ElementType.RANDOM}},
+			{"[the] %integer%(st|nd|rd|th) [1:[to] last] element [out] (of|in) %objects%", new ElementType[]{ElementType.ORDINAL, ElementType.TAIL_END_ORDINAL}},
+			{"[the] elements (from|between) %integer% (to|and) %integer% [out] (of|in) %objects%", new ElementType[]{ElementType.RANGE}},
 	});
 
 	static {
