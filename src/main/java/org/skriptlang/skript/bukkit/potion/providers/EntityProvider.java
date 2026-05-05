@@ -88,7 +88,10 @@ class EntityProvider extends PotionEffectProvider<PotionAccessor> {
 	}
 
 	@Override
-	public void removeAll(PotionEffectType potionEffectType) {
+	public void removeAll(PotionEffectType potionEffectType, RetrievalState state) {
+		if (!state.includesActive()) {
+			return;
+		}
 		source.removeCustomEffect(potionEffectType);
 	}
 

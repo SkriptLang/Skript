@@ -34,7 +34,7 @@ public class NullProvider extends PotionEffectProvider<Object> {
 	}
 
 	@Override
-	public void removeAll(PotionEffectType potionEffectType) {
+	public void removeAll(PotionEffectType potionEffectType, RetrievalState state) {
 
 	}
 

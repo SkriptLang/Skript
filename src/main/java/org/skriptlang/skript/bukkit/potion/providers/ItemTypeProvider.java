@@ -140,7 +140,10 @@ class ItemTypeProvider extends PotionEffectProvider<ItemType> {
 	}
 
 	@Override
-	public void removeAll(PotionEffectType potionEffectType) {
+	public void removeAll(PotionEffectType potionEffectType,  RetrievalState state) {
+		if (!state.includesActive()) {
+			return;
+		}
 		removePotionEffects(source, potionEffectType);
 	}
 

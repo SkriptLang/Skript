@@ -98,8 +98,12 @@ class LivingEntityProvider extends PotionEffectProvider<LivingEntity> {
 	}
 
 	@Override
-	public void removeAll(PotionEffectType potionEffectType) {
-		source.removePotionEffect(potionEffectType);
+	public void removeAll(PotionEffectType potionEffectType,  RetrievalState state) {
+		if (state == RetrievalState.ACTIVE || state == RetrievalState.HIDDEN) {
+			clear(new PotionEffectType[]{potionEffectType}, state);
+		} else {
+			source.removePotionEffect(potionEffectType);
+		}
 	}
 
 	@Override

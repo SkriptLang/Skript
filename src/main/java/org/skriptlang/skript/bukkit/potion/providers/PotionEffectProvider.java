@@ -160,7 +160,7 @@ public abstract class PotionEffectProvider<T> {
 	 * Removes all potion effects of a specific type from this provider.
 	 * @param potionEffectType The type of potion effect to remove.
 	 */
-	public abstract void removeAll(PotionEffectType potionEffectType);
+	public abstract void removeAll(PotionEffectType potionEffectType, RetrievalState state);
 
 	/**
 	 * Clears all potion effects of {@code potionEffectTypes} from this provider.

@@ -127,7 +127,7 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 				for (Object holder : holders) {
 					PotionEffectProvider<?> provider = PotionEffectProvider.of(holder, this::error);
 					for (Object object : delta) {
-						provider.removeAll((PotionEffectType) object);
+						provider.removeAll((PotionEffectType) object, state);
 					}
 				}
 			}
