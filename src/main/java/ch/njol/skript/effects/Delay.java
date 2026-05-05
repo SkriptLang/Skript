@@ -12,6 +12,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
@@ -79,10 +80,13 @@ public class Delay extends EffectSection {
 		if (hasSection()) {
 			assert sectionNode != null;
 			// Parse the body under the outer event context so event values still resolve inside it.
-			// Locals are isolated at runtime via the swap dance in walk().
+			// Type hints are propagated via SectionUtils; locals are isolated at runtime via the swap dance in walk().
 			Class<? extends Event>[] outerEvents = getParser().getCurrentEvents();
-			Runnable beforeLoading = () -> getParser().setHasDelayBefore(Kleenean.TRUE);
-			trigger = loadCode(sectionNode, "wait", beforeLoading, null, outerEvents);
+			trigger = SectionUtils.loadDelayableLinkedCode("wait", (beforeLoading, afterLoading) ->
+				loadCode(sectionNode, "wait", () -> {
+					beforeLoading.run();
+					getParser().setHasDelayBefore(Kleenean.TRUE);
+				}, afterLoading, outerEvents));
 			// Outer trigger is NOT delayed - code after the section runs immediately.
 			return trigger != null;
 		}
