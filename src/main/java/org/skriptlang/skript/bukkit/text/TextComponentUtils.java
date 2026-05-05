@@ -77,7 +77,7 @@ public final class TextComponentUtils {
 	 * A pattern for matching standard legacy codes ({@code &1}).
 	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
 	 */
-	private static final Pattern LEGACY_HEX_PATTERN = Pattern.compile("[&§]x(?:[&§][a-f0-9]){6}");
+	private static final Pattern LEGACY_HEX_PATTERN = Pattern.compile("[&§]x(?:[&§][a-fA-F0-9]){6}");
 
 	/**
 	 * Replaces all legacy formatting codes in a string with {@link net.kyori.adventure.text.minimessage.MiniMessage} equivalents.
@@ -93,7 +93,7 @@ public final class TextComponentUtils {
 			String hex = result.group();
 			StringBuilder replacement = new StringBuilder();
 			replacement.append("<#");
-			for (int i = 3; i <= 13; i += 2) { // isolate the specific numbers
+			for (int i = 3; i <= 13; i += 2) { // isolate the specific numbers/letters
 				replacement.append(hex.charAt(i));
 			}
 			replacement.append('>');
@@ -108,7 +108,7 @@ public final class TextComponentUtils {
 				backslashes = backslashes.substring(1);
 			}
 			StringBuilder replacement = new StringBuilder(backslashes);
-			ChatColor color = ChatColor.getByChar(result.group(2).charAt(1));
+			ChatColor color = ChatColor.getByChar(Character.toLowerCase(result.group(2).charAt(1)));
 			assert color != null;
 			replacement.append('<').append(color.asBungee().getName()).append('>');
 			return Matcher.quoteReplacement(replacement.toString());

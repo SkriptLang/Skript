@@ -17,6 +17,7 @@ public class TextComponentUtilsTest {
 		assertEquals("\\\\&cHello!", replaceLegacyFormattingCodes("\\\\\\&cHello!"));
 		assertEquals("<#123456>Hello!", replaceLegacyFormattingCodes("&x&1&2&3&4&5&6Hello!"));
 		assertEquals("<#123456><red>Hello!", replaceLegacyFormattingCodes("&x&1&2&3&4&5&6&cHello!"));
+		assertEquals("<#FFFF11>Hello!", replaceLegacyFormattingCodes("&x&F&F&F&F&1&1Hello!"));
 		// validate internal metacharacter escaping
 		assertEquals("<red>You have $10", replaceLegacyFormattingCodes("&cYou have $10"));
 	}
