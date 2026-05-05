@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.event.Event;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
@@ -36,7 +37,7 @@ import ch.njol.util.coll.CollectionUtils;
 @Since("2.5")
 @Events("enchant prepare")
 @RequiredPlugins("1.11 or newer")
-public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> {
+public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> implements EventRestrictedSyntax {
 
 	static {
 		if (Skript.classExists("org.bukkit.enchantments.EnchantmentOffer")) {
@@ -58,10 +59,6 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> {
 	@SuppressWarnings({"null", "unchecked"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PrepareItemEnchantEvent.class)) {
-			Skript.error("Enchantment offers are only usable in enchant prepare events", ErrorQuality.SEMANTIC_ERROR);
-			return false;
-		}
 		if (matchedPattern == 0) {
 			all = true;
 		} else {
@@ -69,6 +66,11 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> {
 			all = false;
 		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(PrepareItemEnchantEvent.class);
 	}
 
 	@SuppressWarnings({"null", "unused"})
