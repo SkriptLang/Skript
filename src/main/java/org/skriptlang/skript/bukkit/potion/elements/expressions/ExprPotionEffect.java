@@ -73,7 +73,8 @@ public class ExprPotionEffect extends PropertyExpression<Object, SkriptPotionEff
 		List<SkriptPotionEffect> potionEffects = new ArrayList<>();
 		PotionEffectType[] types = this.types.getArray(event);
 		for (Object object : source) {
-			potionEffects.addAll(PotionEffectProvider.of(object).get(types, state));
+			potionEffects.addAll(PotionEffectProvider.of(object, this::error)
+				.get(types, state));
 		}
 		return potionEffects.toArray(new SkriptPotionEffect[0]);
 	}
@@ -99,13 +100,15 @@ public class ExprPotionEffect extends PropertyExpression<Object, SkriptPotionEff
 		switch (mode) {
 			case DELETE, RESET -> {
 				for (Object holder : holders) {
-					PotionEffectProvider.of(holder).clear(types, state);
+					PotionEffectProvider.of(holder, this::error)
+						.clear(types, state);
 				}
 			}
 			case ADD, REMOVE -> {
 				assert delta != null;
 				for (Object holder : holders) {
-					PotionEffectProvider.of(holder).modify(types, state, delta, mode);
+					PotionEffectProvider.of(holder, this::error)
+						.modify(types, state, delta, mode);
 				}
 			}
 			default -> {

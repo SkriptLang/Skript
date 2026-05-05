@@ -2,7 +2,9 @@ package org.skriptlang.skript.bukkit.potion.providers;
 
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Utils;
 import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
@@ -13,17 +15,21 @@ import org.skriptlang.skript.bukkit.potion.elements.expressions.ExprPotionDurati
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 @ApiStatus.Internal
 public abstract class PotionEffectProvider<T> {
 
-	public static PotionEffectProvider<?> of(Object object) {
+	public static PotionEffectProvider<?> of(Object object, Consumer<String> errorProducer) {
 		return switch (object) {
 			case AreaEffectCloud areaEffectCloud -> new EntityProvider(areaEffectCloud);
 			case Arrow arrow -> new EntityProvider(arrow);
 			case ItemType itemType -> new ItemTypeProvider(itemType);
 			case LivingEntity livingEntity -> new LivingEntityProvider(livingEntity);
-			default -> new NullProvider();
+			default -> {
+				errorProducer.accept(Utils.A(Classes.toString(object)) + " does not have potion effects");
+				yield new NullProvider();
+			}
 		};
 	}
 

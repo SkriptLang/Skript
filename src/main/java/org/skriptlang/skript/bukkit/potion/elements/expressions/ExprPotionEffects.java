@@ -69,7 +69,8 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 	protected SkriptPotionEffect[] get(Event event, Object[] source) {
 		List<SkriptPotionEffect> potionEffects = new ArrayList<>();
 		for (Object object : source) {
-			potionEffects.addAll(PotionEffectProvider.of(object).getAll(state));
+			potionEffects.addAll(PotionEffectProvider.of(object, this::error)
+				.getAll(state));
 		}
 		return potionEffects.toArray(new SkriptPotionEffect[0]);
 	}
@@ -96,7 +97,7 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 			case ADD -> {
 				assert delta != null;
 				for (Object holder : holders) {
-					PotionEffectProvider<?> provider = PotionEffectProvider.of(holder);
+					PotionEffectProvider<?> provider = PotionEffectProvider.of(holder, this::error);
 					for (Object object : delta) {
 						provider.add((PotionEffect) object);
 					}
@@ -105,7 +106,7 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 			case SET -> {
 				assert delta != null;
 				for (Object holder : holders) {
-					PotionEffectProvider<?> provider = PotionEffectProvider.of(holder);
+					PotionEffectProvider<?> provider = PotionEffectProvider.of(holder, this::error);
 					provider.clearAll(state);
 					for (Object object : delta) {
 						provider.add((PotionEffect) object);
@@ -115,7 +116,7 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 			case REMOVE -> {
 				assert delta != null;
 				for (Object holder : holders) {
-					PotionEffectProvider<?> provider = PotionEffectProvider.of(holder);
+					PotionEffectProvider<?> provider = PotionEffectProvider.of(holder, this::error);
 					for (Object object : delta) {
 						provider.remove((SkriptPotionEffect) object, state);
 					}
@@ -124,7 +125,7 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 			case REMOVE_ALL -> {
 				assert delta != null;
 				for (Object holder : holders) {
-					PotionEffectProvider<?> provider = PotionEffectProvider.of(holder);
+					PotionEffectProvider<?> provider = PotionEffectProvider.of(holder, this::error);
 					for (Object object : delta) {
 						provider.removeAll((PotionEffectType) object);
 					}
@@ -132,7 +133,8 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 			}
 			case DELETE, RESET -> {
 				for (Object holder : holders) {
-					PotionEffectProvider.of(holder).clearAll(state);
+					PotionEffectProvider.of(holder, this::error)
+						.clearAll(state);
 				}
 			}
 		}
