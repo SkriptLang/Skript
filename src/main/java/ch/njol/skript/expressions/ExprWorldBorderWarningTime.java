@@ -11,9 +11,12 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 @Name("Warning Time of World Border")
 @Description("The warning time of a world border. If the border is shrinking, the player's screen will be tinted red once the border will catch the player within this time period.")
@@ -27,7 +30,7 @@ public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBo
 
 	@Override
 	public @Nullable Timespan convert(WorldBorder worldBorder) {
-		return new Timespan(TimePeriod.SECOND, worldBorder.getWarningTime());
+		return new Timespan(TimePeriod.SECOND, worldBorder.getWarningTimeTicks());
 	}
 
 	@Override
@@ -42,10 +45,13 @@ public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBo
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		long input = delta == null ? 15 : (((Timespan) delta[0]).getAs(TimePeriod.SECOND));
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
+			long warnTime = Objects.equals(Bukkit.getBukkitVersion().split("-")[0], "1.21.11")
+				? worldBorder.getWarningTimeTicks()
+				: worldBorder.getWarningTime();
 			long warningTime = switch (mode) {
 				case SET, RESET -> input;
-				case ADD -> Math2.addClamped(worldBorder.getWarningTime(), input);
-				case REMOVE -> Math2.addClamped(worldBorder.getWarningTime(), -input);
+				case ADD -> Math2.addClamped(warnTime, input);
+				case REMOVE -> Math2.addClamped(warnTime, -input);
 				default -> throw new IllegalStateException();
 			};
 			setWarningTime(worldBorder, warningTime);
@@ -57,7 +63,13 @@ public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBo
 		long time = Math2.multiplyClamped(inputTime, 20);
 		// fit and convert back to seconds
 		int warningTime = ((int) Math2.fit(0, time, Integer.MAX_VALUE)) / 20;
-		worldBorder.setWarningTime(warningTime);
+		if (Objects.equals(Bukkit.getBukkitVersion().split("-")[0], "1.21.11")) {
+			worldBorder.setWarningTimeTicks(warningTime);
+		} else {
+			worldBorder.setWarningTime(warningTime);
+
+		}
+
 	}
 
 	@Override

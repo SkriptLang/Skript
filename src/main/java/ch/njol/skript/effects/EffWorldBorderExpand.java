@@ -14,9 +14,12 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
+import org.bukkit.Bukkit;
 import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 @Name("Expand/Shrink World Border")
 @Description({
@@ -80,14 +83,23 @@ public class EffWorldBorderExpand extends Effect {
 		if (to) {
 			input = Math2.fit(1, input, MAX_WORLDBORDER_SIZE);
 			for (WorldBorder worldBorder : worldBorders)
-				worldBorder.setSize(input, speed);
+				if (Objects.equals(Bukkit.getBukkitVersion().split("-")[0], "1.21.11")) {
+					worldBorder.changeSize(input, speed);
+				} else {
+					worldBorder.setSize(input, speed);
+
+				}
 		} else {
 			if (shrink)
 				input = -input;
 			for (WorldBorder worldBorder : worldBorders) {
 				double size = worldBorder.getSize();
 				size = Math2.fit(1, size + input, MAX_WORLDBORDER_SIZE);
-				worldBorder.setSize(size, speed);
+				if (Objects.equals(Bukkit.getBukkitVersion().split("-")[0], "1.21.11")) {
+					worldBorder.changeSize(size, speed);
+				} else {
+					worldBorder.setSize(size, speed);
+				}
 			}
 		}
 	}

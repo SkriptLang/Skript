@@ -7,11 +7,14 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 @Name("World Border")
 @Description({
@@ -64,7 +67,12 @@ public class ExprWorldBorder extends SimplePropertyExpression<Object, WorldBorde
 				worldBorder.setDamageAmount(to.getDamageAmount());
 				worldBorder.setDamageBuffer(to.getDamageBuffer());
 				worldBorder.setWarningDistance(to.getWarningDistance());
-				worldBorder.setWarningTime(to.getWarningTime());
+				if (Objects.equals(Bukkit.getBukkitVersion().split("-")[0], "1.21.11")) {
+					worldBorder.setWarningTimeTicks(to.getWarningTimeTicks());
+				} else {
+					worldBorder.setWarningTime(to.getWarningTime());
+
+				}
 			} else if (object instanceof Player player) {
 				player.setWorldBorder(to);
 			}
