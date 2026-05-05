@@ -3,6 +3,8 @@ package ch.njol.skript.expressions;
 import java.util.Iterator;
 import java.util.List;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.BlockState;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.SpongeAbsorbEvent;
@@ -27,7 +29,7 @@ import ch.njol.util.Kleenean;
 @Events("sponge absorb")
 @Example("the absorbed blocks")
 @Since("2.5")
-public class ExprAbsorbedBlocks extends SimpleExpression<BlockStateBlock> {
+public class ExprAbsorbedBlocks extends SimpleExpression<BlockStateBlock> implements EventRestrictedSyntax {
 	
 	static {
 		Skript.registerExpression(ExprAbsorbedBlocks.class, BlockStateBlock.class, ExpressionType.SIMPLE, "[the] absorbed blocks");
@@ -35,11 +37,12 @@ public class ExprAbsorbedBlocks extends SimpleExpression<BlockStateBlock> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(SpongeAbsorbEvent.class)) {
-			Skript.error("The 'absorbed blocks' are only usable in sponge absorb events", ErrorQuality.SEMANTIC_ERROR);
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(SpongeAbsorbEvent.class);
 	}
 	
 	@Override
