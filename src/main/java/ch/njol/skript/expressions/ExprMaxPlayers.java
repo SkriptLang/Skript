@@ -36,16 +36,12 @@ public class ExprMaxPlayers extends SimpleExpression<Integer> {
 			);
 	}
 
-	// TODO - remove these fields when Spigot support is dropped
-	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
-	private static final boolean SET_MAX_PLAYERS_EXISTS = Skript.methodExists(Server.class, "setMaxPlayers", int.class);
-
 	private boolean isReal;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		boolean isServerPingEvent = getParser().isCurrentEvent(ServerListPingEvent.class) ||
-				(PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class));
+			getParser().isCurrentEvent(PaperServerListPingEvent.class);
 		
 		if (parseResult.mark == 2 && !isServerPingEvent) {
 			Skript.error("The 'shown' max players count expression can't be used outside of a server list ping event");
@@ -74,11 +70,6 @@ public class ExprMaxPlayers extends SimpleExpression<Integer> {
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (!isReal && getParser().getHasDelayBefore().isTrue()) {
 			Skript.error("Can't change the fake max players count anymore after the server list ping event has already passed");
-			return null;
-		}
-		
-		if (isReal && !SET_MAX_PLAYERS_EXISTS) {
-			Skript.error("Modifying the 'real max player count' is only supported on Paper 1.16 and newer");
 			return null;
 		}
 		
