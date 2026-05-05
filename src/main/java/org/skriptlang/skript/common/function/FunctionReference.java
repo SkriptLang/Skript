@@ -4,8 +4,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.FunctionRegistry;
-import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
-import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
@@ -16,6 +14,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.function.FunctionReferenceParser.EmptyExpression;
+import org.skriptlang.skript.common.function.FunctionRegistry.Retrieval;
+import org.skriptlang.skript.common.function.FunctionRegistry.RetrievalResult;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.util.*;
@@ -231,8 +231,7 @@ public final class FunctionReference<T> implements Debuggable {
 					.map(Parameter::type)
 					.toArray(Class[]::new);
 
-			Retrieval<ch.njol.skript.lang.function.Function<?>> retrieval = FunctionRegistry.getRegistry().getFunction(namespace, name, parameters);
-
+			Retrieval<Function<?>> retrieval = FunctionRegistry.getRegistry().getFunction(namespace, name, parameters);
 			if (retrieval.result() == RetrievalResult.EXACT) {
 				//noinspection unchecked
 				cachedFunction = (Function<T>) retrieval.retrieved();

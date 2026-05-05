@@ -6,7 +6,10 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
+
+import java.util.Set;
 
 /**
  * Represents a function signature.
@@ -20,6 +23,11 @@ import org.jetbrains.annotations.UnmodifiableView;
 public interface Signature<T> {
 
 	/**
+	 * @return The name of the function.
+	 */
+	@NotNull String name();
+
+	/**
 	 * @return The type of this parameter.
 	 */
 	@Nullable Class<T> returnType();
@@ -27,7 +35,13 @@ public interface Signature<T> {
 	/**
 	 * @return An unmodifiable view of all the parameters that this signature has.
 	 */
-	@UnmodifiableView @NotNull Parameters parameters();
+	@UnmodifiableView
+	@NotNull Parameters parameters();
+
+	/**
+	 * @return The namespace of this signature.
+	 */
+	@Nullable String namespace();
 
 	/**
 	 * @return The contract of this signature.
@@ -37,6 +51,7 @@ public interface Signature<T> {
 
 	/**
 	 * Adds a reference to the clearing list.
+	 *
 	 * @param reference The reference.
 	 */
 	@Experimental
@@ -50,6 +65,41 @@ public interface Signature<T> {
 			return false;
 		}
 		return !returnType().isArray();
+	}
+
+	/**
+	 * @return All modifiers belonging to this signature.
+	 */
+	@Unmodifiable
+	@NotNull Set<Modifier> modifiers();
+
+	/**
+	 * Returns whether this signature has the specified modifier.
+	 *
+	 * @param modifier The modifier.
+	 * @return True when {@link #modifiers()} contains the specified modifier, false if not.
+	 */
+	default boolean hasModifier(Modifier modifier) {
+		return modifiers().contains(modifier);
+	}
+
+	/**
+	 * Represents a modifier that can be applied to a function signature.
+	 */
+	interface Modifier {
+
+		/**
+		 * @return A new Modifier instance to be used as a custom flag.
+		 */
+		static Modifier of() {
+			return new Modifier() { };
+		}
+
+		/**
+		 * Indicates the signature is local.
+		 */
+		Modifier LOCAL = of();
+
 	}
 
 }

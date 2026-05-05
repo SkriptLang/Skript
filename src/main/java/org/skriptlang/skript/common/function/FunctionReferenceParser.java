@@ -7,7 +7,6 @@ import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.function.FunctionRegistry;
-import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.ArgsMessage;

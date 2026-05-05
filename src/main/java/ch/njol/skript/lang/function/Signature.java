@@ -10,8 +10,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.FunctionReference;
-import org.skriptlang.skript.common.function.Parameter.Modifier;
 import org.skriptlang.skript.common.function.Parameters;
 
 import java.util.*;
@@ -68,6 +68,8 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	 */
 	@Nullable String originClassPath;
 
+	private final Set<Modifier> modifiers = new HashSet<>();
+
 	static Class<?> getReturns(boolean single, Class<?> cls) {
 		if (single) {
 			return cls;
@@ -81,6 +83,8 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 		this.name = name;
 		this.parameters = initParameters(parameters);
 		this.local = local;
+		if (local)
+			modifiers.add(Modifier.LOCAL);
 		this.returnType = returnType;
 		this.single = single;
 		if (returnType == null) {
@@ -109,6 +113,8 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 		this.name = name;
 		this.parameters = parameters;
 		this.local = local;
+		if (local)
+			modifiers.add(Modifier.LOCAL);
 		this.returns = returnType;
 		if (returnType != null) {
 			//noinspection unchecked
@@ -130,6 +136,11 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 		this(namespace, name, initParameters(parameters), returnType, false, contract);
 	}
 
+	@Override
+	public @NotNull String name() {
+		return name;
+	}
+
 	private static Parameters initParameters(org.skriptlang.skript.common.function.Parameter<?>[] params) {
 		SequencedMap<String, org.skriptlang.skript.common.function.Parameter<?>> map = new LinkedHashMap<>();
 		for (org.skriptlang.skript.common.function.Parameter<?> parameter : params) {
@@ -140,6 +151,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 
 	/**
 	 * Converts a {@link org.skriptlang.skript.common.function.Parameter} to a {@link Parameter}.
+	 *
 	 * @param parameter The parameter to use to convert.
 	 * @return The converted parameter.
 	 */
@@ -150,7 +162,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 
 		ClassInfo<?> classInfo = Classes.getExactClassInfo(Utils.getComponentType(parameter.type()));
 		return new Parameter<>(parameter.name(), classInfo, !parameter.type().isArray(), null,
-				parameter.modifiers().toArray(new Modifier[0]));
+				parameter.modifiers().toArray(new org.skriptlang.skript.common.function.Parameter.Modifier[0]));
 	}
 
 	/**
@@ -232,6 +244,11 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 		return single;
 	}
 
+	@Override
+	public @Unmodifiable @NotNull Set<Modifier> modifiers() {
+		return Collections.unmodifiableSet(modifiers);
+	}
+
 	/**
 	 * @deprecated Unused.
 	 */
@@ -270,7 +287,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 
 		int i = parameters.size() - 1;
 		for (org.skriptlang.skript.common.function.Parameter<?> parameter : Lists.reverse(params)) {
-			if (!parameter.hasModifier(Modifier.OPTIONAL)) {
+			if (!parameter.hasModifier(org.skriptlang.skript.common.function.Parameter.Modifier.OPTIONAL)) {
 				return i + 1;
 			}
 			i--;

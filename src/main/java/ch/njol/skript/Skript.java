@@ -12,6 +12,7 @@ import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.Condition.ConditionType;
 import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
@@ -479,6 +480,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		skript.storeRegistry(EventValueRegistry.class, eventValueRegistry);
 		//noinspection removal
 		EventValues.setEventValueRegistry(eventValueRegistry);
+
+		skript.storeRegistry(FunctionRegistry.class, new FunctionRegistry());
 
 		// TODO this upcoming portion is a bad circular dependency
 		// some modules depend on the config
