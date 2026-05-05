@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.functions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.util.ColorRGB;
 import ch.njol.skript.util.Utils;
@@ -10,6 +9,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.BukkitModule;
 import org.skriptlang.skript.common.function.DefaultFunction;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 
@@ -20,15 +20,15 @@ import java.util.UUID;
  */
 public class BukkitFunctions {
 
-	static {
-		SkriptAddon skript = Skript.instance();
+	public BukkitFunctions(BukkitModule module, SkriptAddon addon) {
+		SkriptAddon skript = module.origin(addon).addon();
 
 		Functions.register(DefaultFunction.builder(skript, "world", World.class)
 				.description("Gets a world from its name.")
 				.examples("set {_nether} to world(\"%{_world}%_nether\")")
 				.since("2.2")
 				.parameter("name", String.class)
-				.build(args -> Bukkit.getWorld((String) args.get("name"))));
+				.build(args -> Bukkit.getWorld(args.<String>get("name"))));
 
 		Functions.register(DefaultFunction.builder(skript, "location", Location.class)
 				.description(
@@ -142,7 +142,11 @@ public class BukkitFunctions {
 							uuid = UUID.fromString(name);
 					}
 
-					return uuid != null ? Bukkit.getPlayer(uuid) : (isExact ? Bukkit.getPlayerExact(name) : Bukkit.getPlayer(name));
+					if (uuid != null)
+						return Bukkit.getPlayer(uuid);
+					if (isExact)
+						return Bukkit.getPlayerExact(name);
+					return Bukkit.getPlayer(name);
 				}));
 
 		Functions.register(DefaultFunction.builder(skript, "offlineplayer", OfflinePlayer.class)
@@ -180,5 +184,4 @@ public class BukkitFunctions {
 					return result;
 				}));
 	}
-
 }

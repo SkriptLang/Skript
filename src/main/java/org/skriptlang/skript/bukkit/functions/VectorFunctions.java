@@ -7,6 +7,7 @@ import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.BukkitModule;
 import org.skriptlang.skript.common.function.DefaultFunction;
 
 /**
@@ -14,8 +15,8 @@ import org.skriptlang.skript.common.function.DefaultFunction;
  */
 public class VectorFunctions {
 
-	static {
-		SkriptAddon skript = Skript.instance();
+	public VectorFunctions(BukkitModule module, SkriptAddon addon) {
+		SkriptAddon skript = module.origin(addon).addon();
 
 		Functions.register(DefaultFunction.builder(skript, "vector", Vector.class)
 				.description("Creates a vector from a single argument. Equivalent to vector(n, n, n).")
@@ -61,7 +62,7 @@ public class VectorFunctions {
 		if (Skript.classExists("org.joml.AxisAngle4f")) {
 			Functions.register(DefaultFunction.builder(skript, "axisAngle", Quaternionf.class)
 					.description("Returns a quaternion from the given angle (in degrees) and axis (as a vector). This represents a rotation around the given axis by the given angle.")
-					.examples("axisangle(90, (vector from player's facing))")
+					.examples("axisAngle(90, (vector from player's facing))")
 					.since("2.10")
 					.parameter("angle", Number.class)
 					.parameter("axis", Vector.class)
@@ -75,5 +76,4 @@ public class VectorFunctions {
 					}));
 		}
 	}
-
 }

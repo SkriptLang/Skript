@@ -75,11 +75,8 @@ public class StringFunctions {
 
 		Functions.register(DefaultFunction.builder(skript, "concat", String.class)
 				.description("Joins the provided texts (and other things) into a single text.")
-				.examples("""
-						concat("hello ", "there") # hello there
-						concat("foo ", 100, " bar") # foo 100 bar
-						"""
-				)
+				.examples("concat(\"hello \", \"there\") # hello there",
+						"concat(\"foo \", 100, \" bar\") # foo 100 bar")
 				.since("2.9.0")
 				.parameter("texts", Object[].class)
 				.build(args -> {

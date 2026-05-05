@@ -39,6 +39,7 @@ public class TimeFunctions {
 				0, 0,
 				0
 		};
+		String[] dateParamNames = {"year", "month", "day", "hour", "minute", "second", "millisecond", "zone_offset", "dst_offset"};
 
 		Functions.register(DefaultFunction.builder(skript, "date", Date.class)
 				.description("Creates a date from a year, month, and day, and optionally also from hour, minute, second and millisecond.",
@@ -57,20 +58,19 @@ public class TimeFunctions {
 				.parameter("zone_offset", Number.class, Modifier.OPTIONAL)
 				.parameter("dst_offset", Number.class, Modifier.OPTIONAL)
 				.build(args -> {
-					String[] paramNames = {"year", "month", "day", "hour", "minute", "second", "millisecond", "zone_offset", "dst_offset"};
-					Calendar c = Calendar.getInstance();
-					c.setLenient(true);
+					Calendar calendar = Calendar.getInstance();
+					calendar.setLenient(true);
 					double carry = 0;
 					for (int i = 0; i < fields.length; i++) {
-						Number n = args.getOrDefault(paramNames[i], i < 3 ? 0 : (i == 8 ? Double.NaN : 0));
+						Number n = args.getOrDefault(dateParamNames[i], i < 3 ? 0 : (i == 8 ? Double.NaN : 0));
 						double value = n.doubleValue() * scale[i] + offsets[i] + carry;
 						int v = (int) Math2.floor(value);
 						carry = (value - v) * relations[i];
 						//noinspection MagicConstant
-						c.set(fields[i], v);
+						calendar.set(fields[i], v);
 					}
 
-					return new Date(c.getTimeInMillis(), c.getTimeZone());
+					return new Date(calendar.getTimeInMillis(), calendar.getTimeZone());
 				}));
 	}
 
