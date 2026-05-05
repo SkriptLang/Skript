@@ -49,11 +49,11 @@ public class EntityModule extends HierarchicalAddonModule {
 					cancel the event # bad idea, but you CAN do it!
 				""")
 			.addSince("2.2-dev21")
-			.addSince("INSERT VERSION","Pattern changed & moved to EntityModule")
+			.addSince("INSERT VERSION (Pattern changed)")
 			.addPatterns(
-				"[on] gliding state change",
-				"[on] (toggle|toggling) glid(e|ing)",
-				"[on] glid(e|ing) toggl(e|d)"
+				"gliding state change[d]",
+				"(toggle|toggling) glid(e|ing)",
+				"glid(e|ing) toggle[d]"
 			)
 			.addEvent(EntityToggleGlideEvent.class)
 			.build());
