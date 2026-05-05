@@ -108,7 +108,7 @@ public final class TextComponentUtils {
 				backslashes = backslashes.substring(1);
 			}
 			StringBuilder replacement = new StringBuilder(backslashes);
-			ChatColor color = ChatColor.getByChar(result.group(2).charAt(1));
+			ChatColor color = ChatColor.getByChar(Character.toLowerCase(result.group(2).charAt(1)));
 			assert color != null;
 			replacement.append('<').append(color.asBungee().getName()).append('>');
 			return Matcher.quoteReplacement(replacement.toString());

@@ -121,13 +121,13 @@ public final class TextComponentParser {
 	 * A pattern for matching double hashtag hex color tags ({@code <##123456>}).
 	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
 	 */
-	private static final Pattern LEGACY_DOUBLE_HASHTAG_PATTERN = Pattern.compile("(\\\\*)<(##[a-f0-9]{6})>");
+	private static final Pattern LEGACY_DOUBLE_HASHTAG_PATTERN = Pattern.compile("(\\\\*)<(##[a-fA-F0-9]{6})>");
 
 	/**
 	 * A pattern for matching legacy hex codes ({@code &x&1&2&3&4&5&6}).
 	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
 	 */
-	static final Pattern LEGACY_CODE_PATTERN = Pattern.compile("(\\\\*)([&§][a-f0-9klomnr])");
+	static final Pattern LEGACY_CODE_PATTERN = Pattern.compile("(\\\\*)([&§][a-fA-F0-9kKlLoOmMnNrR])");
 
 	static {
 		INSTANCE = new TextComponentParser();
