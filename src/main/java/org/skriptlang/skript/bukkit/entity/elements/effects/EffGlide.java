@@ -17,8 +17,8 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Make Entity Glide")
 @Description("""
-         Makes an entity start/stop gliding if they have an elytra or a chestplate with a glider component. If the entity has neither, the state of the entity will flicker for 1 tick.
-    """)
+	Makes an entity start/stop gliding if they have an elytra or a chestplate with a glider component. If the entity has neither, the state of the entity will flicker for 1 tick.
+	""")
 @Example("make last spawned zombie start gliding")
 @Since("INSERT VERSION")
 public class EffGlide extends Effect {
