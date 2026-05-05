@@ -1,9 +1,12 @@
 package org.skriptlang.skript.bukkit.potion.providers;
 
 import ch.njol.skript.aliases.ItemType;
+import io.papermc.paper.potion.SuspiciousEffectEntry;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.inventory.meta.SuspiciousStewMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 
 import java.util.ArrayList;
@@ -11,6 +14,81 @@ import java.util.Collection;
 import java.util.List;
 
 class ItemTypeProvider extends PotionEffectProvider<ItemType> {
+
+	/**
+	 * Attempts to retrieve a list of potion effects from an ItemType.
+	 * @param itemType The ItemType to get potion effects from.
+	 * @return A list of potion effects from an ItemType, if any were found.
+	 */
+	public static List<PotionEffect> getPotionEffects(ItemType itemType) {
+		List<PotionEffect> effects = new ArrayList<>();
+		ItemMeta meta = itemType.getItemMeta();
+		if (meta instanceof PotionMeta potionMeta) {
+			if (potionMeta.hasCustomEffects()) {
+				effects.addAll(potionMeta.getCustomEffects());
+			}
+			if (potionMeta.hasBasePotionType()) {
+				//noinspection ConstantConditions - checked via hasBasePotionType
+				effects.addAll(potionMeta.getBasePotionType().getPotionEffects());
+			}
+		} else if (meta instanceof SuspiciousStewMeta stewMeta) {
+			effects.addAll(stewMeta.getCustomEffects());
+		}
+		return effects;
+	}
+
+	/**
+	 * Adds potions effects to an ItemType.
+	 * @param itemType The ItemType to modify.
+	 * @param potionEffects The potion effects to add.
+	 */
+	public static void addPotionEffects(ItemType itemType, PotionEffect... potionEffects) {
+		ItemMeta meta = itemType.getItemMeta();
+		if (meta instanceof PotionMeta potionMeta) {
+			for (PotionEffect potionEffect : potionEffects) {
+				potionMeta.addCustomEffect(potionEffect, true);
+			}
+		} else if (meta instanceof SuspiciousStewMeta stewMeta) {
+			for (PotionEffect potionEffect : potionEffects) {
+				stewMeta.addCustomEffect(
+					SuspiciousEffectEntry.create(potionEffect.getType(), potionEffect.getDuration()), true);
+			}
+		}
+		itemType.setItemMeta(meta);
+	}
+
+	/**
+	 * Removes potions effects from an ItemType.
+	 * @param itemType The ItemType to modify.
+	 * @param potionEffectTypes The potion effects to remove.
+	 */
+	public static void removePotionEffects(ItemType itemType, PotionEffectType... potionEffectTypes) {
+		ItemMeta meta = itemType.getItemMeta();
+		if (meta instanceof PotionMeta potionMeta) {
+			for (PotionEffectType potionEffectType : potionEffectTypes) {
+				potionMeta.removeCustomEffect(potionEffectType);
+			}
+		} else if (meta instanceof SuspiciousStewMeta stewMeta) {
+			for (PotionEffectType potionEffectType : potionEffectTypes) {
+				stewMeta.removeCustomEffect(potionEffectType);
+			}
+		}
+		itemType.setItemMeta(meta);
+	}
+
+	/**
+	 * Removes all potion effects from the ItemType's meta.
+	 * @param itemType The ItemType to modify.
+	 */
+	public static void clearPotionEffects(ItemType itemType) {
+		ItemMeta meta = itemType.getItemMeta();
+		if (meta instanceof PotionMeta potionMeta) {
+			potionMeta.clearCustomEffects();
+		} else if (meta instanceof SuspiciousStewMeta stewMeta) {
+			stewMeta.clearCustomEffects();
+		}
+		itemType.setItemMeta(meta);
+	}
 
 	public ItemTypeProvider(ItemType source) {
 		super(source);
@@ -22,7 +100,7 @@ class ItemTypeProvider extends PotionEffectProvider<ItemType> {
 			return List.of();
 		}
 		List<SkriptPotionEffect> potionEffects = new ArrayList<>();
-		for (PotionEffect effect : PotionUtils.getPotionEffects(source)) {
+		for (PotionEffect effect : getPotionEffects(source)) {
 			for (PotionEffectType type : potionEffectTypes) {
 				if (type.equals(effect.getType())) {
 					potionEffects.add(SkriptPotionEffect.fromBukkitEffect(effect, this));
@@ -38,14 +116,14 @@ class ItemTypeProvider extends PotionEffectProvider<ItemType> {
 		if (!state.includesActive()) {
 			return List.of();
 		}
-		return PotionUtils.getPotionEffects(source).stream()
+		return getPotionEffects(source).stream()
 			.map(potionEffect -> SkriptPotionEffect.fromBukkitEffect(potionEffect, this))
 			.toList();
 	}
 
 	@Override
 	public void add(PotionEffect potionEffect) {
-		PotionUtils.addPotionEffects(source, potionEffect);
+		addPotionEffects(source, potionEffect);
 	}
 
 	@Override
@@ -53,9 +131,9 @@ class ItemTypeProvider extends PotionEffectProvider<ItemType> {
 		if (!state.includesActive()) {
 			return;
 		}
-		for (PotionEffect itemEffect : PotionUtils.getPotionEffects(source)) {
+		for (PotionEffect itemEffect : getPotionEffects(source)) {
 			if (potionEffect.matchesQualities(itemEffect)) {
-				PotionUtils.removePotionEffects(source, potionEffect.potionEffectType());
+				removePotionEffects(source, potionEffect.potionEffectType());
 				break; // API doesn't support multiple effects of the same type
 			}
 		}
@@ -63,7 +141,7 @@ class ItemTypeProvider extends PotionEffectProvider<ItemType> {
 
 	@Override
 	public void removeAll(PotionEffectType potionEffectType) {
-		PotionUtils.removePotionEffects(source, potionEffectType);
+		removePotionEffects(source, potionEffectType);
 	}
 
 	@Override
@@ -71,7 +149,7 @@ class ItemTypeProvider extends PotionEffectProvider<ItemType> {
 		if (!state.includesActive()) {
 			return;
 		}
-		PotionUtils.removePotionEffects(source, potionEffectTypes);
+		removePotionEffects(source, potionEffectTypes);
 	}
 
 	@Override
@@ -79,14 +157,14 @@ class ItemTypeProvider extends PotionEffectProvider<ItemType> {
 		if (!state.includesActive()) {
 			return;
 		}
-		PotionUtils.clearPotionEffects(source);
+		clearPotionEffects(source);
 	}
 
 	@Override
 	public void mirrorEffectChanges(SkriptPotionEffect potionEffect, Runnable runnable) {
-		PotionUtils.removePotionEffects(source, potionEffect.potionEffectType());
+		removePotionEffects(source, potionEffect.potionEffectType());
 		runnable.run();
-		PotionUtils.addPotionEffects(source, potionEffect.asBukkitPotionEffect());
+		addPotionEffects(source, potionEffect.asBukkitPotionEffect());
 	}
 
 }
