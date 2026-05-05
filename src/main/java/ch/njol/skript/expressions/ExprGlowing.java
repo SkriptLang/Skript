@@ -1,6 +1,5 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
@@ -14,6 +13,7 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Glowing")
 @Description("Indicates if targeted entity is glowing (new 1.9 effect) or not. Glowing entities can be seen through walls.")
@@ -28,7 +28,7 @@ public class ExprGlowing extends SimplePropertyExpression<Entity, Boolean> {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        Skript.warning("This expression is deprecated. Consider using the glowing effect instead.");
+		ScriptWarning.printDeprecationWarning("This expression is deprecated. Consider using the glowing effect instead.");
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 	

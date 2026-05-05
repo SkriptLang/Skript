@@ -17,6 +17,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Projectile Critical State")
 @Description("A projectile's critical state. The only currently accepted projectiles are arrows and tridents.")
@@ -37,7 +38,7 @@ public class ExprProjectileCriticalState extends SimplePropertyExpression<Projec
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        Skript.warning("This expression is deprecated. Consider using the projectile critical state effect instead.");
+        ScriptWarning.printDeprecationWarning("This expression is deprecated. Consider using the projectile critical state effect instead.");
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 	

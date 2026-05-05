@@ -1,6 +1,5 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
@@ -15,6 +14,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Entity AI")
 @Description("Returns whether an entity has AI.")
@@ -29,7 +29,7 @@ public class ExprAI extends SimplePropertyExpression<LivingEntity, Boolean> {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        Skript.warning("This expression is deprecated. Consider using the AI effect instead.");
+		ScriptWarning.printDeprecationWarning("This expression is deprecated. Consider using the AI effect instead.");
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 	
