@@ -69,10 +69,11 @@ public class CommandUsage {
 	 * @param event The event used to evaluate the usage message.
 	 * @return The evaluated usage message as an Adventure {@link Component} with
 	 *         Skript color tags ({@code <red>}, {@code &c}, etc.) parsed into real
-	 *         chat formatting via {@link TextComponentParser#parseSafe(Object)}.
+	 *         chat formatting via {@link TextComponentParser#parse(Object)}. Command
+	 *         usage strings are server-controlled, so unsafe tags are appropriate.
 	 */
 	public Component getUsageComponent(@Nullable Event event) {
-		return TextComponentParser.instance().parseSafe(getUsage(event));
+		return TextComponentParser.instance().parse(getUsage(event));
 	}
 
 	@Override
