@@ -2,8 +2,13 @@ package org.skriptlang.skript.lang.experiment;
 
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
+import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
 import ch.njol.skript.registrations.Feature;
-import org.jetbrains.annotations.ApiStatus;
+import org.apache.commons.lang.WordUtils;
+import org.jetbrains.annotations.ApiStatus.Internal;
+import org.skriptlang.skript.docs.Documentation;
+import org.skriptlang.skript.docs.DocumentationAdapter;
+import org.skriptlang.skript.docs.DocumentationDocumentable;
 
 import java.util.Objects;
 
@@ -13,9 +18,9 @@ import java.util.Objects;
  * This can also represent an unknown experiment 'used' by a script that was not declared or registered
  * by Skript or any of its addons.
  */
-public interface Experiment {
+public interface Experiment extends DocumentationDocumentable {
 
-	@ApiStatus.Internal
+	@Internal
 	static Experiment unknown(String text) {
 		return new UnmatchedExperiment(text);
 	}
@@ -28,7 +33,19 @@ public interface Experiment {
 	 * @return An experiment flag.
 	 */
 	static Experiment constant(String codeName, LifeCycle phase, String... patterns) {
-		return new ConstantExperiment(codeName, phase, patterns);
+		return constant(codeName, Documentation.NONE, phase, patterns);
+	}
+
+	/**
+	 * A constant experiment provider with documentation (designed for the use of addons).
+	 * @param codeName The debug 'code name' of this feature.
+	 * @param documentation Documentation describing this feature.
+	 * @param phase The stability of this feature.
+	 * @param patterns What the user may write to match the feature. Defaults to the codename if not set.
+	 * @return An experiment flag.
+	 */
+	static Experiment constant(String codeName, Documentation documentation, LifeCycle phase, String... patterns) {
+		return new ConstantExperiment(codeName, documentation, phase, patterns);
 	}
 
 	/**
@@ -63,6 +80,21 @@ public interface Experiment {
 		return this.pattern().match(text) != null;
 	}
 
+	@Override
+	default void write(DocumentationAdapter adapter) {
+		DocumentationDocumentable.super.write(adapter);
+		adapter.write("phase", switch (phase()) {
+			case STABLE -> "stable";
+			case EXPERIMENTAL -> "experimental";
+			case DEPRECATED -> "deprecated";
+			case MAINSTREAM -> "mainstream";
+			case UNKNOWN -> "unknown";
+		});
+		adapter.write("pattern", pattern().toString(StringificationProperties.builder()
+			.excludeParseTags()
+			.excludeTypeFlags()
+			.build()));
+	}
 }
 
 /**
@@ -71,32 +103,31 @@ public interface Experiment {
 class ConstantExperiment implements Experiment {
 
 	private final String codeName;
-	private final SkriptPattern compiledPattern;
+	private final Documentation documentation;
 	private final LifeCycle phase;
+	private final SkriptPattern compiledPattern;
 
-	ConstantExperiment(String codeName, LifeCycle phase) {
-		this(codeName, phase, new String[0]);
-	}
-
-	ConstantExperiment(String codeName, LifeCycle phase, String... patterns) {
+	ConstantExperiment(String codeName, Documentation documentation, LifeCycle phase, String... patterns) {
 		this.codeName = codeName;
+		this.documentation = documentation.toBuilder()
+			.id("Exp" + WordUtils.capitalizeFully(codeName).replace(" ", ""))
+			.build();
 		this.phase = phase;
-		switch (patterns.length) {
-			case 0:
-				this.compiledPattern = PatternCompiler.compile(codeName);
-				break;
-			case 1:
-				this.compiledPattern = PatternCompiler.compile(patterns[0]);
-				break;
-			default:
-				this.compiledPattern = PatternCompiler.compile(String.join("|", patterns));
-				break;
-		}
+		this.compiledPattern = PatternCompiler.compile(switch (patterns.length) {
+			case 0 -> codeName;
+			case 1 -> patterns[0];
+			default -> String.join("|", patterns);
+		});
 	}
 
 	@Override
 	public String codeName() {
 		return codeName;
+	}
+
+	@Override
+	public Documentation documentation() {
+		return documentation;
 	}
 
 	@Override
@@ -138,7 +169,7 @@ class ConstantExperiment implements Experiment {
 class UnmatchedExperiment extends ConstantExperiment {
 
 	UnmatchedExperiment(String codeName) {
-		super(codeName, LifeCycle.UNKNOWN);
+		super(codeName, Documentation.NONE, LifeCycle.UNKNOWN);
 	}
 
 	@Override

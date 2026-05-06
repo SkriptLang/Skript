@@ -1,6 +1,5 @@
 package org.skriptlang.skript.lang.experiment;
 
-import ch.njol.skript.registrations.Feature;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.Skript;
@@ -148,9 +147,7 @@ public class ExperimentRegistry implements Experimented, Documentable {
 	public void write(DocumentationAdapter adapter) {
 		adapter.enterScope("experiments");
 		for (Experiment experiment : experiments) {
-			if (experiment instanceof Feature feature) {
-				adapter.write(feature);
-			}
+			adapter.write(experiment);
 		}
 		adapter.exitScope();
 	}

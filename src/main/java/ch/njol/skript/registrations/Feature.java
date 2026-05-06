@@ -1,14 +1,11 @@
 package ch.njol.skript.registrations;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.docs.Documentation;
-import org.skriptlang.skript.docs.DocumentationAdapter;
-import org.skriptlang.skript.docs.DocumentationDocumentable;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
@@ -17,7 +14,7 @@ import org.skriptlang.skript.lang.experiment.LifeCycle;
 /**
  * Experimental feature toggles as provided by Skript itself.
  */
-public enum Feature implements Experiment, DocumentationDocumentable, ch.njol.skript.doc.Documentable {
+public enum Feature implements Experiment, ch.njol.skript.doc.Documentable {
 
 	EXAMPLES("examples",
 		Documentation.of(
@@ -164,7 +161,7 @@ public enum Feature implements Experiment, DocumentationDocumentable, ch.njol.sk
 					set the damage location to location(0, 0, 10)
 				"""
 		),
-		LifeCycle.EXPERIMENTAL,
+		LifeCycle.MAINSTREAM,
 		"damage source[s]"),
 	EQUIPPABLE_COMPONENTS("equippable components",
 		Documentation.of(
@@ -191,23 +188,14 @@ public enum Feature implements Experiment, DocumentationDocumentable, ch.njol.sk
 		),
 		LifeCycle.EXPERIMENTAL, "equippable components");
 
-	private final String codeName;
-	private final Documentation documentation;
-	private final LifeCycle phase;
-	private final SkriptPattern compiledPattern;
+	private final Experiment experiment;
 
 	Feature(String codeName, Documentation documentation, LifeCycle phase, String... patterns) {
-		this.codeName = codeName;
-		this.documentation = documentation.toBuilder()
+		documentation = documentation.toBuilder()
 			.id(codeName)
 			.origin(Origin.of(Skript.instance()))
 			.build();
-		this.phase = phase;
-		this.compiledPattern = switch (patterns.length) {
-			case 0 -> PatternCompiler.compile(codeName);
-			case 1 -> PatternCompiler.compile(patterns[0]);
-			default -> PatternCompiler.compile('(' + String.join("|", patterns) + ')');
-		};
+		this.experiment = Experiment.constant(codeName, documentation, phase, patterns);
 	}
 
 	@ApiStatus.Internal
@@ -219,22 +207,22 @@ public enum Feature implements Experiment, DocumentationDocumentable, ch.njol.sk
 
 	@Override
 	public String codeName() {
-		return codeName;
+		return experiment.codeName();
 	}
 
 	@Override
 	public LifeCycle phase() {
-		return phase;
+		return experiment.phase();
 	}
 
 	@Override
 	public SkriptPattern pattern() {
-		return compiledPattern;
+		return experiment.pattern();
 	}
 
 	@Override
 	public Documentation documentation() {
-		return documentation;
+		return experiment.documentation();
 	}
 
 	/**
