@@ -2,9 +2,6 @@ package ch.njol.skript.bukkitutil;
 
 import ch.njol.skript.Skript;
 import ch.njol.util.Math2;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.attribute.Attributable;
@@ -17,6 +14,9 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.jetbrains.annotations.Nullable;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 public class HealthUtils {
 	private static final @Nullable Constructor<EntityDamageEvent> OLD_DAMAGE_EVENT_CONSTRUCTOR;
@@ -31,11 +31,7 @@ public class HealthUtils {
 
 	private static final Attribute MAX_HEALTH;
 	static {
-		if (Skript.isRunningMinecraft(1, 21, 3)) { // In 1.21.3, Attribute became an Interface
-			MAX_HEALTH = Registry.ATTRIBUTE.get(NamespacedKey.minecraft("max_health"));
-		} else {
-			MAX_HEALTH = (Attribute) Enum.valueOf((Class) Attribute.class, "GENERIC_MAX_HEALTH");
-		}
+		MAX_HEALTH = Registry.ATTRIBUTE.get(NamespacedKey.minecraft("max_health"));
 	}
 
 	/**
