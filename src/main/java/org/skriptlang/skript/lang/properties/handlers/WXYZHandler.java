@@ -1,6 +1,7 @@
 package org.skriptlang.skript.lang.properties.handlers;
 
 
+import org.skriptlang.skript.bukkit.types.LocationClassInfo;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 import org.skriptlang.skript.lang.properties.handlers.base.PropertyHandler;
 
@@ -11,7 +12,7 @@ import org.skriptlang.skript.lang.properties.handlers.base.PropertyHandler;
  *
  * @param <Type>      The type of the property holder
  * @param <ValueType> The type of the value returned
- * @see org.skriptlang.skript.bukkit.base.types.LocationClassInfo.LocationWXYZHandler
+ * @see LocationClassInfo.LocationWXYZHandler
  */
 public abstract class WXYZHandler<Type, ValueType> implements ExpressionPropertyHandler<Type, ValueType> {
 

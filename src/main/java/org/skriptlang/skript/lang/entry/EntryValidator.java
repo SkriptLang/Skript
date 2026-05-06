@@ -39,7 +39,7 @@ public class EntryValidator implements Documentable {
 
 	private final Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
 
-	private EntryValidator(
+	protected EntryValidator(
 		List<EntryData<?>> entryData,
 		@Nullable Predicate<Node> unexpectedNodeTester,
 		@Nullable Function<String, String> unexpectedEntryMessage,
@@ -60,6 +60,29 @@ public class EntryValidator implements Documentable {
 	 */
 	public List<EntryData<?>> getEntryData() {
 		return Collections.unmodifiableList(entryData);
+	}
+
+	/**
+	 * @return A predicate that tests whether a node should be allowed.
+	 */
+	public @Nullable Predicate<Node> getUnexpectedNodeTester() {
+		return unexpectedNodeTester;
+	}
+
+	/**
+	 * @return A function that creates an error message from the key of an unexpected
+	 *         entry when one is encountered during validation.
+	 */
+	public Function<String, String> getUnexpectedEntryMessage() {
+		return unexpectedEntryMessage;
+	}
+
+	/**
+	 * @return A function that creates an error message from the key of an entry
+	 *         missing during validation.
+	 */
+	public Function<String, String> getMissingRequiredEntryMessage() {
+		return missingRequiredEntryMessage;
 	}
 
 	/**
@@ -146,7 +169,7 @@ public class EntryValidator implements Documentable {
 		 */
 		public static final String DEFAULT_ENTRY_SEPARATOR = ": ";
 
-		private EntryValidatorBuilder() { }
+		protected EntryValidatorBuilder() { }
 
 		private final List<EntryData<?>> entryData = new ArrayList<>();
 		private String entrySeparator = DEFAULT_ENTRY_SEPARATOR;
@@ -154,6 +177,26 @@ public class EntryValidator implements Documentable {
 		private @Nullable Predicate<Node> unexpectedNodeTester;
 
 		private @Nullable Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
+
+		protected @Nullable Function<String, String> getMissingRequiredEntryMessage() {
+			return missingRequiredEntryMessage;
+		}
+
+		protected @Nullable Function<String, String> getUnexpectedEntryMessage() {
+			return unexpectedEntryMessage;
+		}
+
+		protected @Nullable Predicate<Node> getUnexpectedNodeTester() {
+			return unexpectedNodeTester;
+		}
+
+		protected List<EntryData<?>> getEntryData() {
+			return entryData;
+		}
+
+		protected String getEntrySeparator() {
+			return entrySeparator;
+		}
 
 		/**
 		 * Updates the separator to be used when creating KeyValue entries. Please note

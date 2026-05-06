@@ -1,5 +1,7 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +25,7 @@ import ch.njol.util.Kleenean;
 		send "Welcome back tester!"
 	""")
 @Since("2.6.1")
-public class ExprHostname extends SimpleExpression<String> {
+public class ExprHostname extends SimpleExpression<String> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprHostname.class, String.class, ExpressionType.SIMPLE, "[the] (host|domain)[ ][name]");
@@ -32,11 +34,12 @@ public class ExprHostname extends SimpleExpression<String> {
 	@Override
 	@SuppressWarnings({"null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerLoginEvent.class)) {
-			Skript.error("The hostname expression must be used in a player connect event");
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(PlayerLoginEvent.class);
 	}
 	
 	@Override

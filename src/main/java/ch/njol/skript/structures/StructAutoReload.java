@@ -15,7 +15,6 @@ import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RedirectingLogHandler;
 import ch.njol.skript.log.TimingLogHandler;
 import ch.njol.skript.util.Task;
-import ch.njol.skript.util.Utils;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import com.google.common.collect.Lists;
@@ -164,7 +163,7 @@ public class StructAutoReload extends Structure {
 		String prefix = Language.get("skript.prefix");
 		String what = PluralizingArgsMessage.format(Language.format("log.auto reload.script", script.getConfig().getFileName()));
 		String message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(Language.format("log.auto reload.reloading", what)));
-		logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(prefix + message)));
+		logHandler.log(new LogEntry(Level.INFO, prefix + message));
 	}
 
 	private void reloaded(RedirectingLogHandler logHandler, TimingLogHandler timingLogHandler) {
@@ -177,10 +176,10 @@ public class StructAutoReload extends Structure {
 		String message;
 		if (logHandler.numErrors() == 0) {
 			message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reloaded.toString(what, timeTaken)));
-			logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(prefix + message)));
+			logHandler.log(new LogEntry(Level.INFO, prefix + message));
 		} else {
 			message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reload_error.toString(what, logHandler.numErrors(), timeTaken)));
-			logHandler.log(new LogEntry(Level.SEVERE, Utils.replaceEnglishChatStyles(prefix + message)));
+			logHandler.log(new LogEntry(Level.SEVERE, prefix + message));
 		}
 	}
 

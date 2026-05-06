@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.loottables.elements.effects;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
@@ -17,6 +16,8 @@ import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -32,9 +33,13 @@ import java.util.concurrent.ThreadLocalRandom;
 @Since("2.10")
 public class EffGenerateLoot extends Effect {
 
-	static {
-		Skript.registerEffect(EffGenerateLoot.class,
-			"generate [the] loot (of|using) %loottable% [(with|using) %-lootcontext%] in %inventories%"
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EFFECT,
+			SyntaxInfo.builder(EffGenerateLoot.class)
+				.addPatterns("generate [the] loot (of|using) %loottable% [(with|using) %-lootcontext%] in %inventories%")
+				.supplier(EffGenerateLoot::new)
+				.build()
 		);
 	}
 
