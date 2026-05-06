@@ -88,7 +88,7 @@ public class Events implements Documentable {
 					if (infoName.startsWith("on ")) {
 						infoName = infoName.substring(3);
 					}
-					if (infoName.equals(eventName.toLowerCase(Locale.ENGLISH)) || info.id().equals(eventName)) {
+					if (infoName.equals(eventName.toLowerCase(Locale.ENGLISH).replace("_", " "))) {
 						found = true;
 						candidates.add(info);
 					} else if (eventName.equals(info.documentationId())) { // should be unique, this is an exact match

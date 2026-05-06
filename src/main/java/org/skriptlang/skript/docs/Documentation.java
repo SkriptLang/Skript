@@ -1,6 +1,7 @@
 package org.skriptlang.skript.docs;
 
 import ch.njol.skript.doc.*;
+import org.apache.commons.lang.WordUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -8,6 +9,7 @@ import org.skriptlang.skript.bukkit.docs.Events;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.SequencedCollection;
 
 /**
@@ -19,6 +21,7 @@ public interface Documentation extends Documentable {
 	 * Documentation to use when intentionally representing a {@link Documentable} object as having no documentation.
 	 */
 	Documentation NONE = Documentation.builder()
+		.name("unknown")
 		.addData(DocumentationImpl.SKIP_WRITE)
 		.build();
 
@@ -143,6 +146,16 @@ public interface Documentation extends Documentable {
 	 * @return An identifier for referencing the thing represented by this documentation.
 	 */
 	@Nullable String id();
+
+	/**
+	 * @return A transformed version of {@link #name()} that can be used in cases where {@link #id()} is not explicitly set.
+	 */
+	default String autoId() {
+		return WordUtils.capitalizeFully(name()
+				.toLowerCase(Locale.ENGLISH)
+				.replaceAll("[^a-zA-Z0-9 ]", " "))
+			.replace(" ", "");
+	}
 
 	/**
 	 * @return A name for the thing represented by this documentation.

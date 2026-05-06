@@ -158,7 +158,7 @@ public class EventSyntaxInfoTest extends BaseSyntaxInfoTests<MockSkriptEvent, Bu
 
 		var info3 = info.toBuilder();
 		info2.toBuilder().applyTo(info3);
-		assertArrayEquals(new String[]{"1", "2", "3", "4"}, info3.build().description().toArray());
+		assertArrayEquals(new String[]{"4"}, info3.build().description().toArray());
 	}
 
 	@Test
@@ -178,7 +178,7 @@ public class EventSyntaxInfoTest extends BaseSyntaxInfoTests<MockSkriptEvent, Bu
 
 		var info3 = info.toBuilder();
 		info2.toBuilder().applyTo(info3);
-		assertArrayEquals(new String[]{"1", "2", "3", "4"}, info3.build().examples().toArray());
+		assertArrayEquals(new String[]{"4"}, info3.build().examples().toArray());
 	}
 
 	@Test
@@ -198,7 +198,7 @@ public class EventSyntaxInfoTest extends BaseSyntaxInfoTests<MockSkriptEvent, Bu
 
 		var info3 = info.toBuilder();
 		info2.toBuilder().applyTo(info3);
-		assertArrayEquals(new String[]{"1", "2", "3", "4"}, info3.build().keywords().toArray());
+		assertArrayEquals(new String[]{"4"}, info3.build().keywords().toArray());
 	}
 
 	@Test
@@ -218,7 +218,7 @@ public class EventSyntaxInfoTest extends BaseSyntaxInfoTests<MockSkriptEvent, Bu
 
 		var info3 = info.toBuilder();
 		info2.toBuilder().applyTo(info3);
-		assertArrayEquals(new String[]{"1", "2", "3", "4"}, info3.build().requiredPlugins().toArray());
+		assertArrayEquals(new String[]{"4"}, info3.build().requiredPlugins().toArray());
 	}
 
 	@Test

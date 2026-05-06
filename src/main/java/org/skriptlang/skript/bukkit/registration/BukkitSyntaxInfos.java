@@ -2,13 +2,15 @@ package org.skriptlang.skript.bukkit.registration;
 
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
-import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.registrations.EventValues.EventValueInfo;
-import com.google.common.collect.Multimap;
+import ch.njol.skript.log.BlockingLogHandler;
+import ch.njol.skript.patterns.PatternCompiler;
+import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfosImpl.EventImpl;
 import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.docs.DocumentationAdapter;
@@ -22,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SequencedCollection;
-import java.util.Set;
 
 /**
  * A class containing the interfaces representing Bukkit-specific SyntaxInfo implementations.
@@ -44,10 +45,21 @@ public final class BukkitSyntaxInfos {
 		Key<Event<?>> KEY = Key.of("event");
 
 		/**
-		 * @param eventClass The Structure class the info will represent.
-		 * @param name The name of the SkriptEvent.
-		 * @return A Structure-specific builder for creating a syntax info representing <code>type</code>.
+		 * @param eventClass The SkriptEvent class the info will represent.
+		 * @return A SkriptEvent-specific builder for creating a syntax info representing <code>type</code>.
 		 */
+		static <E extends SkriptEvent> Builder<? extends Builder<?, E>, E> builder(Class<E> eventClass) {
+			return new EventImpl.BuilderImpl<>(eventClass);
+		}
+
+		/**
+		 * @param eventClass The SkriptEvent class the info will represent.
+		 * @param name The name of the SkriptEvent.
+		 * @return A SkriptEvent-specific builder for creating a syntax info representing <code>type</code>.
+		 * @deprecated Use {@link #builder(Class)} instead.
+		 * {@code name} can be provided as part of the info's {@link #documentation()}.
+		 */
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
 		static <E extends SkriptEvent> Builder<? extends Builder<?, E>, E> builder(
 			Class<E> eventClass, String name
 		) {
@@ -68,24 +80,36 @@ public final class BukkitSyntaxInfos {
 
 		/**
 		 * @return The name of the {@link SkriptEvent}.
+		 * @deprecated Use {@link Documentation#name()} on {@link #documentation()}.
 		 */
-		String name();
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
+		default String name() {
+			return documentation().name();
+		}
 
 		/**
 		 * @return A documentation-friendly version of {@link #name()}.
+		 * @deprecated Use {@link Documentation#autoId()} on {@link #documentation()}.
 		 */
-		String id();
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
+		default String id() {
+			return documentation().autoId();
+		}
 
 		/**
 		 * @return Documentation data. Used for identifying specific syntaxes in documentation.
 		 * @see ch.njol.skript.doc.DocumentationId
+		 * @deprecated Use {@link Documentation#id()} on {@link #documentation()}.
 		 */
-		@Nullable String documentationId();
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
+		default @Nullable String documentationId() {
+			return documentation().id();
+		}
 
 		/**
 		 * @return Documentation data. Represents the versions of the plugin in which a syntax was added or modified.
 		 * @see ch.njol.skript.doc.Since
-		 * @deprecated Use {@link #documentation()} instead.
+		 * @deprecated Use {@link Documentation#since()} on {@link #documentation()}.
 		 */
 		@Deprecated(since = "INSERT VERSION", forRemoval = true)
 		default SequencedCollection<String> since() {
@@ -95,7 +119,7 @@ public final class BukkitSyntaxInfos {
 		/**
 		 * @return Documentation data. A description of a syntax.
 		 * @see ch.njol.skript.doc.Description
-		 * @deprecated Use {@link #documentation()} instead.
+		 * @deprecated Use {@link Documentation#description()} on {@link #documentation()}.
 		 */
 		@Deprecated(since = "INSERT VERSION", forRemoval = true)
 		default SequencedCollection<String> description() {
@@ -105,7 +129,7 @@ public final class BukkitSyntaxInfos {
 		/**
 		 * @return Documentation data. Examples for using a syntax.
 		 * @see ch.njol.skript.doc.Examples
-		 * @deprecated Use {@link #documentation()} instead.
+		 * @deprecated Use {@link Documentation#examples()} on {@link #documentation()}.
 		 */
 		@Deprecated(since = "INSERT VERSION", forRemoval = true)
 		default Collection<String> examples() {
@@ -115,7 +139,7 @@ public final class BukkitSyntaxInfos {
 		/**
 		 * @return Documentation data. Keywords are used by the search engine to provide relevant results.
 		 * @see ch.njol.skript.doc.Keywords
-		 * @deprecated Use {@link #documentation()} instead.
+		 * @deprecated Use {@link Documentation#keywords()} on {@link #documentation()}.
 		 */
 		@Deprecated(since = "INSERT VERSION", forRemoval = true)
 		default Collection<String> keywords() {
@@ -125,7 +149,7 @@ public final class BukkitSyntaxInfos {
 		/**
 		 * @return Documentation data. Plugins other than Skript that are required by a syntax.
 		 * @see ch.njol.skript.doc.RequiredPlugins
-		 * @deprecated Use {@link #documentation()} instead.
+		 * @deprecated Use {@link Documentation#requirements()} on {@link #documentation()}.
 		 */
 		@Deprecated(since = "INSERT VERSION", forRemoval = true)
 		default Collection<String> requiredPlugins() {
@@ -139,9 +163,16 @@ public final class BukkitSyntaxInfos {
 
 		@Override
 		default void preWrite(DocumentationAdapter adapter) {
-			String id = documentationId();
+			String id = documentation().id();
 			if (id == null) {
-				id = id();
+				id = type().getSimpleName();
+				if (id.equals("SimpleEvent")) {
+					id = documentation().autoId();
+					if (id.startsWith("On")) {
+						id = id.substring(2);
+					}
+					id = "Evt" + id;
+				}
 			}
 			adapter.enterScope(id);
 		}
@@ -163,38 +194,30 @@ public final class BukkitSyntaxInfos {
 
 			// Event Values
 			List<Map<String, Object>> values = new ArrayList<>();
-			Multimap<Class<? extends org.bukkit.event.Event>, EventValueInfo<?, ?>> allEventValues = EventValues.getPerEventEventValues();
-			for (Class<? extends org.bukkit.event.Event> supportedEvent : events()) {
-				for (var entry : allEventValues.entries()) {
-					Class<? extends org.bukkit.event.Event> event = entry.getKey();
-					EventValueInfo<?, ?> eventValueInfo = entry.getValue();
-
-					if (event == null || eventValueInfo == null) {
-						continue;
+			EventValueRegistry registry = adapter.addon().registry(EventValueRegistry.class);
+			try (BlockingLogHandler ignored = new BlockingLogHandler().start()) { // block any validation errors
+				for (Class<? extends org.bukkit.event.Event> event : events()) {
+					var eventValues = registry.elements(event);
+					for (var eventValue : eventValues) {
+						if (eventValue.validate(event) != EventValue.Validation.VALID) {
+							continue;
+						}
+						Map<String, Object> valueMap = new HashMap<>();
+						valueMap.put("type", eventValue.valueClass());
+						valueMap.put("plural", eventValue.valueClass().isArray());
+						valueMap.put("time", switch (eventValue.time()) {
+							case EventValue.Time.PAST -> "past";
+							case EventValue.Time.NOW -> "present";
+							case EventValue.Time.FUTURE -> "future";
+						});
+						valueMap.put("patterns", eventValue.patterns().stream()
+							.map(pattern -> PatternCompiler.compile(pattern).toString(StringificationProperties.builder()
+								.excludeParseTags()
+								.excludeTypeFlags()
+								.build()))
+							.toList());
+						values.add(valueMap);
 					}
-
-					if (!event.isAssignableFrom(supportedEvent)) {
-						continue;
-					}
-
-					Class<?>[] excludes = eventValueInfo.excludes();
-					if (excludes != null && Set.of(excludes).contains(event)) {
-						continue;
-					}
-
-					Class<?> valueClass = eventValueInfo.valueClass();
-
-					// TODO event value or info needs to be documentable?
-					Map<String, Object> valueMap = new HashMap<>();
-					valueMap.put("type", valueClass);
-					valueMap.put("plural", valueClass.isArray());
-					valueMap.put("time", switch (eventValueInfo.time()) {
-						case EventValues.TIME_PAST -> "past";
-						case EventValues.TIME_NOW -> "present";
-						case EventValues.TIME_FUTURE ->  "future";
-						default -> throw new IllegalStateException("Unexpected value: " + eventValueInfo.time());
-					});
-					values.add(valueMap);
 				}
 			}
 			adapter.write("eventValues", values);
@@ -224,8 +247,10 @@ public final class BukkitSyntaxInfos {
 			 * @param documentationId The documentation identifier to use.
 			 * @return This builder.
 			 * @see Event#documentationId()
+			 * @deprecated Use {@link #documentation(Documentation) instead}.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B documentationId(String documentationId);
 
 			/**

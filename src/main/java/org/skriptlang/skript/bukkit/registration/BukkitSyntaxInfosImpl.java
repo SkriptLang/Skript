@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.SequencedCollection;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 final class BukkitSyntaxInfosImpl {
@@ -27,35 +27,29 @@ final class BukkitSyntaxInfosImpl {
 
 		private final SyntaxInfo<E> defaultInfo;
 		private final ListeningBehavior listeningBehavior;
-		private final String name;
-		private final String id;
-		private final @Nullable String documentationId;
 		private final Collection<Class<? extends org.bukkit.event.Event>> events;
 
 		EventImpl(
-			SyntaxInfo<E> defaultInfo, ListeningBehavior listeningBehavior, String name,
-			@Nullable String documentationId, Collection<Class<? extends org.bukkit.event.Event>> events
+			SyntaxInfo<E> defaultInfo, ListeningBehavior listeningBehavior,
+			Collection<Class<? extends org.bukkit.event.Event>> events
 		) {
-			this.defaultInfo = defaultInfo;
+			String name = defaultInfo.documentation().name();
+			name = name.startsWith("*") ? name.substring(1) : "On " + name;
+			this.defaultInfo = defaultInfo.toBuilder()
+				.documentation(defaultInfo.documentation().toBuilder()
+					.name(name)
+					.build())
+				.build();
 			this.listeningBehavior = listeningBehavior;
-			this.name = name.startsWith("*") ? name.substring(1) : "On " + name;
-			this.id = name.toLowerCase(Locale.ENGLISH)
-					.replaceAll("[#'\"<>/&]", "")
-					.replaceAll("\\s+", "_");
-			this.documentationId = documentationId;
 			this.events = ImmutableList.copyOf(events);
 		}
 
 		@Override
 		public Builder<? extends Builder<?, E>, E> toBuilder() {
-			// add asterisk to prevent prepending "on" again
-			var builder = new BuilderImpl<>(type(), "*" + name);
+			var builder = new BuilderImpl<>(type());
+			builder.oldName = this.documentation().name();
 			defaultInfo.toBuilder().applyTo(builder);
 			builder.listeningBehavior(listeningBehavior);
-			builder.documentationId(id);
-			if (documentationId != null) {
-				builder.documentationId(documentationId);
-			}
 			builder.addEvents(events);
 			return builder;
 		}
@@ -63,22 +57,6 @@ final class BukkitSyntaxInfosImpl {
 		@Override
 		public ListeningBehavior listeningBehavior() {
 			return listeningBehavior;
-		}
-
-		@Override
-		public String name() {
-			return name;
-		}
-
-		@Override
-		public String id() {
-			return id;
-		}
-
-		@Override
-		@Nullable
-		public String documentationId() {
-			return documentationId;
 		}
 
 		@Override
@@ -102,13 +80,12 @@ final class BukkitSyntaxInfosImpl {
 			return type() == info.type() &&
 					Objects.equals(patterns(), info.patterns()) &&
 					Objects.equals(priority(), info.priority()) &&
-					Objects.equals(name(), info.name()) &&
 					Objects.equals(events(), info.events());
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(defaultInfo, name(), events());
+			return Objects.hash(defaultInfo, events());
 		}
 
 		@Override
@@ -118,7 +95,6 @@ final class BukkitSyntaxInfosImpl {
 					.add("patterns", patterns())
 					.add("priority", priority())
 					.add("documentation", documentation())
-					.add("name", name())
 					.add("events", events())
 					.toString();
 		}
@@ -158,22 +134,26 @@ final class BukkitSyntaxInfosImpl {
 
 			private final SyntaxInfo.Builder<?, E> defaultBuilder;
 			private ListeningBehavior listeningBehavior = ListeningBehavior.UNCANCELLED;
-			String description = "";
-			private @Nullable Documentation.Builder<?> documentationBuilder;
-			private final String name;
-			private @Nullable String documentationId;
 			private final List<Class<? extends org.bukkit.event.Event>> events = new ArrayList<>();
+
+			private @Nullable String oldName = null;
+
+			BuilderImpl(Class<E> type) {
+				this.defaultBuilder = SyntaxInfo.builder(type);
+			}
 
 			BuilderImpl(Class<E> type, String name) {
 				this.defaultBuilder = SyntaxInfo.builder(type);
-				this.name = name;
+				editDocumentation(builder -> builder.name(name));
 			}
 
-			private Documentation.Builder<?> documentationBuilder() {
-				if (documentationBuilder == null) {
-					documentationBuilder = Documentation.builder();
-				}
-				return documentationBuilder;
+			private void editDocumentation(Consumer<Documentation.Builder<?>> consumer) {
+				var tempDefault = defaultBuilder.addPattern("").build();
+				var builder = tempDefault.documentation().toBuilder();
+				consumer.accept(builder);
+				defaultBuilder.clearPatterns()
+					.addPatterns(tempDefault.patterns().stream().filter(pattern -> !pattern.isEmpty()).toList())
+					.documentation(builder.build());
 			}
 
 			@Override
@@ -184,131 +164,134 @@ final class BukkitSyntaxInfosImpl {
 
 			@Override
 			public B documentationId(String documentationId) {
-				this.documentationId = documentationId;
+				editDocumentation(builder -> builder.id(documentationId));
 				return (B) this;
 			}
 
 			@Override
 			public B addSince(String since) {
-				documentationBuilder().addSince(since);
+				editDocumentation(builder -> builder.addSince(since));
 				return (B) this;
 			}
 
 			@Override
 			public B addSince(String... since) {
-				documentationBuilder().addSince(since);
+				editDocumentation(builder -> builder.addSince(since));
 				return (B) this;
 			}
 
 			@Override
 			public B addSince(Collection<String> since) {
-				documentationBuilder().addSince(since);
+				editDocumentation(builder -> builder.addSince(since));
 				return (B) this;
 			}
 
 			@Override
 			public B clearSince() {
-				documentationBuilder().clearSince();
+				editDocumentation(Documentation.Builder::clearSince);
 				return (B) this;
 			}
 
 			@Override
 			public B addDescription(String description) {
-				this.description += description;
-				documentationBuilder().description(this.description);
+				addDescription(List.of(description));
 				return (B) this;
 			}
 
 			@Override
 			public B addDescription(String... description) {
-				this.description += String.join("\n", description);
-				documentationBuilder().description(this.description);
+				addDescription(List.of(description));
 				return (B) this;
 			}
 
 			@Override
 			public B addDescription(Collection<String> description) {
-				this.description += String.join("\n", description);
-				documentationBuilder().description(this.description);
+				editDocumentation(builder -> {
+					String current = builder.build().description();
+					if (!current.isEmpty()) {
+						current += "\n";
+					}
+					current += String.join("\n", description);
+					builder.description(current);
+				});
 				return (B) this;
 			}
 
 			@Override
 			public B clearDescription() {
-				this.description = "";
-				documentationBuilder().description(this.description);
+				editDocumentation(builder -> builder.description(""));
 				return (B) this;
 			}
 
 			@Override
 			public B addExample(String example) {
-				documentationBuilder().addExamples(example);
+				editDocumentation(builder -> builder.addExample(example));
 				return (B) this;
 			}
 
 			@Override
 			public B addExamples(String... examples) {
-				documentationBuilder().addExamples(examples);
+				editDocumentation(builder -> builder.addExamples(examples));
 				return (B) this;
 			}
 
 			@Override
 			public B addExamples(Collection<String> examples) {
-				documentationBuilder().addExamples(examples);
+				editDocumentation(builder -> builder.addExamples(examples));
 				return (B) this;
 			}
 
 			@Override
 			public B clearExamples() {
-				documentationBuilder().clearExamples();
+				editDocumentation(Documentation.Builder::clearExamples);
 				return (B) this;
 			}
 
 			@Override
 			public B addKeyword(String keyword) {
-				documentationBuilder().addKeywords(keyword);
+				editDocumentation(builder -> builder.addKeyword(keyword));
 				return (B) this;
 			}
 
 			@Override
 			public B addKeywords(String... keywords) {
-				documentationBuilder().addKeywords(keywords);
+				editDocumentation(builder -> builder.addKeywords(keywords));
 				return (B) this;
 			}
 
 			@Override
 			public B addKeywords(Collection<String> keywords) {
-				documentationBuilder().addKeywords(keywords);
+				editDocumentation(builder -> builder.addKeywords(keywords));
 				return (B) this;
 			}
 
 			@Override
 			public B clearKeywords() {
-				documentationBuilder().clearKeywords();
+				editDocumentation(Documentation.Builder::clearKeywords);
 				return (B) this;
 			}
 
 			@Override
 			public B addRequiredPlugin(String plugin) {
-				documentationBuilder().addRequirements(plugin);
+				editDocumentation(builder -> builder.addRequirement(plugin));
 				return (B) this;
 			}
 
 			@Override
 			public B addRequiredPlugins(String... plugins) {
-				documentationBuilder().addRequirements(plugins);
+				editDocumentation(builder -> builder.addRequirements(plugins));
 				return (B) this;
 			}
 
 			@Override
 			public B addRequiredPlugins(Collection<String> plugins) {
-				documentationBuilder().addRequirements(plugins);
+				editDocumentation(builder -> builder.addRequirements(plugins));
 				return (B) this;
 			}
 
 			@Override
 			public B clearRequiredPlugins() {
-				documentationBuilder().clearRequirements();
+				editDocumentation(Documentation.Builder::clearRequirements);
 				return (B) this;
 			}
 
@@ -381,29 +364,26 @@ final class BukkitSyntaxInfosImpl {
 			@Override
 			public B documentation(Documentation documentation) {
 				defaultBuilder.documentation(documentation);
+				if (!documentation.name().equals(oldName)) {
+					oldName = null;
+				}
 				return (B) this;
 			}
 
 			@Override
 			public Event<E> build() {
-				if (documentationBuilder != null) {
-					defaultBuilder.documentation(documentationBuilder.name(name).build());
+				if (this.oldName != null) { // bruh
+					editDocumentation(builder -> builder.name("*" + this.oldName));
 				}
-				return new EventImpl<>(defaultBuilder.build(), listeningBehavior, name, documentationId, events);
+				return new EventImpl<>(defaultBuilder.build(), listeningBehavior, events);
 			}
 
 			@Override
 			public void applyTo(SyntaxInfo.Builder<?, ?> builder) {
 				defaultBuilder.applyTo(builder);
-				if (documentationBuilder != null) {
-					builder.documentation(documentationBuilder.name(name).build());
-				}
 				//noinspection rawtypes - Should be safe, generics will not influence this
 				if (builder instanceof Event.Builder eventBuilder) {
 					eventBuilder.listeningBehavior(listeningBehavior);
-					if (documentationId != null) {
-						eventBuilder.documentationId(documentationId);
-					}
 					eventBuilder.addEvents(events);
 				}
 			}

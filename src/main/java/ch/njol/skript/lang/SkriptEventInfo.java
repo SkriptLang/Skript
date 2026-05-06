@@ -262,7 +262,6 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 				.priority(priority())
 				.documentation(documentation())
 				.listeningBehavior(listeningBehavior())
-				.documentationId(id())
 				.addEvents(events());
 		}
 

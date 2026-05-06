@@ -23,13 +23,13 @@ import java.util.function.Supplier;
 public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends DocumentationDocumentable, DefaultSyntaxInfos {
 
 	/**
-	 * A priority for infos with patterns that only match simple text (they do not have any {@link Expression}s).
+	 * A priority for infos with patterns that only match simple text (they do not have any {@link ch.njol.skript.lang.Expression}s).
 	 * Example: "[the] console"
 	 */
 	Priority SIMPLE = Priority.base();
 
 	/**
-	 * A priority for infos with patterns that contain at least one {@link Expression}.
+	 * A priority for infos with patterns that contain at least one {@link ch.njol.skript.lang.Expression}.
 	 * This is typically the default priority of an info.
 	 * Example: "[the] first %number% characters of %strings%"
 	 */
@@ -105,7 +105,7 @@ public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends Document
 
 	@Override
 	default void write(DocumentationAdapter adapter) {
-		// overwrite ID before applying
+		// ensure ID is set before applying
 		adapter.write(documentation().toBuilder()
 			.id(adapter.currentScope())
 			.build());
@@ -115,11 +115,6 @@ public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends Document
 				.excludeTypeFlags()
 				.build()))
 			.toList());
-	}
-
-	@Override
-	default void postWrite(DocumentationAdapter adapter) {
-		adapter.exitScope();
 	}
 
 	/**
