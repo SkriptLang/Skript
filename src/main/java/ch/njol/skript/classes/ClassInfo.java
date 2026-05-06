@@ -11,6 +11,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import com.google.common.collect.ImmutableList;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.ApiStatus;
@@ -93,7 +94,7 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 		}
 		documentation = Documentation.builder()
 			.origin(Origin.of(source))
-			.id(codeName)
+			.id("Type" + WordUtils.capitalizeFully(name.getSingular()).replace(" ", ""))
 			.build();
 	}
 
