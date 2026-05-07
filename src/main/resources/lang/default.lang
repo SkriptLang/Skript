@@ -290,13 +290,13 @@ biomes:
 # -- Tree Types --
 tree types:
 	tree: tree, any tree
-	regular: oak tree, any oak tree, any normal tree, any regular tree
-	small_regular: small oak tree, small normal tree, small regular tree
-	big_regular: big oak tree, big normal tree, big regular tree
-	redwood: spruce tree, any spruce tree
-	small_redwood: small spruce tree
-	big_redwood: big spruce tree, tall spruce tree
-	mega_redwood: mega spruce tree, giant spruce tree
+	oak: oak tree, any oak tree, any normal tree, any regular tree
+	small_oak: small oak tree, small normal tree, small regular tree
+	big_oak: big oak tree, big normal tree, big regular tree
+	spruce: spruce tree, any spruce tree
+	small_spruce: small spruce tree
+	big_spruce: big spruce tree, tall spruce tree
+	mega_spruce: mega spruce tree, giant spruce tree
 	birch: birch tree, any birch tree
 	small_birch: small birch tree
 	tall_birch: tall birch tree
