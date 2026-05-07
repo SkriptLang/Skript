@@ -654,9 +654,6 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		return data;
 	}
 
-	// Can remove after 1.21.3 is the minimum supported version
-	private static final boolean HAS_CUSTOM_NAME = Skript.methodExists(PotionMeta.class, "hasCustomPotionName");
-
 	private static void copyPotionInfo(PotionMeta potionMeta, ItemData data) {
 		PotionMeta newMeta = (PotionMeta) itemFactory.getItemMeta(data.type);
 		if (newMeta.equals(potionMeta))
@@ -671,7 +668,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		}
 		if (potionMeta.hasColor())
 			newMeta.setColor(potionMeta.getColor());
-		if (HAS_CUSTOM_NAME && potionMeta.hasCustomPotionName())
+		if (potionMeta.hasCustomPotionName())
 			newMeta.setCustomPotionName(potionMeta.getCustomPotionName());
 		data.itemFlags = ItemFlags.CHANGED_TAGS;
 		data.setItemMeta(newMeta);
