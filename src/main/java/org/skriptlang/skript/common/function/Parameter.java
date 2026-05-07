@@ -13,6 +13,8 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.DefaultFunction.Builder;
 import org.skriptlang.skript.common.function.Parameter.Modifier.RangedModifier;
+import org.skriptlang.skript.docs.Documentable;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 
@@ -156,9 +158,24 @@ public interface Parameter<T> {
 		}
 
 		/**
+		 * Creates a new modifier with support for being documented.
+		 * @param documentable Documentable describing this modifier.
+		 * @return A new Modifier instance to be used as a custom flag.
+		 */
+		private static Modifier of(Documentable documentable) {
+			class DocumentableModifier implements Modifier, Documentable {
+				@Override
+				public void write(DocumentationAdapter adapter) {
+					adapter.write(documentable);
+				}
+			}
+			return new DocumentableModifier();
+		}
+
+		/**
 		 * The modifier for parameters that are optional.
 		 */
-		Modifier OPTIONAL = of();
+		Modifier OPTIONAL = of(adapter -> adapter.write("optional", true));
 
 		/**
 		 * The modifier for parameters that support optional keyed expressions.
@@ -187,7 +204,7 @@ public interface Parameter<T> {
 		 * Note that ALL instances will have the same hashCode and will be equal to {@link Modifier#RANGED}.
 		 * Avoid comparing these objects or putting multiple into a HashSet or HashMap!
 		 */
-		class RangedModifier<T extends Comparable<T>> implements Modifier {
+		class RangedModifier<T extends Comparable<T>> implements Modifier, Documentable {
 			private final T min;
 			private final T max;
 
@@ -265,6 +282,13 @@ public interface Parameter<T> {
 				return "RangedModifier(min=" + min + ", max=" + max + ")";
 			}
 
+			@Override
+			public void write(DocumentationAdapter adapter) {
+				adapter.enterScope("ranged");
+				adapter.write("min", min);
+				adapter.write("max", max);
+				adapter.exitScope();
+			}
 		}
 	}
 

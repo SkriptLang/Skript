@@ -1,10 +1,11 @@
 package org.skriptlang.skript.common.function;
 
-import ch.njol.skript.doc.Documentable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
+import org.skriptlang.skript.docs.Documentation;
+import org.skriptlang.skript.docs.DocumentationDocumentable;
 
 /**
  * A function that has been implemented in Java, instead of in Skript.
@@ -33,7 +34,7 @@ import org.skriptlang.skript.common.function.Parameter.Modifier;
  * @see #builder(SkriptAddon, String, Class)
  */
 public sealed interface DefaultFunction<T>
-		extends Function<T>, Documentable
+		extends Function<T>, DocumentationDocumentable, ch.njol.skript.doc.Documentable
 		permits DefaultFunctionImpl {
 
 	/**
@@ -71,51 +72,6 @@ public sealed interface DefaultFunction<T>
 		Builder<T> contract(@NotNull ch.njol.skript.util.Contract contract);
 
 		/**
-		 * Sets this function builder's description.
-		 *
-		 * @param description The description.
-		 * @return This builder.
-		 */
-		@Contract("_ -> this")
-		Builder<T> description(@NotNull String @NotNull ... description);
-
-		/**
-		 * Sets this function builder's version history.
-		 *
-		 * @param since The version information.
-		 * @return This builder.
-		 */
-		@Contract("_ -> this")
-		Builder<T> since(@NotNull String @NotNull ... since);
-
-		/**
-		 * Sets this function builder's examples.
-		 *
-		 * @param examples The examples.
-		 * @return This builder.
-		 */
-		@Contract("_ -> this")
-		Builder<T> examples(@NotNull String @NotNull ... examples);
-
-		/**
-		 * Sets this function builder's keywords.
-		 *
-		 * @param keywords The keywords.
-		 * @return This builder.
-		 */
-		@Contract("_ -> this")
-		Builder<T> keywords(@NotNull String @NotNull ... keywords);
-
-		/**
-		 * Sets this function builder's requires.
-		 *
-		 * @param requires The requirements.
-		 * @return This builder.
-		 */
-		@Contract("_ -> this")
-		Builder<T> requires(@NotNull String @NotNull ... requires);
-
-		/**
 		 * Adds a parameter to this function builder.
 		 *
 		 * @param name      The parameter name.
@@ -127,12 +83,75 @@ public sealed interface DefaultFunction<T>
 		Builder<T> parameter(@NotNull String name, @NotNull Class<?> type, Modifier @NotNull ... modifiers);
 
 		/**
+		 * Sets this function's documentation.
+		 * @param documentation Documentation describing this function.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		Builder<T> documentation(@NotNull Documentation documentation);
+
+		/**
 		 * Completes this builder with the code to execute on call of this function.
 		 *
 		 * @param execute The code to execute.
 		 * @return The final function.
 		 */
 		DefaultFunction<T> build(@NotNull java.util.function.Function<FunctionArguments, T> execute);
+
+		/**
+		 * Sets this function builder's description.
+		 *
+		 * @param description The description.
+		 * @return This builder.
+		 * @deprecated Use {@link #documentation(Documentation)} with {@link Documentation#description()}.
+		 */
+		@Contract("_ -> this")
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
+		Builder<T> description(@NotNull String @NotNull ... description);
+
+		/**
+		 * Sets this function builder's version history.
+		 *
+		 * @param since The version information.
+		 * @return This builder.
+		 * @deprecated Use {@link #documentation(Documentation)} with {@link Documentation#since()}.
+		 */
+		@Contract("_ -> this")
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
+		Builder<T> since(@NotNull String @NotNull ... since);
+
+		/**
+		 * Sets this function builder's examples.
+		 *
+		 * @param examples The examples.
+		 * @return This builder.
+		 * @deprecated Use {@link #documentation(Documentation)} with {@link Documentation#examples()}.
+		 */
+		@Contract("_ -> this")
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
+		Builder<T> examples(@NotNull String @NotNull ... examples);
+
+		/**
+		 * Sets this function builder's keywords.
+		 *
+		 * @param keywords The keywords.
+		 * @return This builder.
+		 * @deprecated Use {@link #documentation(Documentation)} with {@link Documentation#keywords()}.
+		 */
+		@Contract("_ -> this")
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
+		Builder<T> keywords(@NotNull String @NotNull ... keywords);
+
+		/**
+		 * Sets this function builder's requires.
+		 *
+		 * @param requires The requirements.
+		 * @return This builder.
+		 * @deprecated Use {@link #documentation(Documentation)} with {@link Documentation#requirements()}.
+		 */
+		@Contract("_ -> this")
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
+		Builder<T> requires(@NotNull String @NotNull ... requires);
 
 	}
 

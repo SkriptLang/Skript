@@ -5,13 +5,17 @@ import ch.njol.skript.lang.function.Signature;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 import org.skriptlang.skript.common.function.Parameter.Modifier.RangedModifier;
+import org.skriptlang.skript.docs.Documentable;
+import org.skriptlang.skript.docs.Documentation;
+import org.skriptlang.skript.docs.DocumentationAdapter;
+import org.skriptlang.skript.docs.Origin;
 
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function<T> implements DefaultFunction<T> {
@@ -20,11 +24,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	private final SequencedMap<String, Parameter<?>> parameters;
 	private final Function<FunctionArguments, T> execute;
 
-	private final List<String> description;
-	private final List<String> since;
-	private final List<String> examples;
-	private final List<String> keywords;
-	private final List<String> requires;
+	private final Documentation documentation;
 
 	DefaultFunctionImpl(
 			SkriptAddon source,
@@ -33,8 +33,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			Class<T> returnType, boolean single,
 			@Nullable ch.njol.skript.util.Contract contract,
 			Function<FunctionArguments, T> execute,
-			String[] description, String[] since, String[] examples,
-			String[] keywords, String[] requires
+			Documentation documentation
 	) {
 		super(new Signature<>(null, name, parameters.values().toArray(new Parameter[0]), returnType, single, contract));
 
@@ -47,11 +46,20 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		this.source = source;
 		this.parameters = parameters;
 		this.execute = execute;
-		this.description = description != null ? List.of(description) : Collections.emptyList();
-		this.since = since != null ? List.of(since) : Collections.emptyList();
-		this.examples = examples != null ? List.of(examples) : Collections.emptyList();
-		this.keywords = keywords != null ? List.of(keywords) : Collections.emptyList();
-		this.requires = requires != null ? List.of(requires) : Collections.emptyList();
+
+		// cleanup documentation
+		var builder = documentation.toBuilder();
+		if (documentation.origin() == Origin.UNKNOWN) {
+			builder.origin(Origin.of(source));
+		}
+		if (documentation.name().isEmpty()) {
+			builder.name(name);
+		}
+		if (documentation.id() == null) {
+			// need to build so that it uses the "final" information for autoId
+			builder.id("Func" + builder.build().autoId());
+		}
+		this.documentation = builder.build();
 	}
 
 	@Override
@@ -147,28 +155,8 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	}
 
 	@Override
-	public @Unmodifiable @NotNull List<String> description() {
-		return description;
-	}
-
-	@Override
-	public @Unmodifiable @NotNull List<String> since() {
-		return since;
-	}
-
-	@Override
-	public @Unmodifiable @NotNull List<String> examples() {
-		return examples;
-	}
-
-	@Override
-	public @Unmodifiable @NotNull List<String> keywords() {
-		return keywords;
-	}
-
-	@Override
-	public @Unmodifiable @NotNull List<String> requires() {
-		return requires;
+	public Documentation documentation() {
+		return documentation;
 	}
 
 	@Override
@@ -190,11 +178,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 
 		private ch.njol.skript.util.Contract contract = null;
 
-		private String[] description;
-		private String[] since;
-		private String[] examples;
-		private String[] keywords;
-		private String[] requires;
+		private Documentation documentation = null;
 
 		BuilderImpl(@NotNull SkriptAddon source, @NotNull String name, @NotNull Class<T> returnType) {
 			Preconditions.checkNotNull(source, "source cannot be null");
@@ -214,12 +198,18 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			return this;
 		}
 
+		private void editDocumentation(Consumer<Documentation.Builder<?>> consumer) {
+			var builder = documentation == null ? Documentation.builder() : documentation.toBuilder();
+			consumer.accept(builder);
+			documentation = builder.build();
+		}
+
 		@Override
 		public Builder<T> description(@NotNull String @NotNull ... description) {
 			Preconditions.checkNotNull(description, "description cannot be null");
 			checkNotNull(description, "description contents cannot be null");
 
-			this.description = description;
+			editDocumentation(builder -> builder.description(String.join("\n", description)));
 			return this;
 		}
 
@@ -228,7 +218,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			Preconditions.checkNotNull(since, "since cannot be null");
 			checkNotNull(since, "since contents cannot be null");
 
-			this.since = since;
+			editDocumentation(builder -> builder.clearSince().addSince(since));
 			return this;
 		}
 
@@ -237,7 +227,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			Preconditions.checkNotNull(examples, "examples cannot be null");
 			checkNotNull(examples, "examples contents cannot be null");
 
-			this.examples = examples;
+			editDocumentation(builder -> builder.clearExamples().addExamples(examples));
 			return this;
 		}
 
@@ -246,16 +236,16 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			Preconditions.checkNotNull(keywords, "keywords cannot be null");
 			checkNotNull(keywords, "keywords contents cannot be null");
 
-			this.keywords = keywords;
+			editDocumentation(builder -> builder.clearKeywords().addKeywords(keywords));
 			return this;
 		}
 
 		@Override
 		public Builder<T> requires(@NotNull String @NotNull ... requires) {
-			Preconditions.checkNotNull(keywords, "requires cannot be null");
-			checkNotNull(keywords, "requires contents cannot be null");
+			Preconditions.checkNotNull(requires, "requires cannot be null");
+			checkNotNull(requires, "requires contents cannot be null");
 
-			this.requires = requires;
+			editDocumentation(builder -> builder.clearRequirements().addRequirements(requires));
 			return this;
 		}
 
@@ -269,12 +259,19 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		}
 
 		@Override
+		public Builder<T> documentation(@NotNull Documentation documentation) {
+			Preconditions.checkNotNull(documentation, "documentation cannot be null");
+			this.documentation = documentation;
+			return this;
+		}
+
+		@Override
 		public DefaultFunction<T> build(@NotNull Function<FunctionArguments, T> execute) {
 			Preconditions.checkNotNull(execute, "execute cannot be null");
 
 			return new DefaultFunctionImpl<>(source, name, parameters,
 					returnType, !returnType.isArray(), contract, execute,
-					description, since, examples, keywords, requires);
+					documentation);
 		}
 
 		/**
@@ -299,7 +296,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	 * @param <T> The type.
 	 */
 	record DefaultParameter<T>(String name, Class<T> type, Set<Modifier> modifiers)
-			implements Parameter<T> {
+			implements Parameter<T>, Documentable {
 
 		DefaultParameter(String name, Class<T> type, Modifier... modifiers) {
 			this(name, type, Set.of(modifiers));
@@ -309,6 +306,40 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		public @NotNull String toString() {
 			return toFormattedString();
 		}
+
+		@Override
+		public void write(DocumentationAdapter adapter) {
+			adapter.enterScope(name);
+			adapter.write("name", name);
+			adapter.write("type", type);
+			adapter.write("plural", type.isArray());
+			adapter.enterScope("modifiers");
+			modifiers.forEach(modifier -> {
+				if (modifier instanceof Documentable documentable) {
+					adapter.write(documentable);
+				}
+			});
+			adapter.exitScope();
+			adapter.exitScope();
+		}
+	}
+
+	@Override
+	public void write(DocumentationAdapter adapter) {
+		// write default data
+		DefaultFunction.super.write(adapter);
+
+		// return type
+		adapter.write("returns", getReturnType() == null ? "null" : getReturnType().getC());
+
+		// parameters
+		adapter.enterScope("parameters");
+		parameters.values().forEach(parameter -> {
+			if (parameter instanceof Documentable documentable) {
+				adapter.write(documentable);
+			}
+		});
+		adapter.exitScope();
 	}
 
 }

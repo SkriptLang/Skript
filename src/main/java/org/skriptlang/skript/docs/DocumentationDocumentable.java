@@ -25,7 +25,7 @@ public interface DocumentationDocumentable extends Documentable {
 				"Method preWrite must be overridden for DocumentationDocumentable if documentation may not have an ID"
 			);
 		}
-		adapter.enterScope(documentation().id());
+		adapter.enterScope(id);
 	}
 
 	@Override
