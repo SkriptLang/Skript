@@ -85,7 +85,7 @@ public class ExprPlayerListPriority extends SimplePropertyExpression<Player, Int
 
 	@Override
 	protected String getPropertyName() {
-		return "tablist priority";
+		return "player list priority";
 	}
 
 }
