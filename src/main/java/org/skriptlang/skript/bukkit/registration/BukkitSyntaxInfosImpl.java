@@ -136,6 +136,7 @@ final class BukkitSyntaxInfosImpl {
 			private ListeningBehavior listeningBehavior = ListeningBehavior.UNCANCELLED;
 			private final List<Class<? extends org.bukkit.event.Event>> events = new ArrayList<>();
 
+			private @Nullable Documentation documentation;
 			private @Nullable String oldName = null;
 
 			BuilderImpl(Class<E> type) {
@@ -148,12 +149,9 @@ final class BukkitSyntaxInfosImpl {
 			}
 
 			private void editDocumentation(Consumer<Documentation.Builder<?>> consumer) {
-				var tempDefault = defaultBuilder.addPattern("").build();
-				var builder = tempDefault.documentation().toBuilder();
+				var builder = documentation == null ? Documentation.builder() : documentation.toBuilder();
 				consumer.accept(builder);
-				defaultBuilder.clearPatterns()
-					.addPatterns(tempDefault.patterns().stream().filter(pattern -> !pattern.isEmpty()).toList())
-					.documentation(builder.build());
+				documentation = builder.build();
 			}
 
 			@Override
@@ -321,7 +319,7 @@ final class BukkitSyntaxInfosImpl {
 
 			@Override
 			public B origin(Origin origin) {
-				defaultBuilder.origin(origin);
+				editDocumentation(builder -> builder.origin(origin));
 				return (B) this;
 			}
 
@@ -363,7 +361,7 @@ final class BukkitSyntaxInfosImpl {
 
 			@Override
 			public B documentation(Documentation documentation) {
-				defaultBuilder.documentation(documentation);
+				this.documentation = documentation;
 				if (!documentation.name().equals(oldName)) {
 					oldName = null;
 				}
@@ -375,12 +373,18 @@ final class BukkitSyntaxInfosImpl {
 				if (this.oldName != null) { // bruh
 					editDocumentation(builder -> builder.name("*" + this.oldName));
 				}
+				if (documentation != null) {
+					defaultBuilder.documentation(documentation);
+				}
 				return new EventImpl<>(defaultBuilder.build(), listeningBehavior, events);
 			}
 
 			@Override
 			public void applyTo(SyntaxInfo.Builder<?, ?> builder) {
 				defaultBuilder.applyTo(builder);
+				if (documentation != null) {
+					builder.documentation(documentation);
+				}
 				//noinspection rawtypes - Should be safe, generics will not influence this
 				if (builder instanceof Event.Builder eventBuilder) {
 					eventBuilder.listeningBehavior(listeningBehavior);

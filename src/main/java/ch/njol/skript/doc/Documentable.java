@@ -31,7 +31,11 @@ public interface Documentable {
 	 * @return The unmodifiable description.
 	 */
 	default @Unmodifiable @NotNull List<String> description() {
-		return List.of(asDocumentation().description().split("\n"));
+		String description = asDocumentation().description();
+		if (description.isEmpty()) {
+			return List.of();
+		}
+		return List.of(description.split("\n"));
 	}
 
 	/**

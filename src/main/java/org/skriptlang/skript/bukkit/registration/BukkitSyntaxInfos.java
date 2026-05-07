@@ -123,7 +123,11 @@ public final class BukkitSyntaxInfos {
 		 */
 		@Deprecated(since = "INSERT VERSION", forRemoval = true)
 		default SequencedCollection<String> description() {
-			return List.of(documentation().description().split("\n"));
+			String description = documentation().description();
+			if (description.isEmpty()) {
+				return List.of();
+			}
+			return List.of(description.split("\n"));
 		}
 
 		/**
@@ -165,14 +169,11 @@ public final class BukkitSyntaxInfos {
 		default void preWrite(DocumentationAdapter adapter) {
 			String id = documentation().id();
 			if (id == null) {
-				id = type().getSimpleName();
-				if (id.equals("SimpleEvent")) {
-					id = documentation().autoId();
-					if (id.startsWith("On")) {
-						id = id.substring(2);
-					}
-					id = "Evt" + id;
+				id = documentation().autoId();
+				if (id.startsWith("On")) {
+					id = id.substring(2);
 				}
+				id = "Evt" + id;
 			}
 			adapter.enterScope(id);
 		}
