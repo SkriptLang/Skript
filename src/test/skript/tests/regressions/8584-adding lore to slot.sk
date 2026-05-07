@@ -1,0 +1,5 @@
+test "regression 8584 - adding lore to slot":
+	set {_inv} to a new chest inventory named "Testing Chest"
+	set slot 0 of {_inv} to a book
+	add "Hello world!" to lore of (slot 0 of {_inv})
+	assert lore of (slot 0 of {_inv}) is "Hello world!"
