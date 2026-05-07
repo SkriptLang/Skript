@@ -289,69 +289,39 @@ biomes:
 
 # -- Tree Types --
 tree types:
-	tree:
-		name: tree¦s
-		pattern: (any )?trees?
-	regular:
-		name: oak¦s
-		pattern: (any )?(regular|normal|oak)( tree)?s?
-	small_regular:
-		name: small oak¦s
-		pattern: small (regular|normal|oak)( tree)?s?
-	big_regular:
-		name: big tree¦s
-		pattern: (big|large) (regular|normal|oak)( tree)?s?
-	redwood:
-		name: redwood¦s
-		pattern: (any )?(fir|pine|spruce|redwood)( tree)?s?
-	small_redwood:
-		name: small redwood¦s
-		pattern: small (fir|pine|spruce|redwood)( tree)?s?
-	big_redwood:
-		name: tall redwood¦s
-		pattern: (big|tall) (fir|pine|spruce|redwood)( tree)?s?
-	mega_redwood:
-		name: mega redwood¦s
-		pattern: (mega|giant) (fir|pine|spruce|redwood)( tree)?s?
-	birch:
-		name: birch¦es
-		pattern: birch( trees?|es)
-	tall_birch:
-		name: tall birch¦es
-		pattern: (tall|big) birch( trees?|es)
-	jungle:
-		name: jungle tree¦s
-		pattern: (any )?jungle( tree)?s?
-	small_jungle:
-		name: small jungle tree¦s
-		pattern: small jungle( tree)?s?
-	big_jungle:
-		name: big jungle tree¦s
-		pattern: (big|tall|huge|giant|large) jungle( tree)?s?
-	cocoa_tree:
-		name: cocoa tree¦s
-		pattern: cocoa trees?
-	acacia:
-		name: acacia¦s
-		pattern: acacia( tree)?s?
-	dark_oak:
-		name: dark oak¦s
-		pattern: dark oak( tree)?s?
-	jungle_bush:
-		name: bush¦es
-		pattern: (jungle )?bush(es)?
-	swamp:
-		name: swamp tree¦s
-		pattern: swamp trees?
-	mushroom:
-		name: huge mushroom¦s
-		pattern: (any )?(huge|giant|large|big) mushrooms?
-	red_mushroom:
-		name: huge red mushroom¦s
-		pattern: (huge|giant|large|big) red mushrooms?
-	brown_mushroom:
-		name: huge brown mushroom¦s
-		pattern: (huge|giant|large|big) brown mushrooms?
+	tree: tree, any tree
+	regular: oak tree, any oak tree, any normal tree, any regular tree
+	small_regular: small oak tree, small normal tree, small regular tree
+	big_regular: big oak tree, big normal tree, big regular tree
+	redwood: spruce tree, any spruce tree
+	small_redwood: small spruce tree
+	big_redwood: big spruce tree, tall spruce tree
+	mega_redwood: mega spruce tree, giant spruce tree
+	birch: birch tree, any birch tree
+	small_birch: small birch tree
+	tall_birch: tall birch tree
+	jungle: jungle tree, any jungle tree
+	small_jungle: small jungle tree
+	big_jungle: big jungle tree, tall jungle tree, giant jungle tree
+	cocoa_tree: cocoa tree, jungle cocoa tree, cocoa jungle tree
+	jungle_bush: jungle bush, jungle bush tree
+	acacia: acacia tree
+	dark_oak: dark oak tree
+	swamp: swamp tree, swamp oak, swamp oak tree
+	mushroom: huge mushroom, any huge mushroom
+	red_mushroom: huge red mushroom
+	brown_mushroom: huge brown mushroom
+	mangrove: mangrove tree, any mangrove treee
+	small_mangrove: small mangrove tree
+	big_mangrove: big mangrove tree
+	azalea: azalea tree
+	pale_oak: pale oak tree, any pale oak tree
+	pale_oak_normal: normal pale oak tree
+	pale_oak_creaking: creaking pale oak tree
+	cherry: cherry tree
+	crimson_fungus: crimson fungus, crimson tree, crimson fungus tree
+	warped_fungus: warped fungus, warped tree, warped fungus tree
+	chorus_plant: chorus plant
 
 # -- Time --
 time:
