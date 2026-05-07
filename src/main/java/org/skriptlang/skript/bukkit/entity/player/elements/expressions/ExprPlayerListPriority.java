@@ -51,23 +51,20 @@ public class ExprPlayerListPriority extends SimplePropertyExpression<Player, Int
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		Integer amount = mode == ChangeMode.RESET ? null : (Integer) delta[0];
-
+		if (delta == null && mode != ChangeMode.RESET) return;
+		Integer amount = mode == ChangeMode.RESET ? 0 : (Integer) delta[0];
 		switch (mode) {
 			case ADD -> {
-				assert amount != null;
 				for (Player player : getExpr().getArray(event)) {
 					player.setPlayerListOrder((int) Math.max(0, Math2.addClamped(player.getPlayerListOrder(), amount)));
 				}
 			}
 			case REMOVE -> {
-				assert amount != null;
 				for (Player player : getExpr().getArray(event)) {
 					player.setPlayerListOrder(Math.max(0,player.getPlayerListOrder() - amount));
 				}
 			}
 			case SET -> {
-				assert amount != null;
 				amount = Math.max(0, amount);
 				for (Player player : getExpr().getArray(event)) {
 					player.setPlayerListOrder(amount);
