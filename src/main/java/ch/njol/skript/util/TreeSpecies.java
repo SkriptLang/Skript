@@ -15,7 +15,7 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
 import ch.njol.util.coll.CollectionUtils;
 
-public enum StructureType {
+public enum TreeSpecies {
 	TREE(TreeType.TREE, TreeType.BIG_TREE, TreeType.REDWOOD, TreeType.TALL_REDWOOD, TreeType.MEGA_REDWOOD,
 			TreeType.BIRCH, TreeType.TALL_BIRCH, TreeType.SMALL_JUNGLE, TreeType.JUNGLE, TreeType.COCOA_TREE,
 			TreeType.ACACIA, TreeType.DARK_OAK, TreeType.SWAMP),
@@ -37,7 +37,7 @@ public enum StructureType {
 	private Noun name;
 	private final TreeType[] types;
 	
-	private StructureType(TreeType... types) {
+	private TreeSpecies(TreeType... types) {
 		this.types = types;
 		name = new Noun("tree types." + name() + ".name");
 	}
@@ -78,22 +78,22 @@ public enum StructureType {
 	/**
 	 * lazy
 	 */
-	final static Map<Pattern, StructureType> parseMap = new HashMap<>();
+	final static Map<Pattern, TreeSpecies> parseMap = new HashMap<>();
 	
 	static {
 		Language.addListener(parseMap::clear);
 	}
 	
 	@Nullable
-	public static StructureType fromName(String input) {
+	public static TreeSpecies fromName(String input) {
 		if (parseMap.isEmpty()) {
-			for (StructureType type : values()) {
+			for (TreeSpecies type : values()) {
 				String pattern = Language.get("tree types." + type.name() + ".pattern");
 				parseMap.put(Pattern.compile(pattern, Pattern.CASE_INSENSITIVE), type);
 			}
 		}
-		input = "" + input.toLowerCase(Locale.ENGLISH);
-		for (Entry<Pattern, StructureType> entry : parseMap.entrySet()) {
+		input = input.toLowerCase(Locale.ENGLISH);
+		for (Entry<Pattern, TreeSpecies> entry : parseMap.entrySet()) {
 			if (entry.getKey().matcher(input).matches())
 				return entry.getValue();
 		}

@@ -374,7 +374,7 @@ public class SkriptClasses {
 					}
 				}));
 
-		Classes.registerClass(new ClassInfo<>(StructureType.class, "treetype")
+		Classes.registerClass(new ClassInfo<>(TreeSpecies.class, "treetype")
 				.user("tree ?types?", "trees?")
 				.name("Tree Type")
 				.description("A tree type represents a tree species or a huge mushroom species. These can be generated in a world with the <a href='#EffTree'>generate tree</a> effect.")
@@ -382,24 +382,24 @@ public class SkriptClasses {
 				.examples("grow any regular tree at the block",
 						"grow a huge red mushroom above the block")
 				.since("")
-				.defaultExpression(new SimpleLiteral<>(StructureType.TREE, true))
-				.parser(new Parser<StructureType>() {
+				.defaultExpression(new SimpleLiteral<>(TreeSpecies.TREE, true))
+				.parser(new Parser<TreeSpecies>() {
 					@Override
 					@Nullable
-					public StructureType parse(String name, ParseContext context) {
-						return StructureType.fromName(name);
+					public TreeSpecies parse(String name, ParseContext context) {
+						return TreeSpecies.fromName(name);
 					}
 
 					@Override
-					public String toString(StructureType type, int flags) {
+					public String toString(TreeSpecies type, int flags) {
 						return type.toString(flags);
 					}
 
 					@Override
-					public String toVariableNameString(StructureType type) {
-						return "" + type.name().toLowerCase(Locale.ENGLISH);
+					public String toVariableNameString(TreeSpecies type) {
+						return type.name().toLowerCase(Locale.ENGLISH);
 					}
-				}).serializer(new EnumSerializer<>(StructureType.class)));
+				}).serializer(new EnumSerializer<>(TreeSpecies.class)));
 
 		Classes.registerClass(new ClassInfo<>(EnchantmentType.class, "enchantmenttype")
 				.user("enchant(ing|ment) types?")

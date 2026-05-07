@@ -445,10 +445,10 @@ public class DefaultComparators {
 			}
 		});
 		
-		// StructureType - StructureType
-		Comparators.registerComparator(StructureType.class, StructureType.class, new Comparator<StructureType, StructureType>() {
+		// TreeSpecies - TreeSpecies
+		Comparators.registerComparator(TreeSpecies.class, TreeSpecies.class, new Comparator<TreeSpecies, TreeSpecies>() {
 			@Override
-			public Relation compare(StructureType s1, StructureType s2) {
+			public Relation compare(TreeSpecies s1, TreeSpecies s2) {
 				return Relation.get(CollectionUtils.containsAll(s2.getTypes(), s2.getTypes()));
 			}
 
