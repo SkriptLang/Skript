@@ -9,14 +9,14 @@ import org.bukkit.block.Block;
 public enum TreeSpecies {
 	TREE(TreeType.values()),
 
-	REGULAR(TreeType.TREE, TreeType.BIG_TREE),
-	SMALL_REGULAR(TreeType.TREE),
-	BIG_REGULAR(TreeType.BIG_TREE),
+	OAK(TreeType.TREE, TreeType.BIG_TREE),
+	SMALL_OAK(TreeType.TREE),
+	BIG_OAK(TreeType.BIG_TREE),
 
-	REDWOOD(TreeType.REDWOOD, TreeType.TALL_REDWOOD),
-	SMALL_REDWOOD(TreeType.REDWOOD),
-	BIG_REDWOOD(TreeType.TALL_REDWOOD),
-	MEGA_REDWOOD(TreeType.MEGA_REDWOOD),
+	SPRUCE(TreeType.REDWOOD, TreeType.TALL_REDWOOD),
+	SMALL_SPRUCE(TreeType.REDWOOD),
+	BIG_SPRUCE(TreeType.TALL_REDWOOD),
+	MEGA_SPRUCE(TreeType.MEGA_REDWOOD),
 
 	BIRCH(TreeType.BIRCH, TreeType.TALL_BIRCH),
 	SMALL_BIRCH(TreeType.BIRCH),
