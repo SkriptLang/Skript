@@ -378,11 +378,9 @@ public class SkriptClasses {
 				.user("tree ?types?", "trees?")
 				.name("Tree Type")
 				.description("A tree type represents a tree species or a huge mushroom species. These can be generated in a world with the <a href='#EffTree'>generate tree</a> effect.")
-				.usage("[any] <general tree/mushroom type>, e.g. tree/any jungle tree/etc.", "<specific tree/mushroom species>, e.g. red mushroom/small jungle tree/big regular tree/etc.")
 				.examples("grow any regular tree at the block",
 						"grow a huge red mushroom above the block")
-				.since("")
-				.defaultExpression(new SimpleLiteral<>(TreeSpecies.TREE, true)));
+				.since(""));
 
 		Classes.registerClass(new ClassInfo<>(EnchantmentType.class, "enchantmenttype")
 				.user("enchant(ing|ment) types?")
