@@ -39,26 +39,26 @@ public class EffTree extends Effect {
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		type = (Expression<TreeSpecies>) exprs[0];
 		blocks = Direction.combine((Expression<? extends Direction>) exprs[1], (Expression<? extends Location>) exprs[2]);
 		return true;
 	}
-	
+
 	@Override
-	public void execute(final Event e) {
-		final TreeSpecies type = this.type.getSingle(e);
+	public void execute(Event event) {
+		TreeSpecies type = this.type.getSingle(event);
 		if (type == null)
 			return;
-		for (final Location l : blocks.getArray(e)) {
-			assert l != null : blocks;
-			type.grow(l.getBlock());
+		for (Location location : blocks.getArray(event)) {
+			assert location != null : blocks;
+			type.grow(location.getBlock());
 		}
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "grow tree of type " + type.toString(e, debug) + " " + blocks.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "grow tree of type " + type.toString(event, debug) + " " + blocks.toString(event, debug);
 	}
 	
 }

@@ -449,7 +449,7 @@ public class DefaultComparators {
 		Comparators.registerComparator(TreeSpecies.class, TreeSpecies.class, new Comparator<TreeSpecies, TreeSpecies>() {
 			@Override
 			public Relation compare(TreeSpecies s1, TreeSpecies s2) {
-				return Relation.get(CollectionUtils.containsAll(s2.getTypes(), s2.getTypes()));
+				return Relation.get(CollectionUtils.containsAll(s1.getTypes(), s2.getTypes()));
 			}
 
 			@Override

@@ -142,23 +142,23 @@ public class EvtGrow extends SkriptEvent {
 		if (types.getAnd() && types instanceof LiteralList)
 			((LiteralList<Object>) types).invertAnd();
 
-		if (event instanceof StructureGrowEvent) {
-			Material sapling = ItemUtils.getTreeSapling(((StructureGrowEvent) event).getSpecies());
+		if (event instanceof StructureGrowEvent structureGrowEvent) {
+			Material sapling = ItemUtils.getTreeSapling(structureGrowEvent.getSpecies());
 			return types.check(event, type -> {
-				if (type instanceof ItemType) {
-					return ((ItemType) type).isOfType(sapling);
-				} else if (type instanceof BlockData) {
-					return ((BlockData) type).getMaterial() == sapling;
+				if (type instanceof ItemType itemType) {
+					return itemType.isOfType(sapling);
+				} else if (type instanceof BlockData blockData) {
+					return blockData.getMaterial() == sapling;
 				}
 				return false;
 			});
-		} else if (event instanceof BlockGrowEvent) {
-			BlockState oldState = ((BlockGrowEvent) event).getBlock().getState();
+		} else if (event instanceof BlockGrowEvent blockGrowEvent) {
+			BlockState oldState = blockGrowEvent.getBlock().getState();
 			return types.check(event, type -> {
-				if (type instanceof ItemType) {
-					return ((ItemType) type).isOfType(oldState.getBlockData());
-				} else if (type instanceof BlockData) {
-					return ((BlockData) type).matches(oldState.getBlockData());
+				if (type instanceof ItemType itemType) {
+					return itemType.isOfType(oldState.getBlockData());
+				} else if (type instanceof BlockData blockData) {
+					return blockData.matches(oldState.getBlockData());
 				}
 				return false;
 			});
@@ -171,21 +171,21 @@ public class EvtGrow extends SkriptEvent {
 		if (types.getAnd() && types instanceof LiteralList)
 			((LiteralList<Object>) types).invertAnd();
 
-		if (event instanceof StructureGrowEvent) {
-			TreeType species = ((StructureGrowEvent) event).getSpecies();
+		if (event instanceof StructureGrowEvent structureGrowEvent) {
+			TreeType species = structureGrowEvent.getSpecies();
 			return types.check(event, type -> {
-				if (type instanceof TreeSpecies) {
-					return ((TreeSpecies) type).is(species);
+				if (type instanceof TreeSpecies treeSpecie) {
+					return treeSpecie.is(species);
 				}
 				return false;
 			});
-		} else if (event instanceof BlockGrowEvent) {
-			BlockState newState = ((BlockGrowEvent) event).getNewState();
+		} else if (event instanceof BlockGrowEvent blockGrowEvent) {
+			BlockState newState = blockGrowEvent.getNewState();
 			return types.check(event, type -> {
-				if (type instanceof ItemType) {
-					return ((ItemType) type).isOfType(newState.getBlockData());
-				} else if (type instanceof BlockData) {
-					return ((BlockData) type).matches(newState.getBlockData());
+				if (type instanceof ItemType itemType) {
+					return itemType.isOfType(newState.getBlockData());
+				} else if (type instanceof BlockData blockData) {
+					return blockData.matches(newState.getBlockData());
 				}
 				return false;
 			});
