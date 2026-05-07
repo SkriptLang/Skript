@@ -374,7 +374,7 @@ public class SkriptClasses {
 					}
 				}));
 
-		Classes.registerClass(new ClassInfo<>(StructureType.class, "structuretype")
+		Classes.registerClass(new ClassInfo<>(StructureType.class, "treetype")
 				.user("tree ?types?", "trees?")
 				.name("Tree Type")
 				.description("A tree type represents a tree species or a huge mushroom species. These can be generated in a world with the <a href='#EffTree'>generate tree</a> effect.")
@@ -386,18 +386,18 @@ public class SkriptClasses {
 				.parser(new Parser<StructureType>() {
 					@Override
 					@Nullable
-					public StructureType parse(final String s, final ParseContext context) {
-						return StructureType.fromName(s);
+					public StructureType parse(String name, ParseContext context) {
+						return StructureType.fromName(name);
 					}
 
 					@Override
-					public String toString(final StructureType o, final int flags) {
-						return o.toString(flags);
+					public String toString(StructureType type, int flags) {
+						return type.toString(flags);
 					}
 
 					@Override
-					public String toVariableNameString(final StructureType o) {
-						return "" + o.name().toLowerCase(Locale.ENGLISH);
+					public String toVariableNameString(StructureType type) {
+						return "" + type.name().toLowerCase(Locale.ENGLISH);
 					}
 				}).serializer(new EnumSerializer<>(StructureType.class)));
 

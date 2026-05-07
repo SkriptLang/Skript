@@ -32,10 +32,10 @@ public class EvtGrow extends SkriptEvent {
 	
 	static {
 		Skript.registerEvent("Grow", EvtGrow.class, CollectionUtils.array(StructureGrowEvent.class, BlockGrowEvent.class),
-				"grow[th] [of (1:%-structuretypes%|2:%-itemtypes/blockdatas%)]",
+				"grow[th] [of (1:%-treetypes%|2:%-itemtypes/blockdatas%)]",
 				"grow[th] from %itemtypes/blockdatas%",
-				"grow[th] [in]to (1:%structuretypes%|2:%itemtypes/blockdatas%)",
-				"grow[th] from %itemtypes/blockdatas% [in]to (1:%structuretypes%|2:%itemtypes/blockdatas%)"
+				"grow[th] [in]to (1:%treetypes%|2:%itemtypes/blockdatas%)",
+				"grow[th] from %itemtypes/blockdatas% [in]to (1:%treetypes%|2:%itemtypes/blockdatas%)"
 				)
 				.description(
 					"Called when a tree, giant mushroom or plant grows to next stage.",

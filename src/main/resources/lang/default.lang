@@ -2915,7 +2915,7 @@ types:
 	direction: direction¦s @a
 	slot: slot¦s @a
 	color: color¦s @a
-	structuretype: tree type¦s @a
+	treetype: tree type¦s @a
 	enchantmenttype: enchantment type¦s @an
 	experience: experience point¦s @an
 	experience.pattern: (e?xp|experience( points?)?)

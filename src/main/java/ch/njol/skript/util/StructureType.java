@@ -37,21 +37,21 @@ public enum StructureType {
 	private Noun name;
 	private final TreeType[] types;
 	
-	private StructureType(final TreeType... types) {
+	private StructureType(TreeType... types) {
 		this.types = types;
 		name = new Noun("tree types." + name() + ".name");
 	}
-	
-	public void grow(final Location loc) {
+
+	public void grow(Location location) {
 		TreeType tree = CollectionUtils.getRandom(types);
 		assert tree != null; // No enum member causes empty types
-		loc.getWorld().generateTree(loc, tree);
+		location.getWorld().generateTree(location, tree);
 	}
-	
-	public void grow(final Block b) {
+
+	public void grow(Block block) {
 		TreeType tree = CollectionUtils.getRandom(types);
 		assert tree != null; // No enum member causes empty types
-		b.getWorld().generateTree(b.getLocation(), tree);
+		block.getWorld().generateTree(block.getLocation(), tree);
 	}
 	
 	public TreeType[] getTypes() {
@@ -63,15 +63,15 @@ public enum StructureType {
 		return name.toString();
 	}
 	
-	public String toString(final int flags) {
+	public String toString(int flags) {
 		return name.toString(flags);
 	}
-	
+
 	public Noun getName() {
 		return name;
 	}
-	
-	public boolean is(final TreeType type) {
+
+	public boolean is(TreeType type) {
 		return CollectionUtils.contains(types, type);
 	}
 	
@@ -85,17 +85,17 @@ public enum StructureType {
 	}
 	
 	@Nullable
-	public static StructureType fromName(String s) {
+	public static StructureType fromName(String input) {
 		if (parseMap.isEmpty()) {
-			for (final StructureType t : values()) {
-				final String pattern = Language.get("tree types." + t.name() + ".pattern");
-				parseMap.put(Pattern.compile(pattern, Pattern.CASE_INSENSITIVE), t);
+			for (StructureType type : values()) {
+				String pattern = Language.get("tree types." + type.name() + ".pattern");
+				parseMap.put(Pattern.compile(pattern, Pattern.CASE_INSENSITIVE), type);
 			}
 		}
-		s = "" + s.toLowerCase(Locale.ENGLISH);
-		for (final Entry<Pattern, StructureType> e : parseMap.entrySet()) {
-			if (e.getKey().matcher(s).matches())
-				return e.getValue();
+		input = "" + input.toLowerCase(Locale.ENGLISH);
+		for (Entry<Pattern, StructureType> entry : parseMap.entrySet()) {
+			if (entry.getKey().matcher(input).matches())
+				return entry.getValue();
 		}
 		return null;
 	}
