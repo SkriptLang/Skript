@@ -380,7 +380,7 @@ public class SkriptClasses {
 				.description("A tree type represents a tree species or a huge mushroom species. These can be generated in a world with the <a href='#EffTree'>generate tree</a> effect.")
 				.examples("grow any regular tree at the block",
 						"grow a huge red mushroom above the block")
-				.since(""));
+				.since("1.0"));
 
 		Classes.registerClass(new ClassInfo<>(EnchantmentType.class, "enchantmenttype")
 				.user("enchant(ing|ment) types?")
