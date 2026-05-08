@@ -2,16 +2,21 @@ package org.skriptlang.skript.bukkit.entity;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.entity.SimpleEntityData;
+import ch.njol.skript.lang.util.SimpleEvent;
 import org.bukkit.entity.AbstractNautilus;
+import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.entity.displays.DisplayModule;
+import org.skriptlang.skript.bukkit.entity.elements.effects.EffGlide;
 import org.skriptlang.skript.bukkit.entity.interactions.InteractionModule;
 import org.skriptlang.skript.bukkit.entity.elements.expressions.ExprDeathMessage;
 import org.skriptlang.skript.bukkit.entity.entitydata.NautilusData;
 import org.skriptlang.skript.bukkit.entity.entitydata.ZombieNautilusData;
 import org.skriptlang.skript.bukkit.entity.player.PlayerModule;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
 
@@ -36,9 +41,25 @@ public class EntityModule extends HierarchicalAddonModule {
 			ZombieNautilusData.register();
 			SimpleEntityData.addSuperEntity("any nautilus", AbstractNautilus.class);
 		}
-
+		SyntaxRegistry syntaxRegistry = moduleRegistry(addon);
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Toggle Glide")
+			.addDescription("Called when an entity starts or stops gliding, or when the server toggles the gliding state of an entity forcibly.")
+			.addExample("""
+				on toggling gliding:
+					cancel the event # bad idea, but you CAN do it!
+				""")
+			.addSince("2.2-dev21")
+			.addSince("INSERT VERSION (Pattern changed)")
+			.addPatterns(
+				"gliding state change[d]",
+				"(toggle|toggling) glid(e|ing)",
+				"glid(e|ing) toggle[d]"
+			)
+			.addEvent(EntityToggleGlideEvent.class)
+			.build());
 		register(addon,
-			ExprDeathMessage::register
+			ExprDeathMessage::register,
+			EffGlide::register
 		);
 	}
 
