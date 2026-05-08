@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 import org.skriptlang.skript.docs.Documentation;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.docs.DocumentationDocumentable;
 
 /**
@@ -153,6 +154,27 @@ public sealed interface DefaultFunction<T>
 		@Deprecated(since = "INSERT VERSION", forRemoval = true)
 		Builder<T> requires(@NotNull String @NotNull ... requires);
 
+	}
+
+	@Override
+	default boolean canWrite(DocumentationAdapter adapter) {
+		return DocumentationDocumentable.super.canWrite(adapter);
+	}
+
+	@Override
+	default void preWrite(DocumentationAdapter adapter) {
+		DocumentationDocumentable.super.preWrite(adapter);
+	}
+
+	@Override
+	default void write(DocumentationAdapter adapter) {
+		DocumentationDocumentable.super.write(adapter);
+		Function.super.write(adapter);
+	}
+
+	@Override
+	default void postWrite(DocumentationAdapter adapter) {
+		DocumentationDocumentable.super.postWrite(adapter);
 	}
 
 }

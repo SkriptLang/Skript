@@ -8,9 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 import org.skriptlang.skript.common.function.Parameter.Modifier.RangedModifier;
-import org.skriptlang.skript.docs.Documentable;
 import org.skriptlang.skript.docs.Documentation;
-import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.docs.Origin;
 
 import java.lang.reflect.Array;
@@ -296,7 +294,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	 * @param <T> The type.
 	 */
 	record DefaultParameter<T>(String name, Class<T> type, Set<Modifier> modifiers)
-			implements Parameter<T>, Documentable {
+			implements Parameter<T> {
 
 		DefaultParameter(String name, Class<T> type, Modifier... modifiers) {
 			this(name, type, Set.of(modifiers));
@@ -307,39 +305,6 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			return toFormattedString();
 		}
 
-		@Override
-		public void write(DocumentationAdapter adapter) {
-			adapter.enterScope(name);
-			adapter.write("name", name);
-			adapter.write("type", type);
-			adapter.write("plural", type.isArray());
-			adapter.enterScope("modifiers");
-			modifiers.forEach(modifier -> {
-				if (modifier instanceof Documentable documentable) {
-					adapter.write(documentable);
-				}
-			});
-			adapter.exitScope();
-			adapter.exitScope();
-		}
-	}
-
-	@Override
-	public void write(DocumentationAdapter adapter) {
-		// write default data
-		DefaultFunction.super.write(adapter);
-
-		// return type
-		adapter.write("returns", getReturnType() == null ? "null" : getReturnType().getC());
-
-		// parameters
-		adapter.enterScope("parameters");
-		parameters.values().forEach(parameter -> {
-			if (parameter instanceof Documentable documentable) {
-				adapter.write(documentable);
-			}
-		});
-		adapter.exitScope();
 	}
 
 }

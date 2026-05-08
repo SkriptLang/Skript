@@ -6,6 +6,9 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.docs.Documentable;
+import org.skriptlang.skript.docs.Documentation;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 
 /**
  * Represents a function implementation.
@@ -16,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 @NonExtendable
 @Internal
 @Experimental
-public interface Function<T> {
+public interface Function<T> extends Documentable {
 
 	/**
 	 * Executes this function with the given parameters.
@@ -43,5 +46,37 @@ public interface Function<T> {
 	 */
 	@Experimental
 	@NotNull String @Nullable [] returnedKeys();
+
+	@Override
+	default boolean canWrite(DocumentationAdapter adapter) {
+		// TODO allow all functions once this interface has a method to obtain the name
+		return this instanceof ch.njol.skript.lang.function.Function;
+	}
+
+	@Override
+	default void preWrite(DocumentationAdapter adapter) {
+		String name = ((ch.njol.skript.lang.function.Function<?>) this).getName();
+		adapter.enterScope("Func" + Documentation.builder().name(name).build().autoId());
+	}
+
+	@Override
+	default void write(DocumentationAdapter adapter) {
+		// return type
+		adapter.write("returnType", signature().returnType());
+
+		// parameters
+		adapter.enterScope("parameters");
+		for (Parameter<?> parameter : signature().parameters().all()) {
+			if (parameter instanceof Documentable documentable) {
+				adapter.write(documentable);
+			}
+		}
+		adapter.exitScope();
+	}
+
+	@Override
+	default void postWrite(DocumentationAdapter adapter) {
+		adapter.exitScope();
+	}
 
 }

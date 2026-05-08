@@ -21,9 +21,12 @@ public interface DocumentationDocumentable extends Documentable {
 	default void preWrite(DocumentationAdapter adapter) {
 		String id = documentation().id();
 		if (id == null) {
-			throw new SkriptAPIException(
-				"Method preWrite must be overridden for DocumentationDocumentable if documentation may not have an ID"
-			);
+			id = documentation().autoId();
+			if (id.isEmpty()) {
+				throw new SkriptAPIException(
+					"Method preWrite must be overridden for DocumentationDocumentable if documentation may not have an ID or autoID"
+				);
+			}
 		}
 		adapter.enterScope(id);
 	}

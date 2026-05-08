@@ -1,30 +1,54 @@
 package ch.njol.skript.lang.function;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.doc.Documentable;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.util.Contract;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.common.function.DefaultFunction;
 import org.skriptlang.skript.common.function.FunctionArguments;
 import org.skriptlang.skript.common.function.Parameters;
-
-import java.util.Collections;
-import java.util.List;
+import org.skriptlang.skript.docs.Documentation;
+import org.skriptlang.skript.docs.DocumentationAdapter;
+import org.skriptlang.skript.docs.DocumentationDocumentable;
+import org.skriptlang.skript.docs.Origin;
 
 /**
  * @deprecated Use {@link DefaultFunction} instead.
  */
 @Deprecated(since = "2.13", forRemoval = true)
-public abstract class JavaFunction<T> extends Function<T> implements Documentable {
+public abstract class JavaFunction<T> extends Function<T>
+	implements DocumentationDocumentable, ch.njol.skript.doc.Documentable {
 
 	private @NotNull String @Nullable [] returnedKeys;
+	private Documentation documentation;
 
 	public JavaFunction(Signature<T> sign) {
 		super(sign);
+
+		// questionably obtain source...
+		SkriptAddon source;
+		try {
+			Class<?> caller = Class.forName(Thread.currentThread().getStackTrace()[2].getClassName());
+			JavaPlugin callerPlugin = JavaPlugin.getProvidingPlugin(caller);
+			source = Skript.instance().addons().stream()
+				.filter(addon -> JavaPlugin.getProvidingPlugin(addon.source()) == callerPlugin)
+				.findFirst()
+				.orElse(Skript.instance());
+		} catch (ClassNotFoundException ignored) {
+			source = Skript.instance();
+		}
+		documentation = Documentation.builder()
+			.name(sign.getName())
+			.origin(Origin.of(source))
+			.build();
+		documentation = documentation.toBuilder()
+			.id("Func" + documentation.autoId())
+			.build();
 	}
 
 	public JavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single) {
@@ -111,19 +135,16 @@ public abstract class JavaFunction<T> extends Function<T> implements Documentabl
 		this.returnedKeys = keys;
 	}
 
-	private String @Nullable [] description = null;
-	private String @Nullable [] examples = null;
-	private String @Nullable [] keywords;
-	private @Nullable String since = null;
-
 	/**
 	 * Only used for Skript's documentation.
 	 *
 	 * @return This JavaFunction object
 	 */
 	public JavaFunction<T> description(final String... description) {
-		assert this.description == null;
-		this.description = description;
+		assert documentation.description().isEmpty();
+		documentation = documentation.toBuilder()
+			.description(String.join("\n", description))
+			.build();
 		return this;
 	}
 
@@ -133,20 +154,23 @@ public abstract class JavaFunction<T> extends Function<T> implements Documentabl
 	 * @return This JavaFunction object
 	 */
 	public JavaFunction<T> examples(final String... examples) {
-		assert this.examples == null;
-		this.examples = examples;
+		assert documentation.examples().isEmpty();
+		documentation = documentation.toBuilder()
+			.addExamples(examples)
+			.build();
 		return this;
 	}
 
 	/**
 	 * Only used for Skript's documentation.
 	 *
-	 * @param keywords
 	 * @return This JavaFunction object
 	 */
 	public JavaFunction<T> keywords(final String... keywords) {
-		assert this.keywords == null;
-		this.keywords = keywords;
+		assert documentation.keywords().isEmpty();
+		documentation = documentation.toBuilder()
+			.addKeywords(keywords)
+			.build();
 		return this;
 	}
 
@@ -156,25 +180,39 @@ public abstract class JavaFunction<T> extends Function<T> implements Documentabl
 	 * @return This JavaFunction object
 	 */
 	public JavaFunction<T> since(final String since) {
-		assert this.since == null;
-		this.since = since;
+		assert documentation.since().isEmpty();
+		documentation = documentation.toBuilder()
+			.addSince(since)
+			.build();
 		return this;
 	}
 
 	public String @Nullable [] getDescription() {
-		return description;
+		if (documentation.description().isEmpty()) {
+			return null;
+		}
+		return documentation.description().split("\n");
 	}
 
 	public String @Nullable [] getExamples() {
-		return examples;
+		if (documentation.examples().isEmpty()) {
+			return null;
+		}
+		return documentation.examples().toArray(new String[0]);
 	}
 
 	public String @Nullable [] getKeywords() {
-		return keywords;
+		if (documentation.keywords().isEmpty()) {
+			return null;
+		}
+		return documentation.keywords().toArray(new String[0]);
 	}
 
 	public @Nullable String getSince() {
-		return since;
+		if (documentation.since().isEmpty()) {
+			return null;
+		}
+		return documentation.since().getFirst();
 	}
 
 	@Override
@@ -184,33 +222,29 @@ public abstract class JavaFunction<T> extends Function<T> implements Documentabl
 	}
 
 	@Override
-	public @NotNull String name() {
-		return getName();
+	public Documentation documentation() {
+		return documentation;
 	}
 
 	@Override
-	public @Unmodifiable @NotNull List<String> description() {
-		return description != null ? List.of(description) : Collections.emptyList();
+	public boolean canWrite(DocumentationAdapter adapter) {
+		return DocumentationDocumentable.super.canWrite(adapter);
 	}
 
 	@Override
-	public @Unmodifiable @NotNull List<String> since() {
-		return since != null ? List.of(since) : Collections.emptyList();
+	public void preWrite(DocumentationAdapter adapter) {
+		DocumentationDocumentable.super.preWrite(adapter);
 	}
 
 	@Override
-	public @Unmodifiable @NotNull List<String> examples() {
-		return examples != null ? List.of(examples) : Collections.emptyList();
+	public void write(DocumentationAdapter adapter) {
+		DocumentationDocumentable.super.write(adapter);
+		super.write(adapter);
 	}
 
 	@Override
-	public @Unmodifiable @NotNull List<String> keywords() {
-		return keywords != null ? List.of(keywords) : Collections.emptyList();
-	}
-
-	@Override
-	public @Unmodifiable @NotNull List<String> requires() {
-		return Collections.emptyList();
+	public void postWrite(DocumentationAdapter adapter) {
+		DocumentationDocumentable.super.postWrite(adapter);
 	}
 
 }

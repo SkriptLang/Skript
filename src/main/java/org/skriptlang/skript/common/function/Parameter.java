@@ -27,7 +27,7 @@ import java.util.StringJoiner;
  * @param <T> The type of the function parameter.
  */
 @NonExtendable
-public interface Parameter<T> {
+public interface Parameter<T> extends Documentable {
 
 	/**
 	 * @return The name of this parameter.
@@ -285,11 +285,27 @@ public interface Parameter<T> {
 			@Override
 			public void write(DocumentationAdapter adapter) {
 				adapter.enterScope("ranged");
-				adapter.write("min", min);
-				adapter.write("max", max);
+				adapter.write("min", Classes.toString(min));
+				adapter.write("max", Classes.toString(max));
 				adapter.exitScope();
 			}
 		}
+	}
+
+	@Override
+	default void write(DocumentationAdapter adapter) {
+		adapter.enterScope(name());
+		adapter.write("name", name());
+		adapter.write("type", type());
+		adapter.write("plural", type().isArray());
+		adapter.enterScope("modifiers");
+		modifiers().forEach(modifier -> {
+			if (modifier instanceof Documentable documentable) {
+				adapter.write(documentable);
+			}
+		});
+		adapter.exitScope();
+		adapter.exitScope();
 	}
 
 }
