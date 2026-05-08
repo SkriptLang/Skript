@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -112,7 +113,7 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 			throw new SkriptAPIException("Attempted to access data map before all scopes have been exited");
 		}
 		//noinspection unchecked
-		return (Map<String, Object>) resolveReferences(scopes.peek().values());
+		return (Map<String, Object>) filter(resolveReferences(scopes.peek().values()));
 	}
 
 	private record ReferenceImpl(Documentable referenced) implements Reference { }
@@ -189,6 +190,36 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 					}
 					return adapted;
 				}));
+			case null, default -> value;
+		};
+	}
+
+	private Object filter(Object value) {
+		// TODO this is not a good approach
+		return switch (value) {
+			case Collection<?> collection -> collection.stream()
+				.map(this::filter)
+				.filter(Objects::nonNull)
+				.toList();
+			case Map<?, ?> map -> {
+				if (map.containsKey("origin")) {
+					//noinspection unchecked
+					if (!((Map<String, Object>) (map.get("origin"))).get("name").equals(addon().name())) {
+						yield null;
+					}
+				}
+				yield map.entrySet()
+					.stream()
+					.map(entry -> {
+						Object filteredValue = filter(entry.getValue());
+						if (filteredValue == null) {
+							return null;
+						}
+						return Map.entry(entry.getKey(), filteredValue);
+					})
+					.filter(Objects::nonNull)
+					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+			}
 			case null, default -> value;
 		};
 	}
