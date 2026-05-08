@@ -2,23 +2,23 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.lang.function.FunctionRegistry.FunctionIdentifier;
-import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.DefaultClasses;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
+import org.skriptlang.skript.common.function.FunctionRegistry.RetrievalResult;
 
 import static org.junit.Assert.*;
 
 public class FunctionRegistryTest {
 
-	private static final FunctionRegistry registry = FunctionRegistry.getRegistry();
+	private static final ch.njol.skript.lang.function.FunctionRegistry registry = FunctionRegistry.getRegistry();
 	private static final String FUNCTION_NAME = "testFunctionRegistry";
 	private static final String TEST_SCRIPT = "test";
 
-	private static final Function<Boolean> TEST_FUNCTION = new SimpleJavaFunction<>(FUNCTION_NAME, new Parameter[0],
+	private static final ch.njol.skript.lang.function.Function<Boolean> TEST_FUNCTION = new SimpleJavaFunction<>(FUNCTION_NAME, new ch.njol.skript.lang.function.Parameter[0],
 		DefaultClasses.BOOLEAN, true) {
 		@Override
 		public Boolean @Nullable [] executeSimple(Object[][] params) {
@@ -101,7 +101,7 @@ public class FunctionRegistryTest {
 		registry.remove(TEST_FUNCTION.getSignature());
 	}
 
-	private static final Function<Boolean> LOCAL_TEST_FUNCTION = new SimpleJavaFunction<>(TEST_SCRIPT, FUNCTION_NAME, new Parameter[0],
+	private static final ch.njol.skript.lang.function.Function<Boolean> LOCAL_TEST_FUNCTION = new SimpleJavaFunction<>(TEST_SCRIPT, FUNCTION_NAME, new ch.njol.skript.lang.function.Parameter[0],
 		DefaultClasses.BOOLEAN, true) {
 		@Override
 		public Boolean @Nullable [] executeSimple(Object[][] params) {
@@ -146,9 +146,9 @@ public class FunctionRegistryTest {
 		registry.remove(TEST_FUNCTION.getSignature());
 	}
 
-	private static final Function<Boolean> TEST_FUNCTION_B = new SimpleJavaFunction<>(FUNCTION_NAME,
-		new Parameter[]{
-			new Parameter<>("a", DefaultClasses.BOOLEAN, true, null)
+	private static final ch.njol.skript.lang.function.Function<Boolean> TEST_FUNCTION_B = new SimpleJavaFunction<>(FUNCTION_NAME,
+		new ch.njol.skript.lang.function.Parameter[]{
+			new ch.njol.skript.lang.function.Parameter<>("a", DefaultClasses.BOOLEAN, true, null)
 		}, DefaultClasses.BOOLEAN, true) {
 		@Override
 		public Boolean @Nullable [] executeSimple(Object[][] params) {
@@ -156,9 +156,9 @@ public class FunctionRegistryTest {
 		}
 	};
 
-	private static final Function<Boolean> TEST_FUNCTION_N = new SimpleJavaFunction<>(FUNCTION_NAME,
-		new Parameter[]{
-			new Parameter<>("a", DefaultClasses.NUMBER, true, null)
+	private static final ch.njol.skript.lang.function.Function<Boolean> TEST_FUNCTION_N = new SimpleJavaFunction<>(FUNCTION_NAME,
+		new ch.njol.skript.lang.function.Parameter[]{
+			new ch.njol.skript.lang.function.Parameter<>("a", DefaultClasses.NUMBER, true, null)
 		}, DefaultClasses.BOOLEAN, true) {
 		@Override
 		public Boolean @Nullable [] executeSimple(Object[][] params) {
@@ -256,9 +256,9 @@ public class FunctionRegistryTest {
 		registry.remove(TEST_FUNCTION_N.getSignature());
 	}
 
-	private static final Function<Boolean> LOCAL_TEST_FUNCTION_B = new SimpleJavaFunction<>(TEST_SCRIPT, FUNCTION_NAME,
-		new Parameter[]{
-			new Parameter<>("a", DefaultClasses.BOOLEAN, true, null)
+	private static final ch.njol.skript.lang.function.Function<Boolean> LOCAL_TEST_FUNCTION_B = new SimpleJavaFunction<>(TEST_SCRIPT, FUNCTION_NAME,
+		new ch.njol.skript.lang.function.Parameter[]{
+			new ch.njol.skript.lang.function.Parameter<>("a", DefaultClasses.BOOLEAN, true, null)
 		}, DefaultClasses.BOOLEAN, true) {
 		@Override
 		public Boolean @Nullable [] executeSimple(Object[][] params) {
@@ -266,9 +266,9 @@ public class FunctionRegistryTest {
 		}
 	};
 
-	private static final Function<Boolean> LOCAL_TEST_FUNCTION_N = new SimpleJavaFunction<>(TEST_SCRIPT, FUNCTION_NAME,
-		new Parameter[]{
-			new Parameter<>("a", DefaultClasses.NUMBER, true, null)
+	private static final ch.njol.skript.lang.function.Function<Boolean> LOCAL_TEST_FUNCTION_N = new SimpleJavaFunction<>(TEST_SCRIPT, FUNCTION_NAME,
+		new ch.njol.skript.lang.function.Parameter[]{
+			new ch.njol.skript.lang.function.Parameter<>("a", DefaultClasses.NUMBER, true, null)
 		}, DefaultClasses.BOOLEAN, true) {
 		@Override
 		public Boolean @Nullable [] executeSimple(Object[][] params) {
@@ -359,9 +359,9 @@ public class FunctionRegistryTest {
 	@Test
 	public void testIdentifierSignatureOf() {
 		SimpleJavaFunction<Boolean> function = new SimpleJavaFunction<>(FUNCTION_NAME,
-			new Parameter[]{
-				new Parameter<>("a", DefaultClasses.BOOLEAN, true, null),
-				new Parameter<>("b", DefaultClasses.NUMBER, false, new SimpleLiteral<Number>(1, true))
+			new ch.njol.skript.lang.function.Parameter[]{
+				new ch.njol.skript.lang.function.Parameter<>("a", DefaultClasses.BOOLEAN, true, null),
+				new ch.njol.skript.lang.function.Parameter<>("b", DefaultClasses.NUMBER, false, new SimpleLiteral<Number>(1, true))
 			}, DefaultClasses.BOOLEAN, true) {
 			@Override
 			public Boolean @Nullable [] executeSimple(Object[][] params) {
@@ -377,9 +377,9 @@ public class FunctionRegistryTest {
 		assertArrayEquals(new Class[]{Boolean.class, Number[].class}, identifier.args());
 
 		SimpleJavaFunction<Boolean> function2 = new SimpleJavaFunction<>(FUNCTION_NAME,
-			new Parameter[]{
-				new Parameter<>("a", DefaultClasses.BOOLEAN, true, null),
-				new Parameter<>("b", DefaultClasses.NUMBER, false, null)
+			new ch.njol.skript.lang.function.Parameter[]{
+				new ch.njol.skript.lang.function.Parameter<>("a", DefaultClasses.BOOLEAN, true, null),
+				new ch.njol.skript.lang.function.Parameter<>("b", DefaultClasses.NUMBER, false, null)
 			}, DefaultClasses.BOOLEAN, true) {
 			@Override
 			public Boolean @Nullable [] executeSimple(Object[][] params) {
@@ -400,7 +400,7 @@ public class FunctionRegistryTest {
 		assertEquals(RetrievalResult.NOT_REGISTERED, registry.getSignature(TEST_SCRIPT, FUNCTION_NAME).result());
 
 		// construct a global function with a non-null script, which happens in script functions
-		Signature<Boolean> signature = new Signature<>(TEST_SCRIPT, FUNCTION_NAME, new Parameter<?>[0],
+		ch.njol.skript.lang.function.Signature<Boolean> signature = new Signature<>(TEST_SCRIPT, FUNCTION_NAME, new ch.njol.skript.lang.function.Parameter<?>[0],
 			false, DefaultClasses.BOOLEAN, true, "");
 		SimpleJavaFunction<Boolean> fn = new SimpleJavaFunction<>(signature) {
 			@Override
@@ -421,9 +421,9 @@ public class FunctionRegistryTest {
 		assertEquals(RetrievalResult.NOT_REGISTERED, registry.getSignature(null, FUNCTION_NAME).result());
 	}
 
-	private static final Function<Boolean> TEST_FUNCTION_P = new SimpleJavaFunction<>(FUNCTION_NAME,
-		new Parameter[]{
-			new Parameter<>("a", DefaultClasses.PLAYER, true, null)
+	private static final ch.njol.skript.lang.function.Function<Boolean> TEST_FUNCTION_P = new SimpleJavaFunction<>(FUNCTION_NAME,
+		new ch.njol.skript.lang.function.Parameter[]{
+			new ch.njol.skript.lang.function.Parameter<>("a", DefaultClasses.PLAYER, true, null)
 		}, DefaultClasses.BOOLEAN, true) {
 		@Override
 		public Boolean @Nullable [] executeSimple(Object[][] params) {
@@ -432,7 +432,7 @@ public class FunctionRegistryTest {
 	};
 
 	private static final Function<Boolean> TEST_FUNCTION_OP = new SimpleJavaFunction<>(FUNCTION_NAME,
-			new Parameter[]{
+			new ch.njol.skript.lang.function.Parameter[]{
 					new Parameter<>("a", DefaultClasses.OFFLINE_PLAYER, true, null)
 			}, DefaultClasses.BOOLEAN, true) {
 		@Override
