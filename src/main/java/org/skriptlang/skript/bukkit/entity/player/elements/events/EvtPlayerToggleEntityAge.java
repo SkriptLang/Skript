@@ -80,14 +80,14 @@ public class EvtPlayerToggleEntityAge extends SkriptEvent {
 	}
 
 	private boolean checkEntity(Entity entity) {
-		if (entities != null) {
-			for (EntityType entityType : entities) {
-				if (entityType.isInstance(entity))
-					return true;
-			}
-			return false;
+		if (entities == null) {
+			return true;
 		}
-		return true;
+		for (EntityType entityType : entities) {
+			if (entityType.isInstance(entity))
+				return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -98,8 +98,7 @@ public class EvtPlayerToggleEntityAge extends SkriptEvent {
 			case TOGGLE -> "toggle";
 		};
 		return new SyntaxStringBuilder(event, debug)
-			.append("player entity age")
-			.append(action)
+			.append("player entity age", action)
 			.appendIf(entitiesLiteral != null, "of", entitiesLiteral)
 			.toString();
 	}
