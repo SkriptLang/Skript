@@ -11,11 +11,10 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Projectile;
 import org.skriptlang.skript.log.runtime.RuntimeErrorProducer;
-import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Projectile Is Critical")
-@Description("Checks whether or not a projectile is in critical state. As of now this only applies to arrows and tridents.")
+@Description("Checks whether or not a projectile is in critical state. Currently this only applies to arrows and tridents.")
 @Example("""
 	on shoot:
 		if event-projectile is not in projectile critical state:
@@ -27,10 +26,12 @@ public class CondProjectileIsCritical extends PropertyCondition<Projectile> impl
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.CONDITION,
-			SyntaxInfo.builder(CondProjectileIsCritical.class)
-				.addPatterns(
-					"%projectile% is in (projectile|arrow) critical (state|mode)",
-					"%projectile% (is not|isn't) in (projectile|arrow) critical (state|mode)")
+			infoBuilder(
+				CondProjectileIsCritical.class,
+				PropertyType.BE,
+				"in (projectile|arrow) critical (state|mode)",
+				"projectiles"
+			)
 				.supplier(CondProjectileIsCritical::new)
 				.build()
 		);
@@ -47,7 +48,7 @@ public class CondProjectileIsCritical extends PropertyCondition<Projectile> impl
 		if (projectile instanceof AbstractArrow abstractArrow) {
 			return abstractArrow.isCritical();
 		}
-		warning("This projectile is not supported. This only applies to arrows and tridents.");
+		warning("This projectile is not supported. Critical projectile state only applies to arrows and tridents.");
 		return false;
 	}
 
