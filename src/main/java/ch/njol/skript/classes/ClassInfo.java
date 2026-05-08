@@ -528,6 +528,9 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public ClassInfo<T> usage(final String... usage) {
+		if (usage.length != 0 && usage[0].isEmpty()) { // ignore empty inputs
+			return this;
+		}
 		documentation = documentation.toBuilder()
 			.addData(Usage.of(usage))
 			.build();
@@ -539,8 +542,34 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public ClassInfo<T> examples(final String... examples) {
+		if (examples.length != 0 && examples[0].isEmpty()) { // ignore empty examples
+			return this;
+		}
+		List<String> reformattedExamples = new ArrayList<>();
+		StringBuilder builder = new StringBuilder();
+		for (String example : examples) {
+			if (!example.startsWith("\t") && !builder.isEmpty()) { // indicates new example, push current
+				reformattedExamples.add(builder.toString());
+				builder = new StringBuilder();
+			}
+			if (example.contains("\n")) { // multiline indicates a single example in one string
+				if (!builder.isEmpty()) { // need to dump whatever is ongoing
+					reformattedExamples.add(builder.toString());
+					builder = new StringBuilder();
+				}
+				reformattedExamples.add(example);
+				continue;
+			}
+			if (!builder.isEmpty()) {
+				builder.append("\n");
+			}
+			builder.append(example);
+		}
+		if (!builder.isEmpty()) {
+			reformattedExamples.add(builder.toString());
+		}
 		documentation = documentation.toBuilder()
-			.addExamples(examples)
+			.addExamples(reformattedExamples)
 			.build();
 		return this;
 	}
