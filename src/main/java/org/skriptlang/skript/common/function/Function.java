@@ -49,20 +49,17 @@ public interface Function<T> extends Documentable {
 
 	@Override
 	default boolean canWrite(DocumentationAdapter adapter) {
-		// TODO allow all functions once this interface has a method to obtain the name
-		return this instanceof ch.njol.skript.lang.function.Function;
-	}
-
-	@Override
-	default void preWrite(DocumentationAdapter adapter) {
-		String name = ((ch.njol.skript.lang.function.Function<?>) this).getName();
-		adapter.enterScope("Func" + Documentation.builder().name(name).build().autoId());
+		// this is intentional
+		// we define a generic write method for Functions, but implementations must opt in.
+		return false;
 	}
 
 	@Override
 	default void write(DocumentationAdapter adapter) {
 		// return type
-		adapter.write("returnType", signature().returnType());
+		if (signature().returnType() != null) {
+			adapter.write("returnType", signature().returnType());
+		}
 
 		// parameters
 		adapter.enterScope("parameters");
@@ -71,11 +68,6 @@ public interface Function<T> extends Documentable {
 				adapter.write(documentable);
 			}
 		}
-		adapter.exitScope();
-	}
-
-	@Override
-	default void postWrite(DocumentationAdapter adapter) {
 		adapter.exitScope();
 	}
 

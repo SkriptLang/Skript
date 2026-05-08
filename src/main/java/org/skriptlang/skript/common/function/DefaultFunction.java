@@ -162,19 +162,9 @@ public sealed interface DefaultFunction<T>
 	}
 
 	@Override
-	default void preWrite(DocumentationAdapter adapter) {
-		DocumentationDocumentable.super.preWrite(adapter);
-	}
-
-	@Override
 	default void write(DocumentationAdapter adapter) {
 		DocumentationDocumentable.super.write(adapter);
 		Function.super.write(adapter);
-	}
-
-	@Override
-	default void postWrite(DocumentationAdapter adapter) {
-		DocumentationDocumentable.super.postWrite(adapter);
 	}
 
 }

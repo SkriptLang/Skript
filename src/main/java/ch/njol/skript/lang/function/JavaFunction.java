@@ -232,19 +232,9 @@ public abstract class JavaFunction<T> extends Function<T>
 	}
 
 	@Override
-	public void preWrite(DocumentationAdapter adapter) {
-		DocumentationDocumentable.super.preWrite(adapter);
-	}
-
-	@Override
 	public void write(DocumentationAdapter adapter) {
 		DocumentationDocumentable.super.write(adapter);
 		super.write(adapter);
-	}
-
-	@Override
-	public void postWrite(DocumentationAdapter adapter) {
-		DocumentationDocumentable.super.postWrite(adapter);
 	}
 
 }
