@@ -11,6 +11,7 @@ import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
@@ -63,7 +64,8 @@ public class ExprPotionDuration extends SimplePropertyExpression<SkriptPotionEff
 	 * @param change The timespan delta.
 	 * @param mode The mode of change to perform.
 	 */
-	static void changeSafe(SkriptPotionEffect potionEffect, Timespan change, ChangeMode mode) {
+	@ApiStatus.Internal
+	public static void changeSafe(SkriptPotionEffect potionEffect, Timespan change, ChangeMode mode) {
 		Timespan duration;
 		if (mode == ChangeMode.SET || mode == ChangeMode.RESET) {
 			duration = change;
