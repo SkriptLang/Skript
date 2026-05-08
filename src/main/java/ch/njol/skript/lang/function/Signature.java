@@ -228,6 +228,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	/**
 	 * @return The namespace of this signature.
 	 */
+	@Override
 	public String namespace() {
 		return script;
 	}
@@ -318,7 +319,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 				.append(')');
 
 		if (includeReturnType && returns != null) {
-			signatureBuilder.append(" :: ");
+			signatureBuilder.append(" returns ");
 
 			signatureBuilder.append(Utils.toEnglishPlural(returnType.getCodeName(), returns.isArray()));
 		}

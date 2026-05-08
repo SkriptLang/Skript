@@ -1,11 +1,10 @@
 package org.skriptlang.skript.common.function;
 
+import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.SequencedMap;
+import java.util.*;
 
 /**
  * Holding class for a parameters of a function.
@@ -65,6 +64,30 @@ public final class Parameters {
 	 */
 	public int size() {
 		return indexed.length;
+	}
+
+	/**
+	 * @return The most amount of parameters this function supports.
+	 */
+	public int maxCount() {
+		return size();
+	}
+
+	/**
+	 * @return The least amount of parameters this function supports.
+	 */
+	public int minCount() {
+		List<Parameter<?>> params = new LinkedList<>(List.of(indexed));
+
+		int i = size() - 1;
+		for (Parameter<?> parameter : Lists.reverse(params)) {
+			if (!parameter.hasModifier(Parameter.Modifier.OPTIONAL)) {
+				return i + 1;
+			}
+			i--;
+		}
+
+		return 0;
 	}
 
 	/**

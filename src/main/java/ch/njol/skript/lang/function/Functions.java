@@ -4,13 +4,14 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
-import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.function.DefaultFunction;
 import org.skriptlang.skript.common.function.FunctionParser;
 import org.skriptlang.skript.common.function.FunctionReference;
+import org.skriptlang.skript.common.function.FunctionRegistry.Retrieval;
+import org.skriptlang.skript.common.function.FunctionRegistry.RetrievalResult;
 import org.skriptlang.skript.common.function.Parameter;
+import org.skriptlang.skript.common.function.Signature.Modifier;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.util.*;
@@ -72,7 +73,7 @@ public abstract class Functions {
 		}
 		globalFunctions.put(function.name(), javaNamespace);
 
-		FunctionRegistry.getRegistry().register(null, (Function<?>) function);
+		FunctionRegistry.getRegistry().register(null, function);
 
 		return function;
 	}
@@ -161,7 +162,7 @@ public abstract class Functions {
 	 * @see Functions#parseSignature(String, String, String, String, boolean)
 	 */
 	public static @Nullable Signature<?> registerSignature(Signature<?> signature) {
-		Retrieval<Signature<?>> existing;
+		Retrieval<org.skriptlang.skript.common.function.Signature<?>> existing;
 		Parameter<?>[] parameters = signature.parameters().all();
 
 		if (parameters.length == 1 && !parameters[0].isSingle()) {
@@ -177,10 +178,10 @@ public abstract class Functions {
 
 		// if this function has already been registered, only allow it if one function is local and one is global.
 		// if both are global or both are local, disallow.
-		if (existing.result() == RetrievalResult.EXACT && existing.retrieved().isLocal() == signature.isLocal()) {
+		if (existing.result() == RetrievalResult.EXACT && existing.retrieved().hasModifier(Modifier.LOCAL) == signature.isLocal()) {
 			StringBuilder error = new StringBuilder();
 
-			if (existing.retrieved().isLocal()) {
+			if (existing.retrieved().hasModifier(Modifier.LOCAL)) {
 				error.append("Local function ");
 			} else {
 				error.append("Function ");

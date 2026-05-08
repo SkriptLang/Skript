@@ -61,10 +61,11 @@ public interface Signature<T> {
 	 * @return Whether this signature returns single values.
 	 */
 	default boolean isSingle() {
-		if (returnType() == null) {
+		Class<T> returnType = returnType();
+		if (returnType == null) {
 			return false;
 		}
-		return !returnType().isArray();
+		return !returnType.isArray();
 	}
 
 	/**

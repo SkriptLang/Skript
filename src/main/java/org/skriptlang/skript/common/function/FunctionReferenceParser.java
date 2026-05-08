@@ -212,7 +212,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 		Argument<String>[] originalArguments = arguments;
 		for (Signature<?> signature : signatures) {
 			// if arguments arent possible, skip
-			if (arguments.length > signature.getMaxParameters() || arguments.length < signature.getMinParameters()) {
+			if (arguments.length > signature.parameters().maxCount() || arguments.length < signature.parameters().minCount()) {
 				continue;
 			}
 			arguments = originalArguments;
@@ -534,9 +534,9 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 					});
 				return currentArgumentTypes.isEmpty();
 			})
-			.min(Comparator.comparingInt(signature -> Math.abs(arguments.length - signature.getMaxParameters())));
+			.min(Comparator.comparingInt(signature -> Math.abs(arguments.length - signature.parameters().maxCount())));
 		if (intended.isPresent()) {
-			possibleMatch = " " + POTENTIAL_SIGNATURE.toString(intended.get().toString(false, false));
+			possibleMatch = " " + POTENTIAL_SIGNATURE.toString(intended.get().toString());
 		}
 		Skript.error(UNKNOWN_FUNCTION.toString(name, joiner) + possibleMatch);
 	}

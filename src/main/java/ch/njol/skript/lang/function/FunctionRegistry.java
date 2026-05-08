@@ -68,9 +68,78 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 		return Collections.unmodifiableSet(functions);
 	}
 
+	private record UnmodifiableFunctionRegistry(
+			org.skriptlang.skript.common.function.FunctionRegistry registry) implements org.skriptlang.skript.common.function.FunctionRegistry {
+
+		@Override
+		public org.skriptlang.skript.common.function.FunctionRegistry unmodifiableView() {
+			return this;
+		}
+
+		@Override
+		public Collection<Function<?>> elements() {
+			return registry.elements();
+		}
+
+		@Override
+		public void register(@NotNull Signature<?> signature) {
+			throw new UnsupportedOperationException("Cannot register signatures on an unmodifiable function registry");
+		}
+
+		@Override
+		public void register(@NotNull String namespace, @NotNull Signature<?> signature) {
+			throw new UnsupportedOperationException("Cannot register signatures on an unmodifiable function registry");
+		}
+
+		@Override
+		public void register(@NotNull Function<?> function) {
+			throw new UnsupportedOperationException("Cannot register functions on an unmodifiable function registry");
+		}
+
+		@Override
+		public void register(@NotNull String namespace, @NotNull Function<?> function) {
+			throw new UnsupportedOperationException("Cannot register functions on an unmodifiable function registry");
+		}
+
+		@Override
+		public @NotNull Retrieval<Function<?>> getFunction(@NotNull String name, @NonNull @NotNull Class<?>... args) {
+			return registry.getFunction(name, args);
+		}
+
+		@Override
+		public @NotNull Retrieval<Function<?>> getFunction(@NotNull String namespace, @NotNull String name, @NonNull @NotNull Class<?>... args) {
+			return registry.getFunction(namespace, name, args);
+		}
+
+		@Override
+		public @NotNull Retrieval<Signature<?>> getSignature(@NotNull String name, @NonNull @NotNull Class<?>... args) {
+			return registry.getSignature(name, args);
+		}
+
+		@Override
+		public @NotNull Retrieval<Signature<?>> getSignature(@NotNull String namespace, @NotNull String name, @NonNull @NotNull Class<?>... args) {
+			return registry.getSignature(namespace, name, args);
+		}
+
+		@Override
+		public @Unmodifiable @NotNull Set<Signature<?>> getSignatures(@NotNull String name) {
+			return registry.getSignatures(name);
+		}
+
+		@Override
+		public @Unmodifiable @NotNull Set<Signature<?>> getSignatures(@NotNull String namespace, @NotNull String name) {
+			return registry.getSignatures(namespace, name);
+		}
+
+		@Override
+		public void remove(@NotNull Signature<?> signature) {
+			throw new UnsupportedOperationException("Cannot remove functions on an unmodifiable function registry");
+		}
+	}
+
 	@Override
 	public org.skriptlang.skript.common.function.FunctionRegistry unmodifiableView() {
-		return null;
+		return new UnmodifiableFunctionRegistry(this);
 	}
 
 	@Override
@@ -78,23 +147,7 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 		register(null, signature);
 	}
 
-	/**
-	 * Registers a signature.
-	 * <p>
-	 * Attempting to register a local signature in the global namespace, or a global signature in
-	 * a local namespace, will throw an {@link IllegalArgumentException}.
-	 * If {@code namespace} is null, will register this signature globally,
-	 * only if the signature is global.
-	 * </p>
-	 *
-	 * @param namespace The namespace to register the signature in.
-	 *                  Usually represents the path of the script this signature is registered in.
-	 * @param signature The signature to register.
-	 * @throws SkriptAPIException       if a signature with the same name and parameters is already registered
-	 *                                  in this namespace.
-	 * @throws IllegalArgumentException if the signature is global and namespace is not null, or
-	 *                                  if the signature is local and namespace is null.
-	 */
+	@Override
 	public void register(@Nullable String namespace, @NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature cannot be null");
 		if (signature.hasModifier(Signature.Modifier.LOCAL) && namespace == null) {
@@ -136,27 +189,10 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 
 	@Override
 	public void register(@NotNull Function<?> function) {
-
+		register(null, function);
 	}
 
-	/**
-	 * Registers a function.
-	 * <p>
-	 * Attempting to register a local function in the global namespace, or a global function in
-	 * a local namespace, will throw an {@link IllegalArgumentException}.
-	 * If {@code namespace} is null, will register this function globally,
-	 * only if the function is global.
-	 * </p>
-	 *
-	 * @param namespace The namespace to register the function in.
-	 *                  Usually represents the path of the script this function is registered in.
-	 * @param function  The function to register.
-	 * @throws SkriptAPIException       if the function name is invalid or if
-	 *                                  a function with the same name and parameters is already registered
-	 *                                  in this namespace.
-	 * @throws IllegalArgumentException if the function is global and namespace is not null, or
-	 *                                  if the function is local and namespace is null.
-	 */
+	@Override
 	public void register(@Nullable String namespace, @NotNull Function<?> function) {
 		Signature<?> signature = function.signature();
 		Preconditions.checkNotNull(function, "function cannot be null");
@@ -234,17 +270,7 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 		return false;
 	}
 
-	/**
-	 * Gets a function from a script. If no local function is found, checks for global functions.
-	 * If {@code namespace} is null, only global functions will be checked.
-	 *
-	 * @param namespace The namespace to get the function from.
-	 *                  Usually represents the path of the script this function is registered in.
-	 * @param name      The name of the function.
-	 * @param args      The types of the arguments of the function.
-	 * @return Information related to the attempt to get the specified function,
-	 * stored in a {@link Retrieval} object.
-	 */
+	@Override
 	public @NotNull Retrieval<Function<?>> getFunction(
 			@Nullable String namespace,
 			@NotNull String name,
@@ -312,16 +338,7 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 		}
 	}
 
-	/**
-	 * Gets the signature for a function with the given name and arguments. If no local function is found,
-	 * checks for global functions. If {@code namespace} is null, only global signatures will be checked.
-	 *
-	 * @param namespace The namespace to get the function from.
-	 *                  Usually represents the path of the script this function is registered in.
-	 * @param name      The name of the function.
-	 * @param args      The types of the arguments of the function.
-	 * @return The signature for the function with the given name and argument types, or null if no such function exists.
-	 */
+	@Override
 	public @NonNull Retrieval<Signature<?>> getSignature(
 			@Nullable String namespace,
 			@NotNull String name,
@@ -384,6 +401,7 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 	 * @param name      The name of the signature(s) to obtain.
 	 * @return A list of all signatures named {@code name}.
 	 */
+	@Override
 	public @Unmodifiable @NotNull Set<Signature<?>> getSignatures(@Nullable String namespace, @NotNull String name) {
 		Preconditions.checkNotNull(name, "name cannot be null");
 
@@ -552,11 +570,7 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 		return Collections.unmodifiableSet(candidates);
 	}
 
-	/**
-	 * Removes a function's signature from the registry.
-	 *
-	 * @param signature The signature to remove.
-	 */
+	@Override
 	public void remove(@NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature cannot be null");
 
@@ -610,15 +624,6 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 	 * An identifier for a function namespace.
 	 */
 	private record NamespaceIdentifier(@Nullable String name) {
-
-		/**
-		 * Returns whether this identifier is for local namespaces.
-		 *
-		 * @return Whether this identifier is for local namespaces.
-		 */
-		public boolean local() {
-			return name == null;
-		}
 
 	}
 
