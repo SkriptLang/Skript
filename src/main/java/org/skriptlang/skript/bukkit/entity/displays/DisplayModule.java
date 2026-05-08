@@ -121,9 +121,9 @@ public class DisplayModule extends HierarchicalAddonModule {
 
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
-		register(addon,
-			DisplayData::register,
+		DisplayData.register();
 
+		register(addon,
 			ExprDisplayBillboard::register,
 			ExprDisplayBrightness::register,
 			ExprDisplayGlowOverride::register,

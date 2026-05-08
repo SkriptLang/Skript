@@ -1,12 +1,11 @@
 package ch.njol.skript.bukkitutil;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.entity.EntityData;
+import org.skriptlang.skript.bukkit.entity.EntityData;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import org.bukkit.Location;
 import org.bukkit.entity.*;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
