@@ -304,9 +304,6 @@ databases:
 	#
 	# You can define as many databases as you want, just make sure to choose a distinct name for each one, and don't forget to set all options correctly.
 	#
-	# To be able to use a database you'll need to download the plugin 'SQLibrary' from https://dev.bukkit.org/projects/sqlibrary/files
-	# and install it in your server's plugin directory like other plugins.
-	#
 	# Please note that '/skript reload' will not reload this section, i.e. you'll have to restart Skript for changes to take effect.
 
 	# Each database definition must be in a separate section. You can choose any name for the sections, as long as it's not already used.
@@ -314,8 +311,8 @@ databases:
 		# An example database to describe all possible options.
 
 		type: disabled
-		# The type of this database. Allowed values are 'CSV', 'SQLite', 'MySQL' and 'disabled'.
-		# CSV uses a text file to store the variables, while SQLite and MySQL use databases, and 'disabled' makes Skript ignore the database as if it wasn't defined at all.
+		# The type of this database. Allowed values are 'CSV' and 'disabled'.
+		# CSV uses a text file to store the variables and 'disabled' makes Skript ignore the database as if it wasn't defined at all.
 
 		pattern: .*
 		# Defines which variables to save in this database.
@@ -330,23 +327,10 @@ databases:
 		# If 'monitor changes' is set to true, variables will repeatedly be checked for updates in the database (in intervals set in 'monitor interval').
 		# ! Please note that you should set 'pattern', 'monitor changes' and 'monitor interval' to the same values on all servers that access the same database!
 
-		# == MySQL configuration ==
-		host: localhost # Where the database server is located at, e.g. 'example.com', 'localhost', or '192.168.1.100'
-		port: 3306 # 3306 is MySQL's default port, i.e. you likely won't need to change this value
-		user: root
-		password: pass
-		database: skript # The database to use, the table will be created in this database.
-		table: variables21 # The name of the table to create. 'variables21' is the default name, if this was to be omitted.
-							# (If the table exists but is defined differently that how Skript expects it to be you'll get errors and no variables will be saved and/or loaded)
-		# == SQLite/CSV configuration ==
+		# == CSV configuration ==
 		file: ./plugins/Skript/variables.db
 		# Where to save the variables to. For a CSV file, the file extension '.csv' is recommended, but not required, but SQLite database files must end in '.db' (SQLibrary forces this).
 		# The file path can either be absolute (e.g. 'C:\whatever\...' [Windows] or '/usr/whatever/...' [Unix]), or relative to the server directory (e.g. './plugins/Skript/...').
-
-		#table: variables21
-		# The name of the table to create. 'variables21' is the default name, if this was to be omitted.
-		# (If the table exists but is defined differently that how Skript expects it to be you'll get errors and no variables will be saved and/or loaded)
-		# This is generally not required as the the .db file will only be used by Skript, unless you want to split different variables into different tables
 
 		backup interval: 2 hours
 		# Creates a backup of the file every so often. This can be useful if you ever want to revert variables to an older state.
@@ -358,44 +342,6 @@ databases:
 		# Backups are removed from oldest to newest.
 		# If disabled (set to -1), no backup files will be deleted.
 		# WARNING: Setting to 0 will delete all files located in the backup directory upon plugin start/reload
-
-
-	MySQL example:
-		# A MySQL database example, with options unrelated to MySQL removed.
-
-		type: disabled # change to line below to enable this database
-		# type: MySQL
-
-		pattern: synced_.* # this pattern will save all variables that start with 'synced_' in this MySQL database.
-
-		host: localhost
-		port: 3306
-		user: root
-		password: pass
-		database: skript
-		table: variables21
-
-		monitor changes: true
-		monitor interval: 20 seconds
-
-	SQLite example:
-		# An SQLite database example.
-
-		type: disabled # change to line below to enable this database
-		# type: SQLite
-
-		pattern: db_.* # this pattern will save all variables that start with 'db_' in this SQLite database.
-
-		file: ./plugins/Skript/variables.db
-		# SQLite databases must end in '.db'
-		#table: variables21
-		# Usually not required, if omitted defaults to variables21 (see above for more details)
-
-		backup interval: 0 # 0 = don't create backups
-		monitor changes: false
-		monitor interval: 20 seconds
-
-		backups to keep: -1
 
 	default:
 		# The default "database" is a simple text file, with each variable on a separate line and the variable's name, type, and value separated by commas.
