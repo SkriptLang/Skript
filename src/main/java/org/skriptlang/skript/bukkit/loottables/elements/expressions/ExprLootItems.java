@@ -30,11 +30,11 @@ import java.util.concurrent.ThreadLocalRandom;
 		+ "Not specifying a loot context will use a loot context with a location at the world's origin."
 )
 @Example("""
-	set {_items::*} to loot items of the loot table "minecraft:chests/simple_dungeon" with loot context {_context}
+	set {_items::*} to loot of the loot table "minecraft:chests/simple_dungeon" with loot context {_context}
 	# this will set {_items::*} to the items that would be dropped from the simple dungeon loot table with the given loot context
 	""")
 @Example("""
-	give player loot items of entity's loot table with loot context {_context}
+	give player loot of entity's loot table with loot context {_context}
 	# this will give the player the items that the entity would drop with the given loot context
 	""")
 @Since("2.10")
@@ -45,8 +45,8 @@ public class ExprLootItems extends SimpleExpression<ItemStack> {
 			SyntaxRegistry.EXPRESSION,
 			SyntaxInfo.Expression.builder(ExprLootItems.class, ItemStack.class)
 				.addPatterns(
-					"[the] loot of %loottables% [(with|using) %-lootcontext%]",
-					"%loottables%'[s] loot [(with|using) %-lootcontext%]"
+					"[the] loot of %loottables% [(with|using) [[loot] context] %-lootcontext%]",
+					"%loottables%'[s] loot [(with|using) [[loot] context] %-lootcontext%]"
 				)
 				.supplier(ExprLootItems::new)
 				.build()
@@ -72,7 +72,7 @@ public class ExprLootItems extends SimpleExpression<ItemStack> {
 			if (context == null)
 				return new ItemStack[0];
 		} else {
-			context = new LootContextWrapper(Bukkit.getWorlds().get(0).getSpawnLocation()).getContext();
+			context = new LootContextWrapper(Bukkit.getWorlds().getFirst().getSpawnLocation()).getContext();
 		}
 
 		List<ItemStack> items = new ArrayList<>();
@@ -104,7 +104,7 @@ public class ExprLootItems extends SimpleExpression<ItemStack> {
 
 		builder.append("the loot of", lootTables);
 		if (context != null)
-			builder.append("with", context);
+			builder.append("with loot context ", context);
 
 		return builder.toString();
 	}
