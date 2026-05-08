@@ -11,17 +11,31 @@ import java.util.*;
  */
 public final class Parameters {
 
+	private final int maxCount;
+	private int minCount = 0;
 	private final SequencedMap<String, Parameter<?>> named;
 	private final Parameter<?>[] indexed;
 
 	public Parameters(SequencedMap<String, Parameter<?>> parameters) {
 		this.named = parameters;
+		this.maxCount = parameters.size();
 
-		indexed = new Parameter[parameters.size()];
-		int i = 0;
-		for (Parameter<?> parameter : parameters.values()) {
-			indexed[i] = parameter;
-			i++;
+		this.indexed = new Parameter[this.maxCount];
+		{
+			int i = 0;
+			for (Parameter<?> parameter : parameters.values()) {
+				this.indexed[i] = parameter;
+				i++;
+			}
+		}
+
+		int j = size() - 1;
+		for (Parameter<?> parameter : Lists.reverse(new LinkedList<>(parameters.values()))) {
+			if (!parameter.hasModifier(Parameter.Modifier.OPTIONAL)) {
+				this.minCount = j + 1;
+				break;
+			}
+			j--;
 		}
 	}
 
@@ -63,31 +77,21 @@ public final class Parameters {
 	 * @return The amount of parameters.
 	 */
 	public int size() {
-		return indexed.length;
+		return maxCount;
 	}
 
 	/**
 	 * @return The most amount of parameters this function supports.
 	 */
 	public int maxCount() {
-		return size();
+		return maxCount;
 	}
 
 	/**
 	 * @return The least amount of parameters this function supports.
 	 */
 	public int minCount() {
-		List<Parameter<?>> params = new LinkedList<>(List.of(indexed));
-
-		int i = size() - 1;
-		for (Parameter<?> parameter : Lists.reverse(params)) {
-			if (!parameter.hasModifier(Parameter.Modifier.OPTIONAL)) {
-				return i + 1;
-			}
-			i--;
-		}
-
-		return 0;
+		return minCount;
 	}
 
 	/**

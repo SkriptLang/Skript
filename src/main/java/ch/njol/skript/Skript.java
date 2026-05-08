@@ -12,7 +12,6 @@ import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.Condition.ConditionType;
 import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
@@ -69,6 +68,7 @@ import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.common.CommonModule;
+import org.skriptlang.skript.common.function.FunctionRegistry;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
@@ -481,7 +481,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		//noinspection removal
 		EventValues.setEventValueRegistry(eventValueRegistry);
 
-		skript.storeRegistry(FunctionRegistry.class, new FunctionRegistry());
+		skript.storeRegistry(FunctionRegistry.class, FunctionRegistry.empty(skript));
 
 		// TODO this upcoming portion is a bad circular dependency
 		// some modules depend on the config

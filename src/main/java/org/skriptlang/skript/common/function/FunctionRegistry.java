@@ -4,8 +4,11 @@ import ch.njol.skript.SkriptAPIException;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.Skript;
+import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.util.Registry;
 import org.skriptlang.skript.util.ViewProvider;
 
@@ -13,11 +16,26 @@ import java.util.Set;
 
 /**
  * A registry for functions.
+ * <p>
+ * Obtain an instance using {@code SkriptAddon#registry(FunctionRegistry.class)}.
+ * <br>
+ * Or an unmodifiable view using {@code Skript.instance().registry(FunctionRegistry.class)}.
  */
 @NonExtendable
 @Internal
 @Experimental
 public interface FunctionRegistry extends Registry<Function<?>>, ViewProvider<FunctionRegistry> {
+
+	/**
+	 * Creates an empty function registry.
+	 *
+	 * @param skript the Skript instance
+	 * @return a new empty function registry
+	 */
+	@Contract("_ -> new")
+	static FunctionRegistry empty(Skript skript) {
+		return new ch.njol.skript.lang.function.FunctionRegistry(skript);
+	}
 
 	/**
 	 * Registers a global signature.

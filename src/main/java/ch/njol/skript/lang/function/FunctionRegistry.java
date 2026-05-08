@@ -6,6 +6,7 @@ import ch.njol.skript.util.Utils;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -21,22 +22,26 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-/**
- * A registry for functions.
- */
+@Experimental
 @ApiStatus.Internal
 public final class FunctionRegistry implements org.skriptlang.skript.common.function.FunctionRegistry {
+
+	private final org.skriptlang.skript.Skript skript;
+
+	public FunctionRegistry(org.skriptlang.skript.Skript skript) {
+		this.skript = skript;
+	}
 
 	private static FunctionRegistry registry;
 
 	/**
-	 * Gets the global function registry.
-	 *
-	 * @return The global function registry.
+	 * @deprecated Accessing the function registry requires a Skript instance to allow modification.
+	 * Therefore, this method only returns an unmodifiable registry.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static FunctionRegistry getRegistry() {
 		if (registry == null) {
-			registry = new FunctionRegistry();
+			registry = new FunctionRegistry(Skript.instance());
 		}
 		return registry;
 	}

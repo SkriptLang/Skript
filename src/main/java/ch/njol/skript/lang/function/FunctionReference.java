@@ -18,6 +18,8 @@ import org.skriptlang.skript.common.function.FunctionReference.ArgumentType;
 import org.skriptlang.skript.common.function.FunctionRegistry.Retrieval;
 import org.skriptlang.skript.common.function.FunctionRegistry.RetrievalResult;
 import org.skriptlang.skript.common.function.Parameter;
+import org.skriptlang.skript.common.function.Function;
+import org.skriptlang.skript.common.function.Signature;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 import org.skriptlang.skript.common.function.Parameter.Modifier.RangedModifier;
 import org.skriptlang.skript.lang.converter.Converters;
@@ -46,13 +48,13 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 	 * Signature of referenced function. If {@link #validateFunction(boolean)}
 	 * succeeds, this is not null.
 	 */
-	private @Nullable Signature<? extends T> signature;
+	private @Nullable org.skriptlang.skript.common.function.Signature<? extends T> signature;
 
 	/**
 	 * Actual function reference. Null before the function is called for first
 	 * time.
 	 */
-	private @Nullable Function<? extends T> function;
+	private @Nullable org.skriptlang.skript.common.function.Function<? extends T> function;
 
 	/**
 	 * If all function parameters can be condensed to a single list.
@@ -116,7 +118,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			return false;
 
 		// Not enough parameters
-		return parameters.length >= sign.getMinParameters();
+		return parameters.length >= sign.parameters().minCount();
 	}
 
 	private Class<?>[] parameterTypes;
@@ -191,16 +193,16 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		}
 
 		// Validate parameter count
-		singleListParam = sign.getMaxParameters() == 1 && !sign.parameters().getFirst().isSingle();
+		singleListParam = sign.parameters().maxCount() == 1 && !sign.parameters().getFirst().isSingle();
 		if (!singleListParam) { // Check that parameter count is within allowed range
 			// Too many parameters
-			if (parameters.length > sign.getMaxParameters()) {
+			if (parameters.length > sign.parameters().maxCount()) {
 				if (first) {
-					if (sign.getMaxParameters() == 0) {
+					if (sign.parameters().maxCount() == 0) {
 						Skript.error("The function '" + stringified + "' has no arguments, but " + parameters.length + " are given."
 							+ " To call a function without parameters, just write the function name followed by '()', e.g. 'func()'.");
 					} else {
-						Skript.error("The function '" + stringified + "' has only " + sign.getMaxParameters() + " argument" + (sign.getMaxParameters() == 1 ? "" : "s") + ","
+						Skript.error("The function '" + stringified + "' has only " + sign.parameters().maxCount() + " argument" + (sign.parameters().maxCount() == 1 ? "" : "s") + ","
 							+ " but " + parameters.length + " are given."
 							+ " If you want to use lists in function calls, you have to use additional parentheses, e.g. 'give(player, (iron ore and gold ore))'");
 					}
@@ -214,9 +216,9 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		}
 
 		// Not enough parameters
-		if (parameters.length < sign.getMinParameters()) {
+		if (parameters.length < sign.parameters().minCount()) {
 			if (first) {
-				Skript.error("The function '" + stringified + "' requires at least " + sign.getMinParameters() + " argument" + (sign.getMinParameters() == 1 ? "" : "s") + ","
+				Skript.error("The function '" + stringified + "' requires at least " + sign.parameters().minCount() + " argument" + (sign.parameters().minCount() == 1 ? "" : "s") + ","
 					+ " but only " + parameters.length + " " + (parameters.length == 1 ? "is" : "are") + " given.");
 			} else {
 				Skript.error("The function '" + stringified + "' was redefined with a different, incompatible amount of arguments, but is still used in other script(s)."
@@ -289,9 +291,9 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			.map(it -> new Argument<>(ArgumentType.UNNAMED, null, it))
 			.toArray(Argument[]::new);
 
-		sign.calls().add(new org.skriptlang.skript.common.function.FunctionReference<>(script, functionName, signature, arguments));
+		sign.addCall(new org.skriptlang.skript.common.function.FunctionReference<>(script, functionName, signature, arguments));
 
-		Contract contract = sign.getContract();
+		Contract contract = sign.contract();
 		if (contract != null)
 			this.contract = contract;
 
@@ -322,7 +324,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 				functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
 		}
 
-		Retrieval<Signature<?>> attempt = FunctionRegistry.getRegistry().getSignature(script, functionName, parameterTypes);
+		Retrieval<Signature<?>> attempt = Skript.instance().registry(org.skriptlang.skript.common.function.FunctionRegistry.class).getSignature(script, functionName, parameterTypes);
 		if (attempt.result() == RetrievalResult.EXACT) {
 			return attempt.retrieved();
 		}
@@ -345,7 +347,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 				functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
 		}
 
-		Retrieval<Function<?>> attempt = FunctionRegistry.getRegistry().getFunction(script, functionName, parameterTypes);
+		Retrieval<Function<?>> attempt = Skript.instance().registry(org.skriptlang.skript.common.function.FunctionRegistry.class).getFunction(script, functionName, parameterTypes);
 		if (attempt.result() == RetrievalResult.EXACT) {
 			return attempt.retrieved();
 		}
@@ -395,7 +397,8 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		}
 
 		// Execute the function
-		return function.execute(params);
+		//noinspection unchecked
+		return (T[]) ((ch.njol.skript.lang.function.Function<?>) function).execute(params);
 	}
 
 	private Object[] evaluateSingleListParameter(Parameter<?> parameter, Expression<?>[] arguments, Event event) {
@@ -494,7 +497,8 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		// We shouldn't trust the caller provided an array of arrays
 		Object[][] consigned = consign(arguments);
 		try {
-			return function.execute(consigned);
+			//noinspection unchecked
+			return (T[]) ((ch.njol.skript.lang.function.Function<?>) function).execute(consigned);
 		} finally {
 			this.resetReturnValue();
 		}

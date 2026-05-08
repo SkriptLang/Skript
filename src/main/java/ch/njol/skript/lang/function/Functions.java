@@ -222,20 +222,6 @@ public abstract class Functions {
 	 * it might not have been parsed yet. If you want to check for existence,
 	 * then use {@link #getGlobalSignature(String)}.
 	 *
-	 * @deprecated in favour of {@link #getGlobalFunction(String)} for proper name.
-	 * @param name Name of function.
-	 * @return Function, or null if it does not exist.
-	 */
-	@Deprecated(since = "2.7.0", forRemoval = true)
-	public static @Nullable Function<?> getFunction(String name) {
-		return getGlobalFunction(name);
-	}
-
-	/**
-	 * Gets a function, if it exists. Note that even if function exists in scripts,
-	 * it might not have been parsed yet. If you want to check for existence,
-	 * then use {@link #getGlobalSignature(String)}.
-	 *
 	 * @param name Name of function.
 	 * @return Function, or null if it does not exist.
 	 */
@@ -281,18 +267,6 @@ public abstract class Functions {
 		if (function == null)
 			return getGlobalFunction(name);
 		return function;
-	}
-
-	/**
-	 * Gets a signature of function with given name.
-	 *
-	 * @deprecated in favour of {@link #getGlobalSignature(String)} for proper name.
-	 * @param name Name of function.
-	 * @return Signature, or null if function does not exist.
-	 */
-	@Deprecated(since = "2.7.0", forRemoval = true)
-	public static @Nullable Signature<?> getSignature(String name) {
-		return getGlobalSignature(name);
 	}
 
 	/**
@@ -347,29 +321,6 @@ public abstract class Functions {
 
 	private final static Collection<FunctionReference<?>> toValidate = new ArrayList<>();
 
-	@Deprecated(since = "2.7.0", forRemoval = true)
-	public static int clearFunctions(String script) {
-		// Get and remove function namespace of script
-		Namespace namespace = namespaces.remove(new Namespace.Key(Namespace.Origin.SCRIPT, script));
-		if (namespace == null) { // No functions defined
-			return 0;
-		}
-
-		// Remove references to this namespace from global functions
-		globalFunctions.values().removeIf(loopedNamespaced -> loopedNamespaced == namespace);
-
-		// Queue references to signatures we have for revalidation
-		// Can't validate here, because other scripts might be loaded soon
-		for (Signature<?> sign : namespace.getSignatures()) {
-			for (FunctionReference<?> ref : sign.calls()) {
-				if (!script.equals(ref.namespace())) {
-					toValidate.add(ref);
-				}
-			}
-		}
-		return namespace.getSignatures().size();
-	}
-
 	public static void unregisterFunction(Signature<?> signature) {
 		FunctionRegistry.getRegistry().remove(signature);
 
@@ -397,19 +348,6 @@ public abstract class Functions {
 	public static void validateFunctions() {
 		for (FunctionReference<?> c : toValidate)
 			c.validate();
-		toValidate.clear();
-	}
-
-	/**
-	 * Clears all function calls and removes script functions.
-	 */
-	@Deprecated(since = "2.7.0", forRemoval = true)
-	public static void clearFunctions() {
-		// Keep Java functions, remove everything else
-		globalFunctions.values().removeIf(namespace -> namespace != javaNamespace);
-		namespaces.clear();
-
-		assert toValidate.isEmpty() : toValidate;
 		toValidate.clear();
 	}
 
