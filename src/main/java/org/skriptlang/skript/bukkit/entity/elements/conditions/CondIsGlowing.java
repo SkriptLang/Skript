@@ -6,7 +6,7 @@ import org.bukkit.entity.Entity;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Is Glowing")
-@Description("Checks whether or not a living entity is glowing.")
+@Description("Checks whether or not an entity is glowing.")
 @Example("""
 	command /glow:
 		trigger:
