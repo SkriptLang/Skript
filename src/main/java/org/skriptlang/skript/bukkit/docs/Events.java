@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.docs;
 
+import ch.njol.skript.Skript;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
@@ -99,7 +100,7 @@ public class Events implements Documentable {
 					}
 				}
 				if (!found) {
-					throw new IllegalArgumentException("No matching info found for event annotation: " + eventName);
+					Skript.warning("No matching info found for event annotation: " + eventName + ". Skipping...");
 				}
 				found = false;
 			}
