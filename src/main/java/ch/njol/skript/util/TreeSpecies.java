@@ -6,6 +6,9 @@ import org.bukkit.TreeType;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 
+/**
+ * Repesents a grouping of Bukkkit {@link TreeType TreeTypes}
+ */
 public enum TreeSpecies {
 	TREE(TreeType.values()),
 
@@ -61,6 +64,14 @@ public enum TreeSpecies {
 		this.types = types;
 	}
 
+	/**
+	 * Grow a tree at a location.
+	 * <p>
+	 * If the species is a group, a random tree type is selected.
+	 * </p>
+	 *
+	 * @param location Location to grow the tree at
+	 */
 	public void grow(Location location) {
 		TreeType tree = CollectionUtils.getRandom(types);
 		assert tree != null; // No enum member causes empty types
@@ -71,14 +82,33 @@ public enum TreeSpecies {
 		world.generateTree(location, tree);
 	}
 
+	/**
+	 * Grow a tree at a location.
+	 * <p>
+	 * If the species is a group, a random tree type is selected.
+	 * </p>
+	 *
+	 * @param block Block to grow the tree at
+	 */
 	public void grow(Block block) {
 		grow(block.getLocation());
 	}
 
+	/**
+	 * Get the TreeTypes that make up this species.
+	 *
+	 * @return TreeTypes that make up this species
+	 */
 	public TreeType[] getTypes() {
 		return types;
 	}
 
+	/**
+	 * Check if this species contains a specific tree type.
+	 *
+	 * @param type TreeType to check for
+	 * @return True if the species contains the type, false otherwise
+	 */
 	public boolean is(TreeType type) {
 		return CollectionUtils.contains(types, type);
 	}
