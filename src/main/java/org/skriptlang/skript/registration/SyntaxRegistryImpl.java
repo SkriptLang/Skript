@@ -2,6 +2,7 @@ package org.skriptlang.skript.registration;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.docs.Origin;
@@ -52,7 +53,7 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 
 	@Override
 	public Collection<SyntaxInfo<?>> elements() {
-		ImmutableSet.Builder<SyntaxInfo<?>> builder = ImmutableSet.builder();
+		ImmutableSet.Builder<@NotNull SyntaxInfo<?>> builder = ImmutableSet.builder();
 		registers.values().forEach(register -> {
 			synchronized (register.syntaxes) {
 				builder.addAll(register.syntaxes);
@@ -63,7 +64,7 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 
 	@Override
 	public void write(DocumentationAdapter adapter) {
-		write(adapter, registers.keySet());
+		write(adapter, registers.keySet().stream().filter(key -> key != SyntaxRegistry.STATEMENT).toList());
 	}
 
 	static final class OriginApplyingRegistry implements SyntaxRegistry {
