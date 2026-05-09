@@ -129,7 +129,11 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 		return switch (value) {
 			case Reference reference -> {
 				var builder = ImmutableMap.builder();
-				builder.put("id", idMap.get(reference.referenced()));
+				String id = idMap.get(reference.referenced());
+				if (id == null) {
+					throw new SkriptAPIException("Failed to resolve reference (was it documented?) for " + reference.referenced());
+				}
+				builder.put("id", id);
 				if (reference.referenced() instanceof DocumentationDocumentable documentationDocumentable) {
 					Documentation documentation = documentationDocumentable.documentation();
 					builder.put("name", documentation.name());
@@ -176,7 +180,10 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 					if (adapted instanceof Documentable documentable) {
 						var adapter = new DocumentationAdapterImpl(addon, false);
 						adapter.write(documentable);
-						adapted = adapter.dataMap();
+						// may be relevant to copy over
+						this.idMap.putAll(adapter.idMap);
+						//noinspection DataFlowIssue - don't calling dataMap to avoid reference resolution
+						adapted = adapter.scopes.peek().values();
 					}
 					return adapted;
 				})
@@ -188,7 +195,10 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 					if (adapted instanceof Documentable documentable) {
 						var adapter = new DocumentationAdapterImpl(addon, false);
 						adapter.write(documentable);
-						adapted = adapter.dataMap();
+						// may be relevant to copy over
+						this.idMap.putAll(adapter.idMap);
+						//noinspection DataFlowIssue - don't calling dataMap to avoid reference resolution
+						adapted = adapter.scopes.peek().values();
 					}
 					return adapted;
 				}));
