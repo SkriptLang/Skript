@@ -41,32 +41,32 @@ public class PaperEntityUtils {
 	/**
 	 * Instruct a Mob (1.17+) to look at a specific vector/location/entity.
 	 * Object can be a {@link org.bukkit.util.Vector}, {@link org.bukkit.Location} or {@link org.bukkit.entity.Entity}
-	 * 
-	 * @param target The vector/location/entity to make the livingentity look at.
-	 * @param entities The living entities to make look at something.
+	 *
+	 * @param target The vector/location/entity to make the entity look at.
+	 * @param entities The entities to make look at something.
 	 */
-	public static void lookAt(Object target, LivingEntity... entities) {
+	public static void lookAt(Object target, Entity... entities) {
 		lookAt(target, null, null, entities);
 	}
 
 	/**
 	 * Instruct a Mob (1.17+) to look at a specific vector/location/entity.
 	 * Object can be a {@link org.bukkit.util.Vector}, {@link org.bukkit.Location} or {@link org.bukkit.entity.Entity}
-	 * 
-	 * @param target The vector/location/entity to make the livingentity look at.
-	 * @param headRotationSpeed The rotation speed at which the living entities will rotate their head to the target. Vanilla default values range from 10-50. Doesn't apply to players.
+	 *
+	 * @param target The vector/location/entity to make the entity look at.
+	 * @param headRotationSpeed The rotation speed at which the entities will rotate their head to the target. Vanilla default values range from 10-50. Doesn't apply to players.
 	 * @param maxHeadPitch The maximum pitch at which the eyes/feet can go to. Doesn't apply to players.
-	 * @param entities The living entities to make look at something.
+	 * @param entities The entities to make look at something.
 	 */
-	public static void lookAt(Object target, @Nullable Float headRotationSpeed, @Nullable Float maxHeadPitch, LivingEntity... entities) {
+	public static void lookAt(Object target, @Nullable Float headRotationSpeed, @Nullable Float maxHeadPitch, Entity... entities) {
 		if (target == null || !LOOK_AT)
 			return;
 		// Use support for players if using Paper 1.19.1+
 		if (LOOK_ANCHORS) {
-			lookAt(LookAnchor.EYES, headRotationSpeed, maxHeadPitch, entities);
+			lookAt(LookAnchor.EYES, target, headRotationSpeed, maxHeadPitch, entities);
 			return;
 		}
-		for (LivingEntity entity : entities) {
+		for (Entity entity : entities) {
 			if (!(entity instanceof Mob))
 				continue;
 			mobLookAt(target, headRotationSpeed, maxHeadPitch, (Mob) entity);
@@ -76,26 +76,24 @@ public class PaperEntityUtils {
 	/**
 	 * Instruct a Mob (1.17+) or Players (1.19.1+) to look at a specific vector/location/entity.
 	 * Object can be a {@link org.bukkit.util.Vector}, {@link org.bukkit.Location} or {@link org.bukkit.entity.Entity}
-	 * THIS METHOD IS FOR 1.19.1+ ONLY. Use {@link lookAt(Object, Float, Float, LivingEntity...)} otherwise.
-	 * 
-	 * @param entityAnchor What part of the entity the player should face assuming the LivingEntity argument contains a player. Only for players.
-	 * @param target The vector/location/entity to make the livingentity or player look at.
-	 * @param headRotationSpeed The rotation speed at which the living entities will rotate their head to the target. Vanilla default values range from 10-50. Doesn't apply to players.
+	 * THIS METHOD IS FOR 1.19.1+ ONLY. Use {@link lookAt(Object, Float, Float, Entity...)} otherwise.
+	 *
+	 * @param entityAnchor What part of the entity the player should face assuming the entities argument contains a player. Only for players.
+	 * @param target The vector/location/entity to make the entity or player look at.
+	 * @param headRotationSpeed The rotation speed at which the entities will rotate their head to the target. Vanilla default values range from 10-50. Doesn't apply to players.
 	 * @param maxHeadPitch The maximum pitch at which the eyes/feet can go to. Doesn't apply to players.
-	 * @param entities The living entities to make look at something. Players can be involved in 1.19.1+
+	 * @param entities The entities to make look at something.
 	 */
-	public static void lookAt(LookAnchor entityAnchor, Object target, @Nullable Float headRotationSpeed, @Nullable Float maxHeadPitch, LivingEntity... entities) {
+	public static void lookAt(LookAnchor entityAnchor, Object target, @Nullable Float headRotationSpeed, @Nullable Float maxHeadPitch, Entity... entities) {
 		if (target == null || !LOOK_AT || !LOOK_ANCHORS)
 			return;
-		for (LivingEntity entity : entities) {
+		for (Entity entity : entities) {
 			if (target instanceof Location && !((Location) target).isWorldLoaded()) {
 				Location location = (Location) target;
 				target = new Location(entity.getWorld(), location.getX(), location.getY(), location.getZ());
 			}
-			if (entity instanceof Player) {
-				Player player = (Player) entity;
-				if (target instanceof Vector) {
-					Vector vector = (Vector) target;
+			if (entity instanceof Player player) {
+				if (target instanceof Vector vector) {
 					player.lookAt(player.getEyeLocation().add(vector), LookAnchor.EYES);
 					player.lookAt(player.getEyeLocation().add(vector), LookAnchor.FEET);
 				} else if (target instanceof Location) {
@@ -105,8 +103,22 @@ public class PaperEntityUtils {
 					player.lookAt((Entity) target, LookAnchor.EYES, entityAnchor);
 					player.lookAt((Entity) target, LookAnchor.FEET, entityAnchor);
 				}
-			} else if (entity instanceof Mob) {
-				mobLookAt(target, headRotationSpeed, maxHeadPitch, (Mob) entity);
+			} else if (entity instanceof Mob mob) {
+				mobLookAt(target, headRotationSpeed, maxHeadPitch, mob);
+			} else {
+				if (target instanceof Vector vector) {
+					Location base = entity instanceof LivingEntity living ? living.getEyeLocation() : entity.getLocation();
+					Location loc = base.add(vector);
+					entity.lookAt(loc.getX(), loc.getY(), loc.getZ(), entityAnchor);
+				} else if (target instanceof LivingEntity targetEntity) {
+					Location loc = entityAnchor == LookAnchor.EYES ? targetEntity.getEyeLocation() : targetEntity.getLocation();
+					entity.lookAt(loc.getX(), loc.getY(), loc.getZ(), entityAnchor);
+				} else if (target instanceof Entity targetEntity) {
+					Location loc = targetEntity.getLocation();
+					entity.lookAt(loc.getX(), loc.getY(), loc.getZ(), entityAnchor);
+				} else if (target instanceof Location location) {
+					entity.lookAt(location.getX(), location.getY(), location.getZ(), entityAnchor);
+				}
 			}
 		}
 	}
