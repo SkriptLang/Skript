@@ -1,0 +1,7 @@
+on load:
+	suppress constant condition warnings
+
+test "exit":
+	if true is true:
+		stop
+	assert (true is true) with "This test should not reach this point after exit effect."

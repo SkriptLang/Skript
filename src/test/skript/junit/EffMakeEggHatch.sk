@@ -1,0 +1,9 @@
+test "EffMakeEggHatchJUnit" when running JUnit:
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.effects.EffMakeEggHatchTest" completes "check egg hatch"
+
+on player egg throw:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.effects.EffMakeEggHatchTest"
+	junit test is {_test}
+
+	make the egg hatch
+	complete objective "check egg hatch" for {_test}
