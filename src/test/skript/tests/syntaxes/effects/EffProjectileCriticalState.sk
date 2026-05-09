@@ -1,0 +1,37 @@
+test "Projectile Critical State Effect":
+	shoot arrow from test-location:
+		assert event-projectile isn't in projectile critical state with "A normally shot arrow shouldn't be in critical state"
+		enable event-projectile's arrow critical state
+		assert event-projectile is in arrow critical mode with "Failed to enable critical state of the arrow"
+		disable projectile critical mode of event-projectile
+		assert event-projectile isn't in projectile critical state with "Failed to disable the critical state of the arrow"
+		delete event-projectile
+
+	shoot trident from test-location:
+		assert event-projectile isn't in projectile critical state with "A normally shot trident shouldn't be in critical state"
+		enable event-projectile's arrow critical state
+		assert event-projectile is in arrow critical mode with "Failed to enable critical state of the trident"
+		disable projectile critical mode of event-projectile
+		assert event-projectile isn't in projectile critical state with "Failed to disable the critical state of the trident"
+		delete event-projectile
+
+test "Projectile Critical State Effect with multiple projectiles":
+	shoot arrow and arrow from test-location:
+		add event-projectile to {_arrows::*}
+
+	assert {_arrows::*} aren't in projectile critical state with "Normally shot arrows shouldn't be in critical state"
+	enable {_arrows::*}'s arrow critical state
+	assert {_arrows::*} are in arrow critical mode with "Failed to enable critical state of the 2 arrows"
+	disable projectile critical mode of {_arrows::*}
+	assert {_arrows::*} aren't in projectile critical state with "Failed to disable the critical state of the 2 arrows"
+	delete {_arrows::*}
+
+	shoot trident and trident from test-location:
+		add event-projectile to {_tridents::*}
+
+	assert {_tridents::*} aren't in projectile critical state with "Normally shot tridents shouldn't be in critical state"
+	enable {_tridents::*}'s arrow critical state
+	assert {_tridents::*} are in arrow critical mode with "Failed to enable critical state of the 2 tridents"
+	disable projectile critical mode of {_tridents::*}
+	assert {_tridents::*} aren't in projectile critical state with "Failed to disable the critical state of the 2 tridents"
+	delete {_tridents::*}

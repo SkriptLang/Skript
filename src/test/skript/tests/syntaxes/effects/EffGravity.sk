@@ -1,0 +1,19 @@
+test "Entity Gravity Effect":
+	spawn pig at test-location:
+		assert entity has gravity with "Spawned pig didn't have gravity"
+		disable entity's gravity
+		assert entity doesn't have gravity with "Failed to disable gravity of pig"
+		enable gravity of entity
+		assert entity has gravity with "Failed to enable gravity of pig"
+		delete entity
+
+test "Entity Gravity Effect with multiple entities":
+	spawn 2 pigs at test-location:
+		add entity to {_pigs::*}
+
+	assert {_pigs::*} have gravity with "Spawned pigs didn't have ai"
+	disable gravity of {_pigs::*}
+	assert {_pigs::*} don't have gravity with "Failed to disable gravity of 2 pigs"
+	enable {_pigs::*}'s gravity
+	assert {_pigs::*} have gravity with "Failed to enable gravity of 2 pigs"
+	delete entities within {_pigs::*}
