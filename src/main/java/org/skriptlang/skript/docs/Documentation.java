@@ -1,11 +1,14 @@
 package org.skriptlang.skript.docs;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
 import org.apache.commons.lang.WordUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.bukkit.docs.Events;
+import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.PropertyRegistry;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -126,13 +129,21 @@ public interface Documentation extends Documentable {
 			builder.deprecated();
 		}
 
-		// TODO this should probably be somewhere else
 		ch.njol.skript.doc.Events events = clazz.getAnnotation(ch.njol.skript.doc.Events.class);
 		if (events != null) {
 			builder.addData(new Events.LegacyEvents(events.value()));
 		}
 
-		// TODO RelatedProperty
+		ch.njol.skript.doc.RelatedProperty relatedProperty = clazz.getAnnotation(RelatedProperty.class);
+		if (relatedProperty != null) {
+			PropertyRegistry registry = Skript.instance().registry(PropertyRegistry.class);
+			String property = relatedProperty.value();
+			if (registry.isRegistered(property)) {
+				builder.addData(Property.RelatedProperty.of(registry.get(property)));
+			} else {
+				Skript.warning(String.format("Could not resolve related property '%s' for class: %s", property, clazz.getName()));
+			}
+		}
 
 		return builder.build();
 	}

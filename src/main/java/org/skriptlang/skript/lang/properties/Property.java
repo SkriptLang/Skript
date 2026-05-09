@@ -16,6 +16,7 @@ import org.skriptlang.skript.common.properties.elements.conditions.PropCondConta
 import org.skriptlang.skript.common.properties.elements.expressions.PropExprName;
 import org.skriptlang.skript.common.types.QueueClassInfo;
 import org.skriptlang.skript.common.types.ScriptClassInfo;
+import org.skriptlang.skript.docs.Documentable;
 import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.docs.DocumentationDocumentable;
@@ -76,6 +77,30 @@ public record Property<Handler extends PropertyHandler<?>>(
 	 * @param <Handler> the type of the handler
 	 */
 	public record PropertyInfo<Handler extends PropertyHandler<?>>(Property<Handler> property, Handler handler) { }
+
+	/**
+	 * Describes the related property of a {@link ch.njol.skript.lang.SyntaxElement}.
+	 */
+	public record RelatedProperty(Property<?> property) implements Documentable {
+
+		/**
+		 * @param property The related property.
+		 * @return A new RelatedProperty from {@code property}.
+		 */
+		@Contract("_ -> new")
+		public static RelatedProperty of(Property<?> property) {
+			return new RelatedProperty(property);
+		}
+
+		@ApiStatus.Internal
+		public RelatedProperty { }
+
+		@Override
+		public void write(DocumentationAdapter adapter) {
+			adapter.write("relatedProperty", adapter.reference(property()));
+		}
+
+	}
 
 	/**
 	 * Creates a new property.
@@ -314,10 +339,11 @@ public record Property<Handler extends PropertyHandler<?>>(
 		CONTAINS.register();
 		AMOUNT.register();
 		SIZE.register();
+		SCALE.register();
 		NUMBER.register();
 		IS_EMPTY.register();
 		TYPED_VALUE.register();
-		SCALE.register();
+		WXYZ.register();
 		SPEED.register();
 	}
 
@@ -381,6 +407,18 @@ public record Property<Handler extends PropertyHandler<?>>(
 
 		// implementing types
 		adapter.write("types", Classes.getClassInfosByProperty(this).stream()
+			.map(adapter::reference)
+			.toList());
+
+		// implementing syntaxes
+		adapter.write("syntaxes", adapter.addon().syntaxRegistry().elements().stream()
+			.filter(info -> {
+				RelatedProperty related = info.documentation().additionalData(RelatedProperty.class);
+				if (related == null) {
+					return false;
+				}
+				return related.property() == this;
+			})
 			.map(adapter::reference)
 			.toList());
 	}

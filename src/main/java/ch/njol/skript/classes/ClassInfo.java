@@ -431,7 +431,7 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 	/**
 	 * Describes usage of a ClassInfo.
 	 */
-	public static class Usage implements Documentable {
+	public record Usage(@Unmodifiable SequencedCollection<String> usage) implements Documentable {
 
 		/**
 		 * @param usage Usage information about a classinfo.
@@ -439,21 +439,11 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 		 */
 		@Contract("_ -> new")
 		public static Usage of(String... usage) {
-			return new Usage(usage);
+			return new Usage(ImmutableList.copyOf(usage));
 		}
 
-		private final SequencedCollection<String> usage;
-
-		private Usage(String[] usage) {
-			this.usage = ImmutableList.copyOf(usage);
-		}
-
-		/**
-		 * @return Usage information about a ClassInfo.
-		 */
-		public SequencedCollection<String> usage() {
-			return usage;
-		}
+		@ApiStatus.Internal
+		public Usage { }
 
 		@Override
 		public void write(DocumentationAdapter adapter) {
@@ -486,9 +476,25 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 		return this;
 	}
 
+	@Override
+	public void write(DocumentationAdapter adapter) {
+		DocumentationDocumentable.super.write(adapter);
+
+		// implementing properties
+		adapter.write("properties", propertyInfos.keySet().stream()
+			.map(property -> (Documentable) propAdapter -> {
+				propAdapter.write("property", propAdapter.reference(property));
+				PropertyDocs docs = propertyDocumentation.get(property);
+				propAdapter.write("origin", Origin.of(docs.provider()));
+				propAdapter.write("description", docs.description());
+			})
+			.toList());
+	}
+
 	/**
 	 * @deprecated Use {@link Documentation#NONE}.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public final static String NO_DOC = new String();
 
 	/**

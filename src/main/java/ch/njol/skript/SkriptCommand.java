@@ -412,7 +412,7 @@ public class SkriptCommand implements CommandExecutor {
 							adapter.write(experimental.getExperimentData());
 						}
 						if (instance instanceof EventRestrictedSyntax ers &&
-							info.documentation().additionalData().stream().noneMatch(data -> data instanceof Events)) {
+							info.documentation().additionalData(Events.class) == null) {
 							adapter.write(Events.of(ers.supportedEvents()));
 						}
 					}
