@@ -8,6 +8,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import com.google.common.collect.ImmutableMap;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.lang.properties.PropertyRegistry;
 
 import java.util.ArrayDeque;
 import java.util.Collection;
@@ -42,6 +43,7 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 			Classes.write(this);
 			write(Skript.experiments());
 			write(FunctionRegistry.getRegistry());
+			write(addon.registry(PropertyRegistry.class));
 		}
 	}
 
