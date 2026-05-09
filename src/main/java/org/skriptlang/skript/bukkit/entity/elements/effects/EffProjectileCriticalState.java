@@ -18,7 +18,10 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Projectile Critical State")
-@Description("Change whether a projectile is in its critical state. As of now this only applies to arrows and tridents.")
+@Description("""
+	Change whether a projectile is in its critical state. When in critical state the projectile will have a trail of particles and deal more damage.
+	Currently this only applies to arrows and tridents.
+	""")
 @Example("""
 	on shoot:
 		enable projectile critical state of event-projectile
