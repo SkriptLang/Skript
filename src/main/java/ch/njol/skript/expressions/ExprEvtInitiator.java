@@ -6,7 +6,6 @@ import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -27,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 	""")
 @Events("Inventory Item Move")
 @Since("2.8.0")
-public class ExprEvtInitiator extends SimpleExpression<Inventory> implements EventRestrictedSyntax {
+public class ExprEvtInitiator extends SimpleExpression<Inventory> {
 
 	static {
 		Skript.registerExpression(ExprEvtInitiator.class, Inventory.class, ExpressionType.SIMPLE, "[the] [event-]initiator[( |-)inventory]");
@@ -35,12 +34,11 @@ public class ExprEvtInitiator extends SimpleExpression<Inventory> implements Eve
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		if (!getParser().isCurrentEvent(InventoryMoveItemEvent.class)) {
+			Skript.error("'event-initiator' can only be used in an 'inventory item move' event.");
+			return false;
+		}
 		return true;
-	}
-
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(InventoryMoveItemEvent.class);
 	}
 
 	@Override

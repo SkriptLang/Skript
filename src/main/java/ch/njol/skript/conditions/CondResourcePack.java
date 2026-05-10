@@ -1,7 +1,5 @@
 package ch.njol.skript.conditions;
 
-import ch.njol.skript.lang.EventRestrictedSyntax;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
@@ -27,7 +25,7 @@ import ch.njol.util.Kleenean;
 	""")
 @Since("2.4")
 @Events("resource pack request response")
-public class CondResourcePack extends Condition implements EventRestrictedSyntax {
+public class CondResourcePack extends Condition {
 
 	static {
 		Skript.registerCondition(CondResourcePack.class,
@@ -41,14 +39,13 @@ public class CondResourcePack extends Condition implements EventRestrictedSyntax
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+		if (!getParser().isCurrentEvent(PlayerResourcePackStatusEvent.class)) {
+			Skript.error("The resource pack condition can't be used outside of a resource pack response event");
+			return false;
+		}
 		states = (Expression<Status>) exprs[0];
 		setNegated(matchedPattern == 1);
 		return true;
-	}
-
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(PlayerResourcePackStatusEvent.class);
 	}
 	
 	@Override

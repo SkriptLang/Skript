@@ -7,7 +7,6 @@ import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -29,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 	""")
 @Events("Egg Throw")
 @Since("2.7")
-public class ExprHatchingNumber extends SimpleExpression<Byte> implements EventRestrictedSyntax {
+public class ExprHatchingNumber extends SimpleExpression<Byte> {
 
 	static {
 		Skript.registerExpression(ExprHatchingNumber.class, Byte.class, ExpressionType.SIMPLE,
@@ -39,12 +38,11 @@ public class ExprHatchingNumber extends SimpleExpression<Byte> implements EventR
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		if (!getParser().isCurrentEvent(PlayerEggThrowEvent.class)) {
+			Skript.error("You can't use 'the hatching number' outside of a Player Egg Throw event.");
+			return false;
+		}
 		return true;
-	}
-
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(PlayerEggThrowEvent.class);
 	}
 
 	@Override

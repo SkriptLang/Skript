@@ -8,11 +8,9 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
-import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 @RequiredPlugins("Minecraft 1.16+")
 @Since("2.7")
 @Events("respawn")
-public class CondRespawnLocation extends Condition implements EventRestrictedSyntax {
+public class CondRespawnLocation extends Condition {
 
 	static {
 		Skript.registerCondition(CondRespawnLocation.class, "[the] respawn location (was|is)[1:(n'| no)t] [a] (:bed|respawn anchor)");
@@ -37,14 +35,13 @@ public class CondRespawnLocation extends Condition implements EventRestrictedSyn
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		if (!getParser().isCurrentEvent(PlayerRespawnEvent.class)) {
+			Skript.error("The 'respawn location' condition may only be used in a respawn event");
+			return false;
+		}
 		setNegated(parseResult.mark == 1);
 		bedSpawn = parseResult.hasTag("bed");
 		return true;
-	}
-
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(PlayerRespawnEvent.class);
 	}
 
 	@Override
