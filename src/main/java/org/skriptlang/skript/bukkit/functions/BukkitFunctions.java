@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.functions;
 
 import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.util.Color;
 import ch.njol.skript.util.ColorRGB;
 import ch.njol.skript.util.Utils;
 import org.bukkit.Bukkit;
@@ -98,9 +99,10 @@ public class BukkitFunctions {
 					return exp;
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "rgb", ColorRGB.class)
-				.description("Returns a RGB color from the given red, green and blue parameters. Alpha values can be added optionally, " +
-						"but these only take affect in certain situations, like text display backgrounds.")
+		Functions.register(DefaultFunction.builder(skript, "rgb", Color.class)
+				.description("""
+						Returns a RGB color from the given red, green and blue parameters.
+						Alpha values can be added optionally but these only take affect in certain situations, like text display backgrounds.""")
 				.examples(
 						"dye player's leggings rgb(120, 30, 45)",
 						"set the colour of a text display to rgb(10, 50, 100, 50)"
@@ -109,15 +111,13 @@ public class BukkitFunctions {
 				.parameter("red", Long.class, Modifier.ranged(0, 255))
 				.parameter("green", Long.class, Modifier.ranged(0, 255))
 				.parameter("blue", Long.class, Modifier.ranged(0, 255))
-				.parameter("alpha", Long.class, Modifier.OPTIONAL, Modifier.ranged(0, 255))
-				.build(args -> {
-					Long red = args.get("red");
-					Long green = args.get("green");
-					Long blue = args.get("blue");
-					Long alpha = args.getOrDefault("alpha", 255L);
-
-					return ColorRGB.fromRGBA(red.intValue(), green.intValue(), blue.intValue(), alpha.intValue());
-				}));
+				.parameter("alpha", Long.class, Modifier.ranged(0, 255), Modifier.OPTIONAL)
+				.build(args -> ColorRGB.fromRGBA(
+						args.<Long>get("red").intValue(),
+						args.<Long>get("green").intValue(),
+						args.<Long>get("blue").intValue(),
+						args.getOrDefault("alpha", 255L).intValue()
+				)));
 
 		Functions.register(DefaultFunction.builder(skript, "player", Player.class)
 				.description(
