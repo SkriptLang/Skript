@@ -5,10 +5,13 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
+import io.papermc.paper.event.entity.EntityFertilizeEggEvent;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityBreedEvent;
@@ -23,7 +26,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		send "When a %breeding mother% and %breeding father% love each other very much, they make a %bred offspring%" to breeder
 	""")
 @Since("2.10")
-public class ExprBreedingFamily extends SimpleExpression<LivingEntity> {
+public class ExprBreedingFamily extends SimpleExpression<LivingEntity> implements EventRestrictedSyntax {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
@@ -45,27 +48,36 @@ public class ExprBreedingFamily extends SimpleExpression<LivingEntity> {
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
 						Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EntityBreedEvent.class)) {
-			Skript.error("The 'breeding family' expression can only be used in an breed event.");
+		if (getParser().isCurrentEvent(EntityFertilizeEggEvent.class) && matchedPattern >= 2) {
+			Skript.error("The 'bred child' expression cannot be used in a 'fertilize egg' event.");
 			return false;
 		}
-
 		pattern = matchedPattern;
 		return true;
 	}
 
 	@Override
-	protected @Nullable LivingEntity [] get(Event event) {
-		if (!(event instanceof EntityBreedEvent breedEvent))
-			return new LivingEntity[0];
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EntityBreedEvent.class, EntityFertilizeEggEvent.class);
+	}
 
-		return switch (pattern) {
-			case 0 -> new LivingEntity[]{breedEvent.getMother()};
-			case 1 -> new LivingEntity[]{breedEvent.getFather()};
-			case 2 -> new LivingEntity[]{breedEvent.getEntity()};
-			case 3 -> new LivingEntity[]{breedEvent.getBreeder()};
-			default -> new LivingEntity[0];
-		};
+	@Override
+	protected @Nullable LivingEntity [] get(Event event) {
+		if (event instanceof EntityBreedEvent breedEvent)
+			return switch (pattern) {
+				case 0 -> new LivingEntity[]{breedEvent.getMother()};
+				case 1 -> new LivingEntity[]{breedEvent.getFather()};
+				case 2 -> new LivingEntity[]{breedEvent.getEntity()};
+				case 3 -> new LivingEntity[]{breedEvent.getBreeder()};
+				default -> new LivingEntity[0];
+			};
+		else if (event instanceof EntityFertilizeEggEvent fertilizeEggEvent)
+			return switch (pattern) {
+				case 0 -> new LivingEntity[]{fertilizeEggEvent.getMother()};
+				case 1 -> new LivingEntity[]{fertilizeEggEvent.getFather()};
+				default -> new LivingEntity[0];
+			};
+		return new LivingEntity[0];
 	}
 
 	@Override
