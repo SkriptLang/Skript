@@ -24,6 +24,24 @@ import java.util.regex.Pattern;
 @Name("Text Replacement")
 @Description("Performs a text replacement on a given value, returning the result. Supports regex and case sensitive replacement.")
 @Example("send \"Welcome [player]\" where \"[player]\" is replaced with \"%player%\" to player")
+@Example("""
+	# Function for sanitizing user inputs
+	# Strips the input of any non-alphanumeric characters using regex
+	function sanitizeInput(input: string) :: string:
+		return {_input} where regex pattern "\\W" is replaced with ""
+	""")
+@Example("""
+	# Function to convert &# hex color codes to <# > (mini message format)
+	function colorFormat(input: string) :: string:
+		return {_input} where all instances of regex pattern "&#([a-fA-F0-9]{6})" are replaced with "<#$1>"
+	""")
+@Example("""
+	# Very simple chat censor
+	on chat:
+		set message to message where all instances of "idiot", "noob" are replaced with "****"
+		set message to message where regex "\b(idiot|noob)\b" is replaced with "****" # Regex version using word boundaries for better results
+	""")
+
 @Since("INSERT VERSION")
 public class ExprReplace extends SimpleExpression<String> {
 
@@ -92,11 +110,13 @@ public class ExprReplace extends SimpleExpression<String> {
 			for (String haystack : haystacks) {
 				for (Pattern pattern : patterns) {
 					Matcher matcher = pattern.matcher(haystack);
-					if (isFirst) {
-						haystack = matcher.replaceFirst(replacement);
-					} else {
-						haystack = matcher.replaceAll(replacement);
-					}
+					try { // Throws IndexOutOfBounds on improper use of regex groups in replacement
+						if (isFirst) {
+							haystack = matcher.replaceFirst(replacement);
+						} else {
+							haystack = matcher.replaceAll(replacement);
+						}
+					} catch (Exception ignored) {}
 				}
 				result.add(haystack);
 			}
