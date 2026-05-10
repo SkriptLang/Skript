@@ -14,6 +14,7 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -37,7 +38,7 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 	DocumentationAdapterImpl(SkriptAddon addon, BiConsumer<DocumentationAdapter, Documentable> writeHandler, boolean generate) {
 		this.addon = addon;
 		this.writeHandler = writeHandler;
-		scopes.push(new Scope("root", new HashMap<>()));
+		scopes.push(new Scope("root", new LinkedHashMap<>()));
 		if (generate) {
 			write(addon.syntaxRegistry());
 			Classes.write(this);
@@ -79,7 +80,7 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 
 	@Override
 	public void enterScope(String key) {
-		Map<String, Object> newScopes = new HashMap<>();
+		Map<String, Object> newScopes = new LinkedHashMap<>();
 		Scope scope = scopes.getFirst();
 
 		// scope conflict resolution
@@ -145,7 +146,10 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 				.toList();
 			case Map<?, ?> map -> map.entrySet()
 				.stream()
-				.collect(Collectors.toMap(Map.Entry::getKey, entry -> resolveReferences(entry.getValue())));
+				.collect(Collectors.toMap(Map.Entry::getKey,
+					entry -> resolveReferences(entry.getValue()),
+					(oldValue, newValue) -> newValue,
+					LinkedHashMap::new));
 			case null, default -> value;
 		};
 	}
@@ -201,7 +205,7 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 						adapted = adapter.scopes.peek().values();
 					}
 					return adapted;
-				}));
+				}, (oldValue, newValue) -> newValue, LinkedHashMap::new));
 			case null, default -> value;
 		};
 	}
@@ -230,7 +234,10 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 						return Map.entry(entry.getKey(), filteredValue);
 					})
 					.filter(Objects::nonNull)
-					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+					.collect(Collectors.toMap(Map.Entry::getKey,
+						Map.Entry::getValue,
+						(oldValue, newValue) -> newValue,
+						LinkedHashMap::new));
 			}
 			case null, default -> value;
 		};
