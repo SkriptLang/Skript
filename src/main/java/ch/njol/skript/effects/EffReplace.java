@@ -144,11 +144,13 @@ public class EffReplace extends Effect {
 			replaceFunction = haystackString -> {
 				for (Pattern pattern : patterns) {
 					Matcher matcher = pattern.matcher(haystackString);
-					if (replaceFirst) {
-						haystackString = matcher.replaceFirst(replacement);
-					} else {
-						haystackString = matcher.replaceAll(replacement);
-					}
+					try { // throws IndexOutOfBounds on improper use of regex groups in replacement
+						if (replaceFirst) {
+							haystackString = matcher.replaceFirst(replacement);
+						} else {
+							haystackString = matcher.replaceAll(replacement);
+						}
+					} catch (Exception ignored) {}
 				}
 				return haystackString;
 			};
