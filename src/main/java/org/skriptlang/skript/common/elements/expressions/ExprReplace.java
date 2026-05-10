@@ -51,7 +51,7 @@ public class ExprReplace extends SimpleExpression<String> {
 			DefaultSyntaxInfos.Expression.builder(ExprReplace.class, String.class)
 				.addPatterns(
 					"%strings% where [(first:[the] first instance[s]|all instances) of] %strings% (is|are) replaced with %string% [regex:using regex|case:with case sensitivity]",
-					"%strings% where [(first:[the] first instance[s]|all instances) of] regex [pattern[s]] %strings% [is|are] replaced with %string%"
+					"%strings% where [(first:[the] first instance[s]|all instances) of] regex [pattern[s]] %strings% (is|are) replaced with %string%"
 				)
 				.supplier(ExprReplace::new)
 				.build()
