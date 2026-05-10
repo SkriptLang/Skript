@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
 	# Very simple chat censor
 	on chat:
 		set message to message where all instances of "idiot", "noob" are replaced with "****"
-		set message to message where regex "\b(idiot|noob)\b" is replaced with "****" # Regex version using word boundaries for better results
+		set message to message where regex "\\b(idiot|noob)\\b" is replaced with "****" # Regex version using word boundaries for better results
 	""")
 
 @Since("INSERT VERSION")
