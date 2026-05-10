@@ -32,7 +32,8 @@ public class CommonModule extends HierarchicalAddonModule {
 		register(addon,
 			ExprColorFromHexCode::register,
 			ExprHexCode::register,
-			ExprRecursiveSize::register
+			ExprRecursiveSize::register,
+			ExprReplace::register
 		);
 	}
 
