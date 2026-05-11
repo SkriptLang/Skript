@@ -13,6 +13,14 @@ import ch.njol.skript.test.utils.TestResults;
  */
 public class TestMode {
 
+	private static final TestMode INSTANCE = new TestMode();
+
+	private TestMode() {}
+
+	public static TestMode get() {
+		return INSTANCE;
+	}
+
 	private static final String ROOT = "skript.testing.";
 
 	/**
@@ -55,6 +63,11 @@ public class TestMode {
 	 * If this test is for JUnits on the server.
 	 */
 	public static final boolean JUNIT = "true".equals(System.getProperty(ROOT + "junit"));
+
+	/**
+	 * If the gradle clean task was used to clear the cache.
+	 */
+	public static final boolean CLEAN = ENABLED && "true".equals(System.getProperty(ROOT + "clean"));
 
 	/**
 	 * In development mode, file that was last run.
