@@ -7,6 +7,7 @@ import java.util.HexFormat;
 import java.util.Locale;
 
 import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.parser.ParserInstance;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,7 +52,8 @@ public class ExprHash extends PropertyExpression<String, String> {
 		String algorithm = parseResult.tags.get(0).toUpperCase(Locale.ENGLISH);
 		try {
 			digest = MessageDigest.getInstance(algorithm);
-			if (algorithm.equals("MD5") && !getParser().getCurrentScript().suppressesWarning(ScriptWarning.DEPRECATED_SYNTAX)) {
+			ParserInstance parser = getParser();
+			if (algorithm.equals("MD5") && parser.isActive() && !parser.getCurrentScript().suppressesWarning(ScriptWarning.DEPRECATED_SYNTAX)) {
 				Skript.warning("MD5 is not secure and shouldn't be used if a cryptographically secure hashing algorithm is required.");
 			}
 			return true;
