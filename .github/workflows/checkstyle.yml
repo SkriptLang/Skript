@@ -28,7 +28,7 @@ jobs:
             - name: Run checkstyle
               run: ./gradlew clean checkstyleMain
             - name: Upload checkstyle report
-              uses: actions/upload-artifact@v6
+              uses: actions/upload-artifact@v7
               if: success()
               with:
                   name: checkstyle-report
