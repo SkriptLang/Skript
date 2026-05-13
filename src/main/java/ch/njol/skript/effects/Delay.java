@@ -1,7 +1,6 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -10,12 +9,10 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.EffectSection;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.LoopSection;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SectionUtils;
-import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
@@ -82,7 +79,6 @@ public class Delay extends EffectSection {
 
 		if (hasSection()) {
 			assert sectionNode != null;
-			warnIfRedundant(sectionNode);
 			// Parse the body under the outer event context so event values still resolve inside it.
 			// Type hints are propagated via SectionUtils; locals are isolated at runtime via the swap dance in walk().
 			Class<? extends Event>[] outerEvents = getParser().getCurrentEvents();
@@ -144,26 +140,6 @@ public class Delay extends EffectSection {
 		return "wait for " + duration.toString(event, debug) + (event == null ? "" : "...");
 	}
 	
-	private void warnIfRedundant(SectionNode sectionNode) {
-		if (getParser().isCurrentSection(LoopSection.class))
-			return;
-		SectionNode parent = sectionNode.getParent();
-		if (parent == null)
-			return;
-		Node lastChild = null;
-		for (Node child : parent)
-			lastChild = child;
-		if (lastChild != sectionNode)
-			return;
-		Node previous = SkriptLogger.getNode();
-		SkriptLogger.setNode(sectionNode);
-		try {
-			Skript.warning("This 'wait' section has nothing after it, using 'wait' as an effect would have the same effect.");
-		} finally {
-			SkriptLogger.setNode(previous);
-		}
-	}
-
 	private static final Set<Event> DELAYED =
 		Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 
