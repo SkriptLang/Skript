@@ -22,7 +22,8 @@ public class MiscModule extends HierarchicalAddonModule {
 			ExprQuaternionAxisAngle::register,
 			ExprRotate::register,
 			ExprTextOf::register,
-			ExprWithYawPitch::register
+			ExprWithYawPitch::register,
+			ExprSkullTexture::register
 		);
 	}
 
