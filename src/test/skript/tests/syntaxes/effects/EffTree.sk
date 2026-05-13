@@ -1,6 +1,6 @@
 function cleanUpTree(loc: location):
-	set {_l1} to {_loc} ~ vector(7,7,7)
-	set {_l2} to {_loc} ~ vector(-7,-7,-7)
+	set {_l1} to {_loc} ~ vector(7,20,7)
+	set {_l2} to {_loc} ~ vector(-7,-1,-7)
 	loop blocks within {_l1} and {_l2}:
 		if any:
 			loop-block is tagged as block tag "minecraft:mineable/axe"
