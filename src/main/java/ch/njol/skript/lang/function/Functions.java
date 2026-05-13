@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.structures.StructFunction;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.function.DefaultFunction;
 import org.skriptlang.skript.common.function.FunctionParser;
@@ -22,14 +23,12 @@ import java.util.stream.Collectors;
  */
 public abstract class Functions {
 
-	private static final String INVALID_FUNCTION_DEFINITION =
-		"Invalid function definition. Please check for " +
-			"typos and make sure that the function's name " +
-			"only contains letters and underscores. " +
-			"Refer to the documentation for more information.";
-
 	private Functions() {}
 
+	/**
+	 * @deprecated Unused.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static @Nullable ScriptFunction<?> currentFunction = null;
 
 	/**
@@ -102,13 +101,9 @@ public abstract class Functions {
 	public final static String functionNamePattern = "[\\p{IsAlphabetic}_][\\p{IsAlphabetic}\\d_]*";
 
 	/**
-	 * Loads a script function from given node.
-	 * @param script The script the function is declared in
-	 * @param node Section node.
-	 * @param signature The signature of the function. Use {@link Functions#parseSignature(String, String, String, String, boolean)}
-	 * to get a new signature instance and {@link Functions#registerSignature(Signature)} to register the signature
-	 * @return Script function, or null if something went wrong.
+	 * @deprecated Handled by {@link StructFunction}.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static @Nullable Function<?> loadFunction(Script script, SectionNode node, Signature<?> signature) {
 		String name = signature.getName();
 		Namespace namespace = getScriptNamespace(script.getConfig().getFileName());
@@ -116,10 +111,6 @@ public abstract class Functions {
 			namespace = globalFunctions.get(name);
 			if (namespace == null)
 				return null; // Probably duplicate signature; reported before
-		}
-
-		if (Skript.debug() || node.debug()) {
-			Skript.debug(signature.toString());
 		}
 
 		Function<?> function;
@@ -152,15 +143,13 @@ public abstract class Functions {
 	 */
 	@Deprecated(forRemoval = true, since = "2.14")
 	public static @Nullable Signature<?> parseSignature(String script, String name, String args, @Nullable String returnType, boolean local) {
-		return FunctionParser.parse(script, name, args, returnType, local);
+		return (Signature<?>) FunctionParser.parse(script, name, args, returnType, local);
 	}
 
 	/**
-	 * Registers the signature.
-	 * @param signature The signature to register.
-	 * @return Signature of function, or null if something went wrong.
-	 * @see Functions#parseSignature(String, String, String, String, boolean)
+	 * @deprecated Handled by {@link StructFunction}.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static @Nullable Signature<?> registerSignature(Signature<?> signature) {
 		Retrieval<org.skriptlang.skript.common.function.Signature<?>> existing;
 		Parameter<?>[] parameters = signature.parameters().all();
@@ -364,10 +353,9 @@ public abstract class Functions {
 	}
 
 	/**
-	 * Returns all functions registered using Java.
-	 *
-	 * @return All {@link JavaFunction} or {@link DefaultFunction} functions.
+	 * @return Use {@link org.skriptlang.skript.common.function.FunctionRegistry#elements()} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static Collection<Function<?>> getFunctions() {
 		return javaNamespace.getFunctions();
 	}

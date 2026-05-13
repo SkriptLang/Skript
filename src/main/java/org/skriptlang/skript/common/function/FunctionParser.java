@@ -34,7 +34,7 @@ public class FunctionParser {
 	 * @return Parsed signature or null if something went wrong.
 	 * @see Functions#registerSignature(ch.njol.skript.lang.function.Signature)
 	 */
-	public static @Nullable ch.njol.skript.lang.function.Signature<?> parse(String script, String name, String args, @Nullable String returns, boolean local) {
+	public static @Nullable Signature<?> parse(String script, String name, String args, @Nullable String returns, boolean local) {
 		Parameters parameters = parseParameters(args);
 		if (parameters == null)
 			return null;

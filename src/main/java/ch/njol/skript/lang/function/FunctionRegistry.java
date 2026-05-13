@@ -50,7 +50,7 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 	 * The pattern for a valid function name.
 	 * Functions must start with a letter or underscore and can only contain letters, numbers, and underscores.
 	 */
-	final static Pattern FUNCTION_NAME_PATTERN = Pattern.compile(Functions.functionNamePattern);
+	final static Pattern FUNCTION_NAME_PATTERN = Pattern.compile("[\\p{IsAlphabetic}_][\\p{IsAlphabetic}\\d_]*");
 
 	/**
 	 * The namespace for registered global functions.
@@ -380,7 +380,7 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 	 * @param args      The types of the arguments of the function.
 	 * @return The signature for the function with the given name and argument types, or null if no such function exists.
 	 */
-	Retrieval<Signature<?>> getExactSignature(
+	public Retrieval<Signature<?>> getExactSignature(
 			@Nullable String namespace,
 			@NotNull String name,
 			@NotNull Class<?>... args
