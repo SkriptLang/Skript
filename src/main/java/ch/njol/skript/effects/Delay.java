@@ -31,7 +31,7 @@ import java.util.WeakHashMap;
 	"When used as an effect, all code after the <code>wait</code> runs once the delay elapses. The whole trigger pauses until the wait finishes.",
 	"When used as a section, only the code within the section is deferred. Code after the section continues immediately, and the body runs on the same event once the delay elapses. This is useful for scheduling follow-up work without blocking the rest of the trigger.",
 	"Note that delays are not persistent. For example, <code>ban player → wait 7 days → unban player</code> will not resume if the server restarts during the delay.",
-	"Inside a section body, outer <code>loop-value</code>s are not available because the body is parsed as a separate trigger. Event values (like <code>player</code>) still work. If you need a variable's value from before the delay, copy it to a local variable. Local variables are snapshotted when the section is scheduled, so subsequent changes aren't reflected."
+	"Inside a section body, outer <code>loop-value</code>s are not available because the body is parsed as a separate trigger. Event values (like <code>player</code>) still work. If you need a value from before the delay, copy it to a local variable. Local variables are snapshotted when the section is scheduled, so subsequent changes aren't reflected."
 })
 @Example("wait 2 minutes")
 @Example("halt for 5 minecraft hours")
@@ -82,11 +82,13 @@ public class Delay extends EffectSection {
 			// Parse the body under the outer event context so event values still resolve inside it.
 			// Type hints are propagated via SectionUtils; locals are isolated at runtime via the swap dance in walk().
 			Class<? extends Event>[] outerEvents = getParser().getCurrentEvents();
-			trigger = SectionUtils.loadDelayableLinkedCode("wait", (beforeLoading, afterLoading) ->
-				loadCode(sectionNode, "wait", () -> {
+			trigger = SectionUtils.loadDelayableLinkedCode("wait", (beforeLoading, afterLoading) -> {
+				Runnable bodyBefore = () -> {
 					beforeLoading.run();
 					getParser().setHasDelayBefore(Kleenean.TRUE);
-				}, afterLoading, outerEvents));
+				};
+				return loadCode(sectionNode, "wait", bodyBefore, afterLoading, outerEvents);
+			});
 			// Outer trigger is NOT delayed - code after the section runs immediately.
 			return trigger != null;
 		}
@@ -119,16 +121,14 @@ public class Delay extends EffectSection {
 					addDelayedEvent(event);
 				Skript.debug(getIndentation() + "... continuing after " + (System.nanoTime() - start) / 1_000_000_000. + "s");
 
-				Object outerLocals = isSection ? Variables.removeLocals(event) : null;
+				if (isSection)
+					Variables.removeLocals(event); // Drop any residual outer locals before swapping in the snapshot
 				if (localVars != null)
 					Variables.setLocalVariables(event, localVars);
 
 				TriggerItem.walk(afterDelay, event);
 
-				if (isSection)
-					Variables.setLocalVariables(event, outerLocals);
-				else
-					Variables.removeLocals(event); // Clean up local vars, we may be exiting now
+				Variables.removeLocals(event); // Clean up local vars, we may be exiting now
 			}, ticks);
 		}
 
