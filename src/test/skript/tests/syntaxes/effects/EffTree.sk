@@ -1,5 +1,7 @@
 function cleanUpTree(loc: location):
-	loop blocks in radius 25 around {_loc}:
+	set {_l1} to {_loc} ~ vector(7,7,7)
+	set {_l2} to {_loc} ~ vector(-7,-7,-7)
+	loop blocks within {_l1} and {_l2}:
 		if any:
 			loop-block is tagged as block tag "minecraft:mineable/axe"
 			loop-block is tagged as block tag "minecraft:leaves"
