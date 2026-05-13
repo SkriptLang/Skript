@@ -15,6 +15,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SectionUtils;
+import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
@@ -152,8 +153,15 @@ public class Delay extends EffectSection {
 		Node lastChild = null;
 		for (Node child : parent)
 			lastChild = child;
-		if (lastChild == sectionNode)
+		if (lastChild != sectionNode)
+			return;
+		Node previous = SkriptLogger.getNode();
+		SkriptLogger.setNode(sectionNode);
+		try {
 			Skript.warning("This 'wait' section has nothing after it, using 'wait' as an effect would have the same effect.");
+		} finally {
+			SkriptLogger.setNode(previous);
+		}
 	}
 
 	private static final Set<Event> DELAYED =
