@@ -1,6 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -9,6 +10,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.EffectSection;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.LoopSection;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
@@ -79,6 +81,7 @@ public class Delay extends EffectSection {
 
 		if (hasSection()) {
 			assert sectionNode != null;
+			warnIfRedundant(sectionNode);
 			// Parse the body under the outer event context so event values still resolve inside it.
 			// Type hints are propagated via SectionUtils; locals are isolated at runtime via the swap dance in walk().
 			Class<? extends Event>[] outerEvents = getParser().getCurrentEvents();
@@ -121,8 +124,6 @@ public class Delay extends EffectSection {
 					addDelayedEvent(event);
 				Skript.debug(getIndentation() + "... continuing after " + (System.nanoTime() - start) / 1_000_000_000. + "s");
 
-				if (isSection)
-					Variables.removeLocals(event); // Drop any residual outer locals before swapping in the snapshot
 				if (localVars != null)
 					Variables.setLocalVariables(event, localVars);
 
@@ -140,6 +141,19 @@ public class Delay extends EffectSection {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "wait for " + duration.toString(event, debug) + (event == null ? "" : "...");
+	}
+	
+	private void warnIfRedundant(SectionNode sectionNode) {
+		if (getParser().isCurrentSection(LoopSection.class))
+			return;
+		SectionNode parent = sectionNode.getParent();
+		if (parent == null)
+			return;
+		Node lastChild = null;
+		for (Node child : parent)
+			lastChild = child;
+		if (lastChild == sectionNode)
+			Skript.warning("This 'wait' section has nothing after it, using 'wait' as an effect would have the same effect.");
 	}
 
 	private static final Set<Event> DELAYED =
