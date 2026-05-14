@@ -191,7 +191,7 @@ public class StructFunction extends Structure {
 			Skript.exception(ex, "Error while trying to load a function");
 
 			// avoid getting a "function is already registered" error when the function implementation is not known yet
-			Functions.unregisterFunction(signature);
+			FunctionRegistry.getRegistry().remove(signature);
 			return;
 		}
 
@@ -214,7 +214,7 @@ public class StructFunction extends Structure {
 	@Override
 	public void unload() {
 		assert signature != null;
-		Functions.unregisterFunction(signature);
+		FunctionRegistry.getRegistry().remove(signature);
 		signature.calls().forEach(FunctionReference::invalidateCache);
 		VALIDATE_FUNCTIONS.set(true);
 	}

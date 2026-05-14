@@ -1,6 +1,7 @@
 package ch.njol.skript.lang.function;
 
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.function.FunctionRegistry;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,10 +9,11 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Contains a set of functions.
+ * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionRegistry} instead.
  */
+@Deprecated(forRemoval = true, since = "INSERT VERSION")
 public class Namespace {
-	
+
 	/**
 	 * Origin of functions in namespace.
 	 */
@@ -20,18 +22,18 @@ public class Namespace {
 		 * Functions implemented in Java.
 		 */
 		JAVA,
-		
+
 		/**
 		 * Script functions.
 		 */
 		SCRIPT
 	}
-	
+
 	/**
 	 * Key to a namespace.
 	 */
 	public static class Key {
-		
+
 		private final Origin origin;
 
 		private final @Nullable String scriptName;
@@ -41,7 +43,7 @@ public class Namespace {
 			this.origin = origin;
 			this.scriptName = scriptName;
 		}
-		
+
 		public Origin getOrigin() {
 			return origin;
 		}
@@ -121,7 +123,7 @@ public class Namespace {
 			return getName().equals(info.getName());
 		}
 	}
-	
+
 	/**
 	 * Signatures of known functions.
 	 */
@@ -160,28 +162,43 @@ public class Namespace {
 		signatures.remove(info);
 		return true;
 	}
-	
+
 	@SuppressWarnings("null")
 	public Collection<Signature<?>> getSignatures() {
 		return signatures.values();
 	}
 
+	/**
+	 * @deprecated Use {@link FunctionRegistry#getFunction(String, String, Class[])} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public @Nullable Function<?> getFunction(String name, boolean local) {
 		return functions.get(new Info(name, local));
 	}
 
+	/**
+	 * @deprecated Use {@link FunctionRegistry#getFunction(String, String, Class[])} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public @Nullable Function<?> getFunction(String name) {
 		Function<?> function = getFunction(name, true);
 		return function == null ? getFunction(name, false) : function;
 	}
 
+	/**
+	 * @deprecated Use {@link FunctionRegistry#register(org.skriptlang.skript.common.function.Function)} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public void addFunction(Function<?> func) {
 		Info info = new Info(func.getName(), func.getSignature().isLocal());
 		assert signatures.containsKey(info) : "missing signature for function";
 		functions.put(info, func);
 	}
 
-	@SuppressWarnings("null")
+	/**
+	 * @deprecated Use {@link FunctionRegistry#elements()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public Collection<Function<?>> getFunctions() {
 		return functions.values();
 	}

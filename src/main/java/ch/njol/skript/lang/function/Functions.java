@@ -54,11 +54,9 @@ public abstract class Functions {
 	public static boolean callFunctionEvents = false;
 
 	/**
-	 * Registers a {@link DefaultFunction}.
-	 *
-	 * @param function The function to register.
-	 * @return The registered function.
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionRegistry#register(org.skriptlang.skript.common.function.Function)} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static DefaultFunction<?> register(DefaultFunction<?> function) {
 		Skript.checkAcceptRegistrations();
 
@@ -207,13 +205,9 @@ public abstract class Functions {
 	}
 
 	/**
-	 * Gets a function, if it exists. Note that even if function exists in scripts,
-	 * it might not have been parsed yet. If you want to check for existence,
-	 * then use {@link #getGlobalSignature(String)}.
-	 *
-	 * @param name Name of function.
-	 * @return Function, or null if it does not exist.
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionRegistry#getFunction(String, Class[])} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static @Nullable Function<?> getGlobalFunction(String name) {
 		Namespace namespace = globalFunctions.get(name);
 		if (namespace == null)
@@ -222,14 +216,9 @@ public abstract class Functions {
 	}
 
 	/**
-	 * Gets a function, if it exists. Note that even if function exists in scripts,
-	 * it might not have been parsed yet. If you want to check for existence,
-	 * then use {@link #getLocalSignature(String, String)}.
-	 *
-	 * @param name Name of function.
-	 * @param script The script where the function is declared in. Used to get local functions.
-	 * @return Function, or null if it does not exist.
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionRegistry#getFunction(String, String, Class[])} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static @Nullable Function<?> getLocalFunction(String name, String script) {
 		Namespace namespace = null;
 		Function<?> function = null;
@@ -239,16 +228,11 @@ public abstract class Functions {
 		return function;
 	}
 
+
 	/**
-	 * Gets a local function, if it doesn't exist it'll fall back to a global function,
-	 * if it exists. Note that even if function exists in scripts,
-	 * it might not have been parsed yet. If you want to check for existence,
-	 * then use {@link #getSignature(String, String)}.
-	 *
-	 * @param name Name of function.
-	 * @param script The script where the function is declared in. Used to get local functions.
-	 * @return Function, or null if it does not exist.
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionRegistry#getFunction(String, Class[])} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static @Nullable Function<?> getFunction(String name, @Nullable String script) {
 		if (script == null)
 			return getGlobalFunction(name);
@@ -259,11 +243,9 @@ public abstract class Functions {
 	}
 
 	/**
-	 * Gets a signature of function with given name.
-	 *
-	 * @param name Name of function.
-	 * @return Signature, or null if function does not exist.
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionRegistry#getSignature(String, Class[])} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static @Nullable Signature<?> getGlobalSignature(String name) {
 		Namespace namespace = globalFunctions.get(name);
 		if (namespace == null)
@@ -272,12 +254,9 @@ public abstract class Functions {
 	}
 
 	/**
-	 * Gets a signature of function with given name.
-	 *
-	 * @param name Name of function.
-	 * @param script The script where the function is declared in. Used to get local functions.
-	 * @return Signature, or null if function does not exist.
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionRegistry#getSignature(String, String, Class[])} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static @Nullable Signature<?> getLocalSignature(String name, String script) {
 		Namespace namespace = null;
 		Signature<?> signature = null;
@@ -288,13 +267,9 @@ public abstract class Functions {
 	}
 
 	/**
-	 * Gets a signature of local function with the given name, if no signature was found,
-	 * it will fall back to a global function.
-	 *
-	 * @param name Name of function.
-	 * @param script The script where the function is declared in. Used to get local functions.
-	 * @return Signature, or null if function does not exist.
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionRegistry#getSignature(String, Class[])} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static @Nullable Signature<?> getSignature(String name, @Nullable String script) {
 		if (script == null)
 			return getGlobalSignature(name);
@@ -304,12 +279,20 @@ public abstract class Functions {
 		return signature;
 	}
 
+	/**
+	 * @deprecated Pass script as a string instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static @Nullable Namespace getScriptNamespace(String script) {
 		return namespaces.get(new Namespace.Key(Namespace.Origin.SCRIPT, script));
 	}
 
 	private final static Collection<FunctionReference<?>> toValidate = new ArrayList<>();
 
+	/**
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionRegistry#remove(org.skriptlang.skript.common.function.Signature)} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static void unregisterFunction(Signature<?> signature) {
 		FunctionRegistry.getRegistry().remove(signature);
 
