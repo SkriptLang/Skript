@@ -109,7 +109,7 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 			.build().resolve(eventValues(time));
 		resolution = output.resolution();
 
-		if (resolution.successful()) {
+		if (resolution.successful() || resolution.errored()) {
 			cache(input, resolution, output.contextDependent());
 			return resolution;
 		}
