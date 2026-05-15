@@ -157,8 +157,15 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 
 
 	/**
+	 * Whether this event value's validation result depends on state outside of the event class
+	 * (e.g. configuration, server state, registry contents). When {@code true}, resolutions that
+	 * consider this event value are not cached by {@link EventValueRegistry}, ensuring the
+	 * validator is consulted on every lookup.
+	 * <p>
+	 * Defaults to {@code false}; only set this when an {@link Builder#eventValidator(Function)
+	 * event validator} is not pure for a given event class.
 	 *
-	 * @return
+	 * @return {@code true} if resolutions involving this value should bypass the cache
 	 */
 	@Contract(pure = true)
 	boolean contextDependent();
@@ -462,15 +469,13 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 		Builder<E, V> excludedErrorMessage(String excludedErrorMessage);
 
 		/**
-		 * Whether this event value's validation result depends on state outside of the event class
-		 * (e.g. configuration, server state, registry contents). When {@code true}, resolutions that
-		 * consider this event value are not cached by {@link EventValueRegistry}, ensuring the
-		 * validator is consulted on every lookup.
-		 * <p>
-		 * Defaults to {@code false}; only set this when an {@link Builder#eventValidator(Function)
-		 * event validator} is not pure for a given event class.
+		 * Marks this event value as context-dependent. Resolutions that consider this value will
+		 * not be cached, so the {@linkplain #eventValidator(Function) event validator} is
+		 * consulted on every lookup. Use this when the validator's answer for a given event
+		 * class may change at runtime (e.g. because it consults external state).
 		 *
-		 * @return {@code true} if resolutions involving this value should bypass the cache
+		 * @return this builder
+		 * @see EventValue#contextDependent()
 		 */
 		@Contract(value = " -> this", mutates = "this")
 		Builder<E, V> contextDependent();
