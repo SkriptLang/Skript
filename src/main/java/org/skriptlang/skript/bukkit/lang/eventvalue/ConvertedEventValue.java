@@ -192,6 +192,11 @@ record ConvertedEventValue<SourceEvent extends Event, ConvertedEvent extends Eve
 	}
 
 	@Override
+	public boolean contextDependent() {
+		return source.contextDependent();
+	}
+
+	@Override
 	public boolean matches(EventValue<?, ?> eventValue) {
 		return matches(eventValue.eventClass(), eventValue.valueClass(), eventValue.patterns());
 	}

@@ -155,6 +155,14 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	@Contract(pure = true)
 	@Nullable String excludedErrorMessage();
 
+
+	/**
+	 *
+	 * @return
+	 */
+	@Contract(pure = true)
+	boolean contextDependent();
+
 	/**
 	 * Checks whether this event value matches the provided event value in terms of
 	 * event class, value class, and identifier patterns.
@@ -452,6 +460,20 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 		 */
 		@Contract(value = "_ -> this", mutates = "this")
 		Builder<E, V> excludedErrorMessage(String excludedErrorMessage);
+
+		/**
+		 * Whether this event value's validation result depends on state outside of the event class
+		 * (e.g. configuration, server state, registry contents). When {@code true}, resolutions that
+		 * consider this event value are not cached by {@link EventValueRegistry}, ensuring the
+		 * validator is consulted on every lookup.
+		 * <p>
+		 * Defaults to {@code false}; only set this when an {@link Builder#eventValidator(Function)
+		 * event validator} is not pure for a given event class.
+		 *
+		 * @return {@code true} if resolutions involving this value should bypass the cache
+		 */
+		@Contract(value = " -> this", mutates = "this")
+		Builder<E, V> contextDependent();
 
 		/**
 		 * Builds the event value.
