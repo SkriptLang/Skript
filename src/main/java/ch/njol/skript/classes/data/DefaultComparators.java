@@ -449,7 +449,7 @@ public class DefaultComparators {
 		Comparators.registerComparator(StructureType.class, StructureType.class, new Comparator<StructureType, StructureType>() {
 			@Override
 			public Relation compare(StructureType s1, StructureType s2) {
-				return Relation.get(CollectionUtils.containsAll(s2.getTypes(), s2.getTypes()));
+				return Relation.get(CollectionUtils.containsAll(s1.getTypes(), s2.getTypes()));
 			}
 
 			@Override
