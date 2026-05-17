@@ -4,7 +4,8 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.registrations.EventConverter;
 import ch.njol.skript.registrations.EventValues;
 import io.papermc.paper.event.entity.EntityLungeEvent;
@@ -30,31 +31,30 @@ public class EvtEntityLunge extends SkriptEvent {
 						  "on ravager lunge:",
 							  "\tcancel event"
 				)
-				.since("2.16");
+				.since("INSERT VERSION");
+
+			EventValues.registerEventValue(EntityLungeEvent.class, Integer.class, new EventConverter<>() {
+				@Override
+				public void set(EntityLungeEvent event, Integer value) {
+					event.setLungePower(value);
+				}
+
+				@Override
+				public Integer convert(EntityLungeEvent event) {
+					return event.getLungePower();
+				}
+			});
 		}
-
-		EventValues.registerEventValue(EntityLungeEvent.class, Integer.class, new EventConverter<>() {
-			@Override
-			public void set(EntityLungeEvent event, Integer value) {
-				event.setLungePower(value);
-			}
-
-			@Override
-			public Integer convert(EntityLungeEvent event) {
-				return event.getLungePower();
-			}
-		});
 	}
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		entityTypes = (Literal<EntityType>) args[0];
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
-
 		if (!(event instanceof EntityLungeEvent lungeEvent)) {
 			return false;
 		}
@@ -64,8 +64,8 @@ public class EvtEntityLunge extends SkriptEvent {
 		}
 
 		boolean matches = false;
-		for (EntityType et : entityTypes.getAll()) {
-			if (et.isInstance(lungeEvent.getEntity())) {
+		for (EntityType entityType : entityTypes.getAll()) {
+			if (entityType.isInstance(lungeEvent.getEntity())) {
 				matches = true;
 				break;
 			}
@@ -74,8 +74,13 @@ public class EvtEntityLunge extends SkriptEvent {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return (entityTypes != null ? entityTypes.toString(e, debug) : "") + " lunge";
+	public String toString(@Nullable Event event, boolean debug) {
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+		if (entityTypes != null) {
+			builder.append(entityTypes).append(" ");
+		}
+		builder.append("lunge");
+		return builder.toString();
 	}
 
 }

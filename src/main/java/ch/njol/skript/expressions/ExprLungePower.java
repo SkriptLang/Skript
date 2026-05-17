@@ -15,8 +15,7 @@ import org.jetbrains.annotations.Nullable;
 @Description({"The power of lunge attack.",
 			"Can be set to modify the distance of the lunge attack.",
 			"Initially, the lunge power is determined by the enchantment level of the lunge enchantment" +
-				"of the weapon used to perform the lunge attack (e.g. a spear).",
-			"But some mobs (e.g. ravagers) can also perform lunge attacks without a weapon."})
+				"of the weapon used to perform the lunge attack (e.g. a spear)."})
 @Example("""
 on skeleton lunge:
 	if the lunge power is 1, 2 or 3:
@@ -28,7 +27,7 @@ on skeleton lunge:
 on lunge:
 	set event-lunge power to 5
 """)
-@Since("2.16")
+@Since("INSERT VERSION")
 public class ExprLungePower extends WrapperExpression<Integer> implements EventRestrictedSyntax {
 
 	static {
