@@ -63,14 +63,12 @@ public class EvtEntityLunge extends SkriptEvent {
 			return false;
 		}
 
-		boolean matches = false;
 		for (EntityType entityType : entityTypes.getAll()) {
 			if (entityType.isInstance(lungeEvent.getEntity())) {
-				matches = true;
-				break;
+				return true;
 			}
 		}
-		return matches;
+		return false;
 	}
 
 	@Override
