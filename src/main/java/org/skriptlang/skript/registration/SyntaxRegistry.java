@@ -17,6 +17,7 @@ import org.skriptlang.skript.util.ViewProvider;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * A syntax registry is a central container for all {@link SyntaxInfo}s.
@@ -73,6 +74,17 @@ public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<S
 	 */
 	static SyntaxRegistry withOrigin(SyntaxRegistry syntaxRegistry, Origin origin) {
 		return new SyntaxRegistryImpl.OriginApplyingRegistry(syntaxRegistry, origin);
+	}
+
+	/**
+	 * Constructs a syntax registry that applies an origin to all syntax infos registered through it
+	 *  with the {@link Origin#UNKNOWN} origin.
+	 * @param syntaxRegistry The syntax registry providing the implementation.
+	 * @param originFactory A function to produce an origin with the context of the syntax info for which the origin is being produced.
+	 * @return A syntax registry that applies an origin.
+	 */
+	static SyntaxRegistry withOrigin(SyntaxRegistry syntaxRegistry, Function<SyntaxInfo<?>, Origin> originFactory) {
+		return new SyntaxRegistryImpl.OriginApplyingRegistry(syntaxRegistry, originFactory);
 	}
 
 	/**

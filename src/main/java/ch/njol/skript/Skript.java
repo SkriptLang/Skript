@@ -1481,7 +1481,10 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 		SkriptAddon addon = getAddon(plugin);
 		if (addon != null) {
-			return Origin.of(addon);
+			if (source == ch.njol.skript.lang.util.SimpleEvent.class) {
+				source = ch.njol.skript.events.SimpleEvents.class;
+			}
+			return Origin.of(addon, source);
 		}
 		return Origin.UNKNOWN;
 	}

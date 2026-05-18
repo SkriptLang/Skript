@@ -193,7 +193,7 @@ public enum Feature implements Experiment, ch.njol.skript.doc.Documentable {
 	Feature(String codeName, Documentation documentation, LifeCycle phase, String... patterns) {
 		documentation = documentation.toBuilder()
 			.id(codeName)
-			.origin(Origin.of(Skript.instance()))
+			.origin(Origin.of(Skript.instance(), Feature.class))
 			.build();
 		this.experiment = Experiment.constant(codeName, documentation, phase, patterns);
 	}

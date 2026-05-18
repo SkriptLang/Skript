@@ -39,6 +39,7 @@ public class PlayerModule extends HierarchicalAddonModule {
 
 		SyntaxRegistry syntaxRegistry = moduleRegistry(addon);
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Chat")
+			.origin(origin(addon))
 			.addDescription("Called whenever a player chats.",
 				"Use <a href='#ExprChatFormat'>chat format</a> to change message format.",
 				"Use <a href='#ExprChatRecipients'>chat recipients</a> to edit chat recipients.")

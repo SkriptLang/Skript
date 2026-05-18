@@ -32,8 +32,14 @@ public abstract class JavaFunction<T> extends Function<T>
 
 		// questionably obtain source...
 		SkriptAddon source;
+		Class<?> caller;
 		try {
-			Class<?> caller = Class.forName(Thread.currentThread().getStackTrace()[2].getClassName());
+			int index = 2;
+			StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+			do {
+				caller = Class.forName(stackTrace[index].getClassName());
+				index++;
+			} while (JavaFunction.class.isAssignableFrom(caller) && index < stackTrace.length);
 			JavaPlugin callerPlugin = JavaPlugin.getProvidingPlugin(caller);
 			source = Skript.instance().addons().stream()
 				.filter(addon -> JavaPlugin.getProvidingPlugin(addon.source()) == callerPlugin)
@@ -41,10 +47,11 @@ public abstract class JavaFunction<T> extends Function<T>
 				.orElse(Skript.instance());
 		} catch (ClassNotFoundException ignored) {
 			source = Skript.instance();
+			caller = null;
 		}
 		documentation = Documentation.builder()
 			.name(sign.getName())
-			.origin(Origin.of(source))
+			.origin(caller == null ? Origin.of(source) : Origin.of(source, caller))
 			.build();
 		documentation = documentation.toBuilder()
 			.id("Func" + documentation.autoId())

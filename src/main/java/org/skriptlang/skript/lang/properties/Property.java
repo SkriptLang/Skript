@@ -207,9 +207,12 @@ public record Property<Handler extends PropertyHandler<?>>(
 			"name",
 			Skript.instance(),
 			ExpressionPropertyHandler.class,
-			Documentation.of("Name",
-				"A name, such as a script's name or a player's account name.",
-				"2.13"));
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("Name")
+					.description("A name, such as a script's name or a player's account name.")
+					.addSince("2.13")
+					.build());
 
 	/**
 	 * A property for things that have a display name.
@@ -219,12 +222,15 @@ public record Property<Handler extends PropertyHandler<?>>(
 			"display name",
 			Skript.instance(),
 			ExpressionPropertyHandler.class,
-			Documentation.of("Display Name",
-				"""
-					A more prominently displayed name, such as a player's display name or an entity's custom name.
-					Often more easily changed than the regular name.
-					""",
-				"2.13"));
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("Display Name")
+					.description("""
+						A more prominently displayed name, such as a player's display name or an entity's custom name.
+						Often more easily changed than the regular name.
+						""")
+					.addSince("2.13")
+					.build());
 
 	/**
 	 * A property for checking if something contains an element.
@@ -234,9 +240,12 @@ public record Property<Handler extends PropertyHandler<?>>(
 			"contains",
 			Skript.instance(),
 			ContainsHandler.class,
-			Documentation.of("Contains",
-				"Something that can contain other things, such as an inventory or a string.",
-				"2.13"));
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("Contains")
+					.description("Something that can contain other things, such as an inventory or a string.")
+					.addSince("2.13")
+					.build());
 
 	/**
 	 * A property for getting the amount of something.
@@ -246,9 +255,12 @@ public record Property<Handler extends PropertyHandler<?>>(
 			"amount",
 			Skript.instance(),
 			ExpressionPropertyHandler.class,
-			Documentation.of("Amount",
-				"The amount of something, say the number of items in a stack or in a queue.",
-				"2.13"));
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("Amount")
+					.description("The amount of something, say the number of items in a stack or in a queue.")
+					.addSince("2.13")
+					.build());
 
 	/**
 	 * A property for getting the size of something.
@@ -258,20 +270,12 @@ public record Property<Handler extends PropertyHandler<?>>(
 			"size",
 			Skript.instance(),
 			ExpressionPropertyHandler.class,
-			Documentation.of("Size",
-				"The size of something, say the number of elements in a queue.",
-				"2.13"));
-
-	/**
-	 * A property for getting the scale of something.
-	 */
-	public static final Property<ExpressionPropertyHandler<?,?>> SCALE = Property.of(
-			"scale",
-			Skript.instance(),
-			ExpressionPropertyHandler.class,
-			Documentation.of("Scale",
-				"The scale of something, say the x/y/z scales of a display entity.",
-				"2.14"));
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("Size")
+					.description("The size of something, say the number of elements in a queue.")
+					.addSince("2.13")
+					.build());
 
 	/**
 	 * A property for getting the number of something.
@@ -280,10 +284,12 @@ public record Property<Handler extends PropertyHandler<?>>(
 			"number",
 			Skript.instance(),
 			ExpressionPropertyHandler.class,
-			Documentation.of("Number",
-				"The number of something, say the number of elements in a queue.",
-				"2.13"));
-
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("Number")
+					.description("The number of something, say the number of elements in a queue.")
+					.addSince("2.13")
+					.build());
 
 	/**
 	 * A property for checking whether something is empty.
@@ -293,9 +299,12 @@ public record Property<Handler extends PropertyHandler<?>>(
 			"empty",
 			Skript.instance(),
 			ConditionPropertyHandler.class,
-			Documentation.of("Is Empty",
-				"Whether something is empty or not.",
-				"2.13"));
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("Is Empty")
+					.description("Whether something is empty or not.")
+					.addSince("2.13")
+					.build());
 
 	/**
 	 * A property for getting a specific value of something.
@@ -304,9 +313,12 @@ public record Property<Handler extends PropertyHandler<?>>(
 			"typed value",
 			Skript.instance(),
 			TypedValueHandler.class,
-			Documentation.of("Typed Value",
-				"A value of a specific type, e.g. 'string value of x'.",
-				"2.13"));
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("Typed Value")
+					.description("A value of a specific type, e.g. 'string value of x'.")
+					.addSince("2.13")
+					.build());
 
 	/**
 	 * A property for getting the x, y, or z coordinates/components of something.
@@ -315,9 +327,12 @@ public record Property<Handler extends PropertyHandler<?>>(
 			"wxyz component",
 			Skript.instance(),
 			WXYZHandler.class,
-			Documentation.of("W/X/Y/Z Components",
-				"The W, X, Y, or Z components of something, e.g. the x coordinate of a location or vector.",
-				"2.14"));
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("W/X/Y/Z Components")
+					.description("The W, X, Y, or Z components of something, say the x coordinate of a location or vector.")
+					.addSince("2.14")
+					.build());
 
 	/**
 	 * A property for getting the speed of something
@@ -326,9 +341,26 @@ public record Property<Handler extends PropertyHandler<?>>(
 			"speed",
 			Skript.instance(),
 			ExpressionPropertyHandler.class,
-			Documentation.of("Speed",
-				"The speed at which something is moving.",
-				"2.14"));
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("Speed")
+					.description("The speed at which something is moving.")
+					.addSince("2.14")
+					.build());
+
+	/**
+	 * A property for getting the scale of something.
+	 */
+	public static final Property<ExpressionPropertyHandler<?,?>> SCALE = Property.of(
+			"scale",
+			Skript.instance(),
+			ExpressionPropertyHandler.class,
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("Scale")
+					.description("The scale of something, say the x/y/z scales of a display entity.")
+					.addSince("2.14")
+					.build());
 
 	/**
 	 * Register all Skript's default properties. Should be done prior to loading classinfos.
@@ -339,12 +371,12 @@ public record Property<Handler extends PropertyHandler<?>>(
 		CONTAINS.register();
 		AMOUNT.register();
 		SIZE.register();
-		SCALE.register();
 		NUMBER.register();
 		IS_EMPTY.register();
 		TYPED_VALUE.register();
 		WXYZ.register();
 		SPEED.register();
+		SCALE.register();
 	}
 
 	/**

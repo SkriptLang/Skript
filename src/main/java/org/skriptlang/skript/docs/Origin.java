@@ -21,8 +21,19 @@ public sealed interface Origin extends Documentable permits OriginImpl.UnknownOr
 	 * @return An origin pointing to the provided addon.
 	 */
 	@Contract("_ -> new")
-	static Origin of(SkriptAddon addon) {
+	static AddonOrigin of(SkriptAddon addon) {
 		return new OriginImpl.AddonOriginImpl(addon);
+	}
+
+	/**
+	 * Constructs an origin from an addon and a class.
+	 * @param addon The addon to construct this origin from.
+	 * @param clazz The class of the thing this origin is for.
+	 * @return An origin pointing to the provided addon and class.
+	 */
+	@Contract("_, _ -> new")
+	static ClassOrigin of(SkriptAddon addon, Class<?> clazz) {
+		return new OriginImpl.ClassOriginImpl(addon, clazz);
 	}
 
 	/**
@@ -44,6 +55,24 @@ public sealed interface Origin extends Documentable permits OriginImpl.UnknownOr
 		@Override
 		default String name() {
 			return addon().name();
+		}
+
+	}
+
+	/**
+	 * An {@link AddonOrigin} that also provides information about the class of the thing this origin is for.
+	 */
+	interface ClassOrigin extends AddonOrigin {
+
+		/**
+		 * @return The class of the thing this origin describes.
+		 */
+		Class<?> originClass();
+
+		@Override
+		default void write(DocumentationAdapter adapter) {
+			AddonOrigin.super.write(adapter);
+			adapter.write("class", originClass().getName());
 		}
 
 	}
