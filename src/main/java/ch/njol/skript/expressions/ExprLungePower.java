@@ -1,6 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.expressions.base.WrapperExpression;
@@ -28,6 +29,12 @@ on skeleton lunge:
 on lunge:
 	set event-lunge power to 5
 """)
+@Example("""
+on player lunge:
+    if event-entity has slowness:
+        remove 1 from lunge power
+        send "Slowed you down a bit"
+""")
 @Since("INSERT VERSION")
 public class ExprLungePower extends WrapperExpression<Integer> implements EventRestrictedSyntax {
 
@@ -47,6 +54,31 @@ public class ExprLungePower extends WrapperExpression<Integer> implements EventR
 
 		setExpr(new EventValueExpression<>(Integer.class));
 		return ((EventValueExpression<Integer>) getExpr()).init();
+	}
+
+	@Override
+	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case SET, ADD, REMOVE -> CollectionUtils.array(Integer.class);
+			default -> null;
+		};
+	}
+
+	@Override
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		int deltaValue = delta != null ? (Integer) delta[0] : 0;
+		int currentValue = (Integer) getExpr().getSingle(event);
+		Integer newValue = switch (mode) {
+			case SET -> deltaValue;
+			case ADD -> currentValue + deltaValue;
+			case REMOVE -> currentValue - deltaValue;
+			default -> null;
+		};
+
+		// It isn't null because the change mode is guaranteed to be either SET, ADD or REMOVE
+		assert newValue != null;
+
+		super.getExpr().change(event, CollectionUtils.array(newValue), ChangeMode.SET);
 	}
 
 	@Override
