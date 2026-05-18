@@ -3,8 +3,6 @@ package org.skriptlang.skript.bukkit.registration;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
 import ch.njol.skript.log.BlockingLogHandler;
-import ch.njol.skript.patterns.PatternCompiler;
-import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.jetbrains.annotations.Contract;
@@ -20,9 +18,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry.Key;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.SequencedCollection;
 
 /**
@@ -194,7 +190,7 @@ public final class BukkitSyntaxInfos {
 			adapter.write("cancellable", cancellable);
 
 			// Event Values
-			List<Map<String, Object>> values = new ArrayList<>();
+			List<EventValue<?, ?>> values = new ArrayList<>();
 			EventValueRegistry registry = adapter.addon().registry(EventValueRegistry.class);
 			try (BlockingLogHandler ignored = new BlockingLogHandler().start()) { // block any validation errors
 				for (Class<? extends org.bukkit.event.Event> event : events()) {
@@ -203,21 +199,7 @@ public final class BukkitSyntaxInfos {
 						if (eventValue.validate(event) != EventValue.Validation.VALID) {
 							continue;
 						}
-						Map<String, Object> valueMap = new HashMap<>();
-						valueMap.put("type", eventValue.valueClass());
-						valueMap.put("plural", eventValue.valueClass().isArray());
-						valueMap.put("time", switch (eventValue.time()) {
-							case EventValue.Time.PAST -> "past";
-							case EventValue.Time.NOW -> "present";
-							case EventValue.Time.FUTURE -> "future";
-						});
-						valueMap.put("patterns", eventValue.patterns().stream()
-							.map(pattern -> PatternCompiler.compile(pattern).toString(StringificationProperties.builder()
-								.excludeParseTags()
-								.excludeTypeFlags()
-								.build()))
-							.toList());
-						values.add(valueMap);
+						values.add(eventValue);
 					}
 				}
 			}

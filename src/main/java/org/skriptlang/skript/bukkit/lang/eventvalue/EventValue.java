@@ -2,13 +2,18 @@ package org.skriptlang.skript.bukkit.lang.eventvalue;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.patterns.PatternCompiler;
+import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.docs.Documentable;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.lang.converter.Converter;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.SequencedCollection;
@@ -27,7 +32,7 @@ import java.util.function.Function;
  * Instances should be created using {@link #builder(Class, Class)} and registered via
  * {@link EventValueRegistry#register(EventValue)}.
  */
-public sealed interface EventValue<E extends Event, V> permits EventValueImpl, ConvertedEventValue {
+public sealed interface EventValue<E extends Event, V> extends Documentable permits EventValueImpl, ConvertedEventValue {
 
 	/**
 	 * Creates a new builder for an {@link EventValue}.
@@ -246,6 +251,23 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 		Converter<V, NewValue> converter,
 		@Nullable Converter<NewValue, V> reverseConverter
 	);
+
+	@Override
+	default void write(DocumentationAdapter adapter) {
+		adapter.write("type", valueClass());
+		adapter.write("plural", valueClass().isArray());
+		adapter.write("time", time().name());
+		adapter.write("patterns", patterns().stream()
+			.map(pattern -> PatternCompiler.compile(pattern).toString(StringificationProperties.builder()
+				.excludeParseTags()
+				.excludeTypeFlags()
+				.build()))
+			.toList());
+		adapter.write("supportedChangeModes", Arrays.stream(ChangeMode.values())
+			.filter(this::hasChanger)
+			.map(Enum::name)
+			.toList());
+	}
 
 	/**
 	 * Represents the time state an event value is registered for.
