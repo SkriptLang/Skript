@@ -33,6 +33,7 @@ import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.docs.Events;
 import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.docs.DocumentationGenerator;
+import org.skriptlang.skript.docs.DocumentationGenerator.AddonInfo;
 import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.registration.SyntaxInfo;
@@ -418,7 +419,8 @@ public class SkriptCommand implements CommandExecutor {
 					}
 				});
 
-				DocumentationGenerator.json(addon, documentationAdapter)
+				String version = JavaPlugin.getProvidingPlugin(addon.source()).getPluginMeta().getVersion();
+				DocumentationGenerator.json(addon, new AddonInfo(version), documentationAdapter)
 					.generate(outputDir.toPath().resolve(addon.name() + "-docs.json"));
 
 				Skript.info(sender, "All documentation generated!");

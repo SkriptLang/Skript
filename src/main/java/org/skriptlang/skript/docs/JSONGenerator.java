@@ -24,10 +24,12 @@ class JSONGenerator implements DocumentationGenerator {
 		.create();
 
 	private final SkriptAddon addon;
+	private final AddonInfo info;
 	private final DocumentationAdapter adapter;
 
-	JSONGenerator(SkriptAddon addon, DocumentationAdapter adapter) {
+	JSONGenerator(SkriptAddon addon, AddonInfo info, DocumentationAdapter adapter) {
 		this.addon = addon;
+		this.info = info;
 		this.adapter = adapter;
 	}
 
@@ -44,8 +46,7 @@ class JSONGenerator implements DocumentationGenerator {
 		// Source
 		JsonObject source = new JsonObject();
 		source.addProperty("name", addon.name());
-		// TODO way to determine version
-		source.addProperty("version", "unknown");
+		source.addProperty("version", info.version());
 		docs.add("source", source);
 
 		// Add in adapter properties

@@ -16,13 +16,20 @@ import java.nio.file.Path;
 public interface DocumentationGenerator {
 
 	/**
+	 * Describes information about an {@link SkriptAddon}.
+	 * @param version The version of the addon this info represents.
+	 */
+	record AddonInfo(String version) { }
+
+	/**
 	 * Creates
 	 * @param addon The addon to generate documentation for.
+	 * @param info Info about {@code addon}.
 	 * @return A generator capable of generating a JSON representation of documentation.
 	 */
-	@Contract("_, _ -> new")
-	static DocumentationGenerator json(SkriptAddon addon, DocumentationAdapter adapter) {
-		return new JSONGenerator(addon, adapter);
+	@Contract("_, _, _ -> new")
+	static DocumentationGenerator json(SkriptAddon addon, AddonInfo info, DocumentationAdapter adapter) {
+		return new JSONGenerator(addon, info, adapter);
 	}
 
 	/**
