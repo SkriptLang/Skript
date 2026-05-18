@@ -60,7 +60,7 @@ public class EvtEntityLunge extends SkriptEvent {
 		}
 
 		if (entityTypes == null) {
-			return false;
+			return true;
 		}
 
 		for (EntityType entityType : entityTypes.getAll()) {
