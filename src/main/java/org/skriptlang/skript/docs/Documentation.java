@@ -233,7 +233,7 @@ public interface Documentation extends Documentable {
 	@Override
 	default void write(DocumentationAdapter adapter) {
 		adapter.write("origin", origin());
-		adapter.write("id", id());
+		adapter.write("id", id() == null ? adapter.currentScope() : id());
 		adapter.write("name", name());
 		adapter.write("description", description());
 		adapter.write("examples", examples());

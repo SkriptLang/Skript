@@ -168,8 +168,12 @@ public final class BukkitSyntaxInfos {
 				id = documentation().autoId();
 				if (id.startsWith("On")) {
 					id = id.substring(2);
+				} else if (id.isEmpty()) {
+					id = type().getSimpleName(); // hope for the best
 				}
-				id = "Evt" + id;
+				if (!id.startsWith("Evt")) {
+					id = "Evt" + id;
+				}
 			}
 			adapter.enterScope(id);
 		}

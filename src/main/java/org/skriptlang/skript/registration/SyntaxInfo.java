@@ -105,10 +105,7 @@ public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends Document
 
 	@Override
 	default void write(DocumentationAdapter adapter) {
-		// ensure ID is set before applying
-		adapter.write(documentation().toBuilder()
-			.id(adapter.currentScope())
-			.build());
+		DocumentationDocumentable.super.write(adapter);
 		adapter.write("patterns", patterns().stream()
 			.map(pattern -> PatternCompiler.compile(pattern).toString(StringificationProperties.builder()
 				.excludeParseTags()

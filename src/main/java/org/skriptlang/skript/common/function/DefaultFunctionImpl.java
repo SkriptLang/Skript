@@ -53,10 +53,6 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		if (documentation.name().isEmpty()) {
 			builder.name(name);
 		}
-		if (documentation.id() == null) {
-			// need to build so that it uses the "final" information for autoId
-			builder.id("Func" + builder.build().autoId());
-		}
 		this.documentation = builder.build();
 	}
 

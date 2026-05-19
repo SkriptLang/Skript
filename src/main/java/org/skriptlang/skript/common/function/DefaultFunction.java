@@ -167,4 +167,9 @@ public sealed interface DefaultFunction<T>
 		Function.super.write(adapter);
 	}
 
+	@Override
+	default String documentationIdPrefix() {
+		return "Func";
+	}
+
 }

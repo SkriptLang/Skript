@@ -405,11 +405,6 @@ public record Property<Handler extends PropertyHandler<?>>(
 				.origin(Origin.of(provider))
 				.build();
 		}
-		if (documentation.id() == null) {
-			documentation = documentation.toBuilder()
-				.id("Prop" + documentation.autoId())
-				.build();
-		}
 		this.documentation = documentation;
 	}
 
@@ -453,6 +448,11 @@ public record Property<Handler extends PropertyHandler<?>>(
 			})
 			.map(adapter::reference)
 			.toList());
+	}
+
+	@Override
+	public String documentationIdPrefix() {
+		return "Prop";
 	}
 
 	/**

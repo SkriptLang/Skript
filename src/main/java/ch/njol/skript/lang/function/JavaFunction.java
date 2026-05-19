@@ -53,9 +53,6 @@ public abstract class JavaFunction<T> extends Function<T>
 			.name(sign.getName())
 			.origin(caller == null ? Origin.of(source) : Origin.of(source, caller))
 			.build();
-		documentation = documentation.toBuilder()
-			.id("Func" + documentation.autoId())
-			.build();
 	}
 
 	public JavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single) {
@@ -242,6 +239,11 @@ public abstract class JavaFunction<T> extends Function<T>
 	public void write(DocumentationAdapter adapter) {
 		DocumentationDocumentable.super.write(adapter);
 		super.write(adapter);
+	}
+
+	@Override
+	public String documentationIdPrefix() {
+		return "Func";
 	}
 
 }

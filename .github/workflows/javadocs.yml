@@ -61,7 +61,7 @@ jobs:
           dir_name="${JAVADOCS_OUTPUT_DIR}/skript/${loc_name}"
           rm -rf "${dir_name}" || true
           mkdir -p "${dir_name}" && cp -a "./build/docs/javadoc/." "$_"
-          if [[ "${IS_RELEASE}" == "false" ]]; then
+          if [[ "${IS_RELEASE}" == "true" ]]; then
             cd "${JAVADOCS_OUTPUT_DIR}/skript"
             sed -i "s/const latest.*/const latest = '${loc_name}';/" index.html
           fi

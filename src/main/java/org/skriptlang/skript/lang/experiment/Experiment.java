@@ -4,7 +4,6 @@ import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
 import ch.njol.skript.registrations.Feature;
-import org.apache.commons.lang.WordUtils;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.docs.DocumentationAdapter;
@@ -95,6 +94,12 @@ public interface Experiment extends DocumentationDocumentable {
 			.excludeTypeFlags()
 			.build()));
 	}
+
+	@Override
+	default String documentationIdPrefix() {
+		return "Exp";
+	}
+
 }
 
 /**
@@ -109,9 +114,7 @@ class ConstantExperiment implements Experiment {
 
 	ConstantExperiment(String codeName, Documentation documentation, LifeCycle phase, String... patterns) {
 		this.codeName = codeName;
-		this.documentation = documentation.toBuilder()
-			.id("Exp" + WordUtils.capitalizeFully(codeName).replace(" ", ""))
-			.build();
+		this.documentation = documentation;
 		this.phase = phase;
 		this.compiledPattern = PatternCompiler.compile(switch (patterns.length) {
 			case 0 -> codeName;
