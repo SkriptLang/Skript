@@ -48,9 +48,11 @@ jobs:
         env:
           JAVADOCS_OUTPUT_DIR: ${{ steps.configuration.outputs.JAVADOCS_REPO_DIR }}
           SKRIPT_REPO_DIR: ${{ steps.configuration.outputs.SKRIPT_REPO_DIR }}
+          BRANCH_NAME: ${{ steps.configuration.outputs.BRANCH_NAME }}
         run: |
           cd "${SKRIPT_REPO_DIR}"
           ./gradlew javadoc
+          sanitized_name="${BRANCH_NAME//\//-}"
           mkdir -p "${JAVADOCS_OUTPUT_DIR}/${sanitized_name}" && cp -a "./build/docs/javadoc/." "$_"
       - name: Push javadocs
         uses: ./skript/.github/workflows/docs/push-docs
