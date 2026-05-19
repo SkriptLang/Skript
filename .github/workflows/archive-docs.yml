@@ -36,7 +36,6 @@ jobs:
           docs_file_name: ${{ steps.configuration.outputs.BRANCH_NAME }}
           skript_repo_dir: ${{ steps.configuration.outputs.SKRIPT_REPO_DIR }}
           is_release: true
-          generate_javadocs: true
       - name: Push archive documentation
         uses: ./skript/.github/workflows/docs/push-docs
         with:

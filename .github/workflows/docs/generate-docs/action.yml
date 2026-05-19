@@ -40,16 +40,12 @@ runs:
         DOCS_FILE_NAME: ${{ inputs.docs_file_name }}
         SKRIPT_REPO_DIR: ${{ inputs.skript_repo_dir }}
         IS_RELEASE: ${{ inputs.is_release }}
-        CLEANUP_PATTERN: ${{ inputs.cleanup_pattern }}
-        GENERATE_JAVADOCS: ${{ inputs.generate_javadocs }}
       run: |
         # Generate docs.json from Skript repository
         export SKRIPT_DOCS_OUTPUT_DIR=$DOCS_OUTPUT_DIR
         cd $SKRIPT_REPO_DIR
         if [[ "${IS_RELEASE}" == "true" ]]; then
-          ./gradlew genReleaseDocs javadoc
-        elif [[ "${GENERATE_JAVADOCS}" == "true" ]]; then
-          ./gradlew genNightlyDocs javadoc
+          ./gradlew genReleaseDocs
         else
           ./gradlew genNightlyDocs
         fi

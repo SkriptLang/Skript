@@ -19,9 +19,9 @@ runs:
         repository: ${{ inputs.docs_repo }}
         path: docs
         token: ${{ inputs.docs_token }}
-    - uses: actions/setup-java@v3
+    - uses: actions/setup-java@v5
       with:
-        java-version: '21'
+        java-version: '25'
         distribution: 'adopt'
         cache: gradle
     - shell: bash
