@@ -415,12 +415,9 @@ tasks.register('nightlyRelease', ShadowJar) {
 }
 
 javadoc {
-	if (gradle.startParameter.taskNames.contains('githubRelease')) {
-		dependsOn(githubRelease)
-	} else { // assume nightly
-		dependsOn(nightlyRelease)
-	}
-	title = 'Skript ' + version
+	// TODO nightly version should have nightly version suffix... dependency handling is weird
+	mustRunAfter(tasks.withType(ProcessResources))
+	title = 'Skript ' + project.property('version')
 	source = sourceSets.main.allJava
 
 	// general solution to filter out most implementation files
