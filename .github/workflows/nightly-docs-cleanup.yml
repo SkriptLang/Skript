@@ -1,7 +1,9 @@
 name: Cleanup nightly documentation
+
 on: delete
+
 jobs:
-  cleanup-nightly-docs:
+  nightly-docs-cleanup:
     if: github.event.ref_type == 'branch'
     runs-on: ubuntu-latest
     steps:
@@ -12,8 +14,8 @@ jobs:
         run: |
           BRANCH_NAME="${DELETED_BRANCH#refs/*/}"
           echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_OUTPUT
-          echo "DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/nightly/${BRANCH_NAME}" >> $GITHUB_OUTPUT
-          echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/skript-docs" >> $GITHUB_OUTPUT
+          echo "DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/docs/src/assets/syntaxes/" >> $GITHUB_OUTPUT
+          echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/docs" >> $GITHUB_OUTPUT
       - name: Checkout Skript
         uses: actions/checkout@v6
         with:
@@ -23,17 +25,19 @@ jobs:
       - name: Setup documentation environment
         uses: ./skript/.github/workflows/docs/setup-docs
         with:
-          docs_repo: "SkriptLang/skript-docs"
+          docs_repo: "SkriptLang/docs"
           docs_token: ${{ secrets.DOCS_TOKEN }}
       - name: Cleanup nightly documentation
         env:
-          DOCS_OUTPUT_DIR: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
+          BRANCH_NAME: ${{ steps.configuration.outputs.BRANCH_NAME }}
         run: |
-          rm -rf ${DOCS_OUTPUT_DIR} || true
+          src_file="${BRANCH_NAME//\//-}.json"
+          rm -rf ${src_file} || true
       - name: Push nightly documentation cleanup
         uses: ./skript/.github/workflows/docs/push-docs
         with:
           docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
+          docs_repo_branch: "master"
           git_name: Nightly Docs Bot
           git_email: nightlydocs@skriptlang.org
           git_commit_message: "Delete ${{ steps.configuration.outputs.BRANCH_NAME }} branch nightly docs"
