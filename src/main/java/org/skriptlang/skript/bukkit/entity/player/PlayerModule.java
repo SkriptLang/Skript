@@ -9,6 +9,7 @@ import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.entity.player.elements.events.*;
 import org.skriptlang.skript.bukkit.entity.player.elements.expressions.*;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class PlayerModule extends HierarchicalAddonModule {
@@ -38,21 +39,27 @@ public class PlayerModule extends HierarchicalAddonModule {
 		}
 
 		SyntaxRegistry syntaxRegistry = moduleRegistry(addon);
-		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Chat")
-			.origin(origin(addon))
-			.addDescription("Called whenever a player chats.",
-				"Use <a href='#ExprChatFormat'>chat format</a> to change message format.",
-				"Use <a href='#ExprChatRecipients'>chat recipients</a> to edit chat recipients.")
-			.addExample("""
-				on chat:
-					if the player has permission "owner":
-						set the chat format to "<red>[player]<light gray>: <light red>[message]"
-					else if the player has permission "admin":
-						set the chat format to "<light red>[player]<light gray>: <orange>[message]"
-					else: # default message format
-						set the chat format to "<orange>[player]<light gray>: <white>[message]"
-				""")
-			.addSince("1.4.1")
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class)
+			.documentation(Documentation.builder()
+				.origin(origin(addon))
+				.name("Chat")
+				.description("""
+					Called whenever a player chats.
+					Use <a href='#ExprChatFormat'>chat format</a> to change message format.
+					Use <a href='#ExprChatRecipients'>chat recipients</a> to edit chat recipients.
+					""")
+				.addExample("""
+					on chat:
+						if the player has permission "owner":
+							set the chat format to "<red>[player]<light gray>: <light red>[message]"
+						else if the player has permission "admin":
+							set the chat format to "<light red>[player]<light gray>: <orange>[message]"
+						else: # default message format
+							set the chat format to "<orange>[player]<light gray>: <white>[message]"
+					""")
+				.addSince("1.4.1")
+				.build()
+			)
 			.addPattern("chat")
 			.addEvent(AsyncChatEvent.class)
 			.build());

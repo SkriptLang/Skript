@@ -95,25 +95,43 @@ record DocumentationImpl(
 
 		@Override
 		public B description(String description) {
+			if (description.endsWith("\n")) {
+				description = description.substring(0, description.length() - 1);
+			}
 			this.description = description;
 			return (B) this;
 		}
 
 		@Override
 		public B addExample(String example) {
+			if (example.endsWith("\n")) {
+				example = example.substring(0, example.length() - 1);
+			}
 			this.examples.add(example);
 			return (B) this;
 		}
 
 		@Override
 		public B addExamples(String... examples) {
-			this.examples.addAll(Arrays.asList(examples));
+			for (String example : examples) {
+				if (example.endsWith("\n")) {
+					example = example.substring(0, example.length() - 1);
+				}
+				this.examples.add(example);
+			}
 			return (B) this;
 		}
 
 		@Override
 		public B addExamples(Collection<String> examples) {
-			this.examples.addAll(examples);
+			this.examples.addAll(examples.stream()
+				.map(example -> {
+					if (example.endsWith("\n")) {
+						example = example.substring(0, example.length() - 1);
+					}
+					return example;
+				})
+				.toList());
 			return (B) this;
 		}
 
