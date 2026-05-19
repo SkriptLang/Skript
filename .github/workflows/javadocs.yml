@@ -12,7 +12,7 @@ on:
       - '**'
 
 jobs:
-  archive-docs:
+  javadocs:
     if: "!contains(toJSON(github.event.commits.*.message), '[ci skip]')"
     runs-on: ubuntu-latest
     steps:
@@ -57,8 +57,9 @@ jobs:
           else
             ./gradlew nightlyRelease javadoc
           fi
-          sanitized_name="${BRANCH_NAME//\//-}"
-          mkdir -p "${JAVADOCS_OUTPUT_DIR}/skript/${sanitized_name}" && cp -a "./build/docs/javadoc/." "$_"
+          dir_name="${JAVADOCS_OUTPUT_DIR}/skript/${BRANCH_NAME//\//-}"
+          rm -rf "${dir_name}" || true
+          mkdir -p "${dir_name}" && cp -a "./build/docs/javadoc/." "$_"
       - name: Push javadocs
         uses: ./skript/.github/workflows/docs/push-docs
         with:
