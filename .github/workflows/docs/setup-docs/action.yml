@@ -14,7 +14,7 @@ runs:
   using: 'composite'
   steps:
     - name: Checkout documentation repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
       with:
         repository: ${{ inputs.docs_repo }}
         path: docs

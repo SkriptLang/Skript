@@ -35,9 +35,9 @@ jobs:
           distribution: 'adopt'
           cache: gradle
       - shell: bash
-        run: chmod +x gradlew
+        run: chmod +x ./skript/gradlew
       - name: Checkout javadocs
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           repository: "Skriptlang/javadocs"
           path: docs
