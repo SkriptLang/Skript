@@ -82,13 +82,7 @@ public interface Experiment extends DocumentationDocumentable {
 	@Override
 	default void write(DocumentationAdapter adapter) {
 		DocumentationDocumentable.super.write(adapter);
-		adapter.write("phase", switch (phase()) {
-			case STABLE -> "stable";
-			case EXPERIMENTAL -> "experimental";
-			case DEPRECATED -> "deprecated";
-			case MAINSTREAM -> "mainstream";
-			case UNKNOWN -> "unknown";
-		});
+		adapter.write("phase", phase().name());
 		adapter.write("pattern", pattern().toString(StringificationProperties.builder()
 			.excludeParseTags()
 			.excludeTypeFlags()

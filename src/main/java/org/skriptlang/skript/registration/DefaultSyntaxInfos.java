@@ -153,7 +153,7 @@ public sealed interface DefaultSyntaxInfos permits SyntaxInfo {
 			if (entryValidator != null) {
 				adapter.write(entryValidator);
 			}
-			adapter.write("nodeType", nodeType());
+			adapter.write("nodeType", nodeType().name());
 		}
 
 		/**

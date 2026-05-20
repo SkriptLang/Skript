@@ -90,11 +90,19 @@ public abstract class EntryData<T> implements Documentable {
 	public abstract boolean canCreateWith(Node node);
 
 	@Override
-	public void write(DocumentationAdapter adapter) {
+	public void preWrite(DocumentationAdapter adapter) {
 		adapter.enterScope(getKey());
+	}
+
+	@Override
+	public void write(DocumentationAdapter adapter) {
 		adapter.write("key", getKey());
 		adapter.write("optional", isOptional());
 		adapter.write("multiple", supportsMultiple());
+	}
+
+	@Override
+	public void postWrite(DocumentationAdapter adapter) {
 		adapter.exitScope();
 	}
 

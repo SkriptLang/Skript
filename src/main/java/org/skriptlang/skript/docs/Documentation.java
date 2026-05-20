@@ -29,7 +29,7 @@ public interface Documentation extends Documentable {
 		.build();
 
 	/**
-	 * Used for determining whether a documentation
+	 * Used for determining whether a documentation is not intended to be written.
 	 * @param documentation The documentation to check.
 	 * @return Whether {@code documentation} represents an intentionally
 	 * @see #NONE

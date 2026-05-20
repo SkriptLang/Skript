@@ -64,9 +64,7 @@ public interface Function<T> extends Documentable {
 		// parameters
 		adapter.enterScope("parameters");
 		for (Parameter<?> parameter : signature().parameters().all()) {
-			if (parameter instanceof Documentable documentable) {
-				adapter.write(documentable);
-			}
+			adapter.write(parameter);
 		}
 		adapter.exitScope();
 	}

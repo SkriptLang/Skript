@@ -293,8 +293,12 @@ public interface Parameter<T> extends Documentable {
 	}
 
 	@Override
-	default void write(DocumentationAdapter adapter) {
+	default void preWrite(DocumentationAdapter adapter) {
 		adapter.enterScope(name());
+	}
+
+	@Override
+	default void write(DocumentationAdapter adapter) {
 		adapter.write("name", name());
 		adapter.write("type", type());
 		adapter.write("plural", type().isArray());
@@ -305,6 +309,10 @@ public interface Parameter<T> extends Documentable {
 			}
 		});
 		adapter.exitScope();
+	}
+
+	@Override
+	default void postWrite(DocumentationAdapter adapter) {
 		adapter.exitScope();
 	}
 
