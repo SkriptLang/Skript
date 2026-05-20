@@ -18,8 +18,7 @@ public class EvtEntityLunge extends SkriptEvent {
 		if (Skript.classExists("io.papermc.paper.event.entity.EntityLungeEvent")) {
 			Skript.registerEvent("Entity Lunge", EvtEntityLunge.class, EntityLungeEvent.class, "[%-entitytypes%] lunge")
 				.description("Called when an entity lunges.",
-					"Either by using a spear enchanted with the lunge enchantment (e.g. players, skeletons)",
-					"or because of a mob's natural lunge attack (e.g. ravagers).",
+					"Entity can perform lunge attack when holding a spear enchanted with the lunge enchantment.",
 					"Lunge attack propels entity forward horizontally.")
 				.examples("on lunge:",
 						      "\tset lunge power to 4",
