@@ -93,6 +93,7 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 		}
 		documentation = Documentation.builder()
 			.origin(Origin.of(source))
+			.name(name.getSingular())
 			.build();
 	}
 
@@ -507,10 +508,9 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 	public ClassInfo<T> name(final String name) {
 		//noinspection StringEquality intentional == comparison
 		if (name == NO_DOC) {
-			documentation = Documentation.NONE.toBuilder()
-				.origin(documentation.origin())
-				.id(documentation.id())
-				.build();
+			var noneBuilder = Documentation.NONE.toBuilder();
+			documentation.toBuilder().applyTo(noneBuilder);
+			documentation = noneBuilder.build();
 		} else {
 			documentation = documentation.toBuilder()
 				.name(name)
