@@ -114,7 +114,7 @@ public class ExprReplace extends SimpleExpression<String> {
 						} else {
 							haystack = matcher.replaceAll(replacement);
 						}
-					} catch (Exception ignored) {}
+					} catch (IndexOutOfBoundsException ignored) {}
 				}
 				result.add(haystack);
 			}
@@ -150,13 +150,10 @@ public class ExprReplace extends SimpleExpression<String> {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 
 		builder.append("replace");
-		if (isFirst) 
-			builder.append("first");
-		if (isRegex) 
-			builder.append("regex");
+		builder.appendIf(isFirst,"first");
 		builder.append(needleExpr, "in", haystackExpr, "with", replacementExpr);
-		if (isCaseSensitive)
-			builder.append("with case sensitivity");
+		builder.appendIf(isRegex, "using regex");
+		builder.appendIf(isCaseSensitive, "with case sensitivity");
 
 		return builder.toString();
 	}
