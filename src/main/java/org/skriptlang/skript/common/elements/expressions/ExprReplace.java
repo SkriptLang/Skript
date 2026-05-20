@@ -41,7 +41,6 @@ import java.util.regex.Pattern;
 		set message to message where all instances of "idiot", "noob" are replaced with "****"
 		set message to message where regex "\\b(idiot|noob)\\b" is replaced with "****" # Regex version using word boundaries for better results
 	""")
-
 @Since("INSERT VERSION")
 public class ExprReplace extends SimpleExpression<String> {
 
@@ -66,10 +65,9 @@ public class ExprReplace extends SimpleExpression<String> {
 	private boolean isRegex = false;
 	private boolean isCaseSensitive = false;
 
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] expr, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-
 		haystackExpr = (Expression<String>) expr[0];
 		needleExpr = (Expression<String>) expr[1];
 		replacementExpr = (Expression<String>) expr[2];
