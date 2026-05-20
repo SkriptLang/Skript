@@ -6,17 +6,12 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
-import ch.njol.skript.registrations.EventConverter;
-import ch.njol.skript.registrations.EventValues;
 import io.papermc.paper.event.entity.EntityLungeEvent;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unchecked")
 public class EvtEntityLunge extends SkriptEvent {
-
-	@Nullable
-	private Literal<EntityType> entityTypes;
 
 	static {
 		// Since paper 26.1.2
@@ -32,20 +27,10 @@ public class EvtEntityLunge extends SkriptEvent {
 							  "\tcancel event"
 				)
 				.since("INSERT VERSION");
-
-			EventValues.registerEventValue(EntityLungeEvent.class, Integer.class, new EventConverter<>() {
-				@Override
-				public void set(EntityLungeEvent event, Integer value) {
-					event.setLungePower(value);
-				}
-
-				@Override
-				public Integer convert(EntityLungeEvent event) {
-					return event.getLungePower();
-				}
-			});
 		}
 	}
+
+	private @Nullable Literal<EntityType> entityTypes;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
@@ -55,9 +40,7 @@ public class EvtEntityLunge extends SkriptEvent {
 
 	@Override
 	public boolean check(Event event) {
-		if (!(event instanceof EntityLungeEvent lungeEvent)) {
-			return false;
-		}
+		EntityLungeEvent lungeEvent = (EntityLungeEvent) event;
 
 		if (entityTypes == null) {
 			return true;

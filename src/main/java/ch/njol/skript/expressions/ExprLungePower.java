@@ -3,10 +3,9 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
-import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.expressions.base.WrapperExpression;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import io.papermc.paper.event.entity.EntityLungeEvent;
@@ -36,7 +35,7 @@ on player lunge:
         send "Slowed you down a bit"
 """)
 @Since("INSERT VERSION")
-public class ExprLungePower extends WrapperExpression<Integer> implements EventRestrictedSyntax {
+public class ExprLungePower extends SimpleExpression<Integer> implements EventRestrictedSyntax {
 
 	static {
 		// Since paper 26.1.2
@@ -45,15 +44,9 @@ public class ExprLungePower extends WrapperExpression<Integer> implements EventR
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (exprs.length != 0) {
-			return false;
-		}
-
-		setExpr(new EventValueExpression<>(Integer.class));
-		return ((EventValueExpression<Integer>) getExpr()).init();
+		return true;
 	}
 
 	@Override
@@ -67,7 +60,7 @@ public class ExprLungePower extends WrapperExpression<Integer> implements EventR
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		int deltaValue = delta != null ? (Integer) delta[0] : 0;
-		int currentValue = (Integer) getExpr().getSingle(event);
+		int currentValue = getSingle(event);
 		Integer newValue = switch (mode) {
 			case SET -> deltaValue;
 			case ADD -> currentValue + deltaValue;
@@ -78,7 +71,14 @@ public class ExprLungePower extends WrapperExpression<Integer> implements EventR
 		// It isn't null because the change mode is guaranteed to be either SET, ADD or REMOVE
 		assert newValue != null;
 
-		super.getExpr().change(event, CollectionUtils.array(newValue), ChangeMode.SET);
+		EntityLungeEvent lungeEvent = (EntityLungeEvent) event;
+		lungeEvent.setLungePower(newValue);
+	}
+
+	@Override
+	public Integer[] get(Event event) {
+		EntityLungeEvent lungeEvent = (EntityLungeEvent) event;
+		return CollectionUtils.array(lungeEvent.getLungePower());
 	}
 
 	@Override
