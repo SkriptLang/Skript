@@ -36,7 +36,7 @@ import java.util.UUID;
 public class ExprUUID extends SimplePropertyExpression<Object, UUID> {
 
 	static {
-		register(ExprUUID.class, UUID.class, "UUID", "offlineplayers/worlds/entities");
+		register(ExprUUID.class, UUID.class, "uuid[s]", "offlineplayers/worlds/entities");
 	}
 
 	@Override

@@ -13,7 +13,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Direction;
-import ch.njol.skript.util.StructureType;
+import ch.njol.skript.util.TreeSpecies;
 import ch.njol.util.Kleenean;
 
 /**
@@ -28,26 +28,26 @@ public class EffTree extends Effect {
 	
 	static {
 		Skript.registerEffect(EffTree.class,
-				"(grow|create|generate) tree [of type %structuretype%] %directions% %locations%",
-				"(grow|create|generate) %structuretype% %directions% %locations%");
+				"(grow|create|generate) tree [of type %treetype%] %directions% %locations%",
+				"(grow|create|generate) %treetype% %directions% %locations%");
 	}
 	
 	@SuppressWarnings("null")
 	private Expression<Location> blocks;
 	@SuppressWarnings("null")
-	private Expression<StructureType> type;
+	private Expression<TreeSpecies> type;
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
-		type = (Expression<StructureType>) exprs[0];
+		type = (Expression<TreeSpecies>) exprs[0];
 		blocks = Direction.combine((Expression<? extends Direction>) exprs[1], (Expression<? extends Location>) exprs[2]);
 		return true;
 	}
 	
 	@Override
 	public void execute(final Event e) {
-		final StructureType type = this.type.getSingle(e);
+		final TreeSpecies type = this.type.getSingle(e);
 		if (type == null)
 			return;
 		for (final Location l : blocks.getArray(e)) {
