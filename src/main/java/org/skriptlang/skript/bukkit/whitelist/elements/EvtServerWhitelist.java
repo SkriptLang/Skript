@@ -13,7 +13,6 @@ import ch.njol.skript.lang.SyntaxStringBuilder;
 public class EvtServerWhitelist extends SkriptEvent {
 
 	private enum EventState {
-
 		ON("on"),
 		OFF("off");
 

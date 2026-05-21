@@ -15,7 +15,7 @@ import ch.njol.util.Kleenean;
 
 @Name("Will Be Whitelisted")
 @Description("Checks whether the server or a player will be whitelisted in a <a href='events.html#whitelist'>whitelist</a> event.")
-@Keywords("server, player")
+@Keywords({"server", "player"})
 @Example("""
 	on server whitelist:
 		send "Server whitelist has been set to %whether server will be whitelisted%" to all ops

@@ -16,7 +16,6 @@ import ch.njol.skript.registrations.EventValues;
 public class EvtPlayerWhitelist extends SkriptEvent {
 
 	private enum EventState {
-
 		WHITELISTED("whitelisted"),
 		UNWHITELISTED("unwhitelisted");
 
