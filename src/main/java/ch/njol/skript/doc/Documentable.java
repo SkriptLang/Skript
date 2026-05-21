@@ -17,7 +17,7 @@ public interface Documentable {
 		if (this instanceof org.skriptlang.skript.docs.DocumentationDocumentable documentable) {
 			return documentable.documentation();
 		}
-		throw new IllegalStateException("Missing override of Documentable method");
+		throw new IllegalStateException("This Documentable is not a DocumentationDocumentable, meaning documentation methods must be overridden");
 	}
 
 	/**

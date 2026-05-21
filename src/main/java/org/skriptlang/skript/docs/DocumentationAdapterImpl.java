@@ -24,12 +24,11 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 
 	private record Scope(String name, Map<String, Object> values) { }
 
+	private final Deque<Scope> scopes = new ArrayDeque<>();
+	private final Map<Documentable, String> idMap = new HashMap<>();
+
 	private final SkriptAddon addon;
 	private final BiConsumer<DocumentationAdapter, Documentable> writeHandler;
-
-	private final Deque<Scope> scopes = new ArrayDeque<>();
-
-	private final Map<Documentable, String> idMap = new HashMap<>();
 
 	DocumentationAdapterImpl(SkriptAddon addon, boolean generate) {
 		this(addon, (a, b) -> { }, generate);
@@ -66,8 +65,6 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 
 	@Override
 	public void write(String key, Object value) {
-		value = adapt(value);
-
 		if (value instanceof Documentable documentable) {
 			enterScope(key);
 			write(documentable);
@@ -75,6 +72,7 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 			return;
 		}
 
+		value = adapt(value);
 		scopes.getFirst().values().put(key, value);
 	}
 
@@ -127,6 +125,13 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 	}
 
 	private Object resolveReferences(Object value) {
+		/*
+		 * The goal of this method is to resolve any references within the data map.
+		 * We have to do this at the end, once everything has been written, as a reference to an object may have been
+		 *  created before that object was written.
+		 * This method approaches this problem by recursively walking the entire data map and its data structures.
+		 * When it encounters a reference, it simply replaces it with the relevant ID from the ID map.
+		 */
 		return switch (value) {
 			case Reference reference -> {
 				var builder = ImmutableMap.builder();
@@ -148,15 +153,27 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 				.stream()
 				.collect(Collectors.toMap(Map.Entry::getKey,
 					entry -> resolveReferences(entry.getValue()),
-					(oldValue, newValue) -> newValue,
+					(ignored, newValue) -> newValue,
 					LinkedHashMap::new));
 			case null, default -> value;
 		};
 	}
 
 	private Object adapt(Object value) {
+		/*
+		 * The goal of this method is to convert certain types of Objects before they are written.
+		 * For example, Class objects are converted into ClassInfo references
+		 */
 		return switch (value) {
-			case Class<?> clazz -> {
+			case Documentable documentable -> { // we break down Documentable objects into data maps
+				var adapter = new DocumentationAdapterImpl(addon, false);
+				adapter.write(documentable);
+				// may be relevant to copy over
+				this.idMap.putAll(adapter.idMap);
+				//noinspection DataFlowIssue - don't calling dataMap to avoid reference resolution
+				yield adapter.scopes.peek().values();
+			}
+			case Class<?> clazz -> { // we convert Class objects into ClassInfo references
 				ClassInfo<?> classInfo = Classes.getSuperClassInfo(Utils.getComponentType(clazz));
 				if (Documentation.isNoDocs(classInfo.documentation())) {
 					// try to use docs for superclass
@@ -179,39 +196,28 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 				yield reference(classInfo);
 			}
 			case Collection<?> collection -> collection.stream()
-				.map(element -> {
-					Object adapted = adapt(element);
-					if (adapted instanceof Documentable documentable) {
-						var adapter = new DocumentationAdapterImpl(addon, false);
-						adapter.write(documentable);
-						// may be relevant to copy over
-						this.idMap.putAll(adapter.idMap);
-						//noinspection DataFlowIssue - don't calling dataMap to avoid reference resolution
-						adapted = adapter.scopes.peek().values();
-					}
-					return adapted;
-				})
+				.map(this::adapt)
 				.toList();
 			case Map<?, ?> map -> map.entrySet()
 				.stream()
-				.collect(Collectors.toMap(Map.Entry::getKey, entry -> {
-					Object adapted = adapt(entry.getValue());
-					if (adapted instanceof Documentable documentable) {
-						var adapter = new DocumentationAdapterImpl(addon, false);
-						adapter.write(documentable);
-						// may be relevant to copy over
-						this.idMap.putAll(adapter.idMap);
-						//noinspection DataFlowIssue - don't calling dataMap to avoid reference resolution
-						adapted = adapter.scopes.peek().values();
-					}
-					return adapted;
-				}, (oldValue, newValue) -> newValue, LinkedHashMap::new));
+				.collect(Collectors.toMap(Map.Entry::getKey,
+					entry -> adapt(entry.getValue()),
+					(ignored, newValue) -> newValue,
+					LinkedHashMap::new));
 			case null, default -> value;
 		};
 	}
 
 	private Object filter(Object value) {
-		// TODO this is not a good approach
+		/*
+		 * The goal of this method is to remove any documentation that is not part of the addon this adapter is extracting for.
+		 * We save this step for last so that references can be resolved.
+		 * For example, if we are generating for an addon, we still want references to Skript types to work.
+		 * This method approaches this problem by recursively walking the entire data map and its data structures.
+		 * When it encounters a scope containing an origin entry, if that origin does not align with the addon for this adapter,
+		 *  the scope is removed.
+		 * TODO an alternative approach is likely ideal.
+		 */
 		return switch (value) {
 			case Collection<?> collection -> collection.stream()
 				.map(this::filter)
@@ -224,6 +230,7 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 						yield null;
 					}
 				}
+				// rebuild the map
 				yield map.entrySet()
 					.stream()
 					.map(entry -> {
@@ -236,7 +243,7 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 					.filter(Objects::nonNull)
 					.collect(Collectors.toMap(Map.Entry::getKey,
 						Map.Entry::getValue,
-						(oldValue, newValue) -> newValue,
+						(ignored, newValue) -> newValue,
 						LinkedHashMap::new));
 			}
 			case null, default -> value;

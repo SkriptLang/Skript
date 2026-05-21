@@ -228,6 +228,7 @@ public interface Documentation extends Documentable {
 	 * Converts this documentation back into a builder.
 	 * @return A builder capable of building this documentation.
 	 */
+	@Contract("-> new")
 	Builder<?> toBuilder();
 
 	@Override

@@ -25,6 +25,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.docs.DocumentationAdapter;
+import org.skriptlang.skript.docs.DocumentationGenerator.AddonInfo;
 import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
@@ -43,7 +45,9 @@ import java.util.Map.Entry;
 
 /**
  * Generates JSON docs
+ * @deprecated Use {@link org.skriptlang.skript.docs.DocumentationGenerator#json(SkriptAddon, AddonInfo, DocumentationAdapter)}.
  */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class JSONGenerator {
 
 	/**
