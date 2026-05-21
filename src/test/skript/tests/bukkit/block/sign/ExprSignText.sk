@@ -1,0 +1,22 @@
+using error catching
+
+test "ExprSignText":
+	# test setting/getting
+	set {_old_block} to event-block
+	set {_old_block_below} to block below event-block
+	set block below event-block to dirt
+	set block at event-block to oak sign
+
+	loop 4 times:
+		set line loop-number of event-block to "%loop-number%"
+		assert line loop-number of event-block is "%loop-number%" with "setting line %loop-number% did not work"
+
+	set block at event-block to {_old_block}
+	set block below event-block to {_old_block_below}
+
+	# test invalid line for get/set
+	catch runtime errors:
+		set {_x} to line 0 of {_sign}
+		set line 5 of {_sign} to "5"
+	assert last caught runtime errors contains "Signs only have lines from 1 to 4, but tried to obtain line 0"
+	assert last caught runtime errors contains "Signs only have lines from 1 to 4, but tried to obtain line 5"
