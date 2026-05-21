@@ -63,12 +63,17 @@ public class CondWillBeWhitelisted extends Condition {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return new SyntaxStringBuilder(event, debug)
-			.append("the")
-			.append(isServer ? "server" : "player")
-			.append(isNegated() ? "will not" : "will")
-			.append("be whitelisted")
-			.toString();
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+		builder.append("the");
+		if (isServer)
+			builder.append("server");
+		else
+			builder.append("player");
+		builder.append("will");
+		if (isNegated())
+			builder.append("not");
+		builder.append("be whitelisted");
+		return builder.toString();
 	}
 
 }
