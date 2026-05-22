@@ -111,7 +111,7 @@ public class StructFunction extends Structure {
 
 		// parse signature
 		getParser().setCurrentEvent((local ? "local " : "") + "function", FunctionEvent.class);
-		signature = FunctionParser.parse(
+		signature = (Signature<?>) FunctionParser.parse(
 				getParser().getCurrentScript().getConfig().getFileName(),
 				matcher.group("name"), matcher.group("args"), matcher.group("returns"), local
 		);
@@ -121,46 +121,15 @@ public class StructFunction extends Structure {
 		return signature != null && registerSignature(signature) != null;
 	}
 
-	private static @Nullable Signature<?> registerSignature(Signature<?> signature) {
-		Retrieval<Signature<?>> existing;
-		Parameter<?>[] parameters = signature.parameters().all();
-
-		if (parameters.length == 1 && !parameters[0].isSingle()) {
-			existing = FunctionRegistry.getRegistry().getExactSignature(signature.namespace(), signature.getName(), parameters[0].type().arrayType());
-		} else {
-			Class<?>[] types = new Class<?>[parameters.length];
-			for (int i = 0; i < parameters.length; i++) {
-				types[i] = parameters[i].type();
-			}
-
-			existing = FunctionRegistry.getRegistry().getExactSignature(signature.namespace(), signature.getName(), types);
-		}
-
-		// if this function has already been registered, only allow it if one function is local and one is global.
-		// if both are global or both are local, disallow.
-		if (existing.result() == RetrievalResult.EXACT && existing.retrieved().hasModifier(Modifier.LOCAL) == signature.isLocal()) {
-			StringBuilder error = new StringBuilder();
-
-			if (existing.retrieved().hasModifier(Modifier.LOCAL)) {
-				error.append("Local function ");
+	private static Signature<?> registerSignature(Signature<?> signature) {
+		try {
+			if (signature.isLocal()) {
+				ch.njol.skript.lang.function.FunctionRegistry.getRegistry().register(signature.namespace(), signature);
 			} else {
-				error.append("Function ");
+				ch.njol.skript.lang.function.FunctionRegistry.getRegistry().register(signature);
 			}
-			error.append("'%s' with the same argument types already exists".formatted(signature.getName()));
-			if (existing.retrieved().namespace() != null) {
-				error.append(" in script '%s'.".formatted(existing.retrieved().namespace()));
-			} else {
-				error.append(".");
-			}
-
-			Skript.error(error.toString());
-			return null;
-		}
-
-		if (signature.isLocal()) {
-			ch.njol.skript.lang.function.FunctionRegistry.getRegistry().register(signature.namespace(), signature);
-		} else {
-			ch.njol.skript.lang.function.FunctionRegistry.getRegistry().register(null, signature);
+		} catch (SkriptAPIException ex) {
+			Skript.error(ex.getMessage());
 		}
 
 		return signature;

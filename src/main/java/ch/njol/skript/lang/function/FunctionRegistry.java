@@ -162,10 +162,50 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 		if (!signature.hasModifier(Signature.Modifier.LOCAL)) {
 			throw new IllegalArgumentException("Cannot register a global signature in a local namespace");
 		}
+
 		register0(new NamespaceIdentifier(namespace), signature);
 	}
 
 	private void register0(@NotNull NamespaceIdentifier namespace, @NotNull Signature<?> signature) {
+		Preconditions.checkArgument(FUNCTION_NAME_PATTERN.matcher(signature.name()).matches(),
+				"Invalid signature name '%s'".formatted(signature.name()));
+
+		Retrieval<org.skriptlang.skript.common.function.Signature<?>> existing;
+		Parameter<?>[] parameters = signature.parameters().all();
+
+		if (parameters.length == 1 && !parameters[0].isSingle()) {
+			existing = getExactSignature(signature.namespace(), signature.name(), parameters[0].type().arrayType());
+		} else {
+			Class<?>[] types = new Class<?>[parameters.length];
+			for (int i = 0; i < parameters.length; i++) {
+				types[i] = parameters[i].type();
+			}
+
+			existing = getExactSignature(signature.namespace(), signature.name(), types);
+		}
+
+		// if this function has already been registered, only allow it if one function is local and one is global.
+		// if both are global or both are local, disallow.
+		if (existing.result() == RetrievalResult.EXACT && existing.retrieved().hasModifier(Signature.Modifier.LOCAL) == signature.hasModifier(Signature.Modifier.LOCAL)) {
+			StringBuilder error = new StringBuilder();
+
+			if (existing.retrieved().hasModifier(Signature.Modifier.LOCAL)) {
+				error.append("Local function ");
+			} else {
+				error.append("Function ");
+			}
+			error.append("'%s' with the same argument types already exists".formatted(signature.name()));
+			if (existing.retrieved().namespace() != null) {
+				error.append(" in script '%s'.".formatted(existing.retrieved().namespace()));
+			} else {
+				error.append(".");
+			}
+
+			Skript.error(error.toString());
+
+			return;
+		}
+
 		Skript.debug("Registering signature '%s'", signature.name());
 
 		Namespace ns = namespaces.computeIfAbsent(namespace, n -> new Namespace());
@@ -182,8 +222,7 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 			}
 		}
 
-		Signature<?> existing = ns.signatures.putIfAbsent(identifier, signature);
-		if (existing != null) {
+		if (ns.signatures.putIfAbsent(identifier, signature) != null) {
 			alreadyRegisteredError(signature.name(), identifier, namespace);
 		}
 	}
