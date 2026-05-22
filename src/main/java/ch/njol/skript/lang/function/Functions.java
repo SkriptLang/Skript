@@ -196,7 +196,7 @@ public abstract class Functions {
 		if (signature.isLocal()) {
 			FunctionRegistry.getRegistry().register(signature.namespace(), signature);
 		} else {
-			FunctionRegistry.getRegistry().register(null, signature);
+			FunctionRegistry.getRegistry().register(signature);
 		}
 
 		Skript.debug("Registered function signature: " + signature.getName());

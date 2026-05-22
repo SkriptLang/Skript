@@ -149,30 +149,26 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 
 	@Override
 	public void register(@NotNull Signature<?> signature) {
-		register(null, signature);
+		Preconditions.checkNotNull(signature, "signature cannot be null");
+		if (signature.hasModifier(Signature.Modifier.LOCAL)) {
+			throw new IllegalArgumentException("Cannot register a local signature in the global namespace");
+		}
+		register0(GLOBAL_NAMESPACE, signature);
 	}
 
 	@Override
-	public void register(@Nullable String namespace, @NotNull Signature<?> signature) {
+	public void register(@NotNull String namespace, @NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature cannot be null");
-		if (signature.hasModifier(Signature.Modifier.LOCAL) && namespace == null) {
-			throw new IllegalArgumentException("Cannot register a local signature in the global namespace");
-		}
-		if (!signature.hasModifier(Signature.Modifier.LOCAL) && namespace != null) {
+		if (!signature.hasModifier(Signature.Modifier.LOCAL)) {
 			throw new IllegalArgumentException("Cannot register a global signature in a local namespace");
 		}
+		register0(new NamespaceIdentifier(namespace), signature);
+	}
 
+	private void register0(@NotNull NamespaceIdentifier namespace, @NotNull Signature<?> signature) {
 		Skript.debug("Registering signature '%s'", signature.name());
 
-		// namespace
-		NamespaceIdentifier namespaceId;
-		if (namespace != null) {
-			namespaceId = new NamespaceIdentifier(namespace);
-		} else {
-			namespaceId = GLOBAL_NAMESPACE;
-		}
-
-		Namespace ns = namespaces.computeIfAbsent(namespaceId, n -> new Namespace());
+		Namespace ns = namespaces.computeIfAbsent(namespace, n -> new Namespace());
 		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
 		// register
@@ -182,13 +178,13 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 			Set<FunctionIdentifier> identifiersWithName = ns.identifiers.computeIfAbsent(identifier.name, s -> new HashSet<>());
 			boolean exists = identifiersWithName.add(identifier);
 			if (!exists) {
-				alreadyRegisteredError(signature.name(), identifier, namespaceId);
+				alreadyRegisteredError(signature.name(), identifier, namespace);
 			}
 		}
 
 		Signature<?> existing = ns.signatures.putIfAbsent(identifier, signature);
 		if (existing != null) {
-			alreadyRegisteredError(signature.name(), identifier, namespaceId);
+			alreadyRegisteredError(signature.name(), identifier, namespace);
 		}
 	}
 
