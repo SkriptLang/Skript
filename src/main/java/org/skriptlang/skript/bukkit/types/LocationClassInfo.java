@@ -126,13 +126,13 @@ public class LocationClassInfo extends ClassInfo<Location> {
 
 		@Override
 		public String toString(Location loc, int flags) {
-			String worldPart = loc.getWorld() == null ? "" : " in '" + loc.getWorld().getName() + "'"; // Safety: getWorld is marked as Nullable by spigot
+			String worldPart = loc.getWorld() == null ? "" : " in '" + loc.getWorld().getName() + "'"; // Safety: getWorld is marked as Nullable by Paper
 			return "x: " + Skript.toString(loc.getX()) + ", y: " + Skript.toString(loc.getY()) + ", z: " + Skript.toString(loc.getZ()) + ", yaw: " + Skript.toString(loc.getYaw()) + ", pitch: " + Skript.toString(loc.getPitch()) + worldPart;
 		}
 
 		@Override
 		public String toVariableNameString(Location loc) {
-			String worldPart = loc.getWorld() == null ? "" : loc.getWorld().getName() + ":"; // Safety: getWorld is marked as Nullable by spigot
+			String worldPart = loc.getWorld() == null ? "" : loc.getWorld().getName() + ":"; // Safety: getWorld is marked as Nullable by Paper
 			return worldPart + loc.getX() + "," + loc.getY() + "," + loc.getZ();
 		}
 
