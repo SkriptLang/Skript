@@ -132,7 +132,8 @@ public class LocationClassInfo extends ClassInfo<Location> {
 
 		@Override
 		public String toVariableNameString(Location loc) {
-			return loc.getWorld().getName() + ":" + loc.getX() + "," + loc.getY() + "," + loc.getZ();
+			String worldPart = loc.getWorld() == null ? "" : loc.getWorld().getName() + ":"; // Safety: getWorld is marked as Nullable by spigot
+			return worldPart + loc.getX() + "," + loc.getY() + "," + loc.getZ();
 		}
 
 		@Override
