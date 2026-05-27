@@ -3,6 +3,7 @@ package org.skriptlang.skript.docs;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
@@ -44,6 +45,7 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 			write(Skript.experiments());
 			write(FunctionRegistry.getRegistry());
 			write(addon.registry(PropertyRegistry.class));
+			EntityData.write(this);
 		}
 	}
 
