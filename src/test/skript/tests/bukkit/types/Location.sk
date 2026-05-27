@@ -1,0 +1,24 @@
+test "Location ClassInfo":
+	set {_loc} to location(1,1,1, world("world"))
+	assert {_loc} is set with "Location variable should be set"
+
+	set {_string} to "%{_loc}%"
+	assert {_string} is set with "Location should be converted to string"
+	assert {_string} = "x: 1, y: 1, z: 1, yaw: 0, pitch: 0 in 'world'" with "Location should properly be converted to string"
+
+	set {_var::%{_loc}%} to 1
+	assert {_var::%{_loc}%} is set with "Location should be able to be used in a variable as an index"
+
+	delete {_loc}
+	delete {_string}
+
+	set {_loc} to location(1,1,1, {_null_world})
+	assert {_loc} is set with "Location variable should be set"
+
+	set {_string} to "%{_loc}%"
+	assert {_string} is set with "Location should be converted to string"
+	assert {_string} = "x: 1, y: 1, z: 1, yaw: 0, pitch: 0" with "Location should properly be converted to string"
+
+	set {_var::%{_loc}%} to 1
+	# Reference issue 8661
+	assert {_var::%{_loc}%} is set with "Location without a world should be able to be used in a variable as an index"

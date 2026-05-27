@@ -23,6 +23,7 @@ import org.bukkit.inventory.meta.MusicInstrumentMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 import java.io.IOException;
 import java.io.NotSerializableException;
@@ -242,8 +243,10 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		StringBuilder builder = new StringBuilder(Aliases.getMaterialName(this, plural));
 		ItemMeta meta = stack != null ? stack.getItemMeta() : null;
 		if (meta != null && meta.hasDisplayName()) {
-			builder.append(" ").append(m_named).append(" ");
-			builder.append(meta.getDisplayName());
+			builder.append(" ")
+				.append(m_named)
+				.append(" ")
+				.append(TextComponentParser.instance().toString(meta.displayName()));
 		}
 		return builder.toString();
 	}
