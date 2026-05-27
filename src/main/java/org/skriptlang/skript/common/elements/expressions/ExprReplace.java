@@ -72,15 +72,11 @@ public class ExprReplace extends SimpleExpression<String> {
 		needleExpr = (Expression<String>) expr[1];
 		replacementExpr = (Expression<String>) expr[2];
 
-		if (matchedPattern == 1 || parseResult.hasTag("regex")) {
-			isRegex = true;
-		}
+		isRegex = matchedPattern == 1 || parseResult.hasTag("regex");
 
 		isFirst = parseResult.hasTag("first");
 
-		if (SkriptConfig.caseSensitive.value() || parseResult.hasTag("case")) {
-			isCaseSensitive = true;
-		}
+		isCaseSensitive = SkriptConfig.caseSensitive.value() || parseResult.hasTag("case");
 		return true;
 	}
 
@@ -147,15 +143,12 @@ public class ExprReplace extends SimpleExpression<String> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-
-		builder.append("replace");
-		builder.appendIf(isFirst,"first");
-		builder.append(needleExpr, "in", haystackExpr, "with", replacementExpr);
-		builder.appendIf(isRegex, "using regex");
-		builder.appendIf(isCaseSensitive, "with case sensitivity");
-
-		return builder.toString();
+		return new SyntaxStringBuilder(event, debug)
+			.append("replace")
+			.appendIf(isFirst, "first")
+			.append(needleExpr, "in", haystackExpr, "with", replacementExpr)
+			.appendIf(isRegex, "using regex")
+			.appendIf(isCaseSensitive, "with case sensitivity");
 	}
 
 }
