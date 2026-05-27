@@ -148,7 +148,8 @@ public class ExprReplace extends SimpleExpression<String> {
 			.appendIf(isFirst, "first")
 			.append(needleExpr, "in", haystackExpr, "with", replacementExpr)
 			.appendIf(isRegex, "using regex")
-			.appendIf(isCaseSensitive, "with case sensitivity");
+			.appendIf(isCaseSensitive, "with case sensitivity")
+			.toString();
 	}
 
 }
