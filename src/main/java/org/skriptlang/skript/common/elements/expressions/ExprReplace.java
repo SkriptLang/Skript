@@ -62,8 +62,8 @@ public class ExprReplace extends SimpleExpression<String> {
 	private Expression<String> replacementExpr;
 
 	private boolean isFirst;
-	private boolean isRegex = false;
-	private boolean isCaseSensitive = false;
+	private boolean isRegex;
+	private boolean isCaseSensitive;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -73,9 +73,7 @@ public class ExprReplace extends SimpleExpression<String> {
 		replacementExpr = (Expression<String>) expr[2];
 
 		isRegex = matchedPattern == 1 || parseResult.hasTag("regex");
-
 		isFirst = parseResult.hasTag("first");
-
 		isCaseSensitive = SkriptConfig.caseSensitive.value() || parseResult.hasTag("case");
 		return true;
 	}
