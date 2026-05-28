@@ -136,7 +136,10 @@ public class EnchantmentModule extends HierarchicalAddonModule {
 			ExprEnchantments::register,
 			ExprEnchantingExpCost::register,
 			ExprEnchantItem::register,
-			ExprItemWithEnchantmentGlint::register
+			ExprItemWithEnchantmentGlint::register,
+			ExprMaximumEnchantmentLevel::register,
+			ExprMinimumEnchantmentLevel::register,
+			ExprStoredEnchantments::register
 		);
 	}
 
