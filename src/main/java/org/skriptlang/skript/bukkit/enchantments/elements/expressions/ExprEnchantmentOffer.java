@@ -119,32 +119,21 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta == null && mode != ChangeMode.DELETE)
 			return;
-		EnchantmentType et = mode != ChangeMode.DELETE ? (EnchantmentType) delta[0] : null;
+		EnchantmentType type = mode != ChangeMode.DELETE ? (EnchantmentType) delta[0] : null;
 		if (event instanceof PrepareItemEnchantEvent prepareEvent) {
 			switch (mode) {
 				case SET:
-					if (all) {
-						for (int i = 0; i <= 2; i++) {
-							EnchantmentOffer offer = prepareEvent.getOffers()[i];
-							if (offer == null) {
-								offer = new EnchantmentOffer(et.getType(), et.getLevel(), getCost(i + 1, prepareEvent.getEnchantmentBonus()));
-								prepareEvent.getOffers()[i] = offer;
-							} else {
-								offer.setEnchantment(et.getType());
-								offer.setEnchantmentLevel(et.getLevel());
-							}
-						}
-					} else {
-						for (Number index : exprOfferNumber.getArray(prepareEvent)) {
-							int slot = index.intValue() - 1;
-							EnchantmentOffer offer = prepareEvent.getOffers()[slot];
-							if (offer == null) {
-								offer = new EnchantmentOffer(et.getType(), et.getLevel(), getCost(slot + 1, prepareEvent.getEnchantmentBonus()));
-								prepareEvent.getOffers()[slot] = offer;
-							} else {
-								offer.setEnchantment(et.getType());
-								offer.setEnchantmentLevel(et.getLevel());
-							}
+					assert type != null;
+					final Number[] indices = all ? new Number[]{0, 1, 2} : exprOfferNumber.getArray(prepareEvent);
+					for (Number index : indices) {
+						int slot = index.intValue() - 1;
+						EnchantmentOffer offer = prepareEvent.getOffers()[slot];
+						if (offer == null) {
+							offer = new EnchantmentOffer(type.getType(), type.getLevel(), getCost(slot + 1, prepareEvent.getEnchantmentBonus()));
+							prepareEvent.getOffers()[slot] = offer;
+						} else {
+							offer.setEnchantment(type.getType());
+							offer.setEnchantmentLevel(type.getLevel());
 						}
 					}
 					break;
