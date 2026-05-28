@@ -16,6 +16,8 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Enforce Whitelist")
 @Description({
@@ -39,8 +41,14 @@ public class EffEnforceWhitelist extends Effect {
 		// Based on https://github.com/PaperMC/Paper/blob/bd74bf6581ce81e59bdab07eadbfbe5d485eefa7/paper-server/src/main/java/org/spigotmc/SpigotConfig.java#L161
 		NOT_WHITELISTED_MESSAGE = LegacyComponentSerializer.legacyAmpersand()
 			.deserialize(whitelistMessage.replaceAll("\\\\n", "\n"));
+	}
 
-		Skript.registerEffect(EffEnforceWhitelist.class, "[:un]enforce [the] [server] white[ ]list");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EFFECT,
+			SyntaxInfo.builder(EffEnforceWhitelist.class)
+				.addPattern("[:un]enforce [the] [server] white[ ]list")
+				.build()
+		);
 	}
 
 	private boolean enforce;

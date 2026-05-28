@@ -4,11 +4,12 @@ import com.destroystokyo.paper.event.server.WhitelistToggleEvent;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class EvtServerWhitelist extends SkriptEvent {
 
@@ -29,18 +30,27 @@ public class EvtServerWhitelist extends SkriptEvent {
 
 	}
 
-	static {
-		Skript.registerEvent("Whitelist Toggled", EvtServerWhitelist.class, WhitelistToggleEvent.class, "whitelist toggle[d] [:on|:off]")
-			.description(
-				"Called whenever the server's whitelist has been toggled on or off.",
-				"Use <a href='conditions.html#CondWillBeWhitelisted'>will be whitelisted</a> condition to check with its state.")
-			.examples(
-				"on whitelist toggled on:",
-				"on whitelist toggled off:",
-				"",
-				"on whitelist toggled:",
-					"\tsend \"Server whitelist has been set to %whether server will be whitelisted%\" to all ops")
-			.since("INSERT VERSION");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(BukkitSyntaxInfos.Event.KEY,
+				BukkitSyntaxInfos.Event.builder(EvtServerWhitelist.class, "Whitelist Toggled")
+					.addEvent(WhitelistToggleEvent.class)
+					.addPatterns(
+						"player whitelist [state] (change[d]|update[d])",
+						"player (added to whitelist|whitelist[ed])",
+						"player (removed from whitelist|unwhitelist[ed])"
+					)
+					.addDescription(
+						"Called whenever the server's whitelist has been toggled on or off.",
+						"Use <a href='conditions.html#CondWillBeWhitelisted'>will be whitelisted</a> condition to check with its state.")
+					.addExamples(
+						"on whitelist toggled on:",
+						"on whitelist toggled off:",
+						"",
+						"on whitelist toggled:",
+							"\tsend \"Server whitelist has been set to %whether server will be whitelisted%\" to all ops")
+					.addSince("INSERT VERSION")
+					.build()
+		);
 	}
 
 	private @Nullable EventState state = null;

@@ -12,6 +12,8 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Will Be Whitelisted")
 @Description("Checks whether the server or a player will be whitelisted in a <a href='events.html#whitelist'>whitelist</a> event.")
@@ -27,10 +29,14 @@ import ch.njol.util.Kleenean;
 @Since("INSERT VERSION")
 public class CondWillBeWhitelisted extends Condition {
 
-	static {
-		Skript.registerCondition(CondWillBeWhitelisted.class,
-			"[the] (:player|server) will be whitelisted",
-			"[the] (:player|server) (will not|won't) be whitelisted"
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.CONDITION,
+			SyntaxInfo.builder(CondWillBeWhitelisted.class)
+				.addPatterns(
+					"[the] (:player|server) will be whitelisted",
+					"[the] (:player|server) (will not|won't) be whitelisted"
+				)
+				.build()
 		);
 	}
 

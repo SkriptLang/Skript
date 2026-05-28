@@ -12,6 +12,11 @@ import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.registrations.EventValues;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class EvtPlayerWhitelist extends SkriptEvent {
 
@@ -32,23 +37,30 @@ public class EvtPlayerWhitelist extends SkriptEvent {
 
 	}
 
-	static {
-		Skript.registerEvent("Player Whitelist", EvtPlayerWhitelist.class, WhitelistStateUpdateEvent.class,
-				"player whitelist [state] (change[d]|update[d])",
-				"player (added to whitelist|whitelist[ed])",
-				"player (removed from whitelist|unwhitelist[ed])")
-			.description(
-				"Called whenever a player has been added to or removed from the server's whitelist.",
-				"Use <a href='conditions.html#CondWillBeWhitelisted'>will be whitelisted</a> condition to check with its state.")
-			.examples(
-				"on player whitelisted:",
-				"on player unwhitelisted:",
-				"",
-				"on player whitelist state changed:",
-					"\tsend \"Whitelist of player %event-offlineplayer% has been set to %whether server will be whitelisted%\" to all ops")
-			.since("INSERT VERSION");
-
-		EventValues.registerEventValue(WhitelistStateUpdateEvent.class, OfflinePlayer.class, WhitelistStateUpdateEvent::getPlayer);
+	public static void register(SyntaxRegistry registry) {
+		registry.register(BukkitSyntaxInfos.Event.KEY,
+				BukkitSyntaxInfos.Event.builder(EvtPlayerWhitelist.class, "Player Whitelist")
+					.addEvent(WhitelistStateUpdateEvent.class)
+					.addPatterns(
+						"player whitelist [state] (change[d]|update[d])",
+						"player (added to whitelist|whitelist[ed])",
+						"player (removed from whitelist|unwhitelist[ed])"
+					)
+					.addDescription(
+						"Called whenever a player has been added to or removed from the server's whitelist.",
+						"Use <a href='conditions.html#CondWillBeWhitelisted'>will be whitelisted</a> condition to check with its state.")
+					.addExamples(
+						"on player whitelisted:",
+						"on player unwhitelisted:",
+						"",
+						"on player whitelist state changed:",
+							"\tsend \"Whitelist of player %event-offlineplayer% has been set to %whether server will be whitelisted%\" to all ops")
+					.addSince("INSERT VERSION")
+					.build()
+		);
+		Skript.instance().registry(EventValueRegistry.class).register(
+			EventValue.simple(WhitelistStateUpdateEvent.class, OfflinePlayer.class, WhitelistStateUpdateEvent::getPlayer)
+		);
 	}
 
 	private @Nullable EventState state = null;

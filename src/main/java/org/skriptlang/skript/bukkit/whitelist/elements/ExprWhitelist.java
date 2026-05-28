@@ -17,6 +17,10 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.registration.DefaultSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.util.Priority;
 
 @Name("Whitelist")
 @Description({
@@ -30,8 +34,13 @@ import ch.njol.util.coll.CollectionUtils;
 @Since("2.5.2, 2.9.0 (delete)")
 public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 
-	static {
-		Skript.registerExpression(ExprWhitelist.class, OfflinePlayer.class, ExpressionType.SIMPLE, "[the] white[ ]list");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprWhitelist.class, OfflinePlayer.class)
+				.addPattern("[the] white[ ]list")
+				.priority(Priority.base())
+				.build()
+		);
 	}
 
 	@Override

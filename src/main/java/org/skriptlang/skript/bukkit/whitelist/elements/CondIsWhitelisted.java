@@ -12,6 +12,8 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Is Whitelisted")
 @Description("Whether or not the server or a player is whitelisted, or the server is whitelist enforced.")
@@ -21,11 +23,16 @@ import ch.njol.util.Kleenean;
 @Since("2.5.2, 2.9.0 (enforce, offline players)")
 public class CondIsWhitelisted extends Condition {
 
-	static {
-		Skript.registerCondition(CondIsWhitelisted.class,
-			"[the] server (is|not:(isn't|is not)) (in white[ ]list mode|white[ ]listed)",
-			"%offlineplayers% (is|are|not:(isn't|is not|aren't|are not)) white[ ]listed",
-			"[the] server white[ ]list (is|not:(isn't|is not)) enforced");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.CONDITION,
+			SyntaxInfo.builder(CondIsWhitelisted.class)
+				.addPatterns(
+					"[the] server (is|not:(isn't|is not)) (in white[ ]list mode|white[ ]listed)",
+					"%offlineplayers% (is|are|not:(isn't|is not|aren't|are not)) white[ ]listed",
+					"[the] server white[ ]list (is|not:(isn't|is not)) enforced"
+				)
+				.build()
+		);
 	}
 
 	private Expression<OfflinePlayer> players;
