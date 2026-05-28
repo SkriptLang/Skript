@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -17,10 +17,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Knockback")
 @Description("Apply the same velocity as a knockback to living entities in a direction. Mechanics such as knockback resistance will be factored in.")
-@Examples({
-	"knockback player north",
-	"knock victim (vector from attacker to victim) with strength 10"
-})
+@Example("knockback player north")
+@Example("knock victim (vector from attacker to victim) with strength 10")
 @Since("2.7")
 public class EffKnockback extends Effect {
 

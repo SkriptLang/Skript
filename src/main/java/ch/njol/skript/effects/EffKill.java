@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.DamageUtils;
 import ch.njol.skript.bukkitutil.HealthUtils;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -21,11 +21,9 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Kill")
 @Description("Kills an entity.")
-@Examples({
-	"kill the player",
-	"kill all creepers in the player's world",
-	"kill all endermen, witches and bats"
-})
+@Example("kill the player")
+@Example("kill all creepers in the player's world")
+@Example("kill all endermen, witches and bats")
 @Since("1.0, 2.10 (ignoring totem of undying)")
 public class EffKill extends Effect {
 
@@ -54,7 +52,7 @@ public class EffKill extends Effect {
 			if (entity instanceof Damageable damageable) {
 				if (SUPPORTS_DAMAGE_SOURCE) {
 					EntityDamageEvent.DamageCause cause = EntityDamageEvent.DamageCause.KILL;
-					HealthUtils.damage(damageable, 100 + damageable.getHealth(), DamageUtils.getDamageSourceFromCause(cause));
+					HealthUtils.damage(damageable, Double.POSITIVE_INFINITY, DamageUtils.getDamageSourceFromCause(cause));
 				} else {
 					HealthUtils.setHealth(damageable, 0);
 					HealthUtils.damage(damageable, 1);

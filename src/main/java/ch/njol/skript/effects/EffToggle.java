@@ -14,7 +14,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -25,14 +25,16 @@ import ch.njol.util.Kleenean;
 
 @Name("Toggle")
 @Description("Toggle the state of a block or boolean.")
-@Examples({"# use arrows to toggle switches, doors, etc.",
-		"on projectile hit:",
-		"\tprojectile is arrow",
-		"\ttoggle the block at the arrow",
-		"",
-		"# With booleans",
-		"toggle gravity of player"
-})
+@Example("""
+	# use arrows to toggle switches, doors, etc.
+	on projectile hit:
+		projectile is arrow
+		toggle the block at the arrow
+	""")
+@Example("""
+	# With booleans
+	toggle gravity of player
+	""")
 @Since("1.4, 2.12 (booleans)")
 public class EffToggle extends Effect {
 

@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -18,12 +18,12 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Repeat String")
 @Description("Repeats inputted strings a given amount of times.")
-@Examples({
-	"broadcast nl and nl repeated 200 times",
-	"broadcast \"Hello World \" repeated 5 times",
-	"if \"aa\" repeated 2 times is \"aaaa\":",
-		"\tbroadcast \"Ahhhh\" repeated 100 times"
-})
+@Example("""
+	broadcast nl and nl repeated 200 times
+	broadcast "Hello World " repeated 5 times
+	if "aa" repeated 2 times is "aaaa":
+		broadcast "Ahhhh" repeated 100 times
+	""")
 @Since("2.8.0")
 public class ExprRepeat extends SimpleExpression<String> {
 

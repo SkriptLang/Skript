@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import org.bukkit.event.Event;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
@@ -10,7 +11,7 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -24,13 +25,17 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Enchant Item")
 @Description({"The enchant item in an enchant prepare event or enchant event.",
 				"It can be modified, but enchantments will still be applied in the enchant event."})
-@Examples({"on enchant:",
-			"\tset the enchanted item to a diamond chestplate",
-			"on enchant prepare:",
-			"\tset the enchant item to a wooden sword"})
+@Example("""
+    on enchant:
+    	set the enchanted item to a diamond chestplate
+    """)
+@Example("""
+    on enchant prepare:
+    	set the enchant item to a wooden sword
+    """)
 @Events({"enchant prepare", "enchant"})
 @Since("2.5")
-public class ExprEnchantItem extends SimpleExpression<ItemType> {
+public class ExprEnchantItem extends SimpleExpression<ItemType> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprEnchantItem.class, ItemType.class, ExpressionType.SIMPLE, "[the] enchant[ed] item");
@@ -38,11 +43,12 @@ public class ExprEnchantItem extends SimpleExpression<ItemType> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EnchantItemEvent.class) && !getParser().isCurrentEvent(PrepareItemEnchantEvent.class)) {
-			Skript.error("The enchant item is only usable in an enchant prepare event or enchant event.", ErrorQuality.SEMANTIC_ERROR);
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EnchantItemEvent.class, PrepareItemEnchantEvent.class);
 	}
 
 	@Override

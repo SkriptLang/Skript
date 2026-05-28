@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -9,7 +10,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -22,10 +23,12 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Respawn location")
 @Description("The location that a player should respawn at. This is used within the respawn event.")
-@Examples({"on respawn:",
-	"	set respawn location to {example::spawn}"})
+@Example("""
+	on respawn:
+		set respawn location to {example::spawn}
+	""")
 @Since("2.2-dev35")
-public class ExprRespawnLocation extends SimpleExpression<Location> {
+public class ExprRespawnLocation extends SimpleExpression<Location> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprRespawnLocation.class, Location.class, ExpressionType.SIMPLE, "[the] respawn location");
@@ -33,11 +36,12 @@ public class ExprRespawnLocation extends SimpleExpression<Location> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerRespawnEvent.class)) {
-			Skript.error("The expression 'respawn location' may only be used in the respawn event", ErrorQuality.SEMANTIC_ERROR);
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(PlayerRespawnEvent.class);
 	}
 	
 	@Override

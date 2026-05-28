@@ -5,7 +5,7 @@ import ch.njol.skript.classes.data.DefaultComparators;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
@@ -24,8 +24,8 @@ import java.util.function.Predicate;
 @Name("Is of Type")
 @Description("Checks whether an item or an entity is of the given type. This is mostly useful for variables," +
 	" as you can use the general 'is' condition otherwise (e.g. 'victim is a creeper').")
-@Examples({"tool is of type {selected type}",
-	"victim is of type {villager type}"})
+@Example("tool is of type {selected type}")
+@Example("victim is of type {villager type}")
 @Since("1.4")
 public class CondIsOfType extends Condition {
 

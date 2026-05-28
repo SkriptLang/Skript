@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -26,16 +26,15 @@ import org.jetbrains.annotations.Nullable;
 		+ "non-persistent chicken will become non-persistent. This does not apply to players.",
 	"By default, all entities are persistent."
 })
-@Examples({
-	"prevent all entities from persisting",
-	"force {_leaves} to persist",
-	"",
-	"command /kickcheater <cheater: player>:",
-		"\tpermission: op",
-		"\ttrigger:",
-			"\t\tprevent {_cheater} from persisting",
-			"\t\tkick {_cheater}"
-})
+@Example("prevent all entities from persisting")
+@Example("force {_leaves} to persist")
+@Example("""
+	command /kickcheater <cheater: player>:
+		permission: op
+		trigger:
+			prevent {_cheater} from persisting
+			kick {_cheater}
+	""")
 @Since("2.11")
 public class EffPersistent extends Effect {
 

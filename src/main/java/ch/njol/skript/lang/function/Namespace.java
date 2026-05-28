@@ -147,14 +147,14 @@ public class Namespace {
 	}
 
 	public void addSignature(Signature<?> sign) {
-		Info info = new Info(sign.getName(), sign.local);
+		Info info = new Info(sign.getName(), sign.isLocal());
 		if (signatures.containsKey(info))
 			throw new IllegalArgumentException("function name already used");
 		signatures.put(info, sign);
 	}
 
 	public boolean removeSignature(Signature<?> sign) {
-		Info info = new Info(sign.getName(), sign.local);
+		Info info = new Info(sign.getName(), sign.isLocal());
 		if (signatures.get(info) != sign)
 			return false;
 		signatures.remove(info);
@@ -176,7 +176,7 @@ public class Namespace {
 	}
 
 	public void addFunction(Function<?> func) {
-		Info info = new Info(func.getName(), func.getSignature().local);
+		Info info = new Info(func.getName(), func.getSignature().isLocal());
 		assert signatures.containsKey(info) : "missing signature for function";
 		functions.put(info, func);
 	}

@@ -2,11 +2,12 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Example;
 import org.bukkit.entity.LivingEntity;
 
 @Name("Is Swimming")
 @Description("Checks whether a living entity is swimming.")
-@Examples("player is swimming")
+@Example("player is swimming")
 @Since("2.3")
 public class CondIsSwimming extends PropertyCondition<LivingEntity> {
 	

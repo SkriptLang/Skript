@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -18,11 +18,11 @@ import org.jetbrains.annotations.Nullable;
 	"the bow they're drawing back, etc.). This cannot be changed. " +
 	"If an entity is not using any item, this will return null."
 )
-@Examples({
-	"on damage of player:",
-		"\tif victim's active tool is a bow:",
-			"\t\tinterrupt player's active item use"
-})
+@Example("""
+	on damage of player:
+		if victim's active tool is a bow:
+			interrupt player's active item use
+	""")
 @Since("2.8.0")
 public class ExprActiveItem extends SimplePropertyExpression<LivingEntity, ItemStack> {
 

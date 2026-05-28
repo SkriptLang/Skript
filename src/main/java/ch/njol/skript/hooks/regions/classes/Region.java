@@ -7,6 +7,7 @@ import ch.njol.skript.classes.YggdrasilSerializer;
 import ch.njol.skript.hooks.regions.RegionsPlugin;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.VariableString;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
@@ -78,7 +79,7 @@ public abstract class Region implements YggdrasilExtendedSerializable {
 						return true;
 					}
 				}));
-		Converters.registerConverter(String.class, Region.class, s -> Region.parse(s, false));
+		Converters.registerConverter(String.class, Region.class, s -> Region.parse(s, ParserInstance.get().isActive()));
 	}
 
 	@Nullable
@@ -97,7 +98,7 @@ public abstract class Region implements YggdrasilExtendedSerializable {
 		}
 		if (r == null) {
 			if (error)
-				Skript.error("Region '" + s + "' could not be found");
+				Skript.error("Region '" + s + "' could not be found. Ensure that the region name is correct, in the proper world, and that the region data for that world is loaded.");
 			return null;
 		}
 		return r;

@@ -1,3 +1,11 @@
+test "indices":
+	set {_list::a} to 1
+	set {_list::b} to 2
+	set {_list::c::e} to 3
+	set {_list::c::f} to 4
+	assert size of indices of {_list::*} is 3
+	assert indices of {_list::*} is "a", "b" and "c"
+
 test "sorted indices":
 	assert indices of {single-var} is set to fail with "Should not be able to acquire indices of anything other than a list"
 	assert indices of wooden hoe is set to fail with "Should not be able to acquire indices of anything other than a list"

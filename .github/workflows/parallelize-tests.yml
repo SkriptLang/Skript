@@ -1,0 +1,85 @@
+name: Parallelize Tests
+
+on:
+    workflow_call:
+        inputs:
+            environments:
+                required: true
+                type: string
+            parallel_jobs:
+                required: false
+                type: number
+                default: 2
+            java_version:
+                required: true
+                type: number
+        outputs:
+            matrix:
+                description: "Generated test matrix"
+                value: ${{ jobs.prepare.outputs.matrix }}
+
+jobs:
+    prepare:
+        name: ""
+        runs-on: ubuntu-latest
+        outputs:
+            matrix: ${{ steps.set-matrix.outputs.matrix }}
+        steps:
+            - name: Generate matrix
+              id: set-matrix
+              run: |
+                  # Use environment variables
+                  N=${{ inputs.parallel_jobs }}
+                  JAVA_VERSION=${{ inputs.java_version }}
+                  
+                  # Convert to array and transform
+                  IFS=',' read -ra ENVS <<< "${{ inputs.environments }}"
+                  TRANSFORMED=()
+                  for env in "${ENVS[@]}"; do
+                      TRANSFORMED+=("java${JAVA_VERSION}/paper-${env}")
+                  done
+                  
+                  TOTAL=${#TRANSFORMED[@]}
+                  
+                  # avoid creating more jobs than needed
+                  JOBS=$((TOTAL < N ? TOTAL : N))
+                  # environments per job
+                  BASE=$((TOTAL / JOBS))
+                  EXTRA=$((TOTAL % JOBS))
+                  
+                  # Build matrix JSON
+                  # Format is:
+                  # [{"id":1,"envs":"java21/paper-1.20.6,java21/paper-1.21.3","display":"1.20.6, 1.21.3"},...]
+                  # Where "envs" is the actual environment strings and "display" is for easier identification
+                  MATRIX="["
+                  INDEX=0
+                  for ((i=0; i<JOBS; i++)); do
+                      # Determine count for this job (BASE + 1 if i < EXTRA)
+                      COUNT=$BASE
+                      if [ $i -lt $EXTRA ]; then
+                          COUNT=$((COUNT + 1))
+                      fi
+                  
+                      # Build envs and display strings
+                      GROUP=""
+                      DISPLAY_GROUP=""
+                      for ((j=0; j<COUNT; j++)); do
+                          if [ -n "$GROUP" ]; then
+                              GROUP="$GROUP,"
+                              DISPLAY_GROUP="$DISPLAY_GROUP, "
+                          fi
+                          GROUP="$GROUP${TRANSFORMED[$INDEX]}"
+                          DISPLAY_GROUP="$DISPLAY_GROUP${ENVS[$INDEX]}"
+                          INDEX=$((INDEX + 1))
+                      done
+                  
+                      # add to matrix with separating comma if needed
+                      if [ $i -gt 0 ]; then
+                          MATRIX="$MATRIX,"
+                      fi
+                      MATRIX="$MATRIX{\"id\":$((i+1)),\"envs\":\"$GROUP\",\"display\":\"$DISPLAY_GROUP\"}"
+                  done
+                  MATRIX="$MATRIX]"
+                  
+                  echo "matrix={\"include\":$MATRIX}" >> $GITHUB_OUTPUT
+                  echo "Generated matrix: {\"include\":$MATRIX}"

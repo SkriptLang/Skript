@@ -1,0 +1,14 @@
+test "alphabetically sorted":
+	loop 10 times:
+		set {_list::%loop-counter%} to character from codepoint (a random integer from 1 to 100)
+
+	set {_indices::*} to indices of {_list::*}
+
+	loop alphabetically sorted {_list::*}:
+		assert {_indices::*} contains loop-index
+		remove loop-index from {_indices::*}
+		if {_prev} is set:
+			assert (codepoint of loop-value) >= (codepoint of {_prev}) with "Couldn't sort correctly"
+		set {_prev} to loop-value
+
+	assert {_indices::*} is not set

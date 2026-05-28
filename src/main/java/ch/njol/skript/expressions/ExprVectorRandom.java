@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -19,7 +19,7 @@ import java.util.Random;
 
 @Name("Vectors - Random Vector")
 @Description("Creates a random unit vector.")
-@Examples("set {_v} to a random vector")
+@Example("set {_v} to a random vector")
 @Since("2.2-dev28, 2.7 (signed components)")
 public class ExprVectorRandom extends SimpleExpression<Vector> {
 

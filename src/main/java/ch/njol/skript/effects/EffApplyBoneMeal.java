@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Apply Bone Meal")
 @Description("Applies bone meal to a crop, sapling, or composter")
-@Examples("apply 3 bone meal to event-block")
+@Example("apply 3 bone meal to event-block")
 @RequiredPlugins("MC 1.16.2+")
 @Since("2.8.0")
 public class EffApplyBoneMeal extends Effect {

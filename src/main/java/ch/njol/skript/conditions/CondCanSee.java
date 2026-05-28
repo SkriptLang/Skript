@@ -15,13 +15,14 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Can See")
 @Description("Checks whether the given players can see the provided entities.")
-@Examples({
-	"if sender can't see the player-argument:",
-		"\tmessage \"who dat?\"",
-	"",
-	"if the player can see the last spawned entity:",
-		"\tmessage \"hello there!\""
-})
+@Example("""
+	if sender can't see the player-argument:
+		message "who dat?"
+	""")
+@Example("""
+	if the player can see the last spawned entity:
+		message "hello there!"
+	""")
 @Since("2.3, 2.10 (entities)")
 @RequiredPlugins("Minecraft 1.19+ (entities)")
 public class CondCanSee extends Condition {

@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -29,19 +29,19 @@ import java.util.Iterator;
 	This means that removing an element from the queue will always return a value <i>unless the queue is empty</i>.
 	
 	Requesting an element from a queue (e.g. `the 1st element of {queue}`) also removes it from the queue.""")
-@Examples({
-	"""
-		set {queue} to a new queue
-		add "hello" and "there" to {queue}
-		broadcast the first element of {queue} # hello
-		broadcast the first element of {queue} # there
-		# queue is now empty""",
-	"""
-		set {queue} to a new queue of "hello" and "there"
-		broadcast the last element of {queue} # removes 'there'
-		add "world" to {queue}
-		broadcast the first 2 elements of {queue} # removes 'hello', 'world'"""
-})
+@Example("""
+	set {queue} to a new queue
+	add "hello" and "there" to {queue}
+	broadcast the first element of {queue} # hello
+	broadcast the first element of {queue} # there
+	# queue is now empty
+	""")
+@Example("""
+	set {queue} to a new queue of "hello" and "there"
+	broadcast the last element of {queue} # removes 'there'
+	add "world" to {queue}
+	broadcast the first 2 elements of {queue} # removes 'hello', 'world'
+	""")
 @Since("2.10 (experimental)")
 public class ExprQueue extends SimpleExpression<SkriptQueue> implements QueueExperimentSyntax {
 

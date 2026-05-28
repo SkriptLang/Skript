@@ -1,5 +1,7 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityUnleashEvent;
 import org.jetbrains.annotations.Nullable;
@@ -13,17 +15,17 @@ import ch.njol.util.Kleenean;
 
 @Name("Leash Will Drop")
 @Description("Checks whether the leash item will drop during the leash detaching in an unleash event.")
-@Examples({
-	"on unleash:",
-		"\tif the leash will drop:",
-			"\t\tprevent the leash from dropping",
-		"\telse:",
-			"\t\tallow the leash to drop"
-})
+@Example("""
+	on unleash:
+		if the leash will drop:
+			prevent the leash from dropping
+		else:
+			allow the leash to drop
+	""")
 @Keywords("lead")
-@Events("Unleash")
+@Events("Leash / Unleash")
 @Since("2.10")
-public class CondLeashWillDrop extends Condition {
+public class CondLeashWillDrop extends Condition implements EventRestrictedSyntax {
 
 	static {
 		// TODO - remove this when Spigot support is dropped
@@ -33,12 +35,13 @@ public class CondLeashWillDrop extends Condition {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EntityUnleashEvent.class)) {
-			Skript.error("The 'leash will drop' condition can only be used in an 'unleash' event");
-			return false;
-		}
 		setNegated(parseResult.hasTag("not"));
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EntityUnleashEvent.class);
 	}
 
 	@Override

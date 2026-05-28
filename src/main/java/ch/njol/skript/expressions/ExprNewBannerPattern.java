@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -20,13 +20,11 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Banner Pattern")
 @Description("Creates a new banner pattern.")
-@Examples({
-	"set {_pattern} to a creeper banner pattern colored red",
-	"add {_pattern} to banner patterns of {_banneritem}",
-	"remove {_pattern} from banner patterns of {_banneritem}",
-	"set the 1st banner pattern of block at location(0,0,0) to {_pattern}",
-	"clear the 1st banner pattern of block at location(0,0,0)",
-})
+@Example("set {_pattern} to a creeper banner pattern colored red")
+@Example("add {_pattern} to banner patterns of {_banneritem}")
+@Example("remove {_pattern} from banner patterns of {_banneritem}")
+@Example("set the 1st banner pattern of block at location(0,0,0) to {_pattern}")
+@Example("clear the 1st banner pattern of block at location(0,0,0)")
 @Since("2.10")
 public class ExprNewBannerPattern extends SimpleExpression<Pattern> {
 

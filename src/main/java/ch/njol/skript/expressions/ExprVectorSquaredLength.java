@@ -5,7 +5,7 @@ import ch.njol.skript.lang.Literal;
 import org.bukkit.util.Vector;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -13,7 +13,7 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Vectors - Squared Length")
 @Description("Gets the squared length of a vector.")
-@Examples("send \"%squared length of vector 1, 2, 3%\"")
+@Example("send \"%squared length of vector 1, 2, 3%\"")
 @Since("2.2-dev28")
 public class ExprVectorSquaredLength extends SimplePropertyExpression<Vector, Number> {
 

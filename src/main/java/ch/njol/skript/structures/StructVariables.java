@@ -6,7 +6,7 @@ import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
@@ -39,16 +39,16 @@ import java.util.*;
 	"Used for defining variables present within a script.",
 	"This section is not required, but it ensures that a variable has a value if it doesn't exist when the script is loaded."
 })
-@Examples({
-	"variables:",
-		"\t{joins} = 0",
-		"\t{balance::%player%} = 0",
-	"",
-	"on join:",
-		"\tadd 1 to {joins}",
-		"\tmessage \"Your balance is %{balance::%player%}%\"",
-	""
-})
+@Example("""
+	variables:
+		{joins} = 0
+		{balance::%player%} = 0
+	""")
+@Example("""
+	on join:
+		add 1 to {joins}
+		message "Your balance is %{balance::%player%}%"
+	""")
 @Since("1.0")
 public class StructVariables extends Structure {
 

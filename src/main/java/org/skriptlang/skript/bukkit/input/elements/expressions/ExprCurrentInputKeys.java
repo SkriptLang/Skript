@@ -13,21 +13,33 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInputEvent;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.input.InputKey;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Name("Player Input Keys")
 @Description("Get the current input keys of a player.")
-@Examples("broadcast \"%player% is pressing %current input keys of player%\"")
+@Example("broadcast \"%player% is pressing %current input keys of player%\"")
 @Since("2.10")
 @RequiredPlugins("Minecraft 1.21.2+")
 public class ExprCurrentInputKeys extends PropertyExpression<Player, InputKey> {
 
 	private static final boolean SUPPORTS_TIME_STATES = Skript.classExists("org.bukkit.event.player.PlayerInputEvent");
 
-	static {
-		register(ExprCurrentInputKeys.class, InputKey.class, "[current] (inputs|input keys)", "players");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprCurrentInputKeys.class,
+				InputKey.class,
+				"[current] (inputs|input keys)",
+				"players",
+				false
+			)
+				.supplier(ExprCurrentInputKeys::new)
+				.build()
+		);
 	}
 
 	private boolean delayed;

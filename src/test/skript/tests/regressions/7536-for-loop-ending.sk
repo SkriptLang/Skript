@@ -1,5 +1,3 @@
-using for each loops
-
 test "for each loops ending (start)":
 	clear {7536 For Each::*}
 	for each {_word} in ("test", "test2"):

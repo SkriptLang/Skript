@@ -29,6 +29,8 @@ import ch.njol.yggdrasil.FieldHandler;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.Fields.FieldContext;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import io.papermc.paper.world.flag.FeatureDependant;
+import io.papermc.paper.world.flag.FeatureFlagSetHolder;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -58,22 +60,30 @@ import java.util.stream.Collectors;
 @SuppressWarnings("rawtypes")
 public abstract class EntityData<E extends Entity> implements SyntaxElement, YggdrasilExtendedSerializable {
 
-	/*
-	 * In 1.20.2 Spigot deprecated org.bukkit.util.Consumer.
-	 * From the class header: "API methods which use this consumer will be remapped to Java's consumer at runtime, resulting in an error."
-	 * But in 1.13-1.16 the only way to use a consumer was World#spawn(Location, Class, org.bukkit.util.Consumer).
-	 */
-	protected static @Nullable Method WORLD_1_17_CONSUMER_METHOD;
-	protected static boolean WORLD_1_17_CONSUMER;
+	// Removed in 1.21.9 in favor of 'FeatureFlagSetHolder'
+	private static final boolean HAS_ENABLED_BY_FEATURE = Skript.methodExists(EntityType.class, "isEnabledByFeature", World.class);
+	private static final @Nullable Method ENABLED_BY_FEATURE_METHOD;
+
+	// Added in 1.21.9, replaces 'isEnabledByFeature'
+	private static final @Nullable Method IS_ENABLED_METHOD;
 
 	static {
-		try {
-			if (WORLD_1_17_CONSUMER = Skript.methodExists(RegionAccessor.class, "spawn", Location.class, Class.class, org.bukkit.util.Consumer.class))
-				WORLD_1_17_CONSUMER_METHOD = RegionAccessor.class.getDeclaredMethod("spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
-		} catch (NoSuchMethodException | SecurityException ignored) { /* We already checked if the method exists */ }
+		if (HAS_ENABLED_BY_FEATURE) {
+			IS_ENABLED_METHOD = null;
+			try {
+				ENABLED_BY_FEATURE_METHOD = EntityType.class.getDeclaredMethod("isEnabledByFeature", World.class);
+			} catch (NoSuchMethodException e) {
+				throw new RuntimeException(e);
+			}
+		} else {
+			ENABLED_BY_FEATURE_METHOD = null;
+			try {
+				IS_ENABLED_METHOD = FeatureFlagSetHolder.class.getDeclaredMethod("isEnabled", FeatureDependant.class);
+			} catch (NoSuchMethodException e) {
+				throw new RuntimeException(e);
+			}
+		}
 	}
-
-	private static final boolean HAS_ENABLED_BY_FEATURE = Skript.methodExists(EntityType.class, "isEnabledByFeature", World.class);
 	public static final String LANGUAGE_NODE = "entities";
 
 	public static final Message m_age_pattern = new Message(LANGUAGE_NODE + ".age pattern");
@@ -638,19 +648,28 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @param world The world to check spawning permissions in.
 	 * @return {@code true} if the entity can be spawned in the given world, or in general if world is {@code null}; otherwise {@code false}.
 	 */
-	@SuppressWarnings({"removal"})
 	public boolean canSpawn(@Nullable World world) {
 		if (world == null)
 			return false;
 		EntityType bukkitEntityType = info.entityType != null ? info.entityType : EntityUtils.toBukkitEntityType(this);
-		if (bukkitEntityType == null)
+		if (bukkitEntityType == null || !bukkitEntityType.isSpawnable())
 			return false;
 		if (HAS_ENABLED_BY_FEATURE) {
 			// Check if the entity can actually be spawned
 			// Some entity types may be restricted by experimental datapacks
-			return bukkitEntityType.isEnabledByFeature(world) && bukkitEntityType.isSpawnable();
+			assert ENABLED_BY_FEATURE_METHOD != null;
+			try {
+				return (boolean) ENABLED_BY_FEATURE_METHOD.invoke(bukkitEntityType, world);
+			} catch (IllegalAccessException | InvocationTargetException e) {
+				return false;
+			}
 		}
-		return bukkitEntityType.isSpawnable();
+		assert IS_ENABLED_METHOD != null;
+		try {
+			return (boolean) IS_ENABLED_METHOD.invoke(world, bukkitEntityType);
+		} catch (IllegalAccessException | InvocationTargetException e) {
+			return false;
+		}
 	}
 
 	/**
@@ -661,23 +680,6 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 */
 	public final @Nullable E spawn(Location location) {
 		return spawn(location, (Consumer<E>) null);
-	}
-
-	/**
-	 * Spawn this entity data at a location.
-	 * The consumer allows for modification to the entity before it actually gets spawned.
-	 * <p>
-	 * Bukkit's own {@link org.bukkit.util.Consumer} is deprecated.
-	 * Use {@link #spawn(Location, Consumer)}
-	 *
-	 * @param location The {@link Location} to spawn the entity at.
-	 * @param consumer A {@link Consumer} to apply the entity changes to.
-	 * @return The Entity object that is spawned.
-	 */
-	@Deprecated(since = "2.8.0", forRemoval = true)
-	@SuppressWarnings("deprecation")
-	public @Nullable E spawn(Location location, org.bukkit.util.@Nullable Consumer<E> consumer) {
-		return spawn(location, (Consumer<E>) e -> consumer.accept(e));
 	}
 
 	/**
@@ -887,20 +889,10 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return "entity data";
 	}
 
-	@SuppressWarnings({"unchecked", "deprecation"})
 	protected static <E extends Entity> @Nullable E spawn(Location location, Class<E> type, Consumer<E> consumer) {
 		World world = location.getWorld();
 		if (world == null)
 			return null;
-		if (WORLD_1_17_CONSUMER) {
-			try {
-				return (@Nullable E) WORLD_1_17_CONSUMER_METHOD.invoke(world, location, type, (org.bukkit.util.Consumer<E>) consumer::accept);
-			} catch (InvocationTargetException | IllegalAccessException e) {
-				if (Skript.testing())
-					Skript.exception(e, "Can't spawn " + type.getName());
-				return null;
-			}
-		}
 		return world.spawn(location, type, consumer);
 	}
 

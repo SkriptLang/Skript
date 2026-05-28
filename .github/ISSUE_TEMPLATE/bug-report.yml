@@ -7,8 +7,8 @@ body:
         ## Guidelines
         Please make sure you are running the latest version of Skript on a supported server platform and version.
         Try to make sure there are no issues of this same problem currently open either.
-        As of the release of Skript 2.13, the oldest supported version has been raised to Paper 1.20.4.
-        Any issues created for versions older than 1.20.4, or for Spigot, will not be looked into or fixed unless the issue persists on supported versions.
+        As of the release of Skript 2.14, the oldest supported version has been raised to Paper 1.21.0.
+        Any issues created for versions older than 1.21.0, or for Spigot, will not be looked into or fixed unless the issue persists on supported versions.
   - type: textarea
     attributes:
       label: Skript/Server Version

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -20,8 +20,8 @@ import ch.njol.util.Kleenean;
  */
 @Name("Version")
 @Description("The version of Bukkit, Minecraft or Skript respectively.")
-@Examples({"message \"This server is running Minecraft %minecraft version% on Bukkit %bukkit version%\"",
-		"message \"This server is powered by Skript %skript version%\""})
+@Example("message \"This server is running Minecraft %minecraft version% on Bukkit %bukkit version%\"")
+@Example("message \"This server is powered by Skript %skript version%\"")
 @Since("2.0")
 public class ExprVersion extends SimpleExpression<String> {
 	

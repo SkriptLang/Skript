@@ -69,6 +69,11 @@ final class LocalizerImpl implements Localizer {
 			return localizer.translate(key);
 		}
 
+		@Override
+		public Localizer unmodifiableView() {
+			return this;
+		}
+
 	}
 
 }

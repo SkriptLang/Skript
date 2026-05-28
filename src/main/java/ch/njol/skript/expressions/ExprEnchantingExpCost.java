@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import org.bukkit.event.Event;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.jetbrains.annotations.Nullable;
@@ -8,7 +9,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -23,11 +24,13 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Enchanting Experience Cost")
 @Description({"The cost of enchanting in an enchant event.", 
 				"This is number that was displayed in the enchantment table, not the actual number of levels removed."})
-@Examples({"on enchant:",
-			"\tsend \"Cost: %the displayed enchanting cost%\" to player"})
+@Example("""
+	on enchant:
+		send "Cost: %the displayed enchanting cost%" to player
+	""")
 @Events("enchant")
 @Since("2.5")
-public class ExprEnchantingExpCost extends SimpleExpression<Long> {
+public class ExprEnchantingExpCost extends SimpleExpression<Long> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprEnchantingExpCost.class, Long.class, ExpressionType.SIMPLE,
@@ -36,11 +39,12 @@ public class ExprEnchantingExpCost extends SimpleExpression<Long> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EnchantItemEvent.class)) {
-			Skript.error("The experience cost of enchanting is only usable in an enchant event.", ErrorQuality.SEMANTIC_ERROR);
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EnchantItemEvent.class);
 	}
 
 	@Override

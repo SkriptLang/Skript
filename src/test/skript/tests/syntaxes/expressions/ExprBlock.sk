@@ -1,0 +1,11 @@
+test "block chest":
+	set {_loc} to location(10, 10, 10)
+	set {_item} to a chest
+	set name of {_item} to "&6Chest"
+	add 5 diamonds to inventory of {_item}
+	set block at {_loc} to {_item}
+	assert block at {_loc} is a chest with "chest was not placed"
+	assert name of block at {_loc} is "&6Chest" with "chest name was not copied from item"
+	assert inventory of block at {_loc} contains 5 diamonds with "chest inventory was not copied from item"
+	clear block at {_loc}
+

@@ -205,7 +205,7 @@ public class SimpleEvents {
 						"on disconnect:")
 				.since("1.0 (simple disconnection)");
 		Skript.registerEvent("Respawn", SimpleEvent.class, PlayerRespawnEvent.class, "[player] respawn[ing]")
-				.description("Called when a player respawns. You should prefer this event over the <a href='#death'>death event</a> as the player is technically alive when this event is called.")
+				.description("Called when a player respawns via death or entering the end portal in the end. You should prefer this event over the <a href='#death'>death event</a> as the player is technically alive when this event is called.")
 				.examples("on respawn:")
 				.since("1.0");
 		Skript.registerEvent("Sneak Toggle", SimpleEvent.class, PlayerToggleSneakEvent.class, "[player] toggl(e|ing) sneak", "[player] sneak toggl(e|ing)")
@@ -539,24 +539,6 @@ public class SimpleEvents {
 					)
 					.since("2.7");
 		}
-
-		//noinspection deprecation
-		Skript.registerEvent("Chat", SimpleEvent.class, AsyncPlayerChatEvent.class, "chat")
-			.description(
-				"Called whenever a player chats.",
-				"Use <a href='#ExprChatFormat'>chat format</a> to change message format.",
-				"Use <a href='#ExprChatRecipients'>chat recipients</a> to edit chat recipients."
-			)
-			.examples(
-				"on chat:",
-				"\tif player has permission \"owner\":",
-				"\t\tset chat format to \"&lt;red&gt;[player]&lt;light gray&gt;: &lt;light red&gt;[message]\"",
-				"\telse if player has permission \"admin\":",
-				"\t\tset chat format to \"&lt;light red&gt;[player]&lt;light gray&gt;: &lt;orange&gt;[message]\"",
-				"\telse: #default message format",
-				"\t\tset chat format to \"&lt;orange&gt;[player]&lt;light gray&gt;: &lt;white&gt;[message]\""
-			)
-			.since("1.4.1");
 
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerDeepSleepEvent")) {
 			Skript.registerEvent("Player Deep Sleep", SimpleEvent.class, PlayerDeepSleepEvent.class, "[player] deep sleep[ing]")

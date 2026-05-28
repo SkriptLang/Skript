@@ -2,7 +2,7 @@ package ch.njol.skript.hooks.chat.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -10,7 +10,6 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -20,15 +19,13 @@ import java.util.concurrent.CompletableFuture;
 
 @Name("Prefix/Suffix")
 @Description("The prefix or suffix as defined in the server's chat plugin.")
-@Examples({
-	"on chat:",
-	"\tcancel event",
-	"\tbroadcast \"%player's prefix%%player's display name%%player's suffix%: %message%\" to the player's world",
-	"",
-	"set the player's prefix to \"[&lt;red&gt;Admin<reset>] \"",
-	"",
-	"clear player's prefix"
-})
+@Example("""
+	on chat:
+		cancel event
+		broadcast "%player's prefix%%player's display name%%player's suffix%: %message%" to the player's world
+	""")
+@Example("set the player's prefix to \"[<red>Admin<reset>] \"")
+@Example("clear player's prefix")
 @Since("2.0, 2.10 (delete)")
 @RequiredPlugins({"Vault", "a chat plugin that supports Vault"})
 public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
@@ -46,7 +43,7 @@ public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
 	
 	@Override
 	public String convert(Player player) {
-		return Utils.replaceChatStyles(prefix ? VaultHook.chat.getPlayerPrefix(player) : VaultHook.chat.getPlayerSuffix(player));
+		return prefix ? VaultHook.chat.getPlayerPrefix(player) : VaultHook.chat.getPlayerSuffix(player);
 	}
 
 	@Override

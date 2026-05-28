@@ -12,7 +12,7 @@ import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
@@ -46,20 +46,20 @@ import java.util.regex.Pattern;
 
 @Name("Command")
 @Description("Used for registering custom commands.")
-@Examples({
-	"command /broadcast <string>:",
-	"\tusage: A command for broadcasting a message to all players.",
-	"\tpermission: skript.command.broadcast",
-	"\tpermission message: You don't have permission to broadcast messages",
-	"\taliases: /bc",
-	"\texecutable by: players and console",
-	"\tcooldown: 15 seconds",
-	"\tcooldown message: You last broadcast a message %elapsed time% ago. You can broadcast another message in %remaining time%.",
-	"\tcooldown bypass: skript.command.broadcast.admin",
-	"\tcooldown storage: {cooldown::%player%}",
-	"\ttrigger:",
-	"\t\tbroadcast the argument"
-})
+@Example("""
+	command /broadcast <string>:
+		usage: A command for broadcasting a message to all players.
+		permission: skript.command.broadcast
+		permission message: You don't have permission to broadcast messages
+		aliases: /bc
+		executable by: players and console
+		cooldown: 15 seconds
+		cooldown message: You last broadcast a message %elapsed time% ago. You can broadcast another message in %remaining time%.
+		cooldown bypass: skript.command.broadcast.admin
+		cooldown storage: {cooldown::%player%}
+		trigger:
+			broadcast the argument
+	""")
 @Since("1.0")
 public class StructCommand extends Structure {
 

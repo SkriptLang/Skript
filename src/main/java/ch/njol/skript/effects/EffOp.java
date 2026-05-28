@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -19,8 +19,8 @@ import ch.njol.util.Kleenean;
  */
 @Name("op/deop")
 @Description("Grant/revoke a user operator state.")
-@Examples({"op the player",
-		"deop all players"})
+@Example("op the player")
+@Example("deop all players")
 @Since("1.0")
 public class EffOp extends Effect {
 	

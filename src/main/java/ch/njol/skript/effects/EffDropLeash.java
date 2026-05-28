@@ -1,5 +1,7 @@
 package ch.njol.skript.effects;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityUnleashEvent;
 import org.jetbrains.annotations.Nullable;
@@ -13,17 +15,17 @@ import ch.njol.util.Kleenean;
 
 @Name("Allow / Prevent Leash Drop")
 @Description("Allows or prevents the leash from being dropped in an unleash event.")
-@Examples({
-	"on unleash:",
-		"\tif player is not set:",
-			"\t\tprevent the leash from dropping",
-		"\telse if player is op:",
-			"\t\tallow the leash to drop"
-})
+@Example("""
+	on unleash:
+		if player is not set:
+			prevent the leash from dropping
+		else if player is op:
+			allow the leash to drop
+	""")
 @Keywords("lead")
-@Events("Unleash")
+@Events("Leash / Unleash")
 @Since("2.10")
-public class EffDropLeash extends Effect {
+public class EffDropLeash extends Effect implements EventRestrictedSyntax {
 
 	static {
 			Skript.registerEffect(EffDropLeash.class,
@@ -36,12 +38,13 @@ public class EffDropLeash extends Effect {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EntityUnleashEvent.class)) {
-			Skript.error("The 'drop leash' effect can only be used in an 'unleash' event");
-			return false;
-		}
 		allowLeashDrop = matchedPattern == 0;
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EntityUnleashEvent.class);
 	}
 
 	@Override

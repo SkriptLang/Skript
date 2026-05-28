@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.PlayerUtils;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -37,12 +37,10 @@ import org.jetbrains.annotations.UnknownNullability;
 	"Equips or unequips an entity with the given itemtypes (usually armor).",
 	"This effect will replace any armor that the entity is already wearing."
 })
-@Examples({
-	"equip player with diamond helmet",
-	"equip player with diamond leggings, diamond chestplate, and diamond boots",
-	"unequip diamond chestplate from player",
-	"unequip player's armor"
-})
+@Example("equip player with diamond helmet")
+@Example("equip player with diamond leggings, diamond chestplate, and diamond boots")
+@Example("unequip diamond chestplate from player")
+@Example("unequip player's armor")
 @Since({
 	"1.0, 2.7 (multiple entities, unequip), 2.10 (wolves)",
 	"2.12.1 (happy ghasts)"

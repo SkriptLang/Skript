@@ -1,6 +1,7 @@
 
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.jetbrains.annotations.Nullable;
@@ -10,7 +11,7 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -22,14 +23,14 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Heal Amount")
 @Description("The amount of health healed in a <a href='/#heal'>heal event</a>.")
-@Examples({
-	"on player healing:",
-		"\tincrease the heal amount by 2",
-		"\tremove 0.5 from the healing amount"
-})
+@Example("""
+	on player healing:
+		increase the heal amount by 2
+		remove 0.5 from the healing amount
+	""")
 @Events("heal")
 @Since("2.5.1")
-public class ExprHealAmount extends SimpleExpression<Double> {
+public class ExprHealAmount extends SimpleExpression<Double> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprHealAmount.class, Double.class, ExpressionType.SIMPLE, "[the] heal[ing] amount");
@@ -39,12 +40,13 @@ public class ExprHealAmount extends SimpleExpression<Double> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EntityRegainHealthEvent.class)) {
-			Skript.error("The expression 'heal amount' may only be used in a healing event");
-			return false;
-		}
 		delay = isDelayed;
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EntityRegainHealthEvent.class);
 	}
 
 	@Nullable

@@ -8,8 +8,11 @@ test "sort":
 		set {_i} to {_i} + 1
 		set {_list::%{_i}%} to a random number from 1 to 100
 
+	set {_indices::*} to indices of {_list::*} in ascending order
+
 	# Test sorting
 	loop sorted {_list::*}:
+		assert loop-index is {_indices::%loop-counter%} with "Looping a sorted list didn't retain indices"
 		if {_prev} is set:
 			assert loop-value >= {_prev} with "Couldn't sort correctly"
 		set {_prev} to loop-value

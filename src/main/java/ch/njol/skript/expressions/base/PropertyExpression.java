@@ -1,6 +1,7 @@
 package ch.njol.skript.expressions.base;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -77,7 +78,6 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 * They will be registered before {@link SyntaxInfo#PATTERN_MATCHES_EVERYTHING} expressions
 	 *  but after {@link SyntaxInfo#COMBINED} expressions.
 	 */
-	@ApiStatus.Experimental
 	public static final Priority DEFAULT_PRIORITY = Priority.before(SyntaxInfo.PATTERN_MATCHES_EVERYTHING);
 
 	/**
@@ -139,7 +139,6 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 * @param <E> The Expression type.
 	 * @return The registered {@link SyntaxInfo}.
 	 */
-	@ApiStatus.Experimental
 	public static <E extends Expression<T>, T> SyntaxInfo.Expression.Builder<? extends SyntaxInfo.Expression.Builder<?, E, T>, E, T> infoBuilder(
 			Class<E> expressionClass, Class<T> returnType, String property, String type, boolean isDefault) {
 		return SyntaxInfo.Expression.builder(expressionClass, returnType)
@@ -154,7 +153,9 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 * @param type the main expression type the property is based off of.
 	 * @param property the name of the property.
 	 * @param fromType should be plural to support multiple objects but doesn't have to be.
+	 * @deprecated Use {@link #infoBuilder(Class, Class, String, String, boolean)}.
 	 */
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static <T> void register(Class<? extends Expression<T>> expressionClass, Class<T> type, String property, String fromType) {
 		Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY, getPatterns(property, fromType));
 	}
@@ -167,7 +168,9 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 * @param type the main expression type the property is based off of.
 	 * @param property the name of the property.
 	 * @param fromType should be plural to support multiple objects but doesn't have to be.
+	 * @deprecated Use {@link #infoBuilder(Class, Class, String, String, boolean)}.
 	 */
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static <T> void registerDefault(Class<? extends Expression<T>> expressionClass, Class<T> type, String property, String fromType) {
 		Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY, getDefaultPatterns(property, fromType));
 	}
@@ -196,6 +199,14 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	@Override
 	public final T[] getAll(Event event) {
 		T[] result = get(event, expr.getAll(event));
+		if (result == null) {
+			throw new SkriptAPIException("PropertyExpression must not return a null array");
+		}
+		for (T t : result) {
+			if (t == null) {
+				throw new SkriptAPIException("PropertyExpression must not return an array containing null elements");
+			}
+		}
 		return Arrays.copyOf(result, result.length);
 	}
 

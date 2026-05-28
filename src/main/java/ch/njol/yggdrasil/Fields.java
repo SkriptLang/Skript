@@ -9,14 +9,8 @@ import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 
 @NotThreadSafe
 public final class Fields implements Iterable<FieldContext> {
@@ -36,7 +30,7 @@ public final class Fields implements Iterable<FieldContext> {
 		private boolean isPrimitiveValue;
 		
 		FieldContext(String id) {
-			this.id = id;
+			this.id = id.toLowerCase(Locale.ENGLISH);
 		}
 		
 		FieldContext(Field field, Object object) throws IllegalArgumentException, IllegalAccessException {
@@ -62,7 +56,7 @@ public final class Fields implements Iterable<FieldContext> {
 			assert type != null;
 			return isPrimitiveValue ? Tag.getPrimitiveFromWrapper(type).type : type;
 		}
-		
+
 		@Nullable
 		public Object getObject() throws StreamCorruptedException {
 			if (isPrimitiveValue)
@@ -216,7 +210,63 @@ public final class Fields implements Iterable<FieldContext> {
 	}
 	
 	private static final Map<Class<?>, Collection<Field>> cache = new HashMap<>();
-	
+
+	/**
+	 * Creates a Fields object with a single object field.
+	 *
+	 * @param fieldID The id of the field
+	 * @param value   The value of the field
+	 * @return A Fields object with the given field defined
+	 */
+	public static Fields singletonObject(String fieldID, @Nullable Object value) {
+		Fields fields = new Fields();
+		fields.putObject(fieldID.toLowerCase(Locale.ENGLISH), value);
+		return fields;
+	}
+
+	/**
+	 * Creates a Fields object with a single primitive field.
+	 *
+	 * @param fieldID The id of the field
+	 * @param value   The value of the field
+	 * @return A Fields object with the given field defined
+	 */
+	public static Fields singletonPrimitive(String fieldID, Object value) {
+		Fields fields = new Fields();
+		fields.putPrimitive(fieldID.toLowerCase(Locale.ENGLISH), value);
+		return fields;
+	}
+
+	/**
+	 * Maps the object stored in the given field through the provided function.
+	 *
+	 * @param fieldID  The id of the field
+	 * @param type     The expected type of the field
+	 * @param function The mapping function
+	 * @param <T>      The type of the field
+	 * @param <R>      The return type of the mapping function
+	 * @return The result of applying the mapping function to the field's value
+	 * @throws StreamCorruptedException If the field does not exist or is of an unexpected type
+	 */
+	public <T, R> R mapObject(String fieldID, Class<T> type, Function<T, R> function) throws StreamCorruptedException {
+		return function.apply(getObject(fieldID, type));
+	}
+
+	/**
+	 * Maps the primitive stored in the given field through the provided function.
+	 *
+	 * @param fieldID  The id of the field
+	 * @param type     The expected type of the field
+	 * @param function The mapping function
+	 * @param <T>      The type of the field
+	 * @param <R>      The return type of the mapping function
+	 * @return The result of applying the mapping function to the field's value
+	 * @throws StreamCorruptedException If the field does not exist or is of an unexpected type
+	 */
+	public <T, R> R mapPrimitive(String fieldID, Class<T> type, Function<T, R> function) throws StreamCorruptedException {
+		return function.apply(getPrimitive(fieldID, type));
+	}
+
 	/**
 	 * Gets all serializable fields of the provided class, including superclasses.
 	 * 
@@ -296,16 +346,14 @@ public final class Fields implements Iterable<FieldContext> {
 	}
 	
 	public void putObject(String fieldID, @Nullable Object value) {
-		FieldContext context = fields.get(fieldID);
-		if (context == null)
-			fields.put(fieldID, context = new FieldContext(fieldID));
+		fieldID = fieldID.toLowerCase(Locale.ENGLISH);
+		FieldContext context = fields.computeIfAbsent(fieldID, FieldContext::new);
 		context.setObject(value);
 	}
 	
 	public void putPrimitive(String fieldID, Object value) {
-		FieldContext context = fields.get(fieldID);
-		if (context == null)
-			fields.put(fieldID, context = new FieldContext(fieldID));
+		fieldID = fieldID.toLowerCase(Locale.ENGLISH);
+		FieldContext context = fields.computeIfAbsent(fieldID, FieldContext::new);
 		context.setPrimitive(value);
 	}
 	
@@ -314,15 +362,18 @@ public final class Fields implements Iterable<FieldContext> {
 	 * @return Whether the field is defined
 	 */
 	public boolean contains(String fieldID) {
+		fieldID = fieldID.toLowerCase(Locale.ENGLISH);
 		return fields.containsKey(fieldID);
 	}
 	
 	public boolean hasField(String fieldID) {
+		fieldID = fieldID.toLowerCase(Locale.ENGLISH);
 	    return fields.containsKey(fieldID);
 	}
 	
 	@Nullable
 	public Object getObject(String field) throws StreamCorruptedException {
+		field = field.toLowerCase(Locale.ENGLISH);
 		FieldContext context = fields.get(field);
 		if (context == null)
 			throw new StreamCorruptedException("Nonexistent field " + field);
@@ -332,6 +383,7 @@ public final class Fields implements Iterable<FieldContext> {
 	@Nullable
 	public <T> T getObject(String fieldID, Class<T> expectedType) throws StreamCorruptedException {
 		assert !expectedType.isPrimitive();
+		fieldID = fieldID.toLowerCase(Locale.ENGLISH);
 		FieldContext context = fields.get(fieldID);
 		if (context == null)
 			throw new StreamCorruptedException("Nonexistent field " + fieldID);
@@ -339,6 +391,7 @@ public final class Fields implements Iterable<FieldContext> {
 	}
 	
 	public Object getPrimitive(String fieldID) throws StreamCorruptedException {
+		fieldID = fieldID.toLowerCase(Locale.ENGLISH);
 		FieldContext context = fields.get(fieldID);
 		if (context == null)
 			throw new StreamCorruptedException("Nonexistent field " + fieldID);
@@ -347,6 +400,7 @@ public final class Fields implements Iterable<FieldContext> {
 	
 	public <T> T getPrimitive(String fieldID, Class<T> expectedType) throws StreamCorruptedException {
 		assert expectedType.isPrimitive() || Tag.getPrimitiveFromWrapper(expectedType).isPrimitive();
+		fieldID = fieldID.toLowerCase(Locale.ENGLISH);
 		FieldContext context = fields.get(fieldID);
 		if (context == null)
 			throw new StreamCorruptedException("Nonexistent field " + fieldID);
@@ -373,6 +427,7 @@ public final class Fields implements Iterable<FieldContext> {
 	 * @return Whether a field with the given name was actually defined
 	 */
 	public boolean removeField(String fieldID) {
+		fieldID = fieldID.toLowerCase(Locale.ENGLISH);
 		return fields.remove(fieldID) != null;
 	}
 	

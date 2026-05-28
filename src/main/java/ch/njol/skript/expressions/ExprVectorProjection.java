@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -18,7 +18,7 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Vectors - Vector Projection")
 @Description("An expression to get the vector projection of two vectors.")
-@Examples("set {_projection} to vector projection of vector(1, 2, 3) onto vector(4, 4, 4)")
+@Example("set {_projection} to vector projection of vector(1, 2, 3) onto vector(4, 4, 4)")
 @Since("2.8.0")
 public class ExprVectorProjection extends SimpleExpression<Vector> {
 

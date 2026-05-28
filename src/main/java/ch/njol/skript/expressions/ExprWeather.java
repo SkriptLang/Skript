@@ -25,12 +25,10 @@ import org.jetbrains.annotations.Nullable;
 	"Clearing or resetting the weather of a player will make the player's weather match the weather of the world.",
 	"Clearing or resetting the weather of a world will make the weather clear."
 })
-@Examples({
-	"set weather to clear",
-	"weather in \"world\" is rainy",
-	"reset custom weather of player",
-	"set weather of player to clear"
-})
+@Example("set weather to clear")
+@Example("weather in \"world\" is rainy")
+@Example("reset custom weather of player")
+@Example("set weather of player to clear")
 @Since("1.0")
 @Events("weather change")
 public class ExprWeather extends PropertyExpression<Object, WeatherType> {

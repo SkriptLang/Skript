@@ -3,27 +3,29 @@ package ch.njol.skript.effects;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Make Egg Hatch")
 @Description("Makes the egg hatch in a Player Egg Throw event.")
-@Examples({
-	"on player egg throw:",
-		"\t# EGGS FOR DAYZ!",
-		"\tmake the egg hatch"
-})
+@Example("""
+	on player egg throw:
+		# EGGS FOR DAYZ!
+		make the egg hatch
+	""")
 @Events("Egg Throw")
 @Since("2.7")
-public class EffMakeEggHatch extends Effect {
+public class EffMakeEggHatch extends Effect implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerEffect(EffMakeEggHatch.class,
@@ -35,12 +37,13 @@ public class EffMakeEggHatch extends Effect {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerEggThrowEvent.class)) {
-			Skript.error("You can't use the 'make the egg hatch' effect outside of a Player Egg Throw event.");
-			return false;
-		}
 		not = parseResult.hasTag("not");
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(PlayerEggThrowEvent.class);
 	}
 
 	@Override

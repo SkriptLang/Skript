@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -22,7 +22,7 @@ import ch.njol.util.coll.CollectionUtils;
 	"This changes how many levels are required to enchant, but does not change the number of levels removed.",
 	"To change the number of levels removed, use the enchant event."
 })
-@Examples("set cost of enchantment offer 1 to 50")
+@Example("set cost of enchantment offer 1 to 50")
 @Since("2.5")
 @RequiredPlugins("1.11 or newer")
 public class ExprEnchantmentOfferCost extends SimplePropertyExpression<EnchantmentOffer, Long> {

@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -15,10 +15,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 @Name("Unbreakable Items")
 @Description("Creates breakable or unbreakable copies of given items.")
-@Examples({
-	"set {_item} to unbreakable iron sword",
-	"give breakable {_weapon} to all players"
-})
+@Example("set {_item} to unbreakable iron sword")
+@Example("give breakable {_weapon} to all players")
 @Since("2.2-dev13b, 2.9.0 (breakable)")
 public class ExprUnbreakable extends SimplePropertyExpression<ItemType, ItemType> {
 

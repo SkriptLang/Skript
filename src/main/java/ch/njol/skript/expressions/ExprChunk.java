@@ -5,7 +5,7 @@ import java.util.Arrays;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -22,10 +22,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Chunk")
 @Description("Returns the <a href='#chunk'>chunk</a> of a block, location or entity is in, or a list of the loaded chunks of a world.")
-@Examples({
-	"add the chunk at the player to {protected chunks::*}",
-	"set {_chunks::*} to the loaded chunks of the player's world"
-})
+@Example("add the chunk at the player to {protected chunks::*}")
+@Example("set {_chunks::*} to the loaded chunks of the player's world")
 @Since("2.0, 2.8.0 (loaded chunks)")
 public class ExprChunk extends SimpleExpression<Chunk> {
 	

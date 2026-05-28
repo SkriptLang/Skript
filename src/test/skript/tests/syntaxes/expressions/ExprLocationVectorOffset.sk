@@ -12,3 +12,29 @@ test "location vector offset":
 		set {_offset} to {_location} ~ vector({_x}, {_y}, {_z})
 		set {_length} to the normal length of vector({_x}, {_y}, {_z})
 		assert the distance between {_offset} and {_location} is {_length} with "randomly-created vector offset failed (expected %{_length}%, got %distance between {_offset} and {_location}%)"
+
+test "vector offset using local axes":
+	set {_test.loc} to location(-19.40051951171598, 45.37940054464023, -2.293542970995297, world("world"), -72.04071, -82.03418)
+	set {_expected.loc} to location(-14.934356830136391, 49.420007997032805, -6.763092626909604, world("world"), -72.04071, -82.03418)
+	set {_v} to vector(5.628876967791593, -2.2827525504406823, 4.399407332234864)
+	assert ({_test.loc} offset by {_v} using local axes) is {_expected.loc} with "returned wrong location - 1"
+
+	set {_test.loc} to location(13.30406555773089, 67.5819873186199, -6.298727546251565, world("world"), 103.484215, 19.238579)
+	set {_expected.loc} to location(10.647636743796564, 60.574954924210715, -6.606756333626062, world("world"), 103.484215, 19.238579)
+	set {_v} to vector(0.31988220626119995, -5.740885067612596, 4.815590723325663)
+	assert ({_test.loc} offset by {_v} using local axes) is {_expected.loc} with "returned wrong location - 2"
+
+	set {_test.loc} to location(3.3869350328876977, 44.792269367551405, -20.474066984956654, world("world"), 157.17847, 75.89636)
+	set {_expected.loc} to location(7.324176348729372, 38.611687797879775, -22.070485604112537, world("world"), 157.17847, 75.89636)
+	set {_v} to vector(-4.248213705545501, -1.560043345242382, 5.980714428308739)
+	assert ({_test.loc} offset by {_v} using local axes) is {_expected.loc} with "returned wrong location - 3"
+
+	set {_test.loc} to location(20.245140591456668, 39.23482347167744, 7.434704275414153, world("world"), 86.558136, -45.623573)
+	set {_expected.loc} to location(23.040052452876346, 39.29507158212079, 14.394218416496916, world("world"), 86.558136, -45.623573)
+	set {_v} to vector(7.114755290046221, 1.737584079576708, -1.6158770773672382)
+	assert ({_test.loc} offset by {_v} using local axes) is {_expected.loc} with "returned wrong location - 4"
+
+	set {_test.loc} to location(-19.67380126817804, 54.49320309887087, 1.4868926984678503, world("world"), 172.25856, -62.71486)
+	set {_expected.loc} to location(-13.3405063997088, 58.03254001865542, -0.41375398808610475, world("world"), 172.25856, -62.71486)
+	set {_v} to vector(-6.5315963180124434, 0.7069113825034361, 3.617806771486472)
+	assert ({_test.loc} offset by {_v} using local axes) is {_expected.loc} with "returned wrong location - 5"

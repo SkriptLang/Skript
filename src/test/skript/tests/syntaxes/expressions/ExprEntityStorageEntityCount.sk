@@ -32,8 +32,9 @@ test "entity block storage entities" when running minecraft "1.21":
 	add {_bees3::*} into the entity storage of {_hive}
 	assert the stored entity count of {_hive} is 20 with "Stored entities should not exceed the maximum entity count"
 
-	release the stored entities of {_hive}
-	assert the stored entity count of {_hive} is 0 with "Stored entities should be empty after releasing"
+	if running minecraft "1.21.2": # cannot reliably test release before 1.21.2 due to delay in count update
+		release the stored entities of {_hive}
+		assert the stored entity count of {_hive} is 0 with "Stored entities should be empty after releasing"
 
 	clear all bees
 	set block data of test-block to {_old}

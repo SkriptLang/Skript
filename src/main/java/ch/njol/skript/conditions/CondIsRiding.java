@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -19,12 +19,10 @@ import ch.njol.util.Kleenean;
 
 @Name("Is Riding")
 @Description("Tests whether an entity is riding any entity, a specific entity type, or a specific entity.")
-@Examples({
-	"if player is riding:",
-	"if player is riding an entity:",
-	"if player is riding a saddled pig:",
-	"if player is riding last spawned horse:"
-})
+@Example("if player is riding:")
+@Example("if player is riding an entity:")
+@Example("if player is riding a saddled pig:")
+@Example("if player is riding last spawned horse:")
 @Since("2.0, 2.11 (entities)")
 public class CondIsRiding extends Condition {
 	

@@ -5,6 +5,7 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.WrapperExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -21,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 })
 @Example("if any of {_numbers::*} are 1:")
 @Example("if any of {teamA::*} are within location(0, 0, 0) and location(10, 10, 10):")
+@Since("2.11")
 public class ExprAnyOf extends WrapperExpression<Object> {
 
 	static {

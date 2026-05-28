@@ -1,5 +1,7 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.jetbrains.annotations.Nullable;
@@ -7,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -19,11 +21,13 @@ import ch.njol.util.Kleenean;
 
 @Name("Enchantment Bonus")
 @Description("The enchantment bonus in an enchant prepare event. This represents the number of bookshelves affecting/surrounding the enchantment table.")
-@Examples({"on enchant:", 
-			"\tsend \"There are %enchantment bonus% bookshelves surrounding this enchantment table!\" to player"})
+@Example("""
+	on enchant:
+		send "There are %enchantment bonus% bookshelves surrounding this enchantment table!" to player
+	""")
 @Events("enchant prepare")
 @Since("2.5")
-public class ExprEnchantmentBonus extends SimpleExpression<Long> {
+public class ExprEnchantmentBonus extends SimpleExpression<Long> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprEnchantmentBonus.class, Long.class, ExpressionType.SIMPLE, "[the] enchantment bonus");
@@ -31,11 +35,12 @@ public class ExprEnchantmentBonus extends SimpleExpression<Long> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PrepareItemEnchantEvent.class)) {
-			Skript.error("The enchantment bonus is only usable in an enchant prepare event.", ErrorQuality.SEMANTIC_ERROR);
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(PrepareItemEnchantEvent.class);
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityTameEvent;
@@ -7,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -18,11 +20,13 @@ import ch.njol.util.Kleenean;
 
 @Name("Tamer")
 @Description("The tamer of an entity. Can only be used in entity tame events. You can use 'event-entity' to refer tamed entity itself.")
-@Examples({"on tame:",
-			"\tif the tamer is a player:",
-			"\t\tsend \"someone tamed something!\" to console"})
+@Example("""
+	on tame:
+		if the tamer is a player:
+			send "someone tamed something!" to console
+	""")
 @Since("2.2-dev25")
-public class ExprTamer extends SimpleExpression<Player> {
+public class ExprTamer extends SimpleExpression<Player> implements EventRestrictedSyntax {
 	
 	static {
 		Skript.registerExpression(ExprTamer.class, Player.class, ExpressionType.SIMPLE, "[the] tamer");
@@ -30,11 +34,12 @@ public class ExprTamer extends SimpleExpression<Player> {
 	
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
-		if (!getParser().isCurrentEvent(EntityTameEvent.class)) {
-			Skript.error("the expression 'tamer' may only be used in the entity tame event.");
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EntityTameEvent.class);
 	}
 	
 	@Override

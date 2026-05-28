@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -19,8 +19,10 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Distance")
 @Description("The distance between two points.")
-@Examples({"if the distance between the player and {home::%uuid of player%} is smaller than 20:",
-		"\tmessage \"You're very close to your home!\""})
+@Example("""
+	if the distance between the player and {home::%uuid of player%} is smaller than 20:
+		message "You're very close to your home!"
+	""")
 @Since("1.0")
 public class ExprDistance extends SimpleExpression<Number> {
 	

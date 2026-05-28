@@ -13,21 +13,21 @@ test "text opacity":
 	spawn text display at spawn of world "world":
 		set {_td} to entity
 
-	assert opacity of {_td} is -1 with "failed default opacity"
+	assert opacity of {_td} is 255 with "failed default opacity"
 	set opacity of {_td} to 185.4
-	assert opacity of {_td} is 127 with "failed to set opacity"
+	assert opacity of {_td} is 185 with "failed to set opacity"
 	set opacity of {_td} to -50
-	assert opacity of {_td} is -50 with "failed to set opacity"
+	assert opacity of {_td} is 206 with "failed to set opacity"
 	set opacity of {_td} to -900
-	assert opacity of {_td} is -127 with "failed to set opacity"
+	assert opacity of {_td} is 128 with "failed to set opacity"
 	add 50 to opacity of {_td}
-	assert opacity of {_td} is -77 with "failed to add to opacity"
+	assert opacity of {_td} is 178 with "failed to add to opacity"
 	remove 1000 from opacity of {_td}
-	assert opacity of {_td} is -127 with "failed to remove from opacity"
+	assert opacity of {_td} is 0 with "failed to remove from opacity"
 	reset opacity of {_td}
-	assert opacity of {_td} is -1 with "failed to reset opacity"
+	assert opacity of {_td} is 255 with "failed to reset opacity"
 
 	set opacity of {_td} to infinity value
-	assert opacity of {_td} is 127 with "failed to set opacity"
+	assert opacity of {_td} is 255 with "failed to set opacity"
 
 	delete entity within {_td}

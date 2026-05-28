@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -23,8 +23,8 @@ import ch.njol.util.Kleenean;
  */
 @Name("Location At")
 @Description("Allows to create a <a href='#location'>location</a> from three coordinates and a world.")
-@Examples({"set {_loc} to the location at arg-1, arg-2, arg-3 of the world arg-4",
-		"distance between the player and the location (0, 0, 0) is less than 200"})
+@Example("set {_loc} to the location at arg-1, arg-2, arg-3 of the world arg-4")
+@Example("distance between the player and the location (0, 0, 0) is less than 200")
 @Since("2.0")
 public class ExprLocationAt extends SimpleExpression<Location> {
 	static {

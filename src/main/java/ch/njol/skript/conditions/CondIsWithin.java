@@ -27,23 +27,27 @@ import org.jetbrains.annotations.Nullable;
 	"Note that using the <a href='#CondCompare'>is between</a> condition will refer to a straight line " +
 	"between locations, while this condition will refer to the cuboid between locations."
 })
-@Examples({
-	"if player's location is within {_loc1} and {_loc2}:",
-		"\tsend \"You are in a PvP zone!\" to player",
-	"",
-	"if player is in world(\"world\"):",
-		"\tsend \"You are in the overworld!\" to player",
-	"",
-	"if attacker's location is inside of victim:",
-		"\tcancel event",
-		"\tsend \"Back up!\" to attacker and victim",
-	"",
-	"if player is in world \"world1\" or world \"world2\":",
-		"\tkill player",
-	"",
-	"if player is in world \"world\" and chunk at location(0, 0, 0):",
-		"\tgive player 1 diamond"
-})
+@Example("""
+	if player's location is within {_loc1} and {_loc2}:
+		send "You are in a PvP zone!" to player
+	""")
+@Example("""
+	if player is in world("world"):
+		send "You are in the overworld!" to player
+	""")
+@Example("""
+	if attacker's location is inside of victim:
+		cancel event
+		send "Back up!" to attacker and victim
+	""")
+@Example("""
+	if player is in world "world1" or world "world2":
+		kill player
+	""")
+@Example("""
+	if player is in world "world" and chunk at location(0, 0, 0):
+		give player 1 diamond
+	""")
 @Since("2.7, 2.11 (world borders)")
 @RequiredPlugins("MC 1.17+ (within block)")
 public class CondIsWithin extends Condition {

@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -16,13 +16,14 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("No Damage Time")
 @Description("The amount of time an entity is invulnerable to any damage.")
-@Examples({
-	"on damage:",
-		"\tset victim's invulnerability time to 20 ticks #Victim will not take damage for the next second",
-	"",
-	"if the no damage timespan of {_entity} is 0 seconds:",
-		"\tset the invincibility time span of {_entity} to 1 minute"
-})
+@Example("""
+    on damage:
+    	set victim's invulnerability time to 20 ticks #Victim will not take damage for the next second
+    """)
+@Example("""
+    if the no damage timespan of {_entity} is 0 seconds:
+    	set the invincibility time span of {_entity} to 1 minute
+    """)
 @Since("2.11")
 public class ExprNoDamageTime extends SimplePropertyExpression<LivingEntity, Timespan> {
 

@@ -140,3 +140,26 @@ test "type hints":
 				set {_a} to {_x} in lowercase # ensure type hints still work for unreachable code
 	assert last parse logs is "Expected variable '{_x}' to be a text, but it is a boolean (yes/no)" with "Hint failed (%last parse logs%)"
 	delete {_x}
+
+parse:
+	results: {type hints::hints::1::*}
+	code:
+		function hint_test_1(x: number):
+			set {_a} to {_x} in lowercase
+
+parse:
+	results: {type hints::hints::2::*}
+	code:
+		function hint_test_2(x: numbers):
+			set {_a::*} to {_x::*} in lowercase
+
+local function type_hint_argument_test(number: number):
+	stop
+
+test "function structure type hints":
+	assert {type hints::hints::1::*} is "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%{StructFunction::hints::1::*}%)"
+	assert {type hints::hints::2::*} is "Expected variable '{_x::*}' to be a text, but it is a number" with "Hint failed (%{StructFunction::hints::2::*}%)"
+	set {_number} to true
+	parse:
+		type_hint_argument_test({_number})
+	assert the first element of the last parse logs contains "Expected variable '{_number}' to be a number, but it is a boolean (yes/no)"

@@ -3,6 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -26,29 +27,27 @@ import org.jetbrains.annotations.Nullable;
 		"",
 		"This can be set in a <a href='#server_list_ping'>server list ping</a> event only",
 		"(increase and decrease effects cannot be used because that wouldn't make sense).",})
-@Examples({"on server list ping:",
-		"\tset the version string to \"&lt;light green&gt;Version: &lt;orange&gt;%minecraft version%\"",
-		"\tset the protocol version to 0 # 13w41a (1.7) - so the player will see the custom version string almost always"})
+@Example("""
+	on server list ping:
+		set the version string to "<light green>Version: <orange>%minecraft version%"
+		set the protocol version to 0 # 13w41a (1.7) - so the player will see the custom version string almost always
+	""")
 @Since("2.3")
 @Events("server list ping")
-public class ExprProtocolVersion extends SimpleExpression<Long> {
+public class ExprProtocolVersion extends SimpleExpression<Long> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprProtocolVersion.class, Long.class, ExpressionType.SIMPLE, "[the] [server] [(sent|required|fake)] protocol version [number]");
 	}
 
-	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
-
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!PAPER_EVENT_EXISTS) {
-			Skript.error("The protocol version expression requires Paper 1.12.2 or newer");
-			return false;
-		} else if (!getParser().isCurrentEvent(PaperServerListPingEvent.class)) {
-			Skript.error("The protocol version expression can't be used outside of a server list ping event");
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(PaperServerListPingEvent.class);
 	}
 
 	@Override

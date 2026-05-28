@@ -6,7 +6,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -22,10 +22,8 @@ import ch.njol.util.Kleenean;
  */
 @Name("Cursor Slot")
 @Description("The item which the player has on their inventory cursor. This slot is always empty if player has no inventory open.")
-@Examples({
-	"cursor slot of player is dirt",
-	"set cursor slot of player to 64 diamonds"
-})
+@Example("cursor slot of player is dirt")
+@Example("set cursor slot of player to 64 diamonds")
 @Since("2.2-dev17")
 public class ExprCursorSlot extends PropertyExpression<Player, Slot> {
 

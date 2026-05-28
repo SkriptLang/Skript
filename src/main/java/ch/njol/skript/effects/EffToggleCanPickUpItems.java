@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -15,14 +15,13 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Toggle Picking Up Items")
 @Description("Determines whether living entities are able to pick up items or not")
-@Examples({
-	"forbid player from picking up items",
-	"send \"You can no longer pick up items!\" to player",
-	"",
-	"on drop:",
-		"\tif player can't pick	up items:",
-			"\t\tallow player to pick up items"
-})
+@Example("forbid player from picking up items")
+@Example("send \"You can no longer pick up items!\" to player")
+@Example("""
+	on drop:
+		if player can't pick up items:
+			allow player to pick up items
+	""")
 @Since("2.8.0")
 public class EffToggleCanPickUpItems extends Effect {
 

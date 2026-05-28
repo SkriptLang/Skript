@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -18,7 +18,7 @@ import ch.njol.util.Kleenean;
 
 @Name("Offline players")
 @Description("All players that have ever joined the server. This includes the players currently online.")
-@Examples({"send \"Size of all players who have joined the server: %size of all offline players%\""})
+@Example("send \"Size of all players who have joined the server: %size of all offline players%\"")
 @Since("2.2-dev35")
 public class ExprOfflinePlayers extends SimpleExpression<OfflinePlayer> {
 	

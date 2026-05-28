@@ -70,3 +70,6 @@
 
 # EntityData
 /src/main/java/ch/njol/skript/entity @Absolutionism @skriptlang/core-developers
+
+# Particles/Effects
+/src/main/java/org/skriptlang/skript/bukkit/particles @sovdeeth @skriptlang/core-developers

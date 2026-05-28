@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -15,10 +15,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Remaining Air")
 @Description("How much time a player has left underwater before starting to drown.")
-@Examples({
-	"if the player's remaining air is less than 3 seconds:",
-		"\tsend \"hurry, get to the surface!\" to the player"
-})
+@Example("""
+	if the player's remaining air is less than 3 seconds:
+		send "hurry, get to the surface!" to the player
+	""")
 @Since("2.0")
 public class ExprRemainingAir extends SimplePropertyExpression<LivingEntity, Timespan> {
 

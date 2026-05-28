@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.loottables.elements.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -12,6 +12,7 @@ import org.bukkit.loot.LootTable;
 import org.bukkit.loot.Lootable;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Loot Table")
 @Description({
@@ -21,17 +22,27 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 		+ "warnings in the console due to over-filling the chest.",
 	"Please note that resetting/deleting the loot table of an ENTITY will reset the entity's loot table to its default.",
 })
-@Examples({
-	"set loot table of event-entity to \"minecraft:entities/ghast\"",
-	"# this will set the loot table of the entity to a ghast's loot table, thus dropping ghast tears and gunpowder",
-	"",
-	"set loot table of event-block to \"minecraft:chests/simple_dungeon\"",
-})
+@Example("""
+	set loot table of event-entity to "minecraft:entities/ghast"
+	# this will set the loot table of the entity to a ghast's loot table, thus dropping ghast tears and gunpowder
+	""")
+@Example("set loot table of event-block to \"minecraft:chests/simple_dungeon\"")
 @Since("2.10")
 public class ExprLootTable extends SimplePropertyExpression<Object, LootTable> {
 
-	static {
-		register(ExprLootTable.class, LootTable.class, "loot[ ]table[s]", "entities/blocks");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprLootTable.class,
+				LootTable.class,
+				"loot[ ]table[s]",
+				"entities/blocks",
+				false
+			)
+				.supplier(ExprLootTable::new)
+				.build()
+		);
 	}
 
 	@Override

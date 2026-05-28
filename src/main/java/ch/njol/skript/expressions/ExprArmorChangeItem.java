@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Armor Change Item")
 @Description("Get the unequipped or equipped armor item from a 'armor change' event.")
-@Examples("""
+@Example("""
 	on armor change
 		broadcast the old armor item
 	""")

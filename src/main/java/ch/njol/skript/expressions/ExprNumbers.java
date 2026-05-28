@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -24,9 +24,9 @@ import java.util.*;
 		"Use 'numbers' if your start is not an integer and you want to keep the fractional part of the start number constant, or use 'integers' if you only want to loop integers.",
 		"You may also use 'decimals' if you want to use the decimal precision of the start number.",
 		"You may want to use the 'times' expression instead, for instance 'loop 5 times:'"})
-@Examples({"loop numbers from 2.5 to 5.5: # loops 2.5, 3.5, 4.5, 5.5",
-		"loop integers from 2.9 to 5.1: # same as '3 to 5', i.e. loops 3, 4, 5",
-		"loop decimals from 3.94 to 4: # loops 3.94, 3.95, 3.96, 3.97, 3.98, 3.99, 4"})
+@Example("loop numbers from 2.5 to 5.5: # loops 2.5, 3.5, 4.5, 5.5")
+@Example("loop integers from 2.9 to 5.1: # same as '3 to 5', i.e. loops 3, 4, 5")
+@Example("loop decimals from 3.94 to 4: # loops 3.94, 3.95, 3.96, 3.97, 3.98, 3.99, 4")
 @Since("1.4.6 (integers & numbers), 2.5.1 (decimals)")
 public class ExprNumbers extends SimpleExpression<Number> {
 	static {

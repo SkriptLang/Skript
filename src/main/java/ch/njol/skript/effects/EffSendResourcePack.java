@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -26,8 +26,10 @@ import ch.njol.util.StringUtils;
 		"",
 		"The <a href='#resource_pack_request_action'>resource pack request action</a> can be used to check ",
 		"status of the sent resource pack request."})
-@Examples({"on join:",
-		"	send the resource pack from \"URL\" with hash \"hash\" to the player"})
+@Example("""
+	on join:
+		send the resource pack from "URL" with hash "hash" to the player
+	""")
 @Since("2.4")
 public class EffSendResourcePack extends Effect {
 

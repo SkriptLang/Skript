@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -24,16 +24,14 @@ import org.jetbrains.annotations.Nullable;
 	"To retrieve its number use <a href='#ExprSlotIndex'>Slot Index</a> expression.",
 	"Use future and past tense to grab the previous slot in an item change event, see example."
 })
-@Examples({
-	"message \"%player's current hotbar slot%\"",
-	"set player's selected hotbar slot to slot 4 of player",
-	"",
-	"send \"index of player's current hotbar slot = 1\" # second slot from the left",
-	"",
-	"on item held change:",
-		"\tif the selected hotbar slot was a diamond:",
-			"\t\tset the currently selected hotbar slot to slot 5 of player"
-})
+@Example("message \"%player's current hotbar slot%\"")
+@Example("set player's selected hotbar slot to slot 4 of player")
+@Example("send \"index of player's current hotbar slot = 1\" # second slot from the left")
+@Example("""
+	on item held change:
+		if the selected hotbar slot was a diamond:
+			set the currently selected hotbar slot to slot 5 of player
+	""")
 @Since("2.2-dev36")
 public class ExprHotbarSlot extends PropertyExpression<Player, Slot> {
 

@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -22,9 +22,11 @@ import ch.njol.util.Kleenean;
  */
 @Name("Kick")
 @Description("Kicks a player from the server.")
-@Examples({"on place of TNT, lava, or obsidian:",
-		"	kick the player due to \"You may not place %block%!\"",
-		"	cancel the event"})
+@Example("""
+	on place of TNT, lava, or obsidian:
+		kick the player due to "You may not place %block%!"
+		cancel the event
+	""")
 @Since("1.0")
 public class EffKick extends Effect {
 	static {

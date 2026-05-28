@@ -24,7 +24,7 @@ import java.util.Map;
 	"The entity must be of the right type for the block (e.g. bee for beehive).",
 	"Due to unstable behavior on older versions, adding entities to an entity storage requires Minecraft version 1.21+."
 })
-@Examples("add last spawned bee into the entity storage of {_beehive}")
+@Example("add last spawned bee into the entity storage of {_beehive}")
 @RequiredPlugins("Minecraft 1.21+")
 @Since("2.11")
 public class EffInsertEntityStorage extends Effect {
@@ -39,11 +39,9 @@ public class EffInsertEntityStorage extends Effect {
 	private static final Map<Class<? extends BlockState>, Class<? extends Entity>> STORAGES = new HashMap<>();
 
 	static {
-		if (Skript.isRunningMinecraft(1, 21, 0)) {
-			Skript.registerEffect(EffInsertEntityStorage.class,
-				"(add|insert) %livingentities% [in[ ]]to [the] (stored entities|entity storage) of %block%");
-			STORAGES.put(Beehive.class, Bee.class);
-		}
+		Skript.registerEffect(EffInsertEntityStorage.class,
+			"(add|insert) %livingentities% [in[ ]]to [the] (stored entities|entity storage) of %block%");
+		STORAGES.put(Beehive.class, Bee.class);
 	}
 
 	private Expression<? extends Entity> entities;

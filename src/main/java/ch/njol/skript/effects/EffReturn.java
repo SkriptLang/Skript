@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
@@ -21,13 +21,14 @@ import java.util.List;
 
 @Name("Return")
 @Description("Makes a trigger or a section (e.g. a function) return a value")
-@Examples({
-	"function double(i: number) :: number:",
-		"\treturn 2 * {_i}",
-	"",
-	"function divide(i: number) returns number:",
-		"\treturn {_i} / 2"
-})
+@Example("""
+	function double(i: number) :: number:
+		return 2 * {_i}
+	""")
+@Example("""
+	function divide(i: number) returns number:
+		return {_i} / 2
+	""")
 @Since("2.2, 2.8.0 (returns aliases)")
 public class EffReturn extends Effect {
 

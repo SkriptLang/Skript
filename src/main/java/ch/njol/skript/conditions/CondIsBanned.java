@@ -3,7 +3,7 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -17,11 +17,9 @@ import java.net.InetSocketAddress;
 
 @Name("Is Banned")
 @Description("Checks whether a player or IP is banned.")
-@Examples({
-	"player is banned",
-	"victim is not IP-banned",
-	"\"127.0.0.1\" is banned"
-})
+@Example("player is banned")
+@Example("victim is not IP-banned")
+@Example("\"127.0.0.1\" is banned")
 @Since("1.4")
 public class CondIsBanned extends PropertyCondition<Object> {
 	

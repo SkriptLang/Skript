@@ -6,7 +6,7 @@ import ch.njol.skript.command.Argument;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.EventRestrictedSyntax;
@@ -36,13 +36,11 @@ import java.util.regex.MatchResult;
 	"One can also use the type of the argument instead of its index to address the argument, e.g. in the above example 'player-argument' is the same as 'argument 1'.",
 	"Please note that specifying the argument type is only supported in script commands."
 })
-@Examples({
-	"give the item-argument to the player-argument",
-	"damage the player-argument by the number-argument",
-	"give a diamond pickaxe to the argument",
-	"add argument 1 to argument 2",
-	"heal the last argument"
-})
+@Example("give the item-argument to the player-argument")
+@Example("damage the player-argument by the number-argument")
+@Example("give a diamond pickaxe to the argument")
+@Example("add argument 1 to argument 2")
+@Example("heal the last argument")
 @Since("1.0, 2.7 (support for command events)")
 public class ExprArgument extends SimpleExpression<Object> implements EventRestrictedSyntax {
 

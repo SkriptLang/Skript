@@ -29,7 +29,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
@@ -86,7 +88,7 @@ public class SkriptCommand implements CommandExecutor {
 
 		// Log reloading message
 		String text = Language.format(CONFIG_NODE + ".reload." + "player reload", sender.getName(), what);
-		logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(text)), sender);
+		logHandler.log(new LogEntry(Level.INFO, text), sender);
 	}
 
 	private static final ArgsMessage m_reloaded = new ArgsMessage(CONFIG_NODE + ".reload.reloaded");
@@ -99,10 +101,10 @@ public class SkriptCommand implements CommandExecutor {
 		String message;
 		if (logHandler.numErrors() == 0) {
 			message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reloaded.toString(what, timeTaken)));
-			logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(message)));
+			logHandler.log(new LogEntry(Level.INFO, message));
 		} else {
 			message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reload_error.toString(what, logHandler.numErrors(), timeTaken)));
-			logHandler.log(new LogEntry(Level.SEVERE, Utils.replaceEnglishChatStyles(message)));
+			logHandler.log(new LogEntry(Level.SEVERE, message));
 		}
 	}
 
@@ -356,10 +358,11 @@ public class SkriptCommand implements CommandExecutor {
 					info(sender, "info.version", Skript.getVersion());
 				}
 
-				Collection<SkriptAddon> addons = Skript.getAddons();
+				Collection<SkriptAddon> addons = Skript.instance().addons();
 				info(sender, "info.addons", addons.isEmpty() ? "None" : "");
 				for (SkriptAddon addon : addons) {
-					PluginDescriptionFile desc = addon.plugin.getDescription();
+					JavaPlugin plugin = JavaPlugin.getProvidingPlugin(addon.source());
+					PluginDescriptionFile desc = plugin.getDescription();
 					String web = desc.getWebsite();
 					Skript.info(sender, " - " + desc.getFullName() + (web != null ? " (" + web + ")" : ""));
 				}

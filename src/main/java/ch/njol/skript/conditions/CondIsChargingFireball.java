@@ -2,7 +2,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Ghast;
@@ -10,10 +10,10 @@ import org.bukkit.entity.LivingEntity;
 
 @Name("Is Charging Fireball")
 @Description("Check whether a ghast is charging a fireball.")
-@Examples({
-	"if last spawned ghast is charging fireball:",
-		"\tkill last spawned ghast"
-})
+@Example("""
+	if last spawned ghast is charging fireball:
+		kill last spawned ghast
+	""")
 @Since("2.11")
 public class CondIsChargingFireball extends PropertyCondition<LivingEntity> {
 

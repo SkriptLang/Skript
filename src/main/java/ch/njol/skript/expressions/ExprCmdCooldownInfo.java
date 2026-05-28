@@ -2,6 +2,8 @@ package ch.njol.skript.expressions;
 
 import java.util.UUID;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -12,7 +14,7 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -27,14 +29,15 @@ import ch.njol.util.Kleenean;
 @Name("Cooldown Time/Remaining Time/Elapsed Time/Last Usage/Bypass Permission")
 @Description({"Only usable in command events. Represents the cooldown time, the remaining time, the elapsed time,",
 		"the last usage date, or the cooldown bypass permission."})
-@Examples({
-		"command /home:",
-		"\tcooldown: 10 seconds",
-		"\tcooldown message: You last teleported home %elapsed time% ago, you may teleport home again in %remaining time%.",
-		"\ttrigger:",
-		"\t\tteleport player to {home::%player%}"})
+@Example("""
+	command /home:
+		cooldown: 10 seconds
+		cooldown message: You last teleported home %elapsed time% ago, you may teleport home again in %remaining time%.
+		trigger:
+			teleport player to {home::%player%}
+	""")
 @Since("2.2-dev33")
-public class ExprCmdCooldownInfo extends SimpleExpression<Object> {
+public class ExprCmdCooldownInfo extends SimpleExpression<Object> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprCmdCooldownInfo.class, Object.class, ExpressionType.SIMPLE,
@@ -50,11 +53,12 @@ public class ExprCmdCooldownInfo extends SimpleExpression<Object> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		pattern = matchedPattern;
-		if (!getParser().isCurrentEvent(ScriptCommandEvent.class)) {
-			Skript.error("The " + getExpressionName() + " expression can only be used within a command", ErrorQuality.SEMANTIC_ERROR);
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(ScriptCommandEvent.class);
 	}
 
 	@Override

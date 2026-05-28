@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -28,11 +28,9 @@ import org.jetbrains.annotations.Nullable;
 	"changing the time by real-world minutes or real-world seconds only changes it approximately.",
 	"Removing an amount of time from a world's time will move the clock forward a day."
 })
-@Examples({
-	"set time of world \"world\" to 2:00",
-	"add 2 minecraft hours to time of world \"world\"",
-	"add 54 real seconds to time of world \"world\" # approximately 1 minecraft hour"
-})
+@Example("set time of world \"world\" to 2:00")
+@Example("add 2 minecraft hours to time of world \"world\"")
+@Example("add 54 real seconds to time of world \"world\" # approximately 1 minecraft hour")
 @Since("1.0")
 public class ExprTime extends PropertyExpression<World, Time> {
 

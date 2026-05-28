@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -25,12 +25,10 @@ import ch.njol.util.Kleenean;
 		"A given amount of random numbers or integers between two given numbers. Use 'number' if you want any number with decimal parts, or use use 'integer' if you only want whole numbers.",
 		"Please note that the order of the numbers doesn't matter, i.e. <code>random number between 2 and 1</code> will work as well as <code>random number between 1 and 2</code>."
 })
-@Examples({
-		"set the player's health to a random number between 5 and 10",
-		"send \"You rolled a %random integer from 1 to 6%!\" to the player",
-		"set {_chances::*} to 5 random integers between 5 and 96",
-		"set {_decimals::*} to 3 random numbers between 2.7 and -1.5"
-})
+@Example("set the player's health to a random number between 5 and 10")
+@Example("send \"You rolled a %random integer from 1 to 6%!\" to the player")
+@Example("set {_chances::*} to 5 random integers between 5 and 96")
+@Example("set {_decimals::*} to 3 random numbers between 2.7 and -1.5")
 @Since("1.4, 2.10 (Multiple random numbers)")
 public class ExprRandomNumber extends SimpleExpression<Number> {
 

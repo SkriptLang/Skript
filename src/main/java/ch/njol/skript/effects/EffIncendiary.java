@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -19,8 +19,10 @@ import ch.njol.util.Kleenean;
 
 @Name("Make Incendiary")
 @Description("Sets if an entity's explosion will leave behind fire. This effect is also usable in an explosion prime event.")
-@Examples({"on explosion prime:",
-			"\tmake the explosion fiery"})
+@Example("""
+	on explosion prime:
+		make the explosion fiery
+	""")
 @Since("2.5")
 public class EffIncendiary extends Effect {
 

@@ -23,3 +23,14 @@ test "text of text displays":
 	assert text of {_td} is "" with "failed to reset text"
 
 	delete entity within {_td}
+	spawn text display at test-location:
+		set {_multilineTest} to entity
+	set text of {_multilineTest} to "test", "testing" and "hello!!!"
+	assert text of {_multilineTest} is "test%nl%testing%nl%hello!!!" with "multiple lines with list1 set"
+	set {_line::1} to "hi!"
+	set {_line::2} to "i am"
+	set {_line::3} to "skripting..."
+	set text of {_multilineTest} to {_line::*}
+	assert text of {_multilineTest} is "hi!%nl%i am%nl%skripting..." with "multiple lines with list2 set"
+
+	delete entity within {_multilineTest}

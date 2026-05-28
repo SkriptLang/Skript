@@ -33,7 +33,14 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 			Section.SectionContext sectionContext = ParserInstance.get().getData(Section.SectionContext.class);
 			EffFunctionCall functionCall;
 			if (node != null) {
-				functionCall = sectionContext.modify(node, items, () -> EffFunctionCall.parse(input));
+				functionCall = sectionContext.modify(node, items, () -> {
+					EffFunctionCall parsed = EffFunctionCall.parse(input);
+					if (parsed != null && !sectionContext.claimed()) {
+						Skript.error("The line '" + input + "' is a valid function call but cannot function as a section (:) because there is no parameter to manage it.");
+						return null;
+					}
+					return parsed;
+				});
 			} else {
 				functionCall = EffFunctionCall.parse(input);
 			}
@@ -46,7 +53,7 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 			}
 			log.clear();
 
-			EffectSection section = EffectSection.parse(input, null, null, items);
+			EffectSection section = EffectSection.parse(input, null, node, false, items);
 			if (section != null) {
 				log.printLog();
 				return new EffectSectionEffect(section);

@@ -6,11 +6,11 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Section;
-import ch.njol.skript.lang.SkriptEventInfo;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.registrations.Classes;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyRegistry;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -138,8 +138,8 @@ public class DocumentationIdProvider {
 	 * @param eventInfo the event to get the ID of
 	 * @return the ID of the event
 	 */
-	private static String getEventId(SkriptEventInfo<?> eventInfo) {
-		return Objects.requireNonNullElse(eventInfo.getDocumentationID(), eventInfo.getId());
+	private static String getEventId(BukkitSyntaxInfos.Event<?> eventInfo) {
+		return Objects.requireNonNullElse(eventInfo.documentationId(), eventInfo.id());
 	}
 
 	/**
@@ -147,11 +147,11 @@ public class DocumentationIdProvider {
 	 * @param eventInfo the event to get the ID of
 	 * @return the ID of the event
 	 */
-	public static String getId(SkriptEventInfo<?> eventInfo) {
+	public static String getId(BukkitSyntaxInfos.Event<?> eventInfo) {
 		String eventId = getEventId(eventInfo);
-		int collisionCount = calculateCollisionCount(Skript.getEvents().iterator(),
+		int collisionCount = calculateCollisionCount(Skript.instance().syntaxRegistry().syntaxes(BukkitSyntaxInfos.Event.KEY).iterator(),
 			otherEventInfo -> eventId.equals(getEventId(otherEventInfo)),
-			otherEventInfo -> Arrays.equals(otherEventInfo.getPatterns(), eventInfo.getPatterns()));
+			otherEventInfo -> Arrays.equals(otherEventInfo.patterns().toArray(), eventInfo.patterns().toArray()));
 		return addCollisionSuffix(eventId, collisionCount);
 	}
 

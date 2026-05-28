@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -24,12 +24,12 @@ import java.text.SimpleDateFormat;
 	"Converts date to human-readable text format. By default, 'yyyy-MM-dd HH:mm:ss z' (e.g. '2018-03-30 16:03:12 +01') will be used. For reference, see this "
 		+ "<a href=\"https://en.wikipedia.org/wiki/ISO_8601\">Wikipedia article</a>."
 })
-@Examples({
-	"command /date:",
-	"\ttrigger:",
-	"\t\tsend \"Full date: %now formatted human-readable%\" to sender",
-	"\t\tsend \"Short date: %now formatted as \"yyyy-MM-dd\"%\" to sender"
-})
+@Example("""
+	command /date:
+		trigger:
+			send "Full date: %now formatted human-readable%" to sender
+			send "Short date: %now formatted as "yyyy-MM-dd"%" to sender
+	""")
 @Since("2.2-dev31, 2.7 (support variables in format)")
 public class ExprFormatDate extends PropertyExpression<Date, String> {
 	

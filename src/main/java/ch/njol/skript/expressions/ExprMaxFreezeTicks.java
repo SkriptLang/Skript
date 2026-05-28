@@ -4,7 +4,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -15,10 +15,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Maximum Freeze Time")
 @Description("The maximum amount of time an entity can spend in powdered snow before taking damage.")
-@Examples({
-	"difference between player's freeze time and player's max freeze time is less than 1 second:",
-	"\tsend \"you're about to freeze!\" to the player"
-})
+@Example("""
+	difference between player's freeze time and player's max freeze time is less than 1 second:
+		send "you're about to freeze!" to the player
+	""")
 @Since("2.7")
 public class ExprMaxFreezeTicks extends SimplePropertyExpression<Entity, Timespan> {
 

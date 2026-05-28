@@ -189,6 +189,7 @@ public class RuntimeErrorManager implements Closeable {
 			List<RuntimeErrorConsumer> currentConsumers = new ArrayList<>();
 			for (var set : filterMap.values())
 				currentConsumers.addAll(set);
+			filterMap.clear();
 			return currentConsumers;
 		}
 	}

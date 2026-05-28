@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Has Metadata")
 @Description("Checks whether a metadata holder has a metadata tag.")
-@Examples("if player has metadata value \"healer\":")
+@Example("if player has metadata value \"healer\":")
 @Since("2.2-dev36")
 @SuppressWarnings("null")
 public class CondHasMetadata extends Condition {

@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -17,10 +17,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Charge Entity")
 @Description("Charges or uncharges a creeper or wither skull. A creeper is charged when it has been struck by lightning.")
-@Examples({
-	"on spawn of creeper:",
-		"\tcharge the event-entity"
-})
+@Example("""
+	on spawn of creeper:
+		charge the event-entity
+	""")
 @Since("2.5, 2.10 (wither skulls)")
 public class EffCharge extends Effect {
 

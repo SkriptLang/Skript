@@ -2,7 +2,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -17,10 +17,12 @@ import org.skriptlang.skript.lang.script.Script;
 
 @Name("Is Using Experimental Feature")
 @Description("Checks whether a script is using an experimental feature by name.")
-@Examples({"the script is using \"example feature\"",
-		"on load:",
-		"\tif the script is using \"example feature\":",
-		"\t\tbroadcast \"You're using an experimental feature!\""})
+@Example("the script is using \"example feature\"")
+@Example("""
+	on load:
+		if the script is using "example feature":
+			broadcast "You're using an experimental feature!"
+	""")
 @Since("2.9.0")
 public class CondIsUsingFeature extends Condition {
 

@@ -2,7 +2,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -15,10 +15,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Event Cancelled")
 @Description("Checks whether or not the event is cancelled.")
-@Examples({"on click:",
-		"\tif event is cancelled:",
-		"\t\tbroadcast \"no clicks allowed!\""
-})
+@Example("""
+	on click:
+		if event is cancelled:
+			broadcast "no clicks allowed!"
+	""")
 @Since("2.2-dev36")
 public class CondCancelled extends Condition {
 

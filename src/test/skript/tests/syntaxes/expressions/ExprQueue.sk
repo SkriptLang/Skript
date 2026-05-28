@@ -70,7 +70,6 @@ test "dequeue queue":
 
 	assert {_queue} is empty with "queue was not empty"
 
-using for loops
 test "loop queue":
 	set {_queue} to a queue of "hello" and "there"
 	set {_count} to 0

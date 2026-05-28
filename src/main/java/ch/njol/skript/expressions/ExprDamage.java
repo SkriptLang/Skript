@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
@@ -11,7 +12,7 @@ import ch.njol.skript.bukkitutil.HealthUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -28,16 +29,18 @@ import ch.njol.util.coll.CollectionUtils;
 	"For entity damage events, possibly ignoring armour, criticals and/or enchantments (remember that in Skript '1' is one full heart, not half a heart).",
 	"For items, it's the amount of durability damage the item will be taking."
 })
-@Examples({
-	"on item damage:",
-		"\tevent-item is any tool",
-		"\tclear damage # unbreakable tools as the damage will be 0",
-	"on damage:",
-		"\tincrease the damage by 2"
-})
+@Example("""
+	on item damage:
+		event-item is any tool
+		clear damage # unbreakable tools as the damage will be 0
+	""")
+@Example("""
+	on damage:
+		increase the damage by 2
+	""")
 @Since("1.3.5, 2.8.0 (item damage event)")
 @Events({"Damage", "Vehicle Damage", "Item Damage"})
-public class ExprDamage extends SimpleExpression<Number> {
+public class ExprDamage extends SimpleExpression<Number> implements EventRestrictedSyntax {
 	
 	static {
 		Skript.registerExpression(ExprDamage.class, Number.class, ExpressionType.SIMPLE, "[the] damage");
@@ -48,12 +51,13 @@ public class ExprDamage extends SimpleExpression<Number> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EntityDamageEvent.class, VehicleDamageEvent.class, PlayerItemDamageEvent.class)) {
-			Skript.error("The 'damage' expression may only be used in damage events");
-			return false;
-		}
 		delay = isDelayed;
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EntityDamageEvent.class, VehicleDamageEvent.class, PlayerItemDamageEvent.class);
 	}
 	
 	@Override

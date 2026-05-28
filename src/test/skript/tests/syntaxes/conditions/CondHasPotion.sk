@@ -1,8 +1,0 @@
-test "has potion":
-	spawn a pig at event-location
-	apply ambient strength of tier 5 to last spawned pig for 10 seconds
-
-	assert last spawned pig has any potion effect with "pig has no potion effect"
-	assert last spawned pig has potion effect strength with "pig has strength potion effect"
-
-	clear last spawned pig

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -17,8 +17,8 @@ import ch.njol.util.Kleenean;
 
 @Name("All commands")
 @Description("Returns all registered commands or all script commands.")
-@Examples({"send \"Number of all commands: %size of all commands%\"",
-	"send \"Number of all script commands: %size of all script commands%\""})
+@Example("send \"Number of all commands: %size of all commands%\"")
+@Example("send \"Number of all script commands: %size of all script commands%\"")
 @Since("2.6")
 public class ExprAllCommands extends SimpleExpression<String> {
 	

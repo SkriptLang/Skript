@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.Event;
 import org.bukkit.event.enchantment.EnchantItemEvent;
@@ -9,7 +10,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -24,11 +25,13 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Applied Enchantments")
 @Description({"The applied enchantments in an enchant event.",
 				" Deleting or removing the applied enchantments will prevent the item's enchantment."})
-@Examples({"on enchant:",
-			"\tset the applied enchantments to sharpness 10 and fire aspect 5"})
+@Example("""
+    on enchant:
+    	set the applied enchantments to sharpness 10 and fire aspect 5
+    """)
 @Events("enchant")
 @Since("2.5")
-public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> {
+public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprAppliedEnchantments.class, EnchantmentType.class, ExpressionType.SIMPLE, "[the] applied enchant[ment]s");
@@ -36,11 +39,12 @@ public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EnchantItemEvent.class)) {
-			Skript.error("The applied enchantments are only usable in an enchant event.", ErrorQuality.SEMANTIC_ERROR);
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EnchantItemEvent.class);
 	}
 
 	@SuppressWarnings("null")

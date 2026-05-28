@@ -3,27 +3,29 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Egg Will Hatch")
 @Description("Whether the egg will hatch in a Player Egg Throw event.")
-@Examples({
-	"on player egg throw:",
-	"\tif an entity won't hatch:",
-	"\t\tsend \"Better luck next time!\" to the player"
-})
+@Example("""
+	on player egg throw:
+		if an entity won't hatch:
+			send "Better luck next time!" to the player
+	""")
 @Events("Egg Throw")
 @Since("2.7")
-public class CondWillHatch extends Condition {
+public class CondWillHatch extends Condition implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerCondition(CondWillHatch.class,
@@ -33,12 +35,13 @@ public class CondWillHatch extends Condition {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerEggThrowEvent.class)) {
-			Skript.error("You can't use the 'egg will hatch' condition outside of a Player Egg Throw event.");
-			return false;
-		}
 		setNegated(!parseResult.hasTag("will"));
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(PlayerEggThrowEvent.class);
 	}
 
 	@Override

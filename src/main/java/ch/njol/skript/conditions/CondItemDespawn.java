@@ -2,17 +2,17 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Item;
 
 @Name("Will Despawn")
 @Description("Checks if the dropped item will be despawned naturally through Minecraft's timer.")
-@Examples({
-	"if all dropped items can despawn naturally:",
-		"\tprevent all dropped items from naturally despawning"
-})
+@Example("""
+	if all dropped items can despawn naturally:
+		prevent all dropped items from naturally despawning
+	""")
 @Since("2.11")
 public class CondItemDespawn extends PropertyCondition<Item> {
 

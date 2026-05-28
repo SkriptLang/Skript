@@ -498,6 +498,13 @@ test "mooshroom data":
 	testData(red mooshroom kid)
 	testData(brown mooshroom kid)
 
+test "nautilus data" when running minecraft "1.21.11":
+	setSuperTypes(nautilus)
+	testData(nautilus)
+
+	setSuperTypes(nautilus, tamed nautilus)
+	testData(tamed nautilus)
+
 test "panda data":
 	setSuperTypes(panda)
 	testData(panda)
@@ -1061,6 +1068,17 @@ test "wolf data":
 		testData(wild baby ashen wolf color red)
 		testData(angry baby ashen wolf color red)
 		testData(peaceful baby ashen wolf color red)
+
+test "zombie nautilus data" when running minecraft "1.21.11":
+	setSuperTypes(zombie nautilus)
+	testData(zombie nautilus)
+	testData(temperate zombie nautilus)
+	testData(warm zombie nautilus)
+
+	setSuperTypes(zombie nautilus, tamed zombie nautilus)
+	testData(tamed zombie nautilus)
+	testData(tamed temperate zombie nautilus)
+	testData(tamed warm zombie nautilus)
 
 test "zombie villager data":
 	setSuperTypes(zombie villager)
