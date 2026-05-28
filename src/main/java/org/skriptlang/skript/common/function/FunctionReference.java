@@ -13,11 +13,11 @@ import ch.njol.skript.util.Utils;
 import com.google.common.base.Preconditions;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.function.FunctionReferenceParser.EmptyExpression;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
-import org.skriptlang.skript.util.Validated;
 
 import java.util.*;
 
@@ -26,7 +26,7 @@ import java.util.*;
  *
  * @param <T> The return type of this reference.
  */
-public final class FunctionReference<T> implements Debuggable, Validated {
+public final class FunctionReference<T> implements Debuggable {
 
 	private final String namespace;
 	private final String name;
@@ -141,14 +141,9 @@ public final class FunctionReference<T> implements Debuggable, Validated {
 		return true;
 	}
 
-	@Override
+	@ApiStatus.Internal
 	public void invalidate() {
 		validSignature = false;
-	}
-
-	@Override
-	public boolean valid() {
-		return validSignature;
 	}
 
 	private String getName(Class<?> clazz, boolean single) {
