@@ -10,7 +10,6 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.skript.util.Experience;
 import ch.njol.util.coll.CollectionUtils;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -26,7 +25,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public class ExprEnchantmentOfferCost extends SimplePropertyExpression<EnchantmentOffer, Long> {
 
 	public static void register(SyntaxRegistry registry) {
-		registry.register(SyntaxRegistry.EXPRESSION, SimplePropertyExpression.infoBuilder(
+		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(
 			ExprEnchantmentOfferCost.class, Long.class, "[enchant[ment]] cost", "enchantmentoffers", false).build());
 	}
 
@@ -36,15 +35,14 @@ public class ExprEnchantmentOfferCost extends SimplePropertyExpression<Enchantme
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.REMOVE || mode == ChangeMode.REMOVE_ALL || mode == ChangeMode.RESET)
 			return null;
 		return CollectionUtils.array(Number.class);
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		EnchantmentOffer[] offers = getExpr().getArray(event);
 		if (offers.length == 0 || delta == null)
 			return;

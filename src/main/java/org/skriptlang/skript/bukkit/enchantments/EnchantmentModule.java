@@ -62,19 +62,18 @@ public class EnchantmentModule extends HierarchicalAddonModule {
 			.since("1.4.6")
 			.parser(new Parser<>() {
 				@Override
-				@Nullable
-				public EnchantmentType parse(final String s, final ParseContext context) {
-					return EnchantmentType.parse(s);
+				public @Nullable EnchantmentType parse(String string, ParseContext context) {
+					return EnchantmentType.parse(string);
 				}
 
 				@Override
-				public String toString(final EnchantmentType t, final int flags) {
-					return t.toString();
+				public String toString(EnchantmentType type, int flags) {
+					return type.toString();
 				}
 
 				@Override
-				public String toVariableNameString(final EnchantmentType o) {
-					return o.toString();
+				public String toVariableNameString(EnchantmentType type) {
+					return type.toString();
 				}
 			})
 			.serializer(new YggdrasilSerializer<>()));

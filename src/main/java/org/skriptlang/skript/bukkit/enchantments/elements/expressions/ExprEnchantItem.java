@@ -19,6 +19,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import static org.skriptlang.skript.registration.DefaultSyntaxInfos.Expression.builder;
@@ -42,11 +43,13 @@ public class ExprEnchantItem extends SimpleExpression<ItemType> implements Event
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, builder(ExprEnchantItem.class, ItemType.class)
-			.addPatterns("[the] enchant[ed] item").build());
+			.addPatterns("[the] enchant[:ed] item").build());
 	}
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		if (!parseResult.hasTag("ed"))
+			ScriptWarning.printDeprecationWarning("The 'enchant item' form of the enchanted item expression is deprecated, please use 'enchanted 'item'!");
 		return true;
 	}
 
@@ -108,4 +111,5 @@ public class ExprEnchantItem extends SimpleExpression<ItemType> implements Event
 	public String toString(@Nullable Event event, boolean debug) {
 		return "enchanted item";
 	}
+
 }

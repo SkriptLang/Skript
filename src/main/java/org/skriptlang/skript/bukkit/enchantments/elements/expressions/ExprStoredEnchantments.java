@@ -1,14 +1,14 @@
 package org.skriptlang.skript.bukkit.enchantments.elements.expressions;
 
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -34,23 +34,24 @@ import java.util.Map;
 	""")
 @Example("""
 	command /godbook:
-	  trigger:
-	    set {_item} to minecraft:enchanted_book
-	    add mending to stored enchants of {_item} # adds mending 1
-	    add knockback 12 to stored enchants of {_item}
-	    add fire aspect 3 to stored enchants of {_item}
-	    give {_item} to player
+		trigger:
+			set {_item} to minecraft:enchanted_book
+			add mending to stored enchants of {_item} # adds mending 1
+			add knockback 12 to stored enchants of {_item}
+			add fire aspect 3 to stored enchants of {_item}
+			give {_item} to player
 	""")
 @Since("INSERT VERSION")
 public class ExprStoredEnchantments extends PropertyExpression<ItemType, EnchantmentType> {
+
 	public static void register(SyntaxRegistry registry) {
-		registry.register(SyntaxRegistry.EXPRESSION, PropertyExpression.infoBuilder(
+		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(
 			ExprStoredEnchantments.class, EnchantmentType.class, "stored enchant[ment]s", "itemtypes", false).build());
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<? extends ItemType>) expressions[0]);
 		return true;
 	}
@@ -72,22 +73,22 @@ public class ExprStoredEnchantments extends PropertyExpression<ItemType, Enchant
 	}
 
 	@Override
-	public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case ADD, SET, DELETE, REMOVE, REMOVE_ALL -> CollectionUtils.array(EnchantmentType[].class);
-			case null, default -> null;
+			default -> null;
 		};
 	}
 
 	@Override
-	public void change(Event event, Object @Nullable [] delta, Changer.ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		ItemType[] targets = getExpr().getArray(event);
 		for (ItemType target : targets) {
 			ItemMeta rawMeta = target.getItemMeta();
 			if (!(rawMeta instanceof EnchantmentStorageMeta meta))
 				continue;
 			Map<Enchantment, Integer> adjusted = new HashMap<>(meta.getStoredEnchants());
-			if (mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.DELETE)
+			if (mode == ChangeMode.SET || mode == ChangeMode.DELETE)
 				adjusted.clear();
 
 			switch (mode) {
@@ -112,7 +113,7 @@ public class ExprStoredEnchantments extends PropertyExpression<ItemType, Enchant
 						}
 					}
 				}
-				case null, default -> throw new IllegalArgumentException("Invalid change mode " + mode);
+				default -> throw new IllegalArgumentException("Invalid change mode " + mode);
 			}
 
 			for (Enchantment existing : meta.getStoredEnchants().keySet())
@@ -139,4 +140,5 @@ public class ExprStoredEnchantments extends PropertyExpression<ItemType, Enchant
 	public String toString(@Nullable Event event, boolean debug) {
 		return "stored enchantments of " + getExpr().toString(event, debug);
 	}
+
 }

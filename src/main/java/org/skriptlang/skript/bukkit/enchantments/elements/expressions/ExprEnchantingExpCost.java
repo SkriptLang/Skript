@@ -49,24 +49,26 @@ public class ExprEnchantingExpCost extends SimpleExpression<Integer> implements 
 	}
 
 	@Override
-	protected Integer[] get(Event event) {
-		return new Integer[]{((EnchantItemEvent) event).getExpLevelCost()};
+	protected Integer @Nullable [] get(Event event) {
+		if (!(event instanceof EnchantItemEvent enchantEvent))
+			return null;
+		
+		return new Integer[]{enchantEvent.getExpLevelCost()};
 	}
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case SET, ADD, REMOVE -> CollectionUtils.array(Number.class);
-			case null, default -> null;
+			default -> null;
 		};
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (delta == null || delta.length == 0)
+		if (delta == null || delta.length == 0 || !(event instanceof EnchantItemEvent enchantEvent))
 			return;
 		int cost = ((Number) delta[0]).intValue();
-		EnchantItemEvent enchantEvent = (EnchantItemEvent) event;
 		switch (mode) {
 			case SET -> enchantEvent.setExpLevelCost(cost);
 			case ADD -> {
@@ -97,4 +99,5 @@ public class ExprEnchantingExpCost extends SimpleExpression<Integer> implements 
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the displayed cost of enchanting";
 	}
+
 }

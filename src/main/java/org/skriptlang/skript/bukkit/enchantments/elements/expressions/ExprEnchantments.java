@@ -31,7 +31,7 @@ public class ExprEnchantments extends PropertyExpression<ItemType, EnchantmentTy
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
-			PropertyExpression.infoBuilder(ExprEnchantments.class, EnchantmentType.class, "enchantments", "itemtypes", false).build());
+			infoBuilder(ExprEnchantments.class, EnchantmentType.class, "enchantments", "itemtypes", false).build());
 	}
 
 	@Override
@@ -61,8 +61,10 @@ public class ExprEnchantments extends PropertyExpression<ItemType, EnchantmentTy
 	}
 
 	@Override
-	public Class<?>[] acceptChange(ChangeMode mode) {
-		return CollectionUtils.array(EnchantmentType[].class);
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case ADD, SET, REMOVE, REMOVE_ALL, DELETE, RESET -> CollectionUtils.array(EnchantmentType[].class);
+		};
 	}
 
 	

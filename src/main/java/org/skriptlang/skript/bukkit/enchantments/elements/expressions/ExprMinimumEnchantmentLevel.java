@@ -18,13 +18,13 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	set {_min} to the minimum enchantment level of sharpness
 	set {_max} to the maximum enchantment level of sharpness
 	loop integers between {_min} and {_max}:
-	  set slot loop-counter of {_gui} to enchanted book named "Sharpness %loop-value%" with lore "<reset>Click to enchant!"
+		set slot loop-counter of {_gui} to enchanted book named "Sharpness %loop-value%" with lore "<reset>Click to enchant!"
 	""")
 @Since("INSERT VERSION")
 public class ExprMinimumEnchantmentLevel extends SimplePropertyExpression<Enchantment, Integer> {
 
 	public static void register(SyntaxRegistry registry) {
-		registry.register(SyntaxRegistry.EXPRESSION, SimplePropertyExpression.infoBuilder(
+		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(
 			ExprMinimumEnchantmentLevel.class, Integer.class,
 			"(min[imum]|start[ing]) enchant[ment] level", "enchantments", true).build());
 	}
@@ -43,4 +43,5 @@ public class ExprMinimumEnchantmentLevel extends SimplePropertyExpression<Enchan
 	protected String getPropertyName() {
 		return "minimum enchantment level";
 	}
+
 }

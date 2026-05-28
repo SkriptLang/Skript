@@ -14,14 +14,14 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Example("""
 	set {_maximum} to the maximum enchantment level of sharpness
 	if the level of sharpness of the player's tool is greater than {_maximum}:
-	  send "<gold>Your tool's sharpness level was capped out at the maximum allowed level.</gold>"
-	  set the level of sharpness of the player's tool to {_maximum}
+		send "<gold>Your tool's sharpness level was capped out at the maximum allowed level.</gold>"
+		set the level of sharpness of the player's tool to {_maximum}
 	""")
 @Since("INSERT VERSION")
 public class ExprMaximumEnchantmentLevel extends SimplePropertyExpression<Enchantment, Integer> {
 
 	public static void register(SyntaxRegistry registry) {
-		registry.register(SyntaxRegistry.EXPRESSION, SimplePropertyExpression.infoBuilder(
+		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(
 			ExprMaximumEnchantmentLevel.class, Integer.class,
 			"max[imum] enchant[ment] level", "enchantments", true).build());
 	}
@@ -40,4 +40,5 @@ public class ExprMaximumEnchantmentLevel extends SimplePropertyExpression<Enchan
 	protected String getPropertyName() {
 		return "maximum enchantment level";
 	}
+
 }

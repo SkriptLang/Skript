@@ -65,7 +65,7 @@ public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> i
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case ADD, SET, DELETE, REMOVE -> CollectionUtils.array(EnchantmentType[].class);
-			case null, default -> null;
+			default -> null;
 		};
 	}
 
@@ -95,7 +95,7 @@ public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> i
 				for (EnchantmentType enchant : enchants)
 					enchantEvent.getEnchantsToAdd().remove(enchant.getType(), enchant.getLevel());
 			}
-			case null, default -> {
+			default -> {
 				assert false;
 			}
 		}

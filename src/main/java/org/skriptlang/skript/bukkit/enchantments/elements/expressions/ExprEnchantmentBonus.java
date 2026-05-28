@@ -7,7 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -26,25 +26,29 @@ import static org.skriptlang.skript.registration.DefaultSyntaxInfos.Expression.b
 @Events("enchant prepare")
 @Since("2.5")
 public class ExprEnchantmentBonus extends SimpleExpression<Integer> implements EventRestrictedSyntax {
+	
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, builder(ExprEnchantmentBonus.class, Integer.class)
 			.addPattern("[the] enchant[ment] bonus").build());
 	}
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		return true;
-	}
-
-	@Override
-	protected Integer @Nullable [] get(Event event) {
-		return new Integer[]{((PrepareItemEnchantEvent) event).getEnchantmentBonus()};
 	}
 
 	@Override
 	@SuppressWarnings("unchecked") /* hard-coded event type */
 	public Class<? extends Event>[] supportedEvents() {
 		return new Class[]{PrepareItemEnchantEvent.class};
+	}
+
+	@Override
+	protected Integer @Nullable [] get(Event event) {
+		if (!(event instanceof PrepareItemEnchantEvent prepare))
+			return null;
+
+		return new Integer[]{prepare.getEnchantmentBonus()};
 	}
 
 	@Override
@@ -61,4 +65,5 @@ public class ExprEnchantmentBonus extends SimpleExpression<Integer> implements E
 	public String toString(@Nullable Event event, boolean debug) {
 		return "enchantment bonus";
 	}
+
 }
