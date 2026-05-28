@@ -1,4 +1,4 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.enchantments.elements.expressions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,22 +11,22 @@ import org.bukkit.event.Event;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+
+import static org.skriptlang.skript.registration.DefaultSyntaxInfos.Expression.builder;
 
 @Name("Enchantment Offer")
 @Description("The enchantment offer in enchant prepare events.")
@@ -36,16 +36,19 @@ import ch.njol.util.coll.CollectionUtils;
 	""")
 @Since("2.5")
 @Events("enchant prepare")
-@RequiredPlugins("1.11 or newer")
 public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> implements EventRestrictedSyntax {
 
-	static {
-		if (Skript.classExists("org.bukkit.enchantments.EnchantmentOffer")) {
-			Skript.registerExpression(ExprEnchantmentOffer.class, EnchantmentOffer.class, ExpressionType.SIMPLE, 
-					"[all [of]] [the] enchant[ment] offers",
-					"enchant[ment] offer[s] %numbers%",
-					"[the] %number%(st|nd|rd|th) enchant[ment] offer");
-		}
+	/*
+	* This should probably be an event value, but ExprElement doesn't support the %number%(st|nd|rd|th) %classinfo% syntax,
+	* and we have to keep it for backward compatibility, so for now it's best to just keep it as an expression
+	* */
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION, builder(ExprEnchantmentOffer.class, EnchantmentOffer.class)
+			.addPatterns(
+				"[all [of]] [the] enchant[ment] offers",
+				"enchant[ment] offer[s] %numbers%",
+				"[the] %number%(st|nd|rd|th) enchant[ment] offer"
+			).priority(SyntaxInfo.SIMPLE).build());
 	}
 
 	@SuppressWarnings("null")
@@ -56,8 +59,8 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 	// Used for getCost()
 	private final Random rand = new Random();
 
-	@SuppressWarnings({"null", "unchecked"})
 	@Override
+	@SuppressWarnings({"null", "unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (matchedPattern == 0) {
 			all = true;
@@ -76,29 +79,29 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 	@SuppressWarnings({"null", "unused"})
 	@Override
 	@Nullable
-	protected EnchantmentOffer[] get(Event e) {
-		if (!(e instanceof PrepareItemEnchantEvent))
+	protected EnchantmentOffer[] get(Event event) {
+		if (!(event instanceof PrepareItemEnchantEvent))
 			return null;
 
 		if (all)
-			return ((PrepareItemEnchantEvent) e).getOffers();
+			return ((PrepareItemEnchantEvent) event).getOffers();
 		if (exprOfferNumber == null)
 			return new EnchantmentOffer[0];
 		if (exprOfferNumber.isSingle()) {
-			Number offerNumber = exprOfferNumber.getSingle(e);
+			Number offerNumber = exprOfferNumber.getSingle(event);
 			if (offerNumber == null)
 				return new EnchantmentOffer[0];
 			int offer = offerNumber.intValue();
-			if (offer < 1 || offer > ((PrepareItemEnchantEvent) e).getOffers().length)
+			if (offer < 1 || offer > ((PrepareItemEnchantEvent) event).getOffers().length)
 				return new EnchantmentOffer[0];
-			return new EnchantmentOffer[]{((PrepareItemEnchantEvent) e).getOffers()[offer - 1]};
+			return new EnchantmentOffer[]{((PrepareItemEnchantEvent) event).getOffers()[offer - 1]};
 		}
 		List<EnchantmentOffer> offers = new ArrayList<>();
-		int i;
-		for (Number n : exprOfferNumber.getArray(e)) {
-			i = n.intValue();
-			if (i >= 1 || i <= ((PrepareItemEnchantEvent) e).getOffers().length)
-				offers.add(((PrepareItemEnchantEvent) e).getOffers()[i - 1]);
+		int intIndex;
+		for (Number index : exprOfferNumber.getArray(event)) {
+			intIndex = index.intValue();
+			if (intIndex >= 1 && intIndex <= ((PrepareItemEnchantEvent) event).getOffers().length)
+				offers.add(((PrepareItemEnchantEvent) event).getOffers()[intIndex - 1]);
 		}
 		return offers.toArray(new EnchantmentOffer[0]);
 	}
@@ -111,47 +114,46 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 		return null;
 	}
 
-	@SuppressWarnings("null")
 	@Override
+	@SuppressWarnings("null")
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta == null && mode != ChangeMode.DELETE)
 			return;
 		EnchantmentType et = mode != ChangeMode.DELETE ? (EnchantmentType) delta[0] : null;
-		if (event instanceof PrepareItemEnchantEvent) {
-			PrepareItemEnchantEvent e = (PrepareItemEnchantEvent) event;
+		if (event instanceof PrepareItemEnchantEvent prepareEvent) {
 			switch (mode) {
 				case SET:
 					if (all) {
 						for (int i = 0; i <= 2; i++) {
-							EnchantmentOffer eo = e.getOffers()[i];
-							if (eo == null) {
-								eo = new EnchantmentOffer(et.getType(), et.getLevel(), getCost(i + 1, e.getEnchantmentBonus()));
-								e.getOffers()[i] = eo;
+							EnchantmentOffer offer = prepareEvent.getOffers()[i];
+							if (offer == null) {
+								offer = new EnchantmentOffer(et.getType(), et.getLevel(), getCost(i + 1, prepareEvent.getEnchantmentBonus()));
+								prepareEvent.getOffers()[i] = offer;
 							} else {
-								eo.setEnchantment(et.getType());
-								eo.setEnchantmentLevel(et.getLevel());
+								offer.setEnchantment(et.getType());
+								offer.setEnchantmentLevel(et.getLevel());
 							}
 						}
 					} else {
-						for (Number n : exprOfferNumber.getArray(e)) {
-							int slot = n.intValue() - 1;
-							EnchantmentOffer eo = e.getOffers()[slot];
-							if (eo == null) {
-								eo = new EnchantmentOffer(et.getType(), et.getLevel(), getCost(slot + 1, e.getEnchantmentBonus()));
-								e.getOffers()[slot] = eo;
+						for (Number index : exprOfferNumber.getArray(prepareEvent)) {
+							int slot = index.intValue() - 1;
+							EnchantmentOffer offer = prepareEvent.getOffers()[slot];
+							if (offer == null) {
+								offer = new EnchantmentOffer(et.getType(), et.getLevel(), getCost(slot + 1, prepareEvent.getEnchantmentBonus()));
+								prepareEvent.getOffers()[slot] = offer;
 							} else {
-								eo.setEnchantment(et.getType());
-								eo.setEnchantmentLevel(et.getLevel());
+								offer.setEnchantment(et.getType());
+								offer.setEnchantmentLevel(et.getLevel());
 							}
 						}
 					}
 					break;
 				case DELETE:
 					if (all) {
-						Arrays.fill(e.getOffers(), null);
+						Arrays.fill(prepareEvent.getOffers(), null);
 					} else {
-						for (Number n : exprOfferNumber.getArray(e))
-							e.getOffers()[n.intValue() - 1] = null;
+						for (Number index : exprOfferNumber.getArray(prepareEvent))
+							prepareEvent.getOffers()[index.intValue() - 1] = null;
 					}
 					break;
 				case ADD:
@@ -174,8 +176,8 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return all ? "the enchantment offers" : "enchantment offer(s) " + exprOfferNumber.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return all ? "the enchantment offers" : "enchantment offer(s) " + exprOfferNumber.toString(event, debug);
 	}
 
 	/**
@@ -186,13 +188,13 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 	 */
 	public int getCost(int slot, int bookshelves) {
 		// (from 1 to 8) + floor(bookshelves / 2) + (from 0 to bookshelves)
-		int base = (int) ((rand.nextInt(7) + 1) + Math.floor(bookshelves / 2) + (rand.nextInt(bookshelves + 1)));
-		switch (slot) {
-			case 1: return Math.max(base / 3, 1);
-			case 2: return (base * 2) / 3 + 1;
-			case 3: return Math.max(base, bookshelves * 2);
-			default: return 1;
-		}
+		int base = (rand.nextInt(7) + 1) + (bookshelves / 2) + (rand.nextInt(bookshelves + 1));
+		return switch (slot) {
+			case 1 -> Math.max(base / 3, 1);
+			case 2 -> (base * 2) / 3 + 1;
+			case 3 -> Math.max(base, bookshelves * 2);
+			default -> 1;
+		};
 	}
 
 }

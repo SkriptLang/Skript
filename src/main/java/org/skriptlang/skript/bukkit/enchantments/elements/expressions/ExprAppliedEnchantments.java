@@ -1,12 +1,10 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.enchantments.elements.expressions;
 
 import ch.njol.skript.lang.EventRestrictedSyntax;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.Event;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
@@ -14,17 +12,20 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+
+import static org.skriptlang.skript.registration.DefaultSyntaxInfos.Expression.builder;
 
 @Name("Applied Enchantments")
-@Description({"The applied enchantments in an enchant event.",
-				" Deleting or removing the applied enchantments will prevent the item's enchantment."})
+@Description("""
+	The applied enchantments in an enchant event.
+	Deleting or removing the applied enchantments will prevent the item's enchantment.
+	""")
 @Example("""
     on enchant:
     	set the applied enchantments to sharpness 10 and fire aspect 5
@@ -33,8 +34,10 @@ import ch.njol.util.coll.CollectionUtils;
 @Since("2.5")
 public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> implements EventRestrictedSyntax {
 
-	static {
-		Skript.registerExpression(ExprAppliedEnchantments.class, EnchantmentType.class, ExpressionType.SIMPLE, "[the] applied enchant[ment]s");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION,
+			builder(ExprAppliedEnchantments.class, EnchantmentType.class)
+				.addPattern("[the] applied enchant[ment]s").build());
 	}
 
 	@Override
@@ -47,58 +50,56 @@ public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> i
 		return CollectionUtils.array(EnchantItemEvent.class);
 	}
 
-	@SuppressWarnings("null")
 	@Override
 	@Nullable
-	protected EnchantmentType[] get(Event e) {
-		if (!(e instanceof EnchantItemEvent))
+	@SuppressWarnings("null")
+	protected EnchantmentType[] get(Event event) {
+		if (!(event instanceof EnchantItemEvent))
 			return null;
 
-		return ((EnchantItemEvent) e).getEnchantsToAdd().entrySet().stream()
-				.map(entry -> new EnchantmentType(entry.getKey(), entry.getValue()))
-				.toArray(EnchantmentType[]::new);
+		return ((EnchantItemEvent) event).getEnchantsToAdd().entrySet().stream()
+			.map(entry -> new EnchantmentType(entry.getKey(), entry.getValue()))
+			.toArray(EnchantmentType[]::new);
 	}
 
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.REMOVE_ALL || mode == ChangeMode.RESET)
-			return null;
-		return CollectionUtils.array(Enchantment[].class, EnchantmentType[].class);
+		return switch (mode) {
+			case ADD, SET, DELETE, REMOVE -> CollectionUtils.array(EnchantmentType[].class);
+			case null, default -> null;
+		};
 	}
 
 	@SuppressWarnings("null")
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (!(event instanceof EnchantItemEvent))
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		if (!(event instanceof EnchantItemEvent enchantEvent))
 			return;
 
 		EnchantmentType[] enchants = new EnchantmentType[delta != null ? delta.length : 0];
 		if (delta != null && delta.length != 0) {
 			for (int i = 0; i < delta.length; i++) {
-				if (delta[i] instanceof EnchantmentType)
-					enchants[i] = (EnchantmentType) delta[i];
-				else
-					enchants[i] = new EnchantmentType((Enchantment) delta[i]);
+				enchants[i] = (EnchantmentType) delta[i];
 			}
 		}
-		EnchantItemEvent e = (EnchantItemEvent) event;
+
+		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE)
+			enchantEvent.getEnchantsToAdd().clear();
+
 		switch (mode) {
-			case SET:
-				e.getEnchantsToAdd().clear();
-			case ADD:
+			case DELETE -> {}
+			case SET, ADD -> {
 				for (EnchantmentType enchant : enchants)
-					e.getEnchantsToAdd().put(enchant.getType(), enchant.getLevel());
-				break;
-			case REMOVE:
+					enchantEvent.getEnchantsToAdd().put(enchant.getType(), enchant.getLevel());
+			}
+			case REMOVE -> {
 				for (EnchantmentType enchant : enchants)
-					e.getEnchantsToAdd().remove(enchant.getType(), enchant.getLevel());
-				break;
-			case DELETE:
-				e.getEnchantsToAdd().clear();
-			case REMOVE_ALL:
-			case RESET:
+					enchantEvent.getEnchantsToAdd().remove(enchant.getType(), enchant.getLevel());
+			}
+			case null, default -> {
 				assert false;
+			}
 		}
 	}
 
@@ -113,7 +114,7 @@ public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> i
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "applied enchantments";
 	}
 

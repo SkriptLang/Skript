@@ -9,6 +9,7 @@ import org.skriptlang.skript.bukkit.block.BlockModule;
 import org.skriptlang.skript.bukkit.breeding.BreedingModule;
 import org.skriptlang.skript.bukkit.brewing.BrewingModule;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceModule;
+import org.skriptlang.skript.bukkit.enchantments.EnchantmentModule;
 import org.skriptlang.skript.bukkit.entity.EntityModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
@@ -50,7 +51,8 @@ public class BukkitModule extends HierarchicalAddonModule {
 			new PDCModule(this),
 			new PotionModule(this),
 			new TagModule(this),
-			new TextModule(this)
+			new TextModule(this),
+			new EnchantmentModule(this)
 		);
 	}
 

@@ -1,13 +1,13 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.enchantments.elements.expressions;
 
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import org.bukkit.event.Event;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
@@ -15,16 +15,19 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+
+import static org.skriptlang.skript.registration.DefaultSyntaxInfos.Expression.builder;
 
 @Name("Enchant Item")
-@Description({"The enchant item in an enchant prepare event or enchant event.",
-				"It can be modified, but enchantments will still be applied in the enchant event."})
+@Description("""
+	The enchant item in an enchant prepare event or enchant event.
+	It can be modified, but enchantments will still be applied in the enchant event.
+	""")
 @Example("""
     on enchant:
     	set the enchanted item to a diamond chestplate
@@ -37,8 +40,9 @@ import ch.njol.util.coll.CollectionUtils;
 @Since("2.5")
 public class ExprEnchantItem extends SimpleExpression<ItemType> implements EventRestrictedSyntax {
 
-	static {
-		Skript.registerExpression(ExprEnchantItem.class, ItemType.class, ExpressionType.SIMPLE, "[the] enchant[ed] item");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION, builder(ExprEnchantItem.class, ItemType.class)
+			.addPatterns("[the] enchant[ed] item").build());
 	}
 
 	@Override
@@ -52,14 +56,12 @@ public class ExprEnchantItem extends SimpleExpression<ItemType> implements Event
 	}
 
 	@Override
-	@Nullable
-	protected ItemType[] get(Event e) {
-		if (e instanceof PrepareItemEnchantEvent)
-			return new ItemType[]{new ItemType(((PrepareItemEnchantEvent) e).getItem())};
-		else if (e instanceof EnchantItemEvent)
-			return new ItemType[]{new ItemType(((EnchantItemEvent) e).getItem())};
-		else
-			return null;
+	protected ItemType[] get(Event event) {
+		return new ItemType[]{new ItemType(switch (event) {
+			case PrepareItemEnchantEvent prepare -> prepare.getItem();
+			case EnchantItemEvent enchant -> enchant.getItem();
+			case null, default -> throw new IllegalStateException("Unsupported event " + event);
+		})};
 	}
 
 	@Override
@@ -71,30 +73,25 @@ public class ExprEnchantItem extends SimpleExpression<ItemType> implements Event
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (delta == null)
 			return;
 		ItemType item = ((ItemType) delta[0]);
 		switch (mode) {
-			case SET:
-				if (event instanceof PrepareItemEnchantEvent) {
-					PrepareItemEnchantEvent e = (PrepareItemEnchantEvent) event;
-					e.getItem().setType(item.getMaterial());
-					e.getItem().setItemMeta(item.getItemMeta());
-					e.getItem().setAmount(item.getAmount());
-				} else if (event instanceof EnchantItemEvent) {
-					EnchantItemEvent e = (EnchantItemEvent) event;
-					e.getItem().setType(item.getMaterial());
-					e.getItem().setItemMeta(item.getItemMeta());
-					e.getItem().setAmount(item.getAmount());
-				}
-				break;
-			case ADD:
-			case REMOVE:
-			case RESET:
-			case DELETE:
-			case REMOVE_ALL:
+			case SET -> {
+				ItemStack existing = switch (event) {
+					case PrepareItemEnchantEvent prepare -> prepare.getItem();
+					case EnchantItemEvent enchant -> enchant.getItem();
+					default -> throw new AssertionError("unreachable");
+				};
+				//noinspection deprecation back-compat; danger danger !!
+				existing.setType(item.getMaterial());
+				existing.setItemMeta(item.getItemMeta());
+				existing.setAmount(item.getAmount());
+			}
+			case null, default -> {
 				assert false;
+			}
 		}
 	}
 
@@ -109,8 +106,7 @@ public class ExprEnchantItem extends SimpleExpression<ItemType> implements Event
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "enchanted item";
 	}
-
 }

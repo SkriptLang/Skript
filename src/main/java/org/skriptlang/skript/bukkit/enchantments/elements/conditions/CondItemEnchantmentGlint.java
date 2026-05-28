@@ -1,14 +1,14 @@
-package ch.njol.skript.conditions;
+package org.skriptlang.skript.bukkit.enchantments.elements.conditions;
 
 import org.bukkit.inventory.meta.ItemMeta;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Item Has Enchantment Glint Override")
 @Description("Checks whether an item has the enchantment glint overridden, or is forced to glint or not.")
@@ -24,15 +24,14 @@ import ch.njol.util.Kleenean;
 	else:
 		send "This item does not have any glint override." to player
 	""")
-@RequiredPlugins("Spigot 1.20.5+")
 @Since("2.10")
 public class CondItemEnchantmentGlint extends PropertyCondition<ItemType> {
 
-	static {
-		if (Skript.methodExists(ItemMeta.class, "getEnchantmentGlintOverride")) {
-			register(CondItemEnchantmentGlint.class, PropertyType.HAVE, "enchantment glint overrid(den|e)", "itemtypes");
-			register(CondItemEnchantmentGlint.class, PropertyType.BE, "forced to [:not] glint", "itemtypes");
-		}
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.CONDITION, PropertyCondition.infoBuilder(CondItemEnchantmentGlint.class,
+			PropertyType.HAVE, "enchantment glint overrid(den|e)", "itemtypes").build());
+		registry.register(SyntaxRegistry.CONDITION, PropertyCondition.infoBuilder(CondItemEnchantmentGlint.class,
+			PropertyType.BE, "forced to [:not] glint", "itemtypes").build());
 	}
 
 	private int matchedPattern;

@@ -1,19 +1,18 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.enchantments.elements.expressions;
 
 import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.Experience;
 import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Enchantment Offer Cost")
 @Description({
@@ -24,12 +23,11 @@ import ch.njol.util.coll.CollectionUtils;
 })
 @Example("set cost of enchantment offer 1 to 50")
 @Since("2.5")
-@RequiredPlugins("1.11 or newer")
 public class ExprEnchantmentOfferCost extends SimplePropertyExpression<EnchantmentOffer, Long> {
 
-	static {
-		if (Skript.classExists("org.bukkit.enchantments.EnchantmentOffer"))
-			register(ExprEnchantmentOfferCost.class, Long.class, "[enchant[ment]] cost", "enchantmentoffers");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION, SimplePropertyExpression.infoBuilder(
+			ExprEnchantmentOfferCost.class, Long.class, "[enchant[ment]] cost", "enchantmentoffers", false).build());
 	}
 
 	@Override
@@ -51,6 +49,8 @@ public class ExprEnchantmentOfferCost extends SimplePropertyExpression<Enchantme
 		if (offers.length == 0 || delta == null)
 			return;
 		Object c = delta[0];
+		if (c == null)
+			return;
 		int cost = c instanceof Number ? ((Number) c).intValue() : ((Experience) c).getXP();
 		if (cost < 1) 
 			return;
