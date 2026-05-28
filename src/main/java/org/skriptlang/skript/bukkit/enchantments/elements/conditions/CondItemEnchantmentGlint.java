@@ -29,37 +29,42 @@ public class CondItemEnchantmentGlint extends PropertyCondition<ItemType> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.CONDITION, PropertyCondition
-			.infoBuilder(CondItemEnchantmentGlint.class, PropertyType.HAVE, "enchantment glint overrid(den|e)", "itemtypes")
+			.infoBuilder(CondItemEnchantmentGlint.class, PropertyType.HAVE, "enchantment glint (override:overrid(den|e))", "itemtypes")
 			.addPatterns(getPatterns(PropertyType.BE, "forced to [:not] glint", "itemtypes")).build());
 	}
 
-	private int matchedPattern;
-	private boolean glint;
+	private boolean expectedGlintOverride;
+	private boolean override;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		this.matchedPattern = matchedPattern;
-		glint = !parseResult.hasTag("not");
-		return super.init(expressions, matchedPattern, isDelayed, parseResult);
+		if (!super.init(expressions, matchedPattern, isDelayed, parseResult)) return false;
+		override = parseResult.hasTag("override");
+		expectedGlintOverride = !parseResult.hasTag("not");
+
+		// We override setNegated to correctly handle multiple patterns. Note that the [:not] parse tag is not negating.
+		setNegated(matchedPattern % 2 != 0);
+		return true;
 	}
 
 	@Override
 	public boolean check(ItemType itemType) {
 		ItemMeta meta = itemType.getItemMeta();
-		// enchantment glint override
-		if (matchedPattern == 0)
+
+		if (override)
 			return meta.hasEnchantmentGlintOverride();
-		// forced to glint
+
 		if (!meta.hasEnchantmentGlintOverride())
 			return false;
-		return meta.getEnchantmentGlintOverride();
+
+		return meta.getEnchantmentGlintOverride() == expectedGlintOverride;
 	}
 
 	@Override
 	protected String getPropertyName() {
-		if (matchedPattern == 0)
+		if (override)
 			return "enchantment glint overridden";
-		return "forced to " + (glint ? "" : "not ") + "glint";
+		return "forced to " + (expectedGlintOverride ? "" : "not ") + "glint";
 	}
 
 }
