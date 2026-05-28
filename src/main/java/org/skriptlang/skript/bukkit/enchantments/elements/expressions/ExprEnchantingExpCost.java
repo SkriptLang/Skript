@@ -54,8 +54,7 @@ public class ExprEnchantingExpCost extends SimpleExpression<Integer> implements 
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case SET, ADD, REMOVE -> CollectionUtils.array(Number.class);
 			case null, default -> null;

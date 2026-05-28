@@ -67,8 +67,7 @@ public class ExprEnchantmentLevel extends SimpleExpression<Long> {
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case SET, REMOVE, ADD -> CollectionUtils.array(Number.class);
 			default -> null;

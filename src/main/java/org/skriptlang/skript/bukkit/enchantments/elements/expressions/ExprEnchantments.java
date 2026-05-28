@@ -47,7 +47,6 @@ public class ExprEnchantments extends PropertyExpression<ItemType, EnchantmentTy
 	}
 
 	@Override
-	@Nullable
 	protected EnchantmentType[] get(Event event, ItemType[] source) {
 		List<EnchantmentType> enchantments = new ArrayList<>();
 		for (ItemType item : source) {
@@ -62,7 +61,6 @@ public class ExprEnchantments extends PropertyExpression<ItemType, EnchantmentTy
 	}
 
 	@Override
-	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		return CollectionUtils.array(EnchantmentType[].class);
 	}

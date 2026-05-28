@@ -78,8 +78,7 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 
 	@SuppressWarnings({"null", "unused"})
 	@Override
-	@Nullable
-	protected EnchantmentOffer[] get(Event event) {
+	protected EnchantmentOffer @Nullable [] get(Event event) {
 		if (!(event instanceof PrepareItemEnchantEvent))
 			return null;
 
@@ -107,8 +106,7 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE)
 			return CollectionUtils.array(EnchantmentType.class);
 		return null;
@@ -124,12 +122,13 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 			switch (mode) {
 				case SET:
 					assert type != null;
-					final Number[] indices = all ? new Number[]{0, 1, 2} : exprOfferNumber.getArray(prepareEvent);
+					Number[] indices = all ? new Number[]{1, 2, 3} : exprOfferNumber.getArray(prepareEvent);
 					for (Number index : indices) {
 						int slot = index.intValue() - 1;
 						EnchantmentOffer offer = prepareEvent.getOffers()[slot];
 						if (offer == null) {
-							offer = new EnchantmentOffer(type.getType(), type.getLevel(), getCost(slot + 1, prepareEvent.getEnchantmentBonus()));
+							offer = new EnchantmentOffer(type.getType(), type.getLevel(),
+								getCost(slot + 1, prepareEvent.getEnchantmentBonus()));
 							prepareEvent.getOffers()[slot] = offer;
 						} else {
 							offer.setEnchantment(type.getType());

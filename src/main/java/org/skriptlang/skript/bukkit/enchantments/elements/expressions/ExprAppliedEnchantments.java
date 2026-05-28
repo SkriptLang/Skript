@@ -51,9 +51,8 @@ public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> i
 	}
 
 	@Override
-	@Nullable
 	@SuppressWarnings("null")
-	protected EnchantmentType[] get(Event event) {
+	protected EnchantmentType @Nullable [] get(Event event) {
 		if (!(event instanceof EnchantItemEvent))
 			return null;
 
@@ -63,8 +62,7 @@ public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> i
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case ADD, SET, DELETE, REMOVE -> CollectionUtils.array(EnchantmentType[].class);
 			case null, default -> null;

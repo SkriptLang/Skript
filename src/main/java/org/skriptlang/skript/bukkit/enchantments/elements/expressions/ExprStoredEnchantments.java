@@ -11,6 +11,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
@@ -73,7 +74,7 @@ public class ExprStoredEnchantments extends PropertyExpression<ItemType, Enchant
 	@Override
 	public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
 		return switch (mode) {
-			case ADD, SET, DELETE, REMOVE, REMOVE_ALL -> new Class<?>[]{EnchantmentType[].class};
+			case ADD, SET, DELETE, REMOVE, REMOVE_ALL -> CollectionUtils.array(EnchantmentType[].class);
 			case null, default -> null;
 		};
 	}

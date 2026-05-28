@@ -40,7 +40,7 @@ public class ExprEnchantmentOfferCost extends SimplePropertyExpression<Enchantme
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.REMOVE || mode == ChangeMode.REMOVE_ALL || mode == ChangeMode.RESET)
 			return null;
-		return CollectionUtils.array(Number.class, Experience.class);
+		return CollectionUtils.array(Number.class);
 	}
 
 	@Override
@@ -48,38 +48,31 @@ public class ExprEnchantmentOfferCost extends SimplePropertyExpression<Enchantme
 		EnchantmentOffer[] offers = getExpr().getArray(event);
 		if (offers.length == 0 || delta == null)
 			return;
-		Object c = delta[0];
-		if (c == null)
+		if (delta[0] == null)
 			return;
-		int cost = c instanceof Number ? ((Number) c).intValue() : ((Experience) c).getXP();
+		int cost = ((Number) delta[0]).intValue();
 		if (cost < 1) 
 			return;
 		int change;
-		switch (mode) {
-			case SET:
-				for (EnchantmentOffer offer : offers)
-					offer.setCost(cost);
-				break;
-			case ADD:
-				for (EnchantmentOffer offer : offers) {
+		for (EnchantmentOffer offer : offers) {
+			switch (mode) {
+				case SET -> offer.setCost(cost);
+				case ADD -> {
 					change = offer.getCost() + cost;
-					if (change < 1) 
+					if (change < 1)
 						return;
 					offer.setCost(change);
 				}
-				break;
-			case REMOVE:
-				for (EnchantmentOffer offer : offers) {
+				case REMOVE -> {
 					change = offer.getCost() - cost;
-					if (change < 1) 
+					if (change < 1)
 						return;
 					offer.setCost(change);
 				}
-				break;
-			case RESET:
-			case DELETE:
-			case REMOVE_ALL:
-				assert false;
+				case RESET, DELETE, REMOVE_ALL -> {
+					assert false;
+				}
+			}
 		}
 	}
 

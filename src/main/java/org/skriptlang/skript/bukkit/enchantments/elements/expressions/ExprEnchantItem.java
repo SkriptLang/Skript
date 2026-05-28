@@ -65,8 +65,7 @@ public class ExprEnchantItem extends SimpleExpression<ItemType> implements Event
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET)
 			return CollectionUtils.array(ItemType.class);
 		return null;
