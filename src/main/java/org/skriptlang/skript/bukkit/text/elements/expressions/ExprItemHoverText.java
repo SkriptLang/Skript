@@ -6,13 +6,15 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import net.kyori.adventure.text.Component;
+import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
-import org.skriptlang.skript.bukkit.text.TextComponentParser;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Show Item Hover Text")
+@Name("Show Item Hover Component")
 @Description("""
-	Creates a '<hover:show_item:...>' string from an item stack, which can be used to show the item's hover text in chat.
+	Creates a '<hover:show_item:...>' component from an item stack, which can be used to show the item's hover text in chat.
 	""")
 @Example("""
 	on right click on a chest:
@@ -21,29 +23,33 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 			send formatted " - %item hover text of loop-item%%loop-item%"
 	""")
 @Since("INSERT VERSION")
-public class ExprItemHoverText extends SimplePropertyExpression<ItemStack, String> {
+public class ExprItemHoverText extends SimplePropertyExpression<ItemStack, Component> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprItemHoverText.class, String.class, "[show] item hover text", "itemstacks", false)
+			SyntaxInfo.Expression.builder(ExprItemHoverText.class, Component.class)
+				.addPattern("[a[n]] [show] item hover [text] component (for|using|from) %itemstacks%")
 				.supplier(ExprItemHoverText::new)
 				.build());
 	}
 
 	@Override
-	public String convert(ItemStack from) {
-		Component dummy = Component.empty().hoverEvent(from.asHoverEvent());
-		return TextComponentParser.instance().toString(dummy);
+	public Component convert(ItemStack from) {
+		return Component.empty().hoverEvent(from.asHoverEvent());
 	}
 
 	@Override
-	public Class<? extends String> getReturnType() {
-		return String.class;
+	public Class<? extends Component> getReturnType() {
+		return Component.class;
 	}
 
 	@Override
 	protected String getPropertyName() {
-		return "item hover text";
+		throw new IllegalStateException("toString should be overridden");
 	}
 
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "item hover component for " + getExpr().toString(event, debug);
+	}
 }
