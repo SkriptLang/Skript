@@ -11,11 +11,10 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
-import ch.njol.skript.registrations.EventValues;
+import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
-import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class EvtPlayerWhitelist extends SkriptEvent {
@@ -37,7 +36,7 @@ public class EvtPlayerWhitelist extends SkriptEvent {
 
 	}
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SkriptAddon addon, SyntaxRegistry registry) {
 		registry.register(BukkitSyntaxInfos.Event.KEY,
 				BukkitSyntaxInfos.Event.builder(EvtPlayerWhitelist.class, "Player Whitelist")
 					.addEvent(WhitelistStateUpdateEvent.class)
@@ -58,7 +57,7 @@ public class EvtPlayerWhitelist extends SkriptEvent {
 					.addSince("INSERT VERSION")
 					.build()
 		);
-		Skript.instance().registry(EventValueRegistry.class).register(
+		addon.registry(EventValueRegistry.class).register(
 			EventValue.simple(WhitelistStateUpdateEvent.class, OfflinePlayer.class, WhitelistStateUpdateEvent::getPlayer)
 		);
 	}

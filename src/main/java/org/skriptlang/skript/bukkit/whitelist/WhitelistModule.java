@@ -19,7 +19,7 @@ public class WhitelistModule extends HierarchicalAddonModule {
 
 			EffEnforceWhitelist::register,
 
-			EvtPlayerWhitelist::register,
+			registry -> EvtPlayerWhitelist.register(addon, registry),
 			EvtServerWhitelist::register,
 
 			ExprWhitelist::register
