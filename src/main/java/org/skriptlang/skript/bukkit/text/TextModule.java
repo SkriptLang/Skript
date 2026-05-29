@@ -64,6 +64,7 @@ public class TextModule extends HierarchicalAddonModule {
 			EffSendTitle::register,
 			ExprColored::register,
 			ExprRawString::register,
+			ExprItemHoverText::register,
 			ExprStringColor::register
 		);
 	}
