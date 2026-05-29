@@ -500,10 +500,12 @@ public final class TextComponentParser {
 		// legacy compatibility, escape color codes
 		if (string.contains("&") || string.contains("§")) {
 			string = LEGACY_CODE_PATTERN.matcher(string).replaceAll(result -> {
+				// Even if escaped, MiniMessage will throw an exception for legacy section codes
+				String group = result.group().replace('§', '&');
 				if (result.group(1).length() % 2 == 1) { // tag is already escaped
-					return Matcher.quoteReplacement(result.group());
+					return Matcher.quoteReplacement(group);
 				}
-				return Matcher.quoteReplacement('\\' + result.group());
+				return Matcher.quoteReplacement('\\' + group);
 			});
 		}
 		string = LEGACY_DOUBLE_HASHTAG_PATTERN.matcher(string).replaceAll(result -> {
