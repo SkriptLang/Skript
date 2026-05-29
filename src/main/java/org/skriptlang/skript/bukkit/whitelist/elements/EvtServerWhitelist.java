@@ -34,11 +34,7 @@ public class EvtServerWhitelist extends SkriptEvent {
 		registry.register(BukkitSyntaxInfos.Event.KEY,
 				BukkitSyntaxInfos.Event.builder(EvtServerWhitelist.class, "Whitelist Toggled")
 					.addEvent(WhitelistToggleEvent.class)
-					.addPatterns(
-						"player whitelist [state] (change[d]|update[d])",
-						"player (added to whitelist|whitelist[ed])",
-						"player (removed from whitelist|unwhitelist[ed])"
-					)
+					.addPattern("whitelist toggle[d] [:on|:off]")
 					.addDescription(
 						"Called whenever the server's whitelist has been toggled on or off.",
 						"Use <a href='conditions.html#CondWillBeWhitelisted'>will be whitelisted</a> condition to check with its state.")
@@ -47,7 +43,7 @@ public class EvtServerWhitelist extends SkriptEvent {
 						"on whitelist toggled off:",
 						"",
 						"on whitelist toggled:",
-							"\tsend \"Server whitelist has been set to %whether server will be whitelisted%\" to all ops")
+						"\tsend \"Server whitelist has been set to %whether server will be whitelisted%\" to all ops")
 					.addSince("INSERT VERSION")
 					.build()
 		);
