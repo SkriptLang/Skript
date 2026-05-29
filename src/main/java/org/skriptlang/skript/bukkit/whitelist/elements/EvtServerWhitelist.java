@@ -37,13 +37,15 @@ public class EvtServerWhitelist extends SkriptEvent {
 					.addPattern("whitelist toggle[d] [:on|:off]")
 					.addDescription(
 						"Called whenever the server's whitelist has been toggled on or off.",
-						"Use <a href='conditions.html#CondWillBeWhitelisted'>will be whitelisted</a> condition to check with its state.")
+						"Use <a href='conditions.html#CondWillBeWhitelisted'>will be whitelisted</a> condition to check with its state."
+					)
 					.addExamples(
 						"on whitelist toggled on:",
 						"on whitelist toggled off:",
 						"",
 						"on whitelist toggled:",
-						"\tsend \"Server whitelist has been set to %whether server will be whitelisted%\" to all ops")
+							"\tsend \"Server whitelist has been set to %whether server will be whitelisted%\" to all ops"
+					)
 					.addSince("INSERT VERSION")
 					.build()
 		);
