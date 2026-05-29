@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.text;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
@@ -436,7 +437,14 @@ public final class TextComponentParser {
 		realMessage = reformatText(realMessage);
 
 		// parse as component
-		Component component = safe ? safeParser.deserialize(realMessage) : parser.deserialize(realMessage);
+		Component component;
+		try {
+			component = safe ? safeParser.deserialize(realMessage) : parser.deserialize(realMessage);
+		} catch (ParsingException e) {
+			Skript.exception(e, "An error occurred while trying to parse formatting for '" + realMessage + "'." +
+				" This is likely caused by the presence of legacy formatting characters (such as '§') that Skript could not handle.");
+			return Component.text(message instanceof String ? (String) message : Classes.toString(message));
+		}
 
 		// replace links based on configuration setting
 		if (linkParseMode != LinkParseMode.DISABLED) {
