@@ -140,5 +140,6 @@ public class ExprStoredEnchantments extends PropertyExpression<ItemType, Enchant
 	public String toString(@Nullable Event event, boolean debug) {
 		return "stored enchantments of " + getExpr().toString(event, debug);
 	}
+	}
 
 }
