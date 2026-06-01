@@ -60,7 +60,10 @@ import java.util.List;
 public class ExprParse extends SimpleExpression<Object> {
 
 	static {
-		Skript.registerExpression(ExprParse.class, Object.class, ExpressionType.COMBINED,
+		// Historically, the priority here has been COMBINED; it was changed because property expressions are between COMBINED and PME by default.
+		// We need `uuid of arg-1 parsed as player` to be ExprUuid(ExprParse(ExprArgument)), not ExprParse(ExprUuid(ExprArgument))
+		// The latter can occur because ExprUUID is valid for worlds, which may be converted to from strings.
+		Skript.registerExpression(ExprParse.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
 			"%string% parsed as (%-*classinfo%|\"<.*>\")");
 	}
 

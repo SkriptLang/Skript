@@ -12,24 +12,27 @@ import ch.njol.skript.util.slot.Slot;
 import io.papermc.paper.datacomponent.item.Equippable;
 import org.bukkit.inventory.ItemStack;
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.itemcomponents.equippable.elements.*;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.elements.conditions.*;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.elements.effects.*;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.elements.expressions.*;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.util.Arrays;
-import java.util.function.Consumer;
+public class EquippableModule extends HierarchicalAddonModule {
 
-public class EquippableModule implements AddonModule {
+	public EquippableModule(AddonModule parentModule) {
+		super(parentModule);
+	}
 
 	@Override
-	public boolean canLoad(SkriptAddon addon) {
+	protected boolean canLoadSelf(SkriptAddon addon) {
 		return Skript.classExists("io.papermc.paper.datacomponent.item.Equippable");
 	}
 
 	@Override
-	public void init(SkriptAddon addon) {
+	protected void initSelf(SkriptAddon addon) {
 		Classes.registerClass(new ClassInfo<>(EquippableWrapper.class, "equippablecomponent")
 			.user("equippable ?components?")
 			.name("Equippable Components")
@@ -71,8 +74,8 @@ public class EquippableModule implements AddonModule {
 	}
 
 	@Override
-	public void load(SkriptAddon addon) {
-		register(addon.syntaxRegistry(),
+	protected void loadSelf(SkriptAddon addon) {
+		register(addon,
 			CondEquipCompDamage::register,
 			CondEquipCompDispensable::register,
 			CondEquipCompInteract::register,
@@ -95,10 +98,6 @@ public class EquippableModule implements AddonModule {
 
 			ExprSecBlankEquipComp::register
 		);
-	}
-
-	private void register(SyntaxRegistry registry, Consumer<SyntaxRegistry>... consumers) {
-		Arrays.stream(consumers).forEach(consumer -> consumer.accept(registry));
 	}
 
 	@Override

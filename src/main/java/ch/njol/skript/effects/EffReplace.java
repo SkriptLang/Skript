@@ -70,9 +70,13 @@ public class EffReplace extends Effect {
 		replaceFirst = parseResult.hasTag("first");
 		replaceRegex = matchedPattern == 2 || matchedPattern == 3;
 
-		if (replaceString && !ChangerUtils.acceptsChange(haystack, ChangeMode.SET, String.class)) {
-			Skript.error(haystack + " cannot be changed and can thus not have parts replaced");
-			return false;
+		if (replaceString) {
+			Expression<?> newHaystack = ChangerUtils.acceptsChangeWithConverters(haystack, ChangeMode.SET, String.class);
+			if (newHaystack == null) {
+				Skript.error(haystack.toString(null, Skript.debug()) + " cannot be changed to a text and can thus not have parts replaced");
+				return false;
+			}
+			haystack = newHaystack;
 		}
 
 		if (SkriptConfig.caseSensitive.value() || parseResult.hasTag("case")) {

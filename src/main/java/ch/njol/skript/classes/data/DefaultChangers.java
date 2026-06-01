@@ -9,10 +9,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.base.types.BlockClassInfo;
-import org.skriptlang.skript.bukkit.base.types.EntityClassInfo;
-import org.skriptlang.skript.bukkit.base.types.InventoryClassInfo;
-import org.skriptlang.skript.bukkit.base.types.PlayerClassInfo;
+import org.skriptlang.skript.bukkit.types.BlockClassInfo;
+import org.skriptlang.skript.bukkit.types.EntityClassInfo;
+import org.skriptlang.skript.bukkit.types.InventoryClassInfo;
+import org.skriptlang.skript.bukkit.types.PlayerClassInfo;
 
 /**
  * @author Peter Güttinger

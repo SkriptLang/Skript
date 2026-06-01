@@ -12,12 +12,10 @@ import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 import org.skriptlang.skript.bukkit.particles.particleeffects.DirectionalEffect;
 import org.skriptlang.skript.bukkit.particles.particleeffects.ParticleEffect;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -63,12 +61,11 @@ public class ExprParticleWithOffset extends PropertyExpression<ParticleEffect, P
 		{"%directionalparticles% with [a] velocity [of] %vector%", Mode.VELOCITY}
 	});
 
-	public static void register(@NotNull SyntaxRegistry registry, @NotNull Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, builder(ExprParticleWithOffset.class, ParticleEffect.class)
 			.addPatterns(patterns.getPatterns())
 			.supplier(ExprParticleWithOffset::new)
 			.priority(SyntaxInfo.COMBINED)
-			.origin(origin)
 			.build());
 	}
 

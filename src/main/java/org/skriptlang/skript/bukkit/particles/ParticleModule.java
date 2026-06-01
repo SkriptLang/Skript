@@ -17,6 +17,7 @@ import org.bukkit.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.particles.elements.effects.EffPlayEffect;
 import org.skriptlang.skript.bukkit.particles.elements.expressions.*;
@@ -28,7 +29,6 @@ import org.skriptlang.skript.bukkit.particles.registration.DataGameEffects;
 import org.skriptlang.skript.bukkit.particles.registration.DataParticles;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
@@ -38,10 +38,14 @@ import java.util.Arrays;
 /**
  * Module for particle and game effect related classes and elements.
  */
-public class ParticleModule implements AddonModule {
+public class ParticleModule extends HierarchicalAddonModule {
+
+	public ParticleModule(AddonModule parentModule) {
+		super(parentModule);
+	}
 
 	@Override
-	public void init(SkriptAddon addon) {
+	protected void initSelf(SkriptAddon addon) {
 		registerClasses();
 		registerDataSerializers();
 		DataGameEffects.getGameEffectInfos();
@@ -49,19 +53,19 @@ public class ParticleModule implements AddonModule {
 	}
 
 	@Override
-	public void load(SkriptAddon addon) {
+	protected void loadSelf(SkriptAddon addon) {
 		// load elements!
-		SyntaxRegistry registry = addon.syntaxRegistry();
-		ModuleOrigin origin = AddonModule.origin(addon, this);
-		EffPlayEffect.register(registry, origin);
-		ExprGameEffectWithData.register(registry, origin);
-		ExprParticleCount.register(registry, origin);
-		ExprParticleDistribution.register(registry, origin);
-		ExprParticleOffset.register(registry, origin);
-		ExprParticleSpeed.register(registry, origin);
-		ExprParticleWithData.register(registry, origin);
-		ExprParticleWithOffset.register(registry, origin);
-		ExprParticleWithSpeed.register(registry, origin);
+		register(addon,
+			EffPlayEffect::register,
+			ExprGameEffectWithData::register,
+			ExprParticleCount::register,
+			ExprParticleDistribution::register,
+			ExprParticleOffset::register,
+			ExprParticleSpeed::register,
+			ExprParticleWithData::register,
+			ExprParticleWithOffset::register,
+			ExprParticleWithSpeed::register
+		);
 	}
 
 	/**

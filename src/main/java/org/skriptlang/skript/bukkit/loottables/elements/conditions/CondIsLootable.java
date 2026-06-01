@@ -6,6 +6,7 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Is Lootable")
 @Description(
@@ -33,8 +34,18 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 @Since("2.10")
 public class CondIsLootable extends PropertyCondition<Object> {
 
-	static {
-		register(CondIsLootable.class, "lootable", "blocks/entities");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			infoBuilder(
+				CondIsLootable.class,
+				PropertyType.BE,
+				"lootable",
+				"blocks/entities"
+			)
+				.supplier(CondIsLootable::new)
+				.build()
+		);
 	}
 
 	@Override

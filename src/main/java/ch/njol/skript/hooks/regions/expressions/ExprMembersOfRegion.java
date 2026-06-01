@@ -16,6 +16,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 import java.util.ArrayList;
 
@@ -48,6 +49,7 @@ public class ExprMembersOfRegion extends SimpleExpression<OfflinePlayer> {
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		regions = (Expression<Region>) exprs[0];
 		owners = parseResult.mark == 1;
+		ScriptWarning.printDeprecationWarning(RegionsPlugin.DEPRECATION_MESSAGE);
 		return true;
 	}
 	

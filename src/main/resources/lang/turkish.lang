@@ -142,15 +142,15 @@ commands:
 	executable by console: Bu komut yalnızca konsol tarafından kullanılabilir.
 	correct usage: Doğru kullanım:
 	invalid argument: Yanlış argüman <gray>'%s<gray>'<reset>. İzin verilenler:
-	too many arguments: Bu komut yanlızca bir tane %2$s kabul eder.
+	too many arguments: Bu komut yalnızca bir tane %2$s kabul eder.
 	internal error: Bu komut gerçekleştirilmeye çalışılırken dahili bir hata oluştu.
 	no player starts with: Adı '%s' ile başlayan oyuncu bulunamadı.
 	multiple players start with: Adı '%s' ile başlayan birden fazla oyuncu var.
 
 # -- Hooks --
 hooks:
-	hooked: %s'e başarıyla bağlanıldı.
-	error: %1$s'a bağlanılamadı. Skript %1$s'in yüklü sürümünü desteklemiyorsa bu durum meydana gelebilir
+	hooked: %s adlı modüle başarıyla bağlanıldı.
+	error: %1$s adlı modüle bağlanılamadı. Skript %1$s adlı modülün yüklü sürümünü desteklemiyorsa bu durum meydana gelebilir
 
 # -- Aliases --
 aliases:
@@ -184,5 +184,5 @@ time:
 
 # -- IO Exceptions --
 io exceptions:
-	unknownhostexception: %s'ya bağlanılamadı.
+	unknownhostexception: %s sunucusuna bağlanılamadı.
 	accessdeniedexception: %s için izin reddedildi.

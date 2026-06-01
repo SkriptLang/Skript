@@ -3,14 +3,7 @@ package ch.njol.skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.bukkitutil.BurgerHelper;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.data.BukkitClasses;
-import ch.njol.skript.classes.data.BukkitEventValues;
-import ch.njol.skript.classes.data.DefaultComparators;
-import ch.njol.skript.classes.data.DefaultConverters;
-import ch.njol.skript.classes.data.DefaultFunctions;
-import ch.njol.skript.classes.data.DefaultOperations;
-import ch.njol.skript.classes.data.JavaClasses;
-import ch.njol.skript.classes.data.SkriptClasses;
+import ch.njol.skript.classes.data.*;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.events.EvtSkript;
@@ -18,40 +11,22 @@ import ch.njol.skript.expressions.arithmetic.ExprArithmetic;
 import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.Condition.ConditionType;
+import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.PluralizingArgsMessage;
-import ch.njol.skript.log.BukkitLoggerFilter;
-import ch.njol.skript.log.CountingLogHandler;
-import ch.njol.skript.log.ErrorDescLogHandler;
-import ch.njol.skript.log.ErrorQuality;
-import ch.njol.skript.log.LogEntry;
-import ch.njol.skript.log.LogHandler;
-import ch.njol.skript.log.SkriptLogger;
-import ch.njol.skript.log.TestingLogHandler;
-import ch.njol.skript.log.Verbosity;
+import ch.njol.skript.log.*;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.Feature;
-import ch.njol.skript.test.runner.EffObjectives;
-import ch.njol.skript.test.runner.SkriptAsyncJUnitTest;
-import ch.njol.skript.test.runner.SkriptJUnitTest;
-import ch.njol.skript.test.runner.SkriptTestEvent;
-import ch.njol.skript.test.runner.TestMode;
-import ch.njol.skript.test.runner.TestTracker;
+import ch.njol.skript.test.runner.*;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
 import ch.njol.skript.update.UpdateManifest;
+import ch.njol.skript.util.*;
 import ch.njol.skript.util.Date;
-import ch.njol.skript.util.EmptyStacktraceException;
-import ch.njol.skript.util.ExceptionUtils;
-import ch.njol.skript.util.FileUtils;
-import ch.njol.skript.util.Task;
-import ch.njol.skript.util.Utils;
-import ch.njol.skript.util.Version;
-import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Closeable;
@@ -62,12 +37,7 @@ import ch.njol.util.coll.iterator.EnumerationIterable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.bstats.bukkit.Metrics;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Server;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -90,23 +60,13 @@ import org.junit.After;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
+import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.bukkit.BukkitModule;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
-import org.skriptlang.skript.bukkit.breeding.BreedingModule;
-import org.skriptlang.skript.bukkit.brewing.BrewingModule;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceModule;
-import org.skriptlang.skript.bukkit.displays.DisplayModule;
-import org.skriptlang.skript.bukkit.entity.EntityModule;
-import org.skriptlang.skript.bukkit.fishing.FishingModule;
-import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
-import org.skriptlang.skript.bukkit.input.InputModule;
-import org.skriptlang.skript.bukkit.interactions.InteractionModule;
-import org.skriptlang.skript.bukkit.itemcomponents.ItemComponentModule;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
-import org.skriptlang.skript.bukkit.loottables.LootTableModule;
-import org.skriptlang.skript.bukkit.particles.ParticleModule;
-import org.skriptlang.skript.bukkit.potion.PotionModule;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
-import org.skriptlang.skript.bukkit.tags.TagModule;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.common.CommonModule;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.comparator.Comparator;
@@ -515,23 +475,28 @@ public final class Skript extends JavaPlugin implements Listener {
 		skript.storeRegistry(PropertyRegistry.class, new PropertyRegistry(this));
 		Property.registerDefaultProperties();
 
-		// Load classes which are always safe to use
-		new JavaClasses(); // These may be needed in configuration
+		EventValueRegistry eventValueRegistry = EventValueRegistry.empty(this);
+		skript.storeRegistry(EventValueRegistry.class, eventValueRegistry);
+		//noinspection removal
+		EventValues.setEventValueRegistry(eventValueRegistry);
+
+		// TODO this upcoming portion is a bad circular dependency
+		// some modules depend on the config
+		// the config depends on some modules (for the types they register)
+
+		// load classes
+		new JavaClasses();
+		new SkriptClasses();
+		new BukkitClasses();
+
+		// load the config
+		SkriptConfig.load();
 
 		// Check server software, Minecraft version, etc.
 		if (!checkServerPlatform()) {
 			disabled = true; // Nothing was loaded, nothing needs to be unloaded
 			setEnabled(false); // Cannot continue; user got errors in console to tell what happened
 			return;
-		}
-
-		// And then not-so-safe classes
-		Throwable classLoadError = null;
-		try {
-			new SkriptClasses();
-			new BukkitClasses();
-		} catch (Throwable e) {
-			classLoadError = e;
 		}
 
 		// Warn about pausing
@@ -544,14 +509,8 @@ public final class Skript extends JavaPlugin implements Listener {
 			}
 		}
 
-
-		// Config must be loaded after Java and Skript classes are parseable
-		// ... but also before platform check, because there is a config option to ignore some errors
-		SkriptConfig.load();
-
 		// Register the runtime error refresh after loading, so we can do the first instantiation manually.
 		SkriptConfig.eventRegistry().register(SkriptConfig.ReloadEvent.class, RuntimeErrorManager::refresh);
-
 		// init runtime error manager and add bukkit consumer.
 		RuntimeErrorManager.refresh();
 		getRuntimeErrorManager().addConsumer(new BukkitRuntimeErrorConsumer());
@@ -568,51 +527,48 @@ public final class Skript extends JavaPlugin implements Listener {
 			updater.updateCheck(console);
 		}
 
-		// If loading can continue (platform ok), check for potentially thrown error
-		if (classLoadError != null) {
-			exception(classLoadError);
-			setEnabled(false);
-			return;
-		}
-
 		PluginCommand skriptCommand = getCommand("skript");
 		assert skriptCommand != null; // It is defined, unless build is corrupted or something like that
 		skriptCommand.setExecutor(new SkriptCommand());
 		skriptCommand.setTabCompleter(new SkriptCommandTabCompleter());
 
-		// Load Bukkit stuff. It is done after platform check, because something might be missing!
-		new BukkitEventValues();
+		final AddonModule legacyModule = new AddonModule() {
 
-		new DefaultComparators();
-		new DefaultConverters();
-		new DefaultFunctions();
-		new DefaultOperations();
+			@Override
+			public void init(org.skriptlang.skript.addon.SkriptAddon addon) {
+				new DefaultComparators();
+				new DefaultConverters();
 
-		ChatMessages.registerListeners();
+				// legacy listeners
+				//noinspection removal
+				ChatMessages.registerListeners();
+			}
+
+			@Override
+			public void load(org.skriptlang.skript.addon.SkriptAddon addon) {
+				try {
+					//noinspection removal
+					getAddonInstance().loadClasses("ch.njol.skript",
+						"conditions", "effects", "events", "expressions", "entity", "literals", "sections", "structures");
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+				BukkitEventValues.register(eventValueRegistry);
+				new DefaultFunctions();
+				new DefaultOperations();
+			}
+
+			@Override
+			public String name() {
+				return "legacy";
+			}
+
+		};
 
 		try {
-			getAddonInstance().loadClasses("ch.njol.skript",
-				"conditions", "effects", "events", "expressions", "entity", "literals", "sections", "structures");
-			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "misc");
-			// todo: become proper module once registry api is merged
-			FishingModule.load();
-			BreedingModule.load();
-			DisplayModule.load();
-			InputModule.load();
-			TagModule.load();
-			FurnaceModule.load();
-			LootTableModule.load();
-			skript.loadModules(
-				new CommonModule(),
-				new BrewingModule(),
-				new EntityModule(),
-				new DamageSourceModule(),
-				new InteractionModule(),
-				new ItemComponentModule(),
-				new PotionModule(),
-				new ParticleModule());
+			skript.loadModules(legacyModule, new CommonModule(), new BukkitModule());
 		} catch (final Exception e) {
-			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
+			exception(e, "Failed to load one of Skript's modules: " + e.getLocalizedMessage());
 			setEnabled(false);
 			return;
 		}
@@ -856,8 +812,8 @@ public final class Skript extends JavaPlugin implements Listener {
 						return;
 
 					Skript.info(player, SkriptUpdater.m_update_available.toString(update.id, Skript.getVersion()));
-					player.spigot().sendMessage(BungeeConverter.convert(ChatMessages.parseToArray(
-						"Download it at: <aqua><u><link:" + update.downloadUrl + ">" + update.downloadUrl)));
+					player.sendMessage(TextComponentParser.instance()
+						.parse("Download it at: <aqua><underlined><click:open_url:" + update.downloadUrl + ">" + update.downloadUrl));
 				}
 			};
 		}
@@ -2192,7 +2148,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 		logEx("Thread: " + (thread == null ? Thread.currentThread() : thread).getName());
 		logEx("Language: " + Language.getName());
-		logEx("Link parse mode: " + ChatMessages.linkParseMode);
+		logEx("Link parse mode: " + TextComponentParser.instance().linkParseMode());
 	}
 
 	static void logEx() {
@@ -2211,7 +2167,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	public static void info(final CommandSender sender, final String info) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles(getSkriptPrefix() + info));
+		sender.sendMessage(TextComponentParser.instance().parseSafe(getSkriptPrefix() + info));
 	}
 
 	/**
@@ -2220,7 +2176,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @see #adminBroadcast(String)
 	 */
 	public static void broadcast(final String message, final String permission) {
-		Bukkit.broadcast(Utils.replaceEnglishChatStyles(getSkriptPrefix() + message), permission);
+		Bukkit.broadcast(TextComponentParser.instance().parseSafe(getSkriptPrefix() + message), permission);
 	}
 
 	public static void adminBroadcast(final String message) {
@@ -2234,11 +2190,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param info
 	 */
 	public static void message(final CommandSender sender, final String info) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles(info));
+		sender.sendMessage(TextComponentParser.instance().parseSafe(info));
 	}
 
 	public static void error(final CommandSender sender, final String error) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles(getSkriptPrefix() + ChatColor.DARK_RED + error));
+		sender.sendMessage(TextComponentParser.instance().parseSafe(getSkriptPrefix() + "<dark_red>" + error));
 	}
 
 	/**
