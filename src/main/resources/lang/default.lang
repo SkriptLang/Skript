@@ -2464,10 +2464,12 @@ particle:
 	note: note particle¦s @a
 	ominous_spawning: ominous spawning particle¦s @an
 	pale_oak_leaves: pale oak leaves particle¦s @a
+	pause_mob_growth: pause mob growth particle¦s @a
 	poof: poof particle¦s @a
 	portal: portal particle¦s @a
 	raid_omen: raid omen particle¦s @a
 	rain: rain particle¦s @a
+	reset_mob_growth: reset mob growth particle¦s @a
 	reverse_portal: reverse portal particle¦s @a
 	scrape: scrape particle¦s @a
 	sculk_charge: sculk charge particle¦s @a
@@ -2521,6 +2523,7 @@ teleport flags:
 unleash reasons:
 	distance: distance
 	holder_gone: holder (gone|disappeared)
+	leashed_gone: leashed (gone|disappeared)
 	player_unleash: player unleash, player unleashed, unleashed by player
 	unknown: unknown
 
