@@ -6,11 +6,13 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.PiglinBarterEvent;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 			broadcast "my precious..."
 	""")
 @Since("2.10")
-public class ExprBarterInput extends SimpleExpression<ItemType> {
+public class ExprBarterInput extends SimpleExpression<ItemType> implements EventRestrictedSyntax {
 
 	static {
 		if (Skript.classExists("org.bukkit.event.entity.PiglinBarterEvent")) {
@@ -34,11 +36,12 @@ public class ExprBarterInput extends SimpleExpression<ItemType> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult result) {
-		if (!getParser().isCurrentEvent(PiglinBarterEvent.class)) {
-			Skript.error("The expression 'barter input' can only be used in the piglin bartering event");
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(PiglinBarterEvent.class);
 	}
 
 	@Override

@@ -2,8 +2,10 @@ package ch.njol.skript.command;
 
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.util.Utils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 /**
  * Holds info about the usage of a command.
@@ -36,7 +38,7 @@ public class CommandUsage {
 			assert usage != null;
 		}
 		this.usage = usage;
-		this.defaultUsage = Utils.replaceChatStyles(defaultUsage);
+		this.defaultUsage = defaultUsage;
 	}
 
 	/**
@@ -61,6 +63,17 @@ public class CommandUsage {
 		if (event != null || usage.isSimple())
 			return usage.toString(event);
 		return defaultUsage;
+	}
+
+	/**
+	 * @param event The event used to evaluate the usage message.
+	 * @return The evaluated usage message as an Adventure {@link Component} with
+	 *         Skript color tags ({@code <red>}, {@code &c}, etc.) parsed into real
+	 *         chat formatting via {@link TextComponentParser#parse(Object)}. Command
+	 *         usage strings are server-controlled, so unsafe tags are appropriate.
+	 */
+	public Component getUsageComponent(@Nullable Event event) {
+		return TextComponentParser.instance().parse(getUsage(event));
 	}
 
 	@Override

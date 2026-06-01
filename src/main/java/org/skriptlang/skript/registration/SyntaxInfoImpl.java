@@ -34,6 +34,12 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 						return SyntaxInfo.PATTERN_MATCHES_EVERYTHING;
 					}
 					priority = SyntaxInfo.COMBINED;
+				} else if (chars[i] == '<') {
+					if (i > 0 && chars[i - 1] == '\\') { // skip escaped angle brackets
+						continue;
+					}
+					// regular expression string
+					return SyntaxInfo.PATTERN_MATCHES_EVERYTHING;
 				}
 			}
 		}

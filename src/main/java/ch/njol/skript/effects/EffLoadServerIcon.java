@@ -39,8 +39,6 @@ public class EffLoadServerIcon extends AsyncEffect {
 		Skript.registerEffect(EffLoadServerIcon.class, "load [the] server icon (from|of) [the] [image] [file] %string%");
 	}
 
-	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
-
 	@SuppressWarnings("null")
 	private Expression<String> path;
 
@@ -51,10 +49,6 @@ public class EffLoadServerIcon extends AsyncEffect {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		getParser().setHasDelayBefore(Kleenean.TRUE);
-		if (!PAPER_EVENT_EXISTS) {
-			Skript.error("The load server icon effect requires Paper 1.12.2 or newer");
-			return false;
-		}
 		path = (Expression<String>) exprs[0];
 		return true;
 	}

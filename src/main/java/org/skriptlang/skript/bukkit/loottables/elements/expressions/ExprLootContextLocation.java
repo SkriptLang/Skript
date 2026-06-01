@@ -13,6 +13,7 @@ import org.bukkit.event.Event;
 import org.bukkit.loot.LootContext;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Loot Location of Loot Context")
 @Description("Returns the loot location of a loot context.")
@@ -26,8 +27,19 @@ import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 @Since("2.10")
 public class ExprLootContextLocation extends SimplePropertyExpression<LootContext, Location> {
 
-	static {
-		registerDefault(ExprLootContextLocation.class, Location.class, "loot[ing] [context] location", "lootcontexts");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprLootContextLocation.class,
+				Location.class,
+				"loot[ing] [context] location",
+				"lootcontexts",
+				true
+			)
+				.supplier(ExprLootContextLocation::new)
+				.build()
+		);
 	}
 
 	@Override

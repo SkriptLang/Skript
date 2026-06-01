@@ -153,7 +153,9 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 * @param type the main expression type the property is based off of.
 	 * @param property the name of the property.
 	 * @param fromType should be plural to support multiple objects but doesn't have to be.
+	 * @deprecated Use {@link #infoBuilder(Class, Class, String, String, boolean)}.
 	 */
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static <T> void register(Class<? extends Expression<T>> expressionClass, Class<T> type, String property, String fromType) {
 		Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY, getPatterns(property, fromType));
 	}
@@ -166,7 +168,9 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 * @param type the main expression type the property is based off of.
 	 * @param property the name of the property.
 	 * @param fromType should be plural to support multiple objects but doesn't have to be.
+	 * @deprecated Use {@link #infoBuilder(Class, Class, String, String, boolean)}.
 	 */
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static <T> void registerDefault(Class<? extends Expression<T>> expressionClass, Class<T> type, String property, String fromType) {
 		Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY, getDefaultPatterns(property, fromType));
 	}

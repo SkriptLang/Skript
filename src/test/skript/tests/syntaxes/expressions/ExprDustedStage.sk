@@ -1,0 +1,46 @@
+test "dusting progress":
+	set {_old} to block data of test-block
+	set block at test-block to suspicious gravel
+	set {_block} to block at test-block
+	set {_blockdata} to block data of {_block}
+
+	# test getting initial value
+	assert dusting progress of {_block} is 0 with "Initial dusting progress should be 0"
+
+	# test setting
+	set dusting progress of {_block} to 2
+	assert dusting progress of {_block} is 2 with "Failed to set dusting progress to 2"
+
+	# test max dusting progress
+	assert max dusting progress of {_block} is 3 with "Max dusting progress should be 3"
+	assert maximum dusting progress of {_block} is 3 with "Maximum dusting progress should be 3"
+
+	# test adding
+	set dusting progress of {_block} to 1
+	add 1 to dusting progress of {_block}
+	assert dusting progress of {_block} is 2 with "Failed to add 1 to dusting progress"
+
+	# test clamping at max
+	add 99 to dusting progress of {_block}
+	assert dusting progress of {_block} is 3 with "Dusting progress should be clamped at max"
+
+	# test removing
+	set dusting progress of {_block} to 2
+	remove 1 from dusting progress of {_block}
+	assert dusting progress of {_block} is 1 with "Failed to remove 1 from dusting progress"
+
+	# test clamping at min
+	remove 99 from dusting progress of {_block}
+	assert dusting progress of {_block} is 0 with "Dusting progress should be clamped at 0"
+
+	# test reset
+	set dusting progress of {_block} to 2
+	assert dusting progress of {_block} is 2 with "Failed to set dusting progress"
+	reset dusting progress of {_block}
+	assert dusting progress of {_block} is 0 with "Failed to reset dusting progress"
+
+	# test with blockdata
+	set dusting progress of {_blockdata} to 2
+	assert dusting progress of {_blockdata} is 2 with "Failed to set dusting progress on blockdata"
+
+	set block data of test-block to {_old}

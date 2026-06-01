@@ -1,5 +1,7 @@
 package ch.njol.skript.effects;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -17,7 +19,6 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 
 @Name("Enforce Whitelist")
@@ -31,13 +32,19 @@ import ch.njol.util.Kleenean;
 @RequiredPlugins("MC 1.17+")
 public class EffEnforceWhitelist extends Effect {
 
-	private static String NOT_WHITELISTED_MESSAGE = "You are not whitelisted on this server!";
+	private static final Component NOT_WHITELISTED_MESSAGE;
 
 	static {
+		// attempt to obtain whitelist message from server config
+		String whitelistMessage = "You are not whitelisted on this server!";
 		try {
 			YamlConfiguration spigotYml = YamlConfiguration.loadConfiguration(new File("spigot.yml"));
-			NOT_WHITELISTED_MESSAGE = spigotYml.getString("messages.whitelist", NOT_WHITELISTED_MESSAGE);
+			whitelistMessage = spigotYml.getString("messages.whitelist", whitelistMessage);
 		} catch (Exception ignored) {}
+		// Based on https://github.com/PaperMC/Paper/blob/bd74bf6581ce81e59bdab07eadbfbe5d485eefa7/paper-server/src/main/java/org/spigotmc/SpigotConfig.java#L161
+		NOT_WHITELISTED_MESSAGE = LegacyComponentSerializer.legacyAmpersand()
+			.deserialize(whitelistMessage.replaceAll("\\\\n", "\n"));
+
 		Skript.registerEffect(EffEnforceWhitelist.class, "[:un]enforce [the] [server] white[ ]list");
 	}
 
@@ -62,7 +69,7 @@ public class EffEnforceWhitelist extends Effect {
 			return;
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			if (!player.isWhitelisted() && !player.isOp())
-				player.kickPlayer(Utils.replaceChatStyles(NOT_WHITELISTED_MESSAGE));
+				player.kick(NOT_WHITELISTED_MESSAGE);
 		}
 	}
 

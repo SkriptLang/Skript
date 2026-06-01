@@ -1,0 +1,7 @@
+test "section delays considering execution intent":
+	parse:
+		set {_var} to true
+		if {_var} is true:
+			wait 1 second
+			stop
+	assert has delay before is false with "delay carried beyond section"

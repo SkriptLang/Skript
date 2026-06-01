@@ -20,6 +20,7 @@ import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.EventExecutor;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -104,6 +105,7 @@ public class EvtRegionBorder extends SkriptEvent {
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		enter = parseResult.hasTag("enter");
 		regions = args.length == 0 ? null : (Literal<Region>) args[0];
+		ScriptWarning.printDeprecationWarning(RegionsPlugin.DEPRECATION_MESSAGE);
 		return true;
 	}
 

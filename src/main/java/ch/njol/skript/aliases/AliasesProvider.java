@@ -95,18 +95,10 @@ public class AliasesProvider {
 			return flags;
 
 		// Apply random tags using JSON
-		if (Aliases.USING_ITEM_COMPONENTS) {
-			String components = (String) tags.get("components"); // only components are supported for modifying a stack
-			assert components != null;
-			// for modifyItemStack to work, you have to include an item id ... e.g. "minecraft:dirt[<components>]"
-			// just to be safe we use the same one as the provided stack
-			components = stack.getType().getKey() + components;
-			BukkitUnsafe.modifyItemStack(stack, components);
-		} else {
-			String json = gson.toJson(tags);
-			assert json != null;
-			BukkitUnsafe.modifyItemStack(stack, json);
-		}
+		String components = (String) tags.get("components"); // only components are supported for modifying a stack
+		assert components != null;
+		ItemUtils.applyComponentData(stack, components);
+
 		flags |= ItemFlags.CHANGED_TAGS;
 
 		return flags;

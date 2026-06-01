@@ -557,6 +557,16 @@ public class DefaultFunctions {
 			.since("2.2"));
 
 		Functions.register(DefaultFunction.builder(skript, "vector", Vector.class)
+			.description("Creates a vector from a single argument. Equivalent to vector(n, n, n).")
+			.examples("vector(1) # = vector(1, 1, 1)")
+			.since("2.15")
+			.parameter("n", Number.class)
+			.build(args -> {
+				double value = args.<Number>get("n").doubleValue();
+				return new Vector(value, value, value);
+			}));
+
+		Functions.register(DefaultFunction.builder(skript, "vector", Vector.class)
 			.description("Creates a new vector, which can be used with various expressions, effects and functions.")
 			.examples("vector(0, 0, 0)")
 			.since("2.2-dev23")
@@ -592,28 +602,25 @@ public class DefaultFunctions {
 		}.description("Calculates the total amount of experience needed to achieve given level from scratch in Minecraft.")
 			.since("2.2-dev32"));
 
-		Functions.registerFunction(new SimpleJavaFunction<Color>("rgb", new Parameter[] {
-			new Parameter<>("red", DefaultClasses.LONG, true, null),
-			new Parameter<>("green", DefaultClasses.LONG, true, null),
-			new Parameter<>("blue", DefaultClasses.LONG, true, null),
-			new Parameter<>("alpha", DefaultClasses.LONG, true, new SimpleLiteral<>(255L,true))
-		}, DefaultClasses.COLOR, true) {
-			@Override
-			public ColorRGB[] executeSimple(Object[][] params) {
-				Long red = (Long) params[0][0];
-				Long green = (Long) params[1][0];
-				Long blue = (Long) params[2][0];
-				Long alpha = (Long) params[3][0];
-
-				return CollectionUtils.array(ColorRGB.fromRGBA(red.intValue(), green.intValue(), blue.intValue(), alpha.intValue()));
-			}
-		}).description("Returns a RGB color from the given red, green and blue parameters. Alpha values can be added optionally, " +
-						"but these only take affect in certain situations, like text display backgrounds.")
+		Functions.register(DefaultFunction.builder(skript, "rgb", Color.class)
+			.description("""
+				Returns a RGB color from the given red, green and blue parameters. 
+				Alpha values can be added optionally but these only take affect in certain situations, like text display backgrounds.""")
 			.examples(
 				"dye player's leggings rgb(120, 30, 45)",
 				"set the colour of a text display to rgb(10, 50, 100, 50)"
 			)
-			.since("2.5, 2.10 (alpha)");
+			.since("2.5, 2.10 (alpha)")
+			.parameter("red", Long.class, Modifier.ranged(0, 255))
+			.parameter("green", Long.class, Modifier.ranged(0, 255))
+			.parameter("blue", Long.class, Modifier.ranged(0, 255))
+			.parameter("alpha", Long.class, Modifier.ranged(0, 255), Modifier.OPTIONAL)
+			.build(args -> ColorRGB.fromRGBA(
+				args.<Long>get("red").intValue(),
+				args.<Long>get("green").intValue(),
+				args.<Long>get("blue").intValue(),
+				args.getOrDefault("alpha", 255L).intValue()
+			)));
 
 		Functions.register(DefaultFunction.builder(skript, "player", Player.class)
 			.description(

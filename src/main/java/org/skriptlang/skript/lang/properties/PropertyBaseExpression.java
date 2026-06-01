@@ -13,7 +13,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.common.properties.expressions.PropExprName;
+import org.skriptlang.skript.common.properties.elements.expressions.PropExprName;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.properties.Property.PropertyInfo;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;

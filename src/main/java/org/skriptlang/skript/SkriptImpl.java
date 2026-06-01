@@ -8,7 +8,6 @@ import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.localization.Localizer;
-import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.Registry;
 
@@ -27,7 +26,7 @@ final class SkriptImpl implements Skript {
 
 	SkriptImpl(Class<?> source, String name) {
 		addon = new SkriptAddonImpl(this, source, name, Localizer.of(this));
-		storeRegistry(SyntaxRegistry.class, new AddonAwareSyntaxRegistry(SyntaxRegistry.empty(), this));
+		storeRegistry(SyntaxRegistry.class, SyntaxRegistry.withOrigin(SyntaxRegistry.empty(), Origin.of(this)));
 	}
 
 	/*
@@ -132,13 +131,14 @@ final class SkriptImpl implements Skript {
 		private final Class<?> source;
 		private final String name;
 		private final Localizer localizer;
-		private AddonAwareSyntaxRegistry syntaxRegistry;
+		private final Origin origin;
 
 		SkriptAddonImpl(Skript skript, Class<?> source, String name, @Nullable Localizer localizer) {
 			this.skript = skript;
 			this.source = source;
 			this.name = name;
 			this.localizer = localizer == null ? Localizer.of(this) : localizer;
+			this.origin = Origin.of(this);
 		}
 
 		@Override
@@ -170,11 +170,8 @@ final class SkriptImpl implements Skript {
 		public <R extends Registry<?>> R registry(Class<R> registryClass) {
 			R registry = skript.registry(registryClass);
 			if (registryClass == SyntaxRegistry.class) {
-				if (syntaxRegistry == null || syntaxRegistry.syntaxRegistry != registry) { // stored syntax registry has changed...
-					this.syntaxRegistry = new AddonAwareSyntaxRegistry((SyntaxRegistry) registry, this);
-				}
 				//noinspection unchecked
-				return (R) syntaxRegistry;
+				return (R) SyntaxRegistry.withOrigin((SyntaxRegistry) registry, origin);
 			}
 			return registry;
 		}
@@ -277,51 +274,6 @@ final class SkriptImpl implements Skript {
 		@Override
 		public Skript unmodifiableView() {
 			return this;
-		}
-
-	}
-
-	/*
-	 * SyntaxRegistry Implementations
-	 */
-
-	private static final class AddonAwareSyntaxRegistry implements SyntaxRegistry {
-
-		final SyntaxRegistry syntaxRegistry;
-		private final SkriptAddon addon;
-
-		public AddonAwareSyntaxRegistry(SyntaxRegistry syntaxRegistry, SkriptAddon addon) {
-			this.syntaxRegistry = syntaxRegistry;
-			this.addon = addon;
-		}
-
-		@Override
-		public @Unmodifiable <I extends SyntaxInfo<?>> Collection<I> syntaxes(Key<I> key) {
-			return syntaxRegistry.syntaxes(key);
-		}
-
-		@Override
-		public <I extends SyntaxInfo<?>> void register(Key<I> key, I info) {
-			if (info.origin() == Origin.UNKNOWN) { // when origin is unspecified, add one
-				//noinspection unchecked
-				info = (I) info.toBuilder().origin(Origin.of(addon)).build();
-			}
-			syntaxRegistry.register(key, info);
-		}
-
-		@Override
-		public void unregister(SyntaxInfo<?> info) {
-			syntaxRegistry.unregister(info);
-		}
-
-		@Override
-		public <I extends SyntaxInfo<?>> void unregister(Key<I> key, I info) {
-			syntaxRegistry.unregister(key, info);
-		}
-
-		@Override
-		public @Unmodifiable Collection<SyntaxInfo<?>> elements() {
-			return syntaxRegistry.elements();
 		}
 
 	}

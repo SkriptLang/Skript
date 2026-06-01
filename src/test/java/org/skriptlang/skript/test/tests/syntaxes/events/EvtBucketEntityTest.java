@@ -1,6 +1,7 @@
 package org.skriptlang.skript.test.tests.syntaxes.events;
 
 import ch.njol.skript.test.runner.SkriptJUnitTest;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.*;
@@ -30,7 +31,7 @@ public class EvtBucketEntityTest extends SkriptJUnitTest {
 	@Test
 	public void test() {
 		Player player = EasyMock.niceMock(Player.class);
-		EasyMock.expect(player.getName()).andReturn("Efnilite").anyTimes();
+		EasyMock.expect(player.name()).andReturn(Component.text("Efnilite")).anyTimes();
 		EasyMock.replay(player);
 
 		Bukkit.getPluginManager().callEvent(new PlayerBucketEntityEvent(

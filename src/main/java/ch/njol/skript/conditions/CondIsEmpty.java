@@ -11,7 +11,7 @@ import ch.njol.skript.util.slot.Slot;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.skriptlang.skript.common.properties.conditions.PropCondIsEmpty;
+import org.skriptlang.skript.common.properties.elements.conditions.PropCondIsEmpty;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
 /**

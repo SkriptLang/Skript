@@ -86,9 +86,16 @@ public abstract class Section extends TriggerSection implements SyntaxElement, S
 		sections.add(this);
 		parser.setCurrentSections(sections);
 
+		Kleenean hadDelayBefore = parser.getHasDelayBefore();
 		try {
 			setTriggerItems(ScriptLoader.loadItems(sectionNode));
 		} finally {
+			if (hadDelayBefore != parser.getHasDelayBefore()) { // the loaded elements caused a delay
+				ExecutionIntent intent = triggerExecutionIntent();
+				if (intent instanceof ExecutionIntent.StopTrigger) { // execution is guaranteed to stop, delay has no effect
+					parser.setHasDelayBefore(hadDelayBefore);
+				}
+			}
 			parser.setCurrentSections(previousSections);
 		}
 	}
@@ -176,12 +183,12 @@ public abstract class Section extends TriggerSection implements SyntaxElement, S
 	 * if the loaded section has a possible or definite delay in it.
 	 */
 	protected void loadOptionalCode(SectionNode sectionNode) {
-		Kleenean hadDelayBefore = getParser().getHasDelayBefore();
+		ParserInstance parser = getParser();
+		Kleenean hadDelayBefore = parser.getHasDelayBefore();
 		loadCode(sectionNode);
-		if (hadDelayBefore.isTrue())
-			return;
-		if (!getParser().getHasDelayBefore().isFalse())
-			getParser().setHasDelayBefore(Kleenean.UNKNOWN);
+		if (!hadDelayBefore.isTrue() && !parser.getHasDelayBefore().isFalse()) {
+			parser.setHasDelayBefore(Kleenean.UNKNOWN);
+		}
 	}
 
 	@Nullable
