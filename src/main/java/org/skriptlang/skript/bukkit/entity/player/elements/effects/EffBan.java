@@ -65,7 +65,7 @@ public class EffBan extends Effect {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		players = exprs[0];
 		reason = exprs.length > 1 ? (Expression<Component>) exprs[1] : null;
 		expires = exprs.length > 1 ? (Expression<Timespan>) exprs[2] : null;
