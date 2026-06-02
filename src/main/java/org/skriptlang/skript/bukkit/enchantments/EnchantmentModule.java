@@ -53,7 +53,7 @@ public class EnchantmentModule extends HierarchicalAddonModule {
 			.before("enchantmenttype"));
 
 		Classes.registerClass(new ClassInfo<>(EnchantmentType.class, "enchantmenttype")
-			.user("enchant(ing|ment) types?")
+			.user("enchant(ing|ment) ?types?")
 			.name("Enchantment Type")
 			.description("An enchantment with an optional level, e.g. 'sharpness 2' or 'fortune'.")
 			.usage("<enchantment> [<level>]")
