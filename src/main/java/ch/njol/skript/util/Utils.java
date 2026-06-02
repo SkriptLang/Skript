@@ -1,7 +1,6 @@
 package ch.njol.skript.util;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.effects.EffTeleport;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.NonNullPair;
@@ -412,64 +411,6 @@ public abstract class Utils {
 			if (capA)
 				return "A " + s;
 			return "a " + s;
-		}
-	}
-
-	/**
-	 * Gets the collision height of solid or partially-solid blocks at the center of the block.
-	 * This is mostly for use in the {@link EffTeleport teleport effect}.
-	 * <p>
-	 * This version operates on numeric ids, thus only working on
-	 * Minecraft 1.12 or older.
-	 *
-	 * @param type
-	 * @return The block's height at the center
-	 */
-	public static double getBlockHeight(final int type, final byte data) {
-		switch (type) {
-			case 26: // bed
-				return 9. / 16;
-			case 44: // slabs
-			case 126:
-				return (data & 0x8) == 0 ? 0.5 : 1;
-			case 78: // snow layer
-				return data == 0 ? 1 : (data % 8) * 2. / 16;
-			case 85: // fences & gates
-			case 107:
-			case 113:
-			case 139: // cobblestone wall
-				return 1.5;
-			case 88: // soul sand
-				return 14. / 16;
-			case 92: // cake
-				return 7. / 16;
-			case 93: // redstone repeater
-			case 94:
-			case 149: // redstone comparator
-			case 150:
-				return 2. / 16;
-			case 96: // trapdoor
-				return (data & 0x4) == 0 ? ((data & 0x8) == 0 ? 3. / 16 : 1) : 0;
-			case 116: // enchantment table
-				return 12. / 16;
-			case 117: // brewing stand
-				return 14. / 16;
-			case 118: // cauldron
-				return 5. / 16;
-			case 120: // end portal frame
-				return (data & 0x4) == 0 ? 13. / 16 : 1;
-			case 127: // cocoa plant
-				return 12. / 16;
-			case 140: // flower pot
-				return 6. / 16;
-			case 144: // mob head
-				return 0.5;
-			case 151: // daylight sensor
-				return 6. / 16;
-			case 154: // hopper
-				return 10. / 16;
-			default:
-				return 1;
 		}
 	}
 

@@ -1,9 +1,7 @@
 package ch.njol.skript.classes.data;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.bukkitutil.EntityUtils;
-import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
 import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.expressions.ExprDamageCause;
@@ -795,13 +793,6 @@ public class BukkitClasses {
 				.name("Banner Pattern Type")
 				.description("Represents the various banner patterns that can be applied to a banner.")
 				.since("2.10"));
-
-		if (Skript.classExists("io.papermc.paper.entity.TeleportFlag"))
-			Classes.registerClass(new EnumClassInfo<>(SkriptTeleportFlag.class, "teleportflag", "teleport flags")
-					.user("teleport ?flags?")
-					.name("Teleport Flag")
-					.description("Teleport Flags are settings to retain during a teleport.")
-					.since("2.10"));
 
 		Classes.registerClass(new ClassInfo<>(Vehicle.class, "vehicle")
 				.user("vehicles?")
