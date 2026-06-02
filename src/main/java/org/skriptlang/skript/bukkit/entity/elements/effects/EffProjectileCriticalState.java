@@ -19,7 +19,8 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Projectile Critical State")
 @Description("""
-	Change whether a projectile is in its critical state. When in critical state the projectile will have a trail of particles and deal more damage.
+	Change whether a projectile is in its critical state. When in critical state \
+	the projectile will have a trail of particles and deal more damage.
 	Currently this only applies to arrows and tridents.
 	""")
 @Example("""
@@ -48,7 +49,7 @@ public class EffProjectileCriticalState extends Effect implements RuntimeErrorPr
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		projectiles = (Expression<Projectile>) expressions[0];
-		negated = parseResult.hasTag("disable");
+		negated = parseResult.hasTag("negate");
 		return true;
 	}
 
@@ -66,8 +67,9 @@ public class EffProjectileCriticalState extends Effect implements RuntimeErrorPr
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return new SyntaxStringBuilder(event, debug)
-			.append(negated ? "disable" : "enable")
-			.append("projectile critical state", projectiles)
+			.append("make", projectiles)
+			.appendIf(negated, "not")
+			.append("crit")
 			.toString();
 	}
 
