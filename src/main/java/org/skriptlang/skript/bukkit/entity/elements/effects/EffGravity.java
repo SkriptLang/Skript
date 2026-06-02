@@ -16,7 +16,10 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Entity Gravity")
-@Description("Change whether an entity is affected by gravity.")
+@Description(
+	"Change whether an entity is affected by gravity. This will override any effects " +
+	"from the gravity attribute or potions like slow falling."
+)
 @Example("enable gravity of target entity")
 @Example("disable last spawned entity's gravity")
 @Since("INSERT VERSION")

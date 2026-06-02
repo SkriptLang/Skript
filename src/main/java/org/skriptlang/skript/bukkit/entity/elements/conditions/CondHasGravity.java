@@ -9,7 +9,10 @@ import org.bukkit.entity.Entity;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Has Gravity")
-@Description("Checks whether or not an entity experiences gravity.")
+@Description(
+	"Change whether an entity is affected by gravity. This will override any effects " +
+	"from the gravity attribute or potions like slow falling."
+)
 @Example("send whether player has gravity")
 @Since("INSERT VERSION")
 public class CondHasGravity extends PropertyCondition<Entity> {
