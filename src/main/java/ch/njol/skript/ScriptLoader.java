@@ -157,6 +157,13 @@ public class ScriptLoader {
 	public static Script getScript(File file) {
 		if (!file.isFile())
 			throw new IllegalArgumentException("Something other than a file was provided.");
+		try {
+			file = file.getCanonicalFile();
+		} catch (IOException e) {
+			//noinspection ThrowableNotThrown
+			Skript.exception(e, "An exception occurred while trying to get the canonical file of: " + file);
+			return null;
+		}
 		for (Script script : loadedScripts) {
 			if (file.equals(script.getConfig().getFile()))
 				return script;
@@ -446,6 +453,26 @@ public class ScriptLoader {
 	 * Script Loading Methods
 	 */
 
+	private static final Set<File> trackedFiles = new HashSet<>();
+
+	/**
+	 * Tracks that a file should be considered as loading.
+	 * @param file The file to track.
+	 * @return Whether this file was already being tracked.
+	 */
+	private static boolean track(File file) {
+		return !trackedFiles.add(file);
+	}
+
+	/**
+	 * Stops tracking that a script (its file) should be considered as loading.
+	 * @param script The script to stop tracking.
+	 */
+	private static void untrack(Script script) {
+		// Loaded scripts are created with canonical files
+		trackedFiles.remove(script.getConfig().getFile());
+	}
+
 	/**
 	 * Loads the Script present at the file using {@link #loadScripts(List, OpenCloseable)},
 	 * 	sending info/error messages when done.
@@ -628,6 +655,10 @@ public class ScriptLoader {
 				} finally {
 					parser.setInactive();
 
+					for (LoadingScriptInfo info : scripts) {
+						untrack(info.script);
+					}
+
 					openCloseable.close();
 				}
 			}).exceptionally(t -> {
@@ -794,6 +825,8 @@ public class ScriptLoader {
 			return null;
 		}
 
+		track(file);
+
 		try {
 			String name = Skript.getInstance().getDataFolder().toPath().toAbsolutePath()
 					.resolve(Skript.SCRIPTSFOLDER).relativize(file.toPath().toAbsolutePath()).toString();
@@ -841,6 +874,10 @@ public class ScriptLoader {
 	 *         This data is calculated by using {@link ScriptInfo#add(ScriptInfo)}.
 	 */
 	public static ScriptInfo unloadScripts(Set<Script> scripts) {
+		scripts = scripts.stream()
+			.filter(script -> !track(script.getConfig().getFile()))
+			.collect(Collectors.toSet());
+
 		// ensure unloaded scripts are not being unloaded
 		for (Script script : scripts) {
 			if (!loadedScripts.contains(script))
@@ -904,6 +941,8 @@ public class ScriptLoader {
 			File scriptFile = script.getConfig().getFile();
 			assert scriptFile != null;
 			disabledScripts.add(new File(scriptFile.getParentFile(), DISABLED_SCRIPT_PREFIX + scriptFile.getName()));
+
+			untrack(script);
 		}
 
 		return info;
