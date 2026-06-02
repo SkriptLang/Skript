@@ -115,7 +115,7 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 
 	@Override
 	@SuppressWarnings("null")
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (delta == null && mode != ChangeMode.DELETE)
 			return;
 		EnchantmentType type = mode != ChangeMode.DELETE ? (EnchantmentType) delta[0] : null;

@@ -146,4 +146,5 @@ public class EnchantmentModule extends HierarchicalAddonModule {
 	public String name() {
 		return "enchantment";
 	}
+
 }
