@@ -4,7 +4,6 @@ import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
-import ch.njol.skript.events.bukkit.PreScriptLoadEvent;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.CountingLogHandler;
@@ -21,6 +20,7 @@ import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.bukkit.text.TextComponentParser;
@@ -111,7 +111,7 @@ public class ScriptLoader {
 	 * All loaded scripts.
 	 */
 	@SuppressWarnings("null")
-	private static final Set<Script> loadedScripts = Collections.synchronizedSortedSet(new TreeSet<>(new Comparator<Script>() {
+	private static final Set<Script> loadedScripts = Collections.synchronizedSortedSet(new TreeSet<>(new Comparator<>() {
 		@Override
 		public int compare(Script s1, Script s2) {
 			File f1 = s1.getConfig().getFile();
@@ -284,7 +284,6 @@ public class ScriptLoader {
 
 	/**
 	 * Returns the executor used for submitting tasks based on the user config.sk settings.
-	 * 
 	 * The thread count will be based on the value of {@link #asyncLoaderSize}.
 	 * <p>
 	 * You may also use class {@link ch.njol.skript.util.Task} and the appropriate constructor
@@ -319,7 +318,7 @@ public class ScriptLoader {
 
 		// Remove threads
 		while (loaderThreads.size() > size) {
-			AsyncLoaderThread thread = loaderThreads.remove(loaderThreads.size() - 1);
+			AsyncLoaderThread thread = loaderThreads.removeLast();
 			thread.cancelExecution();
 		}
 		// Add threads
@@ -334,7 +333,7 @@ public class ScriptLoader {
 			private final AtomicInteger threadId = new AtomicInteger(0);
 
 			@Override
-			public Thread newThread(Runnable runnable) {
+			public Thread newThread(@NotNull Runnable runnable) {
 				Thread thread = new Thread(asyncLoaderThreadGroup, runnable, "Skript async loaders thread " + threadId.incrementAndGet());
 				thread.setDaemon(true);
 				return thread;
@@ -483,15 +482,14 @@ public class ScriptLoader {
 	 *  and closed after the {@link Structure#postLoad()} stage.
 	 * @return Info on the loaded scripts.
 	 */
-	@SuppressWarnings("removal")
 	private static CompletableFuture<ScriptInfo> loadScripts(List<Config> configs, OpenCloseable openCloseable) {
 		if (configs.isEmpty()) // Nothing to load
 			return CompletableFuture.completedFuture(new ScriptInfo());
 
 		eventRegistry().events(ScriptPreInitEvent.class)
 				.forEach(event -> event.onPreInit(configs));
-		//noinspection deprecation - we still need to call it
-		Bukkit.getPluginManager().callEvent(new PreScriptLoadEvent(configs));
+		//noinspection removal - we still need to call it
+		Bukkit.getPluginManager().callEvent(new ch.njol.skript.events.bukkit.PreScriptLoadEvent(configs));
 
 		ScriptInfo scriptInfo = new ScriptInfo();
 
@@ -513,7 +511,7 @@ public class ScriptLoader {
 		}
 
 		return CompletableFuture.allOf(scriptInfoFutures.toArray(new CompletableFuture[0]))
-			.thenApply(unused -> {
+			.thenApply(ignored -> {
 				// TODO in the future this won't work when parallel loading is fixed
 				// It does now though so let's avoid calling getParser() a bunch.
 				ParserInstance parser = getParser();
@@ -637,21 +635,7 @@ public class ScriptLoader {
 			});
 	}
 
-	private static class LoadingScriptInfo {
-
-		public final Script script;
-
-		public final List<Structure> structures;
-
-		public final Map<Structure, Node> nodeMap;
-
-		public LoadingScriptInfo(Script script, List<Structure> structures, Map<Structure, Node> nodeMap) {
-			this.script = script;
-			this.structures = structures;
-			this.nodeMap = nodeMap;
-		}
-
-	}
+	private record LoadingScriptInfo(Script script, List<Structure> structures, Map<Structure, Node> nodeMap) { }
 
 	/**
 	 * Creates a script and loads the provided config into it.
@@ -1041,6 +1025,7 @@ public class ScriptLoader {
 				items.add(item);
 			} else if (subNode instanceof SectionNode subSection) {
 
+				//noinspection resource - manual management is intentional
 				RetainingLogHandler handler = SkriptLogger.startRetainingLog();
 				find_section:
 				try {
@@ -1177,7 +1162,7 @@ public class ScriptLoader {
 	 * Any changes to loaded scripts will not be reflected in the returned set.
 	 */
 	public static Set<Script> getLoadedScripts() {
-		return Collections.unmodifiableSet(new HashSet<>(loadedScripts));
+		return Set.copyOf(loadedScripts);
 	}
 
 	/**
@@ -1185,7 +1170,7 @@ public class ScriptLoader {
 	 * Any changes to disabled scripts will not be reflected in the returned set.
 	 */
 	public static Set<File> getDisabledScripts() {
-		return Collections.unmodifiableSet(new HashSet<>(disabledScripts));
+		return Set.copyOf(disabledScripts);
 	}
 
 	/**
@@ -1316,7 +1301,7 @@ public class ScriptLoader {
 			script = script.replace('/', File.separatorChar).replace('\\', File.separatorChar);
 		} else if (!StringUtils.endsWithIgnoreCase(script, ".sk")) {
 			int dot = script.lastIndexOf('.');
-			if (dot > 0 && !script.substring(dot + 1).equals(""))
+			if (dot > 0 && !script.substring(dot + 1).isEmpty())
 				return null;
 			script = script + ".sk";
 		}
