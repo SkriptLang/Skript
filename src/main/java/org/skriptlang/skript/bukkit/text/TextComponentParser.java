@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.text;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
@@ -121,13 +122,13 @@ public final class TextComponentParser {
 	 * A pattern for matching double hashtag hex color tags ({@code <##123456>}).
 	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
 	 */
-	private static final Pattern LEGACY_DOUBLE_HASHTAG_PATTERN = Pattern.compile("(\\\\*)<(##[a-f0-9]{6})>");
+	private static final Pattern LEGACY_DOUBLE_HASHTAG_PATTERN = Pattern.compile("(\\\\*)<(##[a-fA-F0-9]{6})>");
 
 	/**
 	 * A pattern for matching legacy hex codes ({@code &x&1&2&3&4&5&6}).
 	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
 	 */
-	static final Pattern LEGACY_CODE_PATTERN = Pattern.compile("(\\\\*)([&§][a-f0-9klomnr])");
+	static final Pattern LEGACY_CODE_PATTERN = Pattern.compile("(\\\\*)([&§][a-fA-F0-9kKlLoOmMnNrR])");
 
 	static {
 		INSTANCE = new TextComponentParser();
@@ -436,7 +437,14 @@ public final class TextComponentParser {
 		realMessage = reformatText(realMessage);
 
 		// parse as component
-		Component component = safe ? safeParser.deserialize(realMessage) : parser.deserialize(realMessage);
+		Component component;
+		try {
+			component = safe ? safeParser.deserialize(realMessage) : parser.deserialize(realMessage);
+		} catch (ParsingException e) {
+			Skript.exception(e, "An error occurred while trying to parse formatting for '" + realMessage + "'." +
+				" This is likely caused by the presence of legacy formatting characters (such as '§') that Skript could not handle.");
+			return Component.text(message instanceof String ? (String) message : Classes.toString(message));
+		}
 
 		// replace links based on configuration setting
 		if (linkParseMode != LinkParseMode.DISABLED) {
@@ -492,10 +500,12 @@ public final class TextComponentParser {
 		// legacy compatibility, escape color codes
 		if (string.contains("&") || string.contains("§")) {
 			string = LEGACY_CODE_PATTERN.matcher(string).replaceAll(result -> {
+				// Even if escaped, MiniMessage will throw an exception for legacy section codes
+				String group = result.group().replace('§', '&');
 				if (result.group(1).length() % 2 == 1) { // tag is already escaped
-					return Matcher.quoteReplacement(result.group());
+					return Matcher.quoteReplacement(group);
 				}
-				return Matcher.quoteReplacement('\\' + result.group());
+				return Matcher.quoteReplacement('\\' + group);
 			});
 		}
 		string = LEGACY_DOUBLE_HASHTAG_PATTERN.matcher(string).replaceAll(result -> {
