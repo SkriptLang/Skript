@@ -15,12 +15,12 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Has Gravity")
+@Name("Experiences Gravity")
 @Description(
 	"Change whether an entity is affected by gravity. This will override any effects " +
 	"from the gravity attribute or potions like slow falling."
 )
-@Example("send whether player has gravity")
+@Example("send whether player experiences gravity")
 @Since("INSERT VERSION")
 public class CondGravity extends Condition {
 
