@@ -10,7 +10,6 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Projectile;
-import org.skriptlang.skript.log.runtime.RuntimeErrorProducer;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Projectile Is Critical")
@@ -20,19 +19,19 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	""")
 @Example("""
 	on shoot:
-		if event-projectile is not in projectile critical state:
+		if event-projectile will crit:
 			enable projectile critical state of event-projectile
 	""")
 @Since("INSERT VERSION")
-public class CondProjectileIsCritical extends PropertyCondition<Projectile> implements RuntimeErrorProducer {
+public class CondProjectileIsCritical extends PropertyCondition<Projectile> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.CONDITION,
 			infoBuilder(
 				CondProjectileIsCritical.class,
-				PropertyType.BE,
-				"in (projectile|arrow) critical (state|mode)",
+				PropertyType.WILL,
+				"crit[ical]",
 				"projectiles"
 			)
 				.supplier(CondProjectileIsCritical::new)

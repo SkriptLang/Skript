@@ -24,7 +24,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	""")
 @Example("""
 	on shoot:
-		enable projectile critical state of event-projectile
+		make event-projectile crit
 	""")
 @Since("INSERT VERSION")
 public class EffProjectileCriticalState extends Effect implements RuntimeErrorProducer {
@@ -34,8 +34,7 @@ public class EffProjectileCriticalState extends Effect implements RuntimeErrorPr
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffProjectileCriticalState.class)
 				.addPatterns(
-					"(enable|:disable) (projectile|arrow) critical (state|mode) (of|for) %projectiles%",
-					"(enable|:disable) %projectiles%'s (projectile|arrow) critical (state|mode)"
+					"make %projectiles% [negate:not] crit[ical]"
 				)
 				.supplier(EffProjectileCriticalState::new)
 				.build()
