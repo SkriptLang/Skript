@@ -46,7 +46,8 @@ public class ExprStoredEnchantments extends PropertyExpression<ItemType, Enchant
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(
-			ExprStoredEnchantments.class, EnchantmentType.class, "stored enchant[ment]s", "itemtypes", false).build());
+			ExprStoredEnchantments.class, EnchantmentType.class, "stored enchant[ment]s", "itemtypes", false)
+			.supplier(ExprStoredEnchantments::new).build());
 	}
 
 	@Override

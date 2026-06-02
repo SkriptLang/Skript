@@ -37,8 +37,9 @@ public class ExprEnchantmentLevel extends SimpleExpression<Long> {
 				"[the] [enchant[ment]] level[s] of %enchantments% (on|of) %itemtypes%",
 				"[the] %enchantments% [enchant[ment]] level[s] (on|of) %itemtypes%",
 				"%itemtypes%'[s] %enchantments% [enchant[ment]] level[s]",
-				"%itemtypes%'[s] [enchant[ment]] level[s] of %enchantments%"
-			).priority(PropertyExpression.DEFAULT_PRIORITY).build());
+				"%itemtypes%'[s] [enchant[ment]] level[s] of %enchantments%")
+			.supplier(ExprEnchantmentLevel::new)
+			.priority(PropertyExpression.DEFAULT_PRIORITY).build());
 	}
 
 	private Expression<ItemType> items;

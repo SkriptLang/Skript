@@ -37,7 +37,8 @@ public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> i
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			builder(ExprAppliedEnchantments.class, EnchantmentType.class)
-				.addPattern("[the] applied enchant[ment]s").build());
+				.addPattern("[the] applied enchant[ment]s")
+				.supplier(ExprAppliedEnchantments::new).build());
 	}
 
 	@Override

@@ -26,7 +26,8 @@ public class ExprEnchantmentOfferCost extends SimplePropertyExpression<Enchantme
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(
-			ExprEnchantmentOfferCost.class, Long.class, "[enchant[ment]] cost", "enchantmentoffers", false).build());
+			ExprEnchantmentOfferCost.class, Long.class, "[enchant[ment]] cost", "enchantmentoffers", false)
+			.supplier(ExprEnchantmentOfferCost::new).build());
 	}
 
 	@Override

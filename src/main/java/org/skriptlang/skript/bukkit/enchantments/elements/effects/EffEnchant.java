@@ -39,7 +39,7 @@ public class EffEnchant extends Effect {
 		DISENCHANT
 	}
 
-	private static final Patterns<Operation> patterns = new Patterns<>(new Object[][]{
+	private static final Patterns<Operation> PATTERNS = new Patterns<>(new Object[][]{
 		{"enchant %~itemtypes% with %enchantmenttypes%", Operation.ENCHANT},
 		{"[naturally|randomly] enchant %~itemtypes% at level %number%[treasure:[,] allowing treasure enchant[ment]s]",
 			Operation.ENCHANT_AT_LEVEL},
@@ -48,7 +48,8 @@ public class EffEnchant extends Effect {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffEnchant.class)
-			.addPatterns(patterns.getPatterns()).build());
+			.addPatterns(PATTERNS.getPatterns())
+			.supplier(EffEnchant::new).build());
 	}
 
 	private Expression<ItemType> items;
@@ -71,7 +72,7 @@ public class EffEnchant extends Effect {
 			level = (Expression<Number>) exprs[1];
 			treasure = parseResult.hasTag("treasure");
 		}
-		operation = patterns.getInfo(matchedPattern);
+		operation = PATTERNS.getInfo(matchedPattern);
 		return true;
 	}
 	

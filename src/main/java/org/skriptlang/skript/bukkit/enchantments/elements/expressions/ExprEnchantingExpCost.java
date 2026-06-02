@@ -35,7 +35,8 @@ public class ExprEnchantingExpCost extends SimpleExpression<Integer> implements 
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, builder(ExprEnchantingExpCost.class, Integer.class)
-			.addPattern("[the] [displayed] ([e]xp[erience]|enchanting) cost").build());
+			.addPattern("[the] [displayed] ([e]xp[erience]|enchanting) cost")
+			.supplier(ExprEnchantingExpCost::new).build());
 	}
 
 	@Override

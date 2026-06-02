@@ -23,7 +23,8 @@ public class ExprMaximumEnchantmentLevel extends SimplePropertyExpression<Enchan
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(
 			ExprMaximumEnchantmentLevel.class, Integer.class,
-			"max[imum] enchant[ment] level", "enchantments", true).build());
+			"max[imum] enchant[ment] level", "enchantments", true)
+			.supplier(ExprMaximumEnchantmentLevel::new).build());
 	}
 
 	@Override

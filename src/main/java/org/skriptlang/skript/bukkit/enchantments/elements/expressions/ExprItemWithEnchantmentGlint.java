@@ -24,6 +24,7 @@ public class ExprItemWithEnchantmentGlint extends PropertyExpression<ItemType, I
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, builder(ExprItemWithEnchantmentGlint.class, ItemType.class)
 			.addPattern("%itemtypes% with[:out] [enchant[ment]] glint")
+			.supplier(ExprItemWithEnchantmentGlint::new)
 			.priority(PropertyExpression.DEFAULT_PRIORITY).build());
 	}
 

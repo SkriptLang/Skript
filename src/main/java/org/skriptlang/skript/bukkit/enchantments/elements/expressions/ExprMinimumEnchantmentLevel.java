@@ -26,7 +26,8 @@ public class ExprMinimumEnchantmentLevel extends SimplePropertyExpression<Enchan
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(
 			ExprMinimumEnchantmentLevel.class, Integer.class,
-			"(min[imum]|start[ing]) enchant[ment] level", "enchantments", true).build());
+			"(min[imum]|start[ing]) enchant[ment] level", "enchantments", true)
+			.supplier(ExprMinimumEnchantmentLevel::new).build());
 	}
 
 	@Override

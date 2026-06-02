@@ -27,7 +27,7 @@ public class EffForceEnchantmentGlint extends Effect {
 				"(force|make) %itemtypes% [to] (not|stop) glint[ing]",
 				"(clear|delete|reset) [the] enchantment glint override of %itemtypes%",
 				"(clear|delete|reset) %itemtypes%'s enchantment glint override"
-			).build());
+			).supplier(EffForceEnchantmentGlint::new).build());
 	}
 
 	private Expression<ItemType> itemTypes;
