@@ -16,7 +16,11 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Entity Glow")
-@Description("Change whether an entity is glowing.")
+@Description(
+	"Change whether an entity is glowing. Glowing entites have outlines that can be " +
+	"seen through blocks. This will change the entity's glowing property (NBT). This " +
+	"is not related to the glowing potion effect."
+)
 @Example("make target entity glow")
 @Example("make player stop glowing")
 @Since("INSERT VERSION")

@@ -6,7 +6,11 @@ import org.bukkit.entity.Entity;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Is Glowing")
-@Description("Checks whether or not an entity is glowing.")
+@Description(
+	"Check whether an entity is glowing. Glowing entites have outlines that can be " +
+	"seen through blocks. This will change the entity's glowing property (NBT). This " +
+	"is not related to the glowing potion effect."
+)
 @Example("""
 	command /glow:
 		trigger:
