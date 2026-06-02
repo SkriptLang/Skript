@@ -5,6 +5,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.entity.EntityData;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Projectile;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -41,7 +42,7 @@ public class CondProjectileIsCritical extends PropertyCondition<Projectile> {
 		if (projectile instanceof AbstractArrow abstractArrow) {
 			return abstractArrow.isCritical();
 		}
-		warning("This projectile is not supported. Critical projectile state only applies to arrows and tridents.");
+		warning("This projectile (" + EntityData.toString(projectile) + ") is not supported. Critical projectile state only applies to arrows and tridents.");
 		return false;
 	}
 

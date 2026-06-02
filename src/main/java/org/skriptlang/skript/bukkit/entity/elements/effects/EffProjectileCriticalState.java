@@ -4,6 +4,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -59,7 +60,7 @@ public class EffProjectileCriticalState extends Effect implements RuntimeErrorPr
 			if (projectile instanceof AbstractArrow abstractArrow) {
 				abstractArrow.setCritical(!negated);
 			} else {
-				warning("This projectile is not supported. This only applies to arrows and tridents.");
+				warning("This projectile (" + EntityData.toString(projectile) + ") is not supported. This only applies to arrows and tridents.");
 			}
 		}
 	}
