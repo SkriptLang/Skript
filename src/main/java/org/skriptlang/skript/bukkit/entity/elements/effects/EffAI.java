@@ -16,7 +16,13 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Entity AI")
-@Description("Change whether an entity has AI.")
+@Description(
+	"Change whether an entity has AI. Entities without AI will not try to attack " +
+	"other entities and will not be able to move at all. This includes knockback " +
+	"from getting hit, falling due to gravity, getting pushed by entities/water, " +
+	"changing velocity with commands and any other form of movement. Accumulated " +
+	"knockback and velocity changes will be applied when ai is enabled again."
+)
 @Example("enable artificial intelligence of target entity")
 @Example("disable ai of last spawned entity")
 @Since("INSERT VERSION")
