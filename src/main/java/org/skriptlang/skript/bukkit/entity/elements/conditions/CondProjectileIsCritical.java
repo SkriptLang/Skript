@@ -40,12 +40,6 @@ public class CondProjectileIsCritical extends PropertyCondition<Projectile> {
 	}
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		setNegated(matchedPattern == 1);
-		return super.init(exprs, matchedPattern, isDelayed, parseResult);
-	}
-
-	@Override
 	public boolean check(Projectile projectile) {
 		if (projectile instanceof AbstractArrow abstractArrow) {
 			return abstractArrow.isCritical();
