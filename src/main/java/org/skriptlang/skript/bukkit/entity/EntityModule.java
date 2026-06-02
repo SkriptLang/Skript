@@ -8,7 +8,7 @@ import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.entity.displays.DisplayModule;
 import org.skriptlang.skript.bukkit.entity.elements.conditions.CondAI;
-import org.skriptlang.skript.bukkit.entity.elements.conditions.CondHasGravity;
+import org.skriptlang.skript.bukkit.entity.elements.conditions.CondGravity;
 import org.skriptlang.skript.bukkit.entity.elements.conditions.CondIsGlowing;
 import org.skriptlang.skript.bukkit.entity.elements.conditions.CondProjectileIsCritical;
 import org.skriptlang.skript.bukkit.entity.elements.effects.EffAI;
@@ -47,7 +47,7 @@ public class EntityModule extends HierarchicalAddonModule {
 
 		register(addon,
 			CondAI::register,
-			CondHasGravity::register,
+			CondGravity::register,
 			CondIsGlowing::register,
 			CondProjectileIsCritical::register,
 
