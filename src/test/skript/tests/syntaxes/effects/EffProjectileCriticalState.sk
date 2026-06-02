@@ -1,3 +1,5 @@
+using error catching
+
 test "Projectile Critical State Effect":
 	shoot arrow from test-location:
 		assert event-projectile won't crit with "A normally shot arrow shouldn't crit"
@@ -14,6 +16,12 @@ test "Projectile Critical State Effect":
 		make event-projectile not crit
 		assert event-projectile won't crit with "Failed to make the trident not crit"
 		delete event-projectile
+
+	shoot snowball from test-location:
+		catch runtime errors:
+			make event-projectile crit
+		set {_error} to "This projectile (snowball) is not supported. This only applies to arrows and tridents."
+		assert last caught runtime errors contains {_error} with "Making a snowball crit did not trigger the runtime error"
 
 test "Projectile Critical State Effect with multiple projectiles":
 	shoot arrow and arrow from test-location:
