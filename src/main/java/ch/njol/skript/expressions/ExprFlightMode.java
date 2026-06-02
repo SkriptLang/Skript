@@ -29,7 +29,7 @@ public class ExprFlightMode extends SimplePropertyExpression<Player, Boolean> {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		ScriptWarning.printDeprecationWarning("This expression is deprecated. Consider using the Make Fly effect instead.");
+		ScriptWarning.printDeprecationWarning("This expression is deprecated and will be removed in a future version. Use the Make Fly effect instead: 'make %players% fly'");
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 

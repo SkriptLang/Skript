@@ -28,7 +28,7 @@ public class ExprGravity extends SimplePropertyExpression<Entity, Boolean> {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        ScriptWarning.printDeprecationWarning("This expression is deprecated. Consider using the gravity effect instead.");
+        ScriptWarning.printDeprecationWarning("This expression is deprecated and will be removed in a future version. Use the gravity effect instead: 'enable gravity of %entities%'");
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 	

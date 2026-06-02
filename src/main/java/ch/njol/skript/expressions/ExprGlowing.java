@@ -28,7 +28,7 @@ public class ExprGlowing extends SimplePropertyExpression<Entity, Boolean> {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		ScriptWarning.printDeprecationWarning("This expression is deprecated. Consider using the glowing effect instead.");
+		ScriptWarning.printDeprecationWarning("This expression is deprecated and will be removed in a future version. Use the glowing effect instead: 'make %entities% glow'");
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 	

@@ -29,7 +29,7 @@ public class ExprAI extends SimplePropertyExpression<LivingEntity, Boolean> {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		ScriptWarning.printDeprecationWarning("This expression is deprecated. Consider using the AI effect instead.");
+		ScriptWarning.printDeprecationWarning("This expression is deprecated and will be removed in a future version. Use the AI effect instead: 'enable ai for %livingentities%'.");
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 	

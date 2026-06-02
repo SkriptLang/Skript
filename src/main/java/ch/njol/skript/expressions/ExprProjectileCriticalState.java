@@ -38,7 +38,7 @@ public class ExprProjectileCriticalState extends SimplePropertyExpression<Projec
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        ScriptWarning.printDeprecationWarning("This expression is deprecated. Consider using the projectile critical state effect instead.");
+        ScriptWarning.printDeprecationWarning("This expression is deprecated and will be removed in a future version. Use the projectile critical state effect instead: 'make %projectiles% crit'");
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 	
