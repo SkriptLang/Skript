@@ -20,10 +20,15 @@ public class EvtEntityLunge extends SkriptEvent {
 				.description("Called when an entity lunges.",
 					"Entity can perform lunge attack when holding a spear enchanted with the lunge enchantment.",
 					"Lunge attack propels entity forward horizontally.")
-				.examples("on lunge:",
-						      "\tset lunge power to 4",
-						  "on ravager lunge:",
-							  "\tcancel event"
+				.examples(
+					"""
+					on lunge:
+						set lunge power to 4
+					""",
+					"""
+					on ravager lunge:
+						cancel event
+					"""
 				)
 				.since("INSERT VERSION");
 		}
@@ -39,11 +44,11 @@ public class EvtEntityLunge extends SkriptEvent {
 
 	@Override
 	public boolean check(Event event) {
-		EntityLungeEvent lungeEvent = (EntityLungeEvent) event;
-
 		if (entityTypes == null) {
 			return true;
 		}
+
+		EntityLungeEvent lungeEvent = (EntityLungeEvent) event;
 
 		for (EntityType entityType : entityTypes.getAll()) {
 			if (entityType.isInstance(lungeEvent.getEntity())) {
@@ -55,12 +60,10 @@ public class EvtEntityLunge extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		if (entityTypes != null) {
-			builder.append(entityTypes).append(" ");
-		}
-		builder.append("lunge");
-		return builder.toString();
+		return new SyntaxStringBuilder(event, debug)
+			.appendIf(entityTypes != null, entityTypes)
+			.append("lunge")
+			.toString();
 	}
 
 }

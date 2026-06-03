@@ -13,27 +13,29 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Lunge Power")
-@Description({"The power of lunge attack.",
-			"Can be set to modify the distance of the lunge attack.",
-			"Initially, the lunge power is determined by the enchantment level of the lunge enchantment" +
-				"of the weapon used to perform the lunge attack (e.g. a spear)."})
+@Description("""
+	The power of lunge attack.
+	Can be set to modify the distance of the lunge attack.
+	Initially, the lunge power is determined by the enchantment level of the lunge enchantment
+	of the weapon used to perform the lunge attack (e.g. a spear).
+	""")
 @Example("""
-on skeleton lunge:
-	if the lunge power is 1, 2 or 3:
-		broadcast "Normal lunge power"
-	else if the lunge power is greater than 3:
-		broadcast "Overpowered lunge power"
-""")
+	on skeleton lunge:
+		if the lunge power is 1, 2 or 3:
+			broadcast "Normal lunge power"
+		else if the lunge power is greater than 3:
+			broadcast "Overpowered lunge power"
+	""")
 @Example("""
-on lunge:
-	set event-lunge power to 5
-""")
+	on lunge:
+		set event-lunge power to 5
+	""")
 @Example("""
-on player lunge:
-    if event-entity has slowness:
-        remove 1 from lunge power
-        send "Slowed you down a bit"
-""")
+	on player lunge:
+		if event-entity has slowness:
+			remove 1 from lunge power
+			send "Slowed you down a bit"
+	""")
 @Since("INSERT VERSION")
 public class ExprLungePower extends SimpleExpression<Integer> implements EventRestrictedSyntax {
 
@@ -50,7 +52,18 @@ public class ExprLungePower extends SimpleExpression<Integer> implements EventRe
 	}
 
 	@Override
-	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EntityLungeEvent.class);
+	}
+
+	@Override
+	public Integer[] get(Event event) {
+		EntityLungeEvent lungeEvent = (EntityLungeEvent) event;
+		return CollectionUtils.array(lungeEvent.getLungePower());
+	}
+
+	@Override
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case SET, ADD, REMOVE -> CollectionUtils.array(Integer.class);
 			default -> null;
@@ -58,9 +71,9 @@ public class ExprLungePower extends SimpleExpression<Integer> implements EventRe
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		int deltaValue = delta != null ? (Integer) delta[0] : 0;
-		int currentValue = getSingle(event);
+		int currentValue = ((EntityLungeEvent) event).getLungePower();
 		Integer newValue = switch (mode) {
 			case SET -> deltaValue;
 			case ADD -> currentValue + deltaValue;
@@ -73,17 +86,6 @@ public class ExprLungePower extends SimpleExpression<Integer> implements EventRe
 
 		EntityLungeEvent lungeEvent = (EntityLungeEvent) event;
 		lungeEvent.setLungePower(newValue);
-	}
-
-	@Override
-	public Integer[] get(Event event) {
-		EntityLungeEvent lungeEvent = (EntityLungeEvent) event;
-		return CollectionUtils.array(lungeEvent.getLungePower());
-	}
-
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(EntityLungeEvent.class);
 	}
 
 	@Override
