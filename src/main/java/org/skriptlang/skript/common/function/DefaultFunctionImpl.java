@@ -172,7 +172,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 
 		private ch.njol.skript.util.Contract contract = null;
 
-		private Documentation documentation = null;
+		private Documentation documentation = Documentation.builder().build();
 
 		BuilderImpl(@NotNull SkriptAddon source, @NotNull String name, @NotNull Class<T> returnType) {
 			Preconditions.checkNotNull(source, "source cannot be null");
@@ -193,7 +193,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		}
 
 		private void editDocumentation(Consumer<Documentation.Builder<?>> consumer) {
-			var builder = documentation == null ? Documentation.builder() : documentation.toBuilder();
+			var builder = documentation.toBuilder();
 			consumer.accept(builder);
 			documentation = builder.build();
 		}
