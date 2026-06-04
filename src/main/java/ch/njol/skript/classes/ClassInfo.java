@@ -8,6 +8,7 @@ import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Utils;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import com.google.common.collect.ImmutableList;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -478,6 +479,12 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 	@Override
 	public void write(DocumentationAdapter adapter) {
 		DocumentationDocumentable.super.write(adapter);
+
+		// codename
+		adapter.enterScope("codename");
+		adapter.write("singular", codeName);
+		adapter.write("plural", Utils.toEnglishPlural(codeName));
+		adapter.exitScope();
 
 		// implementing properties
 		adapter.write("properties", propertyInfos.keySet().stream()

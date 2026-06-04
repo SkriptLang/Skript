@@ -86,6 +86,7 @@ public interface Experiment extends DocumentationDocumentable {
 		adapter.write("pattern", pattern().toString(StringificationProperties.builder()
 			.excludeParseTags()
 			.excludeTypeFlags()
+			.mapUndocumentableTypes()
 			.build()));
 	}
 

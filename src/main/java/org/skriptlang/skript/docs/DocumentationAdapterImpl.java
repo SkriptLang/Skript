@@ -177,24 +177,7 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 			}
 			case Class<?> clazz -> { // we convert Class objects into ClassInfo references
 				ClassInfo<?> classInfo = Classes.getSuperClassInfo(Utils.getComponentType(clazz));
-				if (Documentation.isNoDocs(classInfo.documentation())) {
-					// try to use docs for superclass
-					Class<?> superClass = classInfo.getC().getSuperclass();
-					if (superClass != null) {
-						yield adapt(superClass);
-					}
-					// if it doesn't have a superclass, check interfaces
-					for (Class<?> clazzInterface : classInfo.getC().getInterfaces()) {
-						classInfo = Classes.getExactClassInfo(clazzInterface);
-						if (classInfo != null && !Documentation.isNoDocs(classInfo.documentation())) {
-							break;
-						}
-					}
-					// otherwise, fallback to Object
-					if (classInfo == null) {
-						classInfo = Classes.getExactClassInfo(Object.class);
-					}
-				}
+				classInfo = Classes.getDocumentableClassInfo(classInfo);
 				yield reference(classInfo);
 			}
 			case Collection<?> collection -> collection.stream()

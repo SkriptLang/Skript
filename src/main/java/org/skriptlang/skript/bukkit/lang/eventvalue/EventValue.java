@@ -261,6 +261,7 @@ public sealed interface EventValue<E extends Event, V> extends Documentable perm
 			.map(pattern -> PatternCompiler.compile(pattern).toString(StringificationProperties.builder()
 				.excludeParseTags()
 				.excludeTypeFlags()
+				.mapUndocumentableTypes()
 				.build()))
 			.toList());
 		adapter.write("supportedChangeModes", Arrays.stream(ChangeMode.values())

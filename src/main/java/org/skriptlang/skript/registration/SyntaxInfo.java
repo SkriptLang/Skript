@@ -110,6 +110,7 @@ public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends Document
 			.map(pattern -> PatternCompiler.compile(pattern).toString(StringificationProperties.builder()
 				.excludeParseTags()
 				.excludeTypeFlags()
+				.mapUndocumentableTypes()
 				.build()))
 			.toList());
 	}
