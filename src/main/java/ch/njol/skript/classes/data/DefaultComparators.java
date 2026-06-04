@@ -445,19 +445,6 @@ public class DefaultComparators {
 			}
 		});
 		
-		// StructureType - StructureType
-		Comparators.registerComparator(StructureType.class, StructureType.class, new Comparator<StructureType, StructureType>() {
-			@Override
-			public Relation compare(StructureType s1, StructureType s2) {
-				return Relation.get(CollectionUtils.containsAll(s2.getTypes(), s2.getTypes()));
-			}
-
-			@Override
-			public boolean supportsOrdering() {
-				return false;
-			}
-		});
-		
 		// Object - ClassInfo
 		Comparators.registerComparator(Object.class, ClassInfo.class, new Comparator<Object, ClassInfo>() {
 			@Override
