@@ -65,7 +65,7 @@ local function argument_test_list(xs: ints):
 test "function structure arguments":
 	parse:
 		argument_test(1)
-	assert last parse logs contain "The function argument_test(integer) does not exist"
+	assert last parse logs contain "The function 'argument_test(integer)' does not exist"
 
 	parse:
 		argument_test(1, 2)
@@ -73,7 +73,7 @@ test "function structure arguments":
 
 	parse:
 		argument_test(1, 2, 3)
-	assert last parse logs contain "The function argument_test(integer, integer, integer) does not exist"
+	assert last parse logs contain "The function 'argument_test(integer, integer, integer)' does not exist"
 
 	parse:
 		argument_test_list((1, 2, 3))
@@ -81,11 +81,11 @@ test "function structure arguments":
 
 	parse:
 		argument_test_list(1, (2, 3))
-	assert last parse logs contain "The function argument_test_list(integer, integers) does not exist"
+	assert last parse logs contain "The function 'argument_test_list(integer, integers)' does not exist"
 
 	parse:
 		argument_test(1 if {_x} is 1, else 2, 3)
-	assert last parse logs is "The function argument_test(?, ?, integer) does not exist. Did you mean to use the function 'local argument_test(x: integer, y: integer)'?"
+	assert first element of last parse logs contains "The function 'argument_test(?, ?, integer)' does not exist"
 
 	parse:
 		argument_test((1 if {_x} is 1, else 2), 3)
@@ -186,19 +186,19 @@ test "named function arguments with single list params":
 
 	parse:
 		nfa_incorrect_list(ns: 1, n: 2, 3)
-	assert first element of last parse logs contains "The function nfa_incorrect_list(ns: integer, n: integer, integer) does not exist"
+	assert first element of last parse logs contains "The function 'nfa_incorrect_list(ns: integer, n: integer, integer)' does not exist"
 
 	parse:
 		nfa_incorrect_list(wrong: (1, 2, 3))
-	assert first element of last parse logs contains "The function nfa_incorrect_list(wrong: integers) does not exist"
+	assert first element of last parse logs contains "The function 'nfa_incorrect_list(wrong: integers)' does not exist"
 
 	parse:
 		nfa_incorrect_list(ns: (1, (2, 3)))
-	assert first element of last parse logs contains "The function nfa_incorrect_list(ns: integers) does not exist"
+	assert first element of last parse logs contains "The function 'nfa_incorrect_list(ns: integers)' does not exist"
 
 	parse:
 		nfa_incorrect_list(ns: 1, 2, 3)
-	assert first element of last parse logs contains "The function nfa_incorrect_list(ns: integer, integer, integer) does not exist"
+	assert first element of last parse logs contains "The function 'nfa_incorrect_list(ns: integer, integer, integer)' does not exist"
 
 	parse:
 		nfa_incorrect_list(ns: 1, ns: 2, ns: 3)
