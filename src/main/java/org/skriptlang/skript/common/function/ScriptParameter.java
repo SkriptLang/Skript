@@ -1,6 +1,7 @@
 package org.skriptlang.skript.common.function;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.expressions.ExprNone;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
@@ -50,17 +51,22 @@ public record ScriptParameter<T>(String name, Class<T> type, Set<Modifier> modif
 		Expression<?> defaultValue = null;
 		if (def != null) {
 			Class<?> target = Utils.getComponentType(type);
+			String trimmedDef = def.trim();
 
-			// Parse the default value expression
-			try (RetainingLogHandler log = SkriptLogger.startRetainingLog()) {
-				defaultValue = new SkriptParser(def, SkriptParser.ALL_FLAGS, ParseContext.DEFAULT).parseExpression(target);
-				if (defaultValue == null || LiteralUtils.hasUnparsedLiteral(defaultValue)) {
-					log.printErrors("Can't understand this expression: " + def);
+			if (trimmedDef.equalsIgnoreCase("none") || trimmedDef.equalsIgnoreCase("nothing")) {
+				defaultValue = new ExprNone();
+			} else {
+				// Parse the default value expression
+				try (RetainingLogHandler log = SkriptLogger.startRetainingLog()) {
+					defaultValue = new SkriptParser(def, SkriptParser.ALL_FLAGS, ParseContext.DEFAULT).parseExpression(target);
+					if (defaultValue == null || LiteralUtils.hasUnparsedLiteral(defaultValue)) {
+						log.printErrors("Can't understand this expression: " + def);
+						log.stop();
+						return null;
+					}
+					log.printLog();
 					log.stop();
-					return null;
 				}
-				log.printLog();
-				log.stop();
 			}
 		}
 

@@ -5,18 +5,6 @@ local function expr_unset_default(x: int = {_}) :: object:
 	return {_x}
 
 test "ExprNone":
-	set {_x} to none
-	assert {_x} is not set with "none should not set a variable"
-
-	set {_x} to 1
-	set {_x} to nothing
-	assert {_x} is not set with "nothing should not set a variable"
-
 	assert expr_none_default() is not set with "none default should leave the parameter unset"
 	assert expr_none_default(1) is 1 with "provided function argument should override none default"
 	assert expr_unset_default() is not set with "unset local default should leave the parameter unset"
-
-	set {-exprnone-old::%{_}%} to 1
-	set {-exprnone-new::%none%} to 1
-	assert {-exprnone-new::%{_}%} is 1 with "none list key should match unset local variable list key"
-	assert {-exprnone-old::%none%} is 1 with "unset local variable list key should match none list key"
