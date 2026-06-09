@@ -221,7 +221,8 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			Preconditions.checkNotNull(examples, "examples cannot be null");
 			checkNotNull(examples, "examples contents cannot be null");
 
-			editDocumentation(builder -> builder.clearExamples().addExamples(examples));
+			editDocumentation(builder ->
+				builder.clearExamples().addExamples(Documentation.reformatExamples(examples)));
 			return this;
 		}
 

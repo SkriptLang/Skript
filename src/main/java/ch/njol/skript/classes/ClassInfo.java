@@ -561,31 +561,8 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 		if (examples.length != 0 && examples[0].isEmpty()) { // ignore empty examples
 			return this;
 		}
-		List<String> reformattedExamples = new ArrayList<>();
-		StringBuilder builder = new StringBuilder();
-		for (String example : examples) {
-			if (!example.startsWith("\t") && !builder.isEmpty()) { // indicates new example, push current
-				reformattedExamples.add(builder.toString());
-				builder = new StringBuilder();
-			}
-			if (example.contains("\n")) { // multiline indicates a single example in one string
-				if (!builder.isEmpty()) { // need to dump whatever is ongoing
-					reformattedExamples.add(builder.toString());
-					builder = new StringBuilder();
-				}
-				reformattedExamples.add(example);
-				continue;
-			}
-			if (!builder.isEmpty()) {
-				builder.append("\n");
-			}
-			builder.append(example);
-		}
-		if (!builder.isEmpty()) {
-			reformattedExamples.add(builder.toString());
-		}
 		documentation = documentation.toBuilder()
-			.addExamples(reformattedExamples)
+			.addExamples(Documentation.reformatExamples(examples))
 			.build();
 		return this;
 	}

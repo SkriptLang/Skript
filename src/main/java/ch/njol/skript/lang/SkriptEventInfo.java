@@ -5,7 +5,6 @@ import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
 import ch.njol.skript.lang.SkriptEventInfo.ModernSkriptEventInfo;
-import com.google.common.collect.ImmutableList;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.jetbrains.annotations.ApiStatus;
@@ -303,26 +302,7 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 			if (examples == null || examples.length == 0) {
 				return List.of();
 			}
-			ImmutableList.Builder<String> builder = ImmutableList.builder();
-			StringBuilder currentExample = new StringBuilder();
-			for (String example : examples) {
-				if (!example.startsWith("\t")) { // a new example
-					String nextExample = currentExample.toString();
-					if (!nextExample.isBlank()) {
-						builder.add(nextExample);
-					}
-					currentExample = new StringBuilder();
-					if (example.contains("\n")) { // assume this is one example
-						builder.add(example);
-						continue;
-					}
-				}
-				currentExample.append(example).append("\n");
-			}
-			if (!currentExample.isEmpty()) {
-				builder.add(currentExample.toString());
-			}
-			return builder.build();
+			return Documentation.reformatExamples(examples);
 		}
 
 		@Override

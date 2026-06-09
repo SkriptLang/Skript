@@ -160,7 +160,7 @@ public abstract class JavaFunction<T> extends Function<T>
 	public JavaFunction<T> examples(final String... examples) {
 		assert documentation.examples().isEmpty();
 		documentation = documentation.toBuilder()
-			.addExamples(examples)
+			.addExamples(Documentation.reformatExamples(examples))
 			.build();
 		return this;
 	}

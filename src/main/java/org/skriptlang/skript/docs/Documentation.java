@@ -2,7 +2,9 @@ package org.skriptlang.skript.docs;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.WordUtils;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -443,6 +445,7 @@ public interface Documentation extends Documentable {
 		 * @return This builder.
 		 * @see Documentation#additionalData()
 		 */
+		@Contract(value = "_ -> this", mutates = "this")
 		B addData(Documentable documentable);
 
 		/**
@@ -450,6 +453,7 @@ public interface Documentation extends Documentable {
 		 * @return This builder.
 		 * @see Documentation#additionalData()
 		 */
+		@Contract(value = "-> this", mutates = "this")
 		B clearData();
 
 		/**
@@ -464,6 +468,39 @@ public interface Documentation extends Documentable {
 		 */
 		void applyTo(Builder<?> builder);
 
+	}
+
+	/**
+	 * @deprecated Only used for compatibility.
+	 */
+	@ApiStatus.Internal
+	@Contract("_ -> new")
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	static @Unmodifiable Collection<String> reformatExamples(String[] examples) {
+		ImmutableList.Builder<String> listBuilder = ImmutableList.builder();
+		StringBuilder builder = new StringBuilder();
+		for (String example : examples) {
+			if (!example.startsWith("\t") && !builder.isEmpty()) { // indicates new example, push current
+				listBuilder.add(builder.toString());
+				builder = new StringBuilder();
+			}
+			if (example.contains("\n")) { // multiline indicates a single example in one string
+				if (!builder.isEmpty()) { // need to dump whatever is ongoing
+					listBuilder.add(builder.toString());
+					builder = new StringBuilder();
+				}
+				listBuilder.add(example);
+				continue;
+			}
+			if (!builder.isEmpty()) {
+				builder.append("\n");
+			}
+			builder.append(example);
+		}
+		if (!builder.isEmpty()) {
+			listBuilder.add(builder.toString());
+		}
+		return listBuilder.build();
 	}
 
 }
