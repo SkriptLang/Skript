@@ -33,7 +33,7 @@ public class EffAI extends Effect {
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffAI.class)
 				.addPatterns(
-					"(enable|:disable) (ai|artificial intelligence) (of|for) %livingentities%",
+					"(enable|:disable) [the] (ai|artificial intelligence) (of|for) %livingentities%",
 					"(enable|:disable) %livingentities%'s (ai|artificial intelligence)"
 				)
 				.supplier(EffAI::new)
