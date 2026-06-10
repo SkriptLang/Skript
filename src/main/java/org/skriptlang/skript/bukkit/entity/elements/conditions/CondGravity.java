@@ -42,7 +42,7 @@ public class CondGravity extends Condition {
 	private Expression<Entity> entities;
 
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		entities = (Expression<Entity>) exprs[0];
 		setNegated(matchedPattern % 2 == 1);
@@ -55,7 +55,7 @@ public class CondGravity extends Condition {
 	}
 
 	@Override
-	public String toString(final @Nullable Event event, final boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return new SyntaxStringBuilder(event, debug)
 			.append(entities)
 			.appendIf(isNegated(), "do not")

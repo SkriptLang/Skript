@@ -30,7 +30,7 @@ public class EffGravity extends Effect {
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffGravity.class)
 				.addPatterns(
-					"(enable|:disable) gravity (of|for) %entities%",
+					"(enable|:disable) [the] gravity (of|for) %entities%",
 					"(enable|:disable) %entities%'s gravity"
 				)
 				.supplier(EffGravity::new)

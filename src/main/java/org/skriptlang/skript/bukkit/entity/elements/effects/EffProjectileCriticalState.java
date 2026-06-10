@@ -29,7 +29,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		make event-projectile crit
 	""")
 @Since("INSERT VERSION")
-public class EffProjectileCriticalState extends Effect implements RuntimeErrorProducer {
+public class EffProjectileCriticalState extends Effect {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
