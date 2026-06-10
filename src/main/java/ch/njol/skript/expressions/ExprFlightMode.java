@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Flight Mode")
-@Description("Whether the player(s) are allowed to fly. Use <a href=#EffMakeFly>Make Fly</a> effect to force player(s) to fly.")
+@Description("Whether the player(s) are allowed to fly. This expression is deprecated and will be removed in a future version. Use <a href=#EffMakeFly>Make Fly</a> effect to force player(s) to fly instead.")
 @Example("set flight mode of player to true")
 @Example("send \"%flying state of all players%\"")
 @Since("2.2-dev34")

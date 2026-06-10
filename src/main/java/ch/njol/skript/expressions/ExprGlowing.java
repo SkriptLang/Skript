@@ -16,7 +16,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Glowing")
-@Description("Indicates if targeted entity is glowing (new 1.9 effect) or not. Glowing entities can be seen through walls.")
+@Description("Indicates if targeted entity is glowing (new 1.9 effect) or not. Glowing entities can be seen through walls. This expression is deprecated and will be removed in a future version. Use the <a href='#EffGlowing'>Entity Glow/a> effect instead.")
 @Example("set glowing of player to true")
 @Since("2.2-dev18")
 @Deprecated(since = "INSERT VERSION", forRemoval = true)

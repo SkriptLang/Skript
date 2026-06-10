@@ -20,7 +20,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Projectile Critical State")
-@Description("A projectile's critical state. The only currently accepted projectiles are arrows and tridents.")
+@Description("A projectile's critical state. The only currently accepted projectiles are arrows and tridents. This expression is deprecated and will be removed in a future version. Use the <a href='#EffProjectileCriticalState'>Projectile Critical State</a> effect instead.")
 @Example("""
 	on shoot:
 		event-projectile is an arrow
@@ -38,7 +38,7 @@ public class ExprProjectileCriticalState extends SimplePropertyExpression<Projec
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        ScriptWarning.printDeprecationWarning("This expression is deprecated and will be removed in a future version. Use the projectile critical state effect instead: 'make %projectiles% crit'");
+		ScriptWarning.printDeprecationWarning("This expression is deprecated and will be removed in a future version. Use the projectile critical state effect instead: 'make %projectiles% crit'");
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 	

@@ -17,7 +17,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Entity AI")
-@Description("Returns whether an entity has AI.")
+@Description("Returns whether an entity has AI. This expression is deprecated and will be removed in a future version. Use the <a href='#EffAI'>Entity AI</a> effect instead.")
 @Example("set artificial intelligence of target entity to false")
 @Since("2.5")
 @Deprecated(since = "INSERT VERSION", forRemoval = true)
