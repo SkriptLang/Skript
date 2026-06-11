@@ -12,8 +12,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A parser based on a {@link Registry} used to parse data from a string or turn data into a string.
@@ -24,15 +26,24 @@ public class RegistryParser<R extends Keyed> extends PatternedParser<R> {
 
 	private final Registry<R> registry;
 	private final String languageNode;
+	private final Set<String> excludedPatterns;
 
 	private final Map<R, String> names = new HashMap<>();
 	private final Map<String, R> parseMap = new HashMap<>();
 	private String[] patterns;
 
 	public RegistryParser(Registry<R> registry, String languageNode) {
+		this(registry, languageNode, Set.of());
+	}
+
+	public RegistryParser(Registry<R> registry, String languageNode, Set<String> excludedPatterns) {
 		assert !languageNode.isEmpty() && !languageNode.endsWith(".") : languageNode;
 		this.registry = registry;
 		this.languageNode = languageNode;
+		this.excludedPatterns = new HashSet<>();
+		for (String excludedPattern : excludedPatterns) {
+			this.excludedPatterns.add(excludedPattern.toLowerCase(Locale.ENGLISH));
+		}
 		refresh();
 		Language.addListener(this::refresh);
 	}
@@ -52,7 +63,7 @@ public class RegistryParser<R extends Keyed> extends PatternedParser<R> {
 
 			// If the object is a vanilla Minecraft object, we'll add the key with spaces as a pattern
 			if (namespace.equalsIgnoreCase(NamespacedKey.MINECRAFT)) {
-				parseMap.put(keyWithSpaces, registryObject);
+				putPattern(keyWithSpaces, registryObject);
 				languageKey = languageNode + "." + key;
 			} else {
 				languageKey = namespacedKey.toString();
@@ -80,9 +91,9 @@ public class RegistryParser<R extends Keyed> extends PatternedParser<R> {
 					// Add to name map if needed
 					names.putIfAbsent(registryObject, first);
 
-					parseMap.put(first, registryObject);
+					putPattern(first, registryObject);
 					if (second != -1) { // There is a gender present
-						parseMap.put(Noun.getArticleWithSpace(second, Language.F_INDEFINITE_ARTICLE) + first, registryObject);
+						putPattern(Noun.getArticleWithSpace(second, Language.F_INDEFINITE_ARTICLE) + first, registryObject);
 					}
 				}
 			}
@@ -91,6 +102,13 @@ public class RegistryParser<R extends Keyed> extends PatternedParser<R> {
 			.filter(pattern -> !pattern.startsWith("minecraft:"))
 			.sorted()
 			.toArray(String[]::new);
+	}
+
+	private void putPattern(String pattern, R registryObject) {
+		String lowerPattern = pattern.toLowerCase(Locale.ENGLISH);
+		if (!excludedPatterns.contains(lowerPattern)) {
+			parseMap.put(lowerPattern, registryObject);
+		}
 	}
 
 	/**

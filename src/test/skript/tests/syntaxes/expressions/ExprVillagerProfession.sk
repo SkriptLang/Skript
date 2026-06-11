@@ -9,6 +9,9 @@ test "villager profession expression":
 	assert villager profession of {_e} = nitwit profession with "The villager should now be a nitwit"
 	delete villager profession of {_e}
 	assert villager profession of {_e} = no profession with "The villager should now have no profession"
+	parse:
+		set villager profession of {_e} to none
+	assert last parse logs is set with "Bare none should not parse as a villager profession"
 
 	# Thank you for your service
 	delete entity within {_e}

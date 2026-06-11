@@ -31,8 +31,8 @@ import ch.njol.util.Kleenean;
 public class CondIsSet extends Condition implements VerboseAssert {
 	static {
 		Skript.registerCondition(CondIsSet.class,
-				"%~objects% (exist[s]|(is|are) set)",
-				"%~objects% (do[es](n't| not) exist|(is|are)(n't| not) set)");
+				"%~objects% (exist[s]|(is|are) set|(is|are)(n't| not) (none|nothing))",
+				"%~objects% (do[es](n't| not) exist|(is|are)(n't| not) set|(is|are) (none|nothing))");
 	}
 	
 	@SuppressWarnings("null")

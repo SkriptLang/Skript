@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 public final class Parameter<T> implements org.skriptlang.skript.common.function.Parameter<T> {
 
 	public final static Pattern PARAM_PATTERN = Pattern.compile("^\\s*([^:(){}\",]+?)\\s*:\\s*([a-zA-Z ]+?)\\s*(?:\\s*=\\s*(.+))?\\s*$");
+	private final static Pattern OPTIONAL_TYPE_PATTERN = Pattern.compile("(?i)^optional\\s+(.+)$");
 
 	/**
 	 * Name of this parameter. Will be used as name for the local variable
@@ -155,6 +156,14 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	 */
 	@Deprecated(forRemoval = true, since = "2.14")
 	public static <T> @Nullable Parameter<T> newInstance(String name, ClassInfo<T> type, boolean single, @Nullable String def) {
+		return newInstance(name, type, single, def, false);
+	}
+
+	/**
+	 * @deprecated Use {@link ScriptParameter#parse(String, Class, String)}} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "2.14")
+	public static <T> @Nullable Parameter<T> newInstance(String name, ClassInfo<T> type, boolean single, @Nullable String def, boolean optional) {
 		if (!Variable.isValidVariableName(name, true, false)) {
 			Skript.error("A parameter's name must be a valid variable name.");
 			// ... because it will be made available as local variable
@@ -179,7 +188,7 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 		}
 
 		Set<Modifier> modifiers = new HashSet<>();
-		if (d != null) {
+		if (d != null || optional) {
 			modifiers.add(Modifier.OPTIONAL);
 		}
 		if (!single) {
@@ -225,18 +234,25 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 						return null;
 					}
 				}
+				String typeName = n.group(2).trim();
+				boolean optional = false;
+				Matcher optionalMatcher = OPTIONAL_TYPE_PATTERN.matcher(typeName);
+				if (optionalMatcher.matches()) {
+					optional = true;
+					typeName = optionalMatcher.group(1).trim();
+				}
 				ClassInfo<?> c;
-				c = Classes.getClassInfoFromUserInput("" + n.group(2));
-				NonNullPair<String, Boolean> pl = Utils.getEnglishPlural("" + n.group(2));
+				c = Classes.getClassInfoFromUserInput(typeName);
+				NonNullPair<String, Boolean> pl = Utils.getEnglishPlural(typeName);
 				if (c == null)
 					c = Classes.getClassInfoFromUserInput(pl.getFirst());
 				if (c == null) {
-					Skript.error("Cannot recognise the type '" + n.group(2) + "'");
+					Skript.error("Cannot recognise the type '" + typeName + "'");
 					return null;
 				}
 				String rParamName = paramName.endsWith("*") ? paramName.substring(0, paramName.length() - 3) +
 					(!pl.getSecond() ? "::1" : "") : paramName;
-				Parameter<?> p = Parameter.newInstance(rParamName, c, !pl.getSecond(), n.group(3));
+				Parameter<?> p = Parameter.newInstance(rParamName, c, !pl.getSecond(), n.group(3), optional);
 				if (p == null)
 					return null;
 				params.add(p);

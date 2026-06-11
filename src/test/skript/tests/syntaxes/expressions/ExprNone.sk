@@ -4,7 +4,28 @@ local function expr_none_default(x: int = none) :: object:
 local function expr_unset_default(x: int = {_}) :: object:
 	return {_x}
 
+local function expr_none_checks(x: int = none) :: text:
+	if {_x} is not set:
+		add "not set" to {_checks::*}
+	if {_x} is none:
+		add "none" to {_checks::*}
+	return join {_checks::*} with ","
+
+local function expr_optional_default(x: optional int) :: object:
+	return {_x}
+
+local function expr_optional_checks(x: optional int) :: text:
+	if {_x} is not set:
+		add "not set" to {_checks::*}
+	if {_x} is none:
+		add "none" to {_checks::*}
+	return join {_checks::*} with ","
+
 test "ExprNone":
 	assert expr_none_default() is not set with "none default should leave the parameter unset"
 	assert expr_none_default(1) is 1 with "provided function argument should override none default"
 	assert expr_unset_default() is not set with "unset local default should leave the parameter unset"
+	assert expr_none_checks() is "not set,none" with "none default should satisfy both 'is not set' and 'is none'"
+	assert expr_optional_default() is not set with "omitted optional parameter should be unset"
+	assert expr_optional_default(1) is 1 with "provided optional function argument should be set"
+	assert expr_optional_checks() is "not set,none" with "omitted optional parameter should satisfy both 'is not set' and 'is none'"

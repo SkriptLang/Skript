@@ -40,6 +40,19 @@ public record ScriptParameter<T>(String name, Class<T> type, Set<Modifier> modif
 	 * @return A parsed parameter {@link ScriptParameter}, or null if parsing failed.
 	 */
 	public static Parameter<?> parse(@NotNull String name, @NotNull Class<?> type, @Nullable String def) {
+		return parse(name, type, def, false);
+	}
+
+	/**
+	 * Parses a {@link ScriptParameter} from a script.
+	 *
+	 * @param name     The name.
+	 * @param type     The class of the parameter.
+	 * @param def      The default value, if present.
+	 * @param optional Whether this parameter was declared optional without requiring a default value.
+	 * @return A parsed parameter {@link ScriptParameter}, or null if parsing failed.
+	 */
+	public static Parameter<?> parse(@NotNull String name, @NotNull Class<?> type, @Nullable String def, boolean optional) {
 		Preconditions.checkNotNull(name, "name cannot be null");
 		Preconditions.checkNotNull(type, "type cannot be null");
 
@@ -71,7 +84,7 @@ public record ScriptParameter<T>(String name, Class<T> type, Set<Modifier> modif
 		}
 
 		Set<Modifier> modifiers = new HashSet<>();
-		if (defaultValue != null) {
+		if (defaultValue != null || optional) {
 			modifiers.add(Modifier.OPTIONAL);
 		}
 		if (type.isArray()) {
@@ -102,7 +115,7 @@ public record ScriptParameter<T>(String name, Class<T> type, Set<Modifier> modif
 			if (!hasModifier(Modifier.OPTIONAL)) {
 				throw new IllegalStateException("This parameter is required, but no argument was provided");
 			} else if (defaultValue == null) {
-				throw new IllegalStateException("This parameter does not have a default value");
+				return new Object[0];
 			}
 			//noinspection unchecked
 			return Parameter.super.evaluate((Expression<? extends T>) defaultValue, event);

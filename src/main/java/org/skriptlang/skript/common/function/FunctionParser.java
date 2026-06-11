@@ -83,6 +83,8 @@ public class FunctionParser {
 	 */
 	private final static Pattern SCRIPT_PARAMETER_PATTERN =
 			Pattern.compile("^\\s*(?<name>[^:(){}\",]+?)\\s*:\\s*(?<type>[a-zA-Z ]+?)\\s*(?:\\s*=\\s*(?<def>.+))?\\s*$");
+	private final static Pattern OPTIONAL_TYPE_PATTERN =
+			Pattern.compile("(?i)^optional\\s+(?<type>.+)$");
 
 	private static Parameters parseParameters(String args) {
 		SequencedMap<String, Parameter<?>> params = new LinkedHashMap<>();
@@ -124,14 +126,22 @@ public class FunctionParser {
 				}
 			}
 
-			ClassInfo<?> classInfo = Classes.getClassInfoFromUserInput(matcher.group("type"));
-			PluralResult result = Utils.isPlural(matcher.group("type"));
+			String typeName = matcher.group("type").trim();
+			boolean optional = false;
+			Matcher optionalMatcher = OPTIONAL_TYPE_PATTERN.matcher(typeName);
+			if (optionalMatcher.matches()) {
+				optional = true;
+				typeName = optionalMatcher.group("type").trim();
+			}
+
+			ClassInfo<?> classInfo = Classes.getClassInfoFromUserInput(typeName);
+			PluralResult result = Utils.isPlural(typeName);
 
 			if (classInfo == null)
 				classInfo = Classes.getClassInfoFromUserInput(result.updated());
 
 			if (classInfo == null) {
-				Skript.error("Cannot recognise the type '%s'", matcher.group("type"));
+				Skript.error("Cannot recognise the type '%s'", typeName);
 				return null;
 			}
 
@@ -145,7 +155,7 @@ public class FunctionParser {
 				type = classInfo.getC();
 			}
 
-			Parameter<?> parameter = ScriptParameter.parse(variableName, type, matcher.group("def"));
+			Parameter<?> parameter = ScriptParameter.parse(variableName, type, matcher.group("def"), optional);
 
 			if (parameter == null)
 				return null;

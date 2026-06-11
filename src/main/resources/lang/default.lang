@@ -2560,7 +2560,7 @@ villager professions:
 	cartographer: cartographer, cartographer profession
 	armorer: armorer, armorer profession, armourer, armourer profession
 	butcher: butcher, butcher profession
-	none: no profession, none profession, unemployed
+	none: no profession, unemployed
 	fisherman: fisherman, fisherman profession
 
 # -- Change Reasons --

@@ -2,6 +2,7 @@ package org.skriptlang.skript.common.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.expressions.ExprNone;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ParseContext;
@@ -256,8 +257,10 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 				// prepare type information for parsing
 				Class<?> targetType = Utils.getComponentType(parameter.type());
 				Expression<?> fallback;
-				if (parameter instanceof ScriptParameter<?> sp) {
-					fallback = sp.defaultValue();
+				if (parameter instanceof ScriptParameter<?> sp && sp.defaultValue() != null) {
+					fallback = sp.defaultValue() instanceof ExprNone
+						? new EmptyExpression()
+						: sp.defaultValue();
 				} else if (parameter.hasModifier(Modifier.OPTIONAL)) {
 					fallback = new EmptyExpression();
 				} else {
@@ -395,8 +398,10 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 
 			Class<?> targetType = parameter.type().componentType();
 			Expression<?> fallback;
-			if (parameter instanceof ScriptParameter<?> sp) {
-				fallback = sp.defaultValue();
+			if (parameter instanceof ScriptParameter<?> sp && sp.defaultValue() != null) {
+				fallback = sp.defaultValue() instanceof ExprNone
+					? new EmptyExpression()
+					: sp.defaultValue();
 			} else if (parameter.hasModifier(Modifier.OPTIONAL)) {
 				fallback = new EmptyExpression();
 			} else {

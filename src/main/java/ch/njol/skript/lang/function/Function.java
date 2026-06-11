@@ -129,6 +129,9 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 				} else {
 					parameterValue = defaultValue;
 				}
+			} else if (parameterValue == null && defaultValueExpr == null && parameter.hasModifier(Modifier.OPTIONAL)
+					&& !(this instanceof DefaultFunction<?>)) {
+				parameterValue = new Object[0];
 			} else if (parameterValue == null && !(this instanceof DefaultFunction<?>)) { // Go for default value
 				assert defaultValueExpr != null; // Should've been parse error
 				//noinspection unchecked,rawtypes
@@ -141,7 +144,8 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 			 * really have a concept of nulls, it was changed. The config
 			 * option may be removed in future.
 			 */
-			if (!(this instanceof DefaultFunction<?>) && !executeWithNulls && parameterValue != null && parameterValue.length == 0)
+			if (!(this instanceof DefaultFunction<?>) && !executeWithNulls && parameterValue != null
+					&& parameterValue.length == 0 && !parameter.hasModifier(Modifier.OPTIONAL))
 				return null;
 			parameterValues[i] = parameterValue;
 			i++;

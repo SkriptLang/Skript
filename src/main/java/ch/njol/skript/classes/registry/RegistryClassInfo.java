@@ -8,6 +8,8 @@ import org.bukkit.Registry;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 
+import java.util.Set;
+
 /**
  * This class can be used for easily creating ClassInfos for {@link Registry}s.
  * It registers a language node with usage, a serializer, default expression, and a parser.
@@ -57,8 +59,21 @@ public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 	 * @param registerComparator Whether a default comparator should be registered for this registry's classinfo
 	 */
 	public RegistryClassInfo(Class<R> registryClass, Registry<R> registry, String codeName, String languageNode, DefaultExpression<R> defaultExpression, boolean registerComparator) {
+		this(registryClass, registry, codeName, languageNode, defaultExpression, registerComparator, Set.of());
+	}
+
+	/**
+	 * @param registryClass The registry class
+	 * @param registry The registry
+	 * @param codeName The name used in patterns
+	 * @param languageNode The language node of the type
+	 * @param defaultExpression The default expression of the type
+	 * @param registerComparator Whether a default comparator should be registered for this registry's classinfo
+	 * @param excludedPatterns Patterns that should not parse for this registry's classinfo
+	 */
+	public RegistryClassInfo(Class<R> registryClass, Registry<R> registry, String codeName, String languageNode, DefaultExpression<R> defaultExpression, boolean registerComparator, Set<String> excludedPatterns) {
 		super(registryClass, codeName);
-		RegistryParser<R> registryParser = new RegistryParser<>(registry, languageNode);
+		RegistryParser<R> registryParser = new RegistryParser<>(registry, languageNode, excludedPatterns);
 		usage(registryParser.getCombinedPatterns())
 			.supplier(registry::iterator)
 			.serializer(new RegistrySerializer<R>(registry))

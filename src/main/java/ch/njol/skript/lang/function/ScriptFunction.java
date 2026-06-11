@@ -57,6 +57,10 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 		int i = 0;
 		for (Parameter<?> parameter :  getSignature().parameters().all()) {
 			Object[] val = params[i];
+			if (val == null || val.length == 0) {
+				i++;
+				continue;
+			}
 			if (parameter.isSingle() && val.length > 0) {
 				Variables.setVariable(parameter.name(), val[0], event, true);
 				i++;

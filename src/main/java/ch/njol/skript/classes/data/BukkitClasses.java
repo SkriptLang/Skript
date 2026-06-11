@@ -55,6 +55,7 @@ import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHan
 
 import java.io.StreamCorruptedException;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -706,7 +707,9 @@ public class BukkitClasses {
 				.after("biome")
 				.since("2.10"));
 
-		Classes.registerClass(new RegistryClassInfo<>(Villager.Profession.class, Registry.VILLAGER_PROFESSION, "villagerprofession", "villager professions")
+		Classes.registerClass(new RegistryClassInfo<>(Villager.Profession.class, Registry.VILLAGER_PROFESSION,
+				"villagerprofession", "villager professions", new EventValueExpression<>(Villager.Profession.class),
+				true, Set.of("none"))
 				.user("villager ?professions?")
 				.name("Villager Profession")
 				.description("Represents the different professions of villagers.")
