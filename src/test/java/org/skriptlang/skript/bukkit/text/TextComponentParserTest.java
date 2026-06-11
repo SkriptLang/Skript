@@ -65,6 +65,8 @@ public class TextComponentParserTest {
 		for (ChatColor color : ChatColor.values()) {
 			String message = "&" + color.getChar() + "hello";
 			assertEquals(LegacyComponentSerializer.legacyAmpersand().deserialize(message), parser.parse(message));
+			message = "&" + Character.toUpperCase(color.getChar()) + "hello";
+			assertEquals(LegacyComponentSerializer.legacyAmpersand().deserialize(message), parser.parse(message));
 		}
 	}
 
@@ -80,6 +82,10 @@ public class TextComponentParserTest {
 		TextComponentParser parser = new TextComponentParser();
 		assertEquals(parser.parse("<#123456>hello"), parser.parse("<##123456>hello"));
 		assertEquals("\\<##123456>hello", parser.escape("<##123456>hello"));
+		// test letters in tag
+		assertEquals(parser.parse("<#ffff11>hello"), parser.parse("<#ffff11>hello"));
+		assertEquals(parser.parse("<#FFFF11>hello"), parser.parse("<##FFFF11>hello"));
+		assertEquals(parser.parse("<#ffff11>hello"), parser.parse("<##FFFF11>hello"));
 	}
 
 }

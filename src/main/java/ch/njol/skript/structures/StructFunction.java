@@ -157,7 +157,7 @@ public class StructFunction extends Structure {
 	public void unload() {
 		assert signature != null;
 		Functions.unregisterFunction(signature);
-		signature.calls().forEach(FunctionReference::invalidateCache);
+		signature.calls().forEach(FunctionReference::invalidate);
 		VALIDATE_FUNCTIONS.set(true);
 	}
 
