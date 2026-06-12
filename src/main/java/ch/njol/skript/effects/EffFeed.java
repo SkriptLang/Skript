@@ -1,5 +1,6 @@
 package ch.njol.skript.effects;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
@@ -11,8 +12,6 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.registration.SyntaxInfo;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Feed")
 @Description("Feeds the specified players.")
@@ -21,11 +20,8 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.2-dev34")
 public class EffFeed extends Effect {
 
-	public static void register(SyntaxRegistry registry) {
-		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffFeed.class)
-			.addPatterns("feed [the] %players% [by %-number% [beef[s]]]")
-			.supplier(EffFeed::new)
-			.build());
+	static {
+		Skript.registerEffect(EffFeed.class, "feed [the] %players% [by %-number% [beef[s]]]");
 	}
 
 	@SuppressWarnings("null")
