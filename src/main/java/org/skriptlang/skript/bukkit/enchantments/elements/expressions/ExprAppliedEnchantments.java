@@ -115,7 +115,7 @@ public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> i
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "applied enchantments";
+		return "the applied enchantments";
 	}
 
 }
