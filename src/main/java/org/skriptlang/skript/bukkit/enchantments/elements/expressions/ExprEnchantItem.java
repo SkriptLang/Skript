@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.enchantments.elements.expressions;
 
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.EventRestrictedSyntax;
+import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
@@ -83,15 +84,31 @@ public class ExprEnchantItem extends SimpleExpression<ItemType> implements Event
 		ItemType item = ((ItemType) delta[0]);
 		switch (mode) {
 			case SET -> {
-				ItemStack existing = switch (event) {
-					case PrepareItemEnchantEvent prepare -> prepare.getItem();
-					case EnchantItemEvent enchant -> enchant.getItem();
+				switch (event) {
+					case EnchantItemEvent enchant -> {
+						ItemStack created = item.getRandom();
+						enchant.setItem(created != null ? created : ItemStack.empty());
+					}
+					case PrepareItemEnchantEvent prepare -> {
+						ItemStack existing = prepare.getItem();
+						Material target = existing.getType();
+						boolean mayChangeType = false;
+						for (Material candidate : item.getMaterials())
+							mayChangeType |= candidate != target;
+
+						if (mayChangeType) {
+							warning("Changing the item type of the enchant item in a prepare item enchant event " +
+								"is deprecated for removal and will not be supported in the future.");
+
+							//noinspection deprecation - user error
+							existing.setType(item.getMaterial());
+						}
+
+						existing.setItemMeta(item.getItemMeta());
+						existing.setAmount(item.getAmount());
+					}
 					default -> throw new AssertionError("unreachable");
-				};
-				//noinspection deprecation back-compat; danger danger !!
-				existing.setType(item.getMaterial());
-				existing.setItemMeta(item.getItemMeta());
-				existing.setAmount(item.getAmount());
+				}
 			}
 			case null, default -> {
 				assert false;
