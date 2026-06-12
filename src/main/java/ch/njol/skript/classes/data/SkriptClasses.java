@@ -374,32 +374,13 @@ public class SkriptClasses {
 					}
 				}));
 
-		Classes.registerClass(new ClassInfo<>(StructureType.class, "structuretype")
+		Classes.registerClass(new EnumClassInfo<>(TreeSpecies.class, "treetype", "tree types")
 				.user("tree ?types?", "trees?")
 				.name("Tree Type")
 				.description("A tree type represents a tree species or a huge mushroom species. These can be generated in a world with the <a href='#EffTree'>generate tree</a> effect.")
-				.usage("[any] <general tree/mushroom type>, e.g. tree/any jungle tree/etc.", "<specific tree/mushroom species>, e.g. red mushroom/small jungle tree/big regular tree/etc.")
 				.examples("grow any regular tree at the block",
 						"grow a huge red mushroom above the block")
-				.since("")
-				.defaultExpression(new SimpleLiteral<>(StructureType.TREE, true))
-				.parser(new Parser<StructureType>() {
-					@Override
-					@Nullable
-					public StructureType parse(final String s, final ParseContext context) {
-						return StructureType.fromName(s);
-					}
-
-					@Override
-					public String toString(final StructureType o, final int flags) {
-						return o.toString(flags);
-					}
-
-					@Override
-					public String toVariableNameString(final StructureType o) {
-						return "" + o.name().toLowerCase(Locale.ENGLISH);
-					}
-				}).serializer(new EnumSerializer<>(StructureType.class)));
+				.since("1.0"));
 
 		Classes.registerClass(new ClassInfo<>(EnchantmentType.class, "enchantmenttype")
 				.user("enchant(ing|ment) types?")
