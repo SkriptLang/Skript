@@ -102,8 +102,10 @@ public class Delay extends EffectSection {
 		debug(event, true);
 		long start = Skript.debug() ? System.nanoTime() : 0;
 
-		if (!Skript.getInstance().isEnabled()) // See https://github.com/SkriptLang/Skript/issues/3702
+		if (!Skript.getInstance().isEnabled()) { // See https://github.com/SkriptLang/Skript/issues/3702
+			error("Cannot delay code execution while the server is shutting down. The delay will be skipped.");
 			return trigger != null ? super.walk(event, false) : null;
+		}
 
 		Timespan duration = this.duration.getSingle(event);
 		if (duration == null)
@@ -117,8 +119,7 @@ public class Delay extends EffectSection {
 			Object localVars = isSection ? Variables.copyLocalVariables(event) : Variables.removeLocals(event);
 
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
-				if (!isSection)
-					addDelayedEvent(event);
+				addDelayedEvent(event);
 				Skript.debug(getIndentation() + "... continuing after " + (System.nanoTime() - start) / 1_000_000_000. + "s");
 
 				if (localVars != null)
@@ -139,7 +140,7 @@ public class Delay extends EffectSection {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "wait for " + duration.toString(event, debug) + (event == null ? "" : "...");
 	}
-	
+
 	private static final Set<Event> DELAYED =
 		Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 
