@@ -51,7 +51,7 @@ public class ExprEnchantItem extends SimpleExpression<ItemType> implements Event
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!parseResult.hasTag("ed"))
-			ScriptWarning.printDeprecationWarning("The 'enchant item' form of the enchanted item expression is deprecated, please use 'enchanted 'item'!");
+			ScriptWarning.printDeprecationWarning("The 'enchant item' form of the enchanted item expression is deprecated, please use 'enchanted item'!");
 		return true;
 	}
 
