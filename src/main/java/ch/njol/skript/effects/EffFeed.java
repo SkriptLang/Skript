@@ -46,8 +46,7 @@ public class EffFeed extends Effect {
 				foodAmount = n.intValue();
 		}
 		for (Player player : players.getArray(e)) {
-			int newFoodLevel = player.getFoodLevel() + foodAmount;
-			player.setFoodLevel(beefs == null ? Math.min(newFoodLevel, 20) : newFoodLevel);
+			player.setFoodLevel(beefs == null ? 20 : player.getFoodLevel() + foodAmount);
 		}
 	}
 
