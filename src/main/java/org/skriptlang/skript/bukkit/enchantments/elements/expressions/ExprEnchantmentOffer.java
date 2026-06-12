@@ -45,7 +45,7 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, builder(ExprEnchantmentOffer.class, EnchantmentOffer.class)
 			.addPatterns(
-				"[all [of]] [the] enchant[ment] offers",
+				"[all [[of] the]|the] enchant[ment] offers",
 				"enchant[ment] offer[s] %integers%",
 				"[the] %integer%(st|nd|rd|th) enchant[ment] offer")
 			.supplier(ExprEnchantmentOffer::new)
