@@ -41,7 +41,7 @@ public class CondItemEnchantmentGlint extends PropertyCondition<ItemType> {
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!super.init(expressions, matchedPattern, isDelayed, parseResult)) return false;
-		override = parseResult.hasTag("override");
+		override = matchedPattern <= 1;
 		expectedGlintOverride = !parseResult.hasTag("not");
 
 		// We override setNegated to correctly handle multiple patterns. Note that the [:not] parse tag is not negating.
@@ -60,6 +60,11 @@ public class CondItemEnchantmentGlint extends PropertyCondition<ItemType> {
 			return false;
 
 		return meta.getEnchantmentGlintOverride() == expectedGlintOverride;
+	}
+
+	@Override
+	protected PropertyType getPropertyType() {
+		return override ? PropertyType.HAVE : PropertyType.BE;
 	}
 
 	@Override
