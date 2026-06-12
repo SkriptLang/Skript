@@ -39,22 +39,22 @@ import static org.skriptlang.skript.registration.DefaultSyntaxInfos.Expression.b
 public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> implements EventRestrictedSyntax {
 
 	/*
-	* This should probably be an event value, but ExprElement doesn't support the %number%(st|nd|rd|th) %classinfo% syntax,
+	* This should probably be an event value, but ExprElement doesn't support the %integer%(st|nd|rd|th) %classinfo% syntax,
 	* and we have to keep it for backward compatibility, so for now it's best to just keep it as an expression
 	* */
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, builder(ExprEnchantmentOffer.class, EnchantmentOffer.class)
 			.addPatterns(
 				"[all [of]] [the] enchant[ment] offers",
-				"enchant[ment] offer[s] %numbers%",
-				"[the] %number%(st|nd|rd|th) enchant[ment] offer")
+				"enchant[ment] offer[s] %integers%",
+				"[the] %integer%(st|nd|rd|th) enchant[ment] offer")
 			.supplier(ExprEnchantmentOffer::new)
 			.priority(SyntaxInfo.SIMPLE)
 			.build());
 	}
 
 	@SuppressWarnings("null")
-	private Expression<Number> exprOfferNumber;
+	private Expression<Integer> exprOfferNumber;
 
 	private boolean all;
 
@@ -67,7 +67,7 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 		if (matchedPattern == 0) {
 			all = true;
 		} else {
-			exprOfferNumber = (Expression<Number>) exprs[0];
+			exprOfferNumber = (Expression<Integer>) exprs[0];
 			all = false;
 		}
 		return true;
@@ -89,20 +89,17 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 		if (exprOfferNumber == null)
 			return new EnchantmentOffer[0];
 		if (exprOfferNumber.isSingle()) {
-			Number offerNumber = exprOfferNumber.getSingle(event);
-			if (offerNumber == null)
+			Integer offer = exprOfferNumber.getSingle(event);
+			if (offer == null)
 				return new EnchantmentOffer[0];
-			int offer = offerNumber.intValue();
 			if (offer < 1 || offer > ((PrepareItemEnchantEvent) event).getOffers().length)
 				return new EnchantmentOffer[0];
 			return new EnchantmentOffer[]{((PrepareItemEnchantEvent) event).getOffers()[offer - 1]};
 		}
 		List<EnchantmentOffer> offers = new ArrayList<>();
-		int intIndex;
-		for (Number index : exprOfferNumber.getArray(event)) {
-			intIndex = index.intValue();
-			if (intIndex >= 1 && intIndex <= ((PrepareItemEnchantEvent) event).getOffers().length)
-				offers.add(((PrepareItemEnchantEvent) event).getOffers()[intIndex - 1]);
+		for (Integer index : exprOfferNumber.getArray(event)) {
+			if (index >= 1 && index <= ((PrepareItemEnchantEvent) event).getOffers().length)
+				offers.add(((PrepareItemEnchantEvent) event).getOffers()[index - 1]);
 		}
 		return offers.toArray(new EnchantmentOffer[0]);
 	}
@@ -124,9 +121,12 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 			switch (mode) {
 				case SET:
 					assert type != null;
-					Number[] indices = all ? new Number[]{1, 2, 3} : exprOfferNumber.getArray(prepareEvent);
-					for (Number index : indices) {
-						int slot = index.intValue() - 1;
+					Integer[] indices = all ? new Integer[]{1, 2, 3} : exprOfferNumber.getArray(prepareEvent);
+					for (Integer index : indices) {
+						int slot = index - 1;
+						if (slot < 0 || slot >= prepareEvent.getOffers().length)
+							continue;
+
 						EnchantmentOffer offer = prepareEvent.getOffers()[slot];
 						if (offer == null) {
 							offer = new EnchantmentOffer(type.getType(), type.getLevel(),
@@ -142,8 +142,13 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 					if (all) {
 						Arrays.fill(prepareEvent.getOffers(), null);
 					} else {
-						for (Number index : exprOfferNumber.getArray(prepareEvent))
-							prepareEvent.getOffers()[index.intValue() - 1] = null;
+						for (Integer index : exprOfferNumber.getArray(prepareEvent)) {
+							int slot = index - 1;
+							if (slot < 0 || slot >= prepareEvent.getOffers().length)
+								continue;
+
+							prepareEvent.getOffers()[slot] = null;
+						}
 					}
 					break;
 				case ADD:
