@@ -49,7 +49,8 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 				"enchant[ment] offer[s] %numbers%",
 				"[the] %number%(st|nd|rd|th) enchant[ment] offer")
 			.supplier(ExprEnchantmentOffer::new)
-			.priority(SyntaxInfo.SIMPLE).build());
+			.priority(SyntaxInfo.SIMPLE)
+			.build());
 	}
 
 	@SuppressWarnings("null")

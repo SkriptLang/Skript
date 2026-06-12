@@ -32,7 +32,8 @@ public class ExprEnchantments extends PropertyExpression<ItemType, EnchantmentTy
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			infoBuilder(ExprEnchantments.class, EnchantmentType.class, "enchantments", "itemtypes", false)
-				.supplier(ExprEnchantments::new).build());
+				.supplier(ExprEnchantments::new)
+				.build());
 	}
 
 	@Override

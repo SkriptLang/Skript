@@ -29,9 +29,10 @@ public class CondItemEnchantmentGlint extends PropertyCondition<ItemType> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.CONDITION, PropertyCondition
-			.infoBuilder(CondItemEnchantmentGlint.class, PropertyType.HAVE, "enchantment glint (override:overrid(den|e))", "itemtypes")
+			.infoBuilder(CondItemEnchantmentGlint.class, PropertyType.HAVE, "enchantment glint overrid(den|e)", "itemtypes")
 			.addPatterns(getPatterns(PropertyType.BE, "forced to [:not] glint", "itemtypes"))
-			.supplier(CondItemEnchantmentGlint::new).build());
+			.supplier(CondItemEnchantmentGlint::new)
+			.build());
 	}
 
 	private boolean expectedGlintOverride;

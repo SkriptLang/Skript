@@ -25,9 +25,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public class ExprEnchantmentOfferCost extends SimplePropertyExpression<EnchantmentOffer, Long> {
 
 	public static void register(SyntaxRegistry registry) {
-		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(
-			ExprEnchantmentOfferCost.class, Long.class, "[enchant[ment]] cost", "enchantmentoffers", false)
-			.supplier(ExprEnchantmentOfferCost::new).build());
+		registry.register(SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprEnchantmentOfferCost.class, Long.class, "[enchant[ment]] cost", "enchantmentoffers", false)
+				.supplier(ExprEnchantmentOfferCost::new)
+				.build());
 	}
 
 	@Override

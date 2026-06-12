@@ -44,7 +44,8 @@ public class ExprEnchantItem extends SimpleExpression<ItemType> implements Event
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, builder(ExprEnchantItem.class, ItemType.class)
 			.addPatterns("[the] enchant[:ed] item")
-			.supplier(ExprEnchantItem::new).build());
+			.supplier(ExprEnchantItem::new)
+			.build());
 	}
 
 	@Override

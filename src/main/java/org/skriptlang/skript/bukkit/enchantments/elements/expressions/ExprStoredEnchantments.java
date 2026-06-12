@@ -45,9 +45,10 @@ import java.util.Map;
 public class ExprStoredEnchantments extends PropertyExpression<ItemType, EnchantmentType> {
 
 	public static void register(SyntaxRegistry registry) {
-		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(
-			ExprStoredEnchantments.class, EnchantmentType.class, "stored enchant[ment]s", "itemtypes", false)
-			.supplier(ExprStoredEnchantments::new).build());
+		registry.register(SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprStoredEnchantments.class, EnchantmentType.class, "stored enchant[ment]s", "itemtypes", false)
+				.supplier(ExprStoredEnchantments::new)
+				.build());
 	}
 
 	@Override

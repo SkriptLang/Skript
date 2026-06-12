@@ -49,7 +49,8 @@ public class EffEnchant extends Effect {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffEnchant.class)
 			.addPatterns(PATTERNS.getPatterns())
-			.supplier(EffEnchant::new).build());
+			.supplier(EffEnchant::new)
+			.build());
 	}
 
 	private Expression<ItemType> items;

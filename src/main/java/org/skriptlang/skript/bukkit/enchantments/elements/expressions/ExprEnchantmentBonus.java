@@ -30,7 +30,8 @@ public class ExprEnchantmentBonus extends SimpleExpression<Integer> implements E
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, builder(ExprEnchantmentBonus.class, Integer.class)
 			.addPattern("[the] enchant[ment] bonus")
-			.supplier(ExprEnchantmentBonus::new).build());
+			.supplier(ExprEnchantmentBonus::new)
+			.build());
 	}
 
 	@Override
