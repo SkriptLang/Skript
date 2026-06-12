@@ -40,6 +40,7 @@ public class BukkitModule extends HierarchicalAddonModule {
 			new BreedingModule(this),
 			new BrewingModule(this),
 			new DamageSourceModule(this),
+			new EnchantmentModule(this),
 			new EntityModule(this),
 			new FishingModule(this),
 			new InputModule(this),
@@ -51,8 +52,7 @@ public class BukkitModule extends HierarchicalAddonModule {
 			new PDCModule(this),
 			new PotionModule(this),
 			new TagModule(this),
-			new TextModule(this),
-			new EnchantmentModule(this)
+			new TextModule(this)
 		);
 	}
 
