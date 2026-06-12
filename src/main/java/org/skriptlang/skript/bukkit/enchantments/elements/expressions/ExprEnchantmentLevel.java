@@ -12,6 +12,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
+import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.Event;
@@ -80,19 +81,18 @@ public class ExprEnchantmentLevel extends SimpleExpression<Long> {
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		ItemType[] itemTypes = items.getArray(event);
 		Enchantment[] enchantments = enchants.getArray(event);
-		if (delta == null || delta.length == 0)
-			return;
-		int changeValue = ((Number) delta[0]).intValue();
+		assert delta != null;
+		long changeValue = ((Number) delta[0]).longValue();
 
 		for (ItemType itemType : itemTypes) {
 			for (Enchantment enchantment : enchantments) {
 				EnchantmentType enchantmentType = itemType.getEnchantmentType(enchantment);
-				int oldLevel = enchantmentType == null ? 0 : enchantmentType.getLevel();
+				long oldLevel = enchantmentType == null ? 0 : enchantmentType.getLevel();
 
-				int newItemLevel;
+				long newItemLevel;
 				switch (mode) {
-					case ADD -> newItemLevel = oldLevel + changeValue;
-					case REMOVE -> newItemLevel = oldLevel - changeValue;
+					case ADD -> newItemLevel = Math2.addSaturated(oldLevel, changeValue);
+					case REMOVE -> newItemLevel = Math2.addSaturated(oldLevel, -changeValue);
 					case SET -> newItemLevel = changeValue;
 					default -> {
 						assert false;
@@ -103,7 +103,7 @@ public class ExprEnchantmentLevel extends SimpleExpression<Long> {
 				if (newItemLevel <= 0) {
 					itemType.removeEnchantments(new EnchantmentType(enchantment));
 				} else {
-					itemType.addEnchantments(new EnchantmentType(enchantment, newItemLevel));
+					itemType.addEnchantments(new EnchantmentType(enchantment, Math2.clampToInt(newItemLevel)));
 				}
 			}
 		}

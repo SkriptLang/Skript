@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.enchantments.elements.expressions;
 
 import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.Math2;
 import org.bukkit.event.Event;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.jetbrains.annotations.Nullable;
@@ -70,16 +71,16 @@ public class ExprEnchantingExpCost extends SimpleExpression<Integer> implements 
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (delta == null || delta.length == 0 || !(event instanceof EnchantItemEvent enchantEvent))
 			return;
-		int cost = ((Number) delta[0]).intValue();
+		long cost = ((Number) delta[0]).longValue();
 		switch (mode) {
-			case SET -> enchantEvent.setExpLevelCost(cost);
+			case SET -> enchantEvent.setExpLevelCost(Math.max(1, Math2.clampToInt(cost)));
 			case ADD -> {
-				int add = enchantEvent.getExpLevelCost() + cost;
-				enchantEvent.setExpLevelCost(add);
+				long add = Math.max(1, Math2.addSaturated(enchantEvent.getExpLevelCost(), cost));
+				enchantEvent.setExpLevelCost(Math2.clampToInt(add));
 			}
 			case REMOVE -> {
-				int subtract = enchantEvent.getExpLevelCost() - cost;
-				enchantEvent.setExpLevelCost(subtract);
+				long subtract = Math.max(1, Math2.addSaturated(enchantEvent.getExpLevelCost(), -cost));
+				enchantEvent.setExpLevelCost(Math2.clampToInt(subtract));
 			}
 			case RESET, DELETE, REMOVE_ALL -> {
 				assert false;
