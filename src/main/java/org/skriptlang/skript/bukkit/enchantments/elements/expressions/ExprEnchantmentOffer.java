@@ -182,8 +182,9 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 	 * @return A cost for that enchantment button with the number of bookshelves, or 1 if 'slot' is not an integer from 1 to 3.
 	 */
 	public int getCost(int slot, int bookshelves) {
+		// Based on https://minecraft.wiki/w/Enchanting_table_mechanics#Basic_mechanics
 		// (from 1 to 8) + floor(bookshelves / 2) + (from 0 to bookshelves)
-		int base = (rand.nextInt(7) + 1) + (bookshelves / 2) + (rand.nextInt(bookshelves + 1));
+		int base = (rand.nextInt(8) + 1) + (bookshelves / 2) + (rand.nextInt(bookshelves + 1));
 		return switch (slot) {
 			case 1 -> Math.max(base / 3, 1);
 			case 2 -> (base * 2) / 3 + 1;
