@@ -16,8 +16,7 @@ import org.jetbrains.annotations.Nullable;
 @Description("""
 	The power of lunge attack.
 	Can be set to modify the distance of the lunge attack.
-	Initially, the lunge power is determined by the enchantment level of the lunge enchantment
-	of the weapon used to perform the lunge attack (e.g. a spear).
+	Initially, the lunge power is determined by the enchantment level of the lunge enchantment of the weapon used to perform the lunge attack (e.g. a spear).
 	""")
 @Example("""
 	on skeleton lunge:
@@ -58,8 +57,11 @@ public class ExprLungePower extends SimpleExpression<Integer> implements EventRe
 
 	@Override
 	public Integer[] get(Event event) {
-		EntityLungeEvent lungeEvent = (EntityLungeEvent) event;
-		return CollectionUtils.array(lungeEvent.getLungePower());
+		if (event instanceof EntityLungeEvent lungeEvent)
+		{
+			return new Integer[]{lungeEvent.getLungePower()};
+		}
+		return new Integer[0];
 	}
 
 	@Override
@@ -72,19 +74,19 @@ public class ExprLungePower extends SimpleExpression<Integer> implements EventRe
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		int deltaValue = delta != null ? (Integer) delta[0] : 0;
-		int currentValue = ((EntityLungeEvent) event).getLungePower();
-		Integer newValue = switch (mode) {
+		if (!(event instanceof EntityLungeEvent lungeEvent)) {
+			return;
+		}
+
+		int deltaValue = delta == null ? 0 : (int) delta[0];
+		int currentValue = lungeEvent.getLungePower();
+		int newValue = switch (mode) {
 			case SET -> deltaValue;
 			case ADD -> currentValue + deltaValue;
 			case REMOVE -> currentValue - deltaValue;
-			default -> null;
+			default -> throw new UnsupportedOperationException("Unsupported change mode: " + mode);
 		};
 
-		// It isn't null because the change mode is guaranteed to be either SET, ADD or REMOVE
-		assert newValue != null;
-
-		EntityLungeEvent lungeEvent = (EntityLungeEvent) event;
 		lungeEvent.setLungePower(newValue);
 	}
 
