@@ -20,10 +20,7 @@ public class CondLeashed extends PropertyCondition<Entity> {
 
 	@Override
 	public boolean check(Entity entity) {
-		if (entity instanceof Leashable leashable) {
-			return leashable.isLeashed();
-		}
-		return false;
+		return entity instanceof Leashable leashable && leashable.isLeashed();
 	}
 
 	@Override
