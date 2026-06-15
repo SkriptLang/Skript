@@ -47,7 +47,7 @@ public class CondProjectileIsCritical extends PropertyCondition<Projectile> {
 	}
 
 	protected String getPropertyName() {
-		return "projectile critical state";
+		return "critical";
 	}
 
 }
