@@ -1,6 +1,7 @@
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.simplification.Simplifiable;
@@ -96,6 +97,24 @@ public abstract class Condition extends Statement implements Conditional<Event>,
 	public final boolean run(Event event) {
 		return check(event);
 	}
+
+	/**
+	 * Checks whether this condition can be changed using a specific change mode.
+	 * @param mode The change mode to consider.
+	 * @return Whether this condition can be changed using {@code mode}.
+	 */
+	public boolean acceptChange(ChangeMode mode) {
+		return false;
+	}
+
+	/**
+	 * Changes the value this condition checks for some holders (to be determined by the implementation).
+	 * @param event Event providing context.
+	 * @param value The new value.
+	 *              This is always false for {@link ChangeMode#DELETE} and {@link ChangeMode#RESET}.
+	 * @param mode The type of change to perform.
+	 */
+	public void change(Event event, boolean value, ChangeMode mode) { }
 
 	/**
 	 * Sets the negation state of this condition. This will change the behaviour of {@link Expression#check(Event, Predicate, boolean)}.
