@@ -7,7 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Player;
@@ -28,8 +28,8 @@ public class ExprFlightMode extends SimplePropertyExpression<Player, Boolean> {
 	}
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		ScriptWarning.printDeprecationWarning("This expression is deprecated and will be removed in a future version. Use the Make Fly effect instead: 'make %players% fly'");
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		ScriptWarning.printDeprecationWarning("This expression is deprecated and will be removed in a future version. Use the Make Fly effect instead: 'make " + expressions[0].toString(null, false) + " fly'.");
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 

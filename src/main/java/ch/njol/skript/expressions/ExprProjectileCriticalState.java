@@ -1,7 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Arrow;
@@ -37,8 +37,8 @@ public class ExprProjectileCriticalState extends SimplePropertyExpression<Projec
 	}
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		ScriptWarning.printDeprecationWarning("This expression is deprecated and will be removed in a future version. Use the projectile critical state effect instead: 'make %projectiles% crit'");
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		ScriptWarning.printDeprecationWarning("This expression is deprecated and will be removed in a future version. Use the projectile critical state effect instead: 'make " + expressions[0].toString(null, false) + " crit'.");
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 	

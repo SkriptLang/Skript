@@ -1,7 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
@@ -27,8 +27,8 @@ public class ExprGravity extends SimplePropertyExpression<Entity, Boolean> {
 	}
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		ScriptWarning.printDeprecationWarning("This expression is deprecated and will be removed in a future version. Use the gravity effect instead: 'enable gravity of %entities%'");
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		ScriptWarning.printDeprecationWarning("This expression is deprecated and will be removed in a future version. Use the gravity effect instead: 'enable gravity of " + expressions[0].toString(null, false) + "'.");
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 	

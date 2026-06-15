@@ -1,7 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
@@ -28,8 +28,8 @@ public class ExprAI extends SimplePropertyExpression<LivingEntity, Boolean> {
 	}
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		ScriptWarning.printDeprecationWarning("This expression is deprecated and will be removed in a future version. Use the AI effect instead: 'enable ai for %livingentities%'.");
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		ScriptWarning.printDeprecationWarning("This expression is deprecated and will be removed in a future version. Use the AI effect instead: 'enable ai for " + expressions[0].toString(null, false) + "'.");
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 	
