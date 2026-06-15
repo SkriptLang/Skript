@@ -23,6 +23,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 )
 @Example("make target entity glow")
 @Example("make player stop glowing")
+@Example("toggle whether {_mobs::*} are glowing")
 @Since("INSERT VERSION")
 public class EffGlowing extends Effect {
 
@@ -33,7 +34,8 @@ public class EffGlowing extends Effect {
 				.addPatterns(
 					"make %entities% [negate:not] glow",
 					"make %entities% (negate:stop|start) glowing",
-					"stop %entities% from glowing"
+					"stop %entities% from glowing",
+					"toggle whether %entities% (is|are) glowing"
 				)
 				.supplier(EffGlowing::new)
 				.build()
@@ -42,24 +44,32 @@ public class EffGlowing extends Effect {
 
 	private Expression<Entity> entities;
 	private boolean negated;
+	private boolean toggle;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		entities = (Expression<Entity>) expressions[0];
 		negated = (parseResult.hasTag("negate") || matchedPattern == 2);
+		toggle = matchedPattern == 3;
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
 		for (Entity entity : entities.getArray(event)) {
-			entity.setGlowing(!negated);
+			entity.setGlowing(toggle ? !entity.isGlowing() : !negated);
 		}
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
+		if (toggle) {
+			return new SyntaxStringBuilder(event, debug)
+				.append("toggle whether", entities, "is glowing")
+				.toString();
+		}
+
 		return new SyntaxStringBuilder(event, debug)
 			.append("make", entities)
 			.appendIf(negated, "not")

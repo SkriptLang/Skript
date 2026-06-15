@@ -29,7 +29,7 @@ public class CondProjectileIsCritical extends PropertyCondition<Projectile> {
 			infoBuilder(
 				CondProjectileIsCritical.class,
 				PropertyType.WILL,
-				"crit[ical]",
+				"[be] crit[ical]",
 				"projectiles"
 			)
 				.supplier(CondProjectileIsCritical::new)

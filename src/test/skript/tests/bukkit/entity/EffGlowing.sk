@@ -9,6 +9,10 @@ test "Entity Glowing":
 		assert entity is glowing with "Failed to make pig glow"
 		make entity not glow
 		assert entity is not glowing with "Failed to make pig not glow"
+		toggle whether entity is glowing
+		assert entity is glowing with "Failed to toggle glowing of pig to true"
+		toggle whether entity is glowing
+		assert entity isn't glowing with "Failed to toggle glowing of pig to false"
 		delete entity
 
 	spawn dropped apple at test-location:
@@ -21,6 +25,10 @@ test "Entity Glowing":
 		assert entity is glowing with "Failed to make dropped item glow"
 		make entity not glow
 		assert entity is not glowing with "Failed to make dropped item not glow"
+		toggle whether entity is glowing
+		assert entity is glowing with "Failed to toggle glowing of dropped item to true"
+		toggle whether entity is glowing
+		assert entity isn't glowing with "Failed to toggle glowing of dropped item to false"
 		delete entity
 
 test "Entity Glowing for multiple entities":
@@ -36,6 +44,10 @@ test "Entity Glowing for multiple entities":
 	assert {_pigs::*} are glowing with "Failed to make 2 pigs glow"
 	make {_pigs::*} not glow
 	assert {_pigs::*} are not glowing with "Failed to make 2 pigs not glow"
+	toggle whether {_pigs::*} are glowing
+	assert {_pigs::*} are glowing with "Failed to toggle glowing of 2 pigs to true"
+	toggle whether {_pigs::*} are glowing
+	assert {_pigs::*} aren't glowing with "Failed to toggle glowing of 2 pigs to false"
 	delete entities within {_pigs::*}
 
 	spawn 2 dropped apples at test-location:
@@ -50,4 +62,8 @@ test "Entity Glowing for multiple entities":
 	assert {_dropped items::*} is glowing with "Failed to make 2 dropped items glow"
 	make {_dropped items::*} not glow
 	assert {_dropped items::*} is not glowing with "Failed to make 2 dropped items not glow"
+	toggle whether {_dropped items::*} are glowing
+	assert {_dropped items::*} are glowing with "Failed to toggle glowing of 2 dropped items to true"
+	toggle whether {_dropped items::*} are glowing
+	assert {_dropped items::*} aren't glowing with "Failed to toggle glowing of 2 dropped items to false"
 	delete entities within {_dropped items::*}
