@@ -103,7 +103,7 @@ public class Delay extends EffectSection {
 		long start = Skript.debug() ? System.nanoTime() : 0;
 
 		if (!Skript.getInstance().isEnabled()) { // See https://github.com/SkriptLang/Skript/issues/3702
-			error("Cannot delay code execution while the server is shutting down. The delay will be skipped.");
+			error("Cannot delay code execution while the server is shutting down. The delay will be ignored.");
 			return trigger != null ? super.walk(event, false) : null;
 		}
 
