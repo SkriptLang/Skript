@@ -5,6 +5,10 @@ test "Entity AI Effect":
 		assert entity doesn't have ai with "Failed to disable ai of pig"
 		enable artificial intelligence of entity
 		assert entity has ai with "Failed to enable ai of pig"
+		toggle ai of entity
+		assert entity doesn't have ai with "Failed to toggle ai of pig to false"
+		toggle entity's ai
+		assert entity has ai with "Failed to toggle ai of pig to true"
 		delete entity
 
 test "Entity AI Effect with multiple entities":
@@ -16,4 +20,8 @@ test "Entity AI Effect with multiple entities":
 	assert {_pigs::*} don't have ai with "Failed to disable ai of 2 pigs"
 	enable artificial intelligence of {_pigs::*}
 	assert {_pigs::*} have ai with "Failed to enable ai of 2 pigs"
+	toggle ai of {_pigs::*}
+	assert {_pigs::*} don't have ai with "Failed to toggle ai of 2 pigs to false"
+	toggle {_pigs::*}'s ai
+	assert {_pigs::*} have ai with "Failed to toggle ai of 2 pigs to true"
 	delete entities within {_pigs::*}

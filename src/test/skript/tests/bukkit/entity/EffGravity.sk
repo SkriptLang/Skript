@@ -5,6 +5,10 @@ test "Entity Gravity Effect":
 		assert entity doesn't experience gravity with "Failed to disable gravity of pig"
 		enable gravity of entity
 		assert entity is affected by gravity with "Failed to enable gravity of pig"
+		toggle gravity of entity
+		assert entity isn't affected by gravity with "Failed to toggle gravity of pig to false"
+		toggle entity's gravity
+		assert entity experiences gravity with "Failed to toggle gravity of pig to true"
 		delete entity
 
 test "Entity Gravity Effect with multiple entities":
@@ -16,4 +20,8 @@ test "Entity Gravity Effect with multiple entities":
 	assert {_pigs::*} aren't affected by gravity with "Failed to disable gravity of 2 pigs"
 	enable {_pigs::*}'s gravity
 	assert {_pigs::*} are affected by gravity with "Failed to enable gravity of 2 pigs"
+	toggle gravity of {_pigs::*}
+	assert {_pigs::*} don't experience gravity with "Failed to toggle gravity of 2 pigs to false"
+	toggle {_pigs::*}'s gravity
+	assert {_pigs::*} experience gravity with "Failed to toggle gravity of 2 pigs to true"
 	delete entities within {_pigs::*}

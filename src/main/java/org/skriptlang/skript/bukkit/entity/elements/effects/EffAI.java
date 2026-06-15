@@ -25,6 +25,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 )
 @Example("enable artificial intelligence of target entity")
 @Example("disable ai of last spawned entity")
+@Example("toggle target entity's ai")
 @Since("INSERT VERSION")
 public class EffAI extends Effect {
 
@@ -33,8 +34,8 @@ public class EffAI extends Effect {
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffAI.class)
 				.addPatterns(
-					"(enable|:disable) [the] (ai|artificial intelligence) (of|for) %livingentities%",
-					"(enable|:disable) %livingentities%'s (ai|artificial intelligence)"
+					"(enable|:disable|:toggle) [the] (ai|artificial intelligence) (of|for) %livingentities%",
+					"(enable|:disable|:toggle) %livingentities%'s (ai|artificial intelligence)"
 				)
 				.supplier(EffAI::new)
 				.build()
@@ -43,26 +44,29 @@ public class EffAI extends Effect {
 
 	private Expression<LivingEntity> entities;
 	private boolean negated;
+	private boolean toggle;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		entities = (Expression<LivingEntity>) expressions[0];
 		negated = parseResult.hasTag("disable");
+		toggle = parseResult.hasTag("toggle");
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
 		for (LivingEntity entity : entities.getArray(event)) {
-			entity.setAI(!negated);
+			entity.setAI(toggle ? !entity.hasAI() : !negated);
 		}
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return new SyntaxStringBuilder(event, debug)
-			.append(negated ? "disable" : "enable")
+			.appendIf(toggle, "toggle")
+			.appendIf(!toggle, negated ? "disable" : "enable")
 			.append("ai of", entities)
 			.toString();
 	}

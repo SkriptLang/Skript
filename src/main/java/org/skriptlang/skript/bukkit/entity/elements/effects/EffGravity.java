@@ -22,6 +22,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 )
 @Example("enable gravity of target entity")
 @Example("disable last spawned entity's gravity")
+@Example("toggle target entity's gravity")
 @Since("INSERT VERSION")
 public class EffGravity extends Effect {
 
@@ -30,8 +31,8 @@ public class EffGravity extends Effect {
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffGravity.class)
 				.addPatterns(
-					"(enable|:disable) [the] gravity (of|for) %entities%",
-					"(enable|:disable) %entities%'s gravity"
+					"(enable|:disable|:toggle) [the] gravity (of|for) %entities%",
+					"(enable|:disable|:toggle) %entities%'s gravity"
 				)
 				.supplier(EffGravity::new)
 				.build()
@@ -40,26 +41,29 @@ public class EffGravity extends Effect {
 
 	private Expression<Entity> entities;
 	private boolean negated;
+	private boolean toggle;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		entities = (Expression<Entity>) expressions[0];
 		negated = parseResult.hasTag("disable");
+		toggle = parseResult.hasTag("toggle");
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
 		for (Entity entity : entities.getArray(event)) {
-			entity.setGravity(!negated);
+			entity.setGravity(toggle ? !entity.hasGravity() : !negated);
 		}
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return new SyntaxStringBuilder(event, debug)
-			.append(negated ? "disable" : "enable")
+			.appendIf(toggle, "toggle")
+			.appendIf(!toggle, negated ? "disable" : "enable")
 			.append("gravity of", entities)
 			.toString();
 	}
