@@ -10,6 +10,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.tag.DamageTypeTags;
 
 @Name("Is Fire Resistant")
 @Description("Checks whether an item is fire resistant.")
@@ -37,7 +38,7 @@ public class CondIsFireResistant extends PropertyCondition<ItemType> {
 	@Override
 	protected void change(ItemType item, boolean fireResistant, ChangeMode mode) {
 		ItemMeta meta = item.getItemMeta();
-		meta.setFireResistant(fireResistant);
+		meta.setDamageResistant(fireResistant ? DamageTypeTags.IS_FIRE : null);
 		item.setItemMeta(meta);
 	}
 
