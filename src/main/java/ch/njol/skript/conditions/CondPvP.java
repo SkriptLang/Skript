@@ -11,7 +11,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.GameRule;
-import org.bukkit.GameRules;
 import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -55,7 +54,11 @@ public class CondPvP extends Condition {
 	@Override
 	public void change(Event event, boolean enable, ChangeMode mode) {
 		for (World world : worlds.getArray(event)) {
-			world.setGameRule(GameRules.PVP, enable);
+			if (PVP_GAME_RULE_EXISTS) {
+				world.setGameRule(GameRule.PVP, enable);
+			} else {
+				world.setPVP(enable);
+			}
 		}
 	}
 
