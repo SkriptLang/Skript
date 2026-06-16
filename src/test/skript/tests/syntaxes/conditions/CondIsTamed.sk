@@ -8,6 +8,10 @@ test "is tamed":
 
 	tame {_e}
 	assert {_e} is tamed with "taming a horse should do exactly that"
+	set whether {_e} is tamed to false
+	assert {_e} is not tamed with "untaming a horse failed"
+	set whether {_e} is not tamed to false
+	assert {_e} is tamed with "(negated) taming a horse failed"
 
 	untame {_e}
 	assert {_e} is not tamed with "untaming a horse should do exactly that"

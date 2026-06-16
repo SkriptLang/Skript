@@ -1,0 +1,32 @@
+test "CondIsWhitelisted":
+	# The Server
+	set whether the server is whitelisted to true
+	assert the server is whitelisted with "setting to true failed"
+	set whether the server is whitelisted to false
+	assert the server is not whitelisted with "setting to false failed"
+	set whether the server is not whitelisted to false
+	assert the server is whitelisted with "(negated) setting to true failed"
+	set whether the server is not whitelisted to true
+	assert the server is not whitelisted with "(negated) setting to false failed"
+
+	# Enforced
+	set whether the server whitelist is enforced to true
+	assert the server whitelist is enforced with "setting to true failed"
+	set whether the server whitelist is enforced to false
+	assert the server whitelist is not enforced with "setting to false failed"
+	set whether the server whitelist is not enforced to false
+	assert the server whitelist is enforced with "(negated) setting to true failed"
+	set whether the server whitelist is not enforced to true
+	assert the server whitelist is not enforced with "(negated) setting to false failed"
+
+	# Player
+	set {_player} to offlineplayer("Notch")
+
+	set whether {_player} is whitelisted to true
+	assert {_player} is whitelisted with "setting to true failed"
+	set whether {_player} is whitelisted to false
+	assert {_player} is not whitelisted with "setting to false failed"
+	set whether {_player} is not whitelisted to false
+	assert {_player} is whitelisted with "(negated) setting to true failed"
+	set whether {_player} is not whitelisted to true
+	assert {_player} is not whitelisted with "(negated) setting to false failed"

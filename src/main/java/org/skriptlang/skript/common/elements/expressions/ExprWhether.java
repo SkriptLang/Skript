@@ -57,7 +57,7 @@ public class ExprWhether extends SimpleExpression<Boolean> {
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		condition.change(event, delta != null && (boolean) delta[0], mode);
+		condition.change(event, delta != null && ((boolean) delta[0] != condition.isNegated()), mode);
 	}
 
 	@Override

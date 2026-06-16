@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
@@ -49,6 +50,18 @@ public class CondLeashWillDrop extends Condition implements EventRestrictedSynta
 		if (!(event instanceof EntityUnleashEvent unleashEvent))
 			return false;
 		return unleashEvent.isDropLeash() ^ isNegated();
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	public void change(Event event, boolean dropLeash, ChangeMode mode) {
+		if (event instanceof EntityUnleashEvent unleashEvent) {
+			unleashEvent.setDropLeash(dropLeash);
+		}
 	}
 
 	@Override

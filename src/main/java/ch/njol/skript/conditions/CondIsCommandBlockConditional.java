@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -37,6 +38,19 @@ public class CondIsCommandBlockConditional extends PropertyCondition<Block> {
 		if (block.getBlockData() instanceof CommandBlock cmdBlock)
 			return cmdBlock.isConditional();
 		return false;
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(Block block, boolean conditional, ChangeMode mode) {
+		if (block.getBlockData() instanceof CommandBlock commandBlock) {
+			commandBlock.setConditional(conditional);
+			block.setBlockData(commandBlock);
+		}
 	}
 
 	@Override

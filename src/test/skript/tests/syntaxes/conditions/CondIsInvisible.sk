@@ -1,0 +1,18 @@
+test "CondIsInvisible":
+	spawn a pig at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} is invisible to true
+	assert {_entity} is invisible with "setting to true failed"
+	set whether {_entity} is invisible to false
+	assert {_entity} is not invisible with "setting to false failed"
+	set whether {_entity} is not invisible to false
+	assert {_entity} is invisible with "(negated) setting to true failed"
+	set whether {_entity} is not invisible to true
+	assert {_entity} is not invisible with "(negated) setting to false failed"
+	set whether {_entity} is visible to false
+	assert {_entity} is not visible with "(visible) setting to true failed"
+	set whether {_entity} is not visible to false
+	assert {_entity} is visible with "(visible) (negated) setting to false failed"
+
+	delete the entity within {_entity}

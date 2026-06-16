@@ -1,0 +1,14 @@
+test "CondPandaIsRolling":
+	spawn a panda at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} is rolling to true
+	assert {_entity} is rolling with "setting to true failed"
+	set whether {_entity} is rolling to false
+	assert {_entity} is not rolling with "setting to false failed"
+	set whether {_entity} is not rolling to false
+	assert {_entity} is rolling with "(negated) setting to true failed"
+	set whether {_entity} is not rolling to true
+	assert {_entity} is not rolling with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

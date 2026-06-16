@@ -13,3 +13,28 @@ test "tooltip" when running minecraft "1.20.5":
 	assert entire tooltip of {_item} is shown with "item unexpectedly doesn't have entire tooltip"
 	show additional tooltip of {_item}
 	assert additional tooltip of {_item} is shown with "item unexpectedly doesn't have additional tooltip"
+
+test "CondTooltip":
+	set {_item} to a diamond
+
+	set whether the entire tooltip of {_item} is hidden to true
+	assert the entire tooltip of {_item} is hidden with "setting to true failed"
+	assert the entire tooltip of {_item} is not shown with "(shown) setting to true failed"
+	set whether the entire tooltip of {_item} is hidden to false
+	assert the entire tooltip of {_item} is not hidden with "setting to false failed"
+	assert the entire tooltip of {_item} is shown with "(shown) setting to false failed"
+	set whether the entire tooltip of {_item} is not hidden to false
+	assert the entire tooltip of {_item} is hidden with "(negated) setting to true failed"
+	set whether the entire tooltip of {_item} is not hidden to true
+	assert the entire tooltip of {_item} is not hidden with "(negated) setting to false failed"
+
+	set whether the additional tooltip of {_item} is hidden to true
+	assert the additional tooltip of {_item} is hidden with "setting to true failed"
+	assert the additional tooltip of {_item} is not shown with "(shown) setting to true failed"
+	set whether the additional tooltip of {_item} is hidden to false
+	assert the additional tooltip of {_item} is not hidden with "setting to false failed"
+	assert the additional tooltip of {_item} is shown with "(shown) setting to false failed"
+	set whether the additional tooltip of {_item} is not hidden to false
+	assert the additional tooltip of {_item} is hidden with "(negated) setting to true failed"
+	set whether the additional tooltip of {_item} is not hidden to true
+	assert the additional tooltip of {_item} is not hidden with "(negated) setting to false failed"
