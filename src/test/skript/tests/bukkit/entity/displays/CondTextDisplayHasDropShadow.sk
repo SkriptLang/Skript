@@ -1,0 +1,14 @@
+test "CondTextDisplayHasDropShadow":
+	spawn a text display at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} has a drop shadow to true
+	assert {_entity} has a drop shadow with "setting to true failed"
+	set whether {_entity} has a drop shadow to false
+	assert {_entity} does not have a drop shadow with "setting to false failed"
+	set whether {_entity} does not have a drop shadow to false
+	assert {_entity} has a drop shadow with "(negated) setting to true failed"
+	set whether {_entity} does not have a drop shadow to true
+	assert {_entity} does not have a drop shadow with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

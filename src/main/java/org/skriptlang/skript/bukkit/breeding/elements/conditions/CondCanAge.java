@@ -6,6 +6,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Breedable;
 import org.bukkit.entity.LivingEntity;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -36,7 +37,7 @@ public class CondCanAge extends PropertyCondition<LivingEntity> {
 
 	@Override
 	public boolean check(LivingEntity entity) {
-		return entity instanceof Breedable breedable && !breedable.getAgeLock();
+		return entity instanceof Ageable ageable && !ageable.getAgeLock();
 	}
 
 	@Override
@@ -46,8 +47,8 @@ public class CondCanAge extends PropertyCondition<LivingEntity> {
 
 	@Override
 	protected void change(LivingEntity entity, boolean canAge, ChangeMode mode) {
-		if (entity instanceof Breedable breedable) {
-			breedable.setAgeLock(!canAge);
+		if (entity instanceof Ageable ageable) {
+			ageable.setAgeLock(!canAge);
 		}
 	}
 
