@@ -22,15 +22,17 @@ public sealed interface DefaultSyntaxInfos permits SyntaxInfo {
 	interface Expression<E extends ch.njol.skript.lang.Expression<R>, R> extends SyntaxInfo<E> {
 
 		/**
-		 * Constructs a simple {@link ch.njol.skript.lang.Expression} syntax info for a class from patterns.
+		 * Constructs a simple {@link ch.njol.skript.lang.Expression} syntax info for a class
+		 *  from return type information and patterns.
 		 * @param expressionClass The Expression class the info will represent.
-		 * @param returnType The class representing the supertype of all values the Expression may return.
 		 * @param instanceSupplier A supplier for creating new instances of {@code type}.
+		 * @param returnType The class representing the supertype of all values the Expression may return.
 		 * @param patterns Patterns describing the syntax.
 		 * @return A syntax info representing {@code type}.
 		 */
 		@Contract("_, _, _ , _-> new")
-		static <E extends ch.njol.skript.lang.Expression<R>, R> SyntaxInfo<E> simple(Class<E> expressionClass, Class<R> returnType, Supplier<E> instanceSupplier, String... patterns) {
+		static <E extends ch.njol.skript.lang.Expression<R>, R> SyntaxInfo<E> simple(Class<E> expressionClass,
+			Supplier<E> instanceSupplier, Class<R> returnType, String... patterns) {
 			return builder(expressionClass, returnType)
 				.supplier(instanceSupplier)
 				.addPatterns(patterns)
@@ -135,7 +137,8 @@ public sealed interface DefaultSyntaxInfos permits SyntaxInfo {
 		 * @return A syntax info representing {@code type}.
 		 */
 		@Contract("_, _, _ -> new")
-		static <E extends org.skriptlang.skript.lang.structure.Structure> SyntaxInfo<E> simple(Class<E> structureClass, Supplier<E> instanceSupplier, String... patterns) {
+		static <E extends org.skriptlang.skript.lang.structure.Structure> SyntaxInfo<E> simple(Class<E> structureClass,
+			Supplier<E> instanceSupplier, String... patterns) {
 			return builder(structureClass)
 				.supplier(instanceSupplier)
 				.addPatterns(patterns)
