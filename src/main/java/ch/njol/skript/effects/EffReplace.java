@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
 	# Very simple chat censor
 	on chat:
 		replace all "idiot" and "noob" with "****" in the message
-		regex replace "\b(idiot|noob)\b" with "****" in the message # Regex version using word boundaries for better results
+		regex replace "\\b(idiot|noob)\\b" with "****" in the message # Regex version using word boundaries for better results
 	""")
 @Example("replace all stone and dirt in player's inventory and player's top inventory with diamond")
 @Since("2.0, 2.2-dev24 (multiple strings, items in inventory), 2.5 (replace first, case sensitivity), 2.10 (regex)")
@@ -144,11 +144,13 @@ public class EffReplace extends Effect {
 			replaceFunction = haystackString -> {
 				for (Pattern pattern : patterns) {
 					Matcher matcher = pattern.matcher(haystackString);
-					if (replaceFirst) {
-						haystackString = matcher.replaceFirst(replacement);
-					} else {
-						haystackString = matcher.replaceAll(replacement);
-					}
+					try { // Throws IndexOutOfBounds on improper use of regex groups in replacement
+						if (replaceFirst) {
+							haystackString = matcher.replaceFirst(replacement);
+						} else {
+							haystackString = matcher.replaceAll(replacement);
+						}
+					} catch (IndexOutOfBoundsException ignored) {}
 				}
 				return haystackString;
 			};
