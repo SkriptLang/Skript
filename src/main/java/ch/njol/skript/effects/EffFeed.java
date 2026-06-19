@@ -28,10 +28,8 @@ public class EffFeed extends Effect {
 			.build());
 	}
 
-	@SuppressWarnings("null")
 	private Expression<Player> players;
-	@Nullable
-	private Expression<Number> beefs;
+	private @Nullable Expression<Number> beefs;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -41,15 +39,15 @@ public class EffFeed extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
+	protected void execute(Event event) {
 		int foodAmount = 0;
 
 		if (beefs != null) {
-			Number n = beefs.getSingle(e);
+			Number n = beefs.getSingle(event);
 			if (n != null)
 				foodAmount = n.intValue();
 		}
-		for (Player player : players.getArray(e)) {
+		for (Player player : players.getArray(event)) {
 			player.setFoodLevel(beefs == null ? 20 : player.getFoodLevel() + foodAmount);
 		}
 	}
