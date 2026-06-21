@@ -100,7 +100,7 @@ public class ExprEnchantingExpCost extends SimpleExpression<Integer> implements 
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the displayed cost of enchanting";
+		return "the displayed enchanting cost";
 	}
 
 }
