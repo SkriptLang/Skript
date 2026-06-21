@@ -48,7 +48,6 @@ public class EnchantmentModule extends HierarchicalAddonModule {
 					"this type has no level, but you usually don't need to use this type anyway.",
 					"NOTE: Minecraft namespaces are supported, ex: 'minecraft:basalt_deltas'.",
 					"This also supports custom enchantments using namespaces, ex: 'myenchants:explosive'.")
-			.examples("")
 			.since("1.4.6")
 			.before("enchantmenttype"));
 

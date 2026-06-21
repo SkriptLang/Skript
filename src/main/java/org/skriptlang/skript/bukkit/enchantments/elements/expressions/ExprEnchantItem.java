@@ -79,40 +79,33 @@ public class ExprEnchantItem extends SimpleExpression<ItemType> implements Event
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (delta == null)
-			return;
+		assert delta != null;
 		ItemType item = ((ItemType) delta[0]);
-		switch (mode) {
-			case SET -> {
-				switch (event) {
-					case EnchantItemEvent enchant -> {
-						ItemStack created = item.getRandom();
-						enchant.setItem(created != null ? created : ItemStack.empty());
-					}
-					case PrepareItemEnchantEvent prepare -> {
-						ItemStack existing = prepare.getItem();
-						Material target = existing.getType();
-						boolean mayChangeType = false;
-						for (Material candidate : item.getMaterials())
-							mayChangeType |= candidate != target;
 
-						if (mayChangeType) {
-							warning("Changing the item type of the enchant item in a prepare item enchant event " +
-								"is deprecated for removal and will not be supported in the future.");
+		switch (event) {
+			case EnchantItemEvent enchant -> {
+				ItemStack created = item.getRandom();
+				enchant.setItem(created != null ? created : ItemStack.empty());
+			}
+			case PrepareItemEnchantEvent prepare -> {
+				ItemStack existing = prepare.getItem();
+				Material target = existing.getType();
+				boolean mayChangeType = false;
+				for (Material candidate : item.getMaterials())
+					mayChangeType |= candidate != target;
 
-							//noinspection deprecation - user error
-							existing.setType(item.getMaterial());
-						}
+				if (mayChangeType) {
+					warning("Changing the item type of the enchant item in a prepare item enchant event " +
+						"is deprecated for removal and will not be supported in the future.");
 
-						existing.setItemMeta(item.getItemMeta());
-						existing.setAmount(item.getAmount());
-					}
-					default -> throw new AssertionError("unreachable");
+					//noinspection deprecation - user error
+					existing.setType(item.getMaterial());
 				}
+
+				existing.setItemMeta(item.getItemMeta());
+				existing.setAmount(item.getAmount());
 			}
-			case null, default -> {
-				assert false;
-			}
+			default -> throw new AssertionError("unreachable");
 		}
 	}
 

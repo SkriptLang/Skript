@@ -82,7 +82,7 @@ public class ExprEnchantingExpCost extends SimpleExpression<Integer> implements 
 				long subtract = Math.max(1, Math2.addSaturated(enchantEvent.getExpLevelCost(), -cost));
 				enchantEvent.setExpLevelCost(Math2.clampToInt(subtract));
 			}
-			case RESET, DELETE, REMOVE_ALL -> {
+			default -> {
 				assert false;
 			}
 		}

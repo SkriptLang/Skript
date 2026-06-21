@@ -9,7 +9,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -23,8 +23,8 @@ import static org.skriptlang.skript.registration.DefaultSyntaxInfos.Expression.b
 
 @Name("Enchantment Hint")
 @Description("""
-	The enchantment hint in an enchant event, i.e., the enchantment that was shown to the player when they hovered over
-	the enchantment offer that they eventually selected.
+	The enchantment hint in an enchant event.
+	This is the enchantment that was shown to the player when they hovered over the enchantment offer that they eventually selected.
 	""")
 @Example("""
 	on enchant:
@@ -42,7 +42,7 @@ public class ExprEnchantmentHint extends SimpleExpression<Enchantment> implement
 	}
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		return true;
 	}
 
@@ -53,10 +53,10 @@ public class ExprEnchantmentHint extends SimpleExpression<Enchantment> implement
 
 	@Override
 	protected Enchantment[] get(Event event) {
-		return new Enchantment[]{switch (event) {
-			case EnchantItemEvent enchant -> enchant.getEnchantmentHint();
-			case null, default -> throw new IllegalStateException("Unsupported event" + event);
-		}};
+		if (!(event instanceof EnchantItemEvent enchant))
+			return new Enchantment[0];
+
+		return CollectionUtils.array(enchant.getEnchantmentHint());
 	}
 
 	@Override

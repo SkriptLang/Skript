@@ -53,8 +53,7 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 			.build());
 	}
 
-	@SuppressWarnings("null")
-	private Expression<Integer> exprOfferNumber;
+	private Expression<Integer> offerNumber;
 
 	private boolean all;
 
@@ -67,7 +66,7 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 		if (matchedPattern == 0) {
 			all = true;
 		} else {
-			exprOfferNumber = (Expression<Integer>) exprs[0];
+			offerNumber = (Expression<Integer>) exprs[0];
 			all = false;
 		}
 		return true;
@@ -81,25 +80,25 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 	@SuppressWarnings({"null", "unused"})
 	@Override
 	protected EnchantmentOffer @Nullable [] get(Event event) {
-		if (!(event instanceof PrepareItemEnchantEvent))
+		if (!(event instanceof PrepareItemEnchantEvent enchant))
 			return null;
 
 		if (all)
-			return ((PrepareItemEnchantEvent) event).getOffers();
-		if (exprOfferNumber == null)
+			return enchant.getOffers();
+		if (offerNumber == null)
 			return new EnchantmentOffer[0];
-		if (exprOfferNumber.isSingle()) {
-			Integer offer = exprOfferNumber.getSingle(event);
+		if (offerNumber.isSingle()) {
+			Integer offer = offerNumber.getSingle(event);
 			if (offer == null)
 				return new EnchantmentOffer[0];
-			if (offer < 1 || offer > ((PrepareItemEnchantEvent) event).getOffers().length)
+			if (offer < 1 || offer > enchant.getOffers().length)
 				return new EnchantmentOffer[0];
-			return new EnchantmentOffer[]{((PrepareItemEnchantEvent) event).getOffers()[offer - 1]};
+			return new EnchantmentOffer[]{enchant.getOffers()[offer - 1]};
 		}
 		List<EnchantmentOffer> offers = new ArrayList<>();
-		for (Integer index : exprOfferNumber.getArray(event)) {
-			if (index >= 1 && index <= ((PrepareItemEnchantEvent) event).getOffers().length)
-				offers.add(((PrepareItemEnchantEvent) event).getOffers()[index - 1]);
+		for (Integer index : offerNumber.getArray(event)) {
+			if (index >= 1 && index <= enchant.getOffers().length)
+				offers.add(enchant.getOffers()[index - 1]);
 		}
 		return offers.toArray(new EnchantmentOffer[0]);
 	}
@@ -117,52 +116,51 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 		if (delta == null && mode != ChangeMode.DELETE)
 			return;
 		EnchantmentType type = mode != ChangeMode.DELETE ? (EnchantmentType) delta[0] : null;
-		if (event instanceof PrepareItemEnchantEvent prepareEvent) {
-			switch (mode) {
-				case SET:
-					assert type != null;
-					Integer[] indices = all ? new Integer[]{1, 2, 3} : exprOfferNumber.getArray(prepareEvent);
-					for (Integer index : indices) {
+		if (!(event instanceof PrepareItemEnchantEvent prepareEvent))
+			return;
+
+		switch (mode) {
+			case SET -> {
+				assert type != null;
+				Integer[] indices = all ? new Integer[]{1, 2, 3} : offerNumber.getArray(prepareEvent);
+				for (Integer index : indices) {
+					int slot = index - 1;
+					if (slot < 0 || slot >= prepareEvent.getOffers().length)
+						continue;
+
+					EnchantmentOffer offer = prepareEvent.getOffers()[slot];
+					if (offer == null) {
+						offer = new EnchantmentOffer(type.getType(), type.getLevel(),
+							getCost(slot + 1, prepareEvent.getEnchantmentBonus()));
+						prepareEvent.getOffers()[slot] = offer;
+					} else {
+						offer.setEnchantment(type.getType());
+						offer.setEnchantmentLevel(type.getLevel());
+					}
+				}
+			}
+			case DELETE -> {
+				if (all) {
+					Arrays.fill(prepareEvent.getOffers(), null);
+				} else {
+					for (Integer index : offerNumber.getArray(prepareEvent)) {
 						int slot = index - 1;
 						if (slot < 0 || slot >= prepareEvent.getOffers().length)
 							continue;
 
-						EnchantmentOffer offer = prepareEvent.getOffers()[slot];
-						if (offer == null) {
-							offer = new EnchantmentOffer(type.getType(), type.getLevel(),
-								getCost(slot + 1, prepareEvent.getEnchantmentBonus()));
-							prepareEvent.getOffers()[slot] = offer;
-						} else {
-							offer.setEnchantment(type.getType());
-							offer.setEnchantmentLevel(type.getLevel());
-						}
+						prepareEvent.getOffers()[slot] = null;
 					}
-					break;
-				case DELETE:
-					if (all) {
-						Arrays.fill(prepareEvent.getOffers(), null);
-					} else {
-						for (Integer index : exprOfferNumber.getArray(prepareEvent)) {
-							int slot = index - 1;
-							if (slot < 0 || slot >= prepareEvent.getOffers().length)
-								continue;
-
-							prepareEvent.getOffers()[slot] = null;
-						}
-					}
-					break;
-				case ADD:
-				case REMOVE:
-				case RESET:
-				case REMOVE_ALL:
-					assert false;
+				}
+			}
+			default -> {
+				assert false;
 			}
 		}
 	}
 
 	@Override
 	public boolean isSingle() {
-		return !all && exprOfferNumber.isSingle();
+		return !all && offerNumber.isSingle();
 	}
 
 	@Override
@@ -172,7 +170,7 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return all ? "the enchantment offers" : "enchantment offer(s) " + exprOfferNumber.toString(event, debug);
+		return all ? "the enchantment offers" : "enchantment offer " + offerNumber.toString(event, debug);
 	}
 
 	/**

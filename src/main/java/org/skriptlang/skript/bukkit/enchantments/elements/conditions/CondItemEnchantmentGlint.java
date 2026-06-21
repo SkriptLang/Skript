@@ -40,7 +40,8 @@ public class CondItemEnchantmentGlint extends PropertyCondition<ItemType> {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!super.init(expressions, matchedPattern, isDelayed, parseResult)) return false;
+		if (!super.init(expressions, matchedPattern, isDelayed, parseResult))
+			return false;
 		override = matchedPattern <= 1;
 		expectedGlintOverride = !parseResult.hasTag("not");
 
