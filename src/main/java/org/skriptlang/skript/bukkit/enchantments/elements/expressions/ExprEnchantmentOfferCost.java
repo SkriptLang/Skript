@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.enchantments.elements.expressions;
 
+import ch.njol.util.Math2;
 import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -48,28 +49,26 @@ public class ExprEnchantmentOfferCost extends SimplePropertyExpression<Enchantme
 		EnchantmentOffer[] offers = getExpr().getArray(event);
 		if (offers.length == 0 || delta == null)
 			return;
-		if (delta[0] == null)
-			return;
-		int cost = ((Number) delta[0]).intValue();
+		long cost = ((Number) delta[0]).longValue();
 		if (cost < 1) 
 			return;
-		int change;
+		long change;
 		for (EnchantmentOffer offer : offers) {
 			switch (mode) {
-				case SET -> offer.setCost(cost);
+				case SET -> offer.setCost(Math2.clampToInt(cost));
 				case ADD -> {
-					change = offer.getCost() + cost;
+					change = Math2.addClamped(offer.getCost(), cost);
 					if (change < 1)
 						return;
-					offer.setCost(change);
+					offer.setCost(Math2.clampToInt(change));
 				}
 				case REMOVE -> {
-					change = offer.getCost() - cost;
+					change = Math2.addClamped(offer.getCost(), -cost);
 					if (change < 1)
 						return;
-					offer.setCost(change);
+					offer.setCost(Math2.clampToInt(change));
 				}
-				case RESET, DELETE, REMOVE_ALL -> {
+				default -> {
 					assert false;
 				}
 			}
