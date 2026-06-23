@@ -47,7 +47,7 @@ public class SubCommandEntryData extends EntryData<ArgumentBuilder<CommandSource
 		Pattern.compile("(?i)^\\s*/?(\\S+)\\s*(?:\\s+(.+))?$");
 
 	public static final EntryValidator SUB_COMMAND_VALIDATOR = org.skriptlang.skript.lang.entry.EntryValidator.builder()
-		.addEntryData(new TriggerEntryData("trigger", null, false))
+		.addEntryData(new TriggerEntryData("trigger", null, true))
 		.addEntryData(new SubCommandEntryData("subcommand", true, true))
 		.build();
 
@@ -94,7 +94,8 @@ public class SubCommandEntryData extends EntryData<ArgumentBuilder<CommandSource
 		// parse execution trigger
 		ParserInstance parser = ParserInstance.get();
 		parser.setCurrentEvent("command execution trigger", CommandEvent.class);
-		Trigger execute = entryContainer.get("trigger", Trigger.class, false);
+		Trigger execute = entryContainer.getOptional("trigger", Trigger.class, false);
+		boolean hasExecute = execute != null;
 		parser.deleteCurrentEvent();
 
 		// build the brigadier command
@@ -119,20 +120,30 @@ public class SubCommandEntryData extends EntryData<ArgumentBuilder<CommandSource
 		CommandParsingData parsingData = parser.getData(CommandParsingData.class);
 		parsingData.arguments.addLast(arguments);
 
-		// setup base
+		// setup executor and base
 		ArgumentBuilder<CommandSourceStack, ?> base = pieces.removeFirst();
-		List<ArgumentData<?>> allArguments = parsingData.arguments.stream()
-			.flatMap(List::stream)
-			.toList();
-		SkriptCommandExecutor executor = new SkriptCommandExecutor(execute, allArguments);
-		int argCount = allArguments.size();
-		final int finalBaseArgCount = argCount;
-		base.executes(context -> executor.execute(context, finalBaseArgCount));
+		SkriptCommandExecutor executor;
+		int argCount = 0;
+		if (hasExecute) {
+			List<ArgumentData<?>> allArguments = parsingData.arguments.stream()
+				.flatMap(List::stream)
+				.toList();
+			argCount = allArguments.size();
+			final int finalBaseArgCount = argCount;
+			executor = new SkriptCommandExecutor(execute, allArguments);
+			base.executes(context -> executor.execute(context, finalBaseArgCount));
+		} else {
+			executor = null;
+		}
 
 		// attach subcommand pieces
 		// TODO verify error behavior...
 		List<ArgumentBuilder<CommandSourceStack, ?>> subcommands =
 			entryContainer.getAll("subcommand", ArgumentBuilder.class, false);
+		if (subcommands.isEmpty() && !hasExecute) {
+			Skript.error("You must have a 'trigger' entry if there are no subcommands!");
+			return null;
+		}
 		for (var subcommand : subcommands) {
 			base.then(subcommand);
 		}
@@ -141,18 +152,18 @@ public class SubCommandEntryData extends EntryData<ArgumentBuilder<CommandSource
 		// attach rest of argument pieces
 		var iterator = pieces.iterator();
 		// wasOptional is so that we place an executes on the last, non-optional argument
-		boolean wasOptional = !arguments.isEmpty() && arguments.getLast().optional();
+		boolean wasOptional = hasExecute && !arguments.isEmpty() && arguments.getLast().optional();
 		while (iterator.hasNext()) {
 			argCount--;
-			final int finalArgCount = argCount;
 			base = iterator.next().then(base);
-			if (base instanceof RequiredArgumentBuilder<?,?> requiredArgument &&
-				((SkriptBrigadierArgument<?>) requiredArgument.getType()).getArgument().optional()) {
-				base.executes(context -> executor.execute(context, finalArgCount));
-				wasOptional = true;
-			} else if (wasOptional) {
-				base.executes(context -> executor.execute(context, finalArgCount));
-				wasOptional = false;
+			if (hasExecute) {
+				boolean isBaseOptional = base instanceof RequiredArgumentBuilder<?,?> requiredArgument &&
+					((SkriptBrigadierArgument<?>) requiredArgument.getType()).getArgument().optional();
+				final int finalArgCount = argCount;
+				if (isBaseOptional || wasOptional) {
+					base.executes(context -> executor.execute(context, finalArgCount));
+					wasOptional = isBaseOptional;
+				}
 			}
 			iterator.remove();
 		}
