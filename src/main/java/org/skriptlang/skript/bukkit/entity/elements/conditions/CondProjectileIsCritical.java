@@ -43,7 +43,7 @@ public class CondProjectileIsCritical extends PropertyCondition<Projectile> {
 			return abstractArrow.isCritical();
 		}
 		warning("This projectile (" + EntityData.toString(projectile) + ") is not supported. Critical projectile state only applies to arrows and tridents.");
-		return false;
+		return isNegated();
 	}
 
 	protected String getPropertyName() {
