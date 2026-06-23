@@ -25,9 +25,11 @@ public class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<
 		(input, type) -> new LiteralMessage("'%s' is not a valid %s.".formatted(input, type)));
 
 	private final ArgumentData<T> argument;
+	private final StringArgumentType nativeType;
 
-	public SkriptBrigadierArgument(@NotNull ArgumentData<T> argument) {
+	public SkriptBrigadierArgument(@NotNull ArgumentData<T> argument, @NotNull StringArgumentType nativeType) {
 		this.argument = argument;
+		this.nativeType = nativeType;
 	}
 
 	public ArgumentData<T> getArgument() {
@@ -52,7 +54,7 @@ public class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<
 
 	@Override
 	public @NotNull ArgumentType<String> getNativeType() {
-		return StringArgumentType.string();
+		return nativeType;
 	}
 
 	@Override
@@ -78,19 +80,6 @@ public class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<
 		});
 
 		return builder.buildFuture();
-	}
-
-	public static final class GreedyArgument<T> extends SkriptBrigadierArgument<T> {
-
-		public GreedyArgument(@NotNull ArgumentData<T> argument) {
-			super(argument);
-		}
-
-		@Override
-		public @NotNull ArgumentType<String> getNativeType() {
-			return StringArgumentType.greedyString();
-		}
-
 	}
 
 }

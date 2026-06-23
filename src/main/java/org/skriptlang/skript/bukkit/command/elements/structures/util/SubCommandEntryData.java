@@ -13,6 +13,7 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -31,6 +32,16 @@ import java.util.regex.Pattern;
 
 public class SubCommandEntryData extends EntryData<ArgumentBuilder<CommandSourceStack, ?>> {
 
+	private static final class CommandParsingData extends ParserInstance.Data {
+
+		public List<List<ArgumentData<?>>> arguments = new LinkedList<>();
+
+		public CommandParsingData(ParserInstance parserInstance) {
+			super(parserInstance);
+		}
+
+	}
+
 	private static final Pattern COMMAND_PATTERN =
 		Pattern.compile("(?i)^\\s*/?(\\S+)\\s*(?:\\s+(.+))?$");
 
@@ -38,6 +49,10 @@ public class SubCommandEntryData extends EntryData<ArgumentBuilder<CommandSource
 		.addEntryData(new TriggerEntryData("trigger", null, false))
 		.addEntryData(new SubCommandEntryData("subcommand", true, true))
 		.build();
+
+	static {
+		ParserInstance.registerData(CommandParsingData.class, CommandParsingData::new);
+	}
 
 	public SubCommandEntryData(String key, boolean optional, boolean multiple) {
 		super(key, null, optional, multiple);
@@ -88,31 +103,38 @@ public class SubCommandEntryData extends EntryData<ArgumentBuilder<CommandSource
 		pieces.addFirst(builder);
 		for (int i = 0; i < arguments.size(); i++) {
 			ArgumentData<?> argument = arguments.get(i);
-			SkriptBrigadierArgument<?> brigadierArgument;
-			if (i == arguments.size() - 1) {
-				// TODO maybe not desirable for numbers
-				brigadierArgument = new SkriptBrigadierArgument.GreedyArgument<>(argument);
+			StringArgumentType nativeType;
+			if (Number.class.isAssignableFrom(argument.type().getC())) {
+				nativeType = StringArgumentType.word();
+			} else if (i == arguments.size() - 1) {
+				nativeType = StringArgumentType.greedyString();
 			} else {
-				brigadierArgument = new SkriptBrigadierArgument<>(argument);
+				nativeType = StringArgumentType.string();
 			}
-			pieces.addFirst(Commands.argument(argument.name(), brigadierArgument));
+			pieces.addFirst(Commands.argument(argument.name(), new SkriptBrigadierArgument<>(argument, nativeType)));
 		}
+
+		CommandParsingData parsingData = parser.getData(CommandParsingData.class);
+		parsingData.arguments.addLast(arguments);
 
 		// setup base
 		ArgumentBuilder<CommandSourceStack, ?> base = pieces.removeFirst();
-		SkriptCommandExecutor executor = new SkriptCommandExecutor(execute, arguments);
-		int argCount = arguments.size();
+		List<ArgumentData<?>> allArguments = parsingData.arguments.stream()
+			.flatMap(List::stream)
+			.toList();
+		SkriptCommandExecutor executor = new SkriptCommandExecutor(execute, allArguments);
+		int argCount = allArguments.size();
 		final int finalBaseArgCount = argCount;
 		base.executes(context -> executor.execute(context, finalBaseArgCount));
 
 		// attach subcommand pieces
 		// TODO verify error behavior...
-		// TODO need to use parser instance data to push forward current command argument information
 		List<ArgumentBuilder<CommandSourceStack, ?>> subcommands =
 			entryContainer.getAll("subcommand", ArgumentBuilder.class, false);
 		for (var subcommand : subcommands) {
 			base.then(subcommand);
 		}
+		parsingData.arguments.removeLast();
 
 		// attach rest of argument pieces
 		var iterator = pieces.iterator();
