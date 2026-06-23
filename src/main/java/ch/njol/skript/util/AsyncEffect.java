@@ -1,5 +1,6 @@
 package ch.njol.skript.util;
 
+import ch.njol.skript.variables.VariablesMap;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +29,7 @@ public abstract class AsyncEffect extends Effect {
 	protected TriggerItem walk(Event e) {
 		debug(e, true);
 
-		Object localVars = Variables.removeLocals(e); // Back up local variables
+		VariablesMap localVars = Variables.removeLocals(e); // Back up local variables
 
 		if (!Skript.getInstance().isEnabled()) // See https://github.com/SkriptLang/Skript/issues/3702
 			return null;

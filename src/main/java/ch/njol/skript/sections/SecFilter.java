@@ -10,17 +10,11 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.ExprInput;
-import ch.njol.skript.lang.Condition;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.InputSource;
-import ch.njol.skript.lang.Section;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
-import ch.njol.util.Pair;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -126,7 +120,7 @@ public class SecFilter extends Section implements InputSource {
 		int initialSize = rawVariable.size();
 
 		// we save both because we don't yet know which will be cheaper to use.
-		List<Pair<String, Object>> toKeep = new ArrayList<>();
+		List<KeyedValue<Object>> toKeep = new ArrayList<>();
 		List<String> toRemove = new ArrayList<>();
 
 		var variableIterator = Variables.getVariableIterator(varName, local, event);
@@ -157,7 +151,7 @@ public class SecFilter extends Section implements InputSource {
 		// for instances where only a handful of values are removed from a large list, this can be a 400% speedup
 		if (toKeep.size() < initialSize / 2) {
 			Variables.deleteVariable(varName, event, local);
-			for (Pair<String, Object> pair : toKeep)
+			for (KeyedValue<Object> pair : toKeep)
 				Variables.setVariable(varSubName + pair.getKey(), pair.getValue(), event, local);
 		} else {
 			for (String index : toRemove)
