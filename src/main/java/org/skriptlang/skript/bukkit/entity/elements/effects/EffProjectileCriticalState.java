@@ -26,7 +26,6 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Example("""
 	on shoot:
 		make event-projectile crit
-		toggle whether event-projectile will be critical
 	""")
 @Since("INSERT VERSION")
 public class EffProjectileCriticalState extends Effect {
@@ -36,8 +35,7 @@ public class EffProjectileCriticalState extends Effect {
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffProjectileCriticalState.class)
 				.addPatterns(
-					"make %projectiles% [negate:not] crit[ical]",
-					"toggle whether %projectiles% will [be] crit[ical]"
+					"make %projectiles% [negate:not] crit[ical]"
 				)
 				.supplier(EffProjectileCriticalState::new)
 				.build()
@@ -46,14 +44,12 @@ public class EffProjectileCriticalState extends Effect {
 
 	private Expression<Projectile> projectiles;
 	private boolean negated;
-	private boolean toggle;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		projectiles = (Expression<Projectile>) expressions[0];
 		negated = parseResult.hasTag("negate");
-		toggle = matchedPattern == 1;
 		return true;
 	}
 
@@ -61,7 +57,7 @@ public class EffProjectileCriticalState extends Effect {
 	protected void execute(Event event) {
 		for (Projectile projectile : projectiles.getArray(event)) {
 			if (projectile instanceof AbstractArrow abstractArrow) {
-				abstractArrow.setCritical(toggle ? !abstractArrow.isCritical() : !negated);
+				abstractArrow.setCritical(!negated);
 			} else {
 				warning("This projectile (" + EntityData.toString(projectile) + ") is not supported. This only applies to arrows and tridents.");
 			}
@@ -70,12 +66,6 @@ public class EffProjectileCriticalState extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (toggle) {
-			return new SyntaxStringBuilder(event, debug)
-				.append("toggle whether", projectiles, "will crit")
-				.toString();
-		}
-
 		return new SyntaxStringBuilder(event, debug)
 			.append("make", projectiles)
 			.appendIf(negated, "not")

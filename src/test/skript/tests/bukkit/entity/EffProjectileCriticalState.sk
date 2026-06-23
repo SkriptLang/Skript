@@ -7,10 +7,6 @@ test "Projectile Critical State Effect":
 		assert event-projectile will crit with "Failed to make arrow crit"
 		make event-projectile not crit
 		assert event-projectile won't crit with "Failed to make the arrow not crit"
-		toggle whether event-projectile will crit
-		assert event-projectile will crit with "Failed to toggle crit of arrow to true"
-		toggle whether event-projectile will crit
-		assert event-projectile won't crit with "Failed to toggle crit of arrow to false"
 		delete event-projectile
 
 	shoot trident from test-location:
@@ -19,10 +15,6 @@ test "Projectile Critical State Effect":
 		assert event-projectile will crit with "Failed to make the trident crit"
 		make event-projectile not crit
 		assert event-projectile won't crit with "Failed to make the trident not crit"
-		toggle whether event-projectile will crit
-		assert event-projectile will crit with "Failed to toggle crit of trident to true"
-		toggle whether event-projectile will crit
-		assert event-projectile won't crit with "Failed to toggle crit of trident to false"
 		delete event-projectile
 
 	shoot snowball from test-location:
@@ -40,10 +32,6 @@ test "Projectile Critical State Effect with multiple projectiles":
 	assert {_arrows::*} will crit with "Failed to make the 2 arrows crit"
 	make {_arrows::*} not crit
 	assert {_arrows::*} won't crit with "Failed to make the 2 arrows not crit"
-	toggle whether {_arrows::*} will crit
-	assert {_arrows::*} will crit with "Failed to toggle crit of 2 arrows to true"
-	toggle whether {_arrows::*} will crit
-	assert {_arrows::*} won't crit with "Failed to toggle crit of 2 arrows to false"
 	delete {_arrows::*}
 
 	shoot trident and trident from test-location:
@@ -54,8 +42,4 @@ test "Projectile Critical State Effect with multiple projectiles":
 	assert {_tridents::*} will crit with "Failed to make the 2 tridents crit"
 	make {_tridents::*} not crit
 	assert {_tridents::*} won't crit with "Failed to make the 2 tridents not crit"
-	toggle whether {_tridents::*} will crit
-	assert {_tridents::*} will crit with "Failed to toggle crit of 2 tridents to true"
-	toggle whether {_tridents::*} will crit
-	assert {_tridents::*} won't crit with "Failed to toggle crit of 2 tridents to false"
 	delete {_tridents::*}
