@@ -26,7 +26,7 @@ public class SkriptCommandExecutor {
 
 		int i = 0;
 		for (ArgumentData<?> argument : arguments) {
-			if (argument.isAutomaticName()) {
+			if (argument.isLiteral() || argument.isAutomaticName()) {
 				continue;
 			}
 			Object value = null;

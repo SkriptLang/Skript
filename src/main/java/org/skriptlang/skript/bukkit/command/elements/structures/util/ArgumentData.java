@@ -10,4 +10,10 @@ public record ArgumentData<T>(
 	ClassInfo<T> type,
 	@Nullable Expression<T> defaultValue,
 	boolean optional
-) { }
+) {
+
+	 public boolean isLiteral() {
+		 return type == null;
+	 }
+
+}

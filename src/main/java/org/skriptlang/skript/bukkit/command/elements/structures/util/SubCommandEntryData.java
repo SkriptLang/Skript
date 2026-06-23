@@ -44,7 +44,7 @@ public class SubCommandEntryData extends EntryData<ArgumentBuilder<CommandSource
 	}
 
 	private static final Pattern COMMAND_PATTERN =
-		Pattern.compile("(?i)^\\s*/?(\\S+)\\s*(?:\\s+(.+))?$");
+		Pattern.compile("(?i)^\\s*/?\\s*(.+)?$");
 
 	public static final EntryValidator SUB_COMMAND_VALIDATOR = org.skriptlang.skript.lang.entry.EntryValidator.builder()
 		.addEntryData(new TriggerEntryData("trigger", null, true))
@@ -76,9 +76,6 @@ public class SubCommandEntryData extends EntryData<ArgumentBuilder<CommandSource
 			return null;
 		}
 
-		String name = commandMatcher.group(1).toLowerCase();
-		// TODO validate whether command already exists
-
 		// validate entries
 		EntryContainer entryContainer = SUB_COMMAND_VALIDATOR.validate((SectionNode) node);
 		if (entryContainer == null) {
@@ -86,8 +83,15 @@ public class SubCommandEntryData extends EntryData<ArgumentBuilder<CommandSource
 		}
 
 		// parse arguments
-		List<ArgumentData<?>> arguments = parseArguments(commandMatcher.group(2));
+		List<ArgumentData<?>> arguments = parseArguments(commandMatcher.group(1));
 		if (arguments == null) {
+			return null;
+		} else if (arguments.isEmpty()) {
+			if (ParserInstance.get().getData(CommandParsingData.class).arguments.isEmpty()) {
+				Skript.error("A command must have a name.");
+			} else {
+				Skript.error("A subcommand must have at least one argument, literal or dynamic.");
+			}
 			return null;
 		}
 
@@ -98,13 +102,15 @@ public class SubCommandEntryData extends EntryData<ArgumentBuilder<CommandSource
 		boolean hasExecute = execute != null;
 		parser.deleteCurrentEvent();
 
-		// build the brigadier command
-		var builder = Commands.literal(name);
-
 		List<ArgumentBuilder<CommandSourceStack, ?>> pieces = new LinkedList<>();
-		pieces.addFirst(builder);
 		for (int i = 0; i < arguments.size(); i++) {
 			ArgumentData<?> argument = arguments.get(i);
+
+			if (argument.isLiteral()) {
+				pieces.addFirst(Commands.literal(argument.name()));
+				continue;
+			}
+
 			ArgumentType<?> nativeType = SkriptBrigadierArgument.ARGUMENT_TYPE_MAPPINGS.get(argument.type().getC());
 			if (nativeType == null) {
 				if (i == arguments.size() - 1) {
@@ -168,7 +174,7 @@ public class SubCommandEntryData extends EntryData<ArgumentBuilder<CommandSource
 			iterator.remove();
 		}
 
-		return builder;
+		return base;
 	}
 
 	@Override
@@ -201,11 +207,22 @@ public class SubCommandEntryData extends EntryData<ArgumentBuilder<CommandSource
 		if (input == null) {
 			return List.of();
 		}
+		input = input.trim();
+		if (input.isEmpty()) {
+			return List.of();
+		}
 		input = input.toLowerCase();
 		List<ArgumentData<?>> arguments = new ArrayList<>();
 		Matcher argumentMatcher = ARGUMENT_PATTERN.matcher(input);
 		boolean optional = false;
+		int lastEnd = 0;
 		while (argumentMatcher.find()) {
+			String between = input.substring(lastEnd, argumentMatcher.start()).trim();
+			if (!between.isEmpty()) { // there is a literal argument here
+				arguments.add(new ArgumentData<>(between, false, null, null, optional));
+			}
+			lastEnd = argumentMatcher.end();
+
 			// first, parse the type
 			String rawType = argumentMatcher.group(2);
 			var plural = Utils.isPlural(rawType);
@@ -225,12 +242,14 @@ public class SubCommandEntryData extends EntryData<ArgumentBuilder<CommandSource
 				isAutomaticName = true;
 				name = type.getName().getSingular();
 				String finalName = name;
-				if (arguments.stream().anyMatch(data -> data.name().equals(finalName))) { // already taken
+				// TODO this needs to consider preceding arguments from parser data
+				if (arguments.stream().anyMatch(data ->
+					data instanceof ArgumentData<?> argumentData && argumentData.name().equals(finalName))) { // already taken
 					// try to generate a name like 'number2', 'number3', etc
 					int i = 2;
 					baseLoop: while (true) {
 						for (var argument : arguments) {
-							if (argument.name().equals(name + i)) {
+							if (argument instanceof ArgumentData<?> argumentData && argumentData.name().equals(name + i)) {
 								i++;
 								continue baseLoop;
 							}
@@ -268,6 +287,11 @@ public class SubCommandEntryData extends EntryData<ArgumentBuilder<CommandSource
 			//noinspection unchecked, rawtypes
 			arguments.add(new ArgumentData(name, isAutomaticName, type, defaultValue, optional));
 		}
+
+		if (arguments.isEmpty()) { // it is just a singular literal argument then
+			arguments.add(new ArgumentData<>(input, false, null, null, false));
+		}
+
 		return arguments;
 	}
 

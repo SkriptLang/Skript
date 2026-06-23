@@ -70,7 +70,12 @@ public class StructCommand extends Structure {
 		if (command == null) {
 			return false;
 		}
-		this.command = (LiteralCommandNode<CommandSourceStack>) command.build();
+		if (!(command.build() instanceof LiteralCommandNode<CommandSourceStack> commandNode)) {
+			Skript.error("A command must have a name.");
+			return false;
+		}
+		this.command = commandNode;
+		// TODO validate whether command already exists
 
 		COMMANDS.add(this.command);
 		SYNC_COMMANDS.set(true);
