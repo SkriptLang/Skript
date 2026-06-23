@@ -5,21 +5,38 @@ import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.registrations.Classes;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 public class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<T, String> {
+
+	public static final Map<Class<?>, ArgumentType<?>> ARGUMENT_TYPE_MAPPINGS = Map.ofEntries(
+		Map.entry(Boolean.class, BoolArgumentType.bool()),
+		Map.entry(Long.class, LongArgumentType.longArg()),
+		Map.entry(Number.class, DoubleArgumentType.doubleArg()),
+		Map.entry(Player.class, ArgumentTypes.player())
+	);
+
+	private static final SimpleCommandExceptionType ERROR_BAD_SOURCE = new SimpleCommandExceptionType(
+		new LiteralMessage("The source needs to be a CommandSourceStack!"));
 
 	private static final Dynamic2CommandExceptionType ERROR_INVALID_INPUT = new Dynamic2CommandExceptionType(
 		(input, type) -> new LiteralMessage("'%s' is not a valid %s.".formatted(input, type)));

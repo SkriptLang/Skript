@@ -13,6 +13,7 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
+import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -103,15 +104,16 @@ public class SubCommandEntryData extends EntryData<ArgumentBuilder<CommandSource
 		pieces.addFirst(builder);
 		for (int i = 0; i < arguments.size(); i++) {
 			ArgumentData<?> argument = arguments.get(i);
-			StringArgumentType nativeType;
-			if (Number.class.isAssignableFrom(argument.type().getC())) {
-				nativeType = StringArgumentType.word();
-			} else if (i == arguments.size() - 1) {
-				nativeType = StringArgumentType.greedyString();
-			} else {
-				nativeType = StringArgumentType.string();
+			ArgumentType<?> nativeType = SkriptBrigadierArgument.ARGUMENT_TYPE_MAPPINGS.get(argument.type().getC());
+			if (nativeType == null) {
+				if (i == arguments.size() - 1) {
+					nativeType = StringArgumentType.greedyString();
+				} else {
+					nativeType = StringArgumentType.string();
+				}
+				nativeType = new SkriptBrigadierArgument<>(argument, (StringArgumentType) nativeType);
 			}
-			pieces.addFirst(Commands.argument(argument.name(), new SkriptBrigadierArgument<>(argument, nativeType)));
+			pieces.addFirst(Commands.argument(argument.name(), nativeType));
 		}
 
 		CommandParsingData parsingData = parser.getData(CommandParsingData.class);
