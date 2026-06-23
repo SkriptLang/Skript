@@ -77,7 +77,6 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 		return CollectionUtils.array(PrepareItemEnchantEvent.class);
 	}
 
-	@SuppressWarnings({"null", "unused"})
 	@Override
 	protected EnchantmentOffer @Nullable [] get(Event event) {
 		if (!(event instanceof PrepareItemEnchantEvent enchant))
@@ -113,8 +112,7 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> imp
 	@Override
 	@SuppressWarnings("null")
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (delta == null && mode != ChangeMode.DELETE)
-			return;
+		assert delta != null || mode == ChangeMode.DELETE;
 		EnchantmentType type = mode != ChangeMode.DELETE ? (EnchantmentType) delta[0] : null;
 		if (!(event instanceof PrepareItemEnchantEvent prepareEvent))
 			return;
