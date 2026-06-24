@@ -14,7 +14,10 @@ import java.util.SequencedCollection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class SkriptCommandExecutor {
+/**
+ * An executor for Brigadier commands.
+ */
+class SkriptCommandExecutor {
 
 	private final Trigger trigger;
 	private final List<ArgumentData<?>> arguments;
@@ -40,7 +43,7 @@ public class SkriptCommandExecutor {
 					if (value instanceof SequencedCollection<?> collection) {
 						value = collection.getFirst();
 					}
-				} else if (value == SkriptBrigadierArgument.DEFAULT_PLACEHOLDER) {
+				} else if (value == SkriptBrigadierArgument.DEFAULT_VALUE_PLACEHOLDER) {
 					assert argument.defaultValue() != null;
 					value = argument.defaultValue().getSingle(commandEvent);
 				}

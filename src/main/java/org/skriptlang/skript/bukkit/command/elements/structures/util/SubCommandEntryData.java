@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -89,7 +88,7 @@ public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandS
 		CommandElement parsed = CommandCompiler.compile(commandMatcher.group(1), arguments);
 		if (parsed == null) {
 			return null;
-		} else if (parsed.children.isEmpty()) {
+		} else if (parsed.isLeaf()) {
 			if (ParserInstance.get().getData(CommandParsingData.class).arguments.isEmpty()) {
 				Skript.error("A command must have a name.");
 			} else {
@@ -131,7 +130,7 @@ public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandS
 		parsingData.arguments.removeLast();
 
 		//noinspection rawtypes, unchecked
-		return (List) parsed.children.stream()
+		return (List) parsed.children().stream()
 			.map(child -> parse(child, executor, subcommands))
 			.toList();
 	}
@@ -151,7 +150,7 @@ public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandS
 
 	private static ArgumentBuilder<CommandSourceStack, ?> parse(CommandElement commandElement,
 		@Nullable SkriptCommandExecutor executor, Collection<ArgumentBuilder<CommandSourceStack, ?>> subcommands) {
-		Collection<CommandElement> children = commandElement.children;
+		Collection<CommandElement> children = commandElement.children();
 
 		ArgumentBuilder<CommandSourceStack, ?> argument;
 		if (commandElement instanceof LiteralCommandElement literalCommandElement) {
@@ -181,7 +180,7 @@ public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandS
 		// TODO there is actually more complexity here to handle
 		// it is not guaranteed to conflict if two arguments are at the same level
 		// e.g. Player-then-Number conflicts but Number-then-Player doesn't
-		if (children.isEmpty() || children.stream().anyMatch(Objects::isNull)) {
+		if (commandElement.isLeaf()) {
 			for (var subcommand : subcommands) {
 				argument.then(subcommand);
 			}

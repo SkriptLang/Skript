@@ -1,7 +1,6 @@
 package org.skriptlang.skript.bukkit.command.elements.structures.util;
 
 import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.registrations.Classes;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.arguments.ArgumentType;
@@ -25,8 +24,16 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
-public class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<T, String> {
+/**
+ * A custom argument for wrapping {@link ch.njol.skript.classes.ClassInfo}s with a {@link ch.njol.skript.classes.Parser}.
+ * This is natively a {@link StringArgumentType} with conversion occurring during execution.
+ * @param <T> The real type of the argument.
+ */
+class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<T, String> {
 
+	/**
+	 * Pre-defined mappings of types that are acceptable to map to other native argument types.
+	 */
 	public static final Map<Class<?>, ArgumentType<?>> ARGUMENT_TYPE_MAPPINGS = Map.ofEntries(
 		Map.entry(Boolean.class, BoolArgumentType.bool()),
 		Map.entry(Long.class, LongArgumentType.longArg()),
@@ -37,7 +44,12 @@ public class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<
 	private static final Dynamic2CommandExceptionType ERROR_INVALID_INPUT = new Dynamic2CommandExceptionType(
 		(input, type) -> new LiteralMessage("'%s' is not a valid %s.".formatted(input, type)));
 
-	static final Object DEFAULT_PLACEHOLDER = new Object();
+	/**
+	 * Placeholder result to be used for indicating that the default value of an argument should be resolved.
+	 * Resolution of default values is only possible during general execution (after this argument is evaluated),
+	 *  as they may depend on the context of the command execution.
+	 */
+	static final Object DEFAULT_VALUE_PLACEHOLDER = new Object();
 
 	private final ArgumentData<T> argument;
 	private final StringArgumentType nativeType;
@@ -59,7 +71,7 @@ public class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<
 		if (result == null) {
 			if (argument.defaultValue() != null) { // attempt default value
 				//noinspection unchecked
-				result = (T) DEFAULT_PLACEHOLDER;
+				result = (T) DEFAULT_VALUE_PLACEHOLDER;
 			}
 			if (result == null) {
 				throw ERROR_INVALID_INPUT.create(input, argument.type().getName().getSingular());
@@ -80,6 +92,8 @@ public class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<
 			return Suggestions.empty();
 		}
 
+		// treat <foo b> as a valid match for <foo_bar>
+		// treat <"foo b> as a valid match for <foo_bar>
 		supplier.get().forEachRemaining(value -> {
 			String name = Classes.toString(value).toLowerCase(Locale.ENGLISH)
 				.replace(' ', '_');
