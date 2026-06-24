@@ -12,7 +12,6 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
@@ -35,11 +34,10 @@ public class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<
 		Map.entry(Player.class, ArgumentTypes.player())
 	);
 
-	private static final SimpleCommandExceptionType ERROR_BAD_SOURCE = new SimpleCommandExceptionType(
-		new LiteralMessage("The source needs to be a CommandSourceStack!"));
-
 	private static final Dynamic2CommandExceptionType ERROR_INVALID_INPUT = new Dynamic2CommandExceptionType(
 		(input, type) -> new LiteralMessage("'%s' is not a valid %s.".formatted(input, type)));
+
+	static final Object DEFAULT_PLACEHOLDER = new Object();
 
 	private final ArgumentData<T> argument;
 	private final StringArgumentType nativeType;
@@ -60,7 +58,8 @@ public class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<
 		T result = argument.type().getParser().parse(input, ParseContext.COMMAND);
 		if (result == null) {
 			if (argument.defaultValue() != null) { // attempt default value
-				result = argument.defaultValue().getSingle(ContextlessEvent.get());
+				//noinspection unchecked
+				result = (T) DEFAULT_PLACEHOLDER;
 			}
 			if (result == null) {
 				throw ERROR_INVALID_INPUT.create(input, argument.type().getName().getSingular());

@@ -70,7 +70,7 @@ public class StructCommand extends Structure {
 		if (command == null) {
 			return false;
 		}
-		if (!(command.build() instanceof LiteralCommandNode<CommandSourceStack> commandNode)) {
+		if (command.size() != 1 || !(command.getFirst().build() instanceof LiteralCommandNode<CommandSourceStack> commandNode)) {
 			Skript.error("A command must have a name.");
 			return false;
 		}

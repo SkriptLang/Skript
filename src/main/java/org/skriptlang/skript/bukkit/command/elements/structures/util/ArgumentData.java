@@ -8,12 +8,5 @@ public record ArgumentData<T>(
 	String name,
 	boolean isAutomaticName,
 	ClassInfo<T> type,
-	@Nullable Expression<T> defaultValue,
-	boolean optional
-) {
-
-	 public boolean isLiteral() {
-		 return type == null;
-	 }
-
-}
+	@Nullable Expression<T> defaultValue
+) { }
