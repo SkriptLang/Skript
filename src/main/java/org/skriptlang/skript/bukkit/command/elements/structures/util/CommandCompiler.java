@@ -67,7 +67,7 @@ final class CommandCompiler {
 		 *  {@code elements} will also be appended to that element.
 		 * @param elements Elements to append.
 		 */
-		public void append(Collection<CommandElement> elements) {
+		public void append(Collection<? extends CommandElement> elements) {
 			boolean addToElement = children.isEmpty();
 			for (CommandElement child : children) {
 				if (child == null) { // null child indicates that this element is a command edge
@@ -158,7 +158,7 @@ final class CommandCompiler {
 		}
 
 		@Override
-		public void append(Collection<CommandElement> elements) {
+		public void append(Collection<? extends CommandElement> elements) {
 			if (elements.isEmpty()) {
 				return;
 			}
@@ -205,40 +205,46 @@ final class CommandCompiler {
 	 * For a regular input, such as {@code "heal <number>"}, this element contains a single {@link LiteralCommandElement}.
 	 */
 	public static CommandElement compile(final String pattern, List<ArgumentData<?>> arguments) {
-		StringBuilder literalBuilder = new StringBuilder();
+		List<LiteralCommandElement> pendingLiterals = new ArrayList<>();
 		CommandElement first = new CommandElement();
 
 		int patternLength = pattern.length();
 		for (int i = 0; i < patternLength; i++) {
 			char c = pattern.charAt(i);
-			if (c == '[') { // indicates an optional element
-				literalBuilder = tryLiteralAppend(first, literalBuilder);
-
-				int end = SkriptParser.nextBracket(pattern, ']', c, i + 1, true);
+			if (c == '[' || c == '(') {
+				boolean isOptional = c == '[';
+				int end = SkriptParser.nextBracket(pattern, isOptional ? ']' : ')', c, i + 1, true);
 				CommandElement commandElement = compile(pattern.substring(i + 1, end), arguments);
 				if (commandElement == null) {
 					return null;
 				}
 
-				List<CommandElement> toAppend = new ArrayList<>(commandElement.children());
-				toAppend.add(null);
-				first.append(toAppend);
-
-				i = end;
-			} else if (c == '(') { // indicates an optional element
-				literalBuilder = tryLiteralAppend(first, literalBuilder);
-
-				int end = SkriptParser.nextBracket(pattern, ')', c, i + 1, true);
-				CommandElement commandElement = compile(pattern.substring(i + 1, end), arguments);
-				if (commandElement == null) {
-					return null;
+				// determine elements to append
+				Collection<CommandElement> toAppend;
+				if (isOptional) {
+					toAppend = new ArrayList<>(commandElement.children());
+					toAppend.add(null);
+				} else {
+					toAppend = commandElement.children();
 				}
 
-				first.append(commandElement.children());
+				if (toAppend.stream().anyMatch(element -> element instanceof ArgumentCommandElement)) {
+					if (pendingLiterals.isEmpty()) { // [<arg>] is valid
+						first.append(toAppend);
+					} else { // argument placed attached to literals, e.g. 'lit<arg>'
+						return null;
+					}
+				} else {
+					//noinspection rawtypes, unchecked
+					pendingLiterals = appendToLiterals(pendingLiterals, (Collection) toAppend);
+				}
 
 				i = end;
 			} else if (c == '|') { // indicates the end of a single choice
-				literalBuilder = tryLiteralAppend(first, literalBuilder);
+				if (!pendingLiterals.isEmpty()) {
+					first.append(pendingLiterals);
+					pendingLiterals.clear();
+				}
 
 				ChoiceCommandElement choiceElement;
 				if (first instanceof ChoiceCommandElement choiceCommandElement) {
@@ -252,8 +258,10 @@ final class CommandCompiler {
 				}
 				// append an empty space for the following content to append to
 				choiceElement.appendEmpty();
-			} else if (c == '<') { //
-				literalBuilder = tryLiteralAppend(first, literalBuilder);
+			} else if (c == '<') { // indicates an argument
+				if (!pendingLiterals.isEmpty()) { // an argument cannot be legally placed here (ex. 'lit<arg>')
+					return null;
+				}
 
 				int end = SkriptParser.nextBracket(pattern, '>', c, i + 1, true);
 				ArgumentData<?> argument = parseArgument(pattern.substring(i + 1, end));
@@ -265,34 +273,63 @@ final class CommandCompiler {
 				first.append(List.of(new ArgumentCommandElement(argument)));
 
 				i = end;
-			} else if (c == '\\' && i + 1 < patternLength) {
+			} else if (c == '\\' && i + 1 < patternLength) { // escaping
 				i++;
-				literalBuilder.append(pattern.charAt(i));
+				appendToLiterals(pendingLiterals, pattern.charAt(i));
+			} else if (c == ' ') { // literal terminator
+				if (!pendingLiterals.isEmpty()) {
+					first.append(pendingLiterals);
+					pendingLiterals.clear();
+				}
 			} else {
-				literalBuilder.append(c);
+				appendToLiterals(pendingLiterals, c);
 			}
 		}
 
-		tryLiteralAppend(first, literalBuilder);
+		if (!pendingLiterals.isEmpty()) { // append any outstanding literal(s)
+			first.append(pendingLiterals);
+		}
 
 		return first;
 	}
 
 	/**
-	 * Helper for appending literal content to an element during compilation.
-	 * @param first The element to append to.
-	 * @param literalBuilder Builder representing the literal to append.
-	 * @return A new builder if appending was successful, otherwise {@code literalBuilder}.
+	 * Appends {@code character} to all elements of {@code literals}.
+	 * @param literals The literals to append to.
+	 * @param character The character to append.
 	 */
-	private static StringBuilder tryLiteralAppend(CommandElement first, StringBuilder literalBuilder) {
-		if (literalBuilder.isEmpty()) {
-			return literalBuilder;
+	private static void appendToLiterals(List<LiteralCommandElement> literals, char character) {
+		if (literals.isEmpty()) {
+			literals.add(new LiteralCommandElement(String.valueOf(character)));
+			return;
 		}
-		String literal = literalBuilder.toString().trim();
-		if (!literal.isEmpty()) { // blank literals are not meaningful to append
-			first.append(List.of(new LiteralCommandElement(literal)));
+		literals.replaceAll(element -> new LiteralCommandElement(element.literal() + character));
+	}
+
+	/**
+	 * Appends every element in {@code elements} to every element in {@code literal}.
+	 * Optional markers (null) are considered and preserved.
+	 * @param literals The literals to append to.
+	 * @param elements The elements to append.
+	 * @return New list of literals, after appending.
+	 */
+	private static List<LiteralCommandElement> appendToLiterals(Collection<LiteralCommandElement> literals,
+		Collection<LiteralCommandElement> elements) {
+		List<LiteralCommandElement> newLiterals = new ArrayList<>();
+		for (LiteralCommandElement literal : literals) {
+			if (literal == null) { // preserve optional marker (entire list is optional)
+				newLiterals.add(null);
+				continue;
+			}
+			for (LiteralCommandElement element : elements) {
+				if (element == null) { // null means the literal itself should still be valid
+					newLiterals.add(literal);
+				} else {
+					newLiterals.add(new LiteralCommandElement(literal.literal() + element.literal()));
+				}
+			}
 		}
-		return new StringBuilder();
+		return newLiterals;
 	}
 
 	/*
@@ -326,7 +363,6 @@ final class CommandCompiler {
 		if (name == null) { // user did not specify, manually create one
 			isAutomaticName = true;
 			name = type.getName().getSingular();
-			String finalName = name;
 			// TODO verify not duplicate argument name
 		}
 
