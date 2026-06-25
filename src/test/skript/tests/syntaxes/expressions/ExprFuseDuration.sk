@@ -1,0 +1,25 @@
+test "creeper fuse duration":
+	spawn a creeper at test-location:
+		assert fuse duration of entity is 1.5 seconds with "fuse duration of a creeper should be 1.5 seconds by default"
+		set fuse duration of entity to 5 seconds
+		assert fuse duration of entity is 5 seconds with "fuse duration of creeper should be 5 seconds after setting to 5 seconds"
+		add 2.5 seconds to fuse duration of entity
+		assert fuse duration of entity is 7.5 seconds with "fuse duration of creeper should be 7.5 seconds after adding 2.5 seconds"
+		remove 10 seconds from fuse duration of entity
+		assert fuse duration of entity is 0 seconds with "fuse duration of creeper should be capped at 0 minimum"
+		delete fuse duration of entity
+		assert fuse duration of entity is 0 seconds with "fuse duration of creeper should be 0 seconds after deletion"
+		delete entity
+
+test "primed tnt fuse duration":
+	spawn a primed tnt at test-location:
+		assert fuse duration of entity is 4 seconds with "fuse duration of primed tnt should be 4 seconds by default"
+		set fuse duration of entity to 10 seconds
+		assert fuse duration of entity is 10 seconds with "fuse duration of primed tnt should be 10 seconds after setting to 10 seconds"
+		add 2.5 seconds to fuse duration of entity
+		assert fuse duration of entity is 12.5 seconds with "fuse duration of primed tnt should be 12.5 seconds after adding 2.5 seconds"
+		remove 15 seconds from fuse duration of entity
+		assert fuse duration of entity is 0 seconds with "fuse duration of primed tnt should be capped at 0 minimum"
+		delete fuse duration of entity
+		assert fuse duration of entity is 0 seconds with "fuse duration of primed tnt should be 0 seconds after deletion"
+		delete entity
