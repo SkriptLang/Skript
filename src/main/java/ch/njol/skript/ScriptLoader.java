@@ -23,6 +23,7 @@ import org.bukkit.Bukkit;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.jspecify.annotations.NonNull;
 import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
@@ -38,6 +39,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -334,7 +336,7 @@ public class ScriptLoader {
 			private final AtomicInteger threadId = new AtomicInteger(0);
 
 			@Override
-			public Thread newThread(Runnable runnable) {
+			public Thread newThread(@NonNull Runnable runnable) {
 				Thread thread = new Thread(asyncLoaderThreadGroup, runnable, "Skript async loaders thread " + threadId.incrementAndGet());
 				thread.setDaemon(true);
 				return thread;
@@ -878,21 +880,23 @@ public class ScriptLoader {
 			.sorted(unloadComparator)
 			.collect(Collectors.toCollection(ArrayList::new));
 
-		// trigger unload event before unloading scripts
-		for (Script script : scripts) {
+		// initial unload stage
+		Consumer<UnloadingStructure> consumer = unloadingStructure -> {
+			Structure structure = unloadingStructure.structure();
+			Script script = unloadingStructure.script();
 			eventRegistry().events(ScriptUnloadEvent.class)
 				.forEach(event -> event.onUnload(parser, script));
 			script.eventRegistry().events(ScriptUnloadEvent.class)
 				.forEach(event -> event.onUnload(parser, script));
-		}
 
-		// initial unload stage
-		for (UnloadingStructure unloadingStructure : unloadingStructures) {
-			Script script = unloadingStructure.script();
-			Structure structure = unloadingStructure.structure();
-
-			parser.setActive(script);
+			parser.setActive(unloadingStructure.script());
 			structure.unload();
+		};
+		Stream<UnloadingStructure> structuresStream = unloadingStructures.stream();
+		if (isParallel()) {
+			getExecutor().execute(() -> structuresStream.parallel().forEach(consumer));
+		} else {
+			structuresStream.forEach(consumer);
 		}
 
 		parser.setInactive();
@@ -930,7 +934,7 @@ public class ScriptLoader {
 	 * @param script The script to unload.
 	 * @return Statistics for the unloaded script.
 	 */
-	public static ScriptInfo unloadScript(Script script) {
+	public static ScriptLoader.ScriptInfo unloadScript(Script script) {
 		return unloadScripts(Collections.singleton(script));
 	}
 
@@ -962,7 +966,7 @@ public class ScriptLoader {
 			//noinspection ConstantConditions - getFile should never return null
 			Config config = loadStructure(script.getConfig().getFile());
 			if (config == null)
-				return CompletableFuture.completedFuture(new ScriptInfo());
+				return CompletableFuture.completedFuture(new ScriptLoader.ScriptInfo());
 			configs.add(config);
 		}
 
