@@ -1,7 +1,6 @@
 
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.lang.EventRestrictedSyntax;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +29,7 @@ import ch.njol.util.coll.CollectionUtils;
 	""")
 @Events("heal")
 @Since("2.5.1")
-public class ExprHealAmount extends SimpleExpression<Double> implements EventRestrictedSyntax {
+public class ExprHealAmount extends SimpleExpression<Double> {
 
 	static {
 		Skript.registerExpression(ExprHealAmount.class, Double.class, ExpressionType.SIMPLE, "[the] heal[ing] amount");
@@ -40,13 +39,12 @@ public class ExprHealAmount extends SimpleExpression<Double> implements EventRes
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		if (!getParser().isCurrentEvent(EntityRegainHealthEvent.class)) {
+			Skript.error("The expression 'heal amount' may only be used in a healing event");
+			return false;
+		}
 		delay = isDelayed;
 		return true;
-	}
-
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(EntityRegainHealthEvent.class);
 	}
 
 	@Nullable

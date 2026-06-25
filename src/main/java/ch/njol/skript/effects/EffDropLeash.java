@@ -1,7 +1,5 @@
 package ch.njol.skript.effects;
 
-import ch.njol.skript.lang.EventRestrictedSyntax;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityUnleashEvent;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +23,7 @@ import ch.njol.util.Kleenean;
 @Keywords("lead")
 @Events("Leash / Unleash")
 @Since("2.10")
-public class EffDropLeash extends Effect implements EventRestrictedSyntax {
+public class EffDropLeash extends Effect {
 
 	static {
 			Skript.registerEffect(EffDropLeash.class,
@@ -38,13 +36,12 @@ public class EffDropLeash extends Effect implements EventRestrictedSyntax {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+		if (!getParser().isCurrentEvent(EntityUnleashEvent.class)) {
+			Skript.error("The 'drop leash' effect can only be used in an 'unleash' event");
+			return false;
+		}
 		allowLeashDrop = matchedPattern == 0;
 		return true;
-	}
-
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(EntityUnleashEvent.class);
 	}
 
 	@Override

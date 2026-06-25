@@ -5,13 +5,11 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
@@ -30,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 				send "You can't break that item frame!" to hanging remover
 	""")
 @Since("2.6.2")
-public class ExprHanging extends SimpleExpression<Entity> implements EventRestrictedSyntax {
+public class ExprHanging extends SimpleExpression<Entity> {
 	
 	static {
 		Skript.registerExpression(ExprHanging.class, Entity.class, ExpressionType.SIMPLE, "[the] hanging (entity|:remover)");
@@ -45,15 +43,13 @@ public class ExprHanging extends SimpleExpression<Entity> implements EventRestri
 		if (isRemover && !getParser().isCurrentEvent(HangingBreakEvent.class)) {
 			Skript.error("The expression 'hanging remover' can only be used in break event");
 			return false;
+		} else if (!getParser().isCurrentEvent(HangingBreakEvent.class, HangingPlaceEvent.class)) {
+			Skript.error("The expression 'hanging entity' can only be used in break and place events");
+			return false;
 		}
 		return true;
 	}
-
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(HangingBreakEvent.class, HangingPlaceEvent.class);
-	}
-
+	
 	@Override
 	@Nullable
 	public Entity[] get(Event e) {

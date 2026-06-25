@@ -1,7 +1,5 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.lang.EventRestrictedSyntax;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +25,7 @@ import ch.njol.util.Kleenean;
 	""")
 @Events("enchant prepare")
 @Since("2.5")
-public class ExprEnchantmentBonus extends SimpleExpression<Long> implements EventRestrictedSyntax {
+public class ExprEnchantmentBonus extends SimpleExpression<Long> {
 
 	static {
 		Skript.registerExpression(ExprEnchantmentBonus.class, Long.class, ExpressionType.SIMPLE, "[the] enchantment bonus");
@@ -35,12 +33,11 @@ public class ExprEnchantmentBonus extends SimpleExpression<Long> implements Even
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		if (!getParser().isCurrentEvent(PrepareItemEnchantEvent.class)) {
+			Skript.error("The enchantment bonus is only usable in an enchant prepare event.", ErrorQuality.SEMANTIC_ERROR);
+			return false;
+		}
 		return true;
-	}
-
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(PrepareItemEnchantEvent.class);
 	}
 
 	@Override

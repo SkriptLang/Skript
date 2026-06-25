@@ -3,8 +3,6 @@ package ch.njol.skript.effects;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import ch.njol.skript.lang.EventRestrictedSyntax;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.server.ServerListPingEvent;
@@ -30,7 +28,7 @@ import ch.njol.util.Kleenean;
 		hide {vanished::*} from the server list
 	""")
 @Since("2.3")
-public class EffHidePlayerFromServerList extends Effect implements EventRestrictedSyntax {
+public class EffHidePlayerFromServerList extends Effect {
 
 	static {
 		Skript.registerEffect(EffHidePlayerFromServerList.class,
@@ -38,23 +36,25 @@ public class EffHidePlayerFromServerList extends Effect implements EventRestrict
 				"hide %players%'[s] info[rmation] (in|on|from) [the] server list");
 	}
 
+	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
+
 	@SuppressWarnings("null")
 	private Expression<Player> players;
 
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (isDelayed == Kleenean.TRUE) {
+		boolean isServerPingEvent = getParser().isCurrentEvent(ServerListPingEvent.class) ||
+				(PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class));
+		if (!isServerPingEvent) {
+			Skript.error("The hide player from server list effect can't be used outside of a server list ping event");
+			return false;
+		} else if (isDelayed == Kleenean.TRUE) {
 			Skript.error("Can't hide players from the server list anymore after the server list ping event has already passed");
 			return false;
 		}
 		players = (Expression<Player>) exprs[0];
 		return true;
-	}
-
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(ServerListPingEvent.class, PaperServerListPingEvent.class);
 	}
 
 	@Override

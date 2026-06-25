@@ -1,6 +1,5 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.lang.EventRestrictedSyntax;
 import org.bukkit.event.Event;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
@@ -35,7 +34,7 @@ import ch.njol.util.coll.CollectionUtils;
     """)
 @Events({"enchant prepare", "enchant"})
 @Since("2.5")
-public class ExprEnchantItem extends SimpleExpression<ItemType> implements EventRestrictedSyntax {
+public class ExprEnchantItem extends SimpleExpression<ItemType> {
 
 	static {
 		Skript.registerExpression(ExprEnchantItem.class, ItemType.class, ExpressionType.SIMPLE, "[the] enchant[ed] item");
@@ -43,12 +42,11 @@ public class ExprEnchantItem extends SimpleExpression<ItemType> implements Event
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		if (!getParser().isCurrentEvent(EnchantItemEvent.class) && !getParser().isCurrentEvent(PrepareItemEnchantEvent.class)) {
+			Skript.error("The enchant item is only usable in an enchant prepare event or enchant event.", ErrorQuality.SEMANTIC_ERROR);
+			return false;
+		}
 		return true;
-	}
-
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(EnchantItemEvent.class, PrepareItemEnchantEvent.class);
 	}
 
 	@Override

@@ -11,6 +11,8 @@ import org.skriptlang.skript.bukkit.brewing.BrewingModule;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceModule;
 import org.skriptlang.skript.bukkit.entity.EntityModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
+import org.skriptlang.skript.bukkit.functions.BukkitFunctions;
+import org.skriptlang.skript.bukkit.functions.VectorFunctions;
 import org.skriptlang.skript.bukkit.input.InputModule;
 import org.skriptlang.skript.bukkit.item.ItemModule;
 import org.skriptlang.skript.bukkit.itemcomponents.ItemComponentModule;
@@ -67,6 +69,9 @@ public class BukkitModule extends HierarchicalAddonModule {
 		Classes.registerClass(new PlayerClassInfo());
 		Classes.registerClass(new SlotClassInfo());
 		Classes.registerClass(new VectorClassInfo());
+
+		new BukkitFunctions(this, addon);
+		new VectorFunctions(this, addon);
 	}
 
 	@Override

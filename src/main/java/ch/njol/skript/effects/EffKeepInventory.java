@@ -1,7 +1,5 @@
 package ch.njol.skript.effects;
 
-import ch.njol.skript.lang.EventRestrictedSyntax;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -27,7 +25,7 @@ import ch.njol.util.Kleenean;
 	""")
 @Since("2.4")
 @Events("death")
-public class EffKeepInventory extends Effect implements EventRestrictedSyntax {
+public class EffKeepInventory extends Effect {
 
 	static {
 		Skript.registerEffect(EffKeepInventory.class,
@@ -41,16 +39,15 @@ public class EffKeepInventory extends Effect implements EventRestrictedSyntax {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		keepItems = matchedPattern == 0 || parseResult.mark == 1;
 		keepExp = matchedPattern == 1 || parseResult.mark == 1;
+		if (!getParser().isCurrentEvent(EntityDeathEvent.class)) {
+			Skript.error("The keep inventory/experience effect can't be used outside of a death event");
+			return false;
+		}
 		if (isDelayed.isTrue()) {
 			Skript.error("Can't keep the inventory/experience anymore after the event has already passed");
 			return false;
 		}
 		return true;
-	}
-
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(EntityDeathEvent.class);
 	}
 
 	@Override

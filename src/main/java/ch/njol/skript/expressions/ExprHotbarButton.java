@@ -1,7 +1,5 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.lang.EventRestrictedSyntax;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +22,7 @@ import ch.njol.util.Kleenean;
 		send "You clicked the hotbar button %hotbar button%!"
 	""")
 @Since("2.5")
-public class ExprHotbarButton extends SimpleExpression<Long> implements EventRestrictedSyntax {
+public class ExprHotbarButton extends SimpleExpression<Long> {
 	
 	static {
 		Skript.registerExpression(ExprHotbarButton.class, Long.class, ExpressionType.SIMPLE, "[the] hotbar button");
@@ -32,12 +30,11 @@ public class ExprHotbarButton extends SimpleExpression<Long> implements EventRes
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+		if (!getParser().isCurrentEvent(InventoryClickEvent.class)) {
+			Skript.error("The 'hotbar button' expression may only be used in an inventory click event.");
+			return false;
+		}
 		return true;
-	}
-
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(InventoryClickEvent.class);
 	}
 	
 	@Nullable

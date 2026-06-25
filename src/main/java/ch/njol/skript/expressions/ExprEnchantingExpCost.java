@@ -1,6 +1,5 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.lang.EventRestrictedSyntax;
 import org.bukkit.event.Event;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +29,7 @@ import ch.njol.util.coll.CollectionUtils;
 	""")
 @Events("enchant")
 @Since("2.5")
-public class ExprEnchantingExpCost extends SimpleExpression<Long> implements EventRestrictedSyntax {
+public class ExprEnchantingExpCost extends SimpleExpression<Long> {
 
 	static {
 		Skript.registerExpression(ExprEnchantingExpCost.class, Long.class, ExpressionType.SIMPLE,
@@ -39,12 +38,11 @@ public class ExprEnchantingExpCost extends SimpleExpression<Long> implements Eve
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		if (!getParser().isCurrentEvent(EnchantItemEvent.class)) {
+			Skript.error("The experience cost of enchanting is only usable in an enchant event.", ErrorQuality.SEMANTIC_ERROR);
+			return false;
+		}
 		return true;
-	}
-
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(EnchantItemEvent.class);
 	}
 
 	@Override
