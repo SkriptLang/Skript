@@ -339,6 +339,9 @@ final class CommandCompiler {
 	private static final Pattern ARGUMENT_PATTERN =
 		Pattern.compile("^\\s*(?:([^>]+?)\\s*:\\s*)?(.+?)\\s*(?:=\\s*(" + SkriptParser.WILDCARD + "))?\\s*$");
 
+	private static final Pattern TYPE_PATTERN =
+		Pattern.compile("^(.+?)\\s*(?: from (.+?)(?: to (.+?))?)?$");
+
 	private static @Nullable ArgumentData<?> parseArgument(String argument) {
 		Matcher argumentMatcher = ARGUMENT_PATTERN.matcher(argument);
 		if (!argumentMatcher.find()) {
@@ -346,7 +349,12 @@ final class CommandCompiler {
 		}
 
 		// first, parse the type
-		String rawType = argumentMatcher.group(2);
+		Matcher typeMatcher = TYPE_PATTERN.matcher(argumentMatcher.group(2));
+		if (!typeMatcher.find()) {
+			Skript.error("'" + argumentMatcher.group(2) + "' is not a known type.");
+			return null;
+		}
+		String rawType = typeMatcher.group(1);
 		var plural = Utils.isPlural(rawType);
 		ClassInfo<?> type = Classes.getClassInfoFromUserInput(plural.updated());
 		if (type == null) {
@@ -355,6 +363,20 @@ final class CommandCompiler {
 		} else if (type.getParser() == null || !type.getParser().canParse(ParseContext.COMMAND)) {
 			Skript.error("The type '" + type.getName().getSingular() + "' cannot be used as a command argument.");
 			return null;
+		}
+		Object min = null;
+		Object max = null;
+		if (typeMatcher.group(2) != null) { // has min
+			min = type.getParser().parse(typeMatcher.group(2), ParseContext.COMMAND);
+			if (min == null) {
+				return null;
+			}
+		}
+		if (typeMatcher.group(3) != null) { // has max
+			max = type.getParser().parse(typeMatcher.group(3), ParseContext.COMMAND);
+			if (max == null) {
+				return null;
+			}
 		}
 
 		// next, parse the name
@@ -390,7 +412,7 @@ final class CommandCompiler {
 		}
 
 		//noinspection unchecked, rawtypes
-		return new ArgumentData(name, isAutomaticName, type, defaultValue);
+		return new ArgumentData(name, isAutomaticName, type, defaultValue, min, max);
 	}
 
 }

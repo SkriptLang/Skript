@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -34,11 +35,27 @@ class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<T, Stri
 	/**
 	 * Pre-defined mappings of types that are acceptable to map to other native argument types.
 	 */
-	public static final Map<Class<?>, ArgumentType<?>> ARGUMENT_TYPE_MAPPINGS = Map.ofEntries(
-		Map.entry(Boolean.class, BoolArgumentType.bool()),
-		Map.entry(Long.class, LongArgumentType.longArg()),
-		Map.entry(Number.class, DoubleArgumentType.doubleArg()),
-		Map.entry(Player.class, ArgumentTypes.player())
+	public static final Map<Class<?>, Function<ArgumentData<?>, ArgumentType<?>>> ARGUMENT_TYPE_MAPPINGS = Map.of(
+		Boolean.class, ignored -> BoolArgumentType.bool(),
+		Long.class, data -> {
+			if (data.max() == null) {
+				if (data.min() == null) {
+					return LongArgumentType.longArg();
+				}
+				return LongArgumentType.longArg((long) data.min());
+			}
+			return LongArgumentType.longArg((long) data.min(), (long) data.max());
+		},
+		Number.class, data -> {
+			if (data.max() == null) {
+				if (data.min() == null) {
+					return DoubleArgumentType.doubleArg();
+				}
+				return DoubleArgumentType.doubleArg((double) data.min());
+			}
+			return DoubleArgumentType.doubleArg((double) data.min(), (double) data.max());
+		},
+		Player.class, ignored -> ArgumentTypes.player()
 	);
 
 	private static final Dynamic2CommandExceptionType ERROR_INVALID_INPUT = new Dynamic2CommandExceptionType(

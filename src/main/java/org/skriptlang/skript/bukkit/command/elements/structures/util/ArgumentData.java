@@ -16,5 +16,7 @@ record ArgumentData<T>(
 	String name,
 	boolean isAutomaticName,
 	ClassInfo<T> type,
-	@Nullable Expression<T> defaultValue
+	@Nullable Expression<T> defaultValue,
+	@Nullable T min,
+	@Nullable T max
 ) { }

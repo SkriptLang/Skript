@@ -157,14 +157,17 @@ public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandS
 			argument = Commands.literal(literalCommandElement.literal());
 		} else { // ArgumentCommandElement
 			ArgumentData<?> data = ((ArgumentCommandElement) commandElement).argument();
-			ArgumentType<?> nativeType = SkriptBrigadierArgument.ARGUMENT_TYPE_MAPPINGS.get(data.type().getC());
-			if (nativeType == null) {
+			ArgumentType<?> nativeType;
+			var nativeMapping = SkriptBrigadierArgument.ARGUMENT_TYPE_MAPPINGS.get(data.type().getC());
+			if (nativeMapping == null) {
 				if (children.isEmpty() && subcommands.isEmpty()) {
 					nativeType = StringArgumentType.greedyString();
 				} else {
 					nativeType = StringArgumentType.string();
 				}
 				nativeType = new SkriptBrigadierArgument<>(data, (StringArgumentType) nativeType);
+			} else {
+				nativeType = nativeMapping.apply(data);
 			}
 			argument = Commands.argument(data.name(), nativeType);
 		}
