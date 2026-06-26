@@ -11,7 +11,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import org.jetbrains.annotations.ApiStatus;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.ContainsHandler;
 
@@ -33,19 +32,7 @@ public final class TextComponentClassInfo extends ClassInfo<Component> {
 			.property(Property.CONTAINS,
 				"Components can contain other components.",
 				addon,
-				new ContainsHandler<Component, Component>() {
-					@Override
-					public boolean contains(Component container, Component element) {
-						var parser = org.skriptlang.skript.bukkit.text.TextComponentParser.instance();
-						return StringUtils.contains(parser.toString(container), parser.toString(element), SkriptConfig.caseSensitive.value());
-					}
-
-					@Override
-					public Class<? extends Component>[] elementTypes() {
-						//noinspection unchecked
-						return new Class[]{Component.class};
-					}
-				}
+				new TextComponentContainsHandler()
 			);
 	}
 
@@ -92,6 +79,29 @@ public final class TextComponentClassInfo extends ClassInfo<Component> {
 		@Override
 		protected boolean canBeInstantiated() {
 			return false;
+		}
+
+	}
+
+	private static final class TextComponentContainsHandler implements ContainsHandler<Component, Object> {
+
+		@Override
+		public boolean contains(Component container, Object element) {
+			var parser = org.skriptlang.skript.bukkit.text.TextComponentParser.instance();
+			String haystack = parser.toString(container);
+			String needle;
+			if (element instanceof Component component) {
+				needle = parser.toString(component);
+			} else { // String
+				needle = parser.toString(parser.parse(element));
+			}
+			return StringUtils.contains(haystack, needle, SkriptConfig.caseSensitive.value());
+		}
+
+		@Override
+		public Class<? extends Component>[] elementTypes() {
+			//noinspection unchecked
+			return new Class[]{Component.class, String.class};
 		}
 
 	}
