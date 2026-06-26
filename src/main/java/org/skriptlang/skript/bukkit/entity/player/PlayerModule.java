@@ -6,6 +6,7 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.entity.player.elements.effects.*;
 import org.skriptlang.skript.bukkit.entity.player.elements.events.*;
 import org.skriptlang.skript.bukkit.entity.player.elements.expressions.*;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
@@ -20,6 +21,8 @@ public class PlayerModule extends HierarchicalAddonModule {
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
 		register(addon,
+			EffBan::register,
+			EffKick::register,
 			ExprChatFormat::register,
 			ExprChatMessage::register,
 			ExprChatRecipients::register,
@@ -28,6 +31,7 @@ public class PlayerModule extends HierarchicalAddonModule {
 			ExprOnScreenKickMessage::register,
 			ExprPlayerListHeaderFooter::register,
 			ExprPlayerListName::register,
+			ExprPlayerListPriority::register,
 			ExprQuitMessage::register
 		);
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerPickBlockEvent")) {

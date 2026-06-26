@@ -112,7 +112,7 @@ public class SimpleEvents {
 				.examples("on combust:")
 				.since("1.0");
 		Skript.registerEvent("Explode", SimpleEvent.class, EntityExplodeEvent.class, "explo(d(e|ing)|sion)")
-				.description("Called when an entity (a primed TNT or a creeper) explodes.")
+				.description("Called when an entity (a primed TNT or a creeper) explodes. When the mob griefing gamerule is false, this is not called for entities.")
 				.examples("on explosion:")
 				.since("1.0");
 //		Skript.registerEvent(SimpleEvent.class, EntityInteractEvent.class, "interact");// = entity interacts with block, e.g. endermen?; player -> PlayerInteractEvent // likely tripwires, pressure plates, etc.
