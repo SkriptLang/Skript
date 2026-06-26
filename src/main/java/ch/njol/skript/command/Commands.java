@@ -181,23 +181,25 @@ public abstract class Commands {
 				Effect effect = Effect.parse(command, null);
 				parserInstance.deleteCurrentEvent();
 
+				TextComponentParser textParser = TextComponentParser.instance();
 				if (effect != null) {
 					log.clear(); // ignore warnings and stuff
 					log.printLog();
 					if (!effectCommand.isCancelled()) {
-						sender.sendRichMessage("<gray>Executing '" + TextComponentParser.instance().escape(command) + "'");
+						sender.sendMessage(textParser.parse("<gray>Executing '" + textParser.escape(command) + "'"));
 						if (SkriptConfig.logEffectCommands.value() && !(sender instanceof ConsoleCommandSender))
-							Skript.info(sender.getName() + " issued effect command: " + TextComponentParser.instance().escape(command));
+							Skript.info(sender.getName() + " issued effect command: " + textParser.escape(command));
 						TriggerItem.walk(effect, effectCommand);
 						Variables.removeLocals(effectCommand);
 					} else {
-						sender.sendRichMessage("<red>Your effect command '" + TextComponentParser.instance().escape(command) + "' was cancelled.");
+						sender.sendMessage(textParser.parse("<red>Your effect command '" + textParser.escape(command) + "' was cancelled."));
 					}
 				} else {
 					if (sender == Bukkit.getConsoleSender()) // log as SEVERE instead of INFO like printErrors below
-						SkriptLogger.LOGGER.severe("Error in: " + TextComponentParser.instance().escape(command));
+						// No need to escape command here, logger will do it
+						SkriptLogger.LOGGER.severe("Error in: " + command);
 					else
-						sender.sendRichMessage("<red>Error in: <gray>" + TextComponentParser.instance().escape(command));
+						sender.sendMessage(textParser.parse("<red>Error in: <gray>" + textParser.escape(command)));
 					// TODO errors likely need to be escaped too
 					log.printErrors(sender, "(No specific information is available)");
 				}

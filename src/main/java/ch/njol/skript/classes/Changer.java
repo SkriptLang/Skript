@@ -1,7 +1,11 @@
 package ch.njol.skript.classes;
 
+import ch.njol.skript.expressions.base.WrapperExpression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import com.google.common.base.Preconditions;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,8 +14,11 @@ import ch.njol.skript.lang.Expression;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
+import org.skriptlang.skript.lang.converter.Converters;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -82,6 +89,77 @@ public interface Changer<T> {
 			}
 
 			return acceptsChangeTypes(validTypes, types);
+		}
+
+		/**
+		 * Tests whether an expression accepts changes of a certain type.
+		 * If multiple types are given it test for whether any of the types is accepted.
+		 * This method goes further than {@link #acceptsChange(Expression, ChangeMode, Class[])} by considering
+		 *  {@link Converters} and attempting to convert {@code expression} to accept at least one of {@code types}.
+		 *
+		 * @param expression The expression to test (and potentially convert)
+		 * @param mode The ChangeMode to use in the test
+		 * @param types The types to test for
+		 * @return {@code expression} (or a conversion of it) that allows {@link #change(Object[], Object[], ChangeMode)}
+		 *  to be called with one of {@code types} (as a delta value).
+		 *  Returns {@code null} if no such conversion of {@code expression} exists.
+		 */
+		@ApiStatus.Internal
+		public static @Nullable <T> Expression<T> acceptsChangeWithConverters(@NotNull Expression<T> expression, ChangeMode mode, Class<?>... types) {
+			Class<?>[] validTypes = expression.acceptChange(mode);
+			if (validTypes == null)
+				return null;
+
+			for (int i = 0; i < validTypes.length; i++) {
+				if (validTypes[i].isArray()) {
+					validTypes[i] = validTypes[i].getComponentType();
+				}
+			}
+
+			if (acceptsChangeTypes(validTypes, types)) {
+				return expression;
+			}
+
+			for (Class<?> type : types) {
+				if (Converters.converterExists(type, validTypes)) {
+					class ChangeWrapper extends WrapperExpression<T> {
+						public ChangeWrapper(Expression<T> expression) {
+							super(expression);
+						}
+
+						@Override
+						public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+							throw new UnsupportedOperationException();
+						}
+
+						@Override
+						public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+							super.change(event, Converters.convert(delta, validTypes, Object.class), mode);
+						}
+
+						@Override
+						public <R> void changeInPlace(Event event, Function<T, R> changeFunction, boolean getAll) {
+							T[] values = getAll ? getAll(event) : getArray(event);
+							if (values.length == 0)
+								return;
+
+							List<R> newValues = new ArrayList<>();
+							for (T value : values) {
+								newValues.add(changeFunction.apply(value));
+							}
+							change(event, newValues.toArray(), ChangeMode.SET);
+						}
+
+						@Override
+						public String toString(@Nullable Event event, boolean debug) {
+							return getExpr().toString(event, debug);
+						}
+					}
+					return new ChangeWrapper(expression);
+				}
+			}
+
+			return null;
 		}
 
 		/**

@@ -6,3 +6,7 @@ test "component serialization":
 	parse:
 		set {x} to line 1 of lore of {_item}
 	assert last parse logs are not set
+
+test "component contains":
+	set {_item} to a dirt block with lore "<red>Hello world!"
+	assert last element of lore of {_item} contains "<red>Hello"

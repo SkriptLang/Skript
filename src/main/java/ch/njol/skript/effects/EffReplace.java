@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
 	# Very simple chat censor
 	on chat:
 		replace all "idiot" and "noob" with "****" in the message
-		regex replace "\b(idiot|noob)\b" with "****" in the message # Regex version using word boundaries for better results
+		regex replace "\\b(idiot|noob)\\b" with "****" in the message # Regex version using word boundaries for better results
 	""")
 @Example("replace all stone and dirt in player's inventory and player's top inventory with diamond")
 @Since("2.0, 2.2-dev24 (multiple strings, items in inventory), 2.5 (replace first, case sensitivity), 2.10 (regex)")
@@ -70,9 +70,13 @@ public class EffReplace extends Effect {
 		replaceFirst = parseResult.hasTag("first");
 		replaceRegex = matchedPattern == 2 || matchedPattern == 3;
 
-		if (replaceString && !ChangerUtils.acceptsChange(haystack, ChangeMode.SET, String.class)) {
-			Skript.error(haystack + " cannot be changed and can thus not have parts replaced");
-			return false;
+		if (replaceString) {
+			Expression<?> newHaystack = ChangerUtils.acceptsChangeWithConverters(haystack, ChangeMode.SET, String.class);
+			if (newHaystack == null) {
+				Skript.error(haystack.toString(null, Skript.debug()) + " cannot be changed to a text and can thus not have parts replaced");
+				return false;
+			}
+			haystack = newHaystack;
 		}
 
 		if (SkriptConfig.caseSensitive.value() || parseResult.hasTag("case")) {
@@ -140,11 +144,13 @@ public class EffReplace extends Effect {
 			replaceFunction = haystackString -> {
 				for (Pattern pattern : patterns) {
 					Matcher matcher = pattern.matcher(haystackString);
-					if (replaceFirst) {
-						haystackString = matcher.replaceFirst(replacement);
-					} else {
-						haystackString = matcher.replaceAll(replacement);
-					}
+					try { // Throws IndexOutOfBounds on improper use of regex groups in replacement
+						if (replaceFirst) {
+							haystackString = matcher.replaceFirst(replacement);
+						} else {
+							haystackString = matcher.replaceAll(replacement);
+						}
+					} catch (IndexOutOfBoundsException ignored) {}
 				}
 				return haystackString;
 			};
