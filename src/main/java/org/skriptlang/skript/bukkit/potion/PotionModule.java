@@ -137,7 +137,7 @@ public class PotionModule extends HierarchicalAddonModule {
 		} else {
 			throw new IllegalStateException("Potion effect registry does not exist");
 		}
-		Classes.registerClass(new RegistryClassInfo<>(PotionEffectType.class, petRegistry, "potioneffecttype", "potion effect types", false)
+		Classes.registerClass(new RegistryClassInfo<>(PotionEffectType.class, petRegistry, "potioneffecttype", "potion effect types")
 			.user("potion ?effect ?types?")
 			.name("Potion Effect Type")
 			.description("A potion effect type, e.g. 'strength' or 'swiftness'.")
