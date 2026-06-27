@@ -43,6 +43,7 @@ public class CondIsEnchanted extends Condition {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.CONDITION, PropertyCondition.infoBuilder(CondIsEnchanted.class, PropertyType.BE,
 			"enchanted [with %-enchantmenttypes% [or (1:(better|greater|higher|above)|2:(worse|lesser|lower|below))]]", "itemtypes")
+			.supplier(CondIsEnchanted::new)
 			.build());
 	}
 

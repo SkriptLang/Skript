@@ -9,6 +9,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 public class EnchantmentOfferClassInfo extends ClassInfo<EnchantmentOffer> {
+
 	public EnchantmentOfferClassInfo() {
 		super(EnchantmentOffer.class, "enchantmentoffer");
 		user("enchant[ment][ ]offers?")

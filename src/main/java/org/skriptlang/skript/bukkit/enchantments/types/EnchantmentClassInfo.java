@@ -8,6 +8,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 public class EnchantmentClassInfo extends RegistryClassInfo<Enchantment> {
+
 	public EnchantmentClassInfo() {
 		super(Enchantment.class, RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT),
 			"enchantment", "enchantments");
