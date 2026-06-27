@@ -1,5 +1,8 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -10,15 +13,23 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Glowing")
-@Description("Indicates if targeted entity is glowing (new 1.9 effect) or not. Glowing entities can be seen through walls.")
+@Description("Indicates if targeted entity is glowing (new 1.9 effect) or not. Glowing entities can be seen through walls. This expression is deprecated and will be removed in a future version. Use the <a href='#EffGlowing'>Entity Glow/a> effect instead.")
 @Example("set glowing of player to true")
 @Since("2.2-dev18")
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class ExprGlowing extends SimplePropertyExpression<Entity, Boolean> {
 	
 	static {
 		register(ExprGlowing.class, Boolean.class, "glowing", "entities");
+	}
+
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		ScriptWarning.printDeprecationWarning("This expression is deprecated and will be removed in a future version. Use the glowing effect instead: 'make " + expressions[0].toString(null, false) + " glow'.");
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 	
 	@Override
