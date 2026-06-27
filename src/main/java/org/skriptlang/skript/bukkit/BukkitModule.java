@@ -22,6 +22,7 @@ import org.skriptlang.skript.bukkit.potion.PotionModule;
 import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.bukkit.text.TextModule;
 import org.skriptlang.skript.bukkit.types.*;
+import org.skriptlang.skript.bukkit.whitelist.WhitelistModule;
 
 import java.util.List;
 
@@ -50,7 +51,8 @@ public class BukkitModule extends HierarchicalAddonModule {
 			new PDCModule(this),
 			new PotionModule(this),
 			new TagModule(this),
-			new TextModule(this)
+			new TextModule(this),
+			new WhitelistModule(this)
 		);
 	}
 

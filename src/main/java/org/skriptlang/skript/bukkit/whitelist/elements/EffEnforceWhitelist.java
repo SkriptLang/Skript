@@ -1,4 +1,4 @@
-package ch.njol.skript.effects;
+package org.skriptlang.skript.bukkit.whitelist.elements;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -11,15 +11,13 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Enforce Whitelist")
 @Description({
@@ -29,7 +27,6 @@ import ch.njol.util.Kleenean;
 @Example("enforce the whitelist")
 @Example("unenforce the whitelist")
 @Since("2.9.0")
-@RequiredPlugins("MC 1.17+")
 public class EffEnforceWhitelist extends Effect {
 
 	private static final Component NOT_WHITELISTED_MESSAGE;
@@ -44,8 +41,14 @@ public class EffEnforceWhitelist extends Effect {
 		// Based on https://github.com/PaperMC/Paper/blob/bd74bf6581ce81e59bdab07eadbfbe5d485eefa7/paper-server/src/main/java/org/spigotmc/SpigotConfig.java#L161
 		NOT_WHITELISTED_MESSAGE = LegacyComponentSerializer.legacyAmpersand()
 			.deserialize(whitelistMessage.replaceAll("\\\\n", "\n"));
+	}
 
-		Skript.registerEffect(EffEnforceWhitelist.class, "[:un]enforce [the] [server] white[ ]list");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EFFECT,
+			SyntaxInfo.builder(EffEnforceWhitelist.class)
+				.addPattern("[:un]enforce [the] [server] white[ ]list")
+				.build()
+		);
 	}
 
 	private boolean enforce;

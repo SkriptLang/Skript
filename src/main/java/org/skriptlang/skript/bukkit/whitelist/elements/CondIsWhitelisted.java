@@ -1,19 +1,19 @@
-package ch.njol.skript.conditions;
+package org.skriptlang.skript.bukkit.whitelist.elements;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Condition;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.Condition;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
+import ch.njol.util.Kleenean;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Is Whitelisted")
 @Description("Whether or not the server or a player is whitelisted, or the server is whitelist enforced.")
@@ -21,19 +21,21 @@ import org.jetbrains.annotations.Nullable;
 @Example("if the server is whitelisted:")
 @Example("if the server whitelist is enforced:")
 @Since("2.5.2, 2.9.0 (enforce, offline players)")
-@RequiredPlugins("MC 1.17+ (enforce)")
 public class CondIsWhitelisted extends Condition {
 
-	static {
-		Skript.registerCondition(CondIsWhitelisted.class,
-			"[the] server (is|not:(isn't|is not)) (in white[ ]list mode|white[ ]listed)",
-			"%offlineplayers% (is|are|not:(isn't|is not|aren't|are not)) white[ ]listed",
-			"[the] server white[ ]list (is|not:(isn't|is not)) enforced");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.CONDITION,
+			SyntaxInfo.builder(CondIsWhitelisted.class)
+				.addPatterns(
+					"[the] server (is|not:(isn't|is not)) (in white[ ]list mode|white[ ]listed)",
+					"%offlineplayers% (is|are|not:(isn't|is not|aren't|are not)) white[ ]listed",
+					"[the] server white[ ]list (is|not:(isn't|is not)) enforced"
+				)
+				.build()
+		);
 	}
 
-	@Nullable
 	private Expression<OfflinePlayer> players;
-
 	private boolean isServer;
 	private boolean isEnforce;
 
@@ -57,14 +59,23 @@ public class CondIsWhitelisted extends Condition {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		String negation = isNegated() ? "not" : "";
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 		if (isServer) {
 			if (isEnforce) {
-				return "the server whitelist is " + negation + " enforced";
+				builder.append("the server whitelist")
+					.append(isNegated() ? "is not" : "is")
+					.append("enforced");
+			} else {
+				builder.append("the server")
+					.append(isNegated() ? "is not" : "is")
+					.append("whitelisted");
 			}
-			return "the server is " + negation + " whitelisted";
+		} else {
+			builder.append(players)
+				.append(isNegated() ? "is not" : "is")
+				.append("whitelisted");
 		}
-		return players.toString(event, debug) + " is " + negation + " whitelisted";
+		return builder.toString();
 	}
 
 }

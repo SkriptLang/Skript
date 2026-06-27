@@ -1,0 +1,85 @@
+package org.skriptlang.skript.bukkit.whitelist.elements;
+
+import com.destroystokyo.paper.event.server.WhitelistToggleEvent;
+import io.papermc.paper.event.server.WhitelistStateUpdateEvent;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.Condition;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
+import ch.njol.util.Kleenean;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+
+@Name("Will Be Whitelisted")
+@Description("Checks whether the server or a player will be whitelisted in a <a href='events.html#whitelist'>whitelist</a> event.")
+@Keywords({"server", "player"})
+@Example("""
+	on server whitelist:
+		send "Server whitelist has been set to %whether server will be whitelisted%" to all ops
+	""")
+@Example("""
+	on player whitelist:
+		send "Whitelist of player %event-player% has been set to %whether server will be whitelisted%" to all ops
+	""")
+@Since("INSERT VERSION")
+public class CondWillBeWhitelisted extends Condition {
+
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.CONDITION,
+			SyntaxInfo.builder(CondWillBeWhitelisted.class)
+				.addPatterns(
+					"[the] (:player|server) will be whitelisted",
+					"[the] (:player|server) (will not|won't) be whitelisted"
+				)
+				.build()
+		);
+	}
+
+	private boolean isServer;
+
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		isServer = !parseResult.hasTag("player");
+		if (isServer) {
+			if (!getParser().isCurrentEvent(WhitelistToggleEvent.class)) {
+				Skript.error("The 'server will be whitelisted' condition can only be used in an 'server whitelist' event");
+				return false;
+			}
+		} else {
+			if (!getParser().isCurrentEvent(WhitelistStateUpdateEvent.class)) {
+				Skript.error("The 'player will be whitelisted' condition can only be used in an 'player whitelist' event");
+				return false;
+			}
+		}
+		setNegated(matchedPattern == 1);
+		return true;
+	}
+
+	@Override
+	public boolean check(Event event) {
+		if (isServer)
+			return ((WhitelistToggleEvent) event).isEnabled() ^ isNegated();
+		return (((WhitelistStateUpdateEvent) event).getStatus() == WhitelistStateUpdateEvent.WhitelistStatus.ADDED) ^ isNegated();
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+		builder.append("the");
+		if (isServer)
+			builder.append("server");
+		else
+			builder.append("player");
+		builder.append("will");
+		if (isNegated())
+			builder.append("not");
+		builder.append("be whitelisted");
+		return builder.toString();
+	}
+
+}

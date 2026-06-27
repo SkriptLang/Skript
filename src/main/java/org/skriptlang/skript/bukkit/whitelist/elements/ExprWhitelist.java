@@ -1,6 +1,5 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.whitelist.elements;
 
-import ch.njol.skript.effects.EffEnforceWhitelist;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
@@ -18,6 +17,10 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.registration.DefaultSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.util.Priority;
 
 @Name("Whitelist")
 @Description({
@@ -31,8 +34,13 @@ import ch.njol.util.coll.CollectionUtils;
 @Since("2.5.2, 2.9.0 (delete)")
 public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 
-	static {
-		Skript.registerExpression(ExprWhitelist.class, OfflinePlayer.class, ExpressionType.SIMPLE, "[the] white[ ]list");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprWhitelist.class, OfflinePlayer.class)
+				.addPattern("[the] white[ ]list")
+				.priority(Priority.base())
+				.build()
+		);
 	}
 
 	@Override
@@ -47,43 +55,35 @@ public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 
 	@Override
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-            case ADD:
-			case REMOVE:
-				return CollectionUtils.array(OfflinePlayer.class);
-            case DELETE:
-            case RESET:
-			case SET:
-				return CollectionUtils.array(Boolean.class);
-        }
-		return null;
+		return switch (mode) {
+			case ADD, REMOVE -> CollectionUtils.array(OfflinePlayer.class);
+			case DELETE, RESET, SET -> CollectionUtils.array(Boolean.class);
+			default -> null;
+		};
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		switch (mode) {
-			case SET:
-				boolean toggle = (Boolean) delta[0];
+			case SET -> {
+				boolean toggle = (boolean) delta[0];
 				Bukkit.setWhitelist(toggle);
 				if (toggle)
 					EffEnforceWhitelist.reloadWhitelist();
-				break;
-			case ADD:
+			}
+			case ADD -> {
 				for (Object player : delta)
 					((OfflinePlayer) player).setWhitelisted(true);
-				break;
-			case REMOVE:
+			}
+			case REMOVE -> {
 				for (Object player : delta)
 					((OfflinePlayer) player).setWhitelisted(false);
 				EffEnforceWhitelist.reloadWhitelist();
-				break;
-			case DELETE:
-			case RESET:
+			}
+			case DELETE, RESET -> {
 				for (OfflinePlayer player : Bukkit.getWhitelistedPlayers())
 					player.setWhitelisted(false);
-				break;
-			default:
-				assert false;
+			}
 		}
 	}
 
@@ -99,7 +99,7 @@ public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "whitelist";
+		return "the whitelist";
 	}
 
 }
