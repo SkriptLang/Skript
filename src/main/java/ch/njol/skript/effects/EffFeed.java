@@ -53,8 +53,8 @@ public class EffFeed extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "feed " + players.toString(e, debug) + (beefs != null ? " by " + beefs.toString(e, debug) : "");
+	public String toString(@Nullable Event event, boolean debug) {
+		return "feed " + players.toString(event, debug) + (beefs != null ? " by " + beefs.toString(event, debug) : "");
 	}
 
 
