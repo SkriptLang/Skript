@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.command.elements.structures.util;
+package org.skriptlang.skript.bukkit.command.brigadier;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
@@ -8,6 +8,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -25,7 +26,8 @@ import java.util.stream.Stream;
  *  and arguments {@link ArgumentCommandElement}.
  * @see #compile(String, List)
  */
-final class CommandCompiler {
+@ApiStatus.Internal
+public final class CommandCompiler {
 
 	/*
 	 * Tree Structures
@@ -34,7 +36,7 @@ final class CommandCompiler {
 	/**
 	 * A node within a command tree.
 	 */
-	static class CommandElement {
+	public static class CommandElement {
 
 		protected final Set<CommandElement> children;
 
@@ -102,7 +104,7 @@ final class CommandCompiler {
 	/**
 	 * Represents a literal (constant) argument of a command.
 	 */
-	static class LiteralCommandElement extends CommandElement {
+	public static class LiteralCommandElement extends CommandElement {
 
 		private final String string;
 
@@ -123,7 +125,7 @@ final class CommandCompiler {
 	/**
 	 * Represents a dynamic argument of a command.
 	 */
-	static class ArgumentCommandElement extends CommandElement {
+	public static class ArgumentCommandElement extends CommandElement {
 
 		private final ArgumentData<?> argument;
 

@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.command.elements.structures.util;
+package org.skriptlang.skript.bukkit.command.brigadier;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.ParseContext;
@@ -19,6 +19,7 @@ import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
@@ -33,7 +34,8 @@ import java.util.function.Supplier;
  * This is natively a {@link StringArgumentType} with conversion occurring during execution.
  * @param <T> The real type of the argument.
  */
-class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<Object, String> {
+@ApiStatus.Internal
+public class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<Object, String> {
 
 	/**
 	 * Pre-defined mappings of types that are acceptable to map to other native argument types.
@@ -77,7 +79,7 @@ class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<Object,
 	 * Resolution of default values is only possible during general execution (after this argument is evaluated),
 	 *  as they may depend on the context of the command execution.
 	 */
-	static final Object DEFAULT_VALUE_PLACEHOLDER = new Object();
+	public static final Object DEFAULT_VALUE_PLACEHOLDER = new Object();
 
 	private final ArgumentData<T> argument;
 	private final StringArgumentType nativeType;

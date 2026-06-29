@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.command.elements.structures.util;
+package org.skriptlang.skript.bukkit.command.brigadier;
 
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.variables.Variables;
@@ -9,6 +9,7 @@ import com.mojang.brigadier.tree.ArgumentCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.resolvers.ArgumentResolver;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.lang.reflect.Array;
 import java.util.List;
@@ -19,7 +20,8 @@ import java.util.stream.Collectors;
 /**
  * An executor for Brigadier commands.
  */
-class SkriptCommandExecutor {
+@ApiStatus.Internal
+public class SkriptCommandExecutor {
 
 	private static void setVariable(String name, Object value, boolean isSingle, Event context) {
 		if (isSingle) {
@@ -42,7 +44,7 @@ class SkriptCommandExecutor {
 	}
 
 	public int execute(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-		CommandEvent commandEvent = new CommandEvent(context.getSource().getSender());
+		ScriptCommandEvent commandEvent = new ScriptCommandEvent(context.getSource().getSender());
 
 		Set<String> providedArgs = context.getNodes().stream()
 			.filter(node -> node.getNode() instanceof ArgumentCommandNode<?,?>)

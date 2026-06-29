@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.command.elements.structures.util;
+package org.skriptlang.skript.bukkit.command.brigadier;
 
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;

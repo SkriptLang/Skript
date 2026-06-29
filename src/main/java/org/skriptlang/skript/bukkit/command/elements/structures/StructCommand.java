@@ -12,7 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandEvent;
+import org.skriptlang.skript.bukkit.command.brigadier.ScriptCommandEvent;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.SubCommandEntryData;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
@@ -34,7 +34,7 @@ public class StructCommand extends Structure {
 			.build());
 
 		EventValueRegistry evRegistry = addon.registry(EventValueRegistry.class);
-		evRegistry.register(EventValue.simple(CommandEvent.class, CommandSender.class, CommandEvent::getSender));
+		evRegistry.register(EventValue.simple(ScriptCommandEvent.class, CommandSender.class, ScriptCommandEvent::getSender));
 
 		Skript.getInstance().getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,commands -> {
 			var registrar = commands.registrar();

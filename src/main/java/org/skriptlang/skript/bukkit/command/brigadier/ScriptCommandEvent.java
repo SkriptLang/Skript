@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.command.elements.structures.util;
+package org.skriptlang.skript.bukkit.command.brigadier;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
@@ -8,12 +8,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CommandEvent extends Event {
+public class ScriptCommandEvent extends Event {
 
 	public final CommandSender sender;
 	public final Map<ArgumentData<?>, Object> arguments = new HashMap<>();
 
-	public CommandEvent(CommandSender sender) {
+	public ScriptCommandEvent(CommandSender sender) {
 		this.sender = sender;
 	}
 

@@ -24,6 +24,13 @@ parse:
 			trigger:
 				set {_a::*} to {_x::*} in lowercase
 
+command /test-subcommand <number>:
+	subcommand <number>:
+		trigger:
+			set {-test-subcommand} to argument 1 - argument 2
+	trigger:
+		set {-test-subcommand} to arg-1
+
 command /test-args-plural <x: numbers>:
 	trigger:
 		set {-test-args-plural::*} to {_x::*}
@@ -56,6 +63,11 @@ test "StructCommand":
 	assert {-StructCommand::hints::2::*} is "Expected variable '{_x::*}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::2::*}%)"
 
 	# execution
+	execute command "test-subcommand 10"
+	assert {-test-subcommand} is 10 with "root command execution failed"
+	execute command "test-subcommand 10 5"
+	assert {-test-subcommand} is 5 with "subcommand command execution failed"
+
 	execute command "test-args-plural 10"
 	assert {-test-args-plural::*} is 10 with "single input to plural args did not work"
 	execute command "test-args-plural 10 and 2"

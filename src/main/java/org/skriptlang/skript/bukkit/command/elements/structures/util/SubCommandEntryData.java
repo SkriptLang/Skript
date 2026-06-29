@@ -7,7 +7,6 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.lang.parser.ParserInstance.Data;
 import ch.njol.skript.variables.HintManager;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -15,32 +14,27 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandCompiler.ArgumentCommandElement;
-import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandCompiler.CommandElement;
-import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandCompiler.CompilationResult;
-import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandCompiler.LiteralCommandElement;
+import org.skriptlang.skript.bukkit.command.brigadier.ArgumentData;
+import org.skriptlang.skript.bukkit.command.brigadier.CommandCompiler;
+import org.skriptlang.skript.bukkit.command.brigadier.CommandParsingData;
+import org.skriptlang.skript.bukkit.command.brigadier.ScriptCommandEvent;
+import org.skriptlang.skript.bukkit.command.brigadier.CommandCompiler.ArgumentCommandElement;
+import org.skriptlang.skript.bukkit.command.brigadier.CommandCompiler.CommandElement;
+import org.skriptlang.skript.bukkit.command.brigadier.CommandCompiler.CompilationResult;
+import org.skriptlang.skript.bukkit.command.brigadier.CommandCompiler.LiteralCommandElement;
+import org.skriptlang.skript.bukkit.command.brigadier.SkriptBrigadierArgument;
+import org.skriptlang.skript.bukkit.command.brigadier.SkriptCommandExecutor;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.entry.util.TriggerEntryData;
 
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandSourceStack, ?>>> {
-
-	public static final class CommandParsingData extends Data {
-
-		public List<List<ArgumentData<?>>> arguments = new LinkedList<>();
-
-		public CommandParsingData(ParserInstance parserInstance) {
-			super(parserInstance);
-		}
-
-	}
 
 	private static final Pattern COMMAND_PATTERN =
 		Pattern.compile("(?i)^\\s*/?\\s*(.+)?$");
@@ -83,19 +77,16 @@ public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandS
 
 		// set context for parsing
 		ParserInstance parser = ParserInstance.get();
-		parser.setCurrentEvent("command", CommandEvent.class);
+		parser.setCurrentEvent("command", ScriptCommandEvent.class);
 
 		// parse arguments
 		CommandParsingData parsingData = parser.getData(CommandParsingData.class);
 
-		CompilationResult compilationResult = CommandCompiler.compile(commandMatcher.group(1),
-			parsingData.arguments.stream()
-				.flatMap(List::stream)
-				.toList());
+		CompilationResult compilationResult = CommandCompiler.compile(commandMatcher.group(1), parsingData.getArguments());
 		if (compilationResult == null) { // failed for a reason reported by the compiler
 			return null;
 		} else if (compilationResult.root().isLeaf()) {
-			if (parsingData.arguments.isEmpty()) {
+			if (parsingData.getArguments().isEmpty()) {
 				Skript.error("A command must have a name.");
 			} else {
 				Skript.error("A subcommand must have at least one argument, literal or dynamic.");
@@ -104,10 +95,8 @@ public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandS
 		}
 
 		// prepare arguments
-		parsingData.arguments.addLast(compilationResult.arguments());
-		List<ArgumentData<?>> allArguments = parsingData.arguments.stream()
-			.flatMap(List::stream)
-			.toList();
+		parsingData.pushArguments(compilationResult.arguments());
+		List<ArgumentData<?>> allArguments = parsingData.getArguments();
 
 		// parse execution trigger
 		HintManager hintManager = parser.getHintManager();
@@ -153,7 +142,7 @@ public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandS
 			Skript.error("You must have a 'trigger' entry if there are no subcommands!");
 			return null;
 		}
-		parsingData.arguments.removeLast();
+		parsingData.popArguments();
 
 		//noinspection rawtypes, unchecked
 		return (List) compilationResult.root().children().stream()

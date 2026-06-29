@@ -21,9 +21,9 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.command.elements.structures.util.ArgumentData;
-import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandEvent;
-import org.skriptlang.skript.bukkit.command.elements.structures.util.SubCommandEntryData.CommandParsingData;
+import org.skriptlang.skript.bukkit.command.brigadier.ArgumentData;
+import org.skriptlang.skript.bukkit.command.brigadier.ScriptCommandEvent;
+import org.skriptlang.skript.bukkit.command.brigadier.CommandParsingData;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -75,7 +75,8 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		boolean scriptCommand = getParser().isCurrentEvent(CommandEvent.class);
+		ParserInstance parser = getParser();
+		boolean scriptCommand = parser.isCurrentEvent(ScriptCommandEvent.class);
 
 		type = switch (matchedPattern) {
 			case 0 -> ArgumentType.LAST;
@@ -100,9 +101,7 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 
 		List<ArgumentData<?>> currentArguments = null;
 		if (scriptCommand) {
-			currentArguments = ParserInstance.get().getData(CommandParsingData.class).arguments.stream()
-				.flatMap(List::stream)
-				.toList();
+			currentArguments = parser.getData(CommandParsingData.class).getArguments();
 			if (currentArguments.isEmpty()) {
 				Skript.error("This command doesn't have any arguments");
 				return false;
@@ -193,7 +192,7 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 
 	@Override
 	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(CommandEvent.class, PlayerCommandPreprocessEvent.class, ServerCommandEvent.class);
+		return CollectionUtils.array(ScriptCommandEvent.class, PlayerCommandPreprocessEvent.class, ServerCommandEvent.class);
 	}
 
 	@Override
@@ -201,10 +200,10 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 		if (argument != null) {
 			if (argument.isSingle()) {
 				Object[] result = (Object[]) Array.newInstance(argument.type().getC(), 1);
-				result[0] = ((CommandEvent) event).arguments.get(argument);
+				result[0] = ((ScriptCommandEvent) event).arguments.get(argument);
 				return result;
 			} else {
-				return (Object[]) ((CommandEvent) event).arguments.get(argument);
+				return (Object[]) ((ScriptCommandEvent) event).arguments.get(argument);
 			}
 		}
 
