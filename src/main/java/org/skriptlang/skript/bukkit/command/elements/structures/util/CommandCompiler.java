@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * Compiles a string command definition into a tree of literals ({@link LiteralCommandElement})
@@ -198,23 +199,37 @@ final class CommandCompiler {
 	 */
 
 	/**
+	 *
+	 * @param root A plain {@link CommandElement} containing all children.
+	 *  For a regular input, such as {@code "heal <number>"}, this element contains a single {@link LiteralCommandElement}.
+	 * @param arguments Data of all arguments contained within the element tree.
+	 */
+	public record CompilationResult(CommandElement root, List<ArgumentData<?>> arguments) { }
+
+	/**
 	 * Compiles a string command definition into an element tree.
 	 * @param pattern The command definition to compile.
-	 * @param arguments A list to store argument information in.
-	 * @return A plain {@link CommandElement} containing all children.
-	 * For a regular input, such as {@code "heal <number>"}, this element contains a single {@link LiteralCommandElement}.
+	 * @param existingArguments Existing arguments to consider during compilation.
+	 * @return A result of the compilation, or null if compilation failed.
 	 */
-	public static CommandElement compile(final String pattern, List<ArgumentData<?>> arguments) {
+	public static @Nullable CompilationResult compile(final String pattern, List<ArgumentData<?>> existingArguments) {
+		List<ArgumentData<?>> arguments = new ArrayList<>();
+		CommandElement compiled = compile(pattern, existingArguments, arguments);
+		return compiled == null ? null :  new CompilationResult(compiled, arguments);
+	}
+
+	private static @Nullable CommandElement compile(final String pattern,
+		List<ArgumentData<?>> existingArguments, List<ArgumentData<?>> arguments) {
 		List<LiteralCommandElement> pendingLiterals = new ArrayList<>();
 		CommandElement first = new CommandElement();
 
 		int patternLength = pattern.length();
 		for (int i = 0; i < patternLength; i++) {
 			char c = pattern.charAt(i);
-			if (c == '[' || c == '(') {
+			if (c == '[' || c == '(') { // indicates optional choice or general grouping
 				boolean isOptional = c == '[';
 				int end = SkriptParser.nextBracket(pattern, isOptional ? ']' : ')', c, i + 1, true);
-				CommandElement commandElement = compile(pattern.substring(i + 1, end), arguments);
+				CommandElement commandElement = compile(pattern.substring(i + 1, end), existingArguments, arguments);
 				if (commandElement == null) {
 					return null;
 				}
@@ -264,7 +279,8 @@ final class CommandCompiler {
 				}
 
 				int end = SkriptParser.nextBracket(pattern, '>', c, i + 1, true);
-				ArgumentData<?> argument = parseArgument(pattern.substring(i + 1, end));
+				ArgumentData<?> argument = parseArgument(pattern.substring(i + 1, end),
+					Stream.concat(existingArguments.stream(), arguments.stream()).toList());
 				if (argument == null) {
 					return null;
 				}
@@ -342,7 +358,7 @@ final class CommandCompiler {
 	private static final Pattern TYPE_PATTERN =
 		Pattern.compile("^(.+?)\\s*(?: from (.+?)(?: to (.+?))?)?$");
 
-	private static @Nullable ArgumentData<?> parseArgument(String argument) {
+	private static @Nullable ArgumentData<?> parseArgument(String argument, List<ArgumentData<?>> arguments) {
 		Matcher argumentMatcher = ARGUMENT_PATTERN.matcher(argument);
 		if (!argumentMatcher.find()) {
 			return null;
@@ -385,7 +401,27 @@ final class CommandCompiler {
 		if (name == null) { // user did not specify, manually create one
 			isAutomaticName = true;
 			name = type.getName().getSingular();
-			// TODO verify not duplicate argument name
+			String finalName = name;
+			// first, try just the classinfo name as the argument name (ex: 'number')
+			if (arguments.stream().anyMatch(arg -> arg.name().equals(finalName))) {
+				// otherwise, append an index (ex: 'number2')
+				int index = 2;
+				while (true) {
+					int finalIndex = index;
+					if (arguments.stream().anyMatch(arg -> arg.name().equals(finalName + finalIndex))) {
+						index++;
+						continue;
+					}
+					break;
+				}
+				name = name + index;
+			}
+		} else {
+			String finalName = name;
+			if (arguments.stream().anyMatch(arg -> arg.name().equals(finalName))) {
+				Skript.error("The argument name '" + finalName + "' was already used.");
+				return null;
+			}
 		}
 
 		// finally, parse the default value

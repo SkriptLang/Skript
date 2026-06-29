@@ -15,6 +15,7 @@ import io.papermc.paper.command.brigadier.Commands;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandCompiler.ArgumentCommandElement;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandCompiler.CommandElement;
+import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandCompiler.CompilationResult;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandCompiler.LiteralCommandElement;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryData;
@@ -84,12 +85,17 @@ public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandS
 		parser.setCurrentEvent("command", CommandEvent.class);
 
 		// parse arguments
+		CommandParsingData parsingData = parser.getData(CommandParsingData.class);
+
 		List<ArgumentData<?>> arguments = new ArrayList<>();
-		CommandElement parsed = CommandCompiler.compile(commandMatcher.group(1), arguments);
-		if (parsed == null) {
+		CompilationResult compilationResult = CommandCompiler.compile(commandMatcher.group(1),
+			parsingData.arguments.stream()
+				.flatMap(List::stream)
+				.toList());
+		if (compilationResult == null) { // failed for a reason reported by the compiler
 			return null;
-		} else if (parsed.isLeaf()) {
-			if (ParserInstance.get().getData(CommandParsingData.class).arguments.isEmpty()) {
+		} else if (compilationResult.root().isLeaf()) {
+			if (parsingData.arguments.isEmpty()) {
 				Skript.error("A command must have a name.");
 			} else {
 				Skript.error("A subcommand must have at least one argument, literal or dynamic.");
@@ -102,10 +108,8 @@ public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandS
 		boolean hasExecute = execute != null;
 		parser.deleteCurrentEvent();
 
-		CommandParsingData parsingData = parser.getData(CommandParsingData.class);
-		parsingData.arguments.addLast(arguments);
-
 		// setup executor
+		parsingData.arguments.addLast(arguments);
 		List<ArgumentData<?>> allArguments = parsingData.arguments.stream()
 			.flatMap(List::stream)
 			.toList();
@@ -130,7 +134,7 @@ public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandS
 		parsingData.arguments.removeLast();
 
 		//noinspection rawtypes, unchecked
-		return (List) parsed.children().stream()
+		return (List) compilationResult.root().children().stream()
 			.map(child -> parse(child, executor, subcommands))
 			.toList();
 	}
