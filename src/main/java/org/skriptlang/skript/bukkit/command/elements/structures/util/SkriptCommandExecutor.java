@@ -8,6 +8,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.resolvers.ArgumentResolver;
+import org.bukkit.event.Event;
 
 import java.util.List;
 import java.util.SequencedCollection;
@@ -18,6 +19,18 @@ import java.util.stream.Collectors;
  * An executor for Brigadier commands.
  */
 class SkriptCommandExecutor {
+
+	private static void setVariable(String name, Object value, boolean isSingle, Event context) {
+		if (isSingle) {
+			Variables.setVariable(name, value, context, true);
+		} else {
+			Object[] values = ((Object[]) value);
+			int length = values.length;
+			for (int i = 0; i < length; i++) {
+				Variables.setVariable(name + "::" + (i + 1), values[i], context, true);
+			}
+		}
+	}
 
 	private final Trigger trigger;
 	private final List<ArgumentData<?>> arguments;
@@ -45,12 +58,25 @@ class SkriptCommandExecutor {
 					}
 				} else if (value == SkriptBrigadierArgument.DEFAULT_VALUE_PLACEHOLDER) {
 					assert argument.defaultValue() != null;
-					value = argument.defaultValue().getSingle(commandEvent);
+					if (argument.isSingle()) {
+						value = argument.defaultValue().getSingle(commandEvent);
+					} else {
+						value = argument.defaultValue().getArray(commandEvent);
+					}
 				}
 			} else if (argument.defaultValue() != null) {
-				value = argument.defaultValue().getSingle(commandEvent);
+				if (argument.isSingle()) {
+					value = argument.defaultValue().getSingle(commandEvent);
+				} else {
+					value = argument.defaultValue().getArray(commandEvent);
+				}
 			}
-			Variables.setVariable(argument.name(), value, commandEvent, true);
+
+			if (value != null) {
+				if (!argument.isAutomaticName()) { // store explicitly named arguments as variables
+					setVariable(argument.name(), value, argument.isSingle(), commandEvent);
+				}
+			}
 		}
 		trigger.execute(commandEvent);
 

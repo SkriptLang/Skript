@@ -49,8 +49,7 @@ public class StructCommand extends Structure {
 	private static final AtomicBoolean SYNC_COMMANDS = new AtomicBoolean();
 
 	private static void performSync() {
-		if (SYNC_COMMANDS.get()) {
-			SYNC_COMMANDS.set(false);
+		if (SYNC_COMMANDS.getAndSet(false)) {
 			Bukkit.reloadData();
 		}
 	}

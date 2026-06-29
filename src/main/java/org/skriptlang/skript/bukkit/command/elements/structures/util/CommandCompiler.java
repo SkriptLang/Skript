@@ -441,6 +441,8 @@ final class CommandCompiler {
 				if (defaultValue == null) {
 					logHandler.printErrors("Can't understand this expression: '" + rawDefaultValue + "'."
 						+ " The default value will be ignored for this argument.");
+				} else if (!plural.plural() && !defaultValue.canBeSingle()) {
+					logHandler.printErrors("Expected a single value but got many: " + defaultValue.toString(null, false));
 				} else {
 					logHandler.printLog();
 				}

@@ -1,6 +1,8 @@
 package org.skriptlang.skript.bukkit.command.elements.structures.util;
 
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.registrations.Classes;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.arguments.ArgumentType;
@@ -30,14 +32,18 @@ import java.util.function.Supplier;
  * This is natively a {@link StringArgumentType} with conversion occurring during execution.
  * @param <T> The real type of the argument.
  */
-class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<T, String> {
+class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<Object, String> {
 
 	/**
 	 * Pre-defined mappings of types that are acceptable to map to other native argument types.
 	 */
 	public static final Map<Class<?>, Function<ArgumentData<?>, ArgumentType<?>>> ARGUMENT_TYPE_MAPPINGS = Map.of(
-		Boolean.class, ignored -> BoolArgumentType.bool(),
+		Boolean.class, data -> data.isSingle() ? BoolArgumentType.bool() : null,
 		Long.class, data -> {
+			if (!data.isSingle()) {
+				// TODO should error here if min/max is used
+				return null;
+			}
 			if (data.max() == null) {
 				if (data.min() == null) {
 					return LongArgumentType.longArg();
@@ -47,6 +53,9 @@ class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<T, Stri
 			return LongArgumentType.longArg((long) data.min(), (long) data.max());
 		},
 		Number.class, data -> {
+			if (!data.isSingle()) {
+				return null;
+			}
 			if (data.max() == null) {
 				if (data.min() == null) {
 					return DoubleArgumentType.doubleArg();
@@ -55,7 +64,7 @@ class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<T, Stri
 			}
 			return DoubleArgumentType.doubleArg((double) data.min(), (double) data.max());
 		},
-		Player.class, ignored -> ArgumentTypes.player()
+		Player.class, data -> data.isSingle() ? ArgumentTypes.player() : ArgumentTypes.players()
 	);
 
 	private static final Dynamic2CommandExceptionType ERROR_INVALID_INPUT = new Dynamic2CommandExceptionType(
@@ -76,25 +85,25 @@ class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<T, Stri
 		this.nativeType = nativeType;
 	}
 
-	public ArgumentData<T> getArgument() {
-		return argument;
-	}
-
 	@Override
-	public @NotNull T convert(@NotNull String input) throws CommandSyntaxException {
+	public @NotNull Object convert(@NotNull String input) throws CommandSyntaxException {
 		assert argument.type().getParser() != null;
 		input = input.replace('_', ' ');
-		T result = argument.type().getParser().parse(input, ParseContext.COMMAND);
-		if (result == null) {
-			if (argument.defaultValue() != null) { // attempt default value
-				//noinspection unchecked
-				result = (T) DEFAULT_VALUE_PLACEHOLDER;
-			}
-			if (result == null) {
-				throw ERROR_INVALID_INPUT.create(input, argument.type().getName().getSingular());
-			}
+
+		//noinspection unchecked
+		Literal<T> result = (Literal<T>) new SkriptParser(input, SkriptParser.PARSE_LITERALS, ParseContext.COMMAND)
+			.parseExpression(argument.type().getC());
+		if (result != null && argument.isSingle() && !result.canBeSingle()) { // provided many values but expected one
+			result = null;
 		}
-		return result;
+
+		if (result == null) {
+			if (argument.defaultValue() != null) { // use default value
+				return DEFAULT_VALUE_PLACEHOLDER;
+			}
+			throw ERROR_INVALID_INPUT.create(input, argument.type().getName().getSingular());
+		}
+		return argument.isSingle() ? result.getSingle() : result.getArray();
 	}
 
 	@Override

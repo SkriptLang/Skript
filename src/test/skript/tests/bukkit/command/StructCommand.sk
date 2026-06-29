@@ -24,6 +24,10 @@ parse:
 			trigger:
 				set {_a::*} to {_x::*} in lowercase
 
+command /test-args-plural <x: numbers>:
+	trigger:
+		set {-test-args-plural::*} to {_x::*}
+
 command {@command} <text> [<text>] [<itemtype = %dirt named "steve"%>]:
 	trigger:
 		set {_arg1} to arg-1
@@ -47,10 +51,15 @@ command /commandtest <string="player">:
 test "StructCommand":
 	# parsing
 	assert {-StructCommand::args::1::*} is "The argument name 'x' was already used."
-	# type hints
+	# parsing type hints
 	assert {-StructCommand::hints::1::*} is "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::1::*}%)"
 	assert {-StructCommand::hints::2::*} is "Expected variable '{_x::*}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::2::*}%)"
 
 	# execution
+	execute command "test-args-plural 10"
+	assert {-test-args-plural::*} is 10 with "single input to plural args did not work"
+	execute command "test-args-plural 10 and 2"
+	assert {-test-args-plural::*} is 10 and 2 with "plural input to plural args did not work"
+
 	execute command "skriptcommand taco"
 	execute command "//somecommand burrito is tasty"
