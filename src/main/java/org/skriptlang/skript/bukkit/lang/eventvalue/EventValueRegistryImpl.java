@@ -66,6 +66,12 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 		return false;
 	}
 
+	private <E extends Event, V> void cache(Input<E, ?> input, Resolution<E, V> resolution, boolean contextDependent) {
+		if (contextDependent)
+			return;
+		eventValuesCache.put(input, resolution);
+	}
+
 	@Override
 	public <E extends Event, V> Resolution<E, V> resolve(Class<E> eventClass, String identifier) {
 		return resolve(eventClass, identifier, EventValue.Time.NOW);
@@ -96,14 +102,15 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 			return resolution;
 
 		//noinspection unchecked
-		resolution = Resolver.<E, V>builder(eventClass)
+		var output = Resolver.<E, V>builder(eventClass)
 			.filter(ev -> ClassUtils.isRelatedTo(ev.eventClass(), eventClass) && ev.matchesInput(identifier))
 			.comparator(Resolver.EVENT_DISTANCE_COMPARATOR)
 			.mapper(ev -> (EventValue<E, V>) ev.getConverted(eventClass, ev.valueClass()))
 			.build().resolve(eventValues(time));
+		resolution = output.resolution();
 
-		if (resolution.successful()) {
-			eventValuesCache.put(input, resolution);
+		if (resolution.successful() || resolution.errored()) {
+			cache(input, resolution, output.contextDependent());
 			return resolution;
 		}
 
@@ -111,7 +118,7 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 			return resolve(eventClass, identifier, EventValue.Time.NOW, flags);
 
 		resolution = Resolution.empty();
-		eventValuesCache.put(input, resolution);
+		cache(input, resolution, output.contextDependent());
 		return resolution;
 	}
 
@@ -144,31 +151,36 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 		if (resolution != null)
 			return resolution;
 
-		resolution = resolveExact(eventClass, valueClass, time)
-			.anyOptional()
-			.map(eventValue -> Resolution.of(Collections.singletonList(eventValue)))
-			.orElse(Resolution.empty());
+		var output = Resolver.exact(eventClass, valueClass).resolve(eventValues(time));
+		resolution = output.resolution();
+
 		if (resolution.successful() || resolution.errored()) {
-			eventValuesCache.put(input, resolution);
+			cache(input, resolution, output.contextDependent());
 			return resolution;
 		}
 
-		resolution = resolveNearest(eventClass, valueClass, time);
+		output = resolveNearest(eventClass, valueClass, time);
+		resolution = output.resolution();
+
 		if (resolution.successful() || resolution.errored()) {
-			eventValuesCache.put(input, resolution);
+			cache(input, resolution, output.contextDependent());
 			return resolution;
 		}
 
 		if (flags.has(Flag.ALLOW_CONVERSION)) {
-			resolution = resolveWithDowncastConversion(eventClass, valueClass, time);
+			output = resolveWithDowncastConversion(eventClass, valueClass, time);
+			resolution = output.resolution();
+
 			if (resolution.successful() || resolution.errored()) {
-				eventValuesCache.put(input, resolution);
+				cache(input, resolution, output.contextDependent());
 				return resolution;
 			}
 
-			resolution = resolveWithConversion(eventClass, valueClass, time);
+			output = resolveWithConversion(eventClass, valueClass, time);
+			resolution = output.resolution();
+
 			if (resolution.successful() || resolution.errored()) {
-				eventValuesCache.put(input, resolution);
+				cache(input, resolution, output.contextDependent());
 				return resolution;
 			}
 		}
@@ -177,7 +189,6 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 			return resolve(eventClass, valueClass, EventValue.Time.NOW, flags);
 
 		resolution = Resolution.empty();
-		eventValuesCache.put(input, resolution);
 		return resolution;
 	}
 
@@ -187,17 +198,13 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 		Class<V> valueClass,
 		EventValue.Time time
 	) {
-		return Resolver.builder(eventClass, valueClass)
-			.filter(ev -> ev.eventClass().isAssignableFrom(eventClass) && ev.valueClass().equals(valueClass))
-			.comparator(Resolver.EVENT_DISTANCE_COMPARATOR)
-			.filterMatches()
-			.build().resolve(eventValues(time));
+		return Resolver.exact(eventClass, valueClass).resolve(eventValues(time)).resolution();
 	}
 
 	/**
 	 * Resolves to the nearest event and value class without conversion.
 	 */
-	private <E extends Event, V> Resolution<E, ? extends V> resolveNearest(
+	private <E extends Event, V> Resolver.Output<E, V> resolveNearest(
 		Class<E> eventClass,
 		Class<V> valueClass,
 		EventValue.Time time
@@ -214,7 +221,7 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 	 * Resolves using downcast conversion when the desired value class is a supertype
 	 * of the registered value class.
 	 */
-	private <E extends Event, V> Resolution<E, V> resolveWithDowncastConversion(
+	private <E extends Event, V> Resolver.Output<E, V> resolveWithDowncastConversion(
 		Class<E> eventClass,
 		Class<V> valueClass,
 		EventValue.Time time
@@ -233,7 +240,7 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 	/**
 	 * Resolves using {@link Converters} to convert value type when needed.
 	 */
-	private <E extends Event, V> Resolution<E, V> resolveWithConversion(
+	private <E extends Event, V> Resolver.Output<E, V> resolveWithConversion(
 		Class<E> eventClass,
 		Class<V> valueClass,
 		EventValue.Time time

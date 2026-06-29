@@ -36,7 +36,7 @@ public class TextModule extends HierarchicalAddonModule {
 		Comparators.registerComparator(Component.class, String.class, (component, string) -> {
 			TextComponentParser parser = TextComponentParser.instance();
 			String string1 = parser.toString(component);
-			String string2 = parser.toString(parser.parseSafe(string));
+			String string2 = parser.toString(parser.parse(string));
 			return Comparators.compare(string1, string2);
 		});
 		Comparators.registerComparator(Component.class, Component.class, (component1, component2) -> {

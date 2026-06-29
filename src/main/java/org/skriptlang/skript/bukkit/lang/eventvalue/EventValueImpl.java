@@ -36,6 +36,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 	private final Time time;
 	private final Collection<Class<? extends E>> excludedEvents;
 	private final @Nullable String excludedErrorMessage;
+	private final boolean contextDepenent;
 
 	private SkriptPattern[] compiledPatterns;
 
@@ -51,6 +52,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 		this.time = builder.time;
 		this.excludedEvents = builder.excludedEvents;
 		this.excludedErrorMessage = builder.excludedErrorMessage;
+		this.contextDepenent = builder.contextDependent;
 	}
 
 	@Override
@@ -154,6 +156,11 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 	}
 
 	@Override
+	public boolean contextDependent() {
+		return contextDepenent;
+	}
+
+	@Override
 	public boolean matches(EventValue<?, ?> eventValue) {
 		return matches(eventValue.eventClass(), eventValue.valueClass(), eventValue.patterns())
 			&& eventValue instanceof EventValueImpl<?,?> other
@@ -204,6 +211,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 		private Time time = Time.NOW;
 		private Collection<Class<? extends E>> excludedEvents = Collections.emptyList();
 		private @Nullable String excludedErrorMessage;
+		private boolean contextDependent = false;
 
 		BuilderImpl(Class<E> eventClass, Class<V> valueClass) {
 			this.eventClass = eventClass;
@@ -257,6 +265,12 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 		@Override
 		public Builder<E, V> excludedErrorMessage(String excludedErrorMessage) {
 			this.excludedErrorMessage = excludedErrorMessage;
+			return this;
+		}
+
+		@Override
+		public Builder<E, V> contextDependent() {
+			this.contextDependent = true;
 			return this;
 		}
 
