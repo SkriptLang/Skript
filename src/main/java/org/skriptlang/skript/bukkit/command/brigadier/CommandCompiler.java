@@ -249,6 +249,7 @@ public final class CommandCompiler {
 					if (pendingLiterals.isEmpty()) { // [<arg>] is valid
 						first.append(toAppend);
 					} else { // argument placed attached to literals, e.g. 'lit<arg>'
+						Skript.error("Literals cannot be placed directly next to arguments. Separate them with a space.");
 						return null;
 					}
 				} else {
@@ -277,6 +278,7 @@ public final class CommandCompiler {
 				choiceElement.appendEmpty();
 			} else if (c == '<') { // indicates an argument
 				if (!pendingLiterals.isEmpty()) { // an argument cannot be legally placed here (ex. 'lit<arg>')
+					Skript.error("Literals cannot be placed directly next to arguments. Separate them with a space.");
 					return null;
 				}
 
@@ -333,6 +335,9 @@ public final class CommandCompiler {
 	 */
 	private static List<LiteralCommandElement> appendToLiterals(Collection<LiteralCommandElement> literals,
 		Collection<LiteralCommandElement> elements) {
+		if (literals.isEmpty()) {
+			return new ArrayList<>(elements);
+		}
 		List<LiteralCommandElement> newLiterals = new ArrayList<>();
 		for (LiteralCommandElement literal : literals) {
 			if (literal == null) { // preserve optional marker (entire list is optional)
@@ -363,6 +368,7 @@ public final class CommandCompiler {
 	private static @Nullable ArgumentData<?> parseArgument(String argument, List<ArgumentData<?>> arguments) {
 		Matcher argumentMatcher = ARGUMENT_PATTERN.matcher(argument);
 		if (!argumentMatcher.find()) {
+			Skript.error("'" + argument + "' is not a properly formatted argument.");
 			return null;
 		}
 
@@ -387,12 +393,14 @@ public final class CommandCompiler {
 		if (typeMatcher.group(2) != null) { // has min
 			min = type.getParser().parse(typeMatcher.group(2), ParseContext.COMMAND);
 			if (min == null) {
+				Skript.error("Invalid minimum range: " + min);
 				return null;
 			}
 		}
 		if (typeMatcher.group(3) != null) { // has max
 			max = type.getParser().parse(typeMatcher.group(3), ParseContext.COMMAND);
 			if (max == null) {
+				Skript.error("Invalid maximum range: " + max);
 				return null;
 			}
 		}
@@ -434,6 +442,8 @@ public final class CommandCompiler {
 			if (rawDefaultValue.startsWith("%") && rawDefaultValue.endsWith("%")) {
 				parseType = SkriptParser.PARSE_EXPRESSIONS;
 				rawDefaultValue = rawDefaultValue.substring(1, rawDefaultValue.length() - 1);
+			} else if (type.getC() == String.class && rawDefaultValue.startsWith("\"") && rawDefaultValue.endsWith("\"")) {
+				parseType = SkriptParser.PARSE_EXPRESSIONS;
 			} else {
 				parseType = SkriptParser.PARSE_LITERALS;
 			}
