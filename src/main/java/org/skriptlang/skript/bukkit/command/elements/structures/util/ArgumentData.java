@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
  * @param defaultValue The default value of the argument, if specified.
  * @param <T> The type of the argument.
  */
-record ArgumentData<T>(
+public record ArgumentData<T>(
 	String name,
 	boolean isAutomaticName,
 	ClassInfo<T> type,

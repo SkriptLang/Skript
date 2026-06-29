@@ -10,6 +10,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.resolvers.ArgumentResolver;
 import org.bukkit.event.Event;
 
+import java.lang.reflect.Array;
 import java.util.List;
 import java.util.SequencedCollection;
 import java.util.Set;
@@ -54,7 +55,11 @@ class SkriptCommandExecutor {
 				if (value instanceof ArgumentResolver<?> argumentResolver) { // native type needs resolved
 					value = argumentResolver.resolve(context.getSource());
 					if (value instanceof SequencedCollection<?> collection) {
-						value = collection.getFirst();
+						if (argument.isSingle()) {
+							value = collection.getFirst();
+						} else {
+							value = collection.toArray((Object[]) Array.newInstance(argument.type().getC(), collection.size()));
+						}
 					}
 				} else if (value == SkriptBrigadierArgument.DEFAULT_VALUE_PLACEHOLDER) {
 					assert argument.defaultValue() != null;
@@ -73,6 +78,7 @@ class SkriptCommandExecutor {
 			}
 
 			if (value != null) {
+				commandEvent.arguments.put(argument, value);
 				if (!argument.isAutomaticName()) { // store explicitly named arguments as variables
 					setVariable(argument.name(), value, argument.isSingle(), commandEvent);
 				}

@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 
 public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandSourceStack, ?>>> {
 
-	private static final class CommandParsingData extends Data {
+	public static final class CommandParsingData extends Data {
 
 		public List<List<ArgumentData<?>>> arguments = new LinkedList<>();
 

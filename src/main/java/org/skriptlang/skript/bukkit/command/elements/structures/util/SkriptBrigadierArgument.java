@@ -17,6 +17,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -64,7 +65,8 @@ class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<Object,
 			}
 			return DoubleArgumentType.doubleArg((double) data.min(), (double) data.max());
 		},
-		Player.class, data -> data.isSingle() ? ArgumentTypes.player() : ArgumentTypes.players()
+		Player.class, data -> data.isSingle() ? ArgumentTypes.player() : ArgumentTypes.players(),
+		Entity.class, data -> data.isSingle() ? ArgumentTypes.entity() : ArgumentTypes.entities()
 	);
 
 	private static final Dynamic2CommandExceptionType ERROR_INVALID_INPUT = new Dynamic2CommandExceptionType(

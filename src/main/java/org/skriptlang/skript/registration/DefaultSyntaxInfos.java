@@ -31,7 +31,7 @@ public sealed interface DefaultSyntaxInfos permits SyntaxInfo {
 		 * @return A syntax info representing {@code type}.
 		 */
 		@Contract("_, _, _ , _-> new")
-		static <E extends ch.njol.skript.lang.Expression<R>, R> SyntaxInfo<E> simple(Class<E> expressionClass,
+		static <E extends ch.njol.skript.lang.Expression<R>, R> Expression<E, R> simple(Class<E> expressionClass,
 			Supplier<E> instanceSupplier, Class<R> returnType, String... patterns) {
 			return builder(expressionClass, returnType)
 				.supplier(instanceSupplier)
