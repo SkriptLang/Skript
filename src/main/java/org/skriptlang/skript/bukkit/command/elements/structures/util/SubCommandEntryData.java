@@ -5,8 +5,10 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.parser.ParserInstance.Data;
+import ch.njol.skript.variables.HintManager;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
@@ -22,7 +24,6 @@ import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.entry.util.TriggerEntryData;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -87,7 +88,6 @@ public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandS
 		// parse arguments
 		CommandParsingData parsingData = parser.getData(CommandParsingData.class);
 
-		List<ArgumentData<?>> arguments = new ArrayList<>();
 		CompilationResult compilationResult = CommandCompiler.compile(commandMatcher.group(1),
 			parsingData.arguments.stream()
 				.flatMap(List::stream)
@@ -103,16 +103,38 @@ public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandS
 			return null;
 		}
 
-		// parse execution trigger
-		Trigger execute = entryContainer.getOptional("trigger", Trigger.class, false);
-		boolean hasExecute = execute != null;
-		parser.deleteCurrentEvent();
-
-		// setup executor
-		parsingData.arguments.addLast(arguments);
+		// prepare arguments
+		parsingData.arguments.addLast(compilationResult.arguments());
 		List<ArgumentData<?>> allArguments = parsingData.arguments.stream()
 			.flatMap(List::stream)
 			.toList();
+
+		// parse execution trigger
+		HintManager hintManager = parser.getHintManager();
+		Trigger execute;
+		try {
+			// set type hints
+			hintManager.enterScope(false);
+			for (ArgumentData<?> argument : allArguments) {
+				String hintName = argument.name();
+				if (argument.isAutomaticName()) {
+					continue;
+				}
+				if (!argument.isSingle()) {
+					hintName += Variable.SEPARATOR + "*";
+				}
+				hintManager.set(hintName, argument.type().getC());
+			}
+
+			// parse trigger
+			execute = entryContainer.getOptional("trigger", Trigger.class, false);
+		} finally {
+			parser.deleteCurrentEvent();
+			hintManager.exitScope();
+		}
+		boolean hasExecute = execute != null;
+
+		// setup executor
 		SkriptCommandExecutor executor;
 		if (hasExecute) {
 			executor = new SkriptCommandExecutor(execute, allArguments);

@@ -4,21 +4,21 @@ options:
 	command: skriptcommand
 
 parse:
-	results: {StructCommand::args::1::*}
+	results: {-StructCommand::args::1::*}
 	code:
 		command /args_test_1 <x:number> <x:number>:
 			trigger:
 				stop
 
 parse:
-	results: {StructCommand::hints::1::*}
+	results: {-StructCommand::hints::1::*}
 	code:
 		command /hint_test_1 <x:number>:
 			trigger:
 				set {_a} to {_x} in lowercase
 
 parse:
-	results: {StructCommand::hints::2::*}
+	results: {-StructCommand::hints::2::*}
 	code:
 		command /hint_test_2 <x:numbers>:
 			trigger:
@@ -46,10 +46,10 @@ command /commandtest <string="player">:
 
 test "StructCommand":
 	# parsing
-	assert {StructCommand::args::1::*} is "The argument name 'x' was already used."
+	assert {-StructCommand::args::1::*} is "The argument name 'x' was already used."
 	# type hints
-	assert {StructCommand::hints::1::*} is "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::1::*}%)"
-	assert {StructCommand::hints::2::*} is "Expected variable '{_x::*}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::2::*}%)"
+	assert {-StructCommand::hints::1::*} is "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::1::*}%)"
+	assert {-StructCommand::hints::2::*} is "Expected variable '{_x::*}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::2::*}%)"
 
 	# execution
 	execute command "skriptcommand taco"

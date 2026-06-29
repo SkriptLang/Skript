@@ -448,7 +448,7 @@ final class CommandCompiler {
 		}
 
 		//noinspection unchecked, rawtypes
-		return new ArgumentData(name, isAutomaticName, type, defaultValue, min, max);
+		return new ArgumentData(name, isAutomaticName, type, !plural.plural(), defaultValue, min, max);
 	}
 
 }
