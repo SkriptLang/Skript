@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.registration;
 
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
-import ch.njol.skript.lang.SyntaxElement;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfosImpl.EventImpl;
@@ -43,7 +42,7 @@ public final class BukkitSyntaxInfos {
 		 * @return A syntax info representing {@code type}.
 		 */
 		@Contract("_, _, _, _, _ -> new")
-		static <E extends SkriptEvent> SyntaxInfo<E> simple(Class<E> eventClass, Supplier<E> instanceSupplier,
+		static <E extends SkriptEvent> Event<E> simple(Class<E> eventClass, Supplier<E> instanceSupplier,
 			String name, Class<? extends org.bukkit.event.Event> bukkitEventClass, String... patterns) {
 			return builder(eventClass, name)
 				.supplier(instanceSupplier)
@@ -187,7 +186,7 @@ public final class BukkitSyntaxInfos {
 			 * @return This builder.
 			 * @see Event#since()
 			 */
-			@Contract("_ -> this")
+			@Contract("-> this")
 			B clearSince();
 
 			/**
