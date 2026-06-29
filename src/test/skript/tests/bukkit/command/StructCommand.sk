@@ -4,6 +4,18 @@ options:
 	command: skriptcommand
 
 parse:
+	results: {-StructCommand::entries::1::*}
+	code:
+		command /entries_test_1:
+			executable by: players
+			trigger:
+				stop
+			subcommand test:
+				executable by: console
+				trigger:
+					stop
+
+parse:
 	results: {-StructCommand::args::1::*}
 	code:
 		command /args_test_1 <x:number> <x:number>:
@@ -57,6 +69,7 @@ command /commandtest <string="player">:
 
 test "StructCommand":
 	# parsing
+	assert {-StructCommand::entries::1::*} is "It is not possible to restrict execution to the console as the parent command is only executable by players."
 	assert {-StructCommand::args::1::*} is "The argument name 'x' was already used."
 	# parsing type hints
 	assert {-StructCommand::hints::1::*} is "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::1::*}%)"

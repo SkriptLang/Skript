@@ -21,6 +21,7 @@ import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,14 +39,22 @@ public class StructCommand extends Structure {
 
 		Skript.getInstance().getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,commands -> {
 			var registrar = commands.registrar();
-			COMMANDS.forEach(registrar::register);
+			for (var registration : COMMANDS) {
+				registrar.register(registration.node, registration.description, registration.aliases);
+			}
 		});
 	}
 
 	private static final SubCommandEntryData ROOT_ENTRY_DATA =
 		new SubCommandEntryData("command", false, false);
 
-	private static final Set<LiteralCommandNode<CommandSourceStack>> COMMANDS = ConcurrentHashMap.newKeySet();
+	private record CommandRegistration(
+		LiteralCommandNode<CommandSourceStack> node,
+		List<String> aliases,
+		String description
+	) { }
+
+	private static final Set<CommandRegistration> COMMANDS = ConcurrentHashMap.newKeySet();
 	private static final AtomicBoolean SYNC_COMMANDS = new AtomicBoolean();
 
 	private static void performSync() {
@@ -55,7 +64,7 @@ public class StructCommand extends Structure {
 	}
 
 	private SectionNode rootNode;
-	private LiteralCommandNode<CommandSourceStack> command;
+	private CommandRegistration command;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
@@ -65,15 +74,15 @@ public class StructCommand extends Structure {
 
 	@Override
 	public boolean load() {
-		var command = ROOT_ENTRY_DATA.getValue(rootNode);
-		if (command == null) {
+		var result = ROOT_ENTRY_DATA.getValue(rootNode);
+		if (result == null) { // parsing failed, entry will have emitted a specific error message
 			return false;
 		}
-		if (command.size() != 1 || !(command.getFirst().build() instanceof LiteralCommandNode<CommandSourceStack> commandNode)) {
+		if (result.arguments().size() != 1 || !(result.arguments().getFirst().build() instanceof LiteralCommandNode<CommandSourceStack> node)) {
 			Skript.error("A command must have a name.");
 			return false;
 		}
-		this.command = commandNode;
+		this.command = new CommandRegistration(node, result.aliases(), result.description());
 		// TODO validate whether command already exists
 
 		COMMANDS.add(this.command);

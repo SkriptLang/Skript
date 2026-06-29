@@ -13,10 +13,12 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.command.brigadier.ArgumentData;
 import org.skriptlang.skript.bukkit.command.brigadier.CommandCompiler;
 import org.skriptlang.skript.bukkit.command.brigadier.CommandParsingData;
+import org.skriptlang.skript.bukkit.command.brigadier.ExecutorData;
 import org.skriptlang.skript.bukkit.command.brigadier.ScriptCommandEvent;
 import org.skriptlang.skript.bukkit.command.brigadier.CommandCompiler.ArgumentCommandElement;
 import org.skriptlang.skript.bukkit.command.brigadier.CommandCompiler.CommandElement;
@@ -24,24 +26,79 @@ import org.skriptlang.skript.bukkit.command.brigadier.CommandCompiler.Compilatio
 import org.skriptlang.skript.bukkit.command.brigadier.CommandCompiler.LiteralCommandElement;
 import org.skriptlang.skript.bukkit.command.brigadier.SkriptBrigadierArgument;
 import org.skriptlang.skript.bukkit.command.brigadier.SkriptCommandExecutor;
+import org.skriptlang.skript.bukkit.command.elements.structures.util.SubCommandEntryData.Result;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
+import org.skriptlang.skript.lang.entry.KeyValueEntryData;
 import org.skriptlang.skript.lang.entry.util.TriggerEntryData;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandSourceStack, ?>>> {
+public class SubCommandEntryData extends EntryData<Result> {
+
+	public record Result(
+		List<ArgumentBuilder<CommandSourceStack, ?>> arguments,
+		List<String> aliases,
+		String description
+	) { }
+
+	private static final Predicate<CommandSender> TRUE_PREDICATE = ignored -> true;
 
 	private static final Pattern COMMAND_PATTERN =
 		Pattern.compile("(?i)^\\s*/?\\s*(.+)?$");
 
 	public static final EntryValidator SUB_COMMAND_VALIDATOR = EntryValidator.builder()
+		.addEntryData(new KeyValueEntryData<List<String>>("aliases", null, true) {
+			private final Pattern pattern = Pattern.compile("\\s*,\\s*/?");
+
+			@Override
+			protected List<String> getValue(String value) {
+				List<String> aliases = new ArrayList<>(Arrays.asList(pattern.split(value)));
+				String first = aliases.getFirst();
+				if (first.startsWith("/")) { // not caught by regex
+					aliases.set(0, first.substring(1));
+				} else if (first.isEmpty()) {
+					Skript.error("Invalid aliases list: '" + value + "'. Aliases should be separated by commas.");
+					return List.of();
+				}
+				return aliases;
+			}
+		})
+		.addEntry("description", "", true)
+		.addEntry("permission", null, true)
+		.addEntryData(new KeyValueEntryData<ExecutorData.ExecutableBy>("executable by", null, true) {
+			private final Pattern pattern = Pattern.compile("\\s*,\\s*|\\s+(and|or)\\s+");
+
+			@Override
+			protected ExecutorData.ExecutableBy getValue(String value) {
+				ExecutorData.ExecutableBy executableBy = ExecutorData.ExecutableBy.NONE;
+				for (String type : pattern.split(value)) {
+					if (type.equalsIgnoreCase("console") || type.equalsIgnoreCase("the console")) {
+						executableBy = executableBy.with(ExecutorData.ExecutableBy.CONSOLE);
+					} else if (type.equalsIgnoreCase("players") || type.equalsIgnoreCase("player")) {
+						executableBy = executableBy.with(ExecutorData.ExecutableBy.PLAYERS);
+					} else {
+						Skript.error("Invalid command sender type: " + type);
+						return ExecutorData.ExecutableBy.NONE;
+					}
+				}
+				return executableBy;
+			}
+		})
 		.addEntryData(new TriggerEntryData("trigger", null, true))
 		.addEntryData(new SubCommandEntryData("subcommand", true, true))
+		// deprecated entries
+		.addEntry("usage", null, true)
+		.addEntry("prefix", null, true)
+		.addEntry("permission message", null, true)
 		.build();
 
 	static {
@@ -53,7 +110,7 @@ public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandS
 	}
 
 	@Override
-	public @Nullable List<ArgumentBuilder<CommandSourceStack, ?>> getValue(Node node) {
+	public @Nullable Result getValue(Node node) {
 		assert node instanceof SectionNode;
 
 		// validate section node structure
@@ -81,12 +138,13 @@ public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandS
 
 		// parse arguments
 		CommandParsingData parsingData = parser.getData(CommandParsingData.class);
+		boolean isRoot = parsingData.isEmpty();
 
 		CompilationResult compilationResult = CommandCompiler.compile(commandMatcher.group(1), parsingData.getArguments());
 		if (compilationResult == null) { // failed for a reason reported by the compiler
 			return null;
 		} else if (compilationResult.root().isLeaf()) {
-			if (parsingData.getArguments().isEmpty()) {
+			if (isRoot) {
 				Skript.error("A command must have a name.");
 			} else {
 				Skript.error("A subcommand must have at least one argument, literal or dynamic.");
@@ -97,6 +155,70 @@ public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandS
 		// prepare arguments
 		parsingData.pushArguments(compilationResult.arguments());
 		List<ArgumentData<?>> allArguments = parsingData.getArguments();
+
+		// prepare entries
+		// command aliases
+		List<String> aliases = entryContainer.getOptional("aliases", List.class, false);
+		if (aliases == null) {
+			aliases = List.of();
+		} else if (aliases.isEmpty()) { // parsing failed
+			return null;
+		} else if (!isRoot) {
+			Skript.error("Only the root of a command may have aliases.");
+			return null;
+		}
+
+		// command description
+		String description = entryContainer.get("description", String.class, true);
+		if (!isRoot && !description.isEmpty()) {
+			Skript.error("Only the root of a command may have a description.");
+			return null;
+		}
+
+		// command requirements
+		Predicate<CommandSender> requires = TRUE_PREDICATE;
+
+		// permission requirement
+		String permission = entryContainer.getOptional("permission", String.class, false);
+		if (permission != null) {
+			requires = requires.and(sender -> sender.hasPermission(permission));
+		}
+
+		// executable by requirement
+		ExecutorData.ExecutableBy executableBy = entryContainer.getOptional("executable by", ExecutorData.ExecutableBy.class, false);
+		if (executableBy != null) {
+			if (executableBy == ExecutorData.ExecutableBy.NONE) { // parsing failed
+				return null;
+			}
+			ExecutorData.ExecutableBy parent = parsingData.getExecutorData(ExecutorData::executableBy);
+			if (parent != null && !parent.includes(executableBy)) {
+				Skript.error("It is not possible to restrict execution to " + executableBy +
+					" as the parent command is only executable by " + parent + ".");
+			}
+		}
+
+		// prepare final requirements predicate
+		Predicate<CommandSourceStack> commandRequires;
+		if (requires != TRUE_PREDICATE) {
+			final Predicate<CommandSender> finalRequires = requires;
+			commandRequires = source -> finalRequires.test(source.getSender());
+		} else {
+			commandRequires = null;
+		}
+
+		// handle deprecated entries
+		if (entryContainer.hasEntry("usage")) {
+			ScriptWarning.printDeprecationWarning("The 'usage' entry has been deprecated for removal in a future release." +
+				" Incorrect command usage is now handled by the client's command validator.");
+		}
+		if (entryContainer.hasEntry("prefix")) {
+			ScriptWarning.printDeprecationWarning("The 'prefix' entry has been deprecated for removal in a future release." +
+				" It is no longer possible to modify the prefix (namespace) of a command.");
+		}
+		if (entryContainer.hasEntry("permission message")) {
+			ScriptWarning.printDeprecationWarning("The 'permission message' entry has been deprecated for removal in a future release." +
+				" Commands that a player does not have permission to execute are no longer sent to their client.");
+		}
 
 		// parse execution trigger
 		HintManager hintManager = parser.getHintManager();
@@ -130,24 +252,29 @@ public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandS
 		} else {
 			executor = null;
 		}
+		parsingData.pushExecutorData(new ExecutorData(executor, executableBy, permission));
 
 		// attach subcommand pieces
 		// TODO verify error behavior...
-		//noinspection unchecked
 		List<ArgumentBuilder<CommandSourceStack, ?>> subcommands =
-			entryContainer.getAll("subcommand", List.class, false).stream()
-				.flatMap(List::stream)
+			entryContainer.getAll("subcommand", Result.class, false).stream()
+				.flatMap(result -> result.arguments().stream())
 				.toList();
 		if (subcommands.isEmpty() && !hasExecute) {
 			Skript.error("You must have a 'trigger' entry if there are no subcommands!");
 			return null;
 		}
+
+		//noinspection rawtypes
+		var result = (List) compilationResult.root().children().stream()
+			.map(child -> parse(child, executor, commandRequires, subcommands))
+			.toList();
+
+		parsingData.popExecutorData();
 		parsingData.popArguments();
 
-		//noinspection rawtypes, unchecked
-		return (List) compilationResult.root().children().stream()
-			.map(child -> parse(child, executor, subcommands))
-			.toList();
+		//noinspection unchecked
+		return new Result(result, aliases, description);
 	}
 
 	@Override
@@ -163,8 +290,12 @@ public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandS
 		return key.regionMatches(true, 0, prefix, 0, prefix.length());
 	}
 
-	private static ArgumentBuilder<CommandSourceStack, ?> parse(CommandElement commandElement,
-		@Nullable SkriptCommandExecutor executor, Collection<ArgumentBuilder<CommandSourceStack, ?>> subcommands) {
+	private static ArgumentBuilder<CommandSourceStack, ?> parse(
+		CommandElement commandElement,
+		@Nullable SkriptCommandExecutor executor,
+		@Nullable Predicate<CommandSourceStack> requires,
+		Collection<ArgumentBuilder<CommandSourceStack, ?>> subcommands
+	) {
 		Collection<CommandElement> children = commandElement.children();
 
 		ArgumentBuilder<CommandSourceStack, ?> argument;
@@ -194,8 +325,9 @@ public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandS
 			if (element == null) {
 				continue;
 			}
-			argument.then(parse(element, executor, subcommands));
+			argument.then(parse(element, executor, requires, subcommands));
 		}
+
 		// this is intentionally placed AFTER iterating over the children
 		// for conflicting command arguments, the argument at this level should be preferred over a subcommand's argument
 		// TODO there is actually more complexity here to handle
@@ -207,6 +339,9 @@ public class SubCommandEntryData extends EntryData<List<ArgumentBuilder<CommandS
 			}
 			if (executor != null) {
 				argument.executes(executor::execute);
+			}
+			if (requires != null) {
+				argument.requires(requires);
 			}
 		}
 
