@@ -25,7 +25,6 @@ allprojects {
 }
 
 dependencies {
-	shadow group: 'io.papermc', name: 'paperlib', version: '1.0.8'
 	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.2.1'
 
 	implementation group: 'io.papermc.paper', name: 'paper-api', version: '26.1.2.build.+'
@@ -101,11 +100,9 @@ tasks.withType(ShadowJar).configureEach {
 		project.configurations.shadow
 	]
 	dependencies {
-		include(dependency('io.papermc:paperlib'))
 		include(dependency('org.bstats:bstats-bukkit'))
 		include(dependency('org.bstats:bstats-base'))
 	}
-	relocate 'io.papermc.lib', 'ch.njol.skript.paperlib'
 	relocate 'org.bstats', 'ch.njol.skript.bstats'
 	manifest {
 		attributes(

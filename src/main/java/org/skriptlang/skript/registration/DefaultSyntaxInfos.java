@@ -6,6 +6,8 @@ import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.registration.DefaultSyntaxInfosImpl.ExpressionImpl;
 import org.skriptlang.skript.registration.DefaultSyntaxInfosImpl.StructureImpl;
 
+import java.util.function.Supplier;
+
 /**
  * Contains interfaces describing syntax infos for specific types of syntax.
  */
@@ -18,6 +20,24 @@ public sealed interface DefaultSyntaxInfos permits SyntaxInfo {
 	 * @param <R> The type of the return type of the Expression.
 	 */
 	interface Expression<E extends ch.njol.skript.lang.Expression<R>, R> extends SyntaxInfo<E> {
+
+		/**
+		 * Constructs a simple {@link ch.njol.skript.lang.Expression} syntax info for a class
+		 *  from return type information and patterns.
+		 * @param expressionClass The Expression class the info will represent.
+		 * @param instanceSupplier A supplier for creating new instances of {@code type}.
+		 * @param returnType The class representing the supertype of all values the Expression may return.
+		 * @param patterns Patterns describing the syntax.
+		 * @return A syntax info representing {@code type}.
+		 */
+		@Contract("_, _, _ , _-> new")
+		static <E extends ch.njol.skript.lang.Expression<R>, R> SyntaxInfo<E> simple(Class<E> expressionClass,
+			Supplier<E> instanceSupplier, Class<R> returnType, String... patterns) {
+			return builder(expressionClass, returnType)
+				.supplier(instanceSupplier)
+				.addPatterns(patterns)
+				.build();
+		}
 
 		/**
 		 * Constructs a builder for an expression syntax info.
@@ -107,6 +127,22 @@ public sealed interface DefaultSyntaxInfos permits SyntaxInfo {
 				return this != SIMPLE;
 			}
 
+		}
+
+		/**
+		 * Constructs a simple {@link org.skriptlang.skript.lang.structure.Structure} syntax info for a class from patterns.
+		 * @param structureClass The Structure class the info will represent.
+		 * @param instanceSupplier A supplier for creating new instances of {@code type}.
+		 * @param patterns Patterns describing the syntax.
+		 * @return A syntax info representing {@code type}.
+		 */
+		@Contract("_, _, _ -> new")
+		static <E extends org.skriptlang.skript.lang.structure.Structure> SyntaxInfo<E> simple(Class<E> structureClass,
+			Supplier<E> instanceSupplier, String... patterns) {
+			return builder(structureClass)
+				.supplier(instanceSupplier)
+				.addPatterns(patterns)
+				.build();
 		}
 
 		/**
