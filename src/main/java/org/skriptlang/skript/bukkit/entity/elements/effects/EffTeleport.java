@@ -1,8 +1,9 @@
-package ch.njol.skript.effects;
+package org.skriptlang.skript.bukkit.entity.elements.effects;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
+import org.skriptlang.skript.bukkit.entity.types.TeleportFlagClassInfo.SkriptTeleportFlag;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.effects.Delay;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.sections.EffSecSpawn.SpawnEvent;
@@ -10,29 +11,25 @@ import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
-import io.papermc.lib.PaperLib;
-import io.papermc.lib.environments.PaperEnvironment;
 import io.papermc.paper.entity.TeleportFlag;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.util.Arrays;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 @Name("Teleport")
-@Description({
-	"Teleport an entity to a specific location. ",
-	"This effect is delayed by default on Paper, meaning certain syntax such as the return effect for functions cannot be used after this effect.",
-	"The keyword 'force' indicates this effect will not be delayed, ",
-	"which may cause lag spikes or server crashes when using this effect to teleport entities to unloaded chunks.",
-	"Teleport flags are settings to retain during a teleport. Such as direction, passengers, x coordinate, etc."
-})
+@Description("""
+	Teleport an entity to a specific location.
+	This effect is delayed by default, as it waits for the chunk of the location to be loaded before teleporting.
+	The keyword 'force' may be used to bypass this behavior (preventing the delay), but note that it may cause lag spikes or other server performance issues when teleporting to unloaded chunks.
+	Teleport flags are properties to retain during a teleport, such as direction, passengers, and velocities.
+	""")
 @Example("teleport the player to {home::%uuid of player%}")
 @Example("teleport the attacker to the victim")
 @Example("""
@@ -43,37 +40,36 @@ import java.util.stream.Stream;
 @Since("1.0, 2.10 (flags)")
 public class EffTeleport extends Effect {
 
-	private static final boolean TELEPORT_FLAGS_SUPPORTED = Skript.classExists("io.papermc.paper.entity.TeleportFlag");
-	private static final boolean CAN_RUN_ASYNC = PaperLib.getEnvironment() instanceof PaperEnvironment;
-
-	static {
-		String extra = "";
-		if (TELEPORT_FLAGS_SUPPORTED)
-			extra = " [[while] retaining %-teleportflags%]";
-		Skript.registerEffect(EffTeleport.class, "[:force] teleport %entities% (to|%direction%) %location%" + extra);
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffTeleport.class)
+			.supplier(EffTeleport::new)
+			.addPattern("[:force] teleport %entities% (to|%direction%) %location% [[while] retaining %-teleportflags%]")
+			.build());
 	}
 
-	private @Nullable Expression<SkriptTeleportFlag> teleportFlags;
+	private boolean async;
 	private Expression<Entity> entities;
 	private Expression<Location> location;
-	private boolean async;
+	private @Nullable Expression<SkriptTeleportFlag> teleportFlags;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		entities = (Expression<Entity>) exprs[0];
-		location = Direction.combine((Expression<? extends Direction>) exprs[1], (Expression<? extends Location>) exprs[2]);
-		async = CAN_RUN_ASYNC && !parseResult.hasTag("force");
-		if (TELEPORT_FLAGS_SUPPORTED)
-			teleportFlags = (Expression<SkriptTeleportFlag>) exprs[3];
-
 		if (getParser().isCurrentEvent(SpawnEvent.class)) {
 			Skript.error("You cannot teleport an entity that hasn't spawned yet. Ensure you're using the location expression from the spawn section pattern.");
 			return false;
 		}
 
-		if (async)
-			getParser().setHasDelayBefore(Kleenean.UNKNOWN); // UNKNOWN because it isn't async if the chunk is already loaded.
+		async = !parseResult.hasTag("force");
+		entities = (Expression<Entity>) exprs[0];
+		location = Direction.combine((Expression<? extends Direction>) exprs[1], (Expression<? extends Location>) exprs[2]);
+		teleportFlags = (Expression<SkriptTeleportFlag>) exprs[3];
+
+		if (async) {
+			// UNKNOWN because it isn't async if the chunk is already loaded
+			getParser().setHasDelayBefore(Kleenean.UNKNOWN);
+		}
+
 		return true;
 	}
 
@@ -82,21 +78,19 @@ public class EffTeleport extends Effect {
 		debug(event, true);
 		TriggerItem next = getNext();
 
-		boolean delayed = Delay.isDelayed(event);
 		Location location = this.location.getSingle(event);
 		if (location == null)
 			return next;
 		boolean unknownWorld = !location.isWorldLoaded();
 
-		Entity[] entityArray = entities.getArray(event); // We have to fetch this before possible async execution to avoid async local variable access.
+		Entity[] entityArray = entities.getArray(event);
 		if (entityArray.length == 0)
 			return next;
 
-		if (!delayed) {
+		if (!Delay.isDelayed(event)) { // specific behavior for integration with certain events
 			if (event instanceof PlayerRespawnEvent playerRespawnEvent && entityArray.length == 1 && entityArray[0].equals(playerRespawnEvent.getPlayer())) {
-				if (unknownWorld)
-					return next;
-				playerRespawnEvent.setRespawnLocation(location);
+				if (!unknownWorld)
+					playerRespawnEvent.setRespawnLocation(location);
 				return next;
 			}
 
@@ -109,6 +103,7 @@ public class EffTeleport extends Effect {
 				return next;
 			}
 		}
+
 		if (unknownWorld) { // we can't fetch the chunk without a world
 			if (entityArray.length == 1) { // if there's 1 thing we can borrow its world
 				Entity entity = entityArray[0];
@@ -122,24 +117,28 @@ public class EffTeleport extends Effect {
 			}
 		}
 
+		final TeleportFlag[] teleportFlags;
+		if (this.teleportFlags == null) {
+			teleportFlags = new TeleportFlag[0];
+		} else {
+			teleportFlags = this.teleportFlags.stream(event)
+				.flatMap(teleportFlag -> Stream.of(teleportFlag.getTeleportFlags()))
+				.toArray(TeleportFlag[]::new);
+		}
+
 		if (!async) {
-			SkriptTeleportFlag[] teleportFlags = this.teleportFlags == null ? null : this.teleportFlags.getArray(event);
 			for (Entity entity : entityArray) {
-				teleport(entity, location, teleportFlags);
+				entity.teleport(location, teleportFlags);
 			}
 			return next;
 		}
 
 		final Location fixed = location;
 		Object localVars = Variables.removeLocals(event);
-
-		// This will either fetch the chunk instantly if on Spigot or already loaded or fetch it async if on Paper.
-		PaperLib.getChunkAtAsync(location).thenAccept(chunk -> {
+		fixed.getWorld().getChunkAtAsync(fixed).thenAccept(ignored -> {
 			Delay.addDelayedEvent(event);
-			// The following is now on the main thread
-			SkriptTeleportFlag[] teleportFlags = this.teleportFlags == null ? null : this.teleportFlags.getArray(event);
 			for (Entity entity : entityArray) {
-				teleport(entity, fixed, teleportFlags);
+				entity.teleport(fixed, teleportFlags);
 			}
 
 			// Re-set local variables
@@ -161,6 +160,7 @@ public class EffTeleport extends Effect {
 			Variables.removeLocals(event); // Clean up local vars, we may be exiting now
 			SkriptTimings.stop(timing);
 		});
+
 		return null;
 	}
 
@@ -171,28 +171,10 @@ public class EffTeleport extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug)
-				.append("teleport", entities, "to", location);
-		if (teleportFlags != null)
-			builder.append("retaining", teleportFlags);
-		return builder.toString();
-	}
-
-	private void teleport(@NotNull Entity entity, @NotNull Location location, SkriptTeleportFlag... skriptTeleportFlags) {
-		if (location.getWorld() == null) {
-			location = location.clone();
-			location.setWorld(entity.getWorld());
-		}
-
-		if (!TELEPORT_FLAGS_SUPPORTED || skriptTeleportFlags == null) {
-			entity.teleport(location);
-			return;
-		}
-
-		Stream<TeleportFlag> teleportFlags = Arrays.stream(skriptTeleportFlags)
-				.flatMap(teleportFlag -> Stream.of(teleportFlag.getTeleportFlags()))
-				.filter(Objects::nonNull);
-		entity.teleport(location, teleportFlags.toArray(TeleportFlag[]::new));
+		return new SyntaxStringBuilder(event, debug)
+			.append("teleport", entities, "to", location)
+			.appendIf(teleportFlags != null, "retaining", teleportFlags)
+			.toString();
 	}
 
 }

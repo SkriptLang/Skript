@@ -5,15 +5,24 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.command.Commands;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.util.BlockUtils;
 import ch.njol.yggdrasil.Fields;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.DoubleChest;
+import org.bukkit.entity.Entity;
+import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.WXYZHandler;
 import org.skriptlang.skript.lang.properties.handlers.base.PropertyHandler;
@@ -41,6 +50,26 @@ public class LocationClassInfo extends ClassInfo<Location> {
 				"The X, Y, or Z coordinate of the location.",
 				Skript.instance(),
 				new LocationWXYZHandler());
+
+		Converters.registerConverter(OfflinePlayer.class, Location.class, OfflinePlayer::getLocation);
+		Converters.registerConverter(Block.class, Location.class, BlockUtils::getLocation, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
+		Converters.registerConverter(Entity.class, Location.class, Entity::getLocation, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
+		Converters.registerConverter(InventoryHolder.class, Location.class, holder -> {
+			if (holder instanceof Entity entity)
+				return entity.getLocation();
+			if (holder instanceof Block block)
+				return block.getLocation();
+			if (holder instanceof BlockState state)
+				return BlockUtils.getLocation(state.getBlock());
+			if (holder instanceof DoubleChest doubleChest) {
+				if (doubleChest.getLeftSide() != null) {
+					return BlockUtils.getLocation(((BlockState) doubleChest.getLeftSide()).getBlock());
+				} else if (doubleChest.getRightSide() != null) {
+					return BlockUtils.getLocation(((BlockState) doubleChest.getRightSide()).getBlock());
+				}
+			}
+			return null;
+		});
 
 	}
 

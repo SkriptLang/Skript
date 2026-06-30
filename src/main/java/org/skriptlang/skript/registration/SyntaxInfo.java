@@ -38,6 +38,21 @@ public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends DefaultS
 	Priority PATTERN_MATCHES_EVERYTHING = Priority.after(COMBINED);
 
 	/**
+	 * Constructs a simple syntax info for a class from patterns.
+	 * @param type The syntax class the info will represent.
+	 * @param instanceSupplier A supplier for creating new instances of {@code type}.
+	 * @param patterns Patterns describing the syntax.
+	 * @return A syntax info representing {@code type}.
+	 */
+	@Contract("_, _, _ -> new")
+	static <E extends SyntaxElement> SyntaxInfo<E> simple(Class<E> type, Supplier<E> instanceSupplier, String... patterns) {
+		return builder(type)
+			.supplier(instanceSupplier)
+			.addPatterns(patterns)
+			.build();
+	}
+
+	/**
 	 * Constructs a builder for a syntax info.
 	 * @param type The syntax class the info will represent.
 	 * @return A builder for creating a syntax info representing <code>type</code>.
