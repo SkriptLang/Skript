@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.breeding.elements.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -36,6 +37,18 @@ public class CondCanBreed extends PropertyCondition<LivingEntity> {
 	@Override
 	public boolean check(LivingEntity entity) {
 		return entity instanceof Breedable breedable && breedable.canBreed();
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(LivingEntity entity, boolean breed, ChangeMode mode) {
+		if (entity instanceof Breedable breedable) {
+			breedable.setBreed(breed);
+		}
 	}
 
 	@Override

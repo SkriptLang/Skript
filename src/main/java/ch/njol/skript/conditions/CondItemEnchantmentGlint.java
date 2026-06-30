@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import ch.njol.skript.Skript;
@@ -9,6 +10,9 @@ import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 @Name("Item Has Enchantment Glint Override")
 @Description("Checks whether an item has the enchantment glint overridden, or is forced to glint or not.")
@@ -30,38 +34,59 @@ public class CondItemEnchantmentGlint extends PropertyCondition<ItemType> {
 
 	static {
 		if (Skript.methodExists(ItemMeta.class, "getEnchantmentGlintOverride")) {
-			register(CondItemEnchantmentGlint.class, PropertyType.HAVE, "enchantment glint overrid(den|e)", "itemtypes");
-			register(CondItemEnchantmentGlint.class, PropertyType.BE, "forced to [:not] glint", "itemtypes");
+			Skript.registerCondition(CondItemEnchantmentGlint.class, Stream.concat(
+				Arrays.stream(getPatterns(PropertyType.HAVE, "enchantment glint overrid(den|e)", "itemtypes")),
+				Arrays.stream(getPatterns(PropertyType.BE, "forced to [:not] glint", "itemtypes"))
+			).toArray(String[]::new));
 		}
 	}
 
-	private int matchedPattern;
-	private boolean glint;
+	private boolean override;
+	private boolean glintNegated;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		this.matchedPattern = matchedPattern;
-		glint = !parseResult.hasTag("not");
-		return super.init(expressions, matchedPattern, isDelayed, parseResult);
+		override = matchedPattern <= 1;
+		glintNegated = parseResult.hasTag("not");
+		//noinspection unchecked
+		setExpr((Expression<? extends ItemType>) expressions[0]);
+		setNegated(matchedPattern % 2 == 1);
+		return true;
 	}
 
 	@Override
 	public boolean check(ItemType itemType) {
 		ItemMeta meta = itemType.getItemMeta();
 		// enchantment glint override
-		if (matchedPattern == 0)
+		if (override)
 			return meta.hasEnchantmentGlintOverride();
 		// forced to glint
 		if (!meta.hasEnchantmentGlintOverride())
 			return false;
-		return meta.getEnchantmentGlintOverride();
+		return meta.getEnchantmentGlintOverride() != glintNegated;
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(ItemType itemType, boolean glint, ChangeMode mode) {
+		ItemMeta meta = itemType.getItemMeta();
+		if (override) {
+			meta.setEnchantmentGlintOverride(glint ? true : null);
+		} else {
+			meta.setEnchantmentGlintOverride(glint != glintNegated);
+		}
+		itemType.setItemMeta(meta);
 	}
 
 	@Override
 	protected String getPropertyName() {
-		if (matchedPattern == 0)
+		if (override)
 			return "enchantment glint overridden";
-		return "forced to " + (glint ? "" : "not ") + "glint";
+		return "forced to " + (glintNegated ? "not " : "") + "glint";
 	}
 
 }

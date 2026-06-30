@@ -1,0 +1,14 @@
+test "CondPandaIsOnBack":
+	spawn a panda at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} is on its back to true
+	assert {_entity} is on its back with "setting to true failed"
+	set whether {_entity} is on its back to false
+	assert {_entity} is not on its back with "setting to false failed"
+	set whether {_entity} is not on its back to false
+	assert {_entity} is on its back with "(negated) setting to true failed"
+	set whether {_entity} is not on its back to true
+	assert {_entity} is not on its back with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

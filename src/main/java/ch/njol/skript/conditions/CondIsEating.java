@@ -1,6 +1,7 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.*;
 import org.bukkit.entity.AbstractHorse;
@@ -30,6 +31,20 @@ public class CondIsEating extends PropertyCondition<LivingEntity> {
 			return horse.isEating();
 		}
 		return false;
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(LivingEntity entity, boolean eating, ChangeMode mode) {
+		if (entity instanceof Panda panda) {
+			panda.setEating(eating);
+		} else if (SUPPORTS_HORSES && entity instanceof AbstractHorse horse) {
+			horse.setEating(eating);
+		}
 	}
 
 	@Override

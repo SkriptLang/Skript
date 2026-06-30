@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -20,6 +21,16 @@ public class CondIsOp extends PropertyCondition<OfflinePlayer> {
 	@Override
 	public boolean check(OfflinePlayer player) {
 		return player.isOp();
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(OfflinePlayer player, boolean op, ChangeMode mode) {
+		player.setOp(op);
 	}
 
 	@Override

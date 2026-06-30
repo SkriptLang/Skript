@@ -1,0 +1,14 @@
+test "CondIgnitionProcess":
+	spawn a creeper at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} is going to explode to true
+	assert {_entity} is going to explode with "setting to true failed"
+	set whether {_entity} is going to explode to false
+	assert {_entity} is not going to explode with "setting to false failed"
+	set whether {_entity} is not going to explode to false
+	assert {_entity} is going to explode with "(negated) setting to true failed"
+	set whether {_entity} is not going to explode to true
+	assert {_entity} is not going to explode with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

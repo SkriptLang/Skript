@@ -1,0 +1,14 @@
+test "CondIsChargingFireball":
+	spawn a ghast at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} is charging a fireball to true
+	assert {_entity} is charging a fireball with "setting to true failed"
+	set whether {_entity} is charging a fireball to false
+	assert {_entity} is not charging a fireball with "setting to false failed"
+	set whether {_entity} is not charging a fireball to false
+	assert {_entity} is charging a fireball with "(negated) setting to true failed"
+	set whether {_entity} is not charging a fireball to true
+	assert {_entity} is not charging a fireball with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

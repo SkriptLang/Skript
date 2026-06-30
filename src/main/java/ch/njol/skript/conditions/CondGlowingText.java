@@ -2,6 +2,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import org.bukkit.block.Block;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
@@ -38,6 +39,32 @@ public class CondGlowingText extends PropertyCondition<Object> {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET || mode == ChangeMode.RESET;
+	}
+
+	@Override
+	protected void change(Object object, boolean glowing, ChangeMode mode) {
+		if (object instanceof Block block) {
+			BlockState state = block.getState();
+			if (state instanceof Sign sign) {
+				sign.setGlowingText(glowing);
+				sign.update();
+			}
+		} else if (object instanceof ItemType itemType) {
+			ItemMeta meta = itemType.getItemMeta();
+			if (meta instanceof BlockStateMeta blockStateMeta) {
+				BlockState state = blockStateMeta.getBlockState();
+				if (state instanceof Sign sign) {
+					sign.setGlowingText(glowing);
+					blockStateMeta.setBlockState(sign);
+					itemType.setItemMeta(meta);
+				}
+			}
+		}
 	}
 
 	@Override

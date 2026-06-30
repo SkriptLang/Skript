@@ -1,0 +1,11 @@
+test "CondPvP":
+	set {_world} to world "world"
+
+	set whether pvp is enabled in {_world} to true
+	assert pvp is enabled in {_world} with "setting to true failed"
+	set whether pvp is enabled in {_world} to false
+	assert pvp is disabled in {_world} with "setting to false failed"
+	set whether pvp is disabled in {_world} to false
+	assert pvp is enabled with "(negated) setting to true failed"
+	set whether pvp is disabled in {_world} to true
+	assert pvp is disabled in {_world} with "(negated) setting to false failed"
