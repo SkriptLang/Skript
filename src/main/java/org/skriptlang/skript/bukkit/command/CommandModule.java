@@ -3,7 +3,9 @@ package org.skriptlang.skript.bukkit.command;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.command.elements.effects.EffCancelCooldown;
 import org.skriptlang.skript.bukkit.command.elements.expressions.ExprArgument;
+import org.skriptlang.skript.bukkit.command.elements.expressions.ExprCmdCooldownInfo;
 import org.skriptlang.skript.bukkit.command.elements.structures.StructCommand;
 
 public class CommandModule extends HierarchicalAddonModule {
@@ -15,7 +17,9 @@ public class CommandModule extends HierarchicalAddonModule {
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
 		register(addon,
+			EffCancelCooldown::register,
 			ExprArgument::register,
+			ExprCmdCooldownInfo::register,
 			syntaxRegistry -> StructCommand.register(addon, syntaxRegistry)
 		);
 	}

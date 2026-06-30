@@ -8,8 +8,11 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.resolvers.ArgumentResolver;
+import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.command.brigadier.ExecutorData.CooldownManager;
 
 import java.lang.reflect.Array;
 import java.util.List;
@@ -37,14 +40,25 @@ public class SkriptCommandExecutor {
 
 	private final Trigger trigger;
 	private final List<ArgumentData<?>> arguments;
+	private final @Nullable CooldownManager cooldownManager;
 
-	public SkriptCommandExecutor(Trigger trigger, List<ArgumentData<?>> arguments) {
+	public SkriptCommandExecutor(Trigger trigger, List<ArgumentData<?>> arguments, @Nullable CooldownManager cooldownManager) {
 		this.trigger = trigger;
 		this.arguments = arguments;
+		this.cooldownManager = cooldownManager;
+	}
+
+	public @Nullable CooldownManager getCooldownManager() {
+		return cooldownManager;
 	}
 
 	public int execute(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-		ScriptCommandEvent commandEvent = new ScriptCommandEvent(context.getSource().getSender());
+		CommandSender sender = context.getSource().getSender();
+		ScriptCommandEvent commandEvent = new ScriptCommandEvent(sender, this);
+
+		if (cooldownManager != null && !cooldownManager.checkExecution(commandEvent, sender)) {
+			return Command.SINGLE_SUCCESS;
+		}
 
 		Set<String> providedArgs = context.getNodes().stream()
 			.filter(node -> node.getNode() instanceof ArgumentCommandNode<?,?>)
@@ -80,7 +94,7 @@ public class SkriptCommandExecutor {
 			}
 
 			if (value != null) {
-				commandEvent.arguments.put(argument, value);
+				commandEvent.arguments.put(argument.name(), value);
 				if (!argument.isAutomaticName()) { // store explicitly named arguments as variables
 					setVariable(argument.name(), value, argument.isSingle(), commandEvent);
 				}

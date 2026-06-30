@@ -8,17 +8,31 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Event for executing {@link org.skriptlang.skript.bukkit.command.elements.structures.StructCommand} commands with.
+ */
 public class ScriptCommandEvent extends Event {
 
-	public final CommandSender sender;
-	public final Map<ArgumentData<?>, Object> arguments = new HashMap<>();
+	private final CommandSender sender;
+	private final SkriptCommandExecutor executor;
 
-	public ScriptCommandEvent(CommandSender sender) {
+	final Map<String, Object> arguments = new HashMap<>();
+
+	public ScriptCommandEvent(CommandSender sender, SkriptCommandExecutor executor) {
 		this.sender = sender;
+		this.executor = executor;
 	}
 
 	public CommandSender getSender() {
 		return sender;
+	}
+
+	public SkriptCommandExecutor getExecutor() {
+		return executor;
+	}
+
+	public Object getArgument(String name) {
+		return arguments.get(name);
 	}
 
 	@Override

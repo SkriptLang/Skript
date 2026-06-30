@@ -6,19 +6,25 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.Variable;
+import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.util.StringMode;
+import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.HintManager;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.command.brigadier.ArgumentData;
 import org.skriptlang.skript.bukkit.command.brigadier.CommandCompiler;
 import org.skriptlang.skript.bukkit.command.brigadier.CommandParsingData;
 import org.skriptlang.skript.bukkit.command.brigadier.ExecutorData;
+import org.skriptlang.skript.bukkit.command.brigadier.ExecutorData.CooldownManager;
+import org.skriptlang.skript.bukkit.command.brigadier.ExecutorData.ExecutableBy;
 import org.skriptlang.skript.bukkit.command.brigadier.ScriptCommandEvent;
 import org.skriptlang.skript.bukkit.command.brigadier.CommandCompiler.ArgumentCommandElement;
 import org.skriptlang.skript.bukkit.command.brigadier.CommandCompiler.CommandElement;
@@ -31,8 +37,11 @@ import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.entry.KeyValueEntryData;
+import org.skriptlang.skript.lang.entry.util.LiteralEntryData;
 import org.skriptlang.skript.lang.entry.util.TriggerEntryData;
+import org.skriptlang.skript.lang.entry.util.VariableStringEntryData;
 import org.skriptlang.skript.lang.script.ScriptWarning;
+import org.skriptlang.skript.log.runtime.ErrorSource;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,25 +83,29 @@ public class SubCommandEntryData extends EntryData<Result> {
 		})
 		.addEntry("description", "", true)
 		.addEntry("permission", null, true)
-		.addEntryData(new KeyValueEntryData<ExecutorData.ExecutableBy>("executable by", null, true) {
+		.addEntryData(new KeyValueEntryData<ExecutableBy>("executable by", null, true) {
 			private final Pattern pattern = Pattern.compile("\\s*,\\s*|\\s+(and|or)\\s+");
 
 			@Override
-			protected ExecutorData.ExecutableBy getValue(String value) {
-				ExecutorData.ExecutableBy executableBy = ExecutorData.ExecutableBy.NONE;
+			protected ExecutableBy getValue(String value) {
+				ExecutableBy executableBy = ExecutableBy.NONE;
 				for (String type : pattern.split(value)) {
 					if (type.equalsIgnoreCase("console") || type.equalsIgnoreCase("the console")) {
-						executableBy = executableBy.with(ExecutorData.ExecutableBy.CONSOLE);
+						executableBy = executableBy.with(ExecutableBy.CONSOLE);
 					} else if (type.equalsIgnoreCase("players") || type.equalsIgnoreCase("player")) {
-						executableBy = executableBy.with(ExecutorData.ExecutableBy.PLAYERS);
+						executableBy = executableBy.with(ExecutableBy.PLAYERS);
 					} else {
 						Skript.error("Invalid command sender type: " + type);
-						return ExecutorData.ExecutableBy.NONE;
+						return ExecutableBy.NONE;
 					}
 				}
 				return executableBy;
 			}
 		})
+		.addEntryData(new LiteralEntryData<>("cooldown", null, true, Timespan.class))
+		.addEntryData(new VariableStringEntryData("cooldown message", null, true))
+		.addEntry("cooldown bypass", null, true)
+		.addEntryData(new VariableStringEntryData("cooldown storage", null, true, StringMode.VARIABLE_NAME))
 		.addEntryData(new TriggerEntryData("trigger", null, true))
 		.addEntryData(new SubCommandEntryData("subcommand", true, true))
 		// deprecated entries
@@ -185,16 +198,18 @@ public class SubCommandEntryData extends EntryData<Result> {
 		}
 
 		// executable by requirement
-		ExecutorData.ExecutableBy executableBy = entryContainer.getOptional("executable by", ExecutorData.ExecutableBy.class, false);
+		ExecutableBy executableBy = entryContainer.getOptional("executable by", ExecutableBy.class, false);
 		if (executableBy != null) {
-			if (executableBy == ExecutorData.ExecutableBy.NONE) { // parsing failed
+			if (executableBy == ExecutableBy.NONE) { // parsing failed
 				return null;
 			}
-			ExecutorData.ExecutableBy parent = parsingData.getExecutorData(ExecutorData::executableBy);
+			ExecutableBy parent = parsingData.getExecutorData(ExecutorData::executableBy);
 			if (parent != null && !parent.includes(executableBy)) {
 				Skript.error("It is not possible to restrict execution to " + executableBy +
 					" as the parent command is only executable by " + parent + ".");
+				return null;
 			}
+			requires = requires.and(executableBy.predicate());
 		}
 
 		// prepare final requirements predicate
@@ -204,6 +219,35 @@ public class SubCommandEntryData extends EntryData<Result> {
 			commandRequires = source -> finalRequires.test(source.getSender());
 		} else {
 			commandRequires = null;
+		}
+
+		// cooldowns
+		parsingData.isParsingCooldownEntry = true;
+		Timespan cooldown = entryContainer.getOptional("cooldown", Timespan.class, false);
+		VariableString cooldownMessage = entryContainer.getOptional("cooldown message", VariableString.class, false);
+		String cooldownBypass = entryContainer.getOptional("cooldown bypass", String.class, false);
+		VariableString cooldownStorage = entryContainer.getOptional("cooldown storage", VariableString.class, false);
+		parsingData.isParsingCooldownEntry = false;
+		CooldownManager cooldownManager;
+		if (cooldown == null) {
+			if (cooldownMessage != null) {
+				Skript.warning("There is a cooldown message set, but not a cooldown");
+			}
+			if (cooldownBypass != null) {
+				Skript.warning("There is a cooldown bypass set, but not a cooldown");
+			}
+			if (cooldownStorage != null) {
+				Skript.warning("There is a cooldown storage set, but not a cooldown");
+			}
+			// inherit from parent command
+			cooldownManager = parsingData.getExecutorData(ExecutorData::cooldownManager);
+		} else {
+			assert parser.getCurrentStructure() != null;
+			ErrorSource errorSource = ErrorSource.fromNodeAndElement(node, parser.getCurrentStructure());
+			//noinspection unchecked
+			cooldownManager = new CooldownManager(cooldown,
+				cooldownMessage == null ? null : cooldownMessage.getConvertedExpression(Component.class),
+				cooldownBypass, cooldownStorage, () -> errorSource);
 		}
 
 		// handle deprecated entries
@@ -219,6 +263,8 @@ public class SubCommandEntryData extends EntryData<Result> {
 			ScriptWarning.printDeprecationWarning("The 'permission message' entry has been deprecated for removal in a future release." +
 				" Commands that a player does not have permission to execute are no longer sent to their client.");
 		}
+
+		parsingData.pushExecutorData(new ExecutorData(executableBy, cooldownManager));
 
 		// parse execution trigger
 		HintManager hintManager = parser.getHintManager();
@@ -248,11 +294,10 @@ public class SubCommandEntryData extends EntryData<Result> {
 		// setup executor
 		SkriptCommandExecutor executor;
 		if (hasExecute) {
-			executor = new SkriptCommandExecutor(execute, allArguments);
+			executor = new SkriptCommandExecutor(execute, allArguments, cooldownManager);
 		} else {
 			executor = null;
 		}
-		parsingData.pushExecutorData(new ExecutorData(executor, executableBy, permission));
 
 		// attach subcommand pieces
 		// TODO verify error behavior...
@@ -321,6 +366,10 @@ public class SubCommandEntryData extends EntryData<Result> {
 			argument = Commands.argument(data.name(), nativeType);
 		}
 
+		if (requires != null) {
+			argument.requires(requires);
+		}
+
 		for (CommandElement element : children) {
 			if (element == null) {
 				continue;
@@ -339,9 +388,6 @@ public class SubCommandEntryData extends EntryData<Result> {
 			}
 			if (executor != null) {
 				argument.executes(executor::execute);
-			}
-			if (requires != null) {
-				argument.requires(requires);
 			}
 		}
 

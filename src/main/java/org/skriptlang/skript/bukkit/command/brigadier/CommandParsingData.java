@@ -20,6 +20,8 @@ public final class CommandParsingData extends Data {
 
 	private final Deque<ExecutorData> executorDatas = new ArrayDeque<>(4);
 
+	public boolean isParsingCooldownEntry = false;
+
 	public CommandParsingData(ParserInstance parserInstance) {
 		super(parserInstance);
 	}

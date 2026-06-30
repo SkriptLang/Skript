@@ -125,6 +125,9 @@ public class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<
 		// treat <foo b> as a valid match for <foo_bar>
 		// treat <"foo b> as a valid match for <foo_bar>
 		supplier.get().forEachRemaining(value -> {
+			if (value == null) {
+				return;
+			}
 			String name = Classes.toString(value).toLowerCase(Locale.ENGLISH)
 				.replace(' ', '_');
 			String remaining = builder.getRemainingLowerCase();
