@@ -72,6 +72,7 @@ public class ExprResolvedComponent extends SimpleExpression<Component> {
 			} catch (IOException | RuntimeException ignored) {
 				// IOException is thrown for lack of permission
 				// RuntimeException is thrown for something like an invalid selector
+				components.add(component);
 			}
 		}
 		return components.toArray(Component[]::new);
