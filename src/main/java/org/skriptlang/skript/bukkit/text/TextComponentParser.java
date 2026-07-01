@@ -175,17 +175,17 @@ public final class TextComponentParser {
 	// The normal parser will process any proper tags
 	private final MiniMessage parser = MiniMessage.builder()
 		.strict(false)
-		.tags(TagResolver.builder()
-			.resolvers(StandardTags.defaults())
-			.resolver(createSkriptTagResolver(false))
-			.build())
+		.tags(TagResolver.resolver(
+			StandardTags.defaults(),
+			StandardTags.color(), // explicitly define color tag again to ensure it is serialized before decorations tag
+			createSkriptTagResolver(false)))
 		.build();
 
 	// The safe parser only parses those defined as safe in the configuration file
 	private final MiniMessage safeParser = MiniMessage.builder()
 		.strict(false)
-		.tags(TagResolver.builder()
-			.resolver(new TagResolver() {
+		.tags(TagResolver.resolver(
+			new TagResolver() {
 				@Override
 				public @Nullable Tag resolve(@NotNull String name, @NotNull ArgumentQueue arguments, @NotNull Context ctx) throws ParsingException {
 					return safeTagResolver.resolve(name, arguments, ctx);
@@ -195,9 +195,8 @@ public final class TextComponentParser {
 				public boolean has(@NotNull String name) {
 					return safeTagResolver.has(name);
 				}
-			})
-			.resolver(createSkriptTagResolver(true))
-			.build())
+			},
+			createSkriptTagResolver(true)))
 		.build();
 	private TagResolver safeTagResolver = TagResolver.empty();
 

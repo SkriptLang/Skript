@@ -26,7 +26,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	if {_mybar} does darken the sky:
 		broadcast "It's getting dark around here.."
 	""")
-@Since("INSERT VERSION")
+@Since("2.16")
 public class CondHasBossBarFlag extends Condition {
 
 	private static final Patterns<BarFlag> PATTERNS = new Patterns<>(new Object[][]{

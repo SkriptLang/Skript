@@ -24,7 +24,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		if the pathfinding target entity is a villager:
 		    broadcast "I suspect a zombie is going towards a villager right now.."
 	""")
-@Since("INSERT VERSION")
+@Since("2.16")
 @Events("pathfind")
 public class ExprPathfindingTarget extends SimpleExpression<Entity> implements EventRestrictedSyntax {
 

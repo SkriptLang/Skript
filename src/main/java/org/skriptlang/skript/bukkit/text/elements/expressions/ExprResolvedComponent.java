@@ -32,7 +32,7 @@ import java.util.List;
 @Example("""
 	send formatted "Hello <selector:@e[limit=5]>, I'm <selector:@s>!" resolved for player
 	""")
-@Since("INSERT VERSION")
+@Since("2.16")
 public class ExprResolvedComponent extends SimpleExpression<Component> {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {

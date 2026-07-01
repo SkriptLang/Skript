@@ -20,7 +20,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 			set title of event-item to formatted "<obf>%random uuid%"
 			send "Your book's title is now forever forgotten.." to player
 	""")
-@Since("INSERT VERSION")
+@Since("2.16")
 @RelatedProperty("title")
 public class PropExprTitle extends PropertyBaseExpression<ExpressionPropertyHandler<?,?>> {
 

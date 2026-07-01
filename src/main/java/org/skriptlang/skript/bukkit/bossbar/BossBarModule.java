@@ -25,7 +25,7 @@ public class BossBarModule extends HierarchicalAddonModule {
 			.user("boss ?bar styles?")
 			.name("Boss Bar Style")
 			.description("The style of a boss bar.")
-			.since("INSERT VERSION"));
+			.since("2.16"));
 	}
 
 	@Override

@@ -19,7 +19,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Example("""
 	broadcast the boss bar key of {_mybar}
 	""")
-@Since("INSERT VERSION")
+@Since("2.16")
 public class ExprKeyOfBossBar extends SimplePropertyExpression<BossBar, String> {
 
 	public static void register(SyntaxRegistry registry) {

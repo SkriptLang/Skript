@@ -25,7 +25,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		message "You finished your book titled %title of event-item%"
 	""")
 @Since("2.2-dev31")
-@Deprecated(since = "INSERT VERSION", forRemoval = true)
+@Deprecated(since = "2.16", forRemoval = true)
 public class ExprBookTitle extends SimplePropertyExpression<ItemType, Component> {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {

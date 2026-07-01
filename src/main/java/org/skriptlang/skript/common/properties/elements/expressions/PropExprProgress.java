@@ -14,7 +14,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Example("""
 	set progress of event-bossbar to 75%
 	""")
-@Since("INSERT VERSION")
+@Since("2.16")
 @RelatedProperty("progress")
 public class PropExprProgress extends PropertyBaseExpression<ExpressionPropertyHandler<?,?>> {
 

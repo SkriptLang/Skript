@@ -33,7 +33,7 @@ import java.util.List;
 	// some structure later on and you need to access it
 	set the title of the boss bar with the key "example" to "My Updated Test Title"
 	""")
-@Since("INSERT VERSION")
+@Since("2.16")
 public class ExprBossBarFromKey extends SimpleExpression<KeyedBossBar> {
 
 	public static void register(SyntaxRegistry registry) {

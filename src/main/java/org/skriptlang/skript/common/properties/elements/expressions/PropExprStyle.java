@@ -14,7 +14,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Example("""
 	set style of event-bossbar to 6 notches
 	""")
-@Since("INSERT VERSION")
+@Since("2.16")
 @RelatedProperty("style")
 public class PropExprStyle extends PropertyBaseExpression<ExpressionPropertyHandler<?,?>> {
 

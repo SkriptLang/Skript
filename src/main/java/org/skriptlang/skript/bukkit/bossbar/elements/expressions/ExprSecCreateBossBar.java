@@ -57,7 +57,7 @@ import static org.skriptlang.skript.bukkit.bossbar.BossBarUtils.nearest;
 		wait 5 seconds
 		remove player from viewers of {_bar}
 	""")
-@Since("INSERT VERSION")
+@Since("2.16")
 public class ExprSecCreateBossBar extends SectionExpression<BossBar> {
 
 	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry) {

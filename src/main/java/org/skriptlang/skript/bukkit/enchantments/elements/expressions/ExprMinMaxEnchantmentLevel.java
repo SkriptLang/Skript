@@ -30,7 +30,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	loop integers between {_min} and {_max}:
 		set slot loop-counter of {_gui} to enchanted book named "Sharpness %loop-value%" with lore "<reset>Click to enchant!"
 	""")
-@Since("INSERT VERSION")
+@Since("2.16")
 public class ExprMinMaxEnchantmentLevel extends SimplePropertyExpression<Enchantment, Integer> {
 
 	public static void register(SyntaxRegistry registry) {

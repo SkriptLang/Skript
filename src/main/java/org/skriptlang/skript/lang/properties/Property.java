@@ -283,7 +283,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	public static final Property<ExpressionPropertyHandler<?,?>> TITLE = Property.of(
 		"title",
 		"The title of something.",
-		"INSERT VERSION",
+		"2.16",
 		Skript.instance(),
 		ExpressionPropertyHandler.class);
 
@@ -293,7 +293,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	public static final Property<ExpressionPropertyHandler<?,?>> PROGRESS = Property.of(
 		"progress",
 		"The progress of something.",
-		"INSERT VERSION",
+		"2.16",
 		Skript.instance(),
 		ExpressionPropertyHandler.class);
 
@@ -303,7 +303,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	public static final Property<ExpressionPropertyHandler<?,?>> STYLE = Property.of(
 		"style",
 		"The style of something.",
-		"INSERT VERSION",
+		"2.16",
 		Skript.instance(),
 		ExpressionPropertyHandler.class);
 
@@ -313,7 +313,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	public static final Property<ExpressionPropertyHandler<?,?>> VIEWERS = Property.of(
 		"viewers",
 		"The viewers of something.",
-		"INSERT VERSION",
+		"2.16",
 		Skript.instance(),
 		ExpressionPropertyHandler.class);
 

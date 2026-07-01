@@ -19,7 +19,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		set {_mylist::*} to viewers of event-inventory
 		send "%size of {_list::*}% other players are viewing this inventory!"
 	""")
-@Since("INSERT VERSION")
+@Since("2.16")
 @RelatedProperty("viewers")
 public class PropExprViewers extends PropertyBaseExpression<ExpressionPropertyHandler<?,?>> {
 

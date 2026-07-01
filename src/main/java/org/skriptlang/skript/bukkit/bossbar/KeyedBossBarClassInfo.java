@@ -18,7 +18,7 @@ public class KeyedBossBarClassInfo extends ClassInfo<KeyedBossBar> {
 		super(KeyedBossBar.class, "keyedbossbar");
 		this.user("keyed boss ?bars?")
 			.name(ClassInfo.NO_DOC)
-			.since("INSERT VERSION")
+			.since("2.16")
 			.parser(new KeyedBossBarParser())
 			.supplier(Bukkit::getBossBars)
 			.serializer(new KeyedBossBarSerializer())

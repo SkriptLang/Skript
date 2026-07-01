@@ -11,7 +11,7 @@ import io.papermc.paper.entity.Leashable;
 @Name("Is Leashed")
 @Description("Checks to see if an entity is currently leashed.")
 @Example("target entity is leashed")
-@Since("2.5, INSERT VERSION (all leashable entities)")
+@Since("2.5, 2.16 (all leashable entities)")
 public class CondLeashed extends PropertyCondition<Entity> {
 
 	static {

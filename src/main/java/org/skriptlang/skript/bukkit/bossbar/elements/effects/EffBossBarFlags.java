@@ -31,7 +31,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	broadcast "The fog has subsided... for now"
 	make {_bossbar} no longer create fog
 	""")
-@Since("INSERT VERSION")
+@Since("2.16")
 public class EffBossBarFlags extends Effect {
 
 	private static final Patterns<BarFlag> PATTERNS = new Patterns<>(new Object[][]{

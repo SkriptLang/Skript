@@ -21,7 +21,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	on spawn of wither:
 	    set title of boss bar of event-entity to "<red>Angry Wither"
 	""")
-@Since("INSERT VERSION")
+@Since("2.16")
 public class ExprBossBarFromEntity extends SimplePropertyExpression<Entity, BossBar> {
 
 	public static void register(SyntaxRegistry registry) {
