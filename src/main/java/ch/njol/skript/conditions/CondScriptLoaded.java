@@ -62,7 +62,11 @@ public class CondScriptLoaded extends Condition {
 			return ScriptLoader.getLoadedScripts().contains(currentScript) ^ isNegated();
 		return scripts.check(event, scriptName -> {
 			File scriptFile = ScriptLoader.getScriptFromName(scriptName);
-			return scriptFile != null && ScriptLoader.getLoadedScripts().contains(ScriptLoader.getScript(scriptFile));
+			if (scriptFile == null) {
+				return false;
+			}
+			Script script = ScriptLoader.getScript(scriptFile);
+			return script != null && ScriptLoader.getLoadedScripts().contains(script);
 		}, isNegated());
 	}
 
