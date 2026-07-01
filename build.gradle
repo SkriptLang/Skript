@@ -17,10 +17,15 @@ configurations {
 allprojects {
 	repositories {
 		mavenCentral()
-		maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-		maven { url 'https://repo.papermc.io/repository/maven-public/' }
-		maven { url 'https://ci.emc.gs/nexus/content/groups/aikar/' }
+		maven { // for Paper
+			url = 'https://repo.papermc.io/repository/maven-public/'
+		}
+		maven { // for WorldGuard
+			url = "https://maven.enginehub.org/repo/"
+		}
+		maven { // for Vault
+			url = 'https://jitpack.io'
+		}
 	}
 }
 
@@ -37,10 +42,11 @@ dependencies {
 	// Plugin hook libraries
 	implementation group: 'com.sk89q.worldguard', name: 'worldguard-legacy', version: '7.0.0-SNAPSHOT', {
 		exclude group: 'org.bukkit', module: 'bukkit'
-	}
-	implementation group: 'net.milkbowl.vault', name: 'Vault', version: '1.7.3', {
 		exclude group: 'org.bstats', module: 'bstats-bukkit'
+	}
+	implementation group: 'com.github.MilkBowl', name: 'VaultAPI', version: '1.7.1', {
 		exclude group: 'org.bukkit', module: 'bukkit'
+		exclude group: 'org.bstats', module: 'bstats-bukkit'
 	}
 
 	implementation fileTree(dir: 'lib', include: '*.jar')
