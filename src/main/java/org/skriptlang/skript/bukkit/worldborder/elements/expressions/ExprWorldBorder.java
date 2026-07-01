@@ -1,5 +1,6 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.worldborder.elements.expressions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -12,6 +13,7 @@ import org.bukkit.WorldBorder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("World Border")
 @Description({
@@ -22,9 +24,14 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.11")
 public class ExprWorldBorder extends SimplePropertyExpression<Object, WorldBorder> {
 
-	static {
-		registerDefault(ExprWorldBorder.class, WorldBorder.class, "world[ ]border", "worlds/players");
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprWorldBorder.class, WorldBorder.class, "world[ ]border", "worlds/players", true)
+				.supplier(ExprWorldBorder::new)
+				.build());
 	}
+
+	private static final boolean USE_DEPRECATED = !Skript.methodExists(WorldBorder.class, "getWarningTimeTicks");
 
 	@Override
 	public @Nullable WorldBorder convert(Object object) {
@@ -64,7 +71,11 @@ public class ExprWorldBorder extends SimplePropertyExpression<Object, WorldBorde
 				worldBorder.setDamageAmount(to.getDamageAmount());
 				worldBorder.setDamageBuffer(to.getDamageBuffer());
 				worldBorder.setWarningDistance(to.getWarningDistance());
-				worldBorder.setWarningTime(to.getWarningTime());
+				if (USE_DEPRECATED) {
+					worldBorder.setWarningTime(to.getWarningTime());
+				} else {
+					worldBorder.setWarningTimeTicks(to.getWarningTimeTicks());
+				}
 			} else if (object instanceof Player player) {
 				player.setWorldBorder(to);
 			}

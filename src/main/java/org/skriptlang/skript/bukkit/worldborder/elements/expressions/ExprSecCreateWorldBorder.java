@@ -1,18 +1,15 @@
-package ch.njol.skript.sections;
+package org.skriptlang.skript.bukkit.worldborder.elements.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SectionUtils;
-import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.variables.Variables;
 import ch.njol.skript.doc.Example;
 import ch.njol.util.Kleenean;
@@ -22,14 +19,18 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
 
 @Name("Create WorldBorder")
 @Description({
-    "Creates a new, unused world border. World borders can be assigned to either worlds or specific players.",
-    "Borders assigned to worlds apply to all players in that world.",
-    "Borders assigned to players apply only to those players, and different players can have different borders."
+	"Creates a new, unused world border. World borders can be assigned to either worlds or specific players.",
+	"Borders assigned to worlds apply to all players in that world.",
+	"Borders assigned to players apply only to those players, and different players can have different borders."
 })
 @Example("""
 	on join:
@@ -48,9 +49,16 @@ import java.util.List;
 @Since("2.11")
 public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 
-	static {
-		Skript.registerExpression(ExprSecCreateWorldBorder.class, WorldBorder.class, ExpressionType.SIMPLE, "a [virtual] world[ ]border");
-		EventValues.registerEventValue(CreateWorldborderEvent.class, WorldBorder.class, CreateWorldborderEvent::getWorldBorder);
+	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry) {
+		syntaxRegistry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprSecCreateWorldBorder.class, WorldBorder.class)
+				.addPattern("a [virtual] world[ ]border")
+				.build()
+		);
+		eventValueRegistry.register(EventValue.builder(CreateWorldborderEvent.class, WorldBorder.class)
+			.getter(CreateWorldborderEvent::getWorldBorder)
+			.build());
 	}
 
 	private Trigger trigger = null;
@@ -58,7 +66,6 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 	@Override
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
 		if (node != null) {
-			//noinspection unchecked
 			trigger = SectionUtils.loadLinkedCode("create worldborder", (beforeLoading, afterLoading)
 					-> loadCode(node, "create worldborder", beforeLoading, afterLoading, CreateWorldborderEvent.class));
 			return trigger != null;
@@ -69,7 +76,7 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 	@Override
 	protected WorldBorder @Nullable [] get(Event event) {
 		WorldBorder worldBorder = Bukkit.createWorldBorder();
-		if (trigger == null) 
+		if (trigger == null)
 			return new WorldBorder[] {worldBorder};
 		CreateWorldborderEvent worldborderEvent = new CreateWorldborderEvent(worldBorder);
 		Variables.withLocalVariables(event, worldborderEvent, () -> TriggerItem.walk(trigger, worldborderEvent));

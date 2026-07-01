@@ -1,7 +1,6 @@
 package ch.njol.skript.effects;
 
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,31 +13,30 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import io.papermc.paper.entity.Leashable;
 
 @Name("Leash entities")
 @Description({
-	"Leash living entities to other entities. When trying to leash an Ender Dragon, Wither, Player, or a Bat, this effect will not work.",
-	"See <a href=\"https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/LivingEntity.html#setLeashHolder(org.bukkit.entity.Entity)\">Spigot's Javadocs for more info</a>."
+	"Leash entities to other entities, or unleash them.",
+	"Most mobs, iron golems, snow golems, and boats can be leashed."
 })
 @Example("""
 	on right click:
 		leash event-entity to player
 		send "&aYou leashed &2%event-entity%!" to player
 	""")
-@Since("2.3")
+@Since("2.3, INSERT VERSION (all leashable entities)")
 public class EffLeash extends Effect {
 
 	static {
 		Skript.registerEffect(EffLeash.class,
-			"(leash|lead) %livingentities% to %entity%",
-			"make %entity% (leash|lead) %livingentities%",
-			"un(leash|lead) [holder of] %livingentities%");
+			"(leash|lead) %entities% to %entity%",
+			"make %entity% (leash|lead) %entities%",
+			"un(leash|lead) [holder of] %entities%");
 	}
 
-	@SuppressWarnings("null")
 	private Expression<Entity> holder;
-	@SuppressWarnings("null")
-	private Expression<LivingEntity> targets;
+	private Expression<Entity> targets;
 	private boolean leash;
 
 	@Override
@@ -47,24 +45,23 @@ public class EffLeash extends Effect {
 		leash = matchedPattern != 2;
 		if (leash) {
 			holder = (Expression<Entity>) exprs[1 - matchedPattern];
-			targets = (Expression<LivingEntity>) exprs[matchedPattern];
+			targets = (Expression<Entity>) exprs[matchedPattern];
 		} else {
-			targets = (Expression<LivingEntity>) exprs[0];
+			targets = (Expression<Entity>) exprs[0];
 		}
 		return true;
 	}
 
 	@Override
-	protected void execute(Event e) {
-		if (leash) {
-			Entity holder = this.holder.getSingle(e);
-			if (holder == null)
-				return;
-			for (LivingEntity target : targets.getArray(e))
-				target.setLeashHolder(holder);
-		} else {
-			for (LivingEntity target : targets.getArray(e))
-				target.setLeashHolder(null);
+	protected void execute(Event event) {
+		Entity holder = leash ? this.holder.getSingle(event) : null;
+		if (leash && holder == null)
+			return;
+		
+		for (Entity target : targets.getArray(event)) {
+			if (target instanceof Leashable leashable) {
+				leashable.setLeashHolder(holder);
+			}
 		}
 	}
 

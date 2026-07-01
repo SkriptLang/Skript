@@ -807,35 +807,6 @@ public final class BukkitEventValues {
 			registry.register(EventValue.simple(PlayerElytraBoostEvent.class, Entity.class, PlayerElytraBoostEvent::getFirework));
 		}
 
-		// === WorldBorderEvents ===
-		if (Skript.classExists("io.papermc.paper.event.world.border.WorldBorderEvent")) {
-			// WorldBorderEvent
-			registry.register(EventValue.simple(WorldBorderEvent.class, WorldBorder.class, WorldBorderEvent::getWorldBorder));
-
-			// WorldBorderBoundsChangeEvent
-			registry.register(EventValue.simple(WorldBorderBoundsChangeEvent.class, Number.class, WorldBorderBoundsChangeEvent::getNewSize));
-			registry.register(EventValue.builder(WorldBorderBoundsChangeEvent.class, Number.class)
-				.getter(WorldBorderBoundsChangeEvent::getOldSize)
-				.time(Time.PAST)
-				.build());
-			registry.register(EventValue.simple(WorldBorderBoundsChangeEvent.class, Timespan.class, event -> new Timespan(event.getDuration())));
-
-			// WorldBorderBoundsChangeFinishEvent
-			registry.register(EventValue.simple(WorldBorderBoundsChangeFinishEvent.class, Number.class, WorldBorderBoundsChangeFinishEvent::getNewSize));
-			registry.register(EventValue.builder(WorldBorderBoundsChangeFinishEvent.class, Number.class)
-				.getter(WorldBorderBoundsChangeFinishEvent::getOldSize)
-				.time(Time.PAST)
-				.build());
-			registry.register(EventValue.simple(WorldBorderBoundsChangeFinishEvent.class, Timespan.class, event -> new Timespan((long) event.getDuration())));
-
-			// WorldBorderCenterChangeEvent
-			registry.register(EventValue.simple(WorldBorderCenterChangeEvent.class, Location.class, WorldBorderCenterChangeEvent::getNewCenter));
-			registry.register(EventValue.builder(WorldBorderCenterChangeEvent.class, Location.class)
-				.getter(WorldBorderCenterChangeEvent::getOldCenter)
-				.time(Time.PAST)
-				.build());
-		}
-
 		if (Skript.classExists("org.bukkit.event.block.VaultDisplayItemEvent")) {
 			registry.register(EventValue.builder(VaultDisplayItemEvent.class, ItemStack.class)
 				.getter(VaultDisplayItemEvent::getDisplayItem)
