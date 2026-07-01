@@ -77,7 +77,10 @@ public class EffBan extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		Component reason = this.reason == null ? null : this.reason.getSingle(event); // don't check for null, just ignore an invalid reason
+		Component reason = this.reason == null ? null : this.reason.getSingle(event);
+		if (reason == null) {
+    		reason = Component.empty(); // DO check for null, a null reason generates NPE downstream!
+		}
 		Timespan duration = this.expires == null ? null : this.expires.getSingle(event);
 		Date expires = duration == null ? null : new Date(System.currentTimeMillis() + duration.getAs(TimePeriod.MILLISECOND));
 		for (Object object : players.getArray(event)) {
