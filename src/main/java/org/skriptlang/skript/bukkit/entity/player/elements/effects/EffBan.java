@@ -78,9 +78,6 @@ public class EffBan extends Effect {
 	@Override
 	protected void execute(Event event) {
 		Component reason = this.reason == null ? null : this.reason.getSingle(event);
-		if (reason == null) {
-    		reason = Component.empty(); // DO check for null, a null reason generates NPE downstream!
-		}
 		Timespan duration = this.expires == null ? null : this.expires.getSingle(event);
 		Date expires = duration == null ? null : new Date(System.currentTimeMillis() + duration.getAs(TimePeriod.MILLISECOND));
 		for (Object object : players.getArray(event)) {
@@ -94,16 +91,14 @@ public class EffBan extends Effect {
 						String ip = address.getAddress().getHostAddress();
 						var banList = Bukkit.getBanList(Type.IP);
 						if (ban) {
-							String legacyReason = TextComponentParser.instance().toLegacyString(reason);
-							banList.addBan(ip, legacyReason, expires, SKRIPT_BAN_SOURCE);
+							banList.addBan(ip, toLegacyString(reason), expires, SKRIPT_BAN_SOURCE);
 						} else {
 							banList.pardon(ip);
 						}
 					} else {
 						var banList = Bukkit.getBanList(Type.NAME);
 						if (ban) {
-							String legacyReason = TextComponentParser.instance().toLegacyString(reason);
-							banList.addBan(player.getName(), legacyReason, expires, SKRIPT_BAN_SOURCE); // FIXME [UUID] ban UUID
+							banList.addBan(player.getName(), toLegacyString(reason), expires, SKRIPT_BAN_SOURCE); // FIXME [UUID] ban UUID
 						} else {
 							banList.pardon(player.getName());
 						}
@@ -119,8 +114,7 @@ public class EffBan extends Effect {
 					}
 					var banList = Bukkit.getBanList(Type.NAME);
 					if (ban) {
-						String legacyReason = TextComponentParser.instance().toLegacyString(reason);
-						banList.addBan(name, legacyReason, expires, SKRIPT_BAN_SOURCE);
+						banList.addBan(name, toLegacyString(reason), expires, SKRIPT_BAN_SOURCE);
 					} else {
 						banList.pardon(name);
 					}
@@ -129,7 +123,7 @@ public class EffBan extends Effect {
 					var ipBanList = Bukkit.getBanList(Type.IP);
 					var nameBanList = Bukkit.getBanList(Type.NAME);
 					if (ban) {
-						String legacyReason = TextComponentParser.instance().toLegacyString(reason);
+						String legacyReason = toLegacyString(reason);
 						ipBanList.addBan(ip, legacyReason, expires, SKRIPT_BAN_SOURCE);
 						nameBanList.addBan(ip, legacyReason, expires, SKRIPT_BAN_SOURCE);
 					} else {
@@ -152,6 +146,13 @@ public class EffBan extends Effect {
 			.appendIf(reason != null, "on account of", reason)
 			.appendIf(expires != null, "for", expires)
 			.toString();
+	}
+
+	private static @Nullable String toLegacyString(@Nullable Component component) {
+		if (component == null) {
+			return null;
+		}
+		return TextComponentParser.instance().toLegacyString(component);
 	}
 
 }
