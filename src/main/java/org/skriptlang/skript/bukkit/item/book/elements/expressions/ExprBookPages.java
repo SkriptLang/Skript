@@ -13,6 +13,7 @@ import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
@@ -39,6 +40,26 @@ import java.util.List;
 @Example("set page 1 of the player's held item to \"This page was written with Skript!\"")
 @Since("2.2-dev31, 2.7 (changers)")
 public class ExprBookPages extends SimpleExpression<Component> {
+
+	@SuppressWarnings("ConstantValue") // true on 26.1 and older
+	private static final boolean EXTENDS_ADVENTURE_BOOK = Book.class.isAssignableFrom(BookMeta.class);
+
+	public static List<Component> getPages(BookMeta bookMeta) {
+		if (EXTENDS_ADVENTURE_BOOK) {
+			//noinspection ConstantConditions
+			return ((Book) (Object) bookMeta).pages();
+		}
+		return bookMeta.pages();
+	}
+
+	public static void setPages(BookMeta bookMeta, List<Component> pages) {
+		if (EXTENDS_ADVENTURE_BOOK) {
+			//noinspection ConstantConditions, ResultOfMethodCallIgnored - modifies in place despite contract
+			((Book) (Object) bookMeta).pages(pages);
+		} else {
+			bookMeta.pages(pages);
+		}
+	}
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprBookPages.class, Component.class)
@@ -77,7 +98,7 @@ public class ExprBookPages extends SimpleExpression<Component> {
 				return new Component[0];
 			}
 			if (isAllPages()) {
-				pages.addAll(bookMeta.pages());
+				pages.addAll(getPages(bookMeta));
 			} else {
 				Integer pageNumber = this.pageNumber.getSingle(event);
 				if (pageNumber == null) {
@@ -122,8 +143,7 @@ public class ExprBookPages extends SimpleExpression<Component> {
 
 			if (isAllPages()) {
 				switch (mode) {
-					case SET, DELETE, RESET -> //noinspection ResultOfMethodCallIgnored - modifies in place despite contract
-						bookMeta.pages(newPages);
+					case SET, DELETE, RESET -> setPages(bookMeta, newPages);
 					case ADD -> bookMeta.addPages(newPages.toArray(new Component[0]));
 					default -> throw new IllegalStateException();
 				}
@@ -131,10 +151,9 @@ public class ExprBookPages extends SimpleExpression<Component> {
 				switch (mode) {
 					case SET -> bookMeta.page(pageNumber, newPages.getFirst());
 					case DELETE -> {
-						List<Component> pages = new ArrayList<>(bookMeta.pages());
+						List<Component> pages = new ArrayList<>(getPages(bookMeta));
 						pages.remove(pageNumber);
-						//noinspection ResultOfMethodCallIgnored - modifies in place despite contract
-						bookMeta.pages(pages);
+						setPages(bookMeta, pages);
 					}
 					case RESET -> bookMeta.page(pageNumber, Component.empty());
 					default -> throw new IllegalStateException();

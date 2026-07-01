@@ -62,6 +62,7 @@ import org.bukkit.event.world.WorldEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import org.skriptlang.skript.bukkit.item.book.elements.expressions.ExprBookPages;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue.Time;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
@@ -576,11 +577,11 @@ public final class BukkitEventValues {
 			return book;
 		}));
 		registry.register(EventValue.builder(PlayerEditBookEvent.class, Component[].class)
-			.getter(event -> event.getPreviousBookMeta().pages().toArray(new Component[0]))
+			.getter(event -> ExprBookPages.getPages(event.getPreviousBookMeta()).toArray(new Component[0]))
 			.time(Time.PAST)
 			.build());
 		registry.register(EventValue.simple(PlayerEditBookEvent.class, Component[].class, event ->
-			event.getNewBookMeta().pages().toArray(new Component[0])));
+			ExprBookPages.getPages(event.getNewBookMeta()).toArray(new Component[0])));
 		//ItemDespawnEvent
 		registry.register(EventValue.simple(ItemDespawnEvent.class, Item.class, ItemDespawnEvent::getEntity));
 		registry.register(EventValue.simple(ItemDespawnEvent.class, ItemStack.class, event -> event.getEntity().getItemStack()));
