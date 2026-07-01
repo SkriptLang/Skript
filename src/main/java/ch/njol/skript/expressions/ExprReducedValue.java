@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 @Example("set {_sum} to {_numbers::*} reduced with [reduced value + input]")
 @Example("set {_max} to {_values::*} reduced with [reduced value if reduced value > input else input]")
 @Example("set {_combined} to {_items::*} reduced with (\"%reduced value%, %input%\")")
-@Since("INSERT VERSION")
+@Since("2.15")
 public class ExprReducedValue extends SimpleExpression<Object> {
 
 	static {

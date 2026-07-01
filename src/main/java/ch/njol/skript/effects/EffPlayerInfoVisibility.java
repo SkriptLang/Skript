@@ -3,9 +3,11 @@ package ch.njol.skript.effects;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 @Example("reveal all player related info")
 @Since("2.3")
 @Events("server list ping")
-public class EffPlayerInfoVisibility extends Effect {
+public class EffPlayerInfoVisibility extends Effect implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerEffect(EffPlayerInfoVisibility.class,
@@ -30,24 +32,21 @@ public class EffPlayerInfoVisibility extends Effect {
 				"(show|reveal) [all] player [related] info[rmation] [(in|to|on|from) [the] server list]");
 	}
 
-	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
-
 	private boolean shouldHide;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!PAPER_EVENT_EXISTS) {
-			Skript.error("The player info visibility effect requires Paper 1.12.2 or newer");
-			return false;
-		} else if (!getParser().isCurrentEvent(PaperServerListPingEvent.class)) {
-			Skript.error("The player info visibility effect can't be used outside of a server list ping event");
-			return false;
-		} else if (isDelayed == Kleenean.TRUE) {
+		if (isDelayed == Kleenean.TRUE) {
 			Skript.error("Can't change the player info visibility anymore after the server list ping event has already passed");
 			return false;
 		}
 		shouldHide = matchedPattern == 0;
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(PaperServerListPingEvent.class);
 	}
 
 	@Override

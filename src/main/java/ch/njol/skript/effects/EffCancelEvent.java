@@ -20,6 +20,7 @@ import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.entity.EntityToggleSwimEvent;
 import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.jetbrains.annotations.Nullable;
@@ -74,18 +75,20 @@ public class EffCancelEvent extends Effect {
 	
 	@Override
 	public void execute(Event event) {
-		if (event instanceof Cancellable)
-			((Cancellable) event).setCancelled(cancel);
-		if (event instanceof PlayerInteractEvent) {
+		if (event instanceof Cancellable cancellable)
+			cancellable.setCancelled(cancel);
+		if (event instanceof PlayerInteractEvent playerInteractEvent) {
 			EvtClick.interactTracker.eventModified((Cancellable) event);
-			((PlayerInteractEvent) event).setUseItemInHand(cancel ? Event.Result.DENY : Event.Result.DEFAULT);
-			((PlayerInteractEvent) event).setUseInteractedBlock(cancel ? Event.Result.DENY : Event.Result.DEFAULT);
-		} else if (event instanceof BlockCanBuildEvent) {
-			((BlockCanBuildEvent) event).setBuildable(!cancel);
-		} else if (event instanceof PlayerDropItemEvent) {
-			PlayerUtils.updateInventory(((PlayerDropItemEvent) event).getPlayer());
-		} else if (event instanceof InventoryInteractEvent) {
-			PlayerUtils.updateInventory(((Player) ((InventoryInteractEvent) event).getWhoClicked()));
+			playerInteractEvent.setUseItemInHand(cancel ? Event.Result.DENY : Event.Result.DEFAULT);
+			playerInteractEvent.setUseInteractedBlock(cancel ? Event.Result.DENY : Event.Result.DEFAULT);
+		} else if (event instanceof PlayerInteractEntityEvent) {
+			EvtClick.interactTracker.eventModified((Cancellable) event);
+		} else if (event instanceof BlockCanBuildEvent blockCanBuildEvent) {
+			blockCanBuildEvent.setBuildable(!cancel);
+		} else if (event instanceof PlayerDropItemEvent playerDropItemEvent) {
+			PlayerUtils.updateInventory(playerDropItemEvent.getPlayer());
+		} else if (event instanceof InventoryInteractEvent interactEvent) {
+			PlayerUtils.updateInventory(((Player) interactEvent.getWhoClicked()));
 		}
 	}
 	

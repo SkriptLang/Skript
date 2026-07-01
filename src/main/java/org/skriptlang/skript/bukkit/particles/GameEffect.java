@@ -11,15 +11,17 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * A class to hold metadata about {@link org.bukkit.Effect}s before playing.
  */
 public class GameEffect {
-
-	public static final EnumParser<Effect> ENUM_UTILS = new EnumParser<>(Effect.class, "game effect"); // exclude effects that require data
+	/**
+	 * Parser for game effects without data
+	 */
+	private static final GameEffectParser ENUM_PARSER = new GameEffectParser();
 
 	/**
 	 * The {@link Effect} that this object represents
@@ -45,7 +47,7 @@ public class GameEffect {
 	 * @return the parsed GameEffect, or null if the input is invalid
 	 */
 	public static GameEffect parse(String input) {
-		Effect effect = ENUM_UTILS.parse(input.toLowerCase(Locale.ENGLISH), ParseContext.DEFAULT);
+		Effect effect = ENUM_PARSER.parse(input.toLowerCase(Locale.ENGLISH), ParseContext.DEFAULT);
 		if (effect == null)
 			return null;
 		if (effect.getData() != null) {
@@ -116,7 +118,7 @@ public class GameEffect {
 	}
 
 	public String toString(int flags) {
-		return ENUM_UTILS.toString(getEffect(), flags);
+		return ENUM_PARSER.toString(getEffect(), flags);
 	}
 
 	@Override
@@ -125,18 +127,31 @@ public class GameEffect {
 	}
 
 	/**
-	 * A cached array of all effect names that do not require data.
-	 */
-	static final String[] namesWithoutData = Arrays.stream(Effect.values())
-			.filter(effect -> effect.getData() == null)
-			.map(Enum::name)
-			.toArray(String[]::new);
-
-	/**
 	 * @return an array of all effect names that do not require data.
 	 */
 	public static String[] getAllNamesWithoutData(){
-		return namesWithoutData.clone();
+		return ENUM_PARSER.getPatternsWithoutData();
+	}
+
+	/**
+	 * A custom {@link EnumParser} that excludes game effects with data from being parsed directly.
+	 */
+	private static class GameEffectParser extends EnumParser<Effect> {
+
+		public GameEffectParser() {
+			super(Effect.class, "game effect");
+		}
+
+		public String @NotNull [] getPatternsWithoutData() {
+			return parseMap.entrySet().stream()
+				.filter(entry -> {
+					Effect effect = entry.getValue();
+					return effect.getData() == null;
+				})
+				.map(Map.Entry::getKey)
+				.toArray(String[]::new);
+		}
+
 	}
 
 }

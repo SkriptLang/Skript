@@ -6,7 +6,6 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Potion Effect - Is Ambient")
@@ -22,11 +21,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.14")
 public class CondIsPotionAmbient extends PropertyCondition<SkriptPotionEffect> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.CONDITION, infoBuilder(CondIsPotionAmbient.class, PropertyType.BE,
 			"ambient", "skriptpotioneffects")
 				.supplier(CondIsPotionAmbient::new)
-				.origin(origin)
 				.build());
 	}
 

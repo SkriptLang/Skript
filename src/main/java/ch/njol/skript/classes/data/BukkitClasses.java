@@ -1,9 +1,7 @@
 package ch.njol.skript.classes.data;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.bukkitutil.EntityUtils;
-import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
 import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.expressions.ExprDamageCause;
@@ -14,6 +12,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
+import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.World.Environment;
 import org.bukkit.attribute.Attribute;
@@ -23,8 +22,6 @@ import org.bukkit.block.DoubleChest;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -48,8 +45,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.metadata.Metadatable;
 import org.bukkit.util.CachedServerIcon;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.base.types.*;
-import org.skriptlang.skript.bukkit.base.types.EntityClassInfo.EntityChanger;
+import org.skriptlang.skript.bukkit.types.EntityClassInfo.EntityChanger;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
@@ -65,8 +61,6 @@ public class BukkitClasses {
 	public BukkitClasses() {}
 
 	static {
-		Classes.registerClass(new EntityClassInfo());
-
 		Classes.registerClass(new ClassInfo<>(LivingEntity.class, "livingentity")
 				.user("living ?entit(y|ies)")
 				.name("Living Entity")
@@ -89,8 +83,6 @@ public class BukkitClasses {
 				.since("1.0")
 				.defaultExpression(new EventValueExpression<>(Projectile.class))
 				.changer(DefaultChangers.nonLivingEntityChanger));
-
-		Classes.registerClass(new BlockClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(BlockData.class, "blockdata")
 				.user("block ?datas?")
@@ -152,9 +144,6 @@ public class BukkitClasses {
 						return false;
 					}
 				}).cloner(BlockData::clone));
-
-		Classes.registerClass(new LocationClassInfo());
-		Classes.registerClass(new VectorClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(World.class, "world")
 				.user("worlds?")
@@ -230,8 +219,6 @@ public class BukkitClasses {
 					ExpressionPropertyHandler.of(World::getName, String.class)
 				));
 
-		Classes.registerClass(new InventoryClassInfo());
-
 		Classes.registerClass(new EnumClassInfo<>(InventoryAction.class, "inventoryaction", "inventory actions")
 				.user("inventory ?actions?")
 				.name("Inventory Action")
@@ -253,10 +240,6 @@ public class BukkitClasses {
 				.description("Minecraft has several different inventory types with their own use cases.")
 				.examples("")
 				.since("2.2-dev32"));
-
-		Classes.registerClass(new PlayerClassInfo());
-
-		Classes.registerClass(new OfflinePlayerClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(CommandSender.class, "commandsender")
 				.user("((commands?)? ?)?(sender|executor)s?")
@@ -296,10 +279,8 @@ public class BukkitClasses {
 				.property(Property.NAME,
 					"A command sender's name, as text. Cannot be changed.",
 					Skript.instance(),
-					ExpressionPropertyHandler.of(CommandSender::getName, String.class)
+					ExpressionPropertyHandler.of(CommandSender::name, Component.class)
 				));
-
-		Classes.registerClass(new NameableClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(InventoryHolder.class, "inventoryholder")
 				.name(ClassInfo.NO_DOC)
@@ -339,8 +320,6 @@ public class BukkitClasses {
 				.examples("player's gamemode is survival",
 						"set the player argument's game mode to creative")
 				.since("1.0"));
-
-		Classes.registerClass(new ItemStackClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(Item.class, "itementity")
 				.name(ClassInfo.NO_DOC)
@@ -440,17 +419,6 @@ public class BukkitClasses {
 						return true;
 					}
 				}));
-
-		Classes.registerClass(new RegistryClassInfo<>(Enchantment.class, Registry.ENCHANTMENT, "enchantment", "enchantments")
-				.user("enchantments?")
-				.name("Enchantment")
-				.description("An enchantment, e.g. 'sharpness' or 'fortune'. Unlike <a href='#enchantmenttype'>enchantment type</a> " +
-						"this type has no level, but you usually don't need to use this type anyway.",
-						"NOTE: Minecraft namespaces are supported, ex: 'minecraft:basalt_deltas'.",
-						"As of Minecraft 1.21 this will also support custom enchantments using namespaces, ex: 'myenchants:explosive'.")
-				.examples("")
-				.since("1.4.6")
-				.before("enchantmenttype"));
 
 		Material[] allMaterials = Material.values();
 		Classes.registerClass(new ClassInfo<>(Material.class, "material")
@@ -632,31 +600,6 @@ public class BukkitClasses {
 					ExpressionPropertyHandler.of(GameRule::getName, String.class)
 				));
 
-		Classes.registerClass(new ClassInfo<>(EnchantmentOffer.class, "enchantmentoffer")
-				.user("enchant[ment][ ]offers?")
-				.name("Enchantment Offer")
-				.description("The enchantmentoffer in an enchant prepare event.")
-				.examples("on enchant prepare:",
-					"\tset enchant offer 1 to sharpness 1",
-					"\tset the cost of enchant offer 1 to 10 levels")
-				.since("2.5")
-				.parser(new Parser<>() {
-					@Override
-					public boolean canParse(ParseContext context) {
-						return false;
-					}
-
-					@Override
-					public String toString(EnchantmentOffer eo, int flags) {
-						return Classes.toString(eo.getEnchantment()) + " " + eo.getEnchantmentLevel();
-					}
-
-					@Override
-					public String toVariableNameString(EnchantmentOffer eo) {
-						return "offer:" + Classes.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
-					}
-				}));
-
 		Classes.registerClass(new RegistryClassInfo<>(Attribute.class, Registry.ATTRIBUTE, "attributetype", "attribute types")
 				.user("attribute ?types?")
 				.name("Attribute Type")
@@ -756,31 +699,6 @@ public class BukkitClasses {
 					}));
 		}
 
-		Classes.registerClass(new ClassInfo<>(WorldBorder.class, "worldborder")
-				.user("world ?borders?")
-				.name("World Border")
-				.description("Represents the border of a world or player.")
-				.since("2.11")
-				.parser(new Parser<>() {
-					@Override
-					public boolean canParse(ParseContext context) {
-						return false;
-					}
-
-					@Override
-					public String toString(WorldBorder border, int flags) {
-						if (border.getWorld() == null)
-							return "virtual world border";
-						return "world border of world named '" + border.getWorld().getName() + "'";
-					}
-
-					@Override
-					public String toVariableNameString(WorldBorder border) {
-						return toString(border, 0);
-					}
-				})
-				.defaultExpression(new EventValueExpression<>(WorldBorder.class)));
-
 		Classes.registerClass(new ClassInfo<>(org.bukkit.block.banner.Pattern.class, "bannerpattern")
 				.user("banner ?patterns?")
 				.name("Banner Pattern")
@@ -812,13 +730,6 @@ public class BukkitClasses {
 				.name("Banner Pattern Type")
 				.description("Represents the various banner patterns that can be applied to a banner.")
 				.since("2.10"));
-
-		if (Skript.classExists("io.papermc.paper.entity.TeleportFlag"))
-			Classes.registerClass(new EnumClassInfo<>(SkriptTeleportFlag.class, "teleportflag", "teleport flags")
-					.user("teleport ?flags?")
-					.name("Teleport Flag")
-					.description("Teleport Flags are settings to retain during a teleport.")
-					.since("2.10"));
 
 		Classes.registerClass(new ClassInfo<>(Vehicle.class, "vehicle")
 				.user("vehicles?")

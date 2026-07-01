@@ -46,9 +46,29 @@ public final class SectionUtils {
 	 */
 	@SuppressWarnings("JavadocReference")
 	public static @Nullable Trigger loadLinkedCode(String name, BiFunction<Runnable, Runnable, Trigger> triggerSupplier) {
+		return loadLinkedCode(name, false, triggerSupplier);
+	}
+
+	/**
+	 * A variant of {@link #loadLinkedCode(String, BiFunction)} that permits delays within the loaded trigger.
+	 * Type hints are still shared with the outer section, but delays inside the body do not cause a parse-time error.
+	 * The caller is responsible for correctly handling any delays encountered while executing the returned trigger
+	 *  (e.g. by scheduling execution asynchronously or on a separate tick).
+	 * @see #loadLinkedCode(String, BiFunction)
+	 * @param name The name of the section being loaded.
+	 * @param triggerSupplier A function to load code using a trigger. See {@link #loadLinkedCode(String, BiFunction)}
+	 *  for details on the expected behavior of this supplier.
+	 * @return The result of {@code triggerSupplier}, or null if some issue occurred.
+	 */
+	public static @Nullable Trigger loadDelayableLinkedCode(String name, BiFunction<Runnable, Runnable, Trigger> triggerSupplier) {
+		return loadLinkedCode(name, true, triggerSupplier);
+	}
+
+	private static @Nullable Trigger loadLinkedCode(String name, boolean allowDelays,
+													BiFunction<Runnable, Runnable, Trigger> triggerSupplier) {
 		AtomicBoolean delayed = new AtomicBoolean(false);
 		AtomicReference<Backup> hintBackup = new AtomicReference<>();
-		// Copy hints and ensure no delays
+		// Copy hints and record whether the body was delayed
 		Runnable beforeLoading = () -> ParserInstance.get().getHintManager().enterScope(false);
 		Runnable afterLoading = () -> {
 			ParserInstance parser = ParserInstance.get();
@@ -60,7 +80,7 @@ public final class SectionUtils {
 
 		Trigger trigger = triggerSupplier.apply(beforeLoading, afterLoading);
 
-		if (delayed.get()) {
+		if (!allowDelays && delayed.get()) {
 			Skript.error("Delays can't be used within a '" + name + "' section");
 			return null;
 		}

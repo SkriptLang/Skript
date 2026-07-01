@@ -13,6 +13,7 @@ import ch.njol.skript.util.Utils;
 import com.google.common.base.Preconditions;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.function.FunctionReferenceParser.EmptyExpression;
@@ -29,9 +30,11 @@ public final class FunctionReference<T> implements Debuggable {
 
 	private final String namespace;
 	private final String name;
-	private final Signature<T> signature;
 	private final Argument<Expression<?>>[] arguments;
 
+	private Signature<T> cachedSignature;
+	private boolean validSignature = true;
+	private boolean printedInvalidSignatureWarning;
 	private Function<T> cachedFunction;
 	private LinkedHashMap<String, ArgInfo> cachedArguments;
 
@@ -40,16 +43,16 @@ public final class FunctionReference<T> implements Debuggable {
 	}
 
 	public FunctionReference(@Nullable String namespace,
-							 @NotNull String name,
-							 @NotNull Signature<T> signature,
-							 @NotNull Argument<Expression<?>>[] arguments) {
+	                         @NotNull String name,
+	                         @NotNull Signature<T> signature,
+	                         @NotNull Argument<Expression<?>>[] arguments) {
 		Preconditions.checkNotNull(name, "name cannot be null");
 		Preconditions.checkNotNull(signature, "signature cannot be null");
 		Preconditions.checkNotNull(arguments, "arguments cannot be null");
 
 		this.namespace = namespace;
 		this.name = name;
-		this.signature = signature;
+		this.cachedSignature = signature;
 		this.arguments = arguments;
 	}
 
@@ -59,14 +62,32 @@ public final class FunctionReference<T> implements Debuggable {
 	 * @return True if this is a valid function reference, false if not.
 	 */
 	public boolean validate() {
-		if (signature == null) {
-			return false;
+		if (!validSignature) {
+			Class<?>[] parameters = Arrays.stream(cachedSignature.parameters().all())
+				.map(Parameter::type)
+				.toArray(Class[]::new);
+			var result = FunctionRegistry.getRegistry().getSignature(namespace, name, parameters);
+			if (result.result() == RetrievalResult.EXACT) {
+				//noinspection unchecked
+				cachedSignature = (Signature<T>) result.retrieved();
+				validSignature = true;
+				printedInvalidSignatureWarning = false;
+				cachedFunction = null; // need to re-obtain function now since signature changed
+			} else {
+				if (!printedInvalidSignatureWarning) {
+					printedInvalidSignatureWarning = true;
+					Skript.warning(String.format("The function '%s' from the script '%s' no longer exists."
+						+ " Skript will continue to use the old function until this function is registered again."
+						+ " Function call: %s",
+						name, namespace, toString(null, false)));
+				}
+			}
 		}
 
 		if (cachedArguments == null) {
 			cachedArguments = new LinkedHashMap<>();
 
-			Parameter<?>[] targets = signature.parameters().all();
+			Parameter<?>[] targets = cachedSignature.parameters().all();
 			for (int i = 0; i < arguments.length; i++) {
 				Argument<Expression<?>> argument = arguments[i];
 				Parameter<?> target = targets[i];
@@ -94,7 +115,7 @@ public final class FunctionReference<T> implements Debuggable {
 			}
 		}
 
-		signature.addCall(this);
+		cachedSignature.addCall(this);
 
 		return true;
 	}
@@ -120,6 +141,11 @@ public final class FunctionReference<T> implements Debuggable {
 		return true;
 	}
 
+	@ApiStatus.Internal
+	public void invalidate() {
+		validSignature = false;
+	}
+
 	private String getName(Class<?> clazz, boolean single) {
 		if (single) {
 			return Classes.getSuperClassInfo(clazz).getName().getSingular();
@@ -140,21 +166,25 @@ public final class FunctionReference<T> implements Debuggable {
 			return null;
 		}
 
-		LinkedHashMap<String, Object> args = new LinkedHashMap<>();
+		SequencedMap<String, Object> args = new LinkedHashMap<>();
 		cachedArguments.forEach((k, v) -> {
 			if (v.modifiers().contains(Modifier.KEYED)) {
-				args.put(k, evaluateKeyed(v.expression(), event));
+				args.put(k, Classes.clone(evaluateKeyed(v.expression(), event)));
 				return;
 			}
 
 			if (!v.type().isArray()) {
-				args.put(k, v.expression().getSingle(event));
+				args.put(k, Classes.clone(v.expression().getSingle(event)));
 			} else {
-				args.put(k, v.expression().getArray(event));
+				args.put(k, Classes.clone(v.expression().getArray(event)));
 			}
 		});
 
 		Function<T> function = function();
+		if (function == null) { // probably shouldn't be possible?
+			Skript.error("Failed to obtain function for call: %s", toString(null, false));
+			return null;
+		}
 		FunctionEvent<?> fnEvent = new FunctionEvent<>(function);
 
 		if (Functions.callFunctionEvents)
@@ -219,7 +249,7 @@ public final class FunctionReference<T> implements Debuggable {
 	 */
 	public Function<T> function() {
 		if (cachedFunction == null) {
-			Class<?>[] parameters = Arrays.stream(signature.parameters().all())
+			Class<?>[] parameters = Arrays.stream(cachedSignature.parameters().all())
 					.map(Parameter::type)
 					.toArray(Class[]::new);
 
@@ -238,7 +268,7 @@ public final class FunctionReference<T> implements Debuggable {
 	 * @return The signature belonging to this reference.
 	 */
 	public Signature<T> signature() {
-		return signature;
+		return cachedSignature;
 	}
 
 	/**
@@ -266,14 +296,14 @@ public final class FunctionReference<T> implements Debuggable {
 	 * @return Whether this reference returns a single or multiple values.
 	 */
 	public boolean isSingle() {
-		if (signature.contract() != null) {
+		if (cachedSignature.contract() != null) {
 			Expression<?>[] args = Arrays.stream(arguments)
 					.map(it -> it.value)
 					.toArray(Expression[]::new);
 
-			return signature.contract().isSingle(args);
+			return cachedSignature.contract().isSingle(args);
 		} else {
-			return signature.isSingle();
+			return cachedSignature.isSingle();
 		}
 	}
 

@@ -19,7 +19,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.base.types.EntityClassInfo;
+import org.skriptlang.skript.bukkit.types.EntityClassInfo;
 
 @Name("Spectator Target")
 @Description("Grabs the spectator target entity of the players.")

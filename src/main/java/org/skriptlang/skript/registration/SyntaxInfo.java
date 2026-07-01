@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  * A syntax info contains the details of a syntax, including its origin and patterns.
  * @param <E> The class providing the implementation of the syntax this info represents.
  */
-public interface SyntaxInfo<E extends SyntaxElement> extends DefaultSyntaxInfos {
+public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends DefaultSyntaxInfos {
 
 	/**
 	 * A priority for infos with patterns that only match simple text (they do not have any {@link Expression}s).
@@ -36,6 +36,21 @@ public interface SyntaxInfo<E extends SyntaxElement> extends DefaultSyntaxInfos 
 	 * Example: "[the] [loop-]<.+>"
 	 */
 	Priority PATTERN_MATCHES_EVERYTHING = Priority.after(COMBINED);
+
+	/**
+	 * Constructs a simple syntax info for a class from patterns.
+	 * @param type The syntax class the info will represent.
+	 * @param instanceSupplier A supplier for creating new instances of {@code type}.
+	 * @param patterns Patterns describing the syntax.
+	 * @return A syntax info representing {@code type}.
+	 */
+	@Contract("_, _, _ -> new")
+	static <E extends SyntaxElement> SyntaxInfo<E> simple(Class<E> type, Supplier<E> instanceSupplier, String... patterns) {
+		return builder(type)
+			.supplier(instanceSupplier)
+			.addPatterns(patterns)
+			.build();
+	}
 
 	/**
 	 * Constructs a builder for a syntax info.

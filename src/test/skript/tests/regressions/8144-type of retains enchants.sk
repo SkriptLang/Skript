@@ -1,0 +1,8 @@
+test "type of has enchants":
+	set {_dirt} to dirt
+	set {_dirtSharp1} to dirt of sharpness 1
+	assert type of {_dirt} is dirt
+	assert type of {_dirtSharp1} is dirt with "type of enchanted item wasn't the base material"
+	assert {_dirt} is not {_dirtSharp1}
+	assert type of {_dirtSharp1} is not {_dirtSharp1} with "type of enchanted item retained enchants"
+	assert enchantments of type of {_dirtSharp1} is not set with "type of enchanted item retained enchants"

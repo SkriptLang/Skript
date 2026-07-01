@@ -21,10 +21,6 @@ import ch.njol.skript.util.*;
 import ch.njol.yggdrasil.Fields;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.base.types.ItemTypeClassInfo;
-import org.skriptlang.skript.bukkit.base.types.SlotClassInfo;
-import org.skriptlang.skript.common.types.QueueClassInfo;
-import org.skriptlang.skript.common.types.ScriptClassInfo;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.ContainsHandler;
 import org.skriptlang.skript.lang.properties.handlers.TypedValueHandler;
@@ -145,8 +141,6 @@ public class SkriptClasses {
 
 				})
 				.serializer(new EnumSerializer<>(WeatherType.class)));
-
-		Classes.registerClass(new ItemTypeClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(Time.class, "time")
 				.user("times?")
@@ -349,8 +343,6 @@ public class SkriptClasses {
 				})
 				.serializer(new YggdrasilSerializer<>()));
 
-		Classes.registerClass(new SlotClassInfo());
-
 		Classes.registerClass(new ClassInfo<>(Color.class, "color")
 				.user("colou?rs?")
 				.name("Color")
@@ -382,59 +374,13 @@ public class SkriptClasses {
 					}
 				}));
 
-		Classes.registerClass(new ClassInfo<>(StructureType.class, "structuretype")
+		Classes.registerClass(new EnumClassInfo<>(TreeSpecies.class, "treetype", "tree types")
 				.user("tree ?types?", "trees?")
 				.name("Tree Type")
 				.description("A tree type represents a tree species or a huge mushroom species. These can be generated in a world with the <a href='#EffTree'>generate tree</a> effect.")
-				.usage("[any] <general tree/mushroom type>, e.g. tree/any jungle tree/etc.", "<specific tree/mushroom species>, e.g. red mushroom/small jungle tree/big regular tree/etc.")
 				.examples("grow any regular tree at the block",
 						"grow a huge red mushroom above the block")
-				.since("")
-				.defaultExpression(new SimpleLiteral<>(StructureType.TREE, true))
-				.parser(new Parser<StructureType>() {
-					@Override
-					@Nullable
-					public StructureType parse(final String s, final ParseContext context) {
-						return StructureType.fromName(s);
-					}
-
-					@Override
-					public String toString(final StructureType o, final int flags) {
-						return o.toString(flags);
-					}
-
-					@Override
-					public String toVariableNameString(final StructureType o) {
-						return "" + o.name().toLowerCase(Locale.ENGLISH);
-					}
-				}).serializer(new EnumSerializer<>(StructureType.class)));
-
-		Classes.registerClass(new ClassInfo<>(EnchantmentType.class, "enchantmenttype")
-				.user("enchant(ing|ment) types?")
-				.name("Enchantment Type")
-				.description("An enchantment with an optional level, e.g. 'sharpness 2' or 'fortune'.")
-				.usage("<enchantment> [<level>]")
-				.examples("enchant the player's tool with sharpness 5",
-						"helmet is enchanted with waterbreathing")
-				.since("1.4.6")
-				.parser(new Parser<EnchantmentType>() {
-					@Override
-					@Nullable
-					public EnchantmentType parse(final String s, final ParseContext context) {
-						return EnchantmentType.parse(s);
-					}
-
-					@Override
-					public String toString(final EnchantmentType t, final int flags) {
-						return t.toString();
-					}
-
-					@Override
-					public String toVariableNameString(final EnchantmentType o) {
-						return o.toString();
-					}
-				})
-				.serializer(new YggdrasilSerializer<>()));
+				.since("1.0"));
 
 		Classes.registerClass(new ClassInfo<>(Experience.class, "experience")
 				.user("experience ?(points?)?")
@@ -482,8 +428,6 @@ public class SkriptClasses {
 				.since("2.5")
 				.serializer(new YggdrasilSerializer<GameruleValue>())
 		);
-
-		Classes.registerClass(new QueueClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(Config.class, "config")
 			.user("configs?")
@@ -566,8 +510,6 @@ public class SkriptClasses {
 						return String.class;
 					}
 				}));
-
-		Classes.registerClass(new ScriptClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(Executable.class, "executable")
 			.user("executables?")

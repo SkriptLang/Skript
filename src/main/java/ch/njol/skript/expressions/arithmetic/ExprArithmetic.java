@@ -13,6 +13,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.parser.ParsingStack;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
@@ -24,7 +25,6 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
-import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -42,8 +42,6 @@ import java.util.List;
 @Since("1.4.2")
 @SuppressWarnings("null")
 public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
-
-	private static final Class<?>[] INTEGER_CLASSES = {Long.class, Integer.class, Short.class, Byte.class};
 
 	private record PatternInfo(Operator operator, boolean leftGrouped, boolean rightGrouped) {
 	}
@@ -245,21 +243,6 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			if (operationInfo == null) // we error if we couldn't find an operation between the two types
 				return error(firstClass, secondClass);
 			returnType = operationInfo.returnType();
-		}
-
-		// ensure proper return types for numerical operations
-		if (Number.class.isAssignableFrom(returnType)) {
-			if (operator == Operator.DIVISION || operator == Operator.EXPONENTIATION) {
-				returnType = (Class<? extends T>) Double.class;
-			} else {
-				boolean firstIsInt = false;
-				boolean secondIsInt = false;
-				for (Class<?> i : INTEGER_CLASSES) {
-					firstIsInt |= i.isAssignableFrom(first.getReturnType());
-					secondIsInt |= i.isAssignableFrom(second.getReturnType());
-				}
-				returnType = (Class<? extends T>) (firstIsInt && secondIsInt ? Long.class : Double.class);
-			}
 		}
 
 		/*

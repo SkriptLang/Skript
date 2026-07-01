@@ -1,14 +1,12 @@
 package org.skriptlang.skript.bukkit.potion.util;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.ApiStatus;
@@ -17,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.potion.elements.expressions.ExprPotionEffect;
 import org.skriptlang.skript.bukkit.potion.elements.expressions.ExprPotionEffects;
+import org.skriptlang.skript.bukkit.potion.providers.PotionEffectProvider;
 
 import java.io.StreamCorruptedException;
 import java.util.Deque;
@@ -40,11 +39,10 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	private @Nullable PotionEffect lastEffect;
 
 	/**
-	 * Sources for where this effect was created from.
+	 * A source for where this effect was created from.
 	 * Modifying this effect will update the effect on any sources.
 	 */
-	private @Nullable LivingEntity entitySource;
-	private @Nullable ItemType itemSource;
+	private @Nullable PotionEffectProvider<?> sourceProvider;
 
 	/**
 	 * Internal usage only for serialization.
@@ -84,28 +82,13 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	 * <code>source</code> is expected to currently be affected by <code>potionEffect</code>.
 	 * When changes are made to this potion effect, they will be reflected on <code>source</code>.
 	 * @param potionEffect The potion effect to obtain properties from.
-	 * @param source An entity that should mirror the changes to this potion effect.
+	 * @param source A potion effect provider that should mirror the changes to this potion effect.
 	 * @return A potion effect whose properties are set from <code>potionEffect</code>.
 	 * @see #fromBukkitEffect(PotionEffect)
 	 */
-	public static SkriptPotionEffect fromBukkitEffect(PotionEffect potionEffect, LivingEntity source) {
+	public static SkriptPotionEffect fromBukkitEffect(PotionEffect potionEffect, PotionEffectProvider<?> source) {
 		SkriptPotionEffect skriptPotionEffect = fromBukkitEffect(potionEffect);
-		skriptPotionEffect.entitySource = source;
-		return skriptPotionEffect;
-	}
-
-	/**
-	 * Constructs a SkriptPotionEffect from a Bukkit PotionEffect and source item.
-	 * <code>source</code> is expected to be an item (potion, stew, etc.) whose meta contains <code>potionEffect</code>.
-	 * When changes are made to this potion effect, they will be reflected on <code>source</code>.
-	 * @param potionEffect The potion effect to obtain properties from.
-	 * @param source An item that should mirror the changes to this potion effect.
-	 * @return A potion effect whose properties are set from <code>potionEffect</code>.
-	 * @see #fromBukkitEffect(PotionEffect)
-	 */
-	public static SkriptPotionEffect fromBukkitEffect(PotionEffect potionEffect, ItemType source) {
-		SkriptPotionEffect skriptPotionEffect = fromBukkitEffect(potionEffect);
-		skriptPotionEffect.itemSource = source;
+		skriptPotionEffect.sourceProvider = source;
 		return skriptPotionEffect;
 	}
 
@@ -134,7 +117,7 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	 * @see PotionEffect#isInfinite()
 	 */
 	public boolean infinite() {
-		return duration == PotionEffect.INFINITE_DURATION;
+		return duration != null && duration == PotionEffect.INFINITE_DURATION;
 	}
 
 	/**
@@ -348,34 +331,10 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	 */
 
 	private void withSource(Runnable runnable) {
-		Deque<PotionEffect> hiddenEffects = null;
-		if (entitySource != null && entitySource.hasPotionEffect(potionEffectType)) {
-			//noinspection DataFlowIssue - NotNull by hasPotionEffect check
-			hiddenEffects = PotionUtils.getHiddenEffects(entitySource.getPotionEffect(potionEffectType));
-			entitySource.removePotionEffect(potionEffectType);
-		} else if (itemSource != null) {
-			PotionUtils.removePotionEffects(itemSource, potionEffectType);
-		}
-		runnable.run();
-		if (entitySource != null) {
-			PotionEffect thisPotionEffect = asBukkitPotionEffect();
-			if (hiddenEffects != null) { // reapply hidden effects
-				for (PotionEffect hiddenEffect : hiddenEffects) {
-					// we need to add this potion effect in the right order
-					// it might end up not being applied at all, but we'll let the game determine that
-					if (thisPotionEffect != null &&
-						(hiddenEffect.isShorterThan(thisPotionEffect) || hiddenEffect.getAmplifier() > thisPotionEffect.getAmplifier())) {
-						entitySource.addPotionEffect(thisPotionEffect);
-						thisPotionEffect = null;
-					}
-					entitySource.addPotionEffect(hiddenEffect);
-				}
-			}
-			if (thisPotionEffect != null) {
-				entitySource.addPotionEffect(asBukkitPotionEffect());
-			}
-		} else if (itemSource != null) {
-			PotionUtils.addPotionEffects(itemSource, asBukkitPotionEffect());
+		if (sourceProvider == null) {
+			runnable.run();
+		} else {
+			sourceProvider.mirrorEffectChanges(this, runnable);
 		}
 	}
 
@@ -411,8 +370,7 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 			SkriptPotionEffect skriptPotionEffect = (SkriptPotionEffect) super.clone();
 			// we do not copy over sources on clones
 			// for example, copying a potion effect into a variable should not continue tracking the source
-			skriptPotionEffect.entitySource = null;
-			skriptPotionEffect.itemSource = null;
+			skriptPotionEffect.sourceProvider = null;
 			return skriptPotionEffect;
 		} catch (CloneNotSupportedException e) {
 			throw new AssertionError();

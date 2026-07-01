@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.log.runtime;
 
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.log.SkriptLogger;
-import ch.njol.skript.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -59,10 +58,9 @@ public class BukkitRuntimeErrorConsumer implements RuntimeErrorConsumer {
 			info = WARNING_INFO;
 		}
 
-		String skriptInfo = replaceNewline(Utils.replaceEnglishChatStyles(info.getValue() == null ? info.key : info.getValue()));
-		String errorInfo = replaceNewline(Utils.replaceEnglishChatStyles(details.getValue() == null ? details.key : details.getValue()));
-		String lineInfo = replaceNewline(Utils.replaceEnglishChatStyles(
-				LINE_INFO.getValue() == null ? LINE_INFO.key : LINE_INFO.getValue()));
+		String skriptInfo = replaceNewline(info.getValue() == null ? info.key : info.getValue());
+		String errorInfo = replaceNewline(details.getValue() == null ? details.key : details.getValue());
+		String lineInfo = replaceNewline(LINE_INFO.getValue() == null ? LINE_INFO.key : LINE_INFO.getValue());
 
 		ErrorSource source = error.source();
 		String code = source.lineText();
@@ -89,9 +87,7 @@ public class BukkitRuntimeErrorConsumer implements RuntimeErrorConsumer {
 			String line = message.getValue() != null ? message.getValue() : message.key;
 
 			SkriptLogger.sendFormatted(Bukkit.getConsoleSender(),
-				Utils.replaceEnglishChatStyles(
-					String.format(line, skipped, linesNotDisplayed)
-				)
+				String.format(line, skipped, linesNotDisplayed)
 			);
 		}
 
@@ -99,10 +95,8 @@ public class BukkitRuntimeErrorConsumer implements RuntimeErrorConsumer {
 		String timeoutLine = message.getValue() != null ? message.getValue() : message.key;
 		for (Location location : output.newTimeouts()) {
 			SkriptLogger.sendFormatted(Bukkit.getConsoleSender(),
-				Utils.replaceEnglishChatStyles(
-					String.format(timeoutLine, location.lineNumber(), location.script(),
-							output.frameLimits().lineTimeoutLimit(), output.frameLimits().timeoutDuration())
-				)
+				String.format(timeoutLine, location.lineNumber(), location.script(),
+					output.frameLimits().lineTimeoutLimit(), output.frameLimits().timeoutDuration())
 			);
 		}
 
@@ -121,9 +115,7 @@ public class BukkitRuntimeErrorConsumer implements RuntimeErrorConsumer {
 			for (Player player : Bukkit.getOnlinePlayers()) {
 				if (player.hasPermission(ERROR_NOTIF_PERMISSION)) {
 					SkriptLogger.sendFormatted(player,
-						Utils.replaceEnglishChatStyles(
-							String.format(notif, scripts.iterator().next(), scripts.size() - 1)
-						)
+						String.format(notif, scripts.iterator().next(), scripts.size() - 1)
 					);
 				}
 			}

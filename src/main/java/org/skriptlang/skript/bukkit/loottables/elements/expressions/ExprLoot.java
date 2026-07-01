@@ -5,18 +5,18 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
-import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.inventory.ItemStack;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.world.LootGenerateEvent;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,16 +25,21 @@ import java.util.List;
 @Description("The loot that will be generated in a 'loot generate' event.")
 @Example("""
 	on loot generate:
-		chance of %10
+		chance of 10%
 		add 64 diamonds to loot
 		send "You hit the jackpot!!"
 	""")
 @Since("2.7")
-@RequiredPlugins("MC 1.16+")
 public class ExprLoot extends SimpleExpression<ItemStack> {
 
-	static {
-		Skript.registerExpression(ExprLoot.class, ItemStack.class, ExpressionType.SIMPLE, "[the] loot");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprLoot.class, ItemStack.class)
+				.addPatterns("[the] loot")
+				.supplier(ExprLoot::new)
+				.build()
+		);
 	}
 
 	@Override

@@ -1,7 +1,6 @@
 package ch.njol.skript.util;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.effects.EffTeleport;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.NonNullPair;
@@ -23,6 +22,7 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -415,64 +415,6 @@ public abstract class Utils {
 	}
 
 	/**
-	 * Gets the collision height of solid or partially-solid blocks at the center of the block.
-	 * This is mostly for use in the {@link EffTeleport teleport effect}.
-	 * <p>
-	 * This version operates on numeric ids, thus only working on
-	 * Minecraft 1.12 or older.
-	 *
-	 * @param type
-	 * @return The block's height at the center
-	 */
-	public static double getBlockHeight(final int type, final byte data) {
-		switch (type) {
-			case 26: // bed
-				return 9. / 16;
-			case 44: // slabs
-			case 126:
-				return (data & 0x8) == 0 ? 0.5 : 1;
-			case 78: // snow layer
-				return data == 0 ? 1 : (data % 8) * 2. / 16;
-			case 85: // fences & gates
-			case 107:
-			case 113:
-			case 139: // cobblestone wall
-				return 1.5;
-			case 88: // soul sand
-				return 14. / 16;
-			case 92: // cake
-				return 7. / 16;
-			case 93: // redstone repeater
-			case 94:
-			case 149: // redstone comparator
-			case 150:
-				return 2. / 16;
-			case 96: // trapdoor
-				return (data & 0x4) == 0 ? ((data & 0x8) == 0 ? 3. / 16 : 1) : 0;
-			case 116: // enchantment table
-				return 12. / 16;
-			case 117: // brewing stand
-				return 14. / 16;
-			case 118: // cauldron
-				return 5. / 16;
-			case 120: // end portal frame
-				return (data & 0x4) == 0 ? 13. / 16 : 1;
-			case 127: // cocoa plant
-				return 12. / 16;
-			case 140: // flower pot
-				return 6. / 16;
-			case 144: // mob head
-				return 0.5;
-			case 151: // daylight sensor
-				return 6. / 16;
-			case 154: // hopper
-				return 10. / 16;
-			default:
-				return 1;
-		}
-	}
-
-	/**
 	 * Sends a plugin message using the first player from {@link Bukkit#getOnlinePlayers()}.
 	 * <p>
 	 * The next plugin message to be received through {@code channel} will be assumed to be
@@ -602,8 +544,11 @@ public abstract class Utils {
 		});
 	}
 
-	@Nullable
-	public static String getChatStyle(final String s) {
+	/**
+	 * @deprecated See {@link TextComponentParser}.
+	 */
+	@Deprecated(since = "2.15", forRemoval = true)
+	public static @Nullable String getChatStyle(final String s) {
 		SkriptColor color = SkriptColor.fromName(s);
 
 		if (color != null)
@@ -612,11 +557,9 @@ public abstract class Utils {
 	}
 
 	/**
-	 * Replaces &lt;chat styles&gt; in the message
-	 *
-	 * @param message
-	 * @return message with localised chat styles converted to Minecraft's format
+	 * @deprecated See {@link TextComponentParser}.
 	 */
+	@Deprecated(since = "2.15", forRemoval = true)
 	public static @NotNull String replaceChatStyles(String message) {
 		if (message.isEmpty())
 			return message;
@@ -625,13 +568,9 @@ public abstract class Utils {
 	}
 
 	/**
-	 * Replaces english &lt;chat styles&gt; in the message. This is used for messages in the language file as the
-	 * language of colour codes is not well defined while the language is
-	 * changing, and for some hardcoded messages.
-	 *
-	 * @param message
-	 * @return message with english chat styles converted to Minecraft's format
+	 * @deprecated See {@link TextComponentParser}.
 	 */
+	@Deprecated(since = "2.15", forRemoval = true)
 	public static @NotNull String replaceEnglishChatStyles(String message) {
 		if (message.isEmpty())
 			return message;
@@ -641,6 +580,10 @@ public abstract class Utils {
 
 	private final static Pattern STYLE_PATTERN = Pattern.compile("<([^<>]+)>");
 
+	/**
+	 * @deprecated See {@link TextComponentParser}.
+	 */
+	@Deprecated(since = "2.15", forRemoval = true)
 	private static @NotNull String replaceChatStyle(String message) {
 		String m = StringUtils.replaceAll(Matcher.quoteReplacement(message), STYLE_PATTERN, matcher -> {
 			SkriptColor color = SkriptColor.fromName(matcher.group(1));
@@ -676,11 +619,9 @@ public abstract class Utils {
 	private static final Pattern UNICODE_PATTERN = Pattern.compile("(?i)u(?:nicode)?:(?<code>[0-9a-f]{4,})");
 
 	/**
-	 * Tries to extract a Unicode character from the given string.
-	 *
-	 * @param string The string.
-	 * @return The Unicode character, or null if it could not be parsed.
+	 * @deprecated See {@link TextComponentParser}.
 	 */
+	@Deprecated(since = "2.15", forRemoval = true)
 	public static @Nullable String parseUnicode(String string) {
 		Matcher matcher = UNICODE_PATTERN.matcher(string);
 		if (!matcher.matches())
@@ -696,11 +637,9 @@ public abstract class Utils {
 	private static final Pattern HEX_PATTERN = Pattern.compile("(?i)#{0,2}(?<code>[0-9a-f]{6})");
 
 	/**
-	 * Tries to get a {@link ChatColor} from the given string.
-	 *
-	 * @param string The string code to parse.
-	 * @return The ChatColor, or null if it couldn't be parsed.
+	 * @deprecated See {@link TextComponentParser}.
 	 */
+	@Deprecated(since = "2.15", forRemoval = true)
 	public static @Nullable ChatColor parseHexColor(String string) {
 		Matcher matcher = HEX_PATTERN.matcher(string);
 		if (!matcher.matches())

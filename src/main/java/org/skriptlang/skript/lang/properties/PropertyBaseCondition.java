@@ -10,7 +10,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.common.properties.conditions.PropCondIsEmpty;
+import org.skriptlang.skript.common.properties.elements.conditions.PropCondIsEmpty;
 import org.skriptlang.skript.lang.properties.handlers.base.ConditionPropertyHandler;
 
 /**

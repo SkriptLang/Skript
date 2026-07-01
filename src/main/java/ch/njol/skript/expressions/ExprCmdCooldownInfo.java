@@ -2,6 +2,8 @@ package ch.njol.skript.expressions;
 
 import java.util.UUID;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -35,7 +37,7 @@ import ch.njol.util.Kleenean;
 			teleport player to {home::%player%}
 	""")
 @Since("2.2-dev33")
-public class ExprCmdCooldownInfo extends SimpleExpression<Object> {
+public class ExprCmdCooldownInfo extends SimpleExpression<Object> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprCmdCooldownInfo.class, Object.class, ExpressionType.SIMPLE,
@@ -51,11 +53,12 @@ public class ExprCmdCooldownInfo extends SimpleExpression<Object> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		pattern = matchedPattern;
-		if (!getParser().isCurrentEvent(ScriptCommandEvent.class)) {
-			Skript.error("The " + getExpressionName() + " expression can only be used within a command", ErrorQuality.SEMANTIC_ERROR);
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(ScriptCommandEvent.class);
 	}
 
 	@Override

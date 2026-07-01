@@ -179,6 +179,17 @@ test "SecConditional - non-multiline conditional at the end":
 		set {_a} to true
 	assert {_a} is set with "non-multiline 'if' didn't run used at the end of a multiline 'if'"
 
+test "SecConditional - repeating then sections":
+	parse:
+		if:
+			1 is 1
+			2 is 2
+		then:
+			stop
+		then:
+			stop
+	assert last parse logs is "'then' has to placed just after a multiline 'if' or 'else if' section"
+
 test "SecConditional - delay logic 1":
 	assert has delay before is false with "should not have delay at start of test"
 

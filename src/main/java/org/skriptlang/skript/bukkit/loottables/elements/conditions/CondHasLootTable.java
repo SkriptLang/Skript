@@ -6,6 +6,7 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Has Loot Table")
 @Description(
@@ -16,7 +17,7 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 	set event-block to chest
 	if event-block has a loot table:
 		# this will never happen, because it doesn't have a loot table.
-	
+
 	set loot table of event-block to "minecraft:chests/simple_dungeon"
 	if event-block has a loot table:
 		# this will happen, because it now has a loot table.
@@ -24,8 +25,18 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 @Since("2.10")
 public class CondHasLootTable extends PropertyCondition<Object> {
 
-	static {
-		register(CondHasLootTable.class, PropertyType.HAVE, "[a] loot[ ]table", "blocks/entities");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			infoBuilder(
+				CondHasLootTable.class,
+				PropertyType.HAVE,
+				"[a] loot[ ]table",
+				"blocks/entities"
+			)
+				.supplier(CondHasLootTable::new)
+				.build()
+		);
 	}
 
 	@Override
