@@ -167,6 +167,9 @@ Or, if you use Maven:
 Note that these resources are not maintained by Skript's developers. Don't
 contact us about any problems you might have with them.
 
+## Known Issues
+* `spawn egg entity of player's tool` may return nothing when reading a `SpawnEggMeta` that has no explicitly set entity type (see issue #8726).
+
 ## Developers
 You can find all contributors [here](https://github.com/SkriptLang/Skript/graphs/contributors).
 
