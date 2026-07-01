@@ -382,33 +382,6 @@ public class SkriptClasses {
 						"grow a huge red mushroom above the block")
 				.since("1.0"));
 
-		Classes.registerClass(new ClassInfo<>(EnchantmentType.class, "enchantmenttype")
-				.user("enchant(ing|ment) types?")
-				.name("Enchantment Type")
-				.description("An enchantment with an optional level, e.g. 'sharpness 2' or 'fortune'.")
-				.usage("<enchantment> [<level>]")
-				.examples("enchant the player's tool with sharpness 5",
-						"helmet is enchanted with waterbreathing")
-				.since("1.4.6")
-				.parser(new Parser<EnchantmentType>() {
-					@Override
-					@Nullable
-					public EnchantmentType parse(final String s, final ParseContext context) {
-						return EnchantmentType.parse(s);
-					}
-
-					@Override
-					public String toString(final EnchantmentType t, final int flags) {
-						return t.toString();
-					}
-
-					@Override
-					public String toVariableNameString(final EnchantmentType o) {
-						return o.toString();
-					}
-				})
-				.serializer(new YggdrasilSerializer<>()));
-
 		Classes.registerClass(new ClassInfo<>(Experience.class, "experience")
 				.user("experience ?(points?)?")
 				.name("Experience")

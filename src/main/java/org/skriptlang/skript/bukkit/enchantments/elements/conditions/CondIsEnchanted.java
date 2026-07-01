@@ -1,4 +1,4 @@
-package ch.njol.skript.conditions;
+package org.skriptlang.skript.bukkit.enchantments.elements.conditions;
 
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.conditions.base.PropertyCondition;
@@ -14,6 +14,7 @@ import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Is Enchanted")
 @Description("Checks whether an item is enchanted. Enchants must match the exact level by default, unless 'or better' or 'or worse' are used.")
@@ -39,8 +40,11 @@ public class CondIsEnchanted extends Condition {
 		}
 	}
 
-	static {
-		PropertyCondition.register(CondIsEnchanted.class, "enchanted [with %-enchantmenttypes% [or (1:(better|greater|higher|above)|2:(worse|lesser|lower|below))]]", "itemtypes");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.CONDITION, PropertyCondition.infoBuilder(CondIsEnchanted.class, PropertyType.BE,
+			"enchanted [with %-enchantmenttypes% [or (1:(better|greater|higher|above)|2:(worse|lesser|lower|below))]]", "itemtypes")
+			.supplier(CondIsEnchanted::new)
+			.build());
 	}
 
 	private Expression<ItemType> items;

@@ -1,4 +1,4 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.enchantments.elements.expressions;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,28 +18,28 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Item Enchantments")
 @Description("All the enchantments an <a href='#itemtype'>item type</a> has.")
 @Example("clear enchantments of event-item")
 @Since("2.2-dev36")
-public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
+public class ExprEnchantments extends PropertyExpression<ItemType, EnchantmentType> {
 
-	static {
-		PropertyExpression.register(ExprEnchantments.class, EnchantmentType.class, "enchantments", "itemtypes");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprEnchantments.class, EnchantmentType.class, "enchantments", "itemtypes", false)
+				.supplier(ExprEnchantments::new)
+				.build());
 	}
 
-	@SuppressWarnings("null")
-	private Expression<ItemType> items;
-
-	@SuppressWarnings({"null","unchecked"})
 	@Override
+	@SuppressWarnings({"null","unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		items = (Expression<ItemType>) exprs[0];
+		setExpr((Expression<ItemType>) exprs[0]);
 		return true;
 	}
 
@@ -49,11 +49,9 @@ public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 	}
 
 	@Override
-	@Nullable
-	protected EnchantmentType[] get(Event e) {
+	protected EnchantmentType[] get(Event event, ItemType[] source) {
 		List<EnchantmentType> enchantments = new ArrayList<>();
-		
-		for (ItemType item : items.getArray(e)) {
+		for (ItemType item : source) {
 			EnchantmentType[] enchants = item.getEnchantmentTypes();
 			
 			if (enchants == null)
@@ -65,27 +63,23 @@ public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
-		// Enchantment doesn't get automatically converted to EnchantmentType if you give it more than a one.
-		// Meaning you can transform an Enchantment array to an EnchantmentType array automatically,
-		// So, we gotta do it manually.
-		return CollectionUtils.array(Enchantment[].class, EnchantmentType[].class);
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case ADD, SET, REMOVE, REMOVE_ALL, DELETE, RESET -> CollectionUtils.array(EnchantmentType[].class);
+			default -> null;
+		};
 	}
 
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		ItemType[] source = items.getArray(e);
-		
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		ItemType[] source = getExpr().getArray(event);
+
 		EnchantmentType[] enchants = new EnchantmentType[delta != null ? delta.length : 0];
-		
-		if (delta != null && delta.length != 0) {
-			for (int i = 0; i<delta.length; i++) {
-				if (delta[i] instanceof EnchantmentType)
-					enchants[i] = (EnchantmentType) delta[i];
-				else
-					enchants[i] = new EnchantmentType((Enchantment) delta[i]);
+
+		if (delta != null) {
+			for (int i = 0; i < delta.length; i++) {
+				enchants[i] = (EnchantmentType) delta[i];
 			}
 		}
 		
@@ -104,11 +98,11 @@ public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 						assert ench != null;
 						if (enchant.getInternalLevel() == -1
 								|| meta.getEnchantLevel(ench) == enchant.getLevel()) {
-							// Remove directly from meta since it's more efficient on this case
+							// Remove directly from meta since it's more efficient in this case
 							meta.removeEnchant(ench);
 						}
-					item.setItemMeta(meta);
 					}
+					item.setItemMeta(meta);
 				}
 				break;
 			case SET:
@@ -131,8 +125,8 @@ public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the enchantments of " + items.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the enchantments of " + getExpr().toString(event, debug);
 	}
 	
 }

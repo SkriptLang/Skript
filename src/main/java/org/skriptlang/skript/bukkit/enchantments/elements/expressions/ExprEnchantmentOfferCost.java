@@ -1,19 +1,18 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.enchantments.elements.expressions;
 
+import ch.njol.util.Math2;
 import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.skript.util.Experience;
 import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Enchantment Offer Cost")
 @Description({
@@ -24,12 +23,13 @@ import ch.njol.util.coll.CollectionUtils;
 })
 @Example("set cost of enchantment offer 1 to 50")
 @Since("2.5")
-@RequiredPlugins("1.11 or newer")
 public class ExprEnchantmentOfferCost extends SimplePropertyExpression<EnchantmentOffer, Long> {
 
-	static {
-		if (Skript.classExists("org.bukkit.enchantments.EnchantmentOffer"))
-			register(ExprEnchantmentOfferCost.class, Long.class, "[enchant[ment]] cost", "enchantmentoffers");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprEnchantmentOfferCost.class, Long.class, "[enchant[ment]] cost", "enchantmentoffers", false)
+				.supplier(ExprEnchantmentOfferCost::new)
+				.build());
 	}
 
 	@Override
@@ -38,48 +38,40 @@ public class ExprEnchantmentOfferCost extends SimplePropertyExpression<Enchantme
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.REMOVE || mode == ChangeMode.REMOVE_ALL || mode == ChangeMode.RESET)
 			return null;
-		return CollectionUtils.array(Number.class, Experience.class);
+		return CollectionUtils.array(Number.class);
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		EnchantmentOffer[] offers = getExpr().getArray(event);
 		if (offers.length == 0 || delta == null)
 			return;
-		Object c = delta[0];
-		int cost = c instanceof Number ? ((Number) c).intValue() : ((Experience) c).getXP();
+		long cost = ((Number) delta[0]).longValue();
 		if (cost < 1) 
 			return;
-		int change;
-		switch (mode) {
-			case SET:
-				for (EnchantmentOffer offer : offers)
-					offer.setCost(cost);
-				break;
-			case ADD:
-				for (EnchantmentOffer offer : offers) {
-					change = offer.getCost() + cost;
-					if (change < 1) 
+		long change;
+		for (EnchantmentOffer offer : offers) {
+			switch (mode) {
+				case SET -> offer.setCost(Math2.clampToInt(cost));
+				case ADD -> {
+					change = Math2.addClamped(offer.getCost(), cost);
+					if (change < 1)
 						return;
-					offer.setCost(change);
+					offer.setCost(Math2.clampToInt(change));
 				}
-				break;
-			case REMOVE:
-				for (EnchantmentOffer offer : offers) {
-					change = offer.getCost() - cost;
-					if (change < 1) 
+				case REMOVE -> {
+					change = Math2.addClamped(offer.getCost(), -cost);
+					if (change < 1)
 						return;
-					offer.setCost(change);
+					offer.setCost(Math2.clampToInt(change));
 				}
-				break;
-			case RESET:
-			case DELETE:
-			case REMOVE_ALL:
-				assert false;
+				default -> {
+					assert false;
+				}
+			}
 		}
 	}
 

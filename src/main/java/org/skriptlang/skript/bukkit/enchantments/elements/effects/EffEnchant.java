@@ -1,4 +1,4 @@
-package ch.njol.skript.effects;
+package org.skriptlang.skript.bukkit.enchantments.elements.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
@@ -16,6 +16,8 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemFactory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
@@ -37,16 +39,18 @@ public class EffEnchant extends Effect {
 		DISENCHANT
 	}
 
-	private static final Patterns<Operation> patterns;
+	private static final Patterns<Operation> PATTERNS = new Patterns<>(new Object[][]{
+		{"enchant %~itemtypes% with %enchantmenttypes%", Operation.ENCHANT},
+		{"[naturally|randomly] enchant %~itemtypes% at level %number%[treasure:[,] allowing treasure enchant[ment]s]",
+			Operation.ENCHANT_AT_LEVEL},
+		{"disenchant %~itemtypes%", Operation.DISENCHANT}
+	});
 
-	static {
-		 patterns = new Patterns<>(new Object[][]{
-				{"enchant %~itemtypes% with %enchantmenttypes%", Operation.ENCHANT},
-				{"[naturally|randomly] enchant %~itemtypes% at level %number%[treasure:[,] allowing treasure enchant[ment]s]",
-						Operation.ENCHANT_AT_LEVEL},
-				{"disenchant %~itemtypes%", Operation.DISENCHANT}
-			});
-		Skript.registerEffect(EffEnchant.class, patterns.getPatterns());
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffEnchant.class)
+			.addPatterns(PATTERNS.getPatterns())
+			.supplier(EffEnchant::new)
+			.build());
 	}
 
 	private Expression<ItemType> items;
@@ -69,7 +73,7 @@ public class EffEnchant extends Effect {
 			level = (Expression<Number>) exprs[1];
 			treasure = parseResult.hasTag("treasure");
 		}
-		operation = patterns.getInfo(matchedPattern);
+		operation = PATTERNS.getInfo(matchedPattern);
 		return true;
 	}
 	

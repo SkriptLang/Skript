@@ -1,32 +1,34 @@
-package ch.njol.skript.effects;
+package org.skriptlang.skript.bukkit.enchantments.elements.effects;
 
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Force Enchantment Glint")
 @Description("Forces the items to glint or not, or removes its existing enchantment glint enforcement.")
 @Example("force {_items::*} to glint")
 @Example("force the player's tool to stop glinting")
-@RequiredPlugins("Spigot 1.20.5+")
 @Since("2.10")
 public class EffForceEnchantmentGlint extends Effect {
 
-	static {
-		if (Skript.methodExists(ItemMeta.class, "setEnchantmentGlintOverride", Boolean.class))
-			Skript.registerEffect(EffForceEnchantmentGlint.class,
-					"(force|make) %itemtypes% [to] [start] glint[ing]",
-					"(force|make) %itemtypes% [to] (not|stop) glint[ing]",
-					"(clear|delete|reset) [the] enchantment glint override of %itemtypes%",
-					"(clear|delete|reset) %itemtypes%'s enchantment glint override");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffForceEnchantmentGlint.class)
+			.addPatterns(
+				"(force|make) %itemtypes% [to] [start] glint[ing]",
+				"(force|make) %itemtypes% [to] (not|stop) glint[ing]",
+				"(clear|delete|reset) [the] enchantment glint override of %itemtypes%",
+				"(clear|delete|reset) %itemtypes%'[s] enchantment glint override")
+			.supplier(EffForceEnchantmentGlint::new)
+			.build());
 	}
 
 	private Expression<ItemType> itemTypes;
@@ -44,17 +46,11 @@ public class EffForceEnchantmentGlint extends Effect {
 	protected void execute(Event event) {
 		for (ItemType itemType : itemTypes.getArray(event)) {
 			ItemMeta meta = itemType.getItemMeta();
-			Boolean glint;
-			if (pattern == 0) {
-				// Pattern: forced to glint
-				glint = true;
-			} else if (pattern == 1) {
-				// Pattern: forced to not glint
-				glint = false;
-			} else {
-				// Pattern: Clear glint override
-				glint = null;
-			}
+			Boolean glint = switch (pattern) {
+				case 0 -> true; // Pattern: forced to glint
+				case 1 -> false; // Pattern: forced to not glint
+				default -> null; // Pattern: Clear glint override
+			};
 			meta.setEnchantmentGlintOverride(glint);
 			itemType.setItemMeta(meta);
 		}
