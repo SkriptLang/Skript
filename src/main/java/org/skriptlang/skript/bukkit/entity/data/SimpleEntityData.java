@@ -469,7 +469,14 @@ public class SimpleEntityData extends EntityData<Entity> implements EntityItemTy
 		}
 		throw new IllegalStateException();
 	}
-	
+
+	/**
+	 * Constructs a new {@link SimpleEntityData} using {@code entity} to find the closest {@link SimpleEntityDataInfo}
+	 * that best represents it.
+	 * @param entity The desired {@link Entity}.
+	 * @throws IllegalStateException If the {@code entity} is not covered by {@link SimpleEntityData}.
+	 */
+	@Internal
 	public SimpleEntityData(Entity entity) {
 		SimpleEntityDataInfo closestInfo = null;
 		int closestPattern = 0;

@@ -2,8 +2,6 @@ package org.skriptlang.skript.bukkit.entity;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
-import ch.njol.skript.bukkitutil.EntityUtils;
-import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser;
@@ -23,12 +21,12 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.RegionAccessor;
 import org.bukkit.World;
+import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.entity.EntityDataClassInfo.EntityDataSerializer;
 import org.skriptlang.skript.bukkit.entity.EntityDataInfo.Builder;
 import org.skriptlang.skript.bukkit.entity.data.PigData;
 import org.skriptlang.skript.bukkit.entity.data.SimpleEntityData;
@@ -92,8 +90,6 @@ public abstract class EntityData<E extends Entity>
 	private static final List<EntityDataInfo<EntityData<?>, ?>> INFOS = new ArrayList<>();
 
 	static final List<EntityData> ALL_ENTITY_DATAS = new ArrayList<>();
-
-	public static Serializer<EntityData> serializer = new EntityDataSerializer();
 
 	static void register() {
 		Variables.yggdrasil.registerFieldHandler(new FieldHandler() {
@@ -731,7 +727,7 @@ public abstract class EntityData<E extends Entity>
 	public final boolean isInstance(@Nullable Entity entity) {
 		if (entity == null)
 			return false;
-		if (!baby.isUnknown() && EntityUtils.isAgeable(entity) && EntityUtils.isAdult(entity) != baby.isFalse())
+		if (!baby.isUnknown() && entity instanceof Ageable && EntityUtils.isAdult(entity) != baby.isFalse())
 			return false;
 		return getType().isInstance(entity) && match((E) entity);
 	}

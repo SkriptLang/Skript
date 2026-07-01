@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.entity;
 
-import ch.njol.skript.bukkitutil.EntityUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.Nullable;

@@ -41,7 +41,7 @@ public class EntityDataClassInfo extends ClassInfo<EntityData> {
 				public String toVariableNameString(EntityData entityData) {
 					return "entitydata:" + entityData.toString();
 				}
-			}).serializer(EntityData.serializer);
+			}).serializer(new EntityDataSerializer());
 	}
 
 	public static class EntityDataSerializer extends Serializer<EntityData> {

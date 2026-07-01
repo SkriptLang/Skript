@@ -12,6 +12,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.entity.EntityDataClassInfo.EntityDataSerializer;
 import org.skriptlang.skript.bukkit.entity.EntityDataInfo;
 
 import java.io.NotSerializableException;
@@ -28,10 +29,12 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 	public static final String LANGUAGE_NODE = "entities";
 
+	private static final EntityDataSerializer NEW_SERIALIZER = new EntityDataSerializer();
+	
 	public static Serializer<EntityData> serializer = new Serializer<>() {
 		@Override
 		public Fields serialize(EntityData entityData) throws NotSerializableException {
-			return org.skriptlang.skript.bukkit.entity.EntityData.serializer.serialize((org.skriptlang.skript.bukkit.entity.EntityData) entityData);
+			return NEW_SERIALIZER.serialize((org.skriptlang.skript.bukkit.entity.EntityData) entityData);
 		}
 
 		@Override
@@ -41,7 +44,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 		@Override
 		public void deserialize(EntityData entityData, Fields fields) throws NotSerializableException, StreamCorruptedException {
-			org.skriptlang.skript.bukkit.entity.EntityData.serializer.deserialize((org.skriptlang.skript.bukkit.entity.EntityData) entityData, fields);
+			NEW_SERIALIZER.deserialize((org.skriptlang.skript.bukkit.entity.EntityData) entityData, fields);
 		}
 
 		@Override
