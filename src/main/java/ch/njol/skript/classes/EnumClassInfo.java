@@ -68,7 +68,7 @@ public class EnumClassInfo<T extends Enum<T>> extends ClassInfo<T> {
 	 * @param registerComparator Whether a default comparator should be registered for this enum's classinfo
 	 * @deprecated {@code registerComparator} is no longer necessary.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.16", forRemoval = true)
 	public EnumClassInfo(Class<T> enumClass, String codeName, String languageNode, boolean registerComparator) {
 		this(enumClass, codeName, languageNode, new EventValueExpression<>(enumClass));
 	}
@@ -81,7 +81,7 @@ public class EnumClassInfo<T extends Enum<T>> extends ClassInfo<T> {
 	 * @param registerComparator Whether a default comparator should be registered for this enum's classinfo
 	 * @deprecated {@code registerComparator} is no longer necessary.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.16", forRemoval = true)
 	public EnumClassInfo(Class<T> enumClass, String codeName, String languageNode, DefaultExpression<T> defaultExpression, boolean registerComparator) {
 		this(enumClass, codeName, languageNode, defaultExpression);
 	}

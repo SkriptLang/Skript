@@ -1,0 +1,42 @@
+using error catching
+
+test "create bossbar":
+	set {_bar} to red bossbar
+	assert {_bar} is set with "Failed to create bossbar"
+	set {_error} to "Could not round to a color that is similar to rgb 18, 18, 17"
+	set {_bar1} to boss bar
+	catch runtime errors:
+		set color of {_bar1} to rgb(18, 18, 17)
+	assert last caught errors is {_error} with "set color of bar to rgb(18, 18, 17) should error but did not"
+	set {_bar1} to bossbar
+	set {_bar2} to a boss bar:
+		set color of event-bossbar to red
+		set progress of event-bossbar to 50%
+		set style of event-bossbar to 6 notches
+		set title of event-bossbar to "testing"
+	assert color of {_bar2} is red with "Failed to set bossbar color"
+	assert progress of {_bar2} is 50% with "Failed to set bossbar progress"
+	assert style of {_bar2} is 6 notches with "Failed to set bossbar style"
+	assert title of {_bar2} is "testing" with "Failed to set bossbar title"
+
+	set {_bar3} to a keyed boss bar with key "testbar":
+		set title of event-bossbar to "testing3"
+		set progress of event-bossbar to 75%
+		set style of event-bossbar to 20 notches
+		set color of event-bossbar to green
+	assert {_bar3} is set with "Failed to create keyed bossbar"
+	assert all keyed bossbars contains {_bar3} with "Bossbar was not listed in all bossbars"
+	assert bossbar from key "testbar" is set with "Failed to get bossbar from key"
+	assert bossbar key of {_bar3} is set with "Failed to get key of bossbar"
+	assert {_bar3} is a keyed boss bar with "Failed to check if bar is a keyed bossbar"
+	assert title of {_bar3} is "testing3" with "Failed to set title of keyed bossbar"
+	assert progress of {_bar3} is 75% with "Failed to set progress of keyed bossbar"
+	assert style of {_bar3} is 20 notches with "Failed to set style of keyed bossbar"
+	assert color of {_bar3} is light green with "Failed to set color of keyed bossbar"
+	set {_bar4} to a boss bar:
+		set name of event-bossbar to "okay"
+	assert name of {_bar4} is "okay" with "Failed to set name of bossbar"
+	delete boss bar in {_bar3}
+
+	set {_bar4} to a boss bar with title "My Cool Bar"
+	assert title of {_bar4} is "My Cool Bar" with "Failed to set title of a bar in the expression"

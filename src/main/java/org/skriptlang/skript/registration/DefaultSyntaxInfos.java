@@ -137,7 +137,7 @@ public sealed interface DefaultSyntaxInfos permits SyntaxInfo {
 		 * @return A syntax info representing {@code type}.
 		 */
 		@Contract("_, _, _ -> new")
-		static <E extends org.skriptlang.skript.lang.structure.Structure> SyntaxInfo<E> simple(Class<E> structureClass,
+		static <E extends org.skriptlang.skript.lang.structure.Structure> Structure<E> simple(Class<E> structureClass,
 			Supplier<E> instanceSupplier, String... patterns) {
 			return builder(structureClass)
 				.supplier(instanceSupplier)

@@ -22,8 +22,6 @@ import org.bukkit.block.DoubleChest;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -422,17 +420,6 @@ public class BukkitClasses {
 					}
 				}));
 
-		Classes.registerClass(new RegistryClassInfo<>(Enchantment.class, Registry.ENCHANTMENT, "enchantment", "enchantments")
-				.user("enchantments?")
-				.name("Enchantment")
-				.description("An enchantment, e.g. 'sharpness' or 'fortune'. Unlike <a href='#enchantmenttype'>enchantment type</a> " +
-						"this type has no level, but you usually don't need to use this type anyway.",
-						"NOTE: Minecraft namespaces are supported, ex: 'minecraft:basalt_deltas'.",
-						"As of Minecraft 1.21 this will also support custom enchantments using namespaces, ex: 'myenchants:explosive'.")
-				.examples("")
-				.since("1.4.6")
-				.before("enchantmenttype"));
-
 		Material[] allMaterials = Material.values();
 		Classes.registerClass(new ClassInfo<>(Material.class, "material")
 				.name(ClassInfo.NO_DOC)
@@ -613,31 +600,6 @@ public class BukkitClasses {
 					ExpressionPropertyHandler.of(GameRule::getName, String.class)
 				));
 
-		Classes.registerClass(new ClassInfo<>(EnchantmentOffer.class, "enchantmentoffer")
-				.user("enchant[ment][ ]offers?")
-				.name("Enchantment Offer")
-				.description("The enchantmentoffer in an enchant prepare event.")
-				.examples("on enchant prepare:",
-					"\tset enchant offer 1 to sharpness 1",
-					"\tset the cost of enchant offer 1 to 10 levels")
-				.since("2.5")
-				.parser(new Parser<>() {
-					@Override
-					public boolean canParse(ParseContext context) {
-						return false;
-					}
-
-					@Override
-					public String toString(EnchantmentOffer eo, int flags) {
-						return Classes.toString(eo.getEnchantment()) + " " + eo.getEnchantmentLevel();
-					}
-
-					@Override
-					public String toVariableNameString(EnchantmentOffer eo) {
-						return "offer:" + Classes.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
-					}
-				}));
-
 		Classes.registerClass(new RegistryClassInfo<>(Attribute.class, Registry.ATTRIBUTE, "attributetype", "attribute types")
 				.user("attribute ?types?")
 				.name("Attribute Type")
@@ -736,31 +698,6 @@ public class BukkitClasses {
 						}
 					}));
 		}
-
-		Classes.registerClass(new ClassInfo<>(WorldBorder.class, "worldborder")
-				.user("world ?borders?")
-				.name("World Border")
-				.description("Represents the border of a world or player.")
-				.since("2.11")
-				.parser(new Parser<>() {
-					@Override
-					public boolean canParse(ParseContext context) {
-						return false;
-					}
-
-					@Override
-					public String toString(WorldBorder border, int flags) {
-						if (border.getWorld() == null)
-							return "virtual world border";
-						return "world border of world named '" + border.getWorld().getName() + "'";
-					}
-
-					@Override
-					public String toVariableNameString(WorldBorder border) {
-						return toString(border, 0);
-					}
-				})
-				.defaultExpression(new EventValueExpression<>(WorldBorder.class)));
 
 		Classes.registerClass(new ClassInfo<>(org.bukkit.block.banner.Pattern.class, "bannerpattern")
 				.user("banner ?patterns?")
