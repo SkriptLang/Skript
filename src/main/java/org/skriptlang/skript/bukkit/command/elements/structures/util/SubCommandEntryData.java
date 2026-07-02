@@ -55,8 +55,8 @@ public class SubCommandEntryData extends EntryData<Result> {
 
 	public record Result(
 		List<ArgumentBuilder<CommandSourceStack, ?>> arguments,
-		List<String> aliases,
-		String description
+		Collection<String> aliases,
+		@Nullable String description
 	) { }
 
 	private static final Predicate<CommandSender> TRUE_PREDICATE = ignored -> true;
@@ -81,7 +81,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 				return aliases;
 			}
 		})
-		.addEntry("description", "", true)
+		.addEntry("description", null, true)
 		.addEntry("permission", null, true)
 		.addEntryData(new KeyValueEntryData<ExecutableBy>("executable by", null, true) {
 			private final Pattern pattern = Pattern.compile("\\s*,\\s*|\\s+(and|or)\\s+");
@@ -182,8 +182,8 @@ public class SubCommandEntryData extends EntryData<Result> {
 		}
 
 		// command description
-		String description = entryContainer.get("description", String.class, true);
-		if (!isRoot && !description.isEmpty()) {
+		String description = entryContainer.getOptional("description", String.class, false);
+		if (!isRoot && description != null) {
 			Skript.error("Only the root of a command may have a description.");
 			return null;
 		}

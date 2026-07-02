@@ -6,12 +6,12 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.command.brigadier.RuntimeCommandRegistrar;
+import org.skriptlang.skript.bukkit.command.brigadier.RuntimeCommandRegistrar.CommandRegistration;
 import org.skriptlang.skript.bukkit.command.brigadier.ScriptCommandEvent;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.SubCommandEntryData;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
@@ -21,9 +21,6 @@ import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StructCommand extends Structure {
@@ -36,32 +33,12 @@ public class StructCommand extends Structure {
 
 		EventValueRegistry evRegistry = addon.registry(EventValueRegistry.class);
 		evRegistry.register(EventValue.simple(ScriptCommandEvent.class, CommandSender.class, ScriptCommandEvent::getSender));
-
-		Skript.getInstance().getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,commands -> {
-			var registrar = commands.registrar();
-			for (var registration : COMMANDS) {
-				registrar.register(registration.node, registration.description, registration.aliases);
-			}
-		});
 	}
 
 	private static final SubCommandEntryData ROOT_ENTRY_DATA =
 		new SubCommandEntryData("command", false, false);
 
-	private record CommandRegistration(
-		LiteralCommandNode<CommandSourceStack> node,
-		List<String> aliases,
-		String description
-	) { }
-
-	private static final Set<CommandRegistration> COMMANDS = ConcurrentHashMap.newKeySet();
 	private static final AtomicBoolean SYNC_COMMANDS = new AtomicBoolean();
-
-	private static void performSync() {
-		if (SYNC_COMMANDS.getAndSet(false)) {
-			Bukkit.reloadData();
-		}
-	}
 
 	private SectionNode rootNode;
 	private CommandRegistration command;
@@ -82,10 +59,10 @@ public class StructCommand extends Structure {
 			Skript.error("A command must have a name.");
 			return false;
 		}
-		this.command = new CommandRegistration(node, result.aliases(), result.description());
+		command = new CommandRegistration(node, result.aliases(), result.description());
 		// TODO validate whether command already exists
 
-		COMMANDS.add(this.command);
+		RuntimeCommandRegistrar.register(command);
 		SYNC_COMMANDS.set(true);
 
 		return true;
@@ -93,19 +70,23 @@ public class StructCommand extends Structure {
 
 	@Override
 	public boolean postLoad() {
-		performSync();
+		if (SYNC_COMMANDS.compareAndSet(true, false)) {
+			RuntimeCommandRegistrar.processRegistrations();
+		}
 		return true;
 	}
 
 	@Override
 	public void unload() {
-		COMMANDS.remove(command);
+		RuntimeCommandRegistrar.unregister(command);
 		SYNC_COMMANDS.set(true);
 	}
 
 	@Override
 	public void postUnload() {
-		performSync();
+		if (SYNC_COMMANDS.compareAndSet(true, false)) {
+			RuntimeCommandRegistrar.processUnregistrations();
+		}
 	}
 
 	@Override
