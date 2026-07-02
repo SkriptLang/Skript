@@ -74,7 +74,7 @@ public class StructCommand extends Structure {
 
 	private static final AtomicBoolean SYNC_COMMANDS = new AtomicBoolean();
 
-	static {
+	private static void register() { // don't register for now
 		Skript.registerStructure(
 			StructCommand.class,
 			EntryValidator.builder()
