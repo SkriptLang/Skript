@@ -2687,6 +2687,15 @@ villager career change reasons:
 	employed: employment
 	losing_job: losing job
 
+# -- Boss Bars --
+
+boss bar styles:
+	segmented_6: 6 segments, six segments, notched with 6 segments, notched with six segments, 6 notches, six notches
+	segmented_10: 10 segments, ten segments, notched with 10 segments, notched with ten segments, 10 notches, ten notches
+	segmented_12: 12 segments, twelve segments, notched with 12 segments, notched with twelve segments, 12 notches, twelve notches
+	segmented_20: 20 segments, twenty segments, notched with 20 segments, notched with twenty segments, 20 notches, twenty notches
+	solid: solid, no notches, progress
+
 # -- Damage Types --
 damage types:
 	arrow: arrow
@@ -2800,6 +2809,9 @@ types:
 	itementity: dropped item¦s @a # same as entities.dropped item.name
 	itemflag: item flag¦s @an
 	biome: biome¦s @a
+	bossbar: boss bar¦s @a
+	keyedbossbar: keyed boss bar¦s @a
+	bossbarstyle: boss bar style¦s @a
 	potioneffecttype: potion effect type¦s @a
 	potioneffecttypecategory: potion effect type categor¦y¦ies @a
 	potioneffect: potion effect¦s @a

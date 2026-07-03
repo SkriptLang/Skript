@@ -17,10 +17,12 @@ public class MiscModule extends HierarchicalAddonModule {
 		register(addon,
 			EffRotate::register,
 			ExprBroadcastMessage::register,
+			ExprColorOf::register,
 			ExprItemOfEntity::register,
 			ExprMOTD::register,
 			ExprQuaternionAxisAngle::register,
 			ExprRotate::register,
+			ExprSkullTexture::register,
 			ExprTextOf::register,
 			ExprWithYawPitch::register
 		);

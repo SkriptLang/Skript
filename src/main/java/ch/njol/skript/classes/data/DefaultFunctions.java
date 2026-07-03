@@ -707,7 +707,7 @@ public class DefaultFunctions {
 				"kill entity({uuid})",
 				"set {_type} to type of entity({uuid})"
 			)
-			.since("INSERT VERSION")
+			.since("2.16")
 			.parameter("uuid", UUID.class)
 			.build(args -> {
 				UUID uuid = args.get("uuid");

@@ -21,8 +21,6 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntitySnapshot;
 import org.bukkit.entity.LivingEntity;
@@ -279,14 +277,8 @@ public class DefaultConverters {
 				Converter.NO_RIGHT_CHAINING);
 		}
 
-		// Enchantment - EnchantmentType
-		Converters.registerConverter(Enchantment.class, EnchantmentType.class, e -> new EnchantmentType(e, -1));
-
 		// Vector - Direction
 		Converters.registerConverter(Vector.class, Direction.class, Direction::new);
-
-		// EnchantmentOffer - EnchantmentType
-		Converters.registerConverter(EnchantmentOffer.class, EnchantmentType.class, eo -> new EnchantmentType(eo.getEnchantment(), eo.getEnchantmentLevel()));
 
 		Converters.registerConverter(String.class, World.class, Bukkit::getWorld);
 

@@ -39,9 +39,11 @@ test "worldborder damage amount":
 		add NaN value to worldborder damage amount of {_border}
 	assert last caught runtime errors contains "NaN is not a valid world border damage amount" with "Adding NaN damage value did not throw error"
 	assert worldborder damage amount of {_border} is 1.5 with "Adding NaN value to worldborder damage amount changed the damage amount"
-	add infinity value to worldborder damage amount of {_border}
+	catch runtime errors:
+		add infinity value to worldborder damage amount of {_border}
 	assert worldborder damage amount of {_border} is 1.5 with "Adding infinity to worldborder damage amount changed the damage amount"
-	add -infinity value to worldborder damage amount of {_border}
+	catch runtime errors:
+		add -infinity value to worldborder damage amount of {_border}
 	assert worldborder damage amount of {_border} is 1.5 with "Adding -infinity to worldborder damage amount changed the damage amount"
 
 	# remove tests
@@ -55,11 +57,14 @@ test "worldborder damage amount":
 	assert worldborder damage amount of {_border} is 1.5 with "Failed removing negative integer from damage amount"
 	remove {_None} from worldborder damage amount of {_border}
 	assert worldborder damage amount of {_border} is 1.5 with "Removing None from worldborder damage amount changed the damage amount"
-	remove NaN value from worldborder damage amount of {_border}
+	catch runtime errors:
+		remove NaN value from worldborder damage amount of {_border}
 	assert worldborder damage amount of {_border} is 1.5 with "Removing NaN value from worldborder damage amount changed the damage amount"
-	remove infinity value from worldborder damage amount of {_border}
+	catch runtime errors:
+		remove infinity value from worldborder damage amount of {_border}
 	assert worldborder damage amount of {_border} is 1.5 with "Removing infinity from worldborder damage amount changed the damage amount"
-	remove -infinity value from worldborder damage amount of {_border}
+	catch runtime errors:
+		remove -infinity value from worldborder damage amount of {_border}
 	assert worldborder damage amount of {_border} is 1.5 with "Removing -infinity from worldborder damage amount changed the damage amount"
 
 	set worldborder damage amount of {_border} to -10

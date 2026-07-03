@@ -254,7 +254,20 @@ public class JSONGenerator extends DocumentationGenerator {
 		String name = Objects.requireNonNullElse(exact.getDocName(), exact.getName().getSingular());
 		if (name.equals(ClassInfo.NO_DOC)) { // undocumented type is not helpful
 			// hopefully the supertype has something better...
-			exact = Classes.getSuperClassInfo(expression.returnType().getSuperclass());
+			Class<?> parent = expression.returnType().getSuperclass();
+			if (parent == null || parent == Object.class) {
+				for (Class<?> parentInterface : expression.returnType().getInterfaces()) {
+					exact = Classes.getSuperClassInfo(parentInterface);
+					if (exact.getC() != Object.class) {
+						parent = parentInterface;
+						break;
+					}
+				}
+				if (parent == null) {
+					parent = Object.class;
+				}
+			}
+			exact = Classes.getSuperClassInfo(parent);
 			name = Objects.requireNonNullElse(exact.getDocName(), exact.getName().getSingular());
 		}
 

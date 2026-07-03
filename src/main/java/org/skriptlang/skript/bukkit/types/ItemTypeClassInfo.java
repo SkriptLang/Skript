@@ -10,9 +10,12 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.YggdrasilSerializer;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.util.EnchantmentType;
+import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -47,6 +50,10 @@ public class ItemTypeClassInfo extends ClassInfo<ItemType> {
 			.parser(new ItemTypeParser())
 			.cloner(ItemType::clone)
 			.serializer(new YggdrasilSerializer<>())
+			.property(Property.TITLE,
+				"An item's title. This currently only applies to signed books.",
+				Skript.instance(),
+				new ItemTypeTitleHandler())
 			.property(Property.NAME,
 				"An item type's custom name, if set. Can be set or reset.",
 				Skript.instance(),
@@ -99,6 +106,40 @@ public class ItemTypeClassInfo extends ClassInfo<ItemType> {
 				}
 			}
 			return result.toString();
+		}
+		//</editor-fold>
+	}
+
+	private static class ItemTypeTitleHandler implements ExpressionPropertyHandler<ItemType, Component> {
+		//<editor-fold desc="item type title handler" defaultstate="collapsed">
+		@Override
+		public @Nullable Component convert(ItemType item) {
+			if (item.getItemMeta() instanceof BookMeta bookMeta && bookMeta.hasTitle()) {
+				return bookMeta.title();
+			}
+			return null;
+		}
+
+		@Override
+		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+			return switch (mode) {
+				case SET, DELETE, RESET -> CollectionUtils.array(Component.class);
+				default -> null;
+			};
+		}
+
+		@Override
+		public void change(ItemType item, Object @Nullable [] delta, ChangeMode mode) {
+			Component title = delta == null ? null : (Component) delta[0];
+			if (item.getItemMeta() instanceof BookMeta bookMeta) {
+				bookMeta.title(title);
+				item.setItemMeta(bookMeta);
+			}
+		}
+
+		@Override
+		public @NotNull Class<Component> returnType() {
+			return Component.class;
 		}
 		//</editor-fold>
 	}

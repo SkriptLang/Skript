@@ -74,7 +74,7 @@ public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 	 * @param registerComparator Whether a default comparator should be registered for this registry's classinfo
 	 * @deprecated {@code registerComparator} is no longer necessary.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.16", forRemoval = true)
 	public RegistryClassInfo(Class<R> registryClass, Registry<R> registry, String codeName, String languageNode, boolean registerComparator) {
 		this(registryClass, registry, codeName, languageNode, new EventValueExpression<>(registryClass));
 	}
@@ -88,7 +88,7 @@ public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 	 * @param registerComparator Whether a default comparator should be registered for this registry's classinfo
 	 * @deprecated {@code registerComparator} is no longer necessary.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.16", forRemoval = true)
 	public RegistryClassInfo(Class<R> registryClass, Registry<R> registry, String codeName, String languageNode, DefaultExpression<R> defaultExpression, boolean registerComparator) {
 		this(registryClass, registry, codeName, languageNode, defaultExpression);
 	}
