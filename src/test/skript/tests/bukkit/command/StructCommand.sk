@@ -49,18 +49,13 @@ command /test-args-plural <x: numbers>:
 
 command {@command} <text> [<text>] [<itemtype = %dirt named "steve"%>]:
 	trigger:
-		set {_arg1} to arg-1
-		assert {_arg1} is "taco" with "arg-1 test failed (got '%{_arg1}%')"
-		set {_arg2} to arg-2
-		assert {_arg2} is not set with "arg-2 test failed (got '%{_arg2}%')"
-		set {_arg3} to arg-3
-		assert {_arg3} is dirt named "steve" with "arg-3 test failed (got '%{_arg3}%')"
+		set {-test-{@command}::arg1} to arg-1
+		set {-test-{@command}::arg2} to arg-2
+		set {-test-{@command}::arg3} to arg-3
 
 command //somecommand [<text>]:
 	trigger:
-		set {_arg1} to arg-1
-		if {_arg1} is set:
-			assert {_arg1} is "burrito is tasty" with "arg-1 is 'burrito is tasty' test failed (got '%{_arg1}%')"
+		set {-test-somecommand::arg1} to arg-1
 
 # see https://github.com/SkriptLang/Skript/pull/6286
 command /commandtest <string="player">:
@@ -86,5 +81,10 @@ test "StructCommand":
 	execute command "test-args-plural 10 and 2"
 	assert {-test-args-plural::*} is 10 and 2 with "plural input to plural args did not work"
 
-	execute command "skriptcommand taco"
+	execute command "{@command} taco"
+	assert {-test-{@command}::arg1} is "taco" with "arg-1 test failed"
+	assert {-test-{@command}::arg2} is not set with "arg-2 test failed"
+	assert {-test-{@command}::arg3} is dirt named "steve" with "arg-3 test failed"
+
 	execute command "//somecommand burrito is tasty"
+	assert {-test-somecommand::arg1} is "burrito is tasty" with "arg-1 is 'burrito is tasty' test failed"
