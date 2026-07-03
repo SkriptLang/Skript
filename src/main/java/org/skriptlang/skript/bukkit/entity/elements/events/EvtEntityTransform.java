@@ -15,15 +15,13 @@ import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.util.Arrays;
-
 public class EvtEntityTransform extends SkriptEvent {
 
 	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry) {
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtEntityTransform.class, "Entity Transform")
 			.supplier(EvtEntityTransform::new)
 			.addEvent(EntityTransformEvent.class)
-			.addPatterns("[entity:%*-entitydatas%] transform[ing] [transform: due to %-transformreasons%]")
+			.addPatterns("[%*-entitydatas%] transform[ing] [due to %-transformreasons%]")
 			.addDescription("""
 				Called when an entity is about to be replaced by another entity.
 				e.g. when a zombie gets cured and a villager spawns,\s
@@ -52,33 +50,27 @@ public class EvtEntityTransform extends SkriptEvent {
 			.build());
 	}
 
-	private EntityData<?>[] entityData;
-	private TransformReason[] reasons;
+	private Literal<EntityData<?>> entityData;
+	private Literal<TransformReason> reasons;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (parseResult.hasTag("transform")) {
-			Literal<TransformReason> transformLiteral = (Literal<TransformReason>) args[1];
-			reasons = transformLiteral.getArray();
-		}
-		if (parseResult.hasTag("entity")) {
-			Literal<EntityData<?>> entityLiteral = (Literal<EntityData<?>>) args[0];
-			entityData = entityLiteral.getArray();
-		}
+		if (args[1] != null)
+			reasons  = (Literal<TransformReason>) args[1];
+		if (args[0] != null)
+			entityData = (Literal<EntityData<?>>) args[0];
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
 		EntityTransformEvent entityEvent = (EntityTransformEvent) event;
-		boolean reasonMatched = true;
-		boolean entityDataMatched = true;
-		if (reasons != null)
-			reasonMatched = Arrays.stream(reasons).anyMatch(reason -> reason == entityEvent.getTransformReason());
-		if (entityData != null)
-			entityDataMatched = Arrays.stream(entityData).anyMatch(data -> data.isInstance(entityEvent.getEntity()));
-		return reasonMatched && entityDataMatched;
+		if (reasons != null && !reasons.check(event, reason -> reason == entityEvent.getTransformReason()))
+			return false;
+		if (entityData != null && !entityData.check(event, data -> data.isInstance(entityEvent.getEntity())))
+			return false;
+		return true;
 	}
 
 	@Override

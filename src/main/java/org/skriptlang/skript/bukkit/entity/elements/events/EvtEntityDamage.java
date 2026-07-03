@@ -58,20 +58,16 @@ public class EvtEntityDamage extends SkriptEvent {
 			.build());
 	}
 
-	private EntityData<?>[] byEntityData;
-	private EntityData<?>[] ofEntityData;
+	private Literal<EntityData<?>> byEntityData;
+	private Literal<EntityData<?>>  ofEntityData;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
-		if (parseResult.hasTag("by")) {
-			Literal<EntityData<?>> entityLiteral = (Literal<EntityData<?>>) args[1];
-			byEntityData = entityLiteral.getArray();
-		}
-		if (parseResult.hasTag("of")) {
-			Literal<EntityData<?>> entityLiteral = (Literal<EntityData<?>>) args[0];
-			ofEntityData = entityLiteral.getArray();
-		}
+		if (parseResult.hasTag("by"))
+			byEntityData = (Literal<EntityData<?>>) args[1];
+		if (parseResult.hasTag("of"))
+			ofEntityData = (Literal<EntityData<?>>) args[0];
 		return true;
 	}
 
@@ -82,17 +78,13 @@ public class EvtEntityDamage extends SkriptEvent {
 		boolean healthMatched = true;
 		boolean damagerMatched = true;
 
-		if (ofEntityData != null)
-			entityMatched = Arrays.stream(ofEntityData).anyMatch(data -> data.isInstance(entityDamageEvent.getEntity()));
-
-		if (entityDamageEvent.getEntity() instanceof LivingEntity entity)
-			healthMatched = HealthUtils.getHealth(entity) > 0;
-
+		if (ofEntityData != null && !ofEntityData.check(event, data -> data.isInstance(entityDamageEvent.getEntity())))
+			return false;
+		if (entityDamageEvent.getEntity() instanceof LivingEntity entity && HealthUtils.getHealth(entity) <= 0)
+			return false;
 		if (byEntityData != null && event instanceof EntityDamageByEntityEvent entityEvent)
-			damagerMatched = Arrays.stream(byEntityData).anyMatch(data -> data.isInstance(entityEvent.getDamager()));
-
-		return entityMatched && healthMatched && damagerMatched;
-
+			return byEntityData.check(event, data -> data.isInstance(entityEvent.getDamager()));
+		return true;
 	}
 
 	@Override

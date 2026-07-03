@@ -11,17 +11,15 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.util.Arrays;
-
 public class EvtEntityBreakDoor extends SkriptEvent {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtEntityBreakDoor.class, "Entity Break Door")
 			.supplier(EvtEntityBreakDoor::new)
 			.addEvent(EntityBreakDoorEvent.class)
-			.addPatterns("[entity:%entitydatas%] break[ing] [a] [wood[en]] door")
+			.addPatterns("[%-entitydatas%] break[ing] [a] [wood[en]] door")
 			.addDescription("""
-				Called when an entity (usually a zombie) is breaks a door.
+				Called when an entity (usually a zombie, husk, zombie pigman or zombie villager) is breaking a door.
 				Can be cancelled to prevent the entity from breaking the door.
 				""")
 			.addExample("""
@@ -33,14 +31,13 @@ public class EvtEntityBreakDoor extends SkriptEvent {
 			.build());
 	}
 
-	private EntityData<?>[] entityData;
+	private Literal<EntityData<?>> entityData;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (parseResult.hasTag("entity")) {
-			Literal<EntityData<?>> entityLiteral = (Literal<EntityData<?>>) args[0];
-			entityData = entityLiteral.getArray();
+		if (args[0] != null) {
+			entityData = (Literal<EntityData<?>>) args[0];
 		}
 		return true;
 	}
@@ -49,7 +46,7 @@ public class EvtEntityBreakDoor extends SkriptEvent {
 	public boolean check(Event event) {
 		if (entityData != null) {
 			EntityBreakDoorEvent entityEvent = (EntityBreakDoorEvent) event;
-			return Arrays.stream(entityData).anyMatch(entity -> entity.isInstance(entityEvent.getEntity()));
+			return entityData.check(event, data -> data.isInstance((entityEvent.getEntity())));
 		}
 		return true;
 	}

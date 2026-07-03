@@ -19,15 +19,13 @@ import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.util.Arrays;
-
 public class EvtEntityLeash extends SkriptEvent {
 
 	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry) {
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtEntityLeash.class, "Entity Leash")
 			.supplier(EvtEntityLeash::new)
 			.addEvents(CollectionUtils.array(PlayerLeashEntityEvent.class, EntityUnleashEvent.class))
-			.addPatterns("[:player] [:un]leash[ing] [entity:of %-entitydatas%]")
+			.addPatterns("[:player] [:un]leash[ing] [of %-entitydatas%]")
 			.addDescription("""
 				Called when an entity is leashed or unleashed.
 				Cancelling these events will prevent the leashing or unleashing from occurring.
@@ -85,16 +83,15 @@ public class EvtEntityLeash extends SkriptEvent {
 
 	}
 
-	private @Nullable EntityData<?>[] entityData;
+	private Literal<EntityData<?>> entityData;
 	private EventType eventType;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (parseResult.hasTag("entity")) {
-			Literal<EntityData<?>> entityLiteral = (Literal<EntityData<?>>) args[0];
-			entityData = entityLiteral.getArray();
-		}
+		if (args[0] != null)
+			entityData = (Literal<EntityData<?>>) args[0];
+
 		eventType = EventType.LEASH;
 		if (parseResult.hasTag("un")) {
 			eventType = EventType.UNLEASH;
@@ -116,7 +113,7 @@ public class EvtEntityLeash extends SkriptEvent {
 			return false;
 		if (entityData == null)
 			return true;
-		return Arrays.stream(entityData).anyMatch(entityData -> entityData.isInstance(leashedEntity));
+		return entityData.check(event, data -> data.isInstance(leashedEntity));
 
 	}
 

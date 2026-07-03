@@ -14,8 +14,6 @@ import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.util.Arrays;
-
 public class EvtEntityHeal extends SkriptEvent {
 
 	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry) {
@@ -23,8 +21,8 @@ public class EvtEntityHeal extends SkriptEvent {
 			.supplier(EvtEntityHeal::new)
 			.addEvent(EntityRegainHealthEvent.class)
 			.addPatterns(
-				"heal[ing] [entity:of %-entitydatas%] [reason:(from|due to|by) %-healreasons%]",
-				"[entity:%-entitydatas%] heal[ing] [reason:(from|due to|by) %-healreasons%]"
+				"heal[ing] [of %-entitydatas%] [(from|due to|by) %-healreasons%]",
+				"[%-entitydatas%] heal[ing] [(from|due to|by) %-healreasons%]"
 			)
 			.addDescription("""
 				Called when an entity is healed,\s
@@ -49,34 +47,31 @@ public class EvtEntityHeal extends SkriptEvent {
 			.build());
 	}
 
-	private EntityData<?>[] entityData;
-	private RegainReason[] reasons;
+	private Literal<EntityData<?>> entityData;
+	private Literal<RegainReason> reasons;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (parseResult.hasTag("reason")) {
-			Literal<RegainReason> reasonLiteral = (Literal<RegainReason>) args[1];
-			reasons = reasonLiteral.getArray();
-		}
-		if (parseResult.hasTag("entity")) {
-			Literal<EntityData<?>> entityLiteral = (Literal<EntityData<?>>) args[0];
-			entityData = entityLiteral.getArray();
-		}
+		if (args[0] != null)
+			entityData = (Literal<EntityData<?>>) args[0];
+
+		if (args[1] != null)
+			reasons = (Literal<RegainReason>) args[1];
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
 		EntityRegainHealthEvent entityEvent = (EntityRegainHealthEvent) event;
-		boolean entityMatched = true;
-		boolean reasonMatched = true;
-		if (entityData != null)
-		     entityMatched = Arrays.stream(entityData).noneMatch(data -> data.isInstance(entityEvent.getEntity()));
-		if (reasons != null)
-			reasonMatched = Arrays.stream(reasons).noneMatch(reason -> reason == entityEvent.getRegainReason());
-		return entityMatched && reasonMatched;
+		if (entityData != null && !entityData.check(event, data -> data.isInstance(entityEvent.getEntity())))
+			return false;
+		if (reasons != null && !reasons.check(event, reason -> reason.equals(entityEvent.getRegainReason())))
+			return false;
+		return true;
+
 	}
+
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {

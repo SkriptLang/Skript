@@ -4,7 +4,6 @@ package org.skriptlang.skript.bukkit.entity.elements.events;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.SyntaxStringBuilder;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.jetbrains.annotations.Nullable;
@@ -50,11 +49,7 @@ public class EvtEntityTarget extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return new SyntaxStringBuilder(event, debug)
-			.append("entity")
-			.appendIf(!target,"un")
-			.append("target")
-			.toString();
+		return "entity " + (target ? "" : "un") + "target";
 	}
 
 }

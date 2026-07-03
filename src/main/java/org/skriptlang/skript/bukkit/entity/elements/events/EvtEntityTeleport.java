@@ -18,15 +18,13 @@ import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.util.Arrays;
-
 public class EvtEntityTeleport extends SkriptEvent {
 
 	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry) {
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtEntityTeleport.class, "Entity Teleport")
 			.supplier(EvtEntityTeleport::new)
 			.addEvents(CollectionUtils.array(EntityTeleportEvent.class, PlayerTeleportEvent.class))
-			.addPatterns("[entity:%-entitydatas%] teleport[ing]")
+			.addPatterns("[%-entitydatas%] teleport[ing]")
 			.addDescription("""
 				Called when an entity teleports including players.
 				This event will also be called due to a result of natural causes,\s
@@ -69,15 +67,13 @@ public class EvtEntityTeleport extends SkriptEvent {
 			.build());
 	}
 
-	private EntityData<?>[] entityData;
+	private Literal<EntityData<?>> entityData;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (parseResult.hasTag("entity")) {
-			Literal<EntityData<?>> entityLiteral = (Literal<EntityData<?>>) args[0];
-			entityData = entityLiteral.getArray();
-		}
+		if (args[0] != null)
+			entityData = (Literal<EntityData<?>>) args[0];
 		return true;
 	}
 
@@ -86,9 +82,9 @@ public class EvtEntityTeleport extends SkriptEvent {
 		if (entityData == null)
 			return true;
 		if (event instanceof EntityTeleportEvent entityEvent) {
-			return Arrays.stream(entityData).anyMatch(entity -> entity.isInstance(entityEvent.getEntity()));
+			return entityData.check(event, data -> data.isInstance(entityEvent.getEntity()));
 		} else if (event instanceof PlayerTeleportEvent playerEvent) {
-			return Arrays.stream(entityData).anyMatch(player -> player.isInstance(playerEvent.getPlayer()));
+			return entityData.check(event, data -> data.isInstance(playerEvent.getPlayer()));
 		}
 		return false;
 	}
@@ -96,7 +92,7 @@ public class EvtEntityTeleport extends SkriptEvent {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return new SyntaxStringBuilder(event, debug)
-			.appendIf(entityData != null, (Object) entityData)
+			.appendIf(entityData != null, entityData)
 			.append("teleporting")
 			.toString();
 	}

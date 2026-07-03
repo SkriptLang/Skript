@@ -19,8 +19,6 @@ import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.util.Arrays;
-
 public class EvtEntityShootBow extends SkriptEvent {
 
 	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry) {
@@ -67,15 +65,13 @@ public class EvtEntityShootBow extends SkriptEvent {
 			.build());
 	}
 
-	private EntityData<?>[] entityData;
+	private Literal<EntityData<?>> entityData;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (parseResult.hasTag("entity")) {
-			Literal<EntityData<?>> entityLiteral = (Literal<EntityData<?>>) args[0];
-			entityData = entityLiteral.getArray();
-		}
+		if (args[0] != null)
+			entityData = (Literal<EntityData<?>>) args[0];
 		return true;
 	}
 
@@ -84,7 +80,7 @@ public class EvtEntityShootBow extends SkriptEvent {
 		if (entityData == null)
 			return true;
 		EntityShootBowEvent entityEvent = (EntityShootBowEvent) event;
-		return Arrays.stream(entityData).anyMatch(entity -> entity.isInstance(entityEvent.getEntity()));
+		return entityData.check(event, data -> data.isInstance(entityEvent.getEntity()));
 	}
 
 	@Override
