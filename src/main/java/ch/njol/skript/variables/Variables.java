@@ -1,4 +1,4 @@
-package ch.njol.skript.variables;
+﻿package ch.njol.skript.variables;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
@@ -310,7 +310,7 @@ public class Variables {
 	public static String[] splitVariableName(String name) {
 		String sep = Variable.SEPARATOR;
 		int sepLen = sep.length();
-		// Fast path for 0 or 1 separators — covers the vast majority of cases
+		// Fast path for 0 or 1 separators тАФ covers the vast majority of cases
 		// and avoids ArrayList allocation entirely.
 		int first = name.indexOf(sep);
 		if (first == -1)
@@ -318,7 +318,7 @@ public class Variables {
 		int second = name.indexOf(sep, first + sepLen);
 		if (second == -1)
 			return new String[]{name.substring(0, first), name.substring(first + sepLen)};
-		// 3+ parts — use a list for the remainder
+		// 3+ parts тАФ use a list for the remainder
 		List<String> parts = new ArrayList<>();
 		parts.add(name.substring(0, first));
 		parts.add(name.substring(first + sepLen, second));
@@ -476,17 +476,18 @@ public class Variables {
 				variablesLock.readLock().lock();
 				// Prevent race conditions from returning variables with incorrect values
 				if (!changeQueue.isEmpty()) {
-					// Gets the last VariableChange made
-					VariableChange variableChange = changeQueue.stream()
-							.filter(change -> change.name.equals(n))
-							.reduce((first, second) -> second)
-									// Gets last value, as iteration is from head to tail,
-									//  and adding occurs at the tail (and we want the most recently added)
-							.orElse(null);
-
-					if (variableChange != null) {
-						return variableChange.value;
+					// Scan for the last queued change for this variable name.
+					// A plain loop over ConcurrentLinkedQueue is safe and avoids
+					// the stream pipeline allocation that would otherwise occur on every
+					// global variable read while a write-lock contention is in progress.
+					VariableChange lastChange = null;
+					for (VariableChange change : changeQueue) {
+						if (change.name.equals(n))
+							lastChange = change;
 					}
+
+					if (lastChange != null)
+						return lastChange.value;
 				}
 
 				return variables.getVariable(n);
