@@ -21,7 +21,7 @@ public class EvtEntityBreakDoor extends SkriptEvent {
 			.addEvent(EntityBreakDoorEvent.class)
 			.addPatterns("[entity:%entitydatas%] break[ing] [a] [wood[en]] door")
 			.addDescription("""
-				Called when an entity (usually a zombie) is breaking a door.
+				Called when an entity (usually a zombie) is breaks a door.
 				Can be cancelled to prevent the entity from breaking the door.
 				""")
 			.addExample("""

@@ -54,16 +54,16 @@ public class EvtEntityBlockChange extends SkriptEvent {
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(EntityChangeBlockEvent.class, Block.class)
-			.getter(EntityChangeBlockEvent::getBlock) // why is there past event-block & event-block with both values??
+			.getter(EntityChangeBlockEvent::getBlock)
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(EntityChangeBlockEvent.class, BlockData.class)
+			.getter(EntityChangeBlockEvent::getBlockData)
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(EntityChangeBlockEvent.class, BlockData.class)
 			.getter(EntityChangeBlockEvent::getBlockData)
 			.time(Time.FUTURE)
-			.build());
-
-		eventValueRegistry.register(EventValue.builder(EntityChangeBlockEvent.class, Block.class)
-			.getter(EntityChangeBlockEvent::getBlock)
 			.build());
 	}
 
@@ -121,10 +121,9 @@ public class EvtEntityBlockChange extends SkriptEvent {
 
 	@Override
 	public boolean check(Event event) {
-		if (!(event instanceof EntityChangeBlockEvent entityEvent))
-			return false;
-		if (entityData != null && !entityData.check(event, data -> data.isInstance((entityEvent.getEntity()))))
-			return false;
+		EntityChangeBlockEvent entityEvent = (EntityChangeBlockEvent) event;
+		if (entityData != null)
+			return !entityData.check(event, data -> data.isInstance((entityEvent.getEntity())));
 		if (this.event.checker == null)
 			return true;
 		return this.event.checker.test(entityEvent);

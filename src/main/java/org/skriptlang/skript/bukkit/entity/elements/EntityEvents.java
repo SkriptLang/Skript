@@ -87,7 +87,7 @@ public class EntityEvents {
 				    broadcast "*Explosion*"
 				""")
 			.addSince("1.0")
-			.supplier(() -> new SimpleEvent("entity exploding"))
+			.supplier(() -> new SimpleEvent("entity explode"))
 			.build());
 
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Entity Portal Enter")
@@ -286,6 +286,21 @@ public class EntityEvents {
 				""")
 			.addSince("2.10")
 			.supplier(() -> new SimpleEvent("piglin bartering"))
+			.build());
+
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Pig Zap")
+			.addEvent(PigZapEvent.class)
+			.addPatterns("pig[ ]zap")
+			.addDescription("""
+				Called when a pig is stroke by lightning and transformed into a zombie pigman.
+				Cancelling this will prevent the transformation.
+				""")
+			.addExample("""
+				on pig zap:
+				    broadcast "I'm feeling a bit static!"
+				""")
+			.addSince("1.0")
+			.supplier(() -> new SimpleEvent("pig zap"))
 			.build());
 
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Bat Toggle Sleep")

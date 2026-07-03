@@ -23,8 +23,8 @@ public class EvtEntityHeal extends SkriptEvent {
 			.supplier(EvtEntityHeal::new)
 			.addEvent(EntityRegainHealthEvent.class)
 			.addPatterns(
-				"heal[ing] [of %-entitydatas%] [reason:(from|due to|by) %-healreasons%]",
-				"%entitydatas% heal[ing] [reason:(from|due to|by) %-healreasons%]"
+				"heal[ing] [entity:of %-entitydatas%] [reason:(from|due to|by) %-healreasons%]",
+				"[entity:%-entitydatas%] heal[ing] [reason:(from|due to|by) %-healreasons%]"
 			)
 			.addDescription("""
 				Called when an entity is healed,\s
@@ -59,8 +59,10 @@ public class EvtEntityHeal extends SkriptEvent {
 			Literal<RegainReason> reasonLiteral = (Literal<RegainReason>) args[1];
 			reasons = reasonLiteral.getArray();
 		}
-		Literal<EntityData<?>> entityLiteral = (Literal<EntityData<?>>) args[0];
-		entityData = entityLiteral.getArray();
+		if (parseResult.hasTag("entity")) {
+			Literal<EntityData<?>> entityLiteral = (Literal<EntityData<?>>) args[0];
+			entityData = entityLiteral.getArray();
+		}
 		return true;
 	}
 

@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.entity;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.entity.SimpleEntityData;
+import ch.njol.skript.registrations.Classes;
 import org.bukkit.entity.AbstractNautilus;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
@@ -9,12 +10,14 @@ import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.BukkitModule;
 import org.skriptlang.skript.bukkit.entity.displays.DisplayModule;
 import org.skriptlang.skript.bukkit.entity.elements.EntityEvents;
+import org.skriptlang.skript.bukkit.entity.elements.effects.EffTeleport;
 import org.skriptlang.skript.bukkit.entity.elements.events.*;
 import org.skriptlang.skript.bukkit.entity.interactions.InteractionModule;
 import org.skriptlang.skript.bukkit.entity.elements.expressions.ExprDeathMessage;
 import org.skriptlang.skript.bukkit.entity.entitydata.NautilusData;
 import org.skriptlang.skript.bukkit.entity.entitydata.ZombieNautilusData;
 import org.skriptlang.skript.bukkit.entity.player.PlayerModule;
+import org.skriptlang.skript.bukkit.entity.types.TeleportFlagClassInfo;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 
 import java.util.List;
@@ -31,6 +34,11 @@ public class EntityModule extends HierarchicalAddonModule {
 			new InteractionModule(this),
 			new PlayerModule(this)
 		);
+	}
+
+	@Override
+	protected void initSelf(SkriptAddon addon) {
+		Classes.registerClass(new TeleportFlagClassInfo());
 	}
 
 	@Override
@@ -63,6 +71,7 @@ public class EntityModule extends HierarchicalAddonModule {
 			EvtEntityPortal::register,
 			EvtEntitySpawn::register,
 			EvtEntityTarget::register,
+			EffTeleport::register,
 			ExprDeathMessage::register
 		);
 	}

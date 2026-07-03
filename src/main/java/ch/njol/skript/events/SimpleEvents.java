@@ -99,10 +99,6 @@ public class SimpleEvents {
 				.description("Called when a chunk is unloaded due to not being near any player.")
 				.examples("on chunk unload:")
 				.since("1.0");
-		Skript.registerEvent("Zombie Break Door", SimpleEvent.class, EntityBreakDoorEvent.class, "zombie break[ing] [a] [wood[en]] door")
-				.description("Called when a zombie is done breaking a wooden door. Can be cancelled to prevent the zombie from breaking the door.")
-				.examples("on zombie breaking a wood door:")
-				.since("1.0");
 //		Skript.registerEvent(SimpleEvent.class, EntityInteractEvent.class, "interact");// = entity interacts with block, e.g. endermen?; player -> PlayerInteractEvent // likely tripwires, pressure plates, etc.
 		Skript.registerEvent("Explosion Prime", SimpleEvent.class, ExplosionPrimeEvent.class, "explosion prime")
 				.description("Called when an explosive is primed, i.e. an entity will explode shortly. Creepers can abort the explosion if the player gets too far away, " +
@@ -266,11 +262,6 @@ public class SimpleEvents {
 		Skript.registerEvent("AoE Cloud Effect", SimpleEvent.class, AreaEffectCloudApplyEvent.class, "(area|AoE) [cloud] effect")
 				.description("Called when area effect cloud applies its potion effect. This happens every 5 ticks by default.")
 				.examples("on area cloud effect:")
-				.since("2.2-dev21");
-		Skript.registerEvent("Sheep Regrow Wool", SimpleEvent.class, SheepRegrowWoolEvent.class, "sheep [re]grow[ing] wool")
-				.description("Called when sheep regrows its sheared wool back.")
-				.examples("on sheep grow wool:",
-						"\tcancel event")
 				.since("2.2-dev21");
 		Skript.registerEvent("Inventory Open", SimpleEvent.class, InventoryOpenEvent.class, "inventory open[ed]")
 				.description("Called when an inventory is opened for player.")
