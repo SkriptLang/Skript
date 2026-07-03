@@ -19,19 +19,18 @@ import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.command.brigadier.ArgumentData;
-import org.skriptlang.skript.bukkit.command.brigadier.CommandCompiler;
-import org.skriptlang.skript.bukkit.command.brigadier.CommandParsingData;
-import org.skriptlang.skript.bukkit.command.brigadier.ExecutorData;
-import org.skriptlang.skript.bukkit.command.brigadier.ExecutorData.CooldownManager;
-import org.skriptlang.skript.bukkit.command.brigadier.ExecutorData.ExecutableBy;
-import org.skriptlang.skript.bukkit.command.brigadier.ScriptCommandEvent;
-import org.skriptlang.skript.bukkit.command.brigadier.CommandCompiler.ArgumentCommandElement;
-import org.skriptlang.skript.bukkit.command.brigadier.CommandCompiler.CommandElement;
-import org.skriptlang.skript.bukkit.command.brigadier.CommandCompiler.CompilationResult;
-import org.skriptlang.skript.bukkit.command.brigadier.CommandCompiler.LiteralCommandElement;
-import org.skriptlang.skript.bukkit.command.brigadier.SkriptBrigadierArgument;
-import org.skriptlang.skript.bukkit.command.brigadier.SkriptCommandExecutor;
+import org.skriptlang.skript.bukkit.command.custom.ArgumentData;
+import org.skriptlang.skript.bukkit.command.custom.CommandParsingData;
+import org.skriptlang.skript.bukkit.command.custom.CommandParsingData.ExecutorData;
+import org.skriptlang.skript.bukkit.command.custom.CooldownManager;
+import org.skriptlang.skript.bukkit.command.custom.ExecutableBy;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
+import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandCompiler.ArgumentCommandElement;
+import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandCompiler.CommandElement;
+import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandCompiler.CompilationResult;
+import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandCompiler.LiteralCommandElement;
+import org.skriptlang.skript.bukkit.command.custom.ScriptArgumentType;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandExecutor;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.SubCommandEntryData.Result;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryData;
@@ -166,10 +165,6 @@ public class SubCommandEntryData extends EntryData<Result> {
 			return null;
 		}
 
-		// prepare arguments
-		parsingData.pushArguments(compilationResult.arguments());
-		List<ArgumentData<?>> allArguments = parsingData.getArguments();
-
 		// prepare entries
 		// command aliases
 		List<String> aliases = entryContainer.getOptional("aliases", List.class, false);
@@ -278,6 +273,9 @@ public class SubCommandEntryData extends EntryData<Result> {
 				" Commands that a player does not have permission to execute are no longer sent to their client.");
 		}
 
+		// prepare arguments
+		parsingData.pushArguments(compilationResult.arguments());
+		List<ArgumentData<?>> allArguments = parsingData.getArguments();
 		parsingData.pushExecutorData(new ExecutorData(executableBy, cooldownManager));
 
 		// parse execution trigger
@@ -306,9 +304,9 @@ public class SubCommandEntryData extends EntryData<Result> {
 		boolean hasExecute = execute != null;
 
 		// setup executor
-		SkriptCommandExecutor executor;
+		ScriptCommandExecutor executor;
 		if (hasExecute) {
-			executor = new SkriptCommandExecutor(execute, allArguments, cooldownManager);
+			executor = new ScriptCommandExecutor(execute, allArguments, cooldownManager);
 		} else {
 			executor = null;
 		}
@@ -351,7 +349,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 
 	private static ArgumentBuilder<CommandSourceStack, ?> parse(
 		CommandElement commandElement,
-		@Nullable SkriptCommandExecutor executor,
+		@Nullable ScriptCommandExecutor executor,
 		@Nullable Predicate<CommandSourceStack> requires,
 		Collection<ArgumentBuilder<CommandSourceStack, ?>> subcommands
 	) {
@@ -364,7 +362,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 			ArgumentData<?> data = ((ArgumentCommandElement) commandElement).argument();
 
 			ArgumentType<?> nativeType = null;
-			var nativeMapping = SkriptBrigadierArgument.ARGUMENT_TYPE_MAPPINGS.get(data.type().getC());
+			var nativeMapping = ScriptArgumentType.ARGUMENT_TYPE_MAPPINGS.get(data.type().getC());
 			if (nativeMapping != null) { // native argument type may be available
 				nativeType = nativeMapping.apply(data);
 			}
@@ -374,7 +372,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 				} else {
 					nativeType = StringArgumentType.string();
 				}
-				nativeType = new SkriptBrigadierArgument<>(data, (StringArgumentType) nativeType);
+				nativeType = new ScriptArgumentType<>(data, (StringArgumentType) nativeType);
 			}
 
 			argument = Commands.argument(data.name(), nativeType);

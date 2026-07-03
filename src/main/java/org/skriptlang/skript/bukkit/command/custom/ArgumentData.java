@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.command.brigadier;
+package org.skriptlang.skript.bukkit.command.custom;
 
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;

@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.command.brigadier;
+package org.skriptlang.skript.bukkit.command.custom;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
@@ -14,11 +14,11 @@ import java.util.Map;
 public class ScriptCommandEvent extends Event {
 
 	private final CommandSender sender;
-	private final SkriptCommandExecutor executor;
+	private final ScriptCommandExecutor executor;
 
 	final Map<String, Object> arguments = new HashMap<>();
 
-	public ScriptCommandEvent(CommandSender sender, SkriptCommandExecutor executor) {
+	public ScriptCommandEvent(CommandSender sender, ScriptCommandExecutor executor) {
 		this.sender = sender;
 		this.executor = executor;
 	}
@@ -27,7 +27,7 @@ public class ScriptCommandEvent extends Event {
 		return sender;
 	}
 
-	public SkriptCommandExecutor getExecutor() {
+	public ScriptCommandExecutor getExecutor() {
 		return executor;
 	}
 

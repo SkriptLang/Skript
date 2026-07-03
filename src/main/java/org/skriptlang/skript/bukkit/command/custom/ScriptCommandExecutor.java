@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.command.brigadier;
+package org.skriptlang.skript.bukkit.command.custom;
 
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.variables.Variables;
@@ -12,7 +12,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.command.brigadier.ExecutorData.CooldownManager;
 
 import java.lang.reflect.Array;
 import java.util.List;
@@ -24,7 +23,7 @@ import java.util.stream.Collectors;
  * An executor for Brigadier commands.
  */
 @ApiStatus.Internal
-public class SkriptCommandExecutor {
+public class ScriptCommandExecutor {
 
 	private static void setVariable(String name, Object value, boolean isSingle, Event context) {
 		if (isSingle) {
@@ -42,7 +41,7 @@ public class SkriptCommandExecutor {
 	private final List<ArgumentData<?>> arguments;
 	private final @Nullable CooldownManager cooldownManager;
 
-	public SkriptCommandExecutor(Trigger trigger, List<ArgumentData<?>> arguments, @Nullable CooldownManager cooldownManager) {
+	public ScriptCommandExecutor(Trigger trigger, List<ArgumentData<?>> arguments, @Nullable CooldownManager cooldownManager) {
 		this.trigger = trigger;
 		this.arguments = arguments;
 		this.cooldownManager = cooldownManager;
@@ -56,10 +55,12 @@ public class SkriptCommandExecutor {
 		CommandSender sender = context.getSource().getSender();
 		ScriptCommandEvent commandEvent = new ScriptCommandEvent(sender, this);
 
+		// final validations
 		if (cooldownManager != null && !cooldownManager.checkExecution(commandEvent, sender)) {
 			return Command.SINGLE_SUCCESS;
 		}
 
+		// argument assembly
 		Set<String> providedArgs = context.getNodes().stream()
 			.filter(node -> node.getNode() instanceof ArgumentCommandNode<?,?>)
 			.map(node -> node.getNode().getName())
@@ -67,25 +68,18 @@ public class SkriptCommandExecutor {
 		for (ArgumentData<?> argument : arguments) {
 			Object value = null;
 			if (providedArgs.contains(argument.name())) {
-				value = context.getArgument(argument.name(), Object.class);
+				value = context.getArgument(argument.name(), Object.class); // we manually handle type validation
 				if (value instanceof ArgumentResolver<?> argumentResolver) { // native type needs resolved
 					value = argumentResolver.resolve(context.getSource());
 					if (value instanceof SequencedCollection<?> collection) {
-						if (argument.isSingle()) {
+						if (argument.isSingle()) { // many single arguments are still provided as lists
 							value = collection.getFirst();
 						} else {
 							value = collection.toArray((Object[]) Array.newInstance(argument.type().getC(), collection.size()));
 						}
 					}
-				} else if (value == SkriptBrigadierArgument.DEFAULT_VALUE_PLACEHOLDER) {
-					assert argument.defaultValue() != null;
-					if (argument.isSingle()) {
-						value = argument.defaultValue().getSingle(commandEvent);
-					} else {
-						value = argument.defaultValue().getArray(commandEvent);
-					}
 				}
-			} else if (argument.defaultValue() != null) {
+			} else if (argument.defaultValue() != null) { // fallback to default value
 				if (argument.isSingle()) {
 					value = argument.defaultValue().getSingle(commandEvent);
 				} else {
@@ -100,6 +94,8 @@ public class SkriptCommandExecutor {
 				}
 			}
 		}
+
+		// execution
 		trigger.execute(commandEvent);
 
 		return Command.SINGLE_SUCCESS;

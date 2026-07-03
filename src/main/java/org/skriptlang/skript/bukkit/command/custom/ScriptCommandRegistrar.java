@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.command.brigadier;
+package org.skriptlang.skript.bukkit.command.custom;
 
 import ch.njol.skript.Skript;
 import io.papermc.paper.command.brigadier.Commands;
@@ -24,13 +24,13 @@ import java.util.stream.Stream;
  * This avoids a full reload via {@link Bukkit#reloadData()}.
  * However, that approach will be used if the reflection-based approach fails to load.
  */
-public final class SkriptCommandRegistrar {
+public final class ScriptCommandRegistrar {
 
 	private static JavaPlugin plugin;
 
 	private static Commands commandRegistrar;
-	private static final Map<SkriptBrigadierCommand, Set<String>> REGISTERED_COMMANDS = new ConcurrentHashMap<>();
-	private static final Set<SkriptBrigadierCommand> PENDING_REGISTRATIONS = ConcurrentHashMap.newKeySet();
+	private static final Map<ScriptBrigadierCommand, Set<String>> REGISTERED_COMMANDS = new ConcurrentHashMap<>();
+	private static final Set<ScriptBrigadierCommand> PENDING_REGISTRATIONS = ConcurrentHashMap.newKeySet();
 	private static final Set<String> PENDING_UNREGISTRATIONS = ConcurrentHashMap.newKeySet();
 
 	private static @Nullable MethodHandle SET_VALID;
@@ -41,7 +41,7 @@ public final class SkriptCommandRegistrar {
 	private static boolean useSafeReload;
 
 	public static void init(JavaPlugin plugin) {
-		SkriptCommandRegistrar.plugin = plugin;
+		ScriptCommandRegistrar.plugin = plugin;
 		plugin.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
 			commandRegistrar = commands.registrar();
 
@@ -73,17 +73,17 @@ public final class SkriptCommandRegistrar {
 	 * @param command The command to register.
 	 * @see #processRegistrations()
 	 */
-	public static void register(SkriptBrigadierCommand command) {
+	public static void register(ScriptBrigadierCommand command) {
 		PENDING_REGISTRATIONS.add(command);
 	}
 
 	/**
 	 * Processes all pending registrations, synchronizing them with the server's command dispatcher.
-	 * @see #register(SkriptBrigadierCommand)
+	 * @see #register(ScriptBrigadierCommand)
 	 */
 	public static void processRegistrations() {
 		if (!Bukkit.isPrimaryThread()) {
-			Bukkit.getScheduler().runTask(plugin, SkriptCommandRegistrar::processRegistrations);
+			Bukkit.getScheduler().runTask(plugin, ScriptCommandRegistrar::processRegistrations);
 			return;
 		}
 
@@ -109,7 +109,7 @@ public final class SkriptCommandRegistrar {
 
 	private static void processRegistrationSet() {
 		PluginMeta pluginMeta = plugin.getPluginMeta();
-		for (SkriptBrigadierCommand command : PENDING_REGISTRATIONS) {
+		for (ScriptBrigadierCommand command : PENDING_REGISTRATIONS) {
 			if (command.namespace() == null) {
 				REGISTERED_COMMANDS.put(command, commandRegistrar.register(pluginMeta, command.node(), command.description(), command.aliases()));
 			} else {
@@ -153,17 +153,17 @@ public final class SkriptCommandRegistrar {
 	 * @param command The command to unregister.
 	 * @see #processUnregistrations()
 	 */
-	public static void unregister(SkriptBrigadierCommand command) {
+	public static void unregister(ScriptBrigadierCommand command) {
 		PENDING_UNREGISTRATIONS.addAll(REGISTERED_COMMANDS.remove(command));
 	}
 
 	/**
 	 * Processes all pending unregistrations, synchronizing them with the server's command dispatcher.
-	 * @see #unregister(SkriptBrigadierCommand)
+	 * @see #unregister(ScriptBrigadierCommand)
 	 */
 	public static void processUnregistrations() {
 		if (!Bukkit.isPrimaryThread()) {
-			Bukkit.getScheduler().runTask(plugin, SkriptCommandRegistrar::processUnregistrations);
+			Bukkit.getScheduler().runTask(plugin, ScriptCommandRegistrar::processUnregistrations);
 			return;
 		}
 
@@ -193,7 +193,7 @@ public final class SkriptCommandRegistrar {
 	 * @param command The name of the command.
 	 * @return The script command named {@code command}, or null if no script command with that name exists.
 	 */
-	public static @Nullable SkriptBrigadierCommand getCommand(String command) {
+	public static @Nullable ScriptBrigadierCommand getCommand(String command) {
 		return Stream.concat(PENDING_REGISTRATIONS.stream(), REGISTERED_COMMANDS.keySet().stream())
 			.filter(registration -> registration.node().getLiteral().equals(command))
 			.findFirst()

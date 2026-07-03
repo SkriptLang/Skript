@@ -21,9 +21,9 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.command.brigadier.ArgumentData;
-import org.skriptlang.skript.bukkit.command.brigadier.ScriptCommandEvent;
-import org.skriptlang.skript.bukkit.command.brigadier.CommandParsingData;
+import org.skriptlang.skript.bukkit.command.custom.ArgumentData;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
+import org.skriptlang.skript.bukkit.command.custom.CommandParsingData;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 

@@ -15,9 +15,9 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.util.Kleenean;
-import org.skriptlang.skript.bukkit.command.brigadier.CommandParsingData;
-import org.skriptlang.skript.bukkit.command.brigadier.ExecutorData;
-import org.skriptlang.skript.bukkit.command.brigadier.ScriptCommandEvent;
+import org.skriptlang.skript.bukkit.command.custom.CommandParsingData;
+import org.skriptlang.skript.bukkit.command.custom.CommandParsingData.ExecutorData;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 

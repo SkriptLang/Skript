@@ -10,9 +10,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.command.brigadier.SkriptCommandRegistrar;
-import org.skriptlang.skript.bukkit.command.brigadier.SkriptBrigadierCommand;
-import org.skriptlang.skript.bukkit.command.brigadier.ScriptCommandEvent;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandRegistrar;
+import org.skriptlang.skript.bukkit.command.custom.ScriptBrigadierCommand;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.SubCommandEntryData;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
@@ -41,7 +41,7 @@ public class StructCommand extends Structure {
 	private static final AtomicBoolean SYNC_COMMANDS = new AtomicBoolean();
 
 	private SectionNode rootNode;
-	private SkriptBrigadierCommand command;
+	private ScriptBrigadierCommand command;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
@@ -62,7 +62,7 @@ public class StructCommand extends Structure {
 		}
 
 		// validation
-		SkriptBrigadierCommand existing = SkriptCommandRegistrar.getCommand(node.getLiteral());
+		ScriptBrigadierCommand existing = ScriptCommandRegistrar.getCommand(node.getLiteral());
 		if (existing != null) {
 			Skript.error("A command with the name /" + node.getLiteral() + " is already defined in the script '" +
 				existing.script().nameAndPath() + ".sk'");
@@ -70,8 +70,8 @@ public class StructCommand extends Structure {
 		}
 
 		// registration
-		command = new SkriptBrigadierCommand(getParser().getCurrentScript(), node, result.aliases(), result.description(), result.prefix());
-		SkriptCommandRegistrar.register(command);
+		command = new ScriptBrigadierCommand(getParser().getCurrentScript(), node, result.aliases(), result.description(), result.prefix());
+		ScriptCommandRegistrar.register(command);
 		SYNC_COMMANDS.set(true);
 
 		return true;
@@ -80,21 +80,21 @@ public class StructCommand extends Structure {
 	@Override
 	public boolean postLoad() {
 		if (SYNC_COMMANDS.compareAndSet(true, false)) {
-			SkriptCommandRegistrar.processRegistrations();
+			ScriptCommandRegistrar.processRegistrations();
 		}
 		return true;
 	}
 
 	@Override
 	public void unload() {
-		SkriptCommandRegistrar.unregister(command);
+		ScriptCommandRegistrar.unregister(command);
 		SYNC_COMMANDS.set(true);
 	}
 
 	@Override
 	public void postUnload() {
 		if (SYNC_COMMANDS.compareAndSet(true, false)) {
-			SkriptCommandRegistrar.processUnregistrations();
+			ScriptCommandRegistrar.processUnregistrations();
 		}
 	}
 

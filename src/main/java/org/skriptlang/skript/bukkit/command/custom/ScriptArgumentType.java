@@ -1,8 +1,10 @@
-package org.skriptlang.skript.bukkit.command.brigadier;
+package org.skriptlang.skript.bukkit.command.custom;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.registrations.Classes;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.arguments.ArgumentType;
@@ -13,6 +15,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
@@ -35,7 +38,7 @@ import java.util.function.Supplier;
  * @param <T> The real type of the argument.
  */
 @ApiStatus.Internal
-public class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<Object, String> {
+public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Object, String> {
 
 	/**
 	 * Pre-defined mappings of types that are acceptable to map to other native argument types.
@@ -71,20 +74,16 @@ public class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<
 		Entity.class, data -> data.isSingle() ? ArgumentTypes.entity() : ArgumentTypes.entities()
 	);
 
+	private static final DynamicCommandExceptionType ERROR_PARSER_ERROR = new DynamicCommandExceptionType(
+		input -> new LiteralMessage((String) input));
+
 	private static final Dynamic2CommandExceptionType ERROR_INVALID_INPUT = new Dynamic2CommandExceptionType(
 		(input, type) -> new LiteralMessage("'%s' is not a valid %s.".formatted(input, type)));
-
-	/**
-	 * Placeholder result to be used for indicating that the default value of an argument should be resolved.
-	 * Resolution of default values is only possible during general execution (after this argument is evaluated),
-	 *  as they may depend on the context of the command execution.
-	 */
-	public static final Object DEFAULT_VALUE_PLACEHOLDER = new Object();
 
 	private final ArgumentData<T> argument;
 	private final StringArgumentType nativeType;
 
-	public SkriptBrigadierArgument(@NotNull ArgumentData<T> argument, @NotNull StringArgumentType nativeType) {
+	public ScriptArgumentType(@NotNull ArgumentData<T> argument, @NotNull StringArgumentType nativeType) {
 		this.argument = argument;
 		this.nativeType = nativeType;
 	}
@@ -94,19 +93,24 @@ public class SkriptBrigadierArgument<T> implements CustomArgumentType.Converted<
 		assert argument.type().getParser() != null;
 		input = input.replace('_', ' ');
 
-		//noinspection unchecked
-		Literal<T> result = (Literal<T>) new SkriptParser(input, SkriptParser.PARSE_LITERALS, ParseContext.COMMAND)
-			.parseExpression(argument.type().getC());
-		if (result != null && argument.isSingle() && !result.canBeSingle()) { // provided many values but expected one
-			result = null;
+		Literal<T> result;
+		try (ParseLogHandler logHandler = new ParseLogHandler().start()) {
+			//noinspection unchecked
+			result = (Literal<T>) new SkriptParser(input, SkriptParser.PARSE_LITERALS, ParseContext.COMMAND)
+				.parseExpression(argument.type().getC());
+			if (result != null && argument.isSingle() && !result.canBeSingle()) { // provided many values but expected one
+				result = null;
+				Skript.error("Expected one " + argument.type().getName().getSingular() + " but got many.");
+			}
+			if (result == null) {
+				if (logHandler.hasError()) {
+					throw ERROR_PARSER_ERROR.create(logHandler.getError());
+				} else {
+					throw ERROR_INVALID_INPUT.create(input, argument.type().getName().getSingular());
+				}
+			}
 		}
 
-		if (result == null) {
-			if (argument.defaultValue() != null) { // use default value
-				return DEFAULT_VALUE_PLACEHOLDER;
-			}
-			throw ERROR_INVALID_INPUT.create(input, argument.type().getName().getSingular());
-		}
 		return argument.isSingle() ? result.getSingle() : result.getArray();
 	}
 

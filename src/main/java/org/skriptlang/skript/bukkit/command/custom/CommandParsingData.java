@@ -1,7 +1,8 @@
-package org.skriptlang.skript.bukkit.command.brigadier;
+package org.skriptlang.skript.bukkit.command.custom;
 
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.parser.ParserInstance.Data;
+import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
@@ -14,6 +15,15 @@ import java.util.function.Function;
  * Parsing data holding command context.
  */
 public final class CommandParsingData extends Data {
+
+	/**
+	 * @param executableBy Describes what kind of {@link CommandSender} can execute the command.
+	 * @param cooldownManager Handles cooldown management for cooldown command entries.
+	 */
+	public record ExecutorData(
+		@Nullable ExecutableBy executableBy,
+		@Nullable CooldownManager cooldownManager
+	) { }
 
 	private final LinkedList<ArgumentData<?>> arguments = new LinkedList<>();
 	private final Deque<Integer> indices = new ArrayDeque<>(4);

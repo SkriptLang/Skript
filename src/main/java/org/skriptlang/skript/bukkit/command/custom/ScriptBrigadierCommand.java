@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.command.brigadier;
+package org.skriptlang.skript.bukkit.command.custom;
 
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -15,7 +15,7 @@ import java.util.Collection;
  * @param namespace An alternative namespace the command is registered under.
  *  If null, this command is registered under the default namespace (typically {@code skript}).
  */
-public record SkriptBrigadierCommand(
+public record ScriptBrigadierCommand(
 	Script script,
 	LiteralCommandNode<CommandSourceStack> node,
 	Collection<String> aliases,

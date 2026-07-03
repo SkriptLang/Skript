@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.command.brigadier;
+package org.skriptlang.skript.bukkit.command.elements.structures.util;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
@@ -8,8 +8,8 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.command.custom.ArgumentData;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,8 +26,7 @@ import java.util.stream.Stream;
  *  and arguments {@link ArgumentCommandElement}.
  * @see #compile(String, List)
  */
-@ApiStatus.Internal
-public final class CommandCompiler {
+final class CommandCompiler {
 
 	/*
 	 * Tree Structures

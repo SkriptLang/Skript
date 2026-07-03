@@ -20,10 +20,10 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
-import org.skriptlang.skript.bukkit.command.brigadier.CommandParsingData;
-import org.skriptlang.skript.bukkit.command.brigadier.ExecutorData;
-import org.skriptlang.skript.bukkit.command.brigadier.ExecutorData.CooldownManager;
-import org.skriptlang.skript.bukkit.command.brigadier.ScriptCommandEvent;
+import org.skriptlang.skript.bukkit.command.custom.CommandParsingData;
+import org.skriptlang.skript.bukkit.command.custom.CommandParsingData.ExecutorData;
+import org.skriptlang.skript.bukkit.command.custom.CooldownManager;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
