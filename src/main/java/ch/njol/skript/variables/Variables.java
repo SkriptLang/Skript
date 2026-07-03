@@ -476,17 +476,18 @@ public class Variables {
 				variablesLock.readLock().lock();
 				// Prevent race conditions from returning variables with incorrect values
 				if (!changeQueue.isEmpty()) {
-					// Gets the last VariableChange made
-					VariableChange variableChange = changeQueue.stream()
-							.filter(change -> change.name.equals(n))
-							.reduce((first, second) -> second)
-									// Gets last value, as iteration is from head to tail,
-									//  and adding occurs at the tail (and we want the most recently added)
-							.orElse(null);
-
-					if (variableChange != null) {
-						return variableChange.value;
+					// Scan for the last queued change for this variable name.
+					// A plain loop over ConcurrentLinkedQueue is safe and avoids
+					// the stream pipeline allocation that would otherwise occur on every
+					// global variable read while a write-lock contention is in progress.
+					VariableChange lastChange = null;
+					for (VariableChange change : changeQueue) {
+						if (change.name.equals(n))
+							lastChange = change;
 					}
+
+					if (lastChange != null)
+						return lastChange.value;
 				}
 
 				return variables.getVariable(n);

@@ -18,7 +18,6 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 public final class SkriptEventHandler {
 
@@ -68,11 +67,16 @@ public final class SkriptEventHandler {
 	private static List<Trigger> getTriggers(Class<? extends Event> event) {
 		HandlerList eventHandlerList = getHandlerList(event);
 		assert eventHandlerList != null; // It had one at some point so this should remain true
-		return triggers.asMap().entrySet().stream()
-				.filter(entry -> entry.getKey().isAssignableFrom(event) && getHandlerList(entry.getKey()) == eventHandlerList)
-				.flatMap(entry -> entry.getValue().stream())
-				.distinct()
-				.collect(Collectors.toList()); // forces evaluation now and prevents us from having to call getTriggers again if very high logging is enabled
+
+		// Use a LinkedHashSet to deduplicate while preserving encounter order,
+		// avoiding the overhead of stream pipeline allocation on every event call.
+		LinkedHashSet<Trigger> result = new LinkedHashSet<>();
+		for (Map.Entry<Class<? extends Event>, Collection<Trigger>> entry : triggers.asMap().entrySet()) {
+			if (entry.getKey().isAssignableFrom(event) && getHandlerList(entry.getKey()) == eventHandlerList)
+				result.addAll(entry.getValue());
+		}
+
+		return new ArrayList<>(result); // Forces evaluation now, consistent with previous collect(toList()) behaviour
 	}
 
 	/**
