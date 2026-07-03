@@ -3,8 +3,11 @@ package org.skriptlang.skript.bukkit.block;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.block.elements.BlockEvents;
 import org.skriptlang.skript.bukkit.block.furnace.FurnaceModule;
 import org.skriptlang.skript.bukkit.block.sign.SignModule;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
 
@@ -24,7 +27,10 @@ public class BlockModule extends HierarchicalAddonModule {
 
 	@Override
 	public void loadSelf(SkriptAddon addon) {
-		// intentionally left blank
+		SyntaxRegistry syntaxRegistry = addon.syntaxRegistry();
+		EventValueRegistry eventValueRegistry = addon.registry(EventValueRegistry.class);
+
+		BlockEvents.register(syntaxRegistry, eventValueRegistry);
 	}
 
 	@Override

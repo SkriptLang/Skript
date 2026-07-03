@@ -107,11 +107,6 @@ public final class BukkitEventValues {
 		// ChunkEvents
 		registry.register(EventValue.simple(ChunkEvent.class, Chunk.class, ChunkEvent::getChunk));
 
-		// === BlockEvents ===
-		registry.register(EventValue.simple(BlockEvent.class, Block.class, BlockEvent::getBlock));
-		registry.register(EventValue.simple(BlockEvent.class, World.class, event -> event.getBlock().getWorld()));
-		// REMIND workaround of the event's location being at the entity in block events that have an entity event value
-		registry.register(EventValue.simple(BlockEvent.class, Location.class, event -> BlockUtils.getLocation(event.getBlock())));
 		// BlockPlaceEvent
 		registry.register(EventValue.simple(BlockPlaceEvent.class, Player.class, BlockPlaceEvent::getPlayer));
 		registry.register(EventValue.builder(BlockPlaceEvent.class, ItemStack.class)
@@ -155,8 +150,6 @@ public final class BukkitEventValues {
 			.getter(BlockEvent::getBlock)
 			.time(Time.PAST)
 			.build());
-		// BlockDamageEvent
-		registry.register(EventValue.simple(BlockDamageEvent.class, Player.class, BlockDamageEvent::getPlayer));
 		// BlockBreakEvent
 		registry.register(EventValue.simple(BlockBreakEvent.class, Player.class, BlockBreakEvent::getPlayer));
 		registry.register(EventValue.builder(BlockBreakEvent.class, Block.class)
@@ -164,34 +157,12 @@ public final class BukkitEventValues {
 			.time(Time.PAST)
 			.build());
 		registry.register(EventValue.simple(BlockBreakEvent.class, Block.class, event -> new DelayedChangeBlock(event.getBlock())));
-		// BlockFromToEvent
-		registry.register(EventValue.builder(BlockFromToEvent.class, Block.class)
-			.getter(BlockFromToEvent::getToBlock)
-			.time(Time.FUTURE)
-			.build());
-		// BlockIgniteEvent
-		registry.register(EventValue.simple(BlockIgniteEvent.class, Player.class, BlockIgniteEvent::getPlayer));
-		registry.register(EventValue.simple(BlockIgniteEvent.class, Block.class, BlockIgniteEvent::getBlock));
 		// BlockDispenseEvent
 		registry.register(EventValue.simple(BlockDispenseEvent.class, ItemStack.class, BlockDispenseEvent::getItem));
-		// BlockCanBuildEvent
-		registry.register(EventValue.builder(BlockCanBuildEvent.class, Block.class)
-			.getter(BlockEvent::getBlock)
-			.time(Time.PAST)
-			.build());
-		registry.register(EventValue.simple(BlockCanBuildEvent.class, Block.class, event -> {
-			BlockState state = event.getBlock().getState();
-			state.setType(event.getMaterial());
-			return new BlockStateBlock(state, true);
-		}));
 		// BlockCanBuildEvent#getPlayer was added in 1.13
 		if (Skript.methodExists(BlockCanBuildEvent.class, "getPlayer")) {
 			registry.register(EventValue.simple(BlockCanBuildEvent.class, Player.class, BlockCanBuildEvent::getPlayer));
 		}
-		// SignChangeEvent
-		registry.register(EventValue.simple(SignChangeEvent.class, Player.class, SignChangeEvent::getPlayer));
-		registry.register(EventValue.simple(SignChangeEvent.class, Component[].class, event -> event.lines().toArray(new Component[0])));
-
 		// === EntityEvents ===
 		registry.register(EventValue.builder(EntityEvent.class, Entity.class)
 			.getter(EntityEvent::getEntity)
@@ -501,11 +472,6 @@ public final class BukkitEventValues {
 		// PrepareAnvilEvent
 		if (Skript.classExists("com.destroystokyo.paper.event.inventory.PrepareResultEvent"))
 			registry.register(EventValue.simple(PrepareAnvilEvent.class, ItemStack.class, PrepareResultEvent::getResult));
-		//BlockFertilizeEvent
-		registry.register(EventValue.simple(BlockFertilizeEvent.class, Player.class, BlockFertilizeEvent::getPlayer));
-		registry.register(EventValue.simple(BlockFertilizeEvent.class, Block[].class, event -> event.getBlocks().stream()
-			.map(BlockState::getBlock)
-			.toArray(Block[]::new)));
 		// PrepareItemCraftEvent
 		registry.register(EventValue.simple(PrepareItemCraftEvent.class, Slot.class, event -> new InventorySlot(event.getInventory(), 0)));
 		registry.register(EventValue.simple(PrepareItemCraftEvent.class, ItemStack.class, event -> {
@@ -730,19 +696,6 @@ public final class BukkitEventValues {
 		registry.register(EventValue.simple(EntityTransformEvent.class, Entity[].class, event -> event.getTransformedEntities().stream().toArray(Entity[]::new)));
 		registry.register(EventValue.simple(EntityTransformEvent.class, TransformReason.class, EntityTransformEvent::getTransformReason));
 
-		// BellRingEvent - these are BlockEvents and not EntityEvents, so they have declared methods for getEntity()
-		if (Skript.classExists("org.bukkit.event.block.BellRingEvent")) {
-			registry.register(EventValue.simple(BellRingEvent.class, Entity.class, BellRingEvent::getEntity));
-
-			registry.register(EventValue.simple(BellRingEvent.class, Direction.class, event -> new Direction(event.getDirection(), 1)));
-		} else if (Skript.classExists("io.papermc.paper.event.block.BellRingEvent")) {
-			registry.register(EventValue.simple(io.papermc.paper.event.block.BellRingEvent.class, Entity.class, BellRingEvent::getEntity));
-		}
-
-		if (Skript.classExists("org.bukkit.event.block.BellResonateEvent")) {
-			registry.register(EventValue.simple(BellResonateEvent.class, Entity[].class, event -> event.getResonatedEntities().toArray(new LivingEntity[0])));
-		}
-
 		// InventoryMoveItemEvent
 		registry.register(EventValue.simple(InventoryMoveItemEvent.class, Inventory.class, InventoryMoveItemEvent::getSource));
 		registry.register(EventValue.builder(InventoryMoveItemEvent.class, Inventory.class)
@@ -805,13 +758,6 @@ public final class BukkitEventValues {
 		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerElytraBoostEvent")) {
 			registry.register(EventValue.simple(PlayerElytraBoostEvent.class, ItemStack.class, PlayerElytraBoostEvent::getItemStack));
 			registry.register(EventValue.simple(PlayerElytraBoostEvent.class, Entity.class, PlayerElytraBoostEvent::getFirework));
-		}
-
-		if (Skript.classExists("org.bukkit.event.block.VaultDisplayItemEvent")) {
-			registry.register(EventValue.builder(VaultDisplayItemEvent.class, ItemStack.class)
-				.getter(VaultDisplayItemEvent::getDisplayItem)
-				.registerChanger(ChangeMode.SET, VaultDisplayItemEvent::setDisplayItem)
-				.build());
 		}
 
 		registry.register(EventValue.simple(VillagerCareerChangeEvent.class, VillagerCareerChangeEvent.ChangeReason.class, VillagerCareerChangeEvent::getReason));
