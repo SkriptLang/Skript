@@ -199,7 +199,7 @@ public class EvtPlayerMoveOn extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "walk on" + Classes.toString(types, false);
+		return "walk on " + Classes.toString(types, false);
 	}
 
 }
