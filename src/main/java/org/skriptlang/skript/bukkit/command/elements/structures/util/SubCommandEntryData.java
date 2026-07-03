@@ -56,7 +56,8 @@ public class SubCommandEntryData extends EntryData<Result> {
 	public record Result(
 		List<ArgumentBuilder<CommandSourceStack, ?>> arguments,
 		Collection<String> aliases,
-		@Nullable String description
+		@Nullable String description,
+		@Nullable String prefix
 	) { }
 
 	private static final Predicate<CommandSender> TRUE_PREDICATE = ignored -> true;
@@ -82,6 +83,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 			}
 		})
 		.addEntry("description", null, true)
+		.addEntry("prefix", null, true)
 		.addEntry("permission", null, true)
 		.addEntryData(new KeyValueEntryData<ExecutableBy>("executable by", null, true) {
 			private final Pattern pattern = Pattern.compile("\\s*,\\s*|\\s+(and|or)\\s+");
@@ -110,7 +112,6 @@ public class SubCommandEntryData extends EntryData<Result> {
 		.addEntryData(new SubCommandEntryData("subcommand", true, true))
 		// deprecated entries
 		.addEntry("usage", null, true)
-		.addEntry("prefix", null, true)
 		.addEntry("permission message", null, true)
 		.build();
 
@@ -188,6 +189,12 @@ public class SubCommandEntryData extends EntryData<Result> {
 			return null;
 		}
 
+		String prefix = entryContainer.getOptional("prefix", String.class, false);
+		if (!isRoot && prefix != null) {
+			Skript.error("Only the root of a command may have a prefix.");
+			return null;
+		}
+
 		// command requirements
 		Predicate<CommandSender> requires = TRUE_PREDICATE;
 
@@ -255,10 +262,6 @@ public class SubCommandEntryData extends EntryData<Result> {
 			ScriptWarning.printDeprecationWarning("The 'usage' entry has been deprecated for removal in a future release." +
 				" Incorrect command usage is now handled by the client's command validator.");
 		}
-		if (entryContainer.hasEntry("prefix")) {
-			ScriptWarning.printDeprecationWarning("The 'prefix' entry has been deprecated for removal in a future release." +
-				" It is no longer possible to modify the prefix (namespace) of a command.");
-		}
 		if (entryContainer.hasEntry("permission message")) {
 			ScriptWarning.printDeprecationWarning("The 'permission message' entry has been deprecated for removal in a future release." +
 				" Commands that a player does not have permission to execute are no longer sent to their client.");
@@ -319,7 +322,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 		parsingData.popArguments();
 
 		//noinspection unchecked
-		return new Result(result, aliases, description);
+		return new Result(result, aliases, description, prefix);
 	}
 
 	@Override

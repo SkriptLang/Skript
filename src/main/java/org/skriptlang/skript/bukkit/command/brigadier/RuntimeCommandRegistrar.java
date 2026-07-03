@@ -13,7 +13,11 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,15 +38,16 @@ public final class RuntimeCommandRegistrar {
 	public record CommandRegistration(
 		LiteralCommandNode<CommandSourceStack> node,
 		Collection<String> aliases,
-		@Nullable String description
+		@Nullable String description,
+		@Nullable String namespace
 	) { }
 
 	private static JavaPlugin plugin;
 
 	private static Commands commandRegistrar;
 	private static final Map<CommandRegistration, Set<String>> REGISTERED_COMMANDS = new ConcurrentHashMap<>();
-	private static final Set<CommandRegistration> PENDING_REGISTRATION = ConcurrentHashMap.newKeySet();
-	private static final Set<String> PENDING_UNREGISTRATION = ConcurrentHashMap.newKeySet();
+	private static final Set<CommandRegistration> PENDING_REGISTRATIONS = ConcurrentHashMap.newKeySet();
+	private static final Set<String> PENDING_UNREGISTRATIONS = ConcurrentHashMap.newKeySet();
 
 	private static @Nullable MethodHandle SET_VALID;
 	private static @Nullable MethodHandle INVALIDATE;
@@ -56,13 +61,10 @@ public final class RuntimeCommandRegistrar {
 		plugin.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
 			commandRegistrar = commands.registrar();
 
-			if (!REGISTERED_COMMANDS.isEmpty() || !PENDING_REGISTRATION.isEmpty()) {
+			if (!REGISTERED_COMMANDS.isEmpty() || !PENDING_REGISTRATIONS.isEmpty()) {
 				REGISTERED_COMMANDS.replaceAll((command, ignored) ->
 					commandRegistrar.register(command.node, command.description, command.aliases));
-				for (CommandRegistration command : PENDING_REGISTRATION) {
-					REGISTERED_COMMANDS.put(command, commandRegistrar.register(command.node, command.description, command.aliases));
-				}
-				PENDING_REGISTRATION.clear();
+				processRegistrationSet();
 				return;
 			}
 
@@ -88,7 +90,7 @@ public final class RuntimeCommandRegistrar {
 	 * @see #processRegistrations()
 	 */
 	public static void register(CommandRegistration command) {
-		PENDING_REGISTRATION.add(command);
+		PENDING_REGISTRATIONS.add(command);
 	}
 
 	/**
@@ -101,7 +103,7 @@ public final class RuntimeCommandRegistrar {
 			return;
 		}
 
-		if (!PENDING_UNREGISTRATION.isEmpty()) {
+		if (!PENDING_UNREGISTRATIONS.isEmpty()) {
 			processUnregistrations();
 		}
 
@@ -113,15 +115,54 @@ public final class RuntimeCommandRegistrar {
 
 		try {
 			SET_VALID.invoke(commandRegistrar);
-			PluginMeta pluginMeta = plugin.getPluginMeta();
-			for (CommandRegistration command : PENDING_REGISTRATION) {
-				REGISTERED_COMMANDS.put(command, commandRegistrar.register(pluginMeta, command.node, command.description, command.aliases));
-			}
+			processRegistrationSet();
 			INVALIDATE.invoke(commandRegistrar);
 			SYNC_COMMANDS.invoke(Bukkit.getServer());
 		} catch (Throwable e) {
 			throw Skript.exception(e);
 		}
+	}
+
+	private static void processRegistrationSet() {
+		PluginMeta pluginMeta = plugin.getPluginMeta();
+		for (CommandRegistration command : PENDING_REGISTRATIONS) {
+			if (command.namespace == null) {
+				REGISTERED_COMMANDS.put(command, commandRegistrar.register(pluginMeta, command.node, command.description, command.aliases));
+			} else {
+				TemporaryNamePluginMeta handler = new TemporaryNamePluginMeta(pluginMeta, command.namespace);
+				PluginMeta meta = (PluginMeta) Proxy.newProxyInstance(pluginMeta.getClass().getClassLoader(),
+					new Class<?>[]{PluginMeta.class}, handler);
+				REGISTERED_COMMANDS.put(command, commandRegistrar.register(meta, command.node, command.description, command.aliases));
+				handler.useAlternativeName = false;
+			}
+		}
+		PENDING_REGISTRATIONS.clear();
+	}
+
+	private static class TemporaryNamePluginMeta implements InvocationHandler {
+
+		final PluginMeta source;
+		final String name;
+		boolean useAlternativeName = true;
+
+		public TemporaryNamePluginMeta(PluginMeta source, String name) {
+			this.source = source;
+			this.name = name;
+		}
+
+		@Override
+		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+			if (useAlternativeName) {
+				String methodName = method.getName();
+				if (methodName.equals("getName")) {
+					return name;
+				} else if (methodName.equals("namespace")) {
+					return name.toLowerCase(Locale.ROOT);
+				}
+			}
+			return method.invoke(source, args);
+		}
+
 	}
 
 	/**
@@ -131,7 +172,7 @@ public final class RuntimeCommandRegistrar {
 	 * @see #processUnregistrations()
 	 */
 	public static void unregister(CommandRegistration command) {
-		PENDING_UNREGISTRATION.addAll(REGISTERED_COMMANDS.remove(command));
+		PENDING_UNREGISTRATIONS.addAll(REGISTERED_COMMANDS.remove(command));
 	}
 
 	/**
@@ -145,7 +186,7 @@ public final class RuntimeCommandRegistrar {
 		}
 
 		if (useSafeReload) {
-			PENDING_UNREGISTRATION.clear();
+			PENDING_UNREGISTRATIONS.clear();
 			Bukkit.reloadData();
 			return;
 		}
@@ -154,10 +195,10 @@ public final class RuntimeCommandRegistrar {
 		try {
 			SET_VALID.invoke(commandRegistrar);
 			var root = commandRegistrar.getDispatcher().getRoot();
-			for (String command : PENDING_UNREGISTRATION) {
+			for (String command : PENDING_UNREGISTRATIONS) {
 				REMOVE_COMMAND.invoke(root, command);
 			}
-			PENDING_UNREGISTRATION.clear();
+			PENDING_UNREGISTRATIONS.clear();
 			INVALIDATE.invoke(commandRegistrar);
 			SYNC_COMMANDS.invoke(Bukkit.getServer());
 		} catch (Throwable e) {

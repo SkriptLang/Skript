@@ -59,7 +59,7 @@ public class StructCommand extends Structure {
 			Skript.error("A command must have a name.");
 			return false;
 		}
-		command = new CommandRegistration(node, result.aliases(), result.description());
+		command = new CommandRegistration(node, result.aliases(), result.description(), result.prefix());
 		// TODO validate whether command already exists
 
 		RuntimeCommandRegistrar.register(command);
