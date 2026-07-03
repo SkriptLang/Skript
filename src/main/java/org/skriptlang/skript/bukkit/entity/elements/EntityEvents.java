@@ -8,6 +8,7 @@ import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
 import com.destroystokyo.paper.event.entity.EntityJumpEvent;
+import com.destroystokyo.paper.event.entity.EntityPathfindEvent;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -372,6 +373,31 @@ public class EntityEvents {
 
 		eventValueRegistry.register(EventValue.builder(EndermanAttackPlayerEvent.class, Player.class)
 			.getter(EndermanAttackPlayerEvent::getPlayer)
+			.build());
+
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Pathfind")
+			.addDescription("Called whenever an entity tries to pathfind to a location or another entity.")
+			.addExample("""
+				on pathfind:
+				    	broadcast "%event-entity% is about to move to %event-location%!"
+				""")
+			.addSince("2.16")
+			.addPattern("[entity] [start[s]] pathfind[ing]")
+			.addEvent(EntityPathfindEvent.class)
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(EntityPathfindEvent.class, Location.class)
+			.getter(EntityPathfindEvent::getLoc)
+			.patterns("target location")
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(EntityPathfindEvent.class, Entity.class)
+			.getter(EntityPathfindEvent::getTargetEntity)
+			.patterns("target entity")
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(EntityPathfindEvent.class, Location.class)
+			.getter(event -> event.getEntity().getLocation())
 			.build());
 	}
 
