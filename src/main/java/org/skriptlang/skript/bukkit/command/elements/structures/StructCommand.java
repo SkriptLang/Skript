@@ -10,8 +10,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.command.brigadier.RuntimeCommandRegistrar;
-import org.skriptlang.skript.bukkit.command.brigadier.RuntimeCommandRegistrar.CommandRegistration;
+import org.skriptlang.skript.bukkit.command.brigadier.SkriptCommandRegistrar;
+import org.skriptlang.skript.bukkit.command.brigadier.SkriptBrigadierCommand;
 import org.skriptlang.skript.bukkit.command.brigadier.ScriptCommandEvent;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.SubCommandEntryData;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
@@ -41,7 +41,7 @@ public class StructCommand extends Structure {
 	private static final AtomicBoolean SYNC_COMMANDS = new AtomicBoolean();
 
 	private SectionNode rootNode;
-	private CommandRegistration command;
+	private SkriptBrigadierCommand command;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
@@ -51,6 +51,7 @@ public class StructCommand extends Structure {
 
 	@Override
 	public boolean load() {
+		// parsing
 		var result = ROOT_ENTRY_DATA.getValue(rootNode);
 		if (result == null) { // parsing failed, entry will have emitted a specific error message
 			return false;
@@ -59,10 +60,18 @@ public class StructCommand extends Structure {
 			Skript.error("A command must have a name.");
 			return false;
 		}
-		command = new CommandRegistration(node, result.aliases(), result.description(), result.prefix());
-		// TODO validate whether command already exists
 
-		RuntimeCommandRegistrar.register(command);
+		// validation
+		SkriptBrigadierCommand existing = SkriptCommandRegistrar.getCommand(node.getLiteral());
+		if (existing != null) {
+			Skript.error("A command with the name /" + node.getLiteral() + " is already defined in the script '" +
+				existing.script().nameAndPath() + ".sk'");
+			return false;
+		}
+
+		// registration
+		command = new SkriptBrigadierCommand(getParser().getCurrentScript(), node, result.aliases(), result.description(), result.prefix());
+		SkriptCommandRegistrar.register(command);
 		SYNC_COMMANDS.set(true);
 
 		return true;
@@ -71,21 +80,21 @@ public class StructCommand extends Structure {
 	@Override
 	public boolean postLoad() {
 		if (SYNC_COMMANDS.compareAndSet(true, false)) {
-			RuntimeCommandRegistrar.processRegistrations();
+			SkriptCommandRegistrar.processRegistrations();
 		}
 		return true;
 	}
 
 	@Override
 	public void unload() {
-		RuntimeCommandRegistrar.unregister(command);
+		SkriptCommandRegistrar.unregister(command);
 		SYNC_COMMANDS.set(true);
 	}
 
 	@Override
 	public void postUnload() {
 		if (SYNC_COMMANDS.compareAndSet(true, false)) {
-			RuntimeCommandRegistrar.processUnregistrations();
+			SkriptCommandRegistrar.processUnregistrations();
 		}
 	}
 
