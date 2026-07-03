@@ -82,19 +82,20 @@ public class GetTriggersBenchmark {
 				streamImpl(triggers, event);
 		}
 
-		// Timed run
+		// Timed run — sink prevents JIT from eliminating dead result
+		int sink = 0;
 		long start = System.nanoTime();
 		for (int i = 0; i < iterations; i++) {
-			if (useLoop)
-				loopImpl(triggers, event);
-			else
-				streamImpl(triggers, event);
+			List<FakeTrigger> result = useLoop
+					? loopImpl(triggers, event)
+					: streamImpl(triggers, event);
+			sink += result.size(); // prevent dead code elimination
 		}
 		long elapsed = System.nanoTime() - start;
 		long nsPerOp = elapsed / iterations;
 
-		System.out.printf("  %-20s %,d iterations  avg %,d ns/op  (total %.1f ms)%n",
-				name, iterations, nsPerOp, elapsed / 1_000_000.0);
+		System.out.printf("  %-20s %,d iterations  avg %,d ns/op  (total %.1f ms)  [sink=%d]%n",
+				name, iterations, nsPerOp, elapsed / 1_000_000.0, sink);
 
 		return nsPerOp;
 	}
