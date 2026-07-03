@@ -86,5 +86,7 @@ test "StructCommand":
 	assert {-test-{@command}::arg2} is not set with "arg-2 test failed"
 	assert {-test-{@command}::arg3} is dirt named "steve" with "arg-3 test failed"
 
-	execute command "//somecommand burrito is tasty"
+	# On some older versions (1.21.4, TBD), '//somecommand' does not work through console.
+	# This appears to be some sort of server issue.
+	execute command "skript:/somecommand burrito is tasty"
 	assert {-test-somecommand::arg1} is "burrito is tasty" with "arg-1 is 'burrito is tasty' test failed"
