@@ -545,35 +545,6 @@ public class DefaultComparators {
 			}
 		});
 
-		// EnchantmentOffer Comparators
-		// EnchantmentOffer - EnchantmentType
-		Comparators.registerComparator(EnchantmentOffer.class, EnchantmentType.class, new Comparator<EnchantmentOffer, EnchantmentType>() {
-			@Override
-			public Relation compare(EnchantmentOffer eo, EnchantmentType et) {
-				return Relation.get(eo.getEnchantment() == et.getType() && eo.getEnchantmentLevel() == et.getLevel());
-			}
-
-			@Override
-			public boolean supportsOrdering() {
-				return false;
-			}
-		});
-		// EnchantmentOffer - Experience
-		Comparators.registerComparator(EnchantmentOffer.class, Experience.class, new Comparator<EnchantmentOffer, Experience>() {
-			@Override
-			public Relation compare(EnchantmentOffer eo, Experience exp) {
-				return Relation.get(eo.getCost() == exp.getXP());
-			}
-
-			@Override public boolean supportsOrdering() {
-				return false;
-			}
-		});
-
-		//EnchantmentType - Enchantment
-		Comparators.registerComparator(EnchantmentType.class, Enchantment.class, ((enchantmentType, enchantment) ->
-			Relation.get(enchantmentType.getType().equals(enchantment))));
-
 		Comparators.registerComparator(Inventory.class, InventoryType.class, new Comparator<Inventory, InventoryType>() {
 			@Override
 			public Relation compare(Inventory inventory, InventoryType inventoryType) {
