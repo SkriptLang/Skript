@@ -551,11 +551,6 @@ public class SimpleEvents {
 				.since("2.10");
 		}
 
-		Skript.registerEvent("Bat Toggle Sleep", SimpleEvent.class, BatToggleSleepEvent.class, "bat toggle sleep")
-			.description("Called when a bat attempts to go to sleep or wakes up.")
-			.examples("on bat toggle sleep:")
-			.since("2.11");
-
 		if (Skript.classExists("org.bukkit.event.block.VaultDisplayItemEvent")) {
 			Skript.registerEvent("Vault Display Item", SimpleEvent.class, VaultDisplayItemEvent.class,
 					"vault display[ing] item")
@@ -563,7 +558,7 @@ public class SimpleEvents {
 				.examples(
 					"""
 					on vault display item:
-						set event-item to a netherite ingot	
+						set event-item to a netherite ingot
 					"""
 				)
 				.since("2.12")
