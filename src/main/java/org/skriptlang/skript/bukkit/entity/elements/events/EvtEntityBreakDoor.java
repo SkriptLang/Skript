@@ -27,7 +27,7 @@ public class EvtEntityBreakDoor extends SkriptEvent {
 				    type of event-entity is zombie
 				    broadcast "A zombie is about to murder a villager!"
 				""")
-			.addSince("1.0, INSERT VERSION (new pattern)")
+			.addSince("1.0, INSERT VERSION (entity types)")
 			.build());
 	}
 

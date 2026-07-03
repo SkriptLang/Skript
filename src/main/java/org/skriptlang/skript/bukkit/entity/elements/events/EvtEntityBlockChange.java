@@ -131,9 +131,7 @@ public class EvtEntityBlockChange extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return new SyntaxStringBuilder(event, debug)
-			.append(this.event.name())
-			.toString();
+		return this.event.name();
 	}
 
 }
