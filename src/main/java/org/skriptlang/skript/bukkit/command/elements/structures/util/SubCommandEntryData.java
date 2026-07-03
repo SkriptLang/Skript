@@ -190,9 +190,20 @@ public class SubCommandEntryData extends EntryData<Result> {
 		}
 
 		String prefix = entryContainer.getOptional("prefix", String.class, false);
-		if (!isRoot && prefix != null) {
-			Skript.error("Only the root of a command may have a prefix.");
-			return null;
+		if (prefix != null) {
+			if (!isRoot) {
+				Skript.error("Only the root of a command may have a prefix.");
+				return null;
+			}
+			for (char c : prefix.toCharArray()) {
+				if (Character.isWhitespace(c)) {
+					Skript.error("Command prefixes must not have any whitespace.");
+					return null;
+				} else if (c == 167) { // char 167 is §
+					Skript.error("Command prefixes must not have any section symbols.");
+					return null;
+				}
+			}
 		}
 
 		// command requirements

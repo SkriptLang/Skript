@@ -17,7 +17,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -154,10 +153,8 @@ public final class RuntimeCommandRegistrar {
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 			if (useAlternativeName) {
 				String methodName = method.getName();
-				if (methodName.equals("getName")) {
+				if (methodName.equals("getName") || methodName.equals("namespace")) {
 					return name;
-				} else if (methodName.equals("namespace")) {
-					return name.toLowerCase(Locale.ROOT);
 				}
 			}
 			return method.invoke(source, args);
