@@ -20,5 +20,6 @@ public record ScriptBrigadierCommand(
 	LiteralCommandNode<CommandSourceStack> node,
 	Collection<String> aliases,
 	@Nullable String description,
+	@Nullable String usage,
 	@Nullable String namespace
 ) { }

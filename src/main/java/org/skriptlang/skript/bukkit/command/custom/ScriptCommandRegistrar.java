@@ -5,6 +5,13 @@ import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.configuration.PluginMeta;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandMap;
+import org.bukkit.help.GenericCommandHelpTopic;
+import org.bukkit.help.HelpMap;
+import org.bukkit.help.HelpTopic;
+import org.bukkit.help.HelpTopicComparator;
+import org.bukkit.help.IndexHelpTopic;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,8 +21,10 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
@@ -33,15 +42,15 @@ public final class ScriptCommandRegistrar {
 	private static final Set<ScriptBrigadierCommand> PENDING_REGISTRATIONS = ConcurrentHashMap.newKeySet();
 	private static final Set<String> PENDING_UNREGISTRATIONS = ConcurrentHashMap.newKeySet();
 
+	private static boolean useSafeReload;
 	private static @Nullable MethodHandle SET_VALID;
 	private static @Nullable MethodHandle INVALIDATE;
 	private static @Nullable MethodHandle REMOVE_COMMAND;
 	private static @Nullable MethodHandle SYNC_COMMANDS;
 
-	private static boolean useSafeReload;
+	private static final SkriptIndexHelpTopic indexHelpTopic = new SkriptIndexHelpTopic();
 
 	public static void init(JavaPlugin plugin) {
-		ScriptCommandRegistrar.plugin = plugin;
 		plugin.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
 			commandRegistrar = commands.registrar();
 
@@ -49,8 +58,22 @@ public final class ScriptCommandRegistrar {
 				REGISTERED_COMMANDS.replaceAll((command, ignored) ->
 					commandRegistrar.register(command.node(), command.description(), command.aliases()));
 				processRegistrationSet();
+				// once command registration has finished, and new help initialized, add in our custom entries
+				Bukkit.getScheduler().runTask(plugin, () -> {
+					HelpMap helpMap = Bukkit.getHelpMap();
+					indexHelpTopic.clear();
+					indexHelpTopic.replaceExisting(helpMap);
+					CommandMap commandMap = Bukkit.getCommandMap();
+					REGISTERED_COMMANDS.forEach((command, labels) ->
+						registerHelp(helpMap, commandMap, command, labels));
+				});
 				return;
 			}
+
+			if (ScriptCommandRegistrar.plugin != null) {
+				return;
+			}
+			ScriptCommandRegistrar.plugin = plugin;
 
 			MethodHandles.Lookup lookup = MethodHandles.lookup();
 			Class<?> registrarClass = commandRegistrar.getClass();
@@ -64,6 +87,9 @@ public final class ScriptCommandRegistrar {
 			} catch (NoSuchMethodException | IllegalAccessException e) {
 				useSafeReload = true;
 			}
+
+			// we have to delay replacing the existing help index entry since it does not yet exist
+			Bukkit.getScheduler().runTask(plugin, () -> indexHelpTopic.replaceExisting(Bukkit.getHelpMap()));
 		});
 	}
 
@@ -109,6 +135,8 @@ public final class ScriptCommandRegistrar {
 
 	private static void processRegistrationSet() {
 		PluginMeta pluginMeta = plugin.getPluginMeta();
+		HelpMap helpMap = Bukkit.getHelpMap();
+		CommandMap commandMap = Bukkit.getCommandMap();
 		for (ScriptBrigadierCommand command : PENDING_REGISTRATIONS) {
 			if (command.namespace() == null) {
 				REGISTERED_COMMANDS.put(command, commandRegistrar.register(pluginMeta, command.node(), command.description(), command.aliases()));
@@ -118,6 +146,9 @@ public final class ScriptCommandRegistrar {
 					new Class<?>[]{PluginMeta.class}, handler);
 				REGISTERED_COMMANDS.put(command, commandRegistrar.register(meta, command.node(), command.description(), command.aliases()));
 				handler.useAlternativeName = false;
+			}
+			if (!useSafeReload) { // safe reloads process help differently at a later time
+				registerHelp(helpMap, commandMap, command, REGISTERED_COMMANDS.get(command));
 			}
 		}
 		PENDING_REGISTRATIONS.clear();
@@ -145,6 +176,28 @@ public final class ScriptCommandRegistrar {
 			return method.invoke(source, args);
 		}
 
+	}
+
+	private static void registerHelp(HelpMap helpMap, CommandMap commandMap, ScriptBrigadierCommand command, Set<String> labels) {
+		if (useSafeReload) { // remove existing topics, only needed for safe reload which is delayed
+			helpMap.getHelpTopics().removeAll(labels.stream()
+				.map(label -> helpMap.getHelpTopic("/" + label))
+				.toList());
+		}
+
+		// register new help topics
+		for (String label : labels) {
+			Command bukkitCommand = commandMap.getCommand(label);
+			assert bukkitCommand != null;
+			if (command.usage() != null) {
+				bukkitCommand.setUsage(command.usage());
+			}
+
+			// TODO may want to copy CommandAliasHelpTopic? Not normally used for Brigadier aliases though
+			HelpTopic newTopic = new GenericCommandHelpTopic(bukkitCommand);
+			helpMap.addTopic(newTopic);
+			indexHelpTopic.add(newTopic);
+		}
 	}
 
 	/**
@@ -180,6 +233,15 @@ public final class ScriptCommandRegistrar {
 			for (String command : PENDING_UNREGISTRATIONS) {
 				REMOVE_COMMAND.invoke(root, command);
 			}
+
+			// unregister help
+			HelpMap helpMap = Bukkit.getHelpMap();
+			List<HelpTopic> topics = PENDING_UNREGISTRATIONS.stream()
+				.map(label -> helpMap.getHelpTopic("/" + label))
+				.toList();
+			helpMap.getHelpTopics().removeAll(topics);
+			indexHelpTopic.remove(topics);
+
 			PENDING_UNREGISTRATIONS.clear();
 			INVALIDATE.invoke(commandRegistrar);
 			SYNC_COMMANDS.invoke(Bukkit.getServer());
@@ -198,6 +260,44 @@ public final class ScriptCommandRegistrar {
 			.filter(registration -> registration.node().getLiteral().equals(command))
 			.findFirst()
 			.orElse(null);
+	}
+
+	private static class SkriptIndexHelpTopic extends IndexHelpTopic {
+
+		public SkriptIndexHelpTopic() {
+			super("Skript", "All commands for Skript", null,
+				new TreeSet<>((lht, rht) -> {
+					// always force /skript to come first
+					if (lht.getName().equals("/skript")) {
+						return -1;
+					} else if (rht.getName().equals("/skript")) {
+						return 1;
+					}
+					return HelpTopicComparator.helpTopicComparatorInstance().compare(lht, rht);
+				}),
+				"Below is a list of all Skript commands:");
+		}
+
+		public void replaceExisting(HelpMap helpMap) {
+			// replace existing index entry
+			helpMap.getHelpTopics().remove(helpMap.getHelpTopic("Skript"));
+			helpMap.addTopic(this);
+			// add back topic for primary plugin command
+			add(helpMap.getHelpTopic("/skript"));
+		}
+
+		public void add(HelpTopic topic) {
+			allTopics.add(topic);
+		}
+
+		public void remove(List<HelpTopic> topics) {
+			allTopics.removeAll(topics);
+		}
+
+		public void clear() {
+			allTopics.clear();
+		}
+
 	}
 
 }

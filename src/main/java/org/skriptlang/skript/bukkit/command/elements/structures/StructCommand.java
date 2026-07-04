@@ -70,7 +70,8 @@ public class StructCommand extends Structure {
 		}
 
 		// registration
-		command = new ScriptBrigadierCommand(getParser().getCurrentScript(), node, result.aliases(), result.description(), result.prefix());
+		command = new ScriptBrigadierCommand(getParser().getCurrentScript(), node, result.aliases(),
+			result.description(), result.usage(), result.prefix());
 		ScriptCommandRegistrar.register(command);
 		SYNC_COMMANDS.set(true);
 

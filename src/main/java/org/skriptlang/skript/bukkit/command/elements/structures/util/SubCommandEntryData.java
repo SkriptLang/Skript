@@ -56,6 +56,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 		List<ArgumentBuilder<CommandSourceStack, ?>> arguments,
 		Collection<String> aliases,
 		@Nullable String description,
+		@Nullable String usage,
 		@Nullable String prefix
 	) { }
 
@@ -82,6 +83,8 @@ public class SubCommandEntryData extends EntryData<Result> {
 			}
 		})
 		.addEntry("description", null, true)
+		// TODO this was previously a VariableString. need to handle that
+		.addEntry("usage", null, true)
 		.addEntry("prefix", null, true)
 		.addEntry("permission", null, true)
 		.addEntryData(new KeyValueEntryData<ExecutableBy>("executable by", null, true) {
@@ -110,7 +113,6 @@ public class SubCommandEntryData extends EntryData<Result> {
 		.addEntryData(new TriggerEntryData("trigger", null, true))
 		.addEntryData(new SubCommandEntryData("subcommand", true, true))
 		// deprecated entries
-		.addEntry("usage", null, true)
 		.addEntry("permission message", null, true)
 		.build();
 
@@ -184,6 +186,14 @@ public class SubCommandEntryData extends EntryData<Result> {
 			return null;
 		}
 
+		// command usage
+		String usage = entryContainer.getOptional("usage", String.class, false);
+		if (!isRoot && usage != null) {
+			Skript.error("Only the root of a command may have a usage.");
+			return null;
+		}
+
+		// command prefix (custom namespace)
 		String prefix = entryContainer.getOptional("prefix", String.class, false);
 		if (prefix != null) {
 			if (!isRoot) {
@@ -264,10 +274,6 @@ public class SubCommandEntryData extends EntryData<Result> {
 		}
 
 		// handle deprecated entries
-		if (entryContainer.hasEntry("usage")) {
-			ScriptWarning.printDeprecationWarning("The 'usage' entry has been deprecated for removal in a future release." +
-				" Incorrect command usage is now handled by the client's command validator.");
-		}
 		if (entryContainer.hasEntry("permission message")) {
 			ScriptWarning.printDeprecationWarning("The 'permission message' entry has been deprecated for removal in a future release." +
 				" Commands that a player does not have permission to execute are no longer sent to their client.");
@@ -331,7 +337,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 		parsingData.popArguments();
 
 		//noinspection unchecked
-		return new Result(result, aliases, description, prefix);
+		return new Result(result, aliases, description, usage, prefix);
 	}
 
 	@Override
