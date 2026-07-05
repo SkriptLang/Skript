@@ -47,8 +47,8 @@ public class EvtEntityHeal extends SkriptEvent {
 			.build());
 	}
 
-	private Literal<EntityData<?>> entityData;
-	private Literal<RegainReason> reasons;
+	private @Nullable Literal<EntityData<?>> entityData;
+	private @Nullable Literal<RegainReason> reasons;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -69,7 +69,6 @@ public class EvtEntityHeal extends SkriptEvent {
 		if (reasons != null && !reasons.check(event, reason -> reason.equals(entityEvent.getRegainReason())))
 			return false;
 		return true;
-
 	}
 
 

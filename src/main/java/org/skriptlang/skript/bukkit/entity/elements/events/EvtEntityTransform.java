@@ -50,14 +50,14 @@ public class EvtEntityTransform extends SkriptEvent {
 			.build());
 	}
 
-	private Literal<EntityData<?>> entityData;
-	private Literal<TransformReason> reasons;
+	private @Nullable Literal<EntityData<?>> entityData;
+	private @Nullable Literal<TransformReason> reasons;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		if (args[1] != null)
-			reasons  = (Literal<TransformReason>) args[1];
+			reasons = (Literal<TransformReason>) args[1];
 		if (args[0] != null)
 			entityData = (Literal<EntityData<?>>) args[0];
 		return true;

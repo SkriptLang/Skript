@@ -58,8 +58,8 @@ public class EvtEntityDamage extends SkriptEvent {
 			.build());
 	}
 
-	private Literal<EntityData<?>> byEntityData;
-	private Literal<EntityData<?>>  ofEntityData;
+	private @Nullable Literal<EntityData<?>> byEntityData;
+	private @Nullable Literal<EntityData<?>>  ofEntityData;
 
 	@Override
 	@SuppressWarnings("unchecked")

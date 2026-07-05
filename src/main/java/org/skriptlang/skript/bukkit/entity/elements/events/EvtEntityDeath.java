@@ -65,7 +65,7 @@ public class EvtEntityDeath extends SkriptEvent {
 			.build());
 	}
 
-	private Literal<EntityData<?>> entityData;
+	private @Nullable Literal<EntityData<?>> entityData;
 
 	@Override
 	@SuppressWarnings("unchecked")
