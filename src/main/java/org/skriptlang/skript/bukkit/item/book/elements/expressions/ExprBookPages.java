@@ -22,7 +22,7 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 @Name("Book Pages")
@@ -104,14 +104,17 @@ public class ExprBookPages extends SimpleExpression<Component> {
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		int pageNumber = isAllPages() ? -1 : this.pageNumber.getOptionalSingle(event).orElse(-1);
-		List<Component> newPages = delta == null ? Collections.emptyList() : new ArrayList<>(delta.length);
+		int pageNumber = -1;
+		if (!isAllPages()) {
+			pageNumber = this.pageNumber.getOptionalSingle(event).orElse(-1);
+			if (pageNumber <= 0) {
+				return;
+			}
+		}
+		List<Component> newPages = delta == null ? List.of() : new ArrayList<>(delta.length);
 		if (delta != null) {
 			for (Object page : delta) {
 				newPages.add((Component) page);
-			}
-			if (pageNumber != -1 && newPages.isEmpty()) { // not setting this page to anything, exit early
-				return;
 			}
 		}
 
@@ -129,14 +132,29 @@ public class ExprBookPages extends SimpleExpression<Component> {
 				}
 			} else {
 				switch (mode) {
-					case SET -> bookMeta.page(pageNumber, newPages.getFirst());
+					case SET -> {
+						if (pageNumber > bookMeta.getPageCount()) {
+							Component[] pages = new Component[pageNumber - bookMeta.getPageCount()];
+							Arrays.fill(pages, Component.empty());
+							bookMeta.addPages(pages);
+						}
+						bookMeta.page(pageNumber, newPages.getFirst());
+					}
 					case DELETE -> {
+						if (pageNumber > bookMeta.getPageCount()) {
+							break;
+						}
 						List<Component> pages = new ArrayList<>(bookMeta.pages());
-						pages.remove(pageNumber);
+						pages.remove(pageNumber - 1);
 						//noinspection ResultOfMethodCallIgnored - modifies in place despite contract
 						bookMeta.pages(pages);
 					}
-					case RESET -> bookMeta.page(pageNumber, Component.empty());
+					case RESET -> {
+						if (pageNumber > bookMeta.getPageCount()) {
+							continue;
+						}
+						bookMeta.page(pageNumber, Component.empty());
+					}
 					default -> throw new IllegalStateException();
 				}
 			}
