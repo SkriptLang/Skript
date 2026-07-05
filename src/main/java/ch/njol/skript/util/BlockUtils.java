@@ -7,6 +7,7 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.block.BlockCompat;
 import ch.njol.skript.bukkitutil.block.BlockSetter;
 import ch.njol.skript.bukkitutil.block.BlockValues;
+import ch.njol.skript.lang.Literal;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,6 +16,8 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.block.BlockEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -144,6 +147,27 @@ public class BlockUtils {
 	 */
 	public static Block extractBlock(Block block) {
 		return block instanceof DelayedChangeBlock ? ((DelayedChangeBlock) block).block : block;
+	}
+
+	/**
+	 * Checks whether the block of a {@link BlockEvent} matches the provided item types or block data.
+	 *
+	 * @param event the event whose block to check
+	 * @param literal the literal containing {@link ItemType}s or {@link BlockData} to match against
+	 * @return Whether the block matches any of the provided types or data
+	 */
+	public static boolean checkEvent(Event event, Literal<Object> literal) {
+		if (!(event instanceof BlockEvent blockEvent))
+			return false;
+
+		return literal.check(event, object -> {
+			if (object instanceof ItemType itemType) {
+				return itemType.isSupertypeOf(new ItemType(blockEvent.getBlock()));
+			} else if (object instanceof BlockData blockData) {
+				return blockEvent.getBlock().getBlockData().matches(blockData);
+			}
+			return false;
+		});
 	}
 
 }

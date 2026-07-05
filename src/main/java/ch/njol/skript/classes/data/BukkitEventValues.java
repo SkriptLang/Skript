@@ -80,89 +80,15 @@ public final class BukkitEventValues {
 	public static void register(EventValueRegistry registry) {
 		// === WorldEvents ===
 		registry.register(EventValue.simple(WorldEvent.class, World.class, WorldEvent::getWorld));
-		// StructureGrowEvent - a WorldEvent
-		registry.register(EventValue.simple(StructureGrowEvent.class, Block.class, event -> event.getLocation().getBlock()));
 
-		registry.register(EventValue.simple(StructureGrowEvent.class, Block[].class, event -> event.getBlocks().stream()
-			.map(BlockState::getBlock)
-			.toArray(Block[]::new)));
-		registry.register(EventValue.builder(StructureGrowEvent.class, Block.class)
-			.getter(event -> {
-				for (BlockState bs : event.getBlocks()) {
-					if (bs.getLocation().equals(event.getLocation()))
-						return new BlockStateBlock(bs);
-				}
-				return event.getLocation().getBlock();
-			})
-			.time(Time.FUTURE)
-			.build());
-		registry.register(EventValue.builder(StructureGrowEvent.class, Block[].class)
-			.getter(event -> event.getBlocks().stream()
-				.map(BlockStateBlock::new)
-				.toArray(Block[]::new))
-			.time(Time.FUTURE)
-			.build());
 		// WeatherEvent - not a WorldEvent (wtf ô_Ô)
 		registry.register(EventValue.simple(WeatherEvent.class, World.class, WeatherEvent::getWorld));
 		// ChunkEvents
 		registry.register(EventValue.simple(ChunkEvent.class, Chunk.class, ChunkEvent::getChunk));
 
-		// BlockPlaceEvent
-		registry.register(EventValue.simple(BlockPlaceEvent.class, Player.class, BlockPlaceEvent::getPlayer));
-		registry.register(EventValue.builder(BlockPlaceEvent.class, ItemStack.class)
-			.getter(BlockPlaceEvent::getItemInHand)
-			.time(Time.PAST)
-			.build());
-		registry.register(EventValue.simple(BlockPlaceEvent.class, ItemStack.class, BlockPlaceEvent::getItemInHand));
-		registry.register(EventValue.builder(BlockPlaceEvent.class, ItemStack.class)
-			.getter(event -> {
-				ItemStack item = event.getItemInHand().clone();
-				if (event.getPlayer().getGameMode() != GameMode.CREATIVE)
-					item.setAmount(item.getAmount() - 1);
-				return item;
-			})
-			.time(Time.FUTURE)
-			.build());
-		registry.register(EventValue.builder(BlockPlaceEvent.class, Block.class)
-			.getter(event -> new BlockStateBlock(event.getBlockReplacedState()))
-			.time(Time.PAST)
-			.build());
-		registry.register(EventValue.simple(BlockPlaceEvent.class, Direction.class, event -> {
-			BlockFace bf = event.getBlockPlaced().getFace(event.getBlockAgainst());
-			if (bf != null) {
-				return new Direction(new double[]{bf.getModX(), bf.getModY(), bf.getModZ()});
-			}
-			return Direction.ZERO;
-		}));
-		// BlockFadeEvent
-		registry.register(EventValue.builder(BlockFadeEvent.class, Block.class)
-			.getter(BlockEvent::getBlock)
-			.time(Time.PAST)
-			.build());
-		registry.register(EventValue.simple(BlockFadeEvent.class, Block.class, event -> new DelayedChangeBlock(event.getBlock(), event.getNewState())));
-		registry.register(EventValue.builder(BlockFadeEvent.class, Block.class)
-			.getter(event -> new BlockStateBlock(event.getNewState()))
-			.time(Time.FUTURE)
-			.build());
-		// BlockGrowEvent (+ BlockFormEvent)
-		registry.register(EventValue.simple(BlockGrowEvent.class, Block.class, event -> new BlockStateBlock(event.getNewState())));
-		registry.register(EventValue.builder(BlockGrowEvent.class, Block.class)
-			.getter(BlockEvent::getBlock)
-			.time(Time.PAST)
-			.build());
-		// BlockBreakEvent
-		registry.register(EventValue.simple(BlockBreakEvent.class, Player.class, BlockBreakEvent::getPlayer));
-		registry.register(EventValue.builder(BlockBreakEvent.class, Block.class)
-			.getter(BlockEvent::getBlock)
-			.time(Time.PAST)
-			.build());
 		registry.register(EventValue.simple(BlockBreakEvent.class, Block.class, event -> new DelayedChangeBlock(event.getBlock())));
 		// BlockDispenseEvent
 		registry.register(EventValue.simple(BlockDispenseEvent.class, ItemStack.class, BlockDispenseEvent::getItem));
-		// BlockCanBuildEvent#getPlayer was added in 1.13
-		if (Skript.methodExists(BlockCanBuildEvent.class, "getPlayer")) {
-			registry.register(EventValue.simple(BlockCanBuildEvent.class, Player.class, BlockCanBuildEvent::getPlayer));
-		}
 		// === EntityEvents ===
 		registry.register(EventValue.builder(EntityEvent.class, Entity.class)
 			.getter(EntityEvent::getEntity)
@@ -716,15 +642,6 @@ public final class BukkitEventValues {
 		registry.register(EventValue.simple(FurnaceExtractEvent.class, Player.class, FurnaceExtractEvent::getPlayer));
 		registry.register(EventValue.simple(FurnaceExtractEvent.class, ItemStack[].class, event -> new ItemStack[]{ItemStack.of(event.getItemType(), event.getItemAmount())}));
 
-		// BlockDropItemEvent
-		registry.register(EventValue.builder(BlockDropItemEvent.class, Block.class)
-			.getter(event -> new BlockStateBlock(event.getBlockState()))
-			.time(Time.PAST)
-			.build());
-		registry.register(EventValue.simple(BlockDropItemEvent.class, Player.class, BlockDropItemEvent::getPlayer));
-		registry.register(EventValue.simple(BlockDropItemEvent.class, ItemStack[].class, event -> event.getItems().stream().map(Item::getItemStack).toArray(ItemStack[]::new)));
-		registry.register(EventValue.simple(BlockDropItemEvent.class, Entity[].class, event -> event.getItems().toArray(Entity[]::new)));
-
 		// PlayerExpCooldownChangeEvent
 		registry.register(EventValue.simple(PlayerExpCooldownChangeEvent.class, ChangeReason.class, PlayerExpCooldownChangeEvent::getReason));
 		registry.register(EventValue.simple(PlayerExpCooldownChangeEvent.class, Timespan.class, event -> new Timespan(Timespan.TimePeriod.TICK, event.getNewCooldown())));
@@ -740,15 +657,6 @@ public final class BukkitEventValues {
 			.time(Time.PAST)
 			.build());
 
-		// BeaconEffectEvent
-		if (Skript.classExists("com.destroystokyo.paper.event.block.BeaconEffectEvent")) {
-			registry.register(EventValue.builder(BeaconEffectEvent.class, PotionEffectType.class)
-				.getter(event -> event.getEffect().getType())
-				.excludes(BeaconEffectEvent.class)
-				.excludedErrorMessage("Use 'applied effect' in beacon effect events.")
-				.build());
-			registry.register(EventValue.simple(BeaconEffectEvent.class, Player.class, BeaconEffectEvent::getPlayer));
-		}
 		// PlayerChangeBeaconEffectEvent
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerChangeBeaconEffectEvent")) {
 			registry.register(EventValue.simple(PlayerChangeBeaconEffectEvent.class, Block.class, PlayerChangeBeaconEffectEvent::getBeacon));

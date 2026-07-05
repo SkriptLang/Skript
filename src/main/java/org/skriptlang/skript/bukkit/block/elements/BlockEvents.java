@@ -60,6 +60,10 @@ public class BlockEvents {
 			.supplier(() -> new SimpleEvent("block can build check"))
 			.build());
 
+		eventValueRegistry.register(EventValue.builder(BlockCanBuildEvent.class, Player.class)
+			.getter(BlockCanBuildEvent::getPlayer)
+			.build());
+
 		eventValueRegistry.register(EventValue.builder(BlockCanBuildEvent.class, Block.class)
 			.getter(BlockCanBuildEvent::getBlock)
 			.time(Time.PAST)
