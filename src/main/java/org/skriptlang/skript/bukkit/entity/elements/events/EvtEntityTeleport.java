@@ -75,8 +75,8 @@ public class EvtEntityTeleport extends SkriptEvent {
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		if (args[0] != null) {
 			entityData = (Literal<EntityData<?>>) args[0];
-			if (entityData.getAnd() && entityData instanceof LiteralList)
-				((LiteralList<EntityData<?>>) entityData).invertAnd();
+			if (entityData.getAnd() && entityData instanceof LiteralList<EntityData<?>> list)
+				list.invertAnd();
 		}
 		return true;
 	}

@@ -61,13 +61,13 @@ public class EvtEntityDamage extends SkriptEvent {
 	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
 		if (args[1] != null) {
 			byEntityData = (Literal<EntityData<?>>) args[1];
-			if (byEntityData.getAnd() && byEntityData instanceof LiteralList)
-				((LiteralList<EntityData<?>>) byEntityData).invertAnd();
+			if (byEntityData.getAnd() && byEntityData instanceof LiteralList<EntityData<?>> list)
+				list.invertAnd();
 		}
 		if (args[0] != null) {
 			ofEntityData = (Literal<EntityData<?>>) args[0];
-			if (ofEntityData.getAnd() && ofEntityData instanceof LiteralList)
-				((LiteralList<EntityData<?>>) ofEntityData).invertAnd();
+			if (ofEntityData.getAnd() && ofEntityData instanceof LiteralList<EntityData<?>> list)
+				list.invertAnd();
 		}
 		return true;
 	}

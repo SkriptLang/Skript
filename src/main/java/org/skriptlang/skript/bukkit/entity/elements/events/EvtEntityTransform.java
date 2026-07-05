@@ -59,13 +59,13 @@ public class EvtEntityTransform extends SkriptEvent {
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		if (args[1] != null) {
 			reasons = (Literal<TransformReason>) args[1];
-			if (reasons.getAnd() && reasons instanceof LiteralList)
-				((LiteralList<TransformReason>) reasons).invertAnd();
+			if (reasons.getAnd() && reasons instanceof LiteralList<TransformReason> list)
+				list.invertAnd();
 		}
 		if (args[0] != null) {
 			entityData = (Literal<EntityData<?>>) args[0];
-			if (entityData.getAnd() && entityData instanceof LiteralList)
-				((LiteralList<EntityData<?>>) entityData).invertAnd();
+			if (entityData.getAnd() && entityData instanceof LiteralList<EntityData<?>> list)
+				list.invertAnd();
 		}
 		return true;
 	}

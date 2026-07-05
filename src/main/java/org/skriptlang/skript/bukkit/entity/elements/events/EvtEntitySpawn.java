@@ -51,8 +51,8 @@ public class EvtEntitySpawn extends SkriptEvent {
 					return false;
 				}
 			}
-			if (entityData.getAnd() && entityData instanceof LiteralList)
-				((LiteralList<EntityData<?>>) entityData).invertAnd();
+			if (entityData.getAnd() && entityData instanceof LiteralList<EntityData<?>> list)
+				list.invertAnd();
 		}
 		return true;
 	}

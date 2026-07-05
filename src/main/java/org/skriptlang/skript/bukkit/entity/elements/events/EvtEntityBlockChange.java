@@ -117,8 +117,8 @@ public class EvtEntityBlockChange extends SkriptEvent {
 			entityData = (Literal<EntityData<?>>) args[0];
 			if (entityData == null)
 				return true;
-			if (entityData.getAnd() && entityData instanceof LiteralList)
-				((LiteralList<EntityData<?>>) entityData).invertAnd();
+			if (entityData.getAnd() && entityData instanceof LiteralList<EntityData<?>> list)
+				list.invertAnd();
 		}
 		return true;
 	}
