@@ -21,7 +21,7 @@ public class EvtEntityDamage extends SkriptEvent {
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtEntityDamage.class, "Entity Damage")
 			.supplier(EvtEntityDamage::new)
 			.addEvent(EntityDamageEvent.class)
-			.addPatterns("damag(e|ing) [of:of %-entitydata%] [by:by %-entitydata%]")
+			.addPatterns("damag(e|ing) [of %-entitydata%] [by %-entitydata%]")
 			.addDescription("""
 				Called when an entity receives damage, e.g. by an attack from another entity, lava, fire, drowning, fall, suffocation, etc.
 				See <a href='#Attacked'>attacker/victim/</a> for how to get the victim or attacker in this event.
