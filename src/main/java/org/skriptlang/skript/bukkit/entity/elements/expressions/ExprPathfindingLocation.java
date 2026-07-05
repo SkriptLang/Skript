@@ -25,7 +25,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		    broadcast "A mob tried to pathfind near a forbidden location!"
 		    cancel event
 	""")
-@Since("INSERT VERSION")
+@Since("2.16")
 @Events("pathfind")
 public class ExprPathfindingLocation extends SimpleExpression<Location> implements EventRestrictedSyntax {
 

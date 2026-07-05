@@ -38,6 +38,7 @@ public class ExprColored extends SimplePropertyExpression<String, Object> {
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprColored.class, Object.class)
 			.supplier(ExprColored::new)
+			.priority(DEFAULT_PRIORITY)
 			.addPatterns("[negated:(un|non)[-]](colo[u]r-|colo[u]red )%strings%",
 				"[negated:(un|non)[-]](format-|formatted )%strings%")
 			.build());

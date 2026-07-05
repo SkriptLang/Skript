@@ -48,7 +48,7 @@ import java.util.WeakHashMap;
 		send "This runs third! (one second later)" to player
 	send "This runs second!" to player
 	""")
-@Since("1.4, INSERT VERSION (Delayed Sections)")
+@Since("1.4, 2.16 (Delayed Sections)")
 public class Delay extends EffectSection {
 
 	static {

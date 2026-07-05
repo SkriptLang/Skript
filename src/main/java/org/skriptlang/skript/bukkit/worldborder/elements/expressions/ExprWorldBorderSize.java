@@ -1,4 +1,4 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.worldborder.elements.expressions;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -15,6 +15,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Size of World Border")
 @Description({
@@ -25,8 +26,11 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.11")
 public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, Double> {
 
-	static {
-		registerDefault(ExprWorldBorderSize.class, Double.class, "world[ ]border (size|diameter|:radius)", "worldborders");
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprWorldBorderSize.class, Double.class, "world[ ]border (size|diameter|:radius)", "worldborders", true)
+				.supplier(ExprWorldBorderSize::new)
+				.build());
 	}
 
 	private boolean radius;

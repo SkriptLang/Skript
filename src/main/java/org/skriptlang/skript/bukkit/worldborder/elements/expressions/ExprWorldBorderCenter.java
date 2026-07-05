@@ -1,4 +1,4 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.worldborder.elements.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -11,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Center of World Border")
 @Description("The center of a world border.")
@@ -18,8 +19,11 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.11")
 public class ExprWorldBorderCenter extends SimplePropertyExpression<WorldBorder, Location> {
 
-	static {
-		registerDefault(ExprWorldBorderCenter.class, Location.class, "world[ ]border (center|middle)", "worldborders");
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprWorldBorderCenter.class, Location.class, "world[ ]border (center|middle)", "worldborders", true)
+				.supplier(ExprWorldBorderCenter::new)
+				.build());
 	}
 
 	@Override

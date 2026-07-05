@@ -26,7 +26,7 @@ import java.util.UUID;
 	Resetting the texture of a skull will make it look like a Steve/Alex head.
 	""")
 @Example("set the skull texture of {_i} to \"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTM4NmRmZDc0Y2JhZmJkMWRiZTQ3OWY1ZTAzNzRjMDliZjJlYjRlMzg2NjExZmM0ZmM2OTlmMDJlY2E0ZGQyYyJ9fX0=\"")
-@Since("INSERT VERSION")
+@Since("2.16")
 public class ExprSkullTexture extends SimplePropertyExpression<ItemType, String> {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {

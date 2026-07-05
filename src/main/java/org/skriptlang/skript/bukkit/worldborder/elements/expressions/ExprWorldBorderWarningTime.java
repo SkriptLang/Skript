@@ -1,4 +1,4 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.worldborder.elements.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -14,6 +14,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Warning Time of World Border")
 @Description("The warning time of a world border. If the border is shrinking, the player's screen will be tinted red once the border will catch the player within this time period.")
@@ -21,13 +22,21 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.11")
 public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBorder, Timespan> {
 
-	static {
-		registerDefault(ExprWorldBorderWarningTime.class, Timespan.class, "world[ ]border warning time", "worldborders");
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprWorldBorderWarningTime.class, Timespan.class, "world[ ]border warning time", "worldborders", true)
+				.supplier(ExprWorldBorderWarningTime::new)
+				.build());
 	}
+
+	private static final boolean USE_DEPRECATED = !Skript.methodExists(org.bukkit.WorldBorder.class,"getWarningTimeTicks");
 
 	@Override
 	public @Nullable Timespan convert(WorldBorder worldBorder) {
-		return new Timespan(TimePeriod.SECOND, worldBorder.getWarningTime());
+		if (USE_DEPRECATED) {
+			return new Timespan(TimePeriod.SECOND, worldBorder.getWarningTime());
+		}
+		return new Timespan(TimePeriod.TICK, worldBorder.getWarningTimeTicks());
 	}
 
 	@Override
@@ -40,12 +49,27 @@ public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBo
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		long input = delta == null ? 15 : (((Timespan) delta[0]).getAs(TimePeriod.SECOND));
+		long input;
+		if (USE_DEPRECATED) {
+			input = delta == null ? 15 : (((Timespan) delta[0]).getAs(TimePeriod.SECOND));
+		} else {
+			input = delta == null ? 300 : (((Timespan) delta[0]).getAs(TimePeriod.TICK));
+		}
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			long warningTime = switch (mode) {
 				case SET, RESET -> input;
-				case ADD -> Math2.addClamped(worldBorder.getWarningTime(), input);
-				case REMOVE -> Math2.addClamped(worldBorder.getWarningTime(), -input);
+				case ADD -> {
+					if (USE_DEPRECATED) {
+						yield Math2.addClamped(worldBorder.getWarningTime(), input);
+					}
+					yield Math2.addClamped(worldBorder.getWarningTimeTicks(), input);
+				}
+				case REMOVE -> {
+					if (USE_DEPRECATED) {
+						yield Math2.addClamped(worldBorder.getWarningTime(), -input);
+					}
+					yield Math2.addClamped(worldBorder.getWarningTimeTicks(), -input);
+				}
 				default -> throw new IllegalStateException();
 			};
 			setWarningTime(worldBorder, warningTime);
@@ -53,11 +77,14 @@ public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBo
 	}
 
 	private static void setWarningTime(WorldBorder worldBorder, long inputTime) {
-		// make sure this won't cause an overflow, as internal value is in ticks
-		long time = Math2.multiplyClamped(inputTime, 20);
-		// fit and convert back to seconds
-		int warningTime = ((int) Math2.fit(0, time, Integer.MAX_VALUE)) / 20;
-		worldBorder.setWarningTime(warningTime);
+		if (USE_DEPRECATED) {
+			long time = Math2.multiplyClamped(inputTime, 20);
+			int warningTime = ((int) Math2.fit(0, time, Integer.MAX_VALUE)) / 20;
+			worldBorder.setWarningTime(warningTime);
+		} else {
+			int warningTime = (int) Math2.fit(0, inputTime, Integer.MAX_VALUE);
+			worldBorder.setWarningTimeTicks(warningTime);
+		}
 	}
 
 	@Override

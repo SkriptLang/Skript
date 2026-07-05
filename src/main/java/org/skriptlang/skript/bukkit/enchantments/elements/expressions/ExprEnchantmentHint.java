@@ -31,7 +31,7 @@ import static org.skriptlang.skript.registration.DefaultSyntaxInfos.Expression.b
 		send "You got at least %the enchantment hint%!"
 	""")
 @Events("enchant")
-@Since("INSERT VERSION")
+@Since("2.16")
 public class ExprEnchantmentHint extends SimpleExpression<Enchantment> implements EventRestrictedSyntax {
 
 	public static void register(SyntaxRegistry registry) {

@@ -25,7 +25,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		player has permission "group.mod"
 		set the player's tab list priority to 5
 	""")
-@Since("INSERT VERSION")
+@Since("2.16")
 @Keywords({"tablist", "tab list"})
 public class ExprPlayerListPriority extends SimplePropertyExpression<Player, Integer> {
 

@@ -41,7 +41,7 @@ import java.util.Map;
 			add fire aspect 3 to stored enchants of {_item}
 			give {_item} to player
 	""")
-@Since("INSERT VERSION")
+@Since("2.16")
 public class ExprStoredEnchantments extends PropertyExpression<ItemType, EnchantmentType> {
 
 	public static void register(SyntaxRegistry registry) {

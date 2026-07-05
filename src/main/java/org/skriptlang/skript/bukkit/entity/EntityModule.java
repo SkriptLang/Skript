@@ -63,7 +63,7 @@ public class EntityModule extends HierarchicalAddonModule {
 				on pathfind:
 				    	broadcast "%event-entity% is about to move to %event-location%!"
 				""")
-			.addSince("INSERT VERSION")
+			.addSince("2.16")
 			.addPattern("[entity] [start[s]] pathfind[ing]")
 			.addEvent(EntityPathfindEvent.class)
 			.build());
