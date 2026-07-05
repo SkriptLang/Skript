@@ -20,11 +20,11 @@ public class EvtBlockBurn extends SkriptEvent {
 			.addPattern("[block] burn[ing] [[of] %-itemtypes/blockdatas%]")
 			.addDescription("Called when a block is destroyed by fire.")
 			.addExample("""
-				on burn:
+				on block burn:
 				    broadcast "AHH IT BURNS!!"
 				""")
 			.addExample("""
-				on burn of oak wood:
+				on block burn of oak wood:
 				    broadcast "Lets hope this wood is not a part of the house.."
 				""")
 			.addExample("""
