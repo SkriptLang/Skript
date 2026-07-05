@@ -74,9 +74,6 @@ public class EvtEntityDamage extends SkriptEvent {
 	@Override
 	public boolean check(Event event) {
 		EntityDamageEvent entityDamageEvent = (EntityDamageEvent) event;
-		boolean entityMatched = true;
-		boolean healthMatched = true;
-		boolean damagerMatched = true;
 
 		if (ofEntityData != null && !ofEntityData.check(event, data -> data.isInstance(entityDamageEvent.getEntity())))
 			return false;

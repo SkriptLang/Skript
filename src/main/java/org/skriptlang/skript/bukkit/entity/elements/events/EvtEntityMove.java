@@ -85,6 +85,7 @@ public class EvtEntityMove extends SkriptEvent {
 		public String toString() {
 			return name;
 		}
+
 	}
 
 	@Override

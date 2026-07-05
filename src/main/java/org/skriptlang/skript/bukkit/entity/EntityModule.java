@@ -53,7 +53,7 @@ public class EntityModule extends HierarchicalAddonModule {
 
 		EventValueRegistry eventValueRegistry = addon.registry(EventValueRegistry.class);
 
-		BukkitModule.register(addon.syntaxRegistry(), eventValueRegistry,
+		BukkitModule.register(moduleRegistry(addon), eventValueRegistry,
 			EntityEvents::register,
 			EvtEntityBlockChange::register,
 			EvtEntityDamage::register,
