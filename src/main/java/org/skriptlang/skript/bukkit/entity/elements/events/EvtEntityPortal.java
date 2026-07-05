@@ -55,9 +55,7 @@ public class EvtEntityPortal extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return new SyntaxStringBuilder(event, debug)
-			.append(isPlayer ? "player" : "entity", "portal")
-			.toString();
+		return isPlayer ? "player" : "entity" + "portal";
 	}
 
 }

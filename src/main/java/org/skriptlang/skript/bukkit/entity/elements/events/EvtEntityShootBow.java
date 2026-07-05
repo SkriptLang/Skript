@@ -70,15 +70,12 @@ public class EvtEntityShootBow extends SkriptEvent {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (args[0] != null)
-			entityData = (Literal<EntityData<?>>) args[0];
+		entityData = (Literal<EntityData<?>>) args[0];
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
-		if (entityData == null)
-			return true;
 		EntityShootBowEvent entityEvent = (EntityShootBowEvent) event;
 		return entityData.check(event, data -> data.isInstance(entityEvent.getEntity()));
 	}

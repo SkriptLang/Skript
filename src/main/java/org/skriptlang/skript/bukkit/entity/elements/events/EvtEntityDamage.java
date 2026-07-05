@@ -64,9 +64,9 @@ public class EvtEntityDamage extends SkriptEvent {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
-		if (parseResult.hasTag("by"))
+		if (args[0] != null)
 			byEntityData = (Literal<EntityData<?>>) args[1];
-		if (parseResult.hasTag("of"))
+		if (args[0] != null)
 			ofEntityData = (Literal<EntityData<?>>) args[0];
 		return true;
 	}

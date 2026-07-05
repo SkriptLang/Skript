@@ -31,7 +31,7 @@ public class EvtFireworkExplode extends SkriptEvent {
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtFireworkExplode.class, "Firework Explode")
 			.supplier(EvtFireworkExplode::new)
 			.addEvent(FireworkExplodeEvent.class)
-			.addPatterns("[a] firework explo(d(e|ing)|sion) [color:colo[u]red %-colors%]")
+			.addPatterns("[a] firework explo(d(e|ing)|sion) [colo[u]red %-colors%]")
 			.addDescription("Called when a firework explodes.")
 			.addExample("""
 				on firework explode:
@@ -75,15 +75,13 @@ public class EvtFireworkExplode extends SkriptEvent {
 			.build());
 	}
 
-	private Color[] colors;
+	private Literal<Color> colors;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (parseResult.hasTag("color")) {
-			Literal<Color> colorLiteral = (Literal<Color>) args[0];
-			colors = colorLiteral.getArray();
-		}
+		if (args[0] != null)
+			colors = (Literal<Color>) args[0];
 		return true;
 	}
 
@@ -93,12 +91,8 @@ public class EvtFireworkExplode extends SkriptEvent {
 		if (colors == null)
 			return true;
 
-		Set<org.bukkit.Color> colours = Arrays.stream(colors)
-			.map(color -> {
-				if (color instanceof ColorRGB)
-					return color.asBukkitColor();
-				return color.asDyeColor().getFireworkColor();
-			})
+		Set<org.bukkit.Color> colours = Arrays.stream(colors.getAll())
+			.map(color -> color instanceof ColorRGB ? color.asBukkitColor() : color.asDyeColor().getFireworkColor())
 			.collect(Collectors.toSet());
 
 		FireworkMeta meta = entityEvent.getEntity().getFireworkMeta();
