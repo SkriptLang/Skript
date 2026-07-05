@@ -71,10 +71,12 @@ public class EvtExperienceSpawn extends SkriptEvent {
 	private static final AtomicBoolean REGISTERED_EXECUTORS = new AtomicBoolean();
 	private static final Map<Class<? extends Event>, EventDetails<Event>> TRACKED_EVENTS = new HashMap<>();
 
-	public static <E extends Event> void trackEvent(Class<E> event,
-													Function<E, Integer> getExp,
-													@Nullable BiConsumer<E, Integer> setExp,
-													Function<E, Location> getLocation) {
+	public static <E extends Event> void trackEvent(
+		Class<E> event,
+		Function<E, Integer> getExp,
+		@Nullable BiConsumer<E, Integer> setExp,
+		Function<E, Location> getLocation
+	) {
 		//noinspection unchecked
 		TRACKED_EVENTS.put(event, (EventDetails<Event>) new EventDetails<>(getExp, setExp, getLocation));
 	}

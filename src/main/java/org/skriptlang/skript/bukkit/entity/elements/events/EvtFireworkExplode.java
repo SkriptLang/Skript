@@ -62,10 +62,11 @@ public class EvtFireworkExplode extends SkriptEvent {
 				List<Color> colors = new ArrayList<>();
 				for (FireworkEffect fireworkEffect : effects) {
 					for (org.bukkit.Color color : fireworkEffect.getColors()) {
-						if (SkriptColor.fromBukkitColor(color) != null)
+						if (SkriptColor.fromBukkitColor(color) != null) {
 							colors.add(SkriptColor.fromBukkitColor(color));
-						else
+						} else {
 							colors.add(ColorRGB.fromBukkitColor(color));
+						}
 					}
 				}
 				if (colors.isEmpty())
