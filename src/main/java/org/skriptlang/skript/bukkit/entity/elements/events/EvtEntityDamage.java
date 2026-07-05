@@ -58,8 +58,8 @@ public class EvtEntityDamage extends SkriptEvent {
 			.build());
 	}
 
-	private Literal<EntityData<?>> byEntityData;
-	private Literal<EntityData<?>>  ofEntityData;
+	private @Nullable Literal<EntityData<?>> byEntityData;
+	private @Nullable Literal<EntityData<?>>  ofEntityData;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -74,9 +74,6 @@ public class EvtEntityDamage extends SkriptEvent {
 	@Override
 	public boolean check(Event event) {
 		EntityDamageEvent entityDamageEvent = (EntityDamageEvent) event;
-		boolean entityMatched = true;
-		boolean healthMatched = true;
-		boolean damagerMatched = true;
 
 		if (ofEntityData != null && !ofEntityData.check(event, data -> data.isInstance(entityDamageEvent.getEntity())))
 			return false;

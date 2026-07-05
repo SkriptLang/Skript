@@ -84,8 +84,7 @@ public class EvtEntityBlockChange extends SkriptEvent {
 		// Covers all possible entity block changes.
 		GENERIC("(entity|%*-entitydatas%) chang(e|ing) block[s]");
 
-		@Nullable
-		private final Predicate<EntityChangeBlockEvent> checker;
+		private final @Nullable Predicate<EntityChangeBlockEvent> checker;
 		private final String pattern;
 
 		ChangeEvent(String pattern) {
@@ -106,8 +105,7 @@ public class EvtEntityBlockChange extends SkriptEvent {
 		}
 	}
 
-	@Nullable
-	private Literal<EntityData<?>> entityData;
+	private @Nullable Literal<EntityData<?>> entityData;
 	private ChangeEvent event;
 
 	@Override

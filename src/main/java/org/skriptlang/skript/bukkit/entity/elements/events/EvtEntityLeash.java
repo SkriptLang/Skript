@@ -83,7 +83,7 @@ public class EvtEntityLeash extends SkriptEvent {
 
 	}
 
-	private Literal<EntityData<?>> entityData;
+	private @Nullable Literal<EntityData<?>> entityData;
 	private EventType eventType;
 
 	@Override
