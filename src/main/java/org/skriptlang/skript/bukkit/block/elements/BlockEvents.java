@@ -118,7 +118,7 @@ public class BlockEvents {
 			.time(Time.FUTURE)
 			.build());
 
-		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Block Flow")
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Block Ignite")
 			.addEvent(BlockIgniteEvent.class)
 			.addPatterns("[block] ignit(e|ion)")
 			.addDescription("""
