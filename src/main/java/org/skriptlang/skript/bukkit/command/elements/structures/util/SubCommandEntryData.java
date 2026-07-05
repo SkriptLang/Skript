@@ -24,6 +24,7 @@ import org.skriptlang.skript.bukkit.command.custom.CommandParsingData;
 import org.skriptlang.skript.bukkit.command.custom.CommandParsingData.ExecutorData;
 import org.skriptlang.skript.bukkit.command.custom.CooldownManager;
 import org.skriptlang.skript.bukkit.command.custom.ExecutableBy;
+import org.skriptlang.skript.bukkit.command.custom.ScriptArgumentType.NativeArgumentData;
 import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandCompiler.ArgumentCommandElement;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandCompiler.CommandElement;
@@ -368,9 +369,9 @@ public class SubCommandEntryData extends EntryData<Result> {
 			ArgumentData<?> data = ((ArgumentCommandElement) commandElement).argument();
 
 			ArgumentType<?> nativeType = null;
-			var nativeMapping = ScriptArgumentType.ARGUMENT_TYPE_MAPPINGS.get(data.type().getC());
+			NativeArgumentData nativeMapping = ScriptArgumentType.ARGUMENT_TYPE_MAPPINGS.get(data.type().getC());
 			if (nativeMapping != null) { // native argument type may be available
-				nativeType = nativeMapping.apply(data);
+				nativeType = nativeMapping.mapper().apply(data);
 			}
 			if (nativeType == null) {
 				if (children.isEmpty() && subcommands.isEmpty()) { // last argument can be greedy

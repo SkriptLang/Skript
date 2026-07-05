@@ -3,6 +3,7 @@ using local variable type hints
 options:
 	command: skriptcommand
 
+# expect error for invalid executable by for subcommand
 parse:
 	results: {-StructCommand::entries::1::*}
 	code:
@@ -15,6 +16,7 @@ parse:
 				trigger:
 					stop
 
+# expect error for duplicate argument names
 parse:
 	results: {-StructCommand::args::1::*}
 	code:
@@ -22,6 +24,23 @@ parse:
 			trigger:
 				stop
 
+# expect error for type not supporting range
+parse:
+	results: {-StructCommand::args::2::*}
+	code:
+		command /args_test_2 <x: text between "hello" and "world">:
+			trigger:
+				stop
+
+# expect no errors
+parse:
+	results: {-StructCommand::args::3::*}
+	code:
+		command /args_test_3 <x: number above 5> <y: number below 5> <z: number between 5 and 5>:
+			trigger:
+				stop
+
+# expect error that {_x} is not a text
 parse:
 	results: {-StructCommand::hints::1::*}
 	code:
@@ -29,6 +48,7 @@ parse:
 			trigger:
 				set {_a} to {_x} in lowercase
 
+# expect error that {_x::*} is not a text
 parse:
 	results: {-StructCommand::hints::2::*}
 	code:
@@ -46,6 +66,10 @@ command /test-subcommand <number>:
 command /test-args-plural <x: numbers>:
 	trigger:
 		set {-test-args-plural::*} to {_x::*}
+
+command /test-args-ranged <x: number above 5 and below 10>:
+	trigger:
+		set {-test-args-ranged::*} to {_x}
 
 command {@command} <text> [<text>] [<itemtype = %dirt named "steve"%>]:
 	trigger:
@@ -66,6 +90,8 @@ test "StructCommand":
 	# parsing
 	assert {-StructCommand::entries::1::*} is "It is not possible to restrict execution to the console as the parent command is only executable by players."
 	assert {-StructCommand::args::1::*} is "The argument name 'x' was already used."
+	assert {-StructCommand::args::2::*} is "text arguments do not support minimum or maximum values."
+	assert {-StructCommand::args::3::*} is not set
 	# parsing type hints
 	assert {-StructCommand::hints::1::*} is "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::1::*}%)"
 	assert {-StructCommand::hints::2::*} is "Expected variable '{_x::*}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::2::*}%)"
@@ -80,6 +106,13 @@ test "StructCommand":
 	assert {-test-args-plural::*} is 10 with "single input to plural args did not work"
 	execute command "test-args-plural 10 and 2"
 	assert {-test-args-plural::*} is 10 and 2 with "plural input to plural args did not work"
+
+	execute command "test-args-ranged 6"
+	assert {-test-args-ranged::*} is 6 with "argument in range was not accepted"
+	execute command "test-args-ranged 4"
+	assert {-test-args-ranged::*} is 6 with "argument below range was accepted"
+	execute command "test-args-ranged 11"
+	assert {-test-args-ranged::*} is 6 with "argument above range was accepted"
 
 	execute command "{@command} taco"
 	assert {-test-{@command}::arg1} is "taco" with "arg-1 test failed"

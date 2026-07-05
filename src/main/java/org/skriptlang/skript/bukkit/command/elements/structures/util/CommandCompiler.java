@@ -10,6 +10,8 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.command.custom.ArgumentData;
+import org.skriptlang.skript.bukkit.command.custom.ScriptArgumentType;
+import org.skriptlang.skript.bukkit.command.custom.ScriptArgumentType.NativeArgumentData;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -362,7 +364,7 @@ final class CommandCompiler {
 		Pattern.compile("^\\s*(?:([^>]+?)\\s*:\\s*)?(.+?)\\s*(?:=\\s*(" + SkriptParser.WILDCARD + "))?\\s*$");
 
 	private static final Pattern TYPE_PATTERN =
-		Pattern.compile("^(.+?)\\s*(?: from (.+?)(?: to (.+?))?)?$");
+		Pattern.compile("^(.+?)\\s*(?: (?:from|above|between) (.+?))?(?:(?: (?:to|(?:and )?below|and) (.+?))?)?$");
 
 	private static @Nullable ArgumentData<?> parseArgument(String argument, List<ArgumentData<?>> arguments) {
 		Matcher argumentMatcher = ARGUMENT_PATTERN.matcher(argument);
@@ -402,6 +404,13 @@ final class CommandCompiler {
 				Skript.error("Invalid maximum range: " + max);
 				return null;
 			}
+		}
+		// type validation
+		NativeArgumentData nativeMapping = ScriptArgumentType.ARGUMENT_TYPE_MAPPINGS.get(type.getC());
+		if ((min != null || max != null) && (nativeMapping == null || !nativeMapping.supportsRange())) {
+			String typeName = plural.plural() ? type.getName().getPlural() : type.getName().getSingular();
+			Skript.error(typeName + " arguments do not support minimum or maximum values.");
+			return null;
 		}
 
 		// next, parse the name

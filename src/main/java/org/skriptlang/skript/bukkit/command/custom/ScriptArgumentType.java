@@ -41,37 +41,66 @@ import java.util.function.Supplier;
 public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Object, String> {
 
 	/**
+	 * Data about an available native argument type.
+	 * A native argument type is one that is recognized by the client, providing enhanced validation features.
+	 * @param supportsPlural Whether this argument type supports returning multiple values.
+	 * @param supportsRange Whether this argument type supports minimum or maximum values.
+	 * @param mapper A function for obtaining the native argument type from an argument data.
+	 */
+	public record NativeArgumentData(
+		boolean supportsPlural,
+		boolean supportsRange,
+		Function<ArgumentData<?>, ArgumentType<?>> mapper
+	) {
+
+		public NativeArgumentData {
+			if (!supportsPlural) {
+				final var inputMapper = mapper;
+				mapper = data -> data.isSingle() ? inputMapper.apply(data) : null;
+			}
+		}
+
+		public NativeArgumentData(Function<ArgumentData<?>, ArgumentType<?>> mapper) {
+			this(false, false, mapper);
+		}
+
+	}
+
+	/**
 	 * Pre-defined mappings of types that are acceptable to map to other native argument types.
 	 */
-	public static final Map<Class<?>, Function<ArgumentData<?>, ArgumentType<?>>> ARGUMENT_TYPE_MAPPINGS = Map.of(
-		Boolean.class, data -> data.isSingle() ? BoolArgumentType.bool() : null,
-		Long.class, data -> {
-			if (!data.isSingle()) {
-				// TODO should error here if min/max is used
-				return null;
-			}
-			if (data.max() == null) {
-				if (data.min() == null) {
+	public static final Map<Class<?>, NativeArgumentData> ARGUMENT_TYPE_MAPPINGS = Map.of(
+		Boolean.class, new NativeArgumentData(ignored -> BoolArgumentType.bool()),
+		Long.class, new NativeArgumentData(false, true, data -> {
+			Long min = (Long) data.min();
+			Long max = (Long) data.max();
+			if (min == null) {
+				if (max == null) {
 					return LongArgumentType.longArg();
 				}
-				return LongArgumentType.longArg((long) data.min());
+				return LongArgumentType.longArg(Long.MIN_VALUE, max);
+			} else if (max == null) {
+				return LongArgumentType.longArg(min);
 			}
-			return LongArgumentType.longArg((long) data.min(), (long) data.max());
-		},
-		Number.class, data -> {
-			if (!data.isSingle()) {
-				return null;
-			}
-			if (data.max() == null) {
-				if (data.min() == null) {
+			return LongArgumentType.longArg(min, max);
+		}),
+		Number.class, new NativeArgumentData(false, true, data -> {
+			Number min = (Number) data.min();
+			Number max = (Number) data.max();
+			if (min == null) {
+				if (max == null) {
 					return DoubleArgumentType.doubleArg();
 				}
-				return DoubleArgumentType.doubleArg((double) data.min());
+				return DoubleArgumentType.doubleArg(Double.MIN_VALUE, max.doubleValue());
+			} else if (max == null) {
+				return DoubleArgumentType.doubleArg(min.doubleValue());
 			}
-			return DoubleArgumentType.doubleArg((double) data.min(), (double) data.max());
-		},
-		Player.class, data -> data.isSingle() ? ArgumentTypes.player() : ArgumentTypes.players(),
-		Entity.class, data -> data.isSingle() ? ArgumentTypes.entity() : ArgumentTypes.entities()
+			return DoubleArgumentType.doubleArg(min.doubleValue(), max.doubleValue());
+		}),
+		Player.class, new NativeArgumentData(true, false, data ->
+			data.isSingle() ? ArgumentTypes.player() : ArgumentTypes.players()),
+		Entity.class, new NativeArgumentData(true, false, data ->
+			data.isSingle() ? ArgumentTypes.entity() : ArgumentTypes.entities())
 	);
 
 	private static final DynamicCommandExceptionType ERROR_PARSER_ERROR = new DynamicCommandExceptionType(
