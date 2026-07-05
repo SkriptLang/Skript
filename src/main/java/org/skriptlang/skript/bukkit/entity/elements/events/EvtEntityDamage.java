@@ -59,7 +59,7 @@ public class EvtEntityDamage extends SkriptEvent {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
-		if (args[0] != null) {
+		if (args[1] != null) {
 			byEntityData = (Literal<EntityData<?>>) args[1];
 			if (byEntityData.getAnd() && byEntityData instanceof LiteralList)
 				((LiteralList<EntityData<?>>) byEntityData).invertAnd();
