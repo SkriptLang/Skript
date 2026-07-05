@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.entity.elements.events;
 
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.LiteralList;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -32,12 +33,12 @@ public class EvtEntityHeal extends SkriptEvent {
 				""")
 			.addExample("""
 				on healing of a zombie, cow or a wither:
-				    event-heal reason is healing potion
-				    cancel event
+					event-heal reason is healing potion
+					cancel event
 				""")
 			.addExample("""
 				on player healing from a regeneration potion:
-				    send "all better!" to event-entity
+					send "all better!" to event-entity
 				""")
 			.addSince("1.0, 2.9.0 (by reason)")
 			.build());
@@ -53,11 +54,16 @@ public class EvtEntityHeal extends SkriptEvent {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (args[0] != null)
+		if (args[0] != null) {
 			entityData = (Literal<EntityData<?>>) args[0];
-
-		if (args[1] != null)
+			if (entityData.getAnd() && entityData instanceof LiteralList)
+				((LiteralList<EntityData<?>>) entityData).invertAnd();
+		}
+		if (args[1] != null) {
 			reasons = (Literal<RegainReason>) args[1];
+			if (reasons.getAnd() && reasons instanceof LiteralList)
+				((LiteralList<RegainReason>) reasons).invertAnd();
+		}
 		return true;
 	}
 

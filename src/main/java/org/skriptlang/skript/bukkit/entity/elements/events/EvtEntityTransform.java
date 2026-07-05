@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.entity.elements.events;
 
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.LiteralList;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -31,12 +32,12 @@ public class EvtEntityTransform extends SkriptEvent {
 				""")
 			.addExample("""
 				on a zombie transforming due to curing:
-				    broadcast "Another one cured from this madness.."
+					broadcast "Another one cured from this madness.."
 				""")
 			.addExample("""
 				on mooshroom transforming:
-				    cancel event
-				    broadcast "forever a mooshroom!"
+					cancel event
+					broadcast "forever a mooshroom!"
 				""")
 			.addSince("2.8.0")
 			.build());
@@ -56,10 +57,16 @@ public class EvtEntityTransform extends SkriptEvent {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (args[1] != null)
+		if (args[1] != null) {
 			reasons = (Literal<TransformReason>) args[1];
-		if (args[0] != null)
+			if (reasons.getAnd() && reasons instanceof LiteralList)
+				((LiteralList<TransformReason>) reasons).invertAnd();
+		}
+		if (args[0] != null) {
 			entityData = (Literal<EntityData<?>>) args[0];
+			if (entityData.getAnd() && entityData instanceof LiteralList)
+				((LiteralList<EntityData<?>>) entityData).invertAnd();
+		}
 		return true;
 	}
 

@@ -23,11 +23,11 @@ public class EvtEntityTarget extends SkriptEvent {
 				""")
 			.addExample("""
 				on entity target:
-				    broadcast "I detect an entity is targeting another.."
+					broadcast "I detect an entity is targeting another.."
 				""")
 			.addExample("""
 				on entity untarget:
-				    broadcast "Phew.. it looks like they stopped.."
+					broadcast "Phew.. it looks like they stopped.."
 				""")
 			.addSince("1.0")
 			.build());

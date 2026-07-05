@@ -29,28 +29,28 @@ public class EvtEntityMove extends SkriptEvent {
 				"%entitydata% (turn[ing] around|rotate) or (move|walk|step)"
 			)
 			.addDescription("""
-                Called when a player or entity moves or rotates their head.
-                The move event will only be called when the entity/player moves position,
-                keyword 'turn around' is for orientation (ie: looking around),
-                and the combined syntax listens for both.
-                Note that this event is called extremely often and may cause performance issues.
-                """)
+				Called when a player or entity moves or rotates their head.
+				The move event will only be called when the entity/player moves position,
+				keyword 'turn around' is for orientation (ie: looking around),
+				and the combined syntax listens for both.
+				Note that this event is called extremely often and may cause performance issues.
+				""")
 			.addExample("""
-                on player move:
-                    if {frozen::%player's uuid%} is set:
-                        cancel event
-                        send actionbar "You are frozen!" to player
-                        // Generally not recommended over setting movement & jump attributes but useful for older servers
-                """)
+				on player move:
+					if {frozen::%player's uuid%} is set:
+						cancel event
+						send actionbar "You are frozen!" to player
+						// Generally not recommended over setting movement & jump attributes but useful for older servers
+				""")
 			.addExample("""
-                on player turning around:
-                    send "BOO!" to player
-                    spawn skeleton behind player
-                """)
+				on player turning around:
+					send "BOO!" to player
+					spawn skeleton behind player
+				""")
 			.addExample("""
 				on skeleton move:
-				    if event-world is "no_skeleton_movement":
-				        cancel event
+					if event-world is "no_skeleton_movement":
+						cancel event
 				""")
 			.addSince("2.6, 2.8.0 (turn around)")
 			.build());

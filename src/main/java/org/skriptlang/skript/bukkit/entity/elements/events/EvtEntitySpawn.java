@@ -3,6 +3,7 @@ package org.skriptlang.skript.bukkit.entity.elements.events;
 import ch.njol.skript.Skript;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.LiteralList;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -24,14 +25,14 @@ public class EvtEntitySpawn extends SkriptEvent {
 			.addDescription("Called when an entity spawns (excluding players).")
 			.addExample("""
 				on spawn of a zombie:
-				    chance of 5%:
-				        set scale attribute of event-entity to 3
-				        broadcast "A mega zombie has spawned!"
+					chance of 5%:
+						set scale attribute of event-entity to 3
+						broadcast "A mega zombie has spawned!"
 				""")
 			.addExample("""
 				on spawn of an ender dragon:
-				    loop all players in radius 120 of event-entity:
-				        send "A great beast has been seen near you.." to loop-value
+					loop all players in radius 120 of event-entity:
+						send "A great beast has been seen near you.." to loop-value
 				""")
 			.addSince("1.0, 2.5.1 (non-living entities)")
 			.build());
@@ -50,6 +51,8 @@ public class EvtEntitySpawn extends SkriptEvent {
 					return false;
 				}
 			}
+			if (entityData.getAnd() && entityData instanceof LiteralList)
+				((LiteralList<EntityData<?>>) entityData).invertAnd();
 		}
 		return true;
 	}

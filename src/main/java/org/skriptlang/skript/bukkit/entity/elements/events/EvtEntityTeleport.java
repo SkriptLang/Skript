@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.entity.elements.events;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.lang.LiteralList;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Location;
 import org.bukkit.event.entity.EntityTeleportEvent;
@@ -35,11 +36,11 @@ public class EvtEntityTeleport extends SkriptEvent {
 				""")
 			.addExample("""
 				on player teleport:
-				    send "Well you somehow teleported.." to player
+					send "Well you somehow teleported.." to player
 				""")
 			.addExample("""
 				on wolf teleport:
-				    send "Your wolf just teleported!" to owner of event-entity
+					send "Your wolf just teleported!" to owner of event-entity
 				""")
 			.addSince("1.0, 2.9.0 (entity teleport)")
 			.build());
@@ -72,8 +73,11 @@ public class EvtEntityTeleport extends SkriptEvent {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (args[0] != null)
+		if (args[0] != null) {
 			entityData = (Literal<EntityData<?>>) args[0];
+			if (entityData.getAnd() && entityData instanceof LiteralList)
+				((LiteralList<EntityData<?>>) entityData).invertAnd();
+		}
 		return true;
 	}
 

@@ -29,8 +29,8 @@ public class EntityEvents {
 	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry) {
 
 		//
- 		// Entity Event Values
- 		//
+		// Entity Event Values
+		//
 
 		eventValueRegistry.register(EventValue.builder(EntityEvent.class, Entity.class)
 			.getter(EntityEvent::getEntity)
@@ -60,7 +60,7 @@ public class EntityEvents {
 
 		//
 		// Entity Events
-        //
+		//
 
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Entity Combust")
 			.addEvent(EntityCombustEvent.class)
@@ -71,7 +71,7 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on entity combust:
-				    broadcast "It burns!!"
+					broadcast "It burns!!"
 				""")
 			.addSince("1.0")
 			.supplier(() -> new SimpleEvent("entity combusting"))
@@ -85,7 +85,7 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on entity explode:
-				    broadcast "*Explosion*"
+					broadcast "*Explosion*"
 				""")
 			.addSince("1.0")
 			.supplier(() -> new SimpleEvent("entity explode"))
@@ -100,8 +100,8 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on portal enter:
-				    kill event-entity
-				    broadcast "%event-entity% never got to see a new dimension.."
+					kill event-entity
+					broadcast "%event-entity% never got to see a new dimension.."
 				""")
 			.addSince("1.0")
 			.supplier(() -> new SimpleEvent("entity entering a portal"))
@@ -116,7 +116,7 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on tame:
-				    broadcast "Best friends for life!"
+					broadcast "Best friends for life!"
 				""")
 			.addSince("1.0")
 			.supplier(() -> new SimpleEvent("entity taming"))
@@ -130,7 +130,7 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on entity mount:
-				    cancel event
+					cancel event
 				""")
 			.addSince("2.2-dev13b")
 			.supplier(() -> new SimpleEvent("entity mounting"))
@@ -144,7 +144,7 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on entity dismount:
-				    kill event-entity
+					kill event-entity
 				""")
 			.addSince("2.2-dev13b")
 			.supplier(() -> new SimpleEvent("entity dismounting"))
@@ -160,11 +160,11 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on entity resurrect attempt:
-				    if all:
-				        event-entity is a player
-				        event-entity has permission "god"
-				    then:
-				        send "You seem to be immortal.. how" to event-entity
+					if all:
+						event-entity is a player
+						event-entity has permission "god"
+					then:
+						send "You seem to be immortal.. how" to event-entity
 				""")
 			.addSince("2.2-dev28")
 			.supplier(() -> new SimpleEvent("entity resurrection attempt"))
@@ -188,7 +188,7 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on entity jump:
-				    push event-entity up at speed 1
+					push event-entity up at speed 1
 				""")
 			.addSince("2.7")
 			.supplier(() -> new SimpleEvent("entity jumping"))
@@ -202,10 +202,10 @@ public class EntityEvents {
 			)
 			.addDescription("Called when an entity swims or stops swimming.")
 			.addExample("""
-			    on swim toggle:
-			        event-entity does not have the permission "perk.swim"
-			        cancel event
-			    """)
+				on swim toggle:
+					event-entity does not have the permission "perk.swim"
+					cancel event
+				""")
 			.addSince("2.3")
 			.supplier(() -> new SimpleEvent("entity toggling swim"))
 			.build());
@@ -223,8 +223,8 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on creeper power:
-				    cancel event
-				    broadcast "No charged creepers in this world!"
+					cancel event
+					broadcast "No charged creepers in this world!"
 				""")
 			.addSince("1.0")
 			.supplier(() -> new SimpleEvent("creeper power"))
@@ -236,8 +236,8 @@ public class EntityEvents {
 			.addDescription("Called when sheep regrows its sheared wool back.")
 			.addExample("""
 				on sheep grow wool:
-				    loop all players in radius 50 of event-entity:
-				        send "Theres free wool nearby!" to loop-value
+					loop all players in radius 50 of event-entity:
+						send "Theres free wool nearby!" to loop-value
 				""")
 			.addSince("2.2-dev21")
 			.supplier(() -> new SimpleEvent("sheep regrowing wool"))
@@ -252,7 +252,7 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on slime split:
-				    broadcast "More slime minions have spawned!"
+					broadcast "More slime minions have spawned!"
 				""")
 			.addSince("2.2-dev26")
 			.supplier(() -> new SimpleEvent("slime splitting"))
@@ -264,8 +264,8 @@ public class EntityEvents {
 			.addDescription("Called when a horse jumps.")
 			.addExample("""
 				on horse jumping:
-				    push event-entity upwards at speed 2
-				    send "Wow that horse can really go high.." to (all players in radius 3 of event-entity)
+					push event-entity upwards at speed 2
+					send "Wow that horse can really go high.." to (all players in radius 3 of event-entity)
 				""")
 			.addSince("2.5.1")
 			.supplier(() -> new SimpleEvent("horse jumping"))
@@ -281,9 +281,9 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on piglin barter:
-				    if barter drops contain diamond:
-				        broadcast "Diamonds are too rare for this world.."
-				        cancel event
+					if barter drops contain diamond:
+						broadcast "Diamonds are too rare for this world.."
+						cancel event
 				""")
 			.addSince("2.10")
 			.supplier(() -> new SimpleEvent("piglin bartering"))
@@ -298,7 +298,7 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on pig zap:
-				    broadcast "I'm feeling a bit static!"
+					broadcast "I'm feeling a bit static!"
 				""")
 			.addSince("1.0")
 			.supplier(() -> new SimpleEvent("pig zap"))
@@ -310,8 +310,8 @@ public class EntityEvents {
 			.addDescription("Called when a bat attempts to go to sleep or wakes up.")
 			.addExample("""
 				on bat toggle sleep:
-				    kill event-entity
-				    broadcast "Another bat tried to sleep and perished.."
+					kill event-entity
+					broadcast "Another bat tried to sleep and perished.."
 				""")
 			.addSince("2.11")
 			.supplier(() -> new SimpleEvent("bat toggling sleep"))
@@ -326,7 +326,7 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on villager career change:
-				    if all:
+					if all:
 						event-career change reason is employment
 						event-villager profession is armorer profession
 					then:
@@ -363,9 +363,9 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on enderman enrage:
-				    player has permission "safe.from.enderman"
-				    cancel event
-				    send "well you got lucky this time.." to event-player
+					player has permission "safe.from.enderman"
+					cancel event
+					send "well you got lucky this time.." to event-player
 				""")
 			.addSince("2.9.0")
 			.supplier(() -> new SimpleEvent("enderman enrage"))
@@ -379,7 +379,7 @@ public class EntityEvents {
 			.addDescription("Called whenever an entity tries to pathfind to a location or another entity.")
 			.addExample("""
 				on pathfind:
-				    	broadcast "%event-entity% is about to move to %event-location%!"
+						broadcast "%event-entity% is about to move to %event-location%!"
 				""")
 			.addSince("2.16")
 			.addPattern("[entity] [start[s]] pathfind[ing]")

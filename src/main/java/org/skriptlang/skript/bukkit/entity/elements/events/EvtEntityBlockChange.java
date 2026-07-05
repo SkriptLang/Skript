@@ -3,6 +3,7 @@ package org.skriptlang.skript.bukkit.entity.elements.events;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.LiteralList;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -37,13 +38,13 @@ public class EvtEntityBlockChange extends SkriptEvent {
 				""")
 			.addExample("""
 				on sheep eat:
-				    kill event-entity
-				    broadcast "A sheep stole some grass!"
+					kill event-entity
+					broadcast "A sheep stole some grass!"
 				""")
 			.addExample("""
 				on falling block land:
-				    event-entity is a falling dirt
-				    cancel event
+					event-entity is a falling dirt
+					cancel event
 				""")
 			.addSince("unknown, 2.5.2 (falling block), 2.8.0 (any entity support)")
 			.build());
@@ -67,7 +68,7 @@ public class EvtEntityBlockChange extends SkriptEvent {
 			.build());
 	}
 
-    // this is pretty messy but was unsure of a way to really clean it up?
+	// this is pretty messy but was unsure of a way to really clean it up?
 	private enum ChangeEvent {
 
 		ENDERMAN_PLACE("enderman place", event -> event.getEntity() instanceof Enderman && !ItemUtils.isAir(event.getTo())),
@@ -112,8 +113,11 @@ public class EvtEntityBlockChange extends SkriptEvent {
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		event = ChangeEvent.values()[matchedPattern];
-		if (event == ChangeEvent.GENERIC)
+		if (event == ChangeEvent.GENERIC) {
 			entityData = (Literal<EntityData<?>>) args[0];
+			if (entityData.getAnd() && entityData instanceof LiteralList)
+				((LiteralList<EntityData<?>>) entityData).invertAnd();
+		}
 		return true;
 	}
 
@@ -130,7 +134,8 @@ public class EvtEntityBlockChange extends SkriptEvent {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return new SyntaxStringBuilder(event, debug)
-			.append(this.event.name().toLowerCase().replace("_", " "))
+			.appendIf(this.event != ChangeEvent.GENERIC, this.event.name().toLowerCase().replace("_", " "))
+			.appendIf(this.event == ChangeEvent.GENERIC, entityData, "changing blocks")
 			.toString();
 	}
 

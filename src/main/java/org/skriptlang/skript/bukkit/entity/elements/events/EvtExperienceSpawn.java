@@ -47,8 +47,8 @@ public class EvtExperienceSpawn extends SkriptEvent {
 				""")
 			.addExample("""
 				on xp spawn:
-				    event-world is not world("experience")
-				    cancel event
+					event-world is not world("experience")
+					cancel event
 				""")
 			.addSince("2.0")
 			.build());

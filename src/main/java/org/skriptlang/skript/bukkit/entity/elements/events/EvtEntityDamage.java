@@ -2,10 +2,7 @@ package org.skriptlang.skript.bukkit.entity.elements.events;
 
 import ch.njol.skript.bukkitutil.HealthUtils;
 import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.SyntaxStringBuilder;
+import ch.njol.skript.lang.*;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.Event;
@@ -17,8 +14,6 @@ import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
-
-import java.util.Arrays;
 
 public class EvtEntityDamage extends SkriptEvent {
 
@@ -33,14 +28,14 @@ public class EvtEntityDamage extends SkriptEvent {
 				""")
 			.addExample("""
 				on damage of player by player:
-				    send "Send you are being attacked.. defend yourself!" to victim
-				    send "You better win this fight.." to attacker
+					send "Send you are being attacked.. defend yourself!" to victim
+					send "You better win this fight.." to attacker
 				""")
 			.addExample("""
 				on damage of bee:
-				    broadcast "A poor bee was just damaged :("
-				    if attacker is a player:
-				        send "You monster.." to attacker
+					broadcast "A poor bee was just damaged :("
+					if attacker is a player:
+						send "You monster.." to attacker
 				""")
 			.addSince("1.0, 2.7 (by entity)")
 			.build());
@@ -64,10 +59,16 @@ public class EvtEntityDamage extends SkriptEvent {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
-		if (args[0] != null)
+		if (args[0] != null) {
 			byEntityData = (Literal<EntityData<?>>) args[1];
-		if (args[0] != null)
+			if (byEntityData.getAnd() && byEntityData instanceof LiteralList)
+				((LiteralList<EntityData<?>>) byEntityData).invertAnd();
+		}
+		if (args[0] != null) {
 			ofEntityData = (Literal<EntityData<?>>) args[0];
+			if (ofEntityData.getAnd() && ofEntityData instanceof LiteralList)
+				((LiteralList<EntityData<?>>) ofEntityData).invertAnd();
+		}
 		return true;
 	}
 

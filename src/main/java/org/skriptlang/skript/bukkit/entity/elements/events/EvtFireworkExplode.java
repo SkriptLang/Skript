@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.entity.elements.events;
 
 
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.LiteralList;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -35,8 +36,8 @@ public class EvtFireworkExplode extends SkriptEvent {
 			.addDescription("Called when a firework explodes.")
 			.addExample("""
 				on firework explode:
-				    if event-colors contains red:
-				        broadcast "its a red firework!"
+					if event-colors contains red:
+						broadcast "its a red firework!"
 				""")
 			.addSince("2.4")
 			.build());
@@ -81,8 +82,11 @@ public class EvtFireworkExplode extends SkriptEvent {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (args[0] != null)
+		if (args[0] != null) {
 			colors = (Literal<Color>) args[0];
+			if (colors.getAnd() && colors instanceof LiteralList)
+				((LiteralList<Color>) colors).invertAnd();
+		}
 		return true;
 	}
 

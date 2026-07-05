@@ -3,6 +3,7 @@ package org.skriptlang.skript.bukkit.entity.elements.events;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.LiteralList;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -41,7 +42,7 @@ public class EvtEntityShootBow extends SkriptEvent {
 					spawn a cow at event-entity:
 						set velocity of entity to velocity of event-entity
 						set {_e} to entity
-				    set event-entity to {_e}
+					set event-entity to {_e}
 				""")
 			.addSince("2.11")
 			.build());
@@ -71,6 +72,8 @@ public class EvtEntityShootBow extends SkriptEvent {
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		entityData = (Literal<EntityData<?>>) args[0];
+		if (entityData.getAnd() && entityData instanceof LiteralList)
+			((LiteralList<EntityData<?>>) entityData).invertAnd();
 		return true;
 	}
 

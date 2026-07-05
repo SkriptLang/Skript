@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.entity.elements.events;
 
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.LiteralList;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -24,8 +25,12 @@ public class EvtEntityBreakDoor extends SkriptEvent {
 				""")
 			.addExample("""
 				on entity breaking a door:
-				    type of event-entity is zombie
-				    broadcast "A zombie is about to murder a villager!"
+					type of event-entity is zombie
+					broadcast "A zombie is about to murder a villager!"
+				""")
+			.addExample("""
+				on husk breaking a door:
+				    broadcast "Rest in peace villagers.."
 				""")
 			.addSince("1.0, INSERT VERSION (entity types)")
 			.build());
@@ -38,17 +43,19 @@ public class EvtEntityBreakDoor extends SkriptEvent {
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		if (args[0] != null) {
 			entityData = (Literal<EntityData<?>>) args[0];
+			if (entityData.getAnd() && entityData instanceof LiteralList)
+				((LiteralList<EntityData<?>>) entityData).invertAnd();
 		}
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
-		if (entityData != null) {
-			EntityBreakDoorEvent entityEvent = (EntityBreakDoorEvent) event;
-			return entityData.check(event, data -> data.isInstance((entityEvent.getEntity())));
-		}
-		return true;
+		if (entityData == null)
+			return true;
+
+		EntityBreakDoorEvent entityEvent = (EntityBreakDoorEvent) event;
+		return entityData.check(event, data -> data.isInstance((entityEvent.getEntity())));
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.entity.elements.events;
 
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.LiteralList;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -32,7 +33,7 @@ public class EvtEntityLeash extends SkriptEvent {
 				""")
 			.addExample("""
 				on player leash of a sheep:
-				    send "Baaaaa--" to player
+					send "Baaaaa--" to player
 				""")
 			.addExample("""
 				on player leash:
@@ -40,7 +41,7 @@ public class EvtEntityLeash extends SkriptEvent {
 				""")
 			.addExample("""
 				on unleash:
-				    broadcast "<%event-entity%> I'm free!"
+					broadcast "<%event-entity%> I'm free!"
 				""")
 			.addSince("2.10")
 			.build());
@@ -89,8 +90,11 @@ public class EvtEntityLeash extends SkriptEvent {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (args[0] != null)
+		if (args[0] != null) {
 			entityData = (Literal<EntityData<?>>) args[0];
+			if (entityData.getAnd() && entityData instanceof LiteralList)
+				((LiteralList<EntityData<?>>) entityData).invertAnd();
+		}
 
 		eventType = EventType.LEASH;
 		if (parseResult.hasTag("un")) {

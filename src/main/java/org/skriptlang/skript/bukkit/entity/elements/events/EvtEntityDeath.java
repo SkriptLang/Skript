@@ -3,6 +3,7 @@ package org.skriptlang.skript.bukkit.entity.elements.events;
 import ch.njol.skript.Skript;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.LiteralList;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -29,17 +30,17 @@ public class EvtEntityDeath extends SkriptEvent {
 			.addEvent(EntityDeathEvent.class)
 			.addPatterns("death [of %-entitydatas%]")
 			.addDescription("""
-			    Called when a living entity (including players) dies.
-			    See <a href='#Attacked'>attacker/victim/</a> for how to get the victim or attacker in this event.
-			    """)
+				Called when a living entity (including players) dies.
+				See <a href='#Attacked'>attacker/victim/</a> for how to get the victim or attacker in this event.
+				""")
 			.addExample("""
 				on death of player:
-				    send "You died.. tragic" to victim
-				    send "Nice kill.. did you get any loot?" to attacker
+					send "You died.. tragic" to victim
+					send "Nice kill.. did you get any loot?" to attacker
 				""")
 			.addExample("""
 				on death of a wither or ender dragon:
-				    broadcast "A great boss has been slain today.."
+					broadcast "A great boss has been slain today.."
 				""")
 			.addSince("1.0")
 			.build());
@@ -78,6 +79,8 @@ public class EvtEntityDeath extends SkriptEvent {
 					return false;
 				}
 			}
+			if (entityData.getAnd() && entityData instanceof LiteralList)
+				((LiteralList<EntityData<?>>) entityData).invertAnd();
 		}
 		return true;
 	}

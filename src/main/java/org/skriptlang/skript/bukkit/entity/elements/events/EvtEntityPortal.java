@@ -3,7 +3,6 @@ package org.skriptlang.skript.bukkit.entity.elements.events;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityPortalEvent;
@@ -26,13 +25,13 @@ public class EvtEntityPortal extends SkriptEvent {
 				""")
 			.addExample("""
 				on portal:
-				    broadcast "An entity has entered a portal!"
+					broadcast "An entity has entered a portal!"
 				""")
 			.addExample("""
 				on player portal:
-				    player's world is world("wilderness")
-				    set world of event-location to player's world
-				    add 9000 to x-pos of event-location
+					player's world is world("wilderness")
+					set world of event-location to player's world
+					add 9000 to x-pos of event-location
 				""")
 			.addSince("1.0, 2.5.3 (entities), 2.13 (location changers)")
 			.build());
