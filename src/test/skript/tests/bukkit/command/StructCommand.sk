@@ -3,11 +3,17 @@ using local variable type hints
 options:
 	command: skriptcommand
 
-# expect error for invalid executable by for subcommand
+# expect error for missing trigger given no subcommands
 parse:
 	results: {-StructCommand::entries::1::*}
 	code:
 		command /entries_test_1:
+
+# expect error for invalid executable by for subcommand
+parse:
+	results: {-StructCommand::entries::2::*}
+	code:
+		command /entries_test_2:
 			executable by: players
 			trigger:
 				stop
@@ -15,6 +21,13 @@ parse:
 				executable by: console
 				trigger:
 					stop
+
+# expect error for invalid subcommand and subsequently missing trigger (given no valid subcommands)
+parse:
+	results: {-StructCommand::entries::3::*}
+	code:
+		command /entries_test_3:
+			subcommand test:
 
 # expect error for duplicate argument names
 parse:
@@ -64,6 +77,14 @@ parse:
 			trigger:
 				set {_a::*} to {_x::*} in lowercase
 
+command /structcommand:
+	aliases: /structcommand2
+	description: This is the description
+	usage: "This is the usage"
+	permission: command.structcommand
+	trigger:
+		stop
+
 command /test-subcommand <number>:
 	subcommand <number>:
 		trigger:
@@ -96,7 +117,10 @@ command /commandtest <string="player">:
 
 test "StructCommand":
 	# parsing
-	assert {-StructCommand::entries::1::*} is "It is not possible to restrict execution to the console as the parent command is only executable by players."
+	set {_error_missing_trigger} to "You must have a 'trigger' entry if there are no subcommands!"
+	assert {-StructCommand::entries::1::*} is {_error_missing_trigger}
+	assert {-StructCommand::entries::2::*} is "It is not possible to restrict execution to the console as the parent command is only executable by players."
+	assert {-StructCommand::entries::3::*} is {_error_missing_trigger} and {_error_missing_trigger}
 	assert {-StructCommand::args::1::*} is "The argument name 'x' was already used."
 	assert {-StructCommand::args::2::*} is "text arguments do not support minimum or maximum values."
 	assert {-StructCommand::args::3::*} is not set
@@ -104,6 +128,15 @@ test "StructCommand":
 	# parsing type hints
 	assert {-StructCommand::hints::1::*} is "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::1::*}%)"
 	assert {-StructCommand::hints::2::*} is "Expected variable '{_x::*}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::2::*}%)"
+
+	# entry validation
+	assert the main command name of the command "structcommand" is "structcommand"
+	assert the description of the command "structcommand" is "This is the description"
+	assert the label of the command "structcommand" is "structcommand"
+	#assert the usage of the command "structcommand" is "This is the usage"
+	assert the aliases of the command "structcommand" are "structcommand2" and "skript:structcommand2"
+	#assert the permission of the command "structcommand" is "skript.structcommand"
+	assert the plugin of the command "structcommand" is "Skript"
 
 	# execution
 	execute command "test-subcommand 10"

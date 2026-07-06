@@ -84,8 +84,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 			}
 		})
 		.addEntry("description", null, true)
-		// TODO this was previously a VariableString. need to handle that
-		.addEntry("usage", null, true)
+		.addEntryData(new VariableStringEntryData("usage", null, true))
 		.addEntry("prefix", null, true)
 		.addEntry("permission", null, true)
 		.addEntryData(new KeyValueEntryData<ExecutableBy>("executable by", null, true) {
@@ -188,10 +187,16 @@ public class SubCommandEntryData extends EntryData<Result> {
 		}
 
 		// command usage
-		String usage = entryContainer.getOptional("usage", String.class, false);
-		if (!isRoot && usage != null) {
-			Skript.error("Only the root of a command may have a usage.");
-			return null;
+		String usage = null;
+		VariableString variableUsage = entryContainer.getOptional("usage", VariableString.class, false);
+		if (variableUsage != null) {
+			if (!isRoot) {
+				Skript.error("Only the root of a command may have a usage.");
+				return null;
+			}
+			if (variableUsage.isSimple()) {
+				usage = variableUsage.toString(null);
+			}
 		}
 
 		// command prefix (custom namespace)
@@ -319,7 +324,6 @@ public class SubCommandEntryData extends EntryData<Result> {
 		}
 
 		// attach subcommand pieces
-		// TODO verify error behavior...
 		List<ArgumentBuilder<CommandSourceStack, ?>> subcommands =
 			entryContainer.getAll("subcommand", Result.class, false).stream()
 				.flatMap(result -> result.arguments().stream())
@@ -398,7 +402,6 @@ public class SubCommandEntryData extends EntryData<Result> {
 
 		// this is intentionally placed AFTER iterating over the children
 		// for conflicting command arguments, the argument at this level should be preferred over a subcommand's argument
-		// TODO there is actually more complexity here to handle
 		// it is not guaranteed to conflict if two arguments are at the same level
 		// e.g. Player-then-Number conflicts but Number-then-Player doesn't
 		if (commandElement.isLeaf()) {

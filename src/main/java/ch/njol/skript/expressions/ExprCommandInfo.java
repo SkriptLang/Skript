@@ -12,6 +12,7 @@ import ch.njol.skript.util.Utils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.command.PluginIdentifiableCommand;
 import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -62,8 +63,8 @@ public class ExprCommandInfo extends SimpleExpression<String> {
 		PERMISSION(Command::getPermission),
 		PERMISSION_MESSAGE(Command::getPermissionMessage),
 		PLUGIN(command -> {
-			if (command instanceof PluginCommand) {
-				return ((PluginCommand) command).getPlugin().getName();
+			if (command instanceof PluginIdentifiableCommand pluginCommand) {
+				return pluginCommand.getPlugin().getName();
 			} else if (command instanceof BukkitCommand) {
 				return "Bukkit";
 			} else if (command.getClass().getPackage().getName().startsWith("org.spigot")) {
