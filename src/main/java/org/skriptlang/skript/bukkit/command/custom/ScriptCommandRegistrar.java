@@ -181,7 +181,19 @@ public final class ScriptCommandRegistrar {
 	private static void registerHelp(HelpMap helpMap, CommandMap commandMap, ScriptBrigadierCommand command, Set<String> labels) {
 		if (useSafeReload) { // remove existing topics, only needed for safe reload which is delayed
 			helpMap.getHelpTopics().removeAll(labels.stream()
-				.map(label -> helpMap.getHelpTopic("/" + label))
+				.map(label -> {
+					// since these topics were created using GenericCommandHelpTopic, a slash is only added as a prefix
+					// if the label does not already start with one
+					if (label.charAt(0) != '/') {
+						label = '/' + label;
+					}
+					HelpTopic topic = helpMap.getHelpTopic(label);
+					if (topic == null && label.charAt(0) == '/') {
+						// in some cases, it *is* SkriptGenericCommandHelpTopic - only during shutdown?
+						topic = helpMap.getHelpTopic('/' + label);
+					}
+					return topic;
+				})
 				.toList());
 		}
 
@@ -193,8 +205,7 @@ public final class ScriptCommandRegistrar {
 				bukkitCommand.setUsage(command.usage());
 			}
 
-			// TODO may want to copy CommandAliasHelpTopic? Not normally used for Brigadier aliases though
-			HelpTopic newTopic = new GenericCommandHelpTopic(bukkitCommand);
+			HelpTopic newTopic = new SkriptGenericCommandHelpTopic(bukkitCommand);
 			helpMap.addTopic(newTopic);
 			indexHelpTopic.add(newTopic);
 		}
@@ -296,6 +307,19 @@ public final class ScriptCommandRegistrar {
 
 		public void clear() {
 			allTopics.clear();
+		}
+
+	}
+
+	private static class SkriptGenericCommandHelpTopic extends GenericCommandHelpTopic {
+
+		public SkriptGenericCommandHelpTopic(Command command) {
+			super(command);
+			// we need to handle slashes intentionally included as part of the label
+			// essentially, prefix with a slash no matter what
+			if (command.getLabel().charAt(0) == '/') {
+				this.name = "/" + this.name;
+			}
 		}
 
 	}
