@@ -18,6 +18,7 @@ import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseChannel;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.skript.util.Version;
 import ch.njol.skript.variables.FlatFileStorage;
 import ch.njol.skript.variables.Variables;
@@ -138,6 +139,9 @@ public class SkriptConfig {
 	public static final Option<Boolean> enableEffectCommands = new Option<>("enable effect commands", false);
 	public static final Option<String> effectCommandToken = new Option<>("effect command token", "!");
 	public static final Option<Boolean> allowOpsToUseEffectCommands = new Option<>("allow ops to use effect commands", false);
+	public static final Option<String> multilineEffectCommandToken = new Option<>("multiline effect command token", "!-");
+	public static final Option<String> multilineEffectTabToken = new Option<>("multiline effect command tab token", "\\t");
+	public static final Option<Timespan> multilineEffectTimeout = new Option<>("multiline effect command timeout", new Timespan(TimePeriod.MINUTE, 1));
 
 	public static final Option<Boolean> logEffectCommands = new Option<>("log effect commands", false);
 
