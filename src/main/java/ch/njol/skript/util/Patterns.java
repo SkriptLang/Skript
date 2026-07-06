@@ -51,9 +51,10 @@ public class Patterns<T> {
 		patterns = new String[info.length / 2];
 		types = new Object[info.length / 2];
 		for (int i = 0; i < info.length; i += 2) {
-			patterns[i / 2] = (String) info[i];
-			types[i / 2] = info[i + 1];
-			matchedPatterns.computeIfAbsent(info[i + 1], list -> new ArrayList<>()).add(i / 2);
+			int pattern = i / 2;
+			patterns[pattern] = (String) info[i];
+			types[pattern] = info[i + 1];
+			matchedPatterns.computeIfAbsent(info[i + 1], list -> new ArrayList<>()).add(pattern);
 		}
 	}
 
