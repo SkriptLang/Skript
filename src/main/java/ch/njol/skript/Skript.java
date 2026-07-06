@@ -4,7 +4,6 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.bukkitutil.BurgerHelper;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.data.*;
-import ch.njol.skript.command.Commands;
 import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.events.EvtSkript;
 import ch.njol.skript.expressions.arithmetic.ExprArithmetic;
@@ -577,8 +576,6 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		// todo: remove completely 2.11 or 2.12
 		CompletableFuture<Boolean> aliases = Aliases.loadAsync();
-
-		Commands.registerListeners();
 
 		if (logNormal())
 			info(" " + Language.get("skript.copyright"));

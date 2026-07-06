@@ -273,6 +273,13 @@ public final class ScriptCommandRegistrar {
 			.orElse(null);
 	}
 
+	/**
+	 * @return All commands registered with this registrar.
+	 */
+	public static Set<ScriptBrigadierCommand> getCommands() {
+		return Set.copyOf(REGISTERED_COMMANDS.keySet());
+	}
+
 	private static class SkriptIndexHelpTopic extends IndexHelpTopic {
 
 		public SkriptIndexHelpTopic() {
