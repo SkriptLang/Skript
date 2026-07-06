@@ -126,6 +126,8 @@ public class EffCommand extends Effect {
 		} catch (CommandException ex) {
 			if (ex.getCause() instanceof CommandSyntaxException commandSyntaxException) {
 				errorProducer.error("Failed to execute command: " + commandSyntaxException.getMessage());
+			} else {
+				errorProducer.error("Failed to execute command: " + ex.getMessage());
 			}
 			return false;
 		}

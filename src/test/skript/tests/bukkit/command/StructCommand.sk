@@ -137,11 +137,13 @@ test "StructCommand":
 	assert {-test-args-ranged::*} is 6 with "argument in range was not accepted"
 	catch runtime errors:
 		execute command "test-args-ranged 4"
-	assert last caught runtime errors start with "Failed to execute command: "
+	if running minecraft "1.21.6":
+		assert last caught runtime errors start with "Failed to execute command: "
 	assert {-test-args-ranged::*} is 6 with "argument below range was accepted"
 	catch runtime errors:
 		execute command "test-args-ranged 11"
-	assert last caught runtime errors start with "Failed to execute command: "
+	if running minecraft "1.21.6":
+		assert last caught runtime errors start with "Failed to execute command: "
 	assert {-test-args-ranged::*} is 6 with "argument above range was accepted"
 
 	execute command "{@command} taco"
