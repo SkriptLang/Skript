@@ -6,6 +6,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 
+/**
+ * @deprecated There is no direct replacement for this class.
+ * The closest alternative is {@link org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent}.
+ */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class ScriptCommandEvent extends CommandEvent {
 	
 	private final ScriptCommand scriptCommand;
