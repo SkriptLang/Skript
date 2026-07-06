@@ -407,10 +407,16 @@ final class CommandCompiler {
 		}
 		// type validation
 		NativeArgumentData nativeMapping = ScriptArgumentType.ARGUMENT_TYPE_MAPPINGS.get(type.getC());
-		if ((min != null || max != null) && (nativeMapping == null || !nativeMapping.supportsRange())) {
-			String typeName = plural.plural() ? type.getName().getPlural() : type.getName().getSingular();
-			Skript.error(typeName + " arguments do not support minimum or maximum values.");
-			return null;
+		if (min != null || max != null) {
+			if (nativeMapping == null || !nativeMapping.supportsRange()) {
+				String typeName = plural.plural() ? type.getName().getPlural() : type.getName().getSingular();
+				Skript.error(typeName + " arguments do not support minimum or maximum values.");
+				return null;
+			}
+			if (!nativeMapping.supportsPlural() && plural.plural()) {
+				Skript.error("Only single " + type.getName().getSingular() + " arguments support minimum or maximum values.");
+				return null;
+			}
 		}
 
 		// next, parse the name

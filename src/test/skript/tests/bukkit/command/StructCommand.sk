@@ -40,6 +40,14 @@ parse:
 			trigger:
 				stop
 
+# expect error that only single number arguments support ranged
+parse:
+	results: {-StructCommand::args::4::*}
+	code:
+		command /args_test_4 <x: numbers above 5>:
+			trigger:
+				stop
+
 # expect error that {_x} is not a text
 parse:
 	results: {-StructCommand::hints::1::*}
@@ -92,6 +100,7 @@ test "StructCommand":
 	assert {-StructCommand::args::1::*} is "The argument name 'x' was already used."
 	assert {-StructCommand::args::2::*} is "text arguments do not support minimum or maximum values."
 	assert {-StructCommand::args::3::*} is not set
+	assert {-StructCommand::args::4::*} is "Only single number arguments support minimum or maximum values."
 	# parsing type hints
 	assert {-StructCommand::hints::1::*} is "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::1::*}%)"
 	assert {-StructCommand::hints::2::*} is "Expected variable '{_x::*}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::2::*}%)"
