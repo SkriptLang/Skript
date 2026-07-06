@@ -1,6 +1,5 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.command.elements.expressions;
 
-import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
@@ -8,21 +7,19 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Command")
 @Description("The command that caused an 'on command' event (excluding the leading slash and all arguments)")
 @Example("""
@@ -37,15 +34,15 @@ import ch.njol.util.Kleenean;
 @Events("command")
 public class ExprCommand extends SimpleExpression<String> implements EventRestrictedSyntax {
 
-	static {
-		Skript.registerExpression(ExprCommand.class, String.class, ExpressionType.SIMPLE,
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.simple(ExprCommand.class, ExprCommand::new, String.class,
 				"[the] (full|complete|whole) command",
-				"[the] command [(label|alias)]"
-		);
+				"[the] command [label|alias]"));
 	}
 
 	private boolean fullCommand;
-	
+
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		fullCommand = matchedPattern == 0;
@@ -56,41 +53,35 @@ public class ExprCommand extends SimpleExpression<String> implements EventRestri
 	public Class<? extends Event>[] supportedEvents() {
 		return CollectionUtils.array(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, ScriptCommandEvent.class);
 	}
-	
+
 	@Override
-	@Nullable
-	protected String[] get(final Event e) {
-		final String s;
-
-		if (e instanceof PlayerCommandPreprocessEvent) {
-			s = ((PlayerCommandPreprocessEvent) e).getMessage().substring(1).trim();
-		} else if (e instanceof ServerCommandEvent) {
-			s = ((ServerCommandEvent) e).getCommand().trim();
-		} else { // It's a script command event
-			ScriptCommandEvent event = (ScriptCommandEvent) e;
-			s = event.getCommandLabel() + " " + event.getArgsString();
-		}
-
+	protected String[] get(Event event) {
+		String input = switch (event) {
+			case PlayerCommandPreprocessEvent preprocessEvent -> preprocessEvent.getMessage().substring(1).trim();
+			case ServerCommandEvent serverCommandEvent -> serverCommandEvent.getCommand().trim();
+			case ScriptCommandEvent scriptCommandEvent -> scriptCommandEvent.getRawInput();
+			default -> throw new IllegalStateException("Unexpected value: " + event);
+		};
 		if (fullCommand) {
-			return new String[]{s};
+			return new String[]{input};
 		} else {
-			int c = s.indexOf(' ');
-			return new String[] {c == -1 ? s : s.substring(0, c)};
+			int space = input.indexOf(' ');
+			return new String[] {space == -1 ? input : input.substring(0, space)};
 		}
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
-	
+
 	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
 	}
-	
+
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return fullCommand ? "the full command" : "the command";
 	}
 

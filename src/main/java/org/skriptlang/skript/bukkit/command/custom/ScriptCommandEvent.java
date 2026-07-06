@@ -14,19 +14,25 @@ import java.util.Map;
 public class ScriptCommandEvent extends Event {
 
 	private final String label;
+	private final String rawInput;
 	private final CommandSender sender;
 	private final ScriptCommandExecutor executor;
 
 	final Map<String, Object> arguments = new HashMap<>();
 
-	public ScriptCommandEvent(String label, CommandSender sender, ScriptCommandExecutor executor) {
+	public ScriptCommandEvent(String label, String rawInput, CommandSender sender, ScriptCommandExecutor executor) {
 		this.label = label;
+		this.rawInput = rawInput;
 		this.sender = sender;
 		this.executor = executor;
 	}
 
 	public String getLabel() {
 		return label;
+	}
+
+	public String getRawInput() {
+		return rawInput;
 	}
 
 	public CommandSender getSender() {

@@ -6,8 +6,6 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
-import com.mojang.brigadier.tree.LiteralCommandNode;
-import com.mojang.brigadier.tree.RootCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.resolvers.ArgumentResolver;
 import org.bukkit.command.CommandSender;
@@ -56,7 +54,7 @@ public class ScriptCommandExecutor {
 	public int execute(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 		CommandSender sender = context.getSource().getSender();
 		ScriptCommandEvent commandEvent =
-			new ScriptCommandEvent(context.getNodes().getFirst().getNode().getName(), sender, this);
+			new ScriptCommandEvent(context.getNodes().getFirst().getNode().getName(), context.getInput(), sender, this);
 
 		// final validations
 		if (cooldownManager != null && !cooldownManager.checkExecution(commandEvent, sender)) {

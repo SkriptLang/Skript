@@ -44,15 +44,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.server.PluginDisableEvent;
-import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
@@ -63,6 +62,7 @@ import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.bukkit.BukkitModule;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
+import org.skriptlang.skript.bukkit.command.elements.effects.EffCommand;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
@@ -80,7 +80,9 @@ import org.skriptlang.skript.lang.properties.PropertyRegistry;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
+import org.skriptlang.skript.log.runtime.ErrorSource;
 import org.skriptlang.skript.log.runtime.RuntimeErrorManager;
+import org.skriptlang.skript.log.runtime.RuntimeErrorProducer;
 import org.skriptlang.skript.registration.DefaultSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -1811,26 +1813,24 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param sender
 	 * @param command
 	 * @return Whether the command was run
+	 * @deprecated There is no replacement for this method.
 	 */
-	public static boolean dispatchCommand(final CommandSender sender, final String command) {
-		try {
-			if (sender instanceof Player) {
-				final PlayerCommandPreprocessEvent e = new PlayerCommandPreprocessEvent((Player) sender, "/" + command);
-				Bukkit.getPluginManager().callEvent(e);
-				if (e.isCancelled() || !e.getMessage().startsWith("/"))
-					return false;
-				return Bukkit.dispatchCommand(e.getPlayer(), e.getMessage().substring(1));
-			} else {
-				final ServerCommandEvent e = new ServerCommandEvent(sender, command);
-				Bukkit.getPluginManager().callEvent(e);
-				if (e.getCommand().isEmpty() || e.isCancelled())
-					return false;
-				return Bukkit.dispatchCommand(e.getSender(), e.getCommand());
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public static boolean dispatchCommand(CommandSender sender, String command) {
+		return EffCommand.dispatchCommand(sender, command, new RuntimeErrorProducer() {
+			@Override
+			public @NotNull ErrorSource getErrorSource() {
+				throw new UnsupportedOperationException();
 			}
-		} catch (final Exception ex) {
-			ex.printStackTrace(); // just like Bukkit
-			return false;
-		}
+			@Override
+			public void error(String message) { }
+			@Override
+			public void error(String message, String highlight) { }
+			@Override
+			public void warning(String message) { }
+			@Override
+			public void warning(String message, String highlight) { }
+		});
 	}
 
 	// ================ LOGGING ================

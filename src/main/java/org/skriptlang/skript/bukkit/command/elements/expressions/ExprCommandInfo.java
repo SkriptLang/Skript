@@ -114,24 +114,30 @@ public class ExprCommandInfo extends SimpleExpression<String> {
 
 	}
 
-	private static final Patterns<InfoType> PATTERNS = new Patterns<>(
-		"[the] main command [label|name] [of [[the] command[s] %-strings%]]", InfoType.NAME,
-		"command[s] %strings%'[s] main command [label|name]", InfoType.NAME,
-		"[the] description [of [[the] command[s] %-strings%]]", InfoType.DESCRIPTION,
-		"command[s] %strings%'[s] description", InfoType.DESCRIPTION,
-		"[the] label [of [[the] command[s] %-strings%]]", InfoType.LABEL,
-		"command[s] %strings%'[s] label", InfoType.LABEL,
-		"[the] usage [of [[the] command[s] %-strings%]]", InfoType.USAGE,
-		"command[s] %strings%'[s] usage", InfoType.USAGE,
-		"[(all|the|all [of] the)] aliases [of [[the] command[s] %-strings%]]", InfoType.ALIASES,
-		"command[s] %strings%'[s] aliases", InfoType.ALIASES,
-		"[the] permission [of [[the] command[s] %-strings%]]", InfoType.PERMISSION,
-		"command[s] %strings%'[s] permission", InfoType.PERMISSION,
-		"[the] permission message [of [[the] command[s] %-strings%]]", InfoType.PERMISSION_MESSAGE,
-		"command[s] %strings%'[s] permission message", InfoType.PERMISSION_MESSAGE,
-		"[the] plugin [owner] [of [[the] command[s] %-strings%]]", InfoType.PLUGIN,
-		"command[s] %strings%'[s] plugin [owner]", InfoType.PLUGIN
-	);
+	private static final Patterns<InfoType> PATTERNS;
+
+	static {
+		String prefix = "command[s] %strings%'[s] ";
+		String suffix = " [of [[the] command[s]] %-strings%]";
+		PATTERNS = new Patterns<>(
+			"[the] main command [label|name]" + suffix, InfoType.NAME,
+			prefix + "main command [label|name]", InfoType.NAME,
+			"[the] description" + suffix, InfoType.DESCRIPTION,
+			prefix + "description", InfoType.DESCRIPTION,
+			"[the] label" + suffix, InfoType.LABEL,
+			prefix + "label", InfoType.LABEL,
+			"[the] usage" + suffix, InfoType.USAGE,
+			prefix + "usage", InfoType.USAGE,
+			"[all [[of] the]|the] aliases" + suffix, InfoType.ALIASES,
+			prefix + "aliases", InfoType.ALIASES,
+			"[the] permission" + suffix, InfoType.PERMISSION,
+			prefix + "permission", InfoType.PERMISSION,
+			"[the] permission message" + suffix, InfoType.PERMISSION_MESSAGE,
+			prefix + "permission message", InfoType.PERMISSION_MESSAGE,
+			"[the] plugin [owner]" + suffix, InfoType.PLUGIN,
+			prefix + "plugin [owner]", InfoType.PLUGIN
+		);
+	}
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(SyntaxRegistry.EXPRESSION,
