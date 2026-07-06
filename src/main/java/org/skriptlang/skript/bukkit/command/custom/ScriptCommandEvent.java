@@ -13,14 +13,20 @@ import java.util.Map;
  */
 public class ScriptCommandEvent extends Event {
 
+	private final String label;
 	private final CommandSender sender;
 	private final ScriptCommandExecutor executor;
 
 	final Map<String, Object> arguments = new HashMap<>();
 
-	public ScriptCommandEvent(CommandSender sender, ScriptCommandExecutor executor) {
+	public ScriptCommandEvent(String label, CommandSender sender, ScriptCommandExecutor executor) {
+		this.label = label;
 		this.sender = sender;
 		this.executor = executor;
+	}
+
+	public String getLabel() {
+		return label;
 	}
 
 	public CommandSender getSender() {

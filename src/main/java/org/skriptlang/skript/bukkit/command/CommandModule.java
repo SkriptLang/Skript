@@ -8,6 +8,7 @@ import org.skriptlang.skript.bukkit.command.custom.ScriptCommandRegistrar;
 import org.skriptlang.skript.bukkit.command.elements.effects.EffCancelCooldown;
 import org.skriptlang.skript.bukkit.command.elements.expressions.ExprArgument;
 import org.skriptlang.skript.bukkit.command.elements.expressions.ExprCmdCooldownInfo;
+import org.skriptlang.skript.bukkit.command.elements.expressions.ExprCommandInfo;
 import org.skriptlang.skript.bukkit.command.elements.structures.StructCommand;
 
 public class CommandModule extends HierarchicalAddonModule {
@@ -24,6 +25,7 @@ public class CommandModule extends HierarchicalAddonModule {
 			EffCancelCooldown::register,
 			ExprArgument::register,
 			ExprCmdCooldownInfo::register,
+			ExprCommandInfo::register,
 			syntaxRegistry -> StructCommand.register(addon, syntaxRegistry)
 		);
 	}

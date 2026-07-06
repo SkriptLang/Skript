@@ -58,7 +58,8 @@ public class SubCommandEntryData extends EntryData<Result> {
 		Collection<String> aliases,
 		@Nullable String description,
 		@Nullable String usage,
-		@Nullable String prefix
+		@Nullable String prefix,
+		@Nullable String permission
 	) { }
 
 	private static final Predicate<CommandSender> TRUE_PREDICATE = ignored -> true;
@@ -342,7 +343,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 		parsingData.popArguments();
 
 		//noinspection unchecked
-		return new Result(result, aliases, description, usage, prefix);
+		return new Result(result, aliases, description, usage, prefix, permission);
 	}
 
 	@Override

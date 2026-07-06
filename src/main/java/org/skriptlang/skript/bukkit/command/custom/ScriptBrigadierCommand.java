@@ -21,5 +21,6 @@ public record ScriptBrigadierCommand(
 	Collection<String> aliases,
 	@Nullable String description,
 	@Nullable String usage,
-	@Nullable String namespace
+	@Nullable String namespace,
+	@Nullable String permission
 ) { }

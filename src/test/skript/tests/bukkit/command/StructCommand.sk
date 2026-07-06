@@ -80,8 +80,8 @@ parse:
 command /structcommand:
 	aliases: /structcommand2
 	description: This is the description
-	usage: "This is the usage"
-	permission: command.structcommand
+	usage: This is the usage
+	permission: skript.structcommand
 	trigger:
 		stop
 
@@ -133,9 +133,9 @@ test "StructCommand":
 	assert the main command name of the command "structcommand" is "structcommand"
 	assert the description of the command "structcommand" is "This is the description"
 	assert the label of the command "structcommand" is "structcommand"
-	#assert the usage of the command "structcommand" is "This is the usage"
+	assert the usage of the command "structcommand" is "This is the usage"
 	assert the aliases of the command "structcommand" are "structcommand2" and "skript:structcommand2"
-	#assert the permission of the command "structcommand" is "skript.structcommand"
+	assert the permission of the command "structcommand" is "skript.structcommand"
 	assert the plugin of the command "structcommand" is "Skript"
 
 	# execution
