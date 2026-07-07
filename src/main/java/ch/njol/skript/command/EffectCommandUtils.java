@@ -11,7 +11,20 @@ import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.patterns.PatternCompiler;
+import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.variables.Variables;
+import io.papermc.paper.dialog.Dialog;
+import io.papermc.paper.registry.data.dialog.ActionButton;
+import io.papermc.paper.registry.data.dialog.DialogBase;
+import io.papermc.paper.registry.data.dialog.action.DialogAction;
+import io.papermc.paper.registry.data.dialog.input.BooleanDialogInput;
+import io.papermc.paper.registry.data.dialog.input.DialogInput;
+import io.papermc.paper.registry.data.dialog.input.TextDialogInput;
+import io.papermc.paper.registry.data.dialog.input.TextDialogInput.MultilineOptions;
+import io.papermc.paper.registry.data.dialog.type.DialogType;
+import net.kyori.adventure.text.event.ClickCallback;
+import net.kyori.adventure.text.event.ClickCallback.Options;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -21,7 +34,9 @@ import org.skriptlang.skript.lang.script.Script;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Handles the execution of an effect command.
@@ -29,6 +44,8 @@ import java.util.List;
 public class EffectCommandUtils {
 
 	private static final Script DUMMY_SCRIPT = ScriptLoader.createDummyScript("effect_command", null);
+
+	private static final SkriptPattern DIALOG_PATTERN = PatternCompiler.compile("[open] dialog [effect [command[s]]]");
 
 	/**
 	 * Whether effect commands can be used and if {@code message} is an effect command.
@@ -97,6 +114,14 @@ public class EffectCommandUtils {
 	static void handleSingularEffectCommand(CommandSender sender, String command) {
 		try {
 			command = command.substring(SkriptConfig.effectCommandToken.value().length()).trim();
+			if (DIALOG_PATTERN.match(command) != null) {
+				if (sender instanceof ConsoleCommandSender) {
+					sender.sendMessage("You can not open dialogs on the console.");
+				} else {
+					openDialog((Player) sender);
+				}
+				return;
+			}
 			RetainingLogHandler log = SkriptLogger.startRetainingLog();
 			try {
 				// Call the event on the Bukkit API for addon developers.
@@ -154,7 +179,15 @@ public class EffectCommandUtils {
 			MultiEffectBuilder builder = MultiEffectBuilder.getBuilder(sender);
 			if (builder.getLines().isEmpty())
 				return;
-			finalizeMultiEffect(sender, builder);
+			finalizeMultiEffect(sender, builder.build());
+			return;
+		}
+		if (DIALOG_PATTERN.match(command) != null) {
+			if (sender instanceof ConsoleCommandSender) {
+				sender.sendMessage("You can not open dialogs on the console.");
+			} else {
+				openDialog((Player) sender);
+			}
 			return;
 		}
 		MultiEffectBuilder builder = MultiEffectBuilder.getBuilder(sender);
@@ -175,25 +208,28 @@ public class EffectCommandUtils {
 	}
 
 	/**
-	 * Finalizes a multi effect command by building the {@code builder} to parse and execute.
-	 * @param sender The {@link CommandSender} executing the effect command.
-	 * @param builder The {@link MultiEffectBuilder} containing all the effects to parse and execute.
+	 * Handles the parsing and execution of any multilined code.
+	 * @param sender The {@link CommandSender} executing the code.
+	 * @param code The code to be executed.
 	 */
-	private static void finalizeMultiEffect(CommandSender sender, MultiEffectBuilder builder) {
-		MultiEffectCommandEvent event = builder.build();
+	private static void finalizeMultiEffect(CommandSender sender, String code) {
+		MultiEffectCommandEvent event = new MultiEffectCommandEvent(sender, code);
 		Bukkit.getPluginManager().callEvent(event);
-		String string = builder.joinLines();
-		String tabbedString = builder.joinLines(2, "  ");
+		String tabbedCode = "  " + code.replaceAll("\t", "  ").replaceAll("\n", "\n  ");
 		ParserInstance parser = ParserInstance.get();
 		RetainingLogHandler log = SkriptLogger.startRetainingLog();
 		try {
 			Config config = new Config(
-				new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8)),
+				new ByteArrayInputStream(code.getBytes(StandardCharsets.UTF_8)),
 				"effect_command",
 				true,
 				false,
 				":"
 			);
+			if (log.hasErrors()) {
+				log.printErrors(sender, "(No specific information is available)");
+				return;
+			}
 			SectionNode sectionNode = config.getMainNode();
 			parser.setActive(DUMMY_SCRIPT);
 			parser.setCurrentEvent("effect command", MultiEffectCommandEvent.class);
@@ -206,23 +242,84 @@ public class EffectCommandUtils {
 				if (!event.isCancelled()) {
 					log.clear();
 					log.printLog();
-					sender.sendMessage(textParser.parse("<gray>Executing:\n" + textParser.escape(tabbedString)));
+					sender.sendMessage(textParser.parse("<gray>Executing:\n" + textParser.escape(tabbedCode)));
 					if (SkriptConfig.logEffectCommands.value() && !(sender instanceof ConsoleCommandSender))
-						Skript.info(sender.getName() + " issued effect command:\n" + textParser.escape(tabbedString));
+						Skript.info(sender.getName() + " issued effect command:\n" + textParser.escape(tabbedCode));
 					Trigger trigger = new Trigger(DUMMY_SCRIPT, sectionNode.getKey(), null, items);
 					trigger.execute(event);
 					parser.deleteCurrentEvent();
 					parser.setInactive();
 				} else {
-					sender.sendMessage(textParser.parse("<red>Your effect command was cancelled:\n" + textParser.escape(tabbedString)));
+					sender.sendMessage(textParser.parse("<red>Your effect command was cancelled:\n" + textParser.escape(tabbedCode)));
 				}
 			}
 		} catch (Exception e) {
-			Skript.exception(e, "Unexpected error while executing effect command by '" + sender.getName() + "':\n" + TextComponentParser.instance().escape(tabbedString));
+			Skript.exception(e, "Unexpected error while executing effect command by '" + sender.getName()
+				+ "':\n" + TextComponentParser.instance().escape(tabbedCode));
 			sender.sendRichMessage("<red>An internal error occurred while executing this effect. Please refer to the server log for details.");
 		} finally {
 			log.stop();
 		}
+	}
+
+	private static final Map<Player, String> SAVED_CODE = new HashMap<>();
+	private static final String CODE_INPUT_KEY = "Skript_DialogEffectCommand_Code";
+	private static final String SAVE_INPUT_KEY = "Skript_DialogEffectCommand_Save";
+
+	/**
+	 * Opens a {@link Dialog} to {@code player} for typing out multilined code.
+	 * @param player The {@link Player} to open the {@link Dialog} to.
+	 */
+	@SuppressWarnings("UnstableApiUsage")
+	private static void openDialog(Player player) {
+		TextComponentParser parser = TextComponentParser.instance();
+
+		boolean hasSave = SAVED_CODE.containsKey(player);
+		String initialCode = hasSave ? SAVED_CODE.remove(player) : "";
+
+		TextDialogInput codeInput = DialogInput.text(
+			CODE_INPUT_KEY,
+			500,
+			parser.parse("Code"),
+			true,
+			initialCode,
+			5000,
+			MultilineOptions.create(255, 200)
+		);
+		BooleanDialogInput saveInput = DialogInput.bool(
+			SAVE_INPUT_KEY,
+			parser.parse("Save Code on Execution/Close"),
+			hasSave,
+			"True",
+			"False"
+		);
+		DialogBase base = DialogBase.builder(parser.parse("Dialog Effect Command"))
+			.inputs(List.of(codeInput, saveInput))
+			.build();
+		ActionButton executeButton = ActionButton.builder(parser.parse("<green>Execute"))
+			.action(DialogAction.customClick((response, audience) -> {
+				String code = response.getText(CODE_INPUT_KEY);
+				Boolean toSave = response.getBoolean(SAVE_INPUT_KEY);
+				if (toSave != null && toSave)
+					SAVED_CODE.put(player, code);
+				finalizeMultiEffect(player, code);
+			}, Options.builder().build()))
+			.build();
+		ActionButton cancelButton = ActionButton.builder(parser.parse("<red>Cancel"))
+			.action(DialogAction.customClick((response, audience) -> {
+					String code = response.getText(CODE_INPUT_KEY);
+					Boolean toSave = response.getBoolean(SAVE_INPUT_KEY);
+					if (toSave != null && toSave)
+						SAVED_CODE.put(player, code);
+				},
+				ClickCallback.Options.builder().build()))
+			.build();
+
+		Dialog dialog = Dialog.create(factory -> factory.empty()
+			.base(base)
+			.type(DialogType.confirmation(executeButton, cancelButton)));
+
+		player.showDialog(dialog);
 	}
 
 }

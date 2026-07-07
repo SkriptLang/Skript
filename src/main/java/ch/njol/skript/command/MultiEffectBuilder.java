@@ -69,10 +69,12 @@ public class MultiEffectBuilder {
 	/**
 	 * Adds {@code line} to the stored lines of {@code this}.
 	 * @param line The line to add.
+	 * @return {@code this}.
 	 */
-	public void addLine(String line) {
+	public MultiEffectBuilder addLine(String line) {
 		lastUsed = Date.now();
 		lines.add(line);
+		return this;
 	}
 
 	/**
@@ -95,12 +97,12 @@ public class MultiEffectBuilder {
 	}
 
 	/**
-	 * Builds a {@link MultiEffectCommandEvent} and removes {@code this} from the active builders.
-	 * @return The {@link MultiEffectCommandEvent}.
+	 * Finalizes {@code this} by removing {@code this} from the list of current sessions and returns the final code.
+	 * @return The combined {@link String} of all lines of code.
 	 */
-	public MultiEffectCommandEvent build() {
+	public String build() {
 		removeBuilder(sender);
-		return new MultiEffectCommandEvent(sender, joinLines());
+		return joinLines();
 	}
 
 }
