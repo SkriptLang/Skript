@@ -382,7 +382,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 			ArgumentData<?> data = ((ArgumentCommandElement) commandElement).argument();
 
 			ArgumentType<?> nativeType = null;
-			NativeArgumentData nativeMapping = ScriptArgumentType.ARGUMENT_TYPE_MAPPINGS.get(data.type().getC());
+			NativeArgumentData nativeMapping = ScriptArgumentType.getNativeData(data.type());
 			if (nativeMapping != null) { // native argument type may be available
 				nativeType = nativeMapping.mapper().apply(data);
 			}

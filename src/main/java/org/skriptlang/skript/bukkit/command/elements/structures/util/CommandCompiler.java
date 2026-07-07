@@ -406,7 +406,7 @@ final class CommandCompiler {
 			}
 		}
 		// type validation
-		NativeArgumentData nativeMapping = ScriptArgumentType.ARGUMENT_TYPE_MAPPINGS.get(type.getC());
+		NativeArgumentData nativeMapping = ScriptArgumentType.getNativeData(type);
 		if (min != null || max != null) {
 			if (nativeMapping == null || !nativeMapping.supportsRange()) {
 				String typeName = plural.plural() ? type.getName().getPlural() : type.getName().getSingular();

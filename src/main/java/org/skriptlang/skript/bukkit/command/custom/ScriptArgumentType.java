@@ -1,6 +1,8 @@
 package org.skriptlang.skript.bukkit.command.custom;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
@@ -20,14 +22,22 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
+import io.papermc.paper.registry.RegistryKey;
+import org.bukkit.GameMode;
+import org.bukkit.World;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -69,7 +79,7 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 	/**
 	 * Pre-defined mappings of types that are acceptable to map to other native argument types.
 	 */
-	public static final Map<Class<?>, NativeArgumentData> ARGUMENT_TYPE_MAPPINGS = Map.of(
+	private static final Map<Class<?>, NativeArgumentData> ARGUMENT_TYPE_MAPPINGS = Map.of(
 		Boolean.class, new NativeArgumentData(ignored -> BoolArgumentType.bool()),
 		Long.class, new NativeArgumentData(false, true, data -> {
 			Long min = (Long) data.min();
@@ -100,8 +110,37 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 		Player.class, new NativeArgumentData(true, false, data ->
 			data.isSingle() ? ArgumentTypes.player() : ArgumentTypes.players()),
 		Entity.class, new NativeArgumentData(true, false, data ->
-			data.isSingle() ? ArgumentTypes.entity() : ArgumentTypes.entities())
+			data.isSingle() ? ArgumentTypes.entity() : ArgumentTypes.entities()),
+		GameMode.class, new NativeArgumentData(ignored -> ArgumentTypes.gameMode()),
+		World.class, new NativeArgumentData(ignored -> ArgumentTypes.world()),
+		UUID.class, new NativeArgumentData(ignored -> ArgumentTypes.uuid()),
+		BlockData.class, new NativeArgumentData(ignored -> new Converted<BlockData, BlockState>() {
+			@Override
+			public @NotNull ArgumentType<BlockState> getNativeType() {
+				return ArgumentTypes.blockState();
+			}
+			@Override
+			public @NotNull BlockData convert(@NotNull BlockState blockState) {
+				return blockState.getBlockData();
+			}
+		}),
+		ItemStack.class, new NativeArgumentData(ignored -> ArgumentTypes.itemStack())
 	);
+
+	public static @Nullable NativeArgumentData getNativeData(ClassInfo<?> classInfo) {
+		NativeArgumentData nativeArgumentData = ARGUMENT_TYPE_MAPPINGS.get(classInfo.getC());
+		if (nativeArgumentData != null) {
+			return nativeArgumentData;
+		}
+		if (classInfo instanceof RegistryClassInfo<?> registryClassInfo) {
+			// TODO need to map RegistryClassInfo to RegistryKey
+			RegistryKey<?> key = null;
+			if (key != null) {
+				return new NativeArgumentData(ignored -> ArgumentTypes.resource(key));
+			}
+		}
+		return null;
+	}
 
 	private static final DynamicCommandExceptionType ERROR_PARSER_ERROR = new DynamicCommandExceptionType(
 		input -> new LiteralMessage((String) input));
