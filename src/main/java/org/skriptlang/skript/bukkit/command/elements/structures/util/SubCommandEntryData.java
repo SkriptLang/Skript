@@ -11,6 +11,7 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.HintManager;
+import ch.njol.util.coll.CollectionUtils;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
@@ -46,7 +47,9 @@ import org.skriptlang.skript.log.runtime.ErrorSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -88,20 +91,22 @@ public class SubCommandEntryData extends EntryData<Result> {
 		.addEntryData(new VariableStringEntryData("usage", null, true))
 		.addEntry("prefix", null, true)
 		.addEntry("permission", null, true)
-		.addEntryData(new KeyValueEntryData<ExecutableBy>("executable by", null, true) {
-			private final Pattern pattern = Pattern.compile("\\s*,\\s*|\\s+(and|or)\\s+");
+		.addEntryData(new KeyValueEntryData<Set<ExecutableBy>>("executable by", null, true) {
+			private final Pattern pattern = Pattern.compile("\\s*,(?:\\s+(?:and|or)\\s+)?\\s*|\\s+(?:and|or)\\s+");
 
 			@Override
-			protected ExecutableBy getValue(String value) {
-				ExecutableBy executableBy = ExecutableBy.NONE;
+			protected Set<ExecutableBy> getValue(String value) {
+				EnumSet<ExecutableBy> executableBy = EnumSet.noneOf(ExecutableBy.class);
 				for (String type : pattern.split(value)) {
 					if (type.equalsIgnoreCase("console") || type.equalsIgnoreCase("the console")) {
-						executableBy = executableBy.with(ExecutableBy.CONSOLE);
+						executableBy.add(ExecutableBy.CONSOLE);
 					} else if (type.equalsIgnoreCase("players") || type.equalsIgnoreCase("player")) {
-						executableBy = executableBy.with(ExecutableBy.PLAYERS);
+						executableBy.add(ExecutableBy.PLAYERS);
+					} else if (type.equalsIgnoreCase("blocks") || type.equalsIgnoreCase("block")) {
+						executableBy.add(ExecutableBy.BLOCKS);
 					} else {
 						Skript.error("Invalid command sender type: " + type);
-						return ExecutableBy.NONE;
+						return Set.of();
 					}
 				}
 				return executableBy;
@@ -228,18 +233,21 @@ public class SubCommandEntryData extends EntryData<Result> {
 		}
 
 		// executable by requirement
-		ExecutableBy executableBy = entryContainer.getOptional("executable by", ExecutableBy.class, false);
+		Set<ExecutableBy> executableBy = entryContainer.getOptional("executable by", Set.class, false);
 		if (executableBy != null) {
-			if (executableBy == ExecutableBy.NONE) { // parsing failed
+			if (executableBy.isEmpty()) { // parsing failed
 				return null;
 			}
-			ExecutableBy parent = parsingData.getExecutorData(ExecutorData::executableBy);
-			if (parent != null && !parent.includes(executableBy)) {
-				Skript.error("It is not possible to restrict execution to " + executableBy +
-					" as the parent command is only executable by " + parent + ".");
+			Set<ExecutableBy> parent = parsingData.getExecutorData(ExecutorData::executableBy);
+			if (parent != null && !parent.containsAll(executableBy)) {
+				Skript.error("It is not possible to restrict execution to " + CollectionUtils.toString(executableBy, true) +
+					" as the parent command is only executable by " + CollectionUtils.toString(parent, true) + ".");
 				return null;
 			}
-			requires = requires.and(executableBy.predicate());
+			requires = requires.and(executableBy.stream()
+				.map(ExecutableBy::predicate)
+				.reduce(Predicate::or)
+				.orElseThrow());
 		}
 
 		// prepare final requirements predicate

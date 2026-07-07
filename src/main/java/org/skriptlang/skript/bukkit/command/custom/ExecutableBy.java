@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.command.custom;
 
+import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.RemoteConsoleCommandSender;
@@ -23,14 +24,9 @@ public enum ExecutableBy {
 	CONSOLE(sender -> sender instanceof ConsoleCommandSender || sender instanceof RemoteConsoleCommandSender),
 
 	/**
-	 * This command is executable by any {@link CommandSender}.
+	 * This command is only executable by blocks (e.g, command blocks).
 	 */
-	ALL(ignored -> true),
-
-	/**
-	 * This command is not executable.
-	 */
-	NONE(ignored -> false);
+	BLOCKS(sender -> sender instanceof BlockCommandSender);
 
 	private final Predicate<CommandSender> predicate;
 
@@ -45,37 +41,12 @@ public enum ExecutableBy {
 		return predicate;
 	}
 
-	/**
-	 * Combines (ORs) this ExecutableBy with another.
-	 * For example, {@link #PLAYERS}.with({@link #CONSOLE}) is {@link #ALL}.
-	 *
-	 * @param other Other to OR with.
-	 * @return The resulting ExecutableBy.
-	 */
-	public ExecutableBy with(ExecutableBy other) {
-		if (this == NONE) {
-			return other;
-		} else if (other == NONE) {
-			return this;
-		}
-		return this == other ? this : ALL;
-	}
-
-	/**
-	 * @param other Subset ExecutableBy to consider.
-	 * @return Whether this ExecutableBy is the same as or covers a superset of {@code other}.
-	 */
-	public boolean includes(ExecutableBy other) {
-		return this == ALL || this == other;
-	}
-
 	@Override
 	public String toString() {
 		return switch (this) {
 			case PLAYERS -> "players";
 			case CONSOLE -> "the console";
-			case ALL -> "the console and players";
-			case NONE -> "none";
+			case BLOCKS -> "blocks";
 		};
 	}
 

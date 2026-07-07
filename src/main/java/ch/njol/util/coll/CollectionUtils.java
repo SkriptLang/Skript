@@ -478,4 +478,29 @@ public abstract class CollectionUtils {
 		return wrapped;
 	}
 
+	/**
+	 * Stringifies a collection as an "and" or "or" list.
+	 * @param collection The collection to stringify.
+	 * @param and Whether this is an "and" list or an "or" list.
+	 * @return Stringification of {@code collection}.
+	 * For example, {@code "x, y, and z"}.
+	 */
+	public static String toString(Collection<?> collection, boolean and) {
+		StringBuilder builder = new StringBuilder();
+		int i = 0;
+		int end = collection.size() - 1;
+		for (Object object : collection) {
+			if (i > 0) {
+				if (i == end) {
+					builder.append(and ? " and " : " or ");
+				} else {
+					builder.append(", ");
+				}
+			}
+			builder.append(object);
+			i++;
+		}
+		return builder.toString();
+	}
+
 }

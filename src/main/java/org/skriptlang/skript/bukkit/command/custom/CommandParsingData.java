@@ -9,6 +9,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -17,11 +18,11 @@ import java.util.function.Function;
 public final class CommandParsingData extends Data {
 
 	/**
-	 * @param executableBy Describes what kind of {@link CommandSender} can execute the command.
+	 * @param executableBy Set describing what kinds of {@link CommandSender} can execute the command.
 	 * @param cooldownManager Handles cooldown management for cooldown command entries.
 	 */
 	public record ExecutorData(
-		@Nullable ExecutableBy executableBy,
+		@Nullable Set<ExecutableBy> executableBy,
 		@Nullable CooldownManager cooldownManager
 	) { }
 
