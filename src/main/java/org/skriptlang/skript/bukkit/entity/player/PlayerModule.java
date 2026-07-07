@@ -32,6 +32,7 @@ public class PlayerModule extends HierarchicalAddonModule {
 			EvtPlayerCommandSend::register,
 			EvtPlayerEnterChunk::register,
 			EvtPlayerFirstJoin::register,
+			EvtPlayerLevelChange::register,
 			EvtPlayerSignBook::register,
 			EvtPressurePlate::register,
 			EvtResourcePackResponse::register,
