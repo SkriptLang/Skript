@@ -30,6 +30,19 @@ parse:
 		command /entries_test_3:
 			subcommand test:
 
+# expect operators to be allowed below players (or other kinds)
+parse:
+	results: {-StructCommand::entries::4::*}
+	code:
+		command /entries_test_4:
+			executable by: players
+			trigger:
+				stop
+			subcommand test:
+				executable by: operators
+				trigger:
+					stop
+
 # expect error for duplicate argument names
 parse:
 	results: {-StructCommand::args::1::*}
@@ -114,6 +127,7 @@ test "StructCommand":
 	assert {-StructCommand::entries::1::*} is {_error_missing_trigger}
 	assert {-StructCommand::entries::2::*} is "It is not possible to restrict execution to the console as the parent command is only executable by players."
 	assert {-StructCommand::entries::3::*} is {_error_missing_trigger} and {_error_missing_trigger}
+	assert {-StructCommand::entries::4::*} is not set
 	assert {-StructCommand::args::1::*} is "The argument name 'x' was already used."
 	assert {-StructCommand::args::2::*} is "text arguments do not support minimum or maximum values."
 	assert {-StructCommand::args::3::*} is not set

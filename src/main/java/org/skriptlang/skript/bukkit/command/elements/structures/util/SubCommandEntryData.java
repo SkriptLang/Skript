@@ -98,11 +98,14 @@ public class SubCommandEntryData extends EntryData<Result> {
 			protected Set<ExecutableBy> getValue(String value) {
 				EnumSet<ExecutableBy> executableBy = EnumSet.noneOf(ExecutableBy.class);
 				for (String type : pattern.split(value)) {
-					if (type.equalsIgnoreCase("console") || type.equalsIgnoreCase("the console")) {
-						executableBy.add(ExecutableBy.CONSOLE);
-					} else if (type.equalsIgnoreCase("players") || type.equalsIgnoreCase("player")) {
+					// "player" kept for compatibility
+					if (type.equalsIgnoreCase("players") || type.equalsIgnoreCase("player")) {
 						executableBy.add(ExecutableBy.PLAYERS);
-					} else if (type.equalsIgnoreCase("blocks") || type.equalsIgnoreCase("block")) {
+					} else if (type.equalsIgnoreCase("operators") || type.equalsIgnoreCase("ops")) {
+						executableBy.add(ExecutableBy.OPERATORS);
+					} else if (type.equalsIgnoreCase("console") || type.equalsIgnoreCase("the console")) {
+						executableBy.add(ExecutableBy.CONSOLE);
+					} else if (type.equalsIgnoreCase("blocks")) {
 						executableBy.add(ExecutableBy.BLOCKS);
 					} else {
 						Skript.error("Invalid command sender type: " + type);
@@ -239,7 +242,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 				return null;
 			}
 			Set<ExecutableBy> parent = parsingData.getExecutorData(ExecutorData::executableBy);
-			if (parent != null && !parent.containsAll(executableBy)) {
+			if (parent != null && !ExecutableBy.isSuperSet(parent, executableBy)) {
 				Skript.error("It is not possible to restrict execution to " + CollectionUtils.toString(executableBy, true) +
 					" as the parent command is only executable by " + CollectionUtils.toString(parent, true) + ".");
 				return null;
