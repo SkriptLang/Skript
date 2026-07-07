@@ -52,12 +52,12 @@ public class ScriptCommandExecutor {
 	}
 
 	public int execute(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-		CommandSender sender = context.getSource().getSender();
+		CommandSourceStack source = context.getSource();
 		ScriptCommandEvent commandEvent =
-			new ScriptCommandEvent(context.getNodes().getFirst().getNode().getName(), context.getInput(), sender, this);
+			new ScriptCommandEvent(context.getNodes().getFirst().getNode().getName(), context.getInput(), this, source);
 
 		// final validations
-		if (cooldownManager != null && !cooldownManager.checkExecution(commandEvent, sender)) {
+		if (cooldownManager != null && !cooldownManager.checkExecution(commandEvent, source.getSender())) {
 			return Command.SINGLE_SUCCESS;
 		}
 

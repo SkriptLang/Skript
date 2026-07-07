@@ -64,8 +64,8 @@ public class EffCancelCooldown extends Effect implements EventRestrictedSyntax {
 	@Override
 	protected void execute(Event event) {
 		if (event instanceof ScriptCommandEvent commandEvent) {
-			assert commandEvent.getExecutor().getCooldownManager() != null;
-			commandEvent.getExecutor().getCooldownManager()
+			assert commandEvent.getCommandExecutor().getCooldownManager() != null;
+			commandEvent.getCommandExecutor().getCooldownManager()
 				.setStartDate(event, commandEvent.getSender(), cancel ? null : Date.now());
 		}
 	}

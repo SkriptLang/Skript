@@ -4,8 +4,13 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.registrations.Classes;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -33,6 +38,14 @@ public class StructCommand extends Structure {
 
 		EventValueRegistry evRegistry = addon.registry(EventValueRegistry.class);
 		evRegistry.register(EventValue.simple(ScriptCommandEvent.class, CommandSender.class, ScriptCommandEvent::getSender));
+		evRegistry.register(EventValue.simple(ScriptCommandEvent.class, String[].class,
+			event -> event.getArguments().values().stream()
+				.map(Classes::toString)
+				.toArray(String[]::new)));
+		evRegistry.register(EventValue.simple(ScriptCommandEvent.class, Block.class,
+			event -> event.getSender() instanceof BlockCommandSender sender ? sender.getBlock() : null));
+		evRegistry.register(EventValue.simple(ScriptCommandEvent.class, Location.class, ScriptCommandEvent::getLocation));
+		evRegistry.register(EventValue.simple(ScriptCommandEvent.class, World.class, event -> event.getLocation().getWorld()));
 	}
 
 	private static final SubCommandEntryData ROOT_ENTRY_DATA =

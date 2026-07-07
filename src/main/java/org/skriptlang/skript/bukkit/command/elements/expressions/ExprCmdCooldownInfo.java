@@ -79,7 +79,7 @@ public class ExprCmdCooldownInfo extends SimpleExpression<Object> implements Eve
 			return (Object[]) Array.newInstance(getReturnType(), 0);
 		}
 
-		CooldownManager cooldownManager = commandEvent.getExecutor().getCooldownManager();
+		CooldownManager cooldownManager = commandEvent.getCommandExecutor().getCooldownManager();
 		assert cooldownManager != null;
 
 		return switch (type) {
@@ -130,7 +130,7 @@ public class ExprCmdCooldownInfo extends SimpleExpression<Object> implements Eve
 			return;
 		}
 
-		CooldownManager cooldownManager = commandEvent.getExecutor().getCooldownManager();
+		CooldownManager cooldownManager = commandEvent.getCommandExecutor().getCooldownManager();
 		assert cooldownManager != null;
 
 		Date startDate = cooldownManager.getStartDate(event, commandEvent.getSender());
