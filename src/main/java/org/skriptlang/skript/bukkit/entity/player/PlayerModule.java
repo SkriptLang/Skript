@@ -6,6 +6,7 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.BukkitModule;
 import org.skriptlang.skript.bukkit.entity.player.elements.effects.*;
 import org.skriptlang.skript.bukkit.entity.player.elements.events.*;
 import org.skriptlang.skript.bukkit.entity.player.elements.expressions.*;
@@ -26,7 +27,14 @@ public class PlayerModule extends HierarchicalAddonModule {
 		register(addon,
 			EffBan::register,
 			EffKick::register,
-			syntaxRegistry -> EvtPlayerGameModeChange.register(syntaxRegistry, eventValueRegistry),
+			EvtAttemptAttack::register,
+			EvtCommand::register,
+			EvtPlayerCommandSend::register,
+			EvtPlayerEnterChunk::register,
+			EvtPlayerFirstJoin::register,
+			EvtPlayerSignBook::register,
+			EvtPressurePlate::register,
+			EvtResourcePackResponse::register,
 			ExprChatFormat::register,
 			ExprChatMessage::register,
 			ExprChatRecipients::register,
@@ -39,9 +47,16 @@ public class PlayerModule extends HierarchicalAddonModule {
 			ExprPlayerListPriority::register,
 			ExprQuitMessage::register
 		);
+
+		BukkitModule.register(moduleRegistry(addon), eventValueRegistry,
+			EvtClick::register,
+			EvtPlayerEditBook::register,
+			EvtPlayerGameModeChange::register
+		);
+
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerPickBlockEvent")) {
 			register(addon,
-				EvtPlayerPickItem::register,
+				syntaxRegistry -> EvtPlayerPickItem.register(syntaxRegistry, eventValueRegistry),
 				ExprPickedItem::register
 			);
 		}

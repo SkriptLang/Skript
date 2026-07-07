@@ -1,14 +1,13 @@
 package org.skriptlang.skript.bukkit.entity.player.elements.events;
 
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.data.DefaultComparators;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
-import ch.njol.skript.registrations.EventConverter;
-import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
@@ -21,8 +20,10 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue.Time;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -35,7 +36,7 @@ public class EvtPlayerPickItem extends SkriptEvent {
 		{"[player] pick[ing] [of] %entitydata/itemtype/blockdata%", null}
 	});
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, EventValueRegistry eventValueRegistry) {
 		registry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtPlayerPickItem.class, "Player Pick Item")
 			.supplier(EvtPlayerPickItem::new)
 			.addEvents(CollectionUtils.array(PlayerPickBlockEvent.class, PlayerPickEntityEvent.class))
@@ -55,35 +56,30 @@ public class EvtPlayerPickItem extends SkriptEvent {
 			.addRequiredPlugin("1.21.5+")
 			.build());
 
-		EventValues.registerEventValue(PlayerPickItemEvent.class, Slot.class, new EventConverter<>() {
-			@Override
-			public void set(PlayerPickItemEvent event, @Nullable Slot slot) {
+		eventValueRegistry.register(EventValue.builder(PlayerPickItemEvent.class, Slot.class)
+			.getter(event -> new InventorySlot(event.getPlayer().getInventory(), event.getTargetSlot()))
+			.registerChanger(ChangeMode.SET, (event, slot) -> {
 				if (!(slot instanceof InventorySlot inventorySlot) || inventorySlot.getInventory() != event.getPlayer().getInventory())
 					return;
 				event.setSourceSlot(inventorySlot.getIndex());
-			}
+			})
+			.time(Time.PAST)
+			.build());
 
-			@Override
-			public @Nullable Slot convert(PlayerPickItemEvent event) {
+		eventValueRegistry.register(EventValue.builder(PlayerPickItemEvent.class, Slot.class)
+			.getter(event -> {
 				int source = event.getSourceSlot();
 				if (source == -1)
 					return null;
 				return new InventorySlot(event.getPlayer().getInventory(), source);
-			}
-		}, EventValues.TIME_PAST);
-		EventValues.registerEventValue(PlayerPickItemEvent.class, Slot.class, new EventConverter<>() {
-			@Override
-			public void set(PlayerPickItemEvent event, @Nullable Slot slot) {
+			})
+			.registerChanger(ChangeMode.SET, (event, slot) -> {
 				if (!(slot instanceof InventorySlot inventorySlot) || inventorySlot.getInventory() != event.getPlayer().getInventory())
 					return;
 				event.setTargetSlot(inventorySlot.getIndex());
-			}
-
-			@Override
-			public Slot convert(PlayerPickItemEvent event) {
-				return new InventorySlot(event.getPlayer().getInventory(), event.getTargetSlot());
-			}
-		});
+			})
+			.time(Time.PAST)
+			.build());
 	}
 
 	private @Nullable PickType pickType;
@@ -134,18 +130,15 @@ public class EvtPlayerPickItem extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		builder.append("player picking");
-		if (pickType != null) {
-			switch (pickType) {
-				case ANY -> builder.append("an item");
-				case BLOCK -> builder.append("a block");
-				case ENTITY -> builder.append("an entity");
-			}
-		} else if (type != null) {
-			builder.append(type);
-		}
-		return builder.toString();
+		return new SyntaxStringBuilder(event, debug)
+			.append("player picking")
+			.appendIf(pickType != null, switch (pickType) {
+				case ANY -> "an item";
+				case BLOCK -> "a block";
+				case ENTITY -> "an entity";
+			})
+			.appendIf(pickType == null, type)
+			.toString();
 	}
 
 	private enum PickType {

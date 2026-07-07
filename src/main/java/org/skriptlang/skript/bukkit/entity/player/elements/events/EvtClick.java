@@ -1,4 +1,4 @@
-package ch.njol.skript.events;
+package org.skriptlang.skript.bukkit.entity.player.elements.events;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
@@ -8,6 +8,8 @@ import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
+import ch.njol.skript.util.Direction;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -16,7 +18,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -24,13 +25,17 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.lang.comparator.Relation;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.function.Predicate;
 
 public class EvtClick extends SkriptEvent {
 
-	// TODO: UNTIL MC 26.1.1
+	// TODO: Remove this once skripts minimum supported version is 26.1.1
 	private final static boolean USE_OLD_PIAEE_BEHAVIOR = !Skript.isRunningMinecraft(26,1,1);
 
 	/**
@@ -43,24 +48,71 @@ public class EvtClick extends SkriptEvent {
 	 */
 	public final static ClickEventTracker interactTracker = new ClickEventTracker(Skript.getInstance());
 
-	static {
-		Class<? extends PlayerEvent>[] eventTypes = CollectionUtils.array(
-			PlayerInteractEvent.class, PlayerInteractEntityEvent.class, PlayerInteractAtEntityEvent.class
-		);
-		Skript.registerEvent("Click", EvtClick.class, eventTypes,
+	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry) {
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtClick.class, "Player Click")
+			.supplier(EvtClick::new)
+			.addEvents(CollectionUtils.array(PlayerInteractEvent.class, PlayerInteractEntityEvent.class, PlayerInteractAtEntityEvent.class))
+			.addPatterns(
 				"[(" + RIGHT + ":right|" + LEFT + ":left)(| |-)][mouse(| |-)]click[ing] [on %-entitydata/itemtype/blockdata%] [(with|using|holding) %-itemtype%]",
-				"[(" + RIGHT + ":right|" + LEFT + ":left)(| |-)][mouse(| |-)]click[ing] (with|using|holding) %itemtype% on %entitydata/itemtype/blockdata%")
-			.description("Called when a user clicks on a block, an entity or air with or without an item in their hand.",
-				"Please note that rightclick events with an empty hand while not looking at a block are not sent to the server, so there's no way to detect them.",
-				"Also note that a leftclick on an entity is an attack and thus not covered by the 'click' event, but the 'damage' event.")
-			.examples("on click:",
-				"on rightclick holding a fishing rod:",
-				"on leftclick on a stone or obsidian:",
-				"on rightclick on a creeper:",
-				"on click with a sword:",
-				"on click on chest[facing=north]:",
-				"on click on campfire[lit=true]:")
-			.since("1.0, 2.10 (blockdata)");
+				"[(" + RIGHT + ":right|" + LEFT + ":left)(| |-)][mouse(| |-)]click[ing] (with|using|holding) %itemtype% on %entitydata/itemtype/blockdata%"
+			)
+			.addDescription("""
+				Called when a user clicks on a block, an entity or air with or without an item in their hand.
+				Note that right click events with an empty hand while not looking at a block are not sent to the server, so there's no way to detect them.
+				Also note that a left click on an entity is an attack and thus not covered by the 'click' event, but the 'damage' event.
+				""")
+			.addExample("""
+				on rightclick holding a fishing rod:
+				    send "Nice %event-item stack% you got there!" to player
+				""")
+			.addExample("""
+				on rightclick on a creeper:
+				    send "How has it not exploded by now?" to player
+				    push target entity of player upwards at speed 2
+				""")
+			.addExample("""
+				on click on chest[facing=north]:
+				    send "Well its a chest alright.." to player
+				    set event-block to chest[facing=south]
+				    send "I don't think it likes me.." to player
+				""")
+			.addExample("""
+				on leftclick on obsidian:
+				    send "Looks pretty hard to break.."
+				    chance of 10%:
+				        break event-block using player's tool
+				        send "How.." to player
+				""")
+			.addSince("1.0, 2.10 (blockdata)")
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(PlayerInteractEntityEvent.class, Entity.class)
+			.getter(PlayerInteractEntityEvent::getRightClicked)
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(PlayerInteractEntityEvent.class, ItemStack.class)
+			.getter(event -> {
+				EquipmentSlot hand = event.getHand();
+				if (hand == EquipmentSlot.HAND)
+					return event.getPlayer().getInventory().getItemInMainHand();
+				else if (hand == EquipmentSlot.OFF_HAND)
+					return event.getPlayer().getInventory().getItemInOffHand();
+				else
+					return null;
+			})
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(PlayerInteractEvent.class, ItemStack.class)
+			.getter(PlayerInteractEvent::getItem)
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(PlayerInteractEvent.class, Block.class)
+			.getter(PlayerInteractEvent::getClickedBlock)
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(PlayerInteractEvent.class, Direction.class)
+			.getter(event -> new Direction(new double[]{event.getBlockFace().getModX(), event.getBlockFace().getModY(), event.getBlockFace().getModZ()}))
+			.build());
 	}
 
 	/**
@@ -208,12 +260,16 @@ public class EvtClick extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return switch (click) {
-			case LEFT -> "left";
-			case RIGHT -> "right";
-			default -> "";
-		} + "click" + (type != null ? " on " + type.toString(event, debug) : "") +
-			(tools != null ? " holding " + tools.toString(event, debug) : "");
+		return new SyntaxStringBuilder(event, debug)
+			.append(switch (click) {
+				case LEFT -> "left";
+				case RIGHT -> "right";
+				default -> "";
+			})
+			.append("click")
+			.appendIf(type != null, "on", type)
+			.appendIf(tools != null, "holding", tools)
+			.toString();
 	}
 
 }

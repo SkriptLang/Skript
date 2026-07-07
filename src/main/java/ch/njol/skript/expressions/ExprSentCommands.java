@@ -7,7 +7,6 @@ import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.events.EvtPlayerCommandSend;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -17,6 +16,7 @@ import com.google.common.collect.Lists;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerCommandSendEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.entity.player.elements.events.EvtPlayerCommandSend;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.ArrayList;

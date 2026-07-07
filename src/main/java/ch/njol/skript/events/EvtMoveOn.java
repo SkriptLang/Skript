@@ -22,6 +22,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.EventExecutor;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.entity.player.elements.events.EvtPressurePlate;
 
 import java.util.ArrayList;
 import java.util.HashSet;
