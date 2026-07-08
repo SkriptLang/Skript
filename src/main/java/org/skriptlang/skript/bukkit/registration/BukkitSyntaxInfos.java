@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.SequencedCollection;
+import java.util.function.Supplier;
 
 /**
  * A class containing the interfaces representing Bukkit-specific SyntaxInfo implementations.
@@ -39,6 +40,25 @@ public final class BukkitSyntaxInfos {
 		 * A {@link SyntaxRegistry} key representing the Bukkit-specific {@link SkriptEvent} syntax element.
 		 */
 		Key<Event<?>> KEY = Key.of("event");
+
+		/**
+		 * Constructs a simple {@link SkriptEvent} syntax info for a class from event information and patterns.
+		 * @param eventClass The SkriptEvent class the info will represent.
+		 * @param instanceSupplier A supplier for creating new instances of {@code type}.
+		 * @param name The name of the SkriptEvent.
+		 * @param bukkitEventClass The Bukkit event that should trigger the SkriptEvent.
+		 * @param patterns Patterns describing the syntax.
+		 * @return A syntax info representing {@code type}.
+		 */
+		@Contract("_, _, _, _, _ -> new")
+		static <E extends SkriptEvent> Event<E> simple(Class<E> eventClass, Supplier<E> instanceSupplier,
+			String name, Class<? extends org.bukkit.event.Event> bukkitEventClass, String... patterns) {
+			return builder(eventClass, name)
+				.supplier(instanceSupplier)
+				.addEvent(bukkitEventClass)
+				.addPatterns(patterns)
+				.build();
+		}
 
 		/**
 		 * @param eventClass The SkriptEvent class the info will represent.
