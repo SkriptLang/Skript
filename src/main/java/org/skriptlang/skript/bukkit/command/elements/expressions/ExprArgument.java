@@ -22,6 +22,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.command.custom.ArgumentData;
+import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandSuggestionEvent;
 import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
 import org.skriptlang.skript.bukkit.command.custom.CommandParsingData;
 import org.skriptlang.skript.registration.SyntaxInfo;
@@ -69,14 +70,14 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 	private ArgumentType type;
 	private int ordinal = -1; // Available in ORDINAL and sometimes CLASSINFO
 
-	private @Nullable ArgumentData<?> argument;
+	@Nullable ArgumentData<?> argument;
 
 	private boolean couldCauseArithmeticConfusion = false;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		ParserInstance parser = getParser();
-		boolean scriptCommand = parser.isCurrentEvent(ScriptCommandEvent.class);
+		boolean scriptCommand = parser.isCurrentEvent(ScriptCommandEvent.class, CommandSuggestionEvent.class);
 
 		type = switch (matchedPattern) {
 			case 0 -> ArgumentType.LAST;
@@ -192,11 +193,19 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 
 	@Override
 	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(ScriptCommandEvent.class, PlayerCommandPreprocessEvent.class, ServerCommandEvent.class);
+		// important note: this expression is not actually evaluated for CommandSuggestionEvent
+		return CollectionUtils.array(ScriptCommandEvent.class, PlayerCommandPreprocessEvent.class, ServerCommandEvent.class,
+			CommandSuggestionEvent.class);
 	}
 
 	@Override
 	protected Object @Nullable [] get(Event event) {
+		if (event instanceof CommandSuggestionEvent) {
+			error("Arguments cannot be obtained before the command is executed!");
+			assert argument != null;
+			return (Object[]) Array.newInstance(argument.type().getC(), 0);
+		}
+
 		if (argument != null) {
 			Object value = ((ScriptCommandEvent) event).getArgument(argument.name());
 			if (argument.isSingle()) {

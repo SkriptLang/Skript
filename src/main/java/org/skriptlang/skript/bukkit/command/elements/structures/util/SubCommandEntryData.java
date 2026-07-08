@@ -15,6 +15,7 @@ import ch.njol.util.coll.CollectionUtils;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.Component;
@@ -90,6 +91,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 		.addEntry("description", null, true)
 		.addEntryData(new VariableStringEntryData("usage", null, true))
 		.addEntry("prefix", null, true)
+		.addEntryData(new TriggerEntryData("suggestions", null, true))
 		.addEntry("permission", null, true)
 		.addEntryData(new KeyValueEntryData<Set<ExecutableBy>>("executable by", null, true) {
 			private final Pattern pattern = Pattern.compile("\\s*,(?:\\s+(?:and|or)\\s+)?\\s*|\\s+(?:and|or)\\s+");
@@ -327,6 +329,17 @@ public class SubCommandEntryData extends EntryData<Result> {
 		}
 		boolean hasExecute = execute != null;
 
+		// parse suggestions trigger
+		parser.setCurrentEvent("command suggestions", CommandSuggestionEvent.class);
+		Trigger suggestionsTrigger = entryContainer.getOptional("suggestions", Trigger.class, false);
+		parser.deleteCurrentEvent();
+		ScriptSuggestionProvider suggestionProvider;
+		if (suggestionsTrigger != null) {
+			suggestionProvider = new ScriptSuggestionProvider(suggestionsTrigger);
+		} else {
+			suggestionProvider = null;
+		}
+
 		// setup executor
 		ScriptCommandExecutor executor;
 		if (hasExecute) {
@@ -347,7 +360,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 
 		//noinspection rawtypes
 		var result = (List) compilationResult.root().children().stream()
-			.map(child -> parse(child, executor, commandRequires, subcommands))
+			.map(child -> parse(child, executor, commandRequires, suggestionProvider, subcommands))
 			.toList();
 
 		parsingData.popExecutorData();
@@ -370,10 +383,20 @@ public class SubCommandEntryData extends EntryData<Result> {
 		return key.regionMatches(true, 0, prefix, 0, prefix.length());
 	}
 
+	/**
+	 * Parses a {@link CommandElement} structure into a Brigadier equivalent.
+	 * @param commandElement The root element to start building from.
+	 * @param executor Executor to execute the command at any leaf elements.
+	 * @param requires Predicate testing whether the command can be used.
+	 * @param suggestionProvider Provider for custom suggestions.
+	 * @param subcommands Subcommands to attach to any leaf elements.
+	 * @return Builder representing the completed command tree from the root.
+	 */
 	private static ArgumentBuilder<CommandSourceStack, ?> parse(
 		CommandElement commandElement,
 		@Nullable ScriptCommandExecutor executor,
 		@Nullable Predicate<CommandSourceStack> requires,
+		@Nullable ScriptSuggestionProvider suggestionProvider,
 		Collection<ArgumentBuilder<CommandSourceStack, ?>> subcommands
 	) {
 		Collection<CommandElement> children = commandElement.children();
@@ -384,6 +407,8 @@ public class SubCommandEntryData extends EntryData<Result> {
 		} else { // ArgumentCommandElement
 			ArgumentData<?> data = ((ArgumentCommandElement) commandElement).argument();
 
+			// determine Brigadier ArgumentType
+			// prefer native types, but fallback to generic argument for any type if invalid
 			ArgumentType<?> nativeType = null;
 			NativeArgumentData nativeMapping = ScriptArgumentType.getNativeData(data.type());
 			if (nativeMapping != null) { // native argument type may be available
@@ -398,18 +423,30 @@ public class SubCommandEntryData extends EntryData<Result> {
 				nativeType = new ScriptArgumentType<>(data, (StringArgumentType) nativeType);
 			}
 
-			argument = Commands.argument(data.name(), nativeType);
+			String name = data.name();
+			argument = Commands.argument(name, nativeType);
+
+			// attach suggestion provider to argument if available
+			if (suggestionProvider != null) {
+				ArgumentType<?> finalNativeType = nativeType;
+				//noinspection unchecked
+				((RequiredArgumentBuilder<CommandSourceStack, ?>) argument).suggests(
+					(context, builder) ->
+						suggestionProvider.getSuggestions(name, context, builder, finalNativeType));
+			}
 		}
 
 		if (requires != null) {
 			argument.requires(requires);
 		}
 
+		// we parse and append the children elements to this argument
 		for (CommandElement element : children) {
 			if (element == null) {
 				continue;
 			}
-			argument.then(parse(element, executor, requires, subcommands));
+			// we don't need to pass requirements down to children. just on the root is good enough.
+			argument.then(parse(element, executor, null, suggestionProvider, subcommands));
 		}
 
 		// this is intentionally placed AFTER iterating over the children

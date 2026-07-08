@@ -13,6 +13,7 @@ import org.bukkit.help.HelpTopic;
 import org.bukkit.help.HelpTopicComparator;
 import org.bukkit.help.IndexHelpTopic;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.invoke.MethodHandle;
@@ -50,6 +51,7 @@ public final class ScriptCommandRegistrar {
 
 	private static final SkriptIndexHelpTopic indexHelpTopic = new SkriptIndexHelpTopic();
 
+	@ApiStatus.Internal
 	public static void init(JavaPlugin plugin) {
 		plugin.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
 			commandRegistrar = commands.registrar();

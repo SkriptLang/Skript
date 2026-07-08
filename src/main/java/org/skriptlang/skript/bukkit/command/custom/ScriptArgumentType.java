@@ -33,6 +33,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.command.elements.structures.util.ScriptSuggestionProvider;
 
 import java.util.Iterator;
 import java.util.Locale;
@@ -193,26 +194,11 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 		if (supplier == null) {
 			return Suggestions.empty();
 		}
-
-		// treat <foo b> as a valid match for <foo_bar>
-		// treat <"foo b> as a valid match for <foo_bar>
-		supplier.get().forEachRemaining(value -> {
-			if (value == null) {
-				return;
-			}
-			String name = Classes.toString(value).toLowerCase(Locale.ENGLISH)
-				.replace(' ', '_');
-			String remaining = builder.getRemainingLowerCase();
-			if (!remaining.isEmpty() && remaining.charAt(0) == '"') {
-				remaining = remaining.substring(1);
-			}
-			if (remaining.contains(" ")) {
-				remaining = remaining.replace(' ', '_');
-			}
-			if (name.startsWith(remaining)) {
-				builder.suggest(name);
-			}
-		});
+		Iterator<T> iterator = supplier.get();
+		while (iterator.hasNext()) {
+			ScriptSuggestionProvider.suggest(builder, Classes.toString(iterator.next()).toLowerCase(Locale.ENGLISH)
+				.replace(' ', '_'));
+		}
 
 		return builder.buildFuture();
 	}
