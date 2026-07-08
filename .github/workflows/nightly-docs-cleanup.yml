@@ -16,7 +16,7 @@ jobs:
           echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_OUTPUT
           echo "DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/docs/src/assets/syntaxes/" >> $GITHUB_OUTPUT
       - name: Checkout docs
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: "Skriptlang/docs"
           path: docs

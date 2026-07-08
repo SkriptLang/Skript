@@ -362,46 +362,61 @@ public record Property<Handler extends PropertyHandler<?>>(
 					.addSince("2.14")
 					.build());
 
-
 	/**
 	 * A property for getting the title of something
 	 */
 	public static final Property<ExpressionPropertyHandler<?,?>> TITLE = Property.of(
 		"title",
-		"The title of something.",
-		"2.16",
 		Skript.instance(),
-		ExpressionPropertyHandler.class);
+		ExpressionPropertyHandler.class,
+		Documentation.builder()
+			.origin(Origin.of(Skript.instance(), Property.class))
+			.name("Title")
+			.description("The title of something.")
+			.addSince("2.16")
+			.build());
 
 	/**
 	 * A property for getting the progress of something
 	 */
 	public static final Property<ExpressionPropertyHandler<?,?>> PROGRESS = Property.of(
 		"progress",
-		"The progress of something.",
-		"2.16",
 		Skript.instance(),
-		ExpressionPropertyHandler.class);
+		ExpressionPropertyHandler.class,
+		Documentation.builder()
+			.origin(Origin.of(Skript.instance(), Property.class))
+			.name("Progress")
+			.description("The progress of something.")
+			.addSince("2.16")
+			.build());
 
 	/**
 	 * A property for getting the style of something
 	 */
 	public static final Property<ExpressionPropertyHandler<?,?>> STYLE = Property.of(
 		"style",
-		"The style of something.",
-		"2.16",
 		Skript.instance(),
-		ExpressionPropertyHandler.class);
+		ExpressionPropertyHandler.class,
+		Documentation.builder()
+			.origin(Origin.of(Skript.instance(), Property.class))
+			.name("Style")
+			.description("The style of something.")
+			.addSince("2.16")
+			.build());
 
 	/**
 	 * A property for getting the viewers of something
 	 */
 	public static final Property<ExpressionPropertyHandler<?,?>> VIEWERS = Property.of(
 		"viewers",
-		"The viewers of something.",
-		"2.16",
 		Skript.instance(),
-		ExpressionPropertyHandler.class);
+		ExpressionPropertyHandler.class,
+		Documentation.builder()
+			.origin(Origin.of(Skript.instance(), Property.class))
+			.name("Viewers")
+			.description("The viewers of something.")
+			.addSince("2.16")
+			.build());
 
 	/**
 	 * Register all Skript's default properties. Should be done prior to loading classinfos.

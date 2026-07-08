@@ -24,7 +24,7 @@ jobs:
           echo "JAVADOCS_REPO_DIR=${GITHUB_WORKSPACE}/javadocs" >> $GITHUB_OUTPUT
           echo "SKRIPT_REPO_DIR=${GITHUB_WORKSPACE}/skript" >> $GITHUB_OUTPUT
       - name: Checkout Skript
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: recursive
           path: skript
@@ -37,7 +37,7 @@ jobs:
       - shell: bash
         run: chmod +x ./skript/gradlew
       - name: Checkout javadocs
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: "Skriptlang/javadocs"
           path: javadocs

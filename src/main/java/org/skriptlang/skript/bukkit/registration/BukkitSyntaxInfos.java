@@ -45,15 +45,14 @@ public final class BukkitSyntaxInfos {
 		 * Constructs a simple {@link SkriptEvent} syntax info for a class from event information and patterns.
 		 * @param eventClass The SkriptEvent class the info will represent.
 		 * @param instanceSupplier A supplier for creating new instances of {@code type}.
-		 * @param name The name of the SkriptEvent.
 		 * @param bukkitEventClass The Bukkit event that should trigger the SkriptEvent.
 		 * @param patterns Patterns describing the syntax.
 		 * @return A syntax info representing {@code type}.
 		 */
-		@Contract("_, _, _, _, _ -> new")
+		@Contract("_, _, _, _ -> new")
 		static <E extends SkriptEvent> Event<E> simple(Class<E> eventClass, Supplier<E> instanceSupplier,
-			String name, Class<? extends org.bukkit.event.Event> bukkitEventClass, String... patterns) {
-			return builder(eventClass, name)
+			Class<? extends org.bukkit.event.Event> bukkitEventClass, String... patterns) {
+			return builder(eventClass)
 				.supplier(instanceSupplier)
 				.addEvent(bukkitEventClass)
 				.addPatterns(patterns)
@@ -64,8 +63,31 @@ public final class BukkitSyntaxInfos {
 		 * @param eventClass The SkriptEvent class the info will represent.
 		 * @return A SkriptEvent-specific builder for creating a syntax info representing <code>type</code>.
 		 */
+		@Contract("_ -> new")
 		static <E extends SkriptEvent> Builder<? extends Builder<?, E>, E> builder(Class<E> eventClass) {
 			return new EventImpl.BuilderImpl<>(eventClass);
+		}
+
+		/**
+		 * Constructs a simple {@link SkriptEvent} syntax info for a class from event information and patterns.
+		 * @param eventClass The SkriptEvent class the info will represent.
+		 * @param instanceSupplier A supplier for creating new instances of {@code type}.
+		 * @param name The name of the SkriptEvent.
+		 * @param bukkitEventClass The Bukkit event that should trigger the SkriptEvent.
+		 * @param patterns Patterns describing the syntax.
+		 * @return A syntax info representing {@code type}.
+		 * @deprecated {@code name} can be provided as part of the info's {@link #documentation()}.
+		 * Use {@link #builder(Class)} instead to supply a {@link Documentation}.
+		 */
+		@Contract("_, _, _, _, _ -> new")
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
+		static <E extends SkriptEvent> Event<E> simple(Class<E> eventClass, Supplier<E> instanceSupplier,
+		                                               String name, Class<? extends org.bukkit.event.Event> bukkitEventClass, String... patterns) {
+			return builder(eventClass, name)
+				.supplier(instanceSupplier)
+				.addEvent(bukkitEventClass)
+				.addPatterns(patterns)
+				.build();
 		}
 
 		/**
@@ -75,6 +97,7 @@ public final class BukkitSyntaxInfos {
 		 * @deprecated Use {@link #builder(Class)} instead.
 		 * {@code name} can be provided as part of the info's {@link #documentation()}.
 		 */
+		@Contract("_, _ -> new")
 		@Deprecated(since = "INSERT VERSION", forRemoval = true)
 		static <E extends SkriptEvent> Builder<? extends Builder<?, E>, E> builder(
 			Class<E> eventClass, String name
