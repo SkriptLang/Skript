@@ -78,7 +78,6 @@ public class EvtPlayerPickItem extends SkriptEvent {
 					return;
 				event.setTargetSlot(inventorySlot.getIndex());
 			})
-			.time(Time.PAST)
 			.build());
 	}
 
