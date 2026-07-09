@@ -6,6 +6,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.bukkit.command.custom.ArgumentData;
+import org.skriptlang.skript.bukkit.command.elements.structures.util.ScriptSuggestionProvider.FilteringMode;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +18,8 @@ import java.util.Map;
 @ApiStatus.Internal
 public class CommandSuggestionEvent extends Event {
 
-	private final Map<ArgumentData<?>, Object> currentArguments;
+	private final Map<ArgumentData<?>, Object> previousArguments;
+	private final ArgumentData<?> currentArgument;
 	private final String fullInput;
 	private final String input;
 	private final int inputStartIndex;
@@ -26,9 +28,12 @@ public class CommandSuggestionEvent extends Event {
 	 * Map keyed by argument name.
 	 */
 	public final Map<String, List<String>> suggestions = new HashMap<>();
+	public FilteringMode filteringMode = FilteringMode.STARTS_WITH;
 
-	public CommandSuggestionEvent(Map<ArgumentData<?>, Object> currentArguments, String fullInput, String input, int inputStartIndex) {
-		this.currentArguments = currentArguments;
+	public CommandSuggestionEvent(Map<ArgumentData<?>, Object> previousArguments, ArgumentData<?> currentArgument,
+								  String fullInput, String input, int inputStartIndex) {
+		this.previousArguments = previousArguments;
+		this.currentArgument = currentArgument;
 		this.fullInput = fullInput;
 		this.input = input;
 		this.inputStartIndex = inputStartIndex;
@@ -37,8 +42,15 @@ public class CommandSuggestionEvent extends Event {
 	/**
 	 * @return The arguments that have been parsed so far.
 	 */
-	public Map<ArgumentData<?>, Object> getCurrentArguments() {
-		return currentArguments;
+	public Map<ArgumentData<?>, Object> getPreviousArguments() {
+		return previousArguments;
+	}
+
+	/**
+	 * @return The argument currently being suggested for.
+	 */
+	public ArgumentData<?> getCurrentArgument() {
+		return currentArgument;
 	}
 
 	/**

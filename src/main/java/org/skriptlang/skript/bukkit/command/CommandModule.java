@@ -30,6 +30,7 @@ public class CommandModule extends HierarchicalAddonModule {
 			CondIsScriptCommand::register,
 			EffCancelCooldown::register,
 			EffCommand::register,
+			EffSuggestionFilteringMode::register,
 			ExprAllCommands::register,
 			ExprArgument::register,
 			ExprCmdCooldownInfo::register,

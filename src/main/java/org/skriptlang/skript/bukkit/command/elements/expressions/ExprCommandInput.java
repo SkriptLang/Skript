@@ -25,9 +25,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Example("""
 	command /message <player> <text>:
 		suggestions:
-			player argument is set # they are writing arg-2
+			player argument is set # they are writing the text argument
 			if the current input contains "frick":
 				set the suggestions for the text argument to "Keep your messages nice please!"
+				disable filtering for the text argument's suggestions
 		trigger:
 			send "<grey><italic>%player% -> You: %text argument%" to player argument
 			send "<grey><italic>You -> %player argument%: %text argument%" to player

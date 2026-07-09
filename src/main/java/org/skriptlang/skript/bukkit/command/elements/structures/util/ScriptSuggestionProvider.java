@@ -10,6 +10,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.bukkit.command.custom.ArgumentData;
+import org.skriptlang.skript.bukkit.command.custom.ScriptArgumentType;
 import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
 import org.skriptlang.skript.bukkit.command.custom.ScriptCommandExecutor;
 
@@ -24,6 +25,29 @@ import java.util.concurrent.CompletableFuture;
  */
 @ApiStatus.Internal
 public class ScriptSuggestionProvider {
+
+	/**
+	 * Modes for filtering suggestions based on context.
+	 */
+	public enum FilteringMode {
+
+		/**
+		 * No filtering is done to the provided suggestions.
+		 * They are displayed as-is.
+		 */
+		NONE,
+
+		/**
+		 * Only suggestions starting with the current input will be displayed.
+		 */
+		STARTS_WITH,
+
+		/**
+		 * Only suggestions containing the current input will be displayed.
+		 */
+		CONTAINS
+
+	}
 
 	private final List<ArgumentData<?>> arguments;
 	private final Trigger suggestionsProvider;
@@ -54,17 +78,20 @@ public class ScriptSuggestionProvider {
 		Map<ArgumentData<?>, Object> mappedArguments = ScriptCommandExecutor.getArguments(currentArguments, context,
 			new ScriptCommandEvent(context.getNodes().getFirst().getNode().getName(), builder.getInput(),
 				null, context.getSource()));
-		CommandSuggestionEvent suggestionEvent = new CommandSuggestionEvent(mappedArguments, builder.getInput().substring(1),
-			builder.getRemaining(), builder.getStart());
+		CommandSuggestionEvent suggestionEvent = new CommandSuggestionEvent(mappedArguments, argumentData,
+			builder.getInput().substring(1), builder.getRemaining(), builder.getStart());
 
 		// obtain and suggest suggestions
 		suggestionsProvider.execute(suggestionEvent);
 		List<String> suggestions = suggestionEvent.suggestions.get(argumentData.name());
 		if (suggestions == null) { // nothing explicitly set, rely on argument's default suggestions
+			if (argument instanceof ScriptArgumentType<?> scriptArgument) {
+				return scriptArgument.listSuggestions(context, builder, suggestionEvent.filteringMode);
+			}
 			return argument.listSuggestions(context, builder);
 		}
 		for (String suggestion : suggestions) {
-			suggest(builder, suggestion);
+			suggest(builder, suggestion, suggestionEvent.filteringMode);
 		}
 		return builder.buildFuture();
 	}
@@ -75,10 +102,16 @@ public class ScriptSuggestionProvider {
 	 * @param builder The builder to add the suggestion to.
 	 * @param suggestion The suggestion.
 	 */
-	public static void suggest(@NotNull SuggestionsBuilder builder, String suggestion) {
+	public static void suggest(@NotNull SuggestionsBuilder builder, String suggestion, FilteringMode filteringMode) {
 		if (suggestion == null) {
 			return;
 		}
+
+		if (filteringMode == FilteringMode.NONE) {
+			builder.suggest(suggestion);
+			return;
+		}
+
 		// treat <foo b> as a valid match for <foo_bar>
 		// treat <"foo b> as a valid match for <foo_bar>
 		String remaining = builder.getRemainingLowerCase();
@@ -88,9 +121,20 @@ public class ScriptSuggestionProvider {
 		if (remaining.contains(" ")) {
 			remaining = remaining.replace(' ', '_');
 		}
-		if (suggestion.toLowerCase(Locale.ENGLISH).startsWith(remaining)) {
-			builder.suggest(suggestion);
+		String suggestionLower = suggestion.toLowerCase(Locale.ENGLISH);
+		if (!suggestionLower.isEmpty() && suggestionLower.charAt(0) == '"') {
+			suggestionLower = suggestionLower.substring(1);
 		}
+		if (suggestionLower.contains(" ")) {
+			suggestionLower = suggestionLower.replace(' ', '_');
+		}
+
+		if ((filteringMode == FilteringMode.STARTS_WITH && !suggestionLower.startsWith(remaining)) ||
+			(filteringMode == FilteringMode.CONTAINS && !suggestionLower.contains(remaining))) {
+			return;
+		}
+
+		builder.suggest(suggestion);
 	}
 
 }

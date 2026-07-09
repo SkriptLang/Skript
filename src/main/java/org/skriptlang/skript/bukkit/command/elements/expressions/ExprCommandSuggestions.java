@@ -13,6 +13,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandSuggestionEvent;
 import org.skriptlang.skript.registration.SyntaxInfo;
@@ -50,7 +51,8 @@ public class ExprCommandSuggestions extends SimpleExpression<String> implements 
 				"%objects%'[s] [command] (suggestions|tab completions)"));
 	}
 
-	private ExprArgument argument;
+	@ApiStatus.Internal
+	public ExprArgument argument;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {

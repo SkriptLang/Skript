@@ -34,6 +34,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.ScriptSuggestionProvider;
+import org.skriptlang.skript.bukkit.command.elements.structures.util.ScriptSuggestionProvider.FilteringMode;
 
 import java.util.Iterator;
 import java.util.Locale;
@@ -190,6 +191,11 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 
 	@Override
 	public @NotNull CompletableFuture<Suggestions> listSuggestions(@NotNull CommandContext context, @NotNull SuggestionsBuilder builder) {
+		return listSuggestions(context, builder, FilteringMode.STARTS_WITH);
+	}
+
+	public @NotNull CompletableFuture<Suggestions> listSuggestions(@NotNull CommandContext<?> context, @NotNull SuggestionsBuilder builder,
+																   @NotNull FilteringMode filteringMode) {
 		Supplier<Iterator<T>> supplier = argument.type().getSupplier();
 		if (supplier == null) {
 			return Suggestions.empty();
@@ -197,9 +203,8 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 		Iterator<T> iterator = supplier.get();
 		while (iterator.hasNext()) {
 			ScriptSuggestionProvider.suggest(builder, Classes.toString(iterator.next()).toLowerCase(Locale.ENGLISH)
-				.replace(' ', '_'));
+				.replace(' ', '_'), filteringMode);
 		}
-
 		return builder.buildFuture();
 	}
 

@@ -20,6 +20,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.command.custom.ArgumentData;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandSuggestionEvent;
@@ -70,7 +71,8 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 	private ArgumentType type;
 	private int ordinal = -1; // Available in ORDINAL and sometimes CLASSINFO
 
-	@Nullable ArgumentData<?> argument;
+	@ApiStatus.Internal
+	public @Nullable ArgumentData<?> argument;
 
 	private boolean couldCauseArithmeticConfusion = false;
 
@@ -205,7 +207,7 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 			if (event instanceof ScriptCommandEvent scriptCommandEvent) {
 				value = scriptCommandEvent.getArgument(argument.name());
 			} else {
-				value = ((CommandSuggestionEvent) event).getCurrentArguments().get(argument);
+				value = ((CommandSuggestionEvent) event).getPreviousArguments().get(argument);
 				if (value == null) {
 					return (Object[]) Array.newInstance(argument.type().getC(), 0);
 				}
