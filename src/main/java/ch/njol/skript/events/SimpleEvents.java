@@ -325,17 +325,6 @@ public class SimpleEvents {
 				.examples("on sheep grow wool:",
 						"\tcancel event")
 				.since("2.2-dev21");
-		Skript.registerEvent("Inventory Open", SimpleEvent.class, InventoryOpenEvent.class, "inventory open[ed]")
-				.description("Called when an inventory is opened for player.")
-				.examples("on inventory open:",
-						"\tclose player's inventory")
-				.since("2.2-dev21");
-		Skript.registerEvent("Inventory Close", SimpleEvent.class, InventoryCloseEvent.class, "inventory clos(ing|e[d])")
-				.description("Called when player's currently viewed inventory is closed.")
-				.examples("on inventory close:",
-						"\tif player's location is {location}:",
-						"\t\tsend \"You exited the shop!\"")
-				.since("2.2-dev21");
 		Skript.registerEvent("Slime Split", SimpleEvent.class, SlimeSplitEvent.class, "slime split[ting]")
 				.description("Called when a slime splits. Usually this happens when a big slime dies.")
 				.examples("on slime split:")
@@ -441,10 +430,6 @@ public class SimpleEvents {
 			"\tif the clicked button is 1: # offer 1",
 			"\t\tset the applied enchantments to sharpness 10 and unbreaking 10")
 		.since("2.5");
-		Skript.registerEvent("Inventory Pickup", SimpleEvent.class, InventoryPickupItemEvent.class, "inventory pick[ ]up")
-				.description("Called when an inventory (a hopper, a hopper minecart, etc.) picks up an item")
-				.examples("on inventory pickup:")
-				.since("2.5.1");
 		Skript.registerEvent("Horse Jump", SimpleEvent.class, HorseJumpEvent.class, "horse jump")
 			.description("Called when a horse jumps.")
 			.examples("on horse jump:", "\tpush event-entity upwards at speed 2")
@@ -561,16 +546,6 @@ public class SimpleEvents {
 								"\tteleport event-projectile to block 5 above event-projectile"
 				)
 				.since("2.8.0");
-
-		Skript.registerEvent("Inventory Drag", SimpleEvent.class, InventoryDragEvent.class, "inventory drag[ging]")
-				.description("Called when a player drags an item in their cursor across the inventory.")
-				.examples(
-						"on inventory drag:",
-						"\tif player's current inventory is {_gui}:",
-						"\t\tsend \"You can't drag your items here!\" to player",
-						"\t\tcancel event"
-				)
-				.since("2.7");
 		Skript.registerEvent("Piglin Barter", SimpleEvent.class, PiglinBarterEvent.class, "piglin (barter[ing]|trad(e|ing))")
 				.description(
 					"Called when a piglin finishes bartering. A piglin may start bartering after picking up an item on its bartering list.",

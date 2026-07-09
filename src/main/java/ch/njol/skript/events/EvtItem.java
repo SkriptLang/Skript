@@ -77,13 +77,6 @@ public class EvtItem extends SkriptEvent {
 				.description("Called when a player is done eating/drinking something, e.g. an apple, bread, meat, milk or a potion.")
 				.examples("on consume:")
 				.since("2.0");
-		Skript.registerEvent("Inventory Click", EvtItem.class, InventoryClickEvent.class, "[player] inventory(-| )click[ing] [[at] %-itemtypes%]")
-				.description("Called when clicking on inventory slot.")
-				.examples("on inventory click:",
-						"\tif event-item is stone:",
-						"\t\tgive player 1 stone",
-						"\t\tremove 20$ from player's balance")
-				.since("2.2-Fixes-V10");
 		Skript.registerEvent("Item Despawn", EvtItem.class, ItemDespawnEvent.class, "(item[ ][stack]|[item] %-itemtypes%) despawn[ing]", "[item[ ][stack]] despawn[ing] [[of] %-itemtypes%]")
 				.description("Called when an item is about to be despawned from the world, usually 5 minutes after it was dropped.")
 				.examples("on item despawn of diamond:",
@@ -96,19 +89,6 @@ public class EvtItem extends SkriptEvent {
 				.examples("on item merge of gold blocks:",
 					 	"	cancel event")
 				.since("2.2-dev35");
-		Skript.registerEvent("Inventory Item Move", SimpleEvent.class, InventoryMoveItemEvent.class,	 
-                        "inventory item (move|transport)",
-		                "inventory (mov(e|ing)|transport[ing]) [an] item")
-				.description(
-						"Called when an entity or block (e.g. hopper) tries to move items directly from one inventory to another.",
-						"When this event is called, the initiator may have already removed the item from the source inventory and is ready to move it into the destination inventory.",
-						"If this event is cancelled, the items will be returned to the source inventory."
-				)
-				.examples(
-						"on inventory item move:",
-							"\tbroadcast \"%holder of past event-inventory% is transporting %event-item% to %holder of event-inventory%!\""
-				)
-				.since("2.8.0");
 		if (HAS_PLAYER_STONECUTTER_RECIPE_SELECT_EVENT) {
 			Skript.registerEvent("Stonecutter Recipe Select", EvtItem.class, PlayerStonecutterRecipeSelectEvent.class, "stonecutting [[of] %-itemtypes%]")
 					.description("Called when a player selects a recipe in a stonecutter.")
