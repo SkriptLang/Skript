@@ -27,11 +27,18 @@ import java.util.List;
 	Allows modifying the suggestions displayed while a command is being typed.
 	""")
 @Example("""
-	command /menu <text>:
-		suggestions:
-			set the text argument's suggestions to "Appetizers", "Entrees", and "Desserts"
-		trigger:
-			send "Yum!"
+	command /menu <text> <text>:
+	    suggestions:
+	        if arg-1 is not set:
+	            set arg-1's suggestions to "Appetizers", "Entrees", and "Desserts"
+	        else if arg-1 is "Appetizers":
+	            set arg-2's suggestions to "Salads", "Breads", and "Fried Delights"
+	        else if arg-1 is "Entrees":
+	            set arg-2's suggestions to "Pastas", "Handhelds", and "Pizzas"
+	        else if arg-1 is "Desserts":
+	            set arg-2's suggestions to "Cakes", "Ice Creams", and "Pies"
+	    trigger:
+	        send "Yum!"
 	""")
 @Since("INSERT VERSION")
 public class ExprCommandSuggestions extends SimpleExpression<String> implements EventRestrictedSyntax {

@@ -17,6 +17,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
+import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandSuggestionEvent;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -51,7 +52,8 @@ public class ExprCommand extends SimpleExpression<String> implements EventRestri
 
 	@Override
 	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, ScriptCommandEvent.class);
+		return CollectionUtils.array(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, ScriptCommandEvent.class,
+			CommandSuggestionEvent.class);
 	}
 
 	@Override
@@ -60,6 +62,7 @@ public class ExprCommand extends SimpleExpression<String> implements EventRestri
 			case PlayerCommandPreprocessEvent preprocessEvent -> preprocessEvent.getMessage().substring(1).trim();
 			case ServerCommandEvent serverCommandEvent -> serverCommandEvent.getCommand().trim();
 			case ScriptCommandEvent scriptCommandEvent -> scriptCommandEvent.getRawInput();
+			case CommandSuggestionEvent suggestionEvent -> suggestionEvent.getFullInput();
 			default -> throw new IllegalStateException("Unexpected value: " + event);
 		};
 		if (fullCommand) {

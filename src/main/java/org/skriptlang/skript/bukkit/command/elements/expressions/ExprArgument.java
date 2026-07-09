@@ -200,14 +200,16 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 
 	@Override
 	protected Object @Nullable [] get(Event event) {
-		if (event instanceof CommandSuggestionEvent) {
-			error("Arguments cannot be obtained before the command is executed!");
-			assert argument != null;
-			return (Object[]) Array.newInstance(argument.type().getC(), 0);
-		}
-
 		if (argument != null) {
-			Object value = ((ScriptCommandEvent) event).getArgument(argument.name());
+			Object value;
+			if (event instanceof ScriptCommandEvent scriptCommandEvent) {
+				value = scriptCommandEvent.getArgument(argument.name());
+			} else {
+				value = ((CommandSuggestionEvent) event).getCurrentArguments().get(argument);
+				if (value == null) {
+					return (Object[]) Array.newInstance(argument.type().getC(), 0);
+				}
+			}
 			if (argument.isSingle()) {
 				Object[] result = (Object[]) Array.newInstance(argument.type().getC(), 1);
 				result[0] = value;

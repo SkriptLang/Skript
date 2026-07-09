@@ -3,6 +3,7 @@ package org.skriptlang.skript.bukkit.command.elements.expressions;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -22,19 +23,16 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	and at what position within the full content the current argument starts (starting from 1).
 	""")
 @Example("""
-	command /menu <text> <text>:
+	command /message <player> <text>:
 		suggestions:
-			if the full input starts with "/menu Appetizers ":
-				set the text argument-2's suggestions to "Salads", "Breads", and "Fried Delights"
-			else if the full input starts with "/menu Entrees ":
-				set the text argument-2's suggestions to "Pastas", "Handhelds", and "Pizzas"
-			else if the full input starts with "/menu Desserts ":
-				set the text argument-2's suggestions to "Cakes", "Ice Creams", and "Pies"
-			else:
-				set the text argument-1's suggestions to "Appetizers", "Entrees", and "Desserts"
+			player argument is set # they are writing arg-2
+			if the current input contains "frick":
+				set the suggestions for the text argument to "Keep your messages nice please!"
 		trigger:
-			send "Yum!"
+			send "<grey><italic>%player% -> You: %text argument%" to player argument
+			send "<grey><italic>You -> %player argument%: %text argument%" to player
 	""")
+@Since("INSERT VERSION")
 public class ExprCommandInput extends SimpleExpression<Object> implements EventRestrictedSyntax {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
@@ -69,9 +67,9 @@ public class ExprCommandInput extends SimpleExpression<Object> implements EventR
 	protected Object[] get(Event event) {
 		CommandSuggestionEvent suggestionEvent = (CommandSuggestionEvent) event;
 		return switch (type) {
-			case FULL_INPUT -> new String[]{suggestionEvent.fullInput()};
-			case INPUT -> new String[]{suggestionEvent.input()};
-			case INDEX -> new Integer[]{suggestionEvent.inputStartIndex() + 1};
+			case FULL_INPUT -> new String[]{suggestionEvent.getFullInput()};
+			case INPUT -> new String[]{suggestionEvent.getInput()};
+			case INDEX -> new Integer[]{suggestionEvent.getInputStartIndex() + 1};
 		};
 	}
 

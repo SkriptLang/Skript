@@ -335,7 +335,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 		parser.deleteCurrentEvent();
 		ScriptSuggestionProvider suggestionProvider;
 		if (suggestionsTrigger != null) {
-			suggestionProvider = new ScriptSuggestionProvider(suggestionsTrigger);
+			suggestionProvider = new ScriptSuggestionProvider(allArguments, suggestionsTrigger);
 		} else {
 			suggestionProvider = null;
 		}
@@ -423,8 +423,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 				nativeType = new ScriptArgumentType<>(data, (StringArgumentType) nativeType);
 			}
 
-			String name = data.name();
-			argument = Commands.argument(name, nativeType);
+			argument = Commands.argument(data.name(), nativeType);
 
 			// attach suggestion provider to argument if available
 			if (suggestionProvider != null) {
@@ -432,7 +431,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 				//noinspection unchecked
 				((RequiredArgumentBuilder<CommandSourceStack, ?>) argument).suggests(
 					(context, builder) ->
-						suggestionProvider.getSuggestions(name, context, builder, finalNativeType));
+						suggestionProvider.getSuggestions(data, finalNativeType, context, builder));
 			}
 		}
 

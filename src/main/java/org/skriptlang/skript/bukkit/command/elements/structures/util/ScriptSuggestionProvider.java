@@ -3,14 +3,19 @@ package org.skriptlang.skript.bukkit.command.elements.structures.util;
 import ch.njol.skript.lang.Trigger;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.bukkit.command.custom.ArgumentData;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandExecutor;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -20,29 +25,41 @@ import java.util.concurrent.CompletableFuture;
 @ApiStatus.Internal
 public class ScriptSuggestionProvider {
 
+	private final List<ArgumentData<?>> arguments;
 	private final Trigger suggestionsProvider;
 
 	/**
 	 * @param suggestionsProvider A trigger to execute using {@link CommandSuggestionEvent}.
 	 *  It is expected (though not required) that this trigger holds code to modify suggestions.
 	 */
-	public ScriptSuggestionProvider(Trigger suggestionsProvider) {
+	public ScriptSuggestionProvider(List<ArgumentData<?>> arguments, Trigger suggestionsProvider) {
+		this.arguments = arguments;
 		this.suggestionsProvider = suggestionsProvider;
 	}
 
 	/**
 	 * Obtains suggestions for a specific argument using this provider.
-	 * @param argumentName The name of the argument suggestions are being obtained for.
-	 * @param context Context around the command execution.
-	 * @param builder The builder to add suggestions to
+	 * @param argumentData Data about the argument suggestions are being obtained for.
 	 * @param argument The underlying argument suggestions are being obtained for.
+	 * @param context Context around the command execution.
+	 * @param builder The builder to add suggestions to.
 	 * @return Future to obtain suggestions.
 	 */
-	public CompletableFuture<Suggestions> getSuggestions(String argumentName, CommandContext<CommandSourceStack> context,
-	                                                     SuggestionsBuilder builder, ArgumentType<?> argument) {
-		CommandSuggestionEvent suggestionEvent = new CommandSuggestionEvent(builder.getInput(), builder.getRemaining(), builder.getStart());
+	public CompletableFuture<Suggestions> getSuggestions(ArgumentData<?> argumentData, ArgumentType<?> argument,
+	                                                     CommandContext<CommandSourceStack> context,
+														 SuggestionsBuilder builder) throws CommandSyntaxException {
+		// build context
+		List<ArgumentData<?>> currentArguments = arguments.subList(0, arguments.indexOf(argumentData));
+		// TODO null executor is questionable, but currently only used by cooldowns which would not be available here
+		Map<ArgumentData<?>, Object> mappedArguments = ScriptCommandExecutor.getArguments(currentArguments, context,
+			new ScriptCommandEvent(context.getNodes().getFirst().getNode().getName(), builder.getInput(),
+				null, context.getSource()));
+		CommandSuggestionEvent suggestionEvent = new CommandSuggestionEvent(mappedArguments, builder.getInput().substring(1),
+			builder.getRemaining(), builder.getStart());
+
+		// obtain and suggest suggestions
 		suggestionsProvider.execute(suggestionEvent);
-		List<String> suggestions = suggestionEvent.suggestions.get(argumentName);
+		List<String> suggestions = suggestionEvent.suggestions.get(argumentData.name());
 		if (suggestions == null) { // nothing explicitly set, rely on argument's default suggestions
 			return argument.listSuggestions(context, builder);
 		}
