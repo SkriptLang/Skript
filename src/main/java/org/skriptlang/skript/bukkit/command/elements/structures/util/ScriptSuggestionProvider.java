@@ -40,7 +40,7 @@ public class ScriptSuggestionProvider {
 	 */
 	public CompletableFuture<Suggestions> getSuggestions(String argumentName, CommandContext<CommandSourceStack> context,
 	                                                     SuggestionsBuilder builder, ArgumentType<?> argument) {
-		CommandSuggestionEvent suggestionEvent = new CommandSuggestionEvent();
+		CommandSuggestionEvent suggestionEvent = new CommandSuggestionEvent(builder.getInput(), builder.getRemaining(), builder.getStart());
 		suggestionsProvider.execute(suggestionEvent);
 		List<String> suggestions = suggestionEvent.suggestions.get(argumentName);
 		if (suggestions == null) { // nothing explicitly set, rely on argument's default suggestions

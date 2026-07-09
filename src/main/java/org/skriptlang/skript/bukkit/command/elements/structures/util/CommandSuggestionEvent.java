@@ -16,10 +16,41 @@ import java.util.Map;
 @ApiStatus.Internal
 public class CommandSuggestionEvent extends Event {
 
+	private final String fullInput;
+	private final String input;
+	private final int inputStartIndex;
+
 	/**
 	 * Map keyed by argument name.
 	 */
-	public Map<String, List<String>> suggestions = new HashMap<>();
+	public final Map<String, List<String>> suggestions = new HashMap<>();
+
+	public CommandSuggestionEvent(String fullInput, String input, int inputStartIndex) {
+		this.fullInput = fullInput;
+		this.input = input;
+		this.inputStartIndex = inputStartIndex;
+	}
+
+	/**
+	 * @return The full input entered so far.
+	 */
+	public String fullInput() {
+		return fullInput;
+	}
+
+	/**
+	 * @return The input representing the current argument (the one being suggested for).
+	 */
+	public String input() {
+		return input;
+	}
+
+	/**
+	 * @return Index representing the start of {@link #input()} in {@link #fullInput()}.
+	 */
+	public int inputStartIndex() {
+		return inputStartIndex;
+	}
 
 	@Override
 	@Contract("-> fail")

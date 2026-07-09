@@ -36,6 +36,7 @@ public class CommandModule extends HierarchicalAddonModule {
 			ExprCommand::register,
 			ExprCommandExecutor::register,
 			ExprCommandInfo::register,
+			ExprCommandInput::register,
 			ExprCommandSender::register,
 			ExprCommandSuggestions::register,
 			syntaxRegistry -> StructCommand.register(addon, syntaxRegistry)

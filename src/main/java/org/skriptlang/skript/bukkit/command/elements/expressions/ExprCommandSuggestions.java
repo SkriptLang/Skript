@@ -6,7 +6,6 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -16,6 +15,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandSuggestionEvent;
+import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
@@ -37,10 +37,10 @@ import java.util.List;
 public class ExprCommandSuggestions extends SimpleExpression<String> implements EventRestrictedSyntax {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
-		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, PropertyExpression.infoBuilder(ExprCommandSuggestions.class, String.class,
-			"[command] (suggestions|tab completions)", "objects", false)
-				.supplier(ExprCommandSuggestions::new)
-				.build());
+		syntaxRegistry.register(SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.simple(ExprCommandSuggestions.class, ExprCommandSuggestions::new, String.class,
+				"[the] [command] (suggestions|tab completions) (of|for) %objects%",
+				"%objects%'[s] [command] (suggestions|tab completions)"));
 	}
 
 	private ExprArgument argument;
