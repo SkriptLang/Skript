@@ -84,8 +84,8 @@ public class EvtFireworkExplode extends SkriptEvent {
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		if (args[0] != null) {
 			colors = (Literal<Color>) args[0];
-			if (colors.getAnd() && colors instanceof LiteralList<Color> lis)
-				lis.invertAnd();
+			if (colors.getAnd() && colors instanceof LiteralList<Color> list)
+				list.invertAnd();
 		}
 		return true;
 	}
