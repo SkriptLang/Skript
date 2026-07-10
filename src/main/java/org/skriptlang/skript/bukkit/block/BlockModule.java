@@ -1,12 +1,18 @@
 package org.skriptlang.skript.bukkit.block;
 
+import ch.njol.skript.lang.util.SimpleEvent;
+import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockDamageAbortEvent;
+import org.bukkit.inventory.ItemStack;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.block.elements.events.EvtBlockDamageAbort;
 import org.skriptlang.skript.bukkit.block.furnace.FurnaceModule;
 import org.skriptlang.skript.bukkit.block.sign.SignModule;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
 
@@ -27,9 +33,32 @@ public class BlockModule extends HierarchicalAddonModule {
 	@Override
 	public void loadSelf(SkriptAddon addon) {
 		EventValueRegistry eventValueRegistry = addon.registry(EventValueRegistry.class);
-		register(addon,
-			syntaxRegistry -> EvtBlockDamageAbort.register(syntaxRegistry, eventValueRegistry)
+		SyntaxRegistry syntaxRegistry = moduleRegistry(addon);
+
+		syntaxRegistry.register(
+			BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Block Damage Abort")
+				.addEvent(BlockDamageAbortEvent.class)
+				.addPattern("block damage abort")
+				.addDescription("Called when a player stops damaging a block before it breaks.")
+				.addExample("""
+					on block damage abort:
+						send "You stopped damaging %event-block% with %event-item%." to event-player
+					""")
+				.addSince("INSERT VERSION")
+				.build()
 		);
+
+		eventValueRegistry.register(EventValue.simple(
+			BlockDamageAbortEvent.class,
+			Player.class,
+			BlockDamageAbortEvent::getPlayer
+		));
+		eventValueRegistry.register(EventValue.simple(
+			BlockDamageAbortEvent.class,
+			ItemStack.class,
+			BlockDamageAbortEvent::getItemInHand
+		));
 	}
 
 	@Override
