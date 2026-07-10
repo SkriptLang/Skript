@@ -374,6 +374,12 @@ parse:
 			set {_values::*} to event-block and event-player
 
 parse:
+	results: {EventValues::on block damage abort}
+	code:
+		on block damage abort:
+			set {_values::*} to event-block, event-player and event-item
+
+parse:
 	results: {EventValues::on flow}
 	code:
 		on flow:
