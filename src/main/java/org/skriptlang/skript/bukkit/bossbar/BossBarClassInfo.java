@@ -8,7 +8,6 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.boss.*;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -34,11 +33,17 @@ public class BossBarClassInfo extends ClassInfo<BossBar> {
 			.changer(new BossBarChangeHandler())
 			.defaultExpression(new EventValueExpression<>(BossBar.class))
 			.property(Property.TITLE,
-				"The title of a boss bar.",
+				"""
+					The title of a boss bar.
+					Note that due to Bukkit limitations formatting like shadow, sprites or fonts will not work.
+					""",
 				addon,
 				new BossBarTitleHandler())
 			.property(Property.NAME,
-				"The name of a boss bar.",
+				"""
+					The name of a boss bar.
+					Note that due to Bukkit limitations formatting like shadow, sprites or fonts will not work.
+					""",
 				addon,
 				new BossBarTitleHandler())
 			.property(Property.PROGRESS,
@@ -94,9 +99,6 @@ public class BossBarClassInfo extends ClassInfo<BossBar> {
 		public void change(BossBar[] bars, Object @Nullable [] delta, ChangeMode mode) {
 			for (BossBar bar : bars) {
 				bar.removeAll();
-				if (bar instanceof KeyedBossBar keyed) {
-					Bukkit.removeBossBar(keyed.getKey());
-				}
 			}
 		}
 		//</editor-fold>
