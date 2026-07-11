@@ -1,19 +1,13 @@
 package ch.njol.skript.events;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
 import ch.njol.skript.lang.util.SimpleEvent;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
-import com.destroystokyo.paper.event.entity.EntityJumpEvent;
-import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import io.papermc.paper.event.player.*;
-import io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent;
-import io.papermc.paper.event.world.border.WorldBorderBoundsChangeFinishEvent;
-import io.papermc.paper.event.world.border.WorldBorderCenterChangeEvent;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.*;
 import org.bukkit.event.enchantment.EnchantItemEvent;
@@ -23,7 +17,6 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.server.BroadcastMessageEvent;
 import org.bukkit.event.server.ServerListPingEvent;
-import org.bukkit.event.vehicle.*;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.*;
 
@@ -100,11 +93,6 @@ public class SimpleEvents {
 				.examples("on chunk unload:")
 				.since("1.0");
 //		Skript.registerEvent(SimpleEvent.class, EntityInteractEvent.class, "interact");// = entity interacts with block, e.g. endermen?; player -> PlayerInteractEvent // likely tripwires, pressure plates, etc.
-		Skript.registerEvent("Explosion Prime", SimpleEvent.class, ExplosionPrimeEvent.class, "explosion prime")
-				.description("Called when an explosive is primed, i.e. an entity will explode shortly. Creepers can abort the explosion if the player gets too far away, " +
-						"while TNT will explode for sure after a short time.")
-				.examples("on explosion prime:")
-				.since("1.0");
 		Skript.registerEvent("Hunger Meter Change", SimpleEvent.class, FoodLevelChangeEvent.class, "(food|hunger) (level|met(er|re)|bar) chang(e|ing)")
 				.description("Called when the hunger bar of a player changes, i.e. either increases by eating or decreases over time.")
 				.examples("on food bar change:")
@@ -199,24 +187,6 @@ public class SimpleEvents {
 				.examples("on portal create:")
 				.requiredPlugins("Minecraft 1.14+ (event-entity support)")
 				.since("1.0, 2.5.3 (event-entity support)");
-		Skript.registerEvent("Projectile Hit", SimpleEvent.class, ProjectileHitEvent.class, "projectile hit")
-				.description("Called when a projectile hits an entity or a block.")
-				.examples("on projectile hit:",
-						"\tif victim's health <= 3:",
-						"\t\tdelete event-projectile")
-				.since("1.0");
-		if (Skript.classExists("com.destroystokyo.paper.event.entity.ProjectileCollideEvent"))
-			Skript.registerEvent("Projectile Collide", SimpleEvent.class, ProjectileCollideEvent.class, "projectile collide")
-			.description("Called when a projectile collides with an entity.")
-			.examples("on projectile collide:",
-				"\tteleport shooter of event-projectile to event-entity")
-			.since("2.5");
-		Skript.registerEvent("Shoot", SimpleEvent.class, ProjectileLaunchEvent.class, "[projectile] (shoot|launch)")
-				.description("Called whenever a <a href='#projectile'>projectile</a> is shot. Use the <a href='#ExprShooter'>shooter expression</a> to get who shot the projectile.")
-				.examples("on shoot:",
-						"\tif projectile is an arrow:",
-						"\t\tsend \"you shot an arrow!\" to shooter")
-				.since("1.0");
 		Skript.registerEvent("Sign Change", SimpleEvent.class, SignChangeEvent.class, "sign (chang[e]|edit)[ing]", "[player] (chang[e]|edit)[ing] [a] sign")
 				.description("As signs are placed empty, this event is called when a player is done editing a sign.")
 				.examples("on sign change:",
@@ -228,40 +198,11 @@ public class SimpleEvents {
 				.examples("on spawn change:",
 						"\tbroadcast \"someone changed the spawn!\"")
 				.since("1.0");
-		Skript.registerEvent("Vehicle Create", SimpleEvent.class, VehicleCreateEvent.class, "vehicle create", "creat(e|ing|ion of) [a] vehicle")
-				.description("Called when a new vehicle is created, e.g. when a player places a boat or minecart.")
-				.examples("on vehicle create:")
-				.since("1.0");
-		Skript.registerEvent("Vehicle Damage", SimpleEvent.class, VehicleDamageEvent.class, "vehicle damage", "damag(e|ing) [a] vehicle")
-				.description("Called when a vehicle gets damage. Too much damage will <a href='#vehicle_destroy'>destroy</a> the vehicle.")
-				.examples("on vehicle damage:")
-				.since("1.0");
-		Skript.registerEvent("Vehicle Destroy", SimpleEvent.class, VehicleDestroyEvent.class, "vehicle destroy", "destr(oy[ing]|uction of) [a] vehicle")
-				.description("Called when a vehicle is destroyed. Any <a href='#ExprPassenger'>passenger</a> will be ejected and the vehicle might drop some item(s).")
-				.examples("on vehicle destroy:",
-						"\tcancel event")
-				.since("1.0");
-		Skript.registerEvent("Vehicle Enter", SimpleEvent.class, VehicleEnterEvent.class, "vehicle enter", "enter[ing] [a] vehicle")
-				.description("Called when an <a href='#entity'>entity</a> enters a vehicle, either deliberately (players) or by falling into them (mobs).")
-				.examples("on vehicle enter:",
-						"\tentity is a player",
-						"\tcancel event")
-				.since("1.0");
-		Skript.registerEvent("Vehicle Exit", SimpleEvent.class, VehicleExitEvent.class, "vehicle exit", "exit[ing] [a] vehicle")
-				.description("Called when an entity exits a vehicle.")
-				.examples("on vehicle exit:",
-						"\tif event-entity is a spider:",
-						"\t\tkill event-entity")
-				.since("1.0");
 
 		Skript.registerEvent("Gliding State Change", SimpleEvent.class, EntityToggleGlideEvent.class, "(gliding state change|toggl(e|ing) gliding)")
 				.description("Called when an entity toggles glider on or off, or when server toggles gliding state of an entity forcibly.")
 				.examples("on toggling gliding:",
 					"	cancel the event # bad idea, but you CAN do it!")
-				.since("2.2-dev21");
-		Skript.registerEvent("AoE Cloud Effect", SimpleEvent.class, AreaEffectCloudApplyEvent.class, "(area|AoE) [cloud] effect")
-				.description("Called when area effect cloud applies its potion effect. This happens every 5 ticks by default.")
-				.examples("on area cloud effect:")
 				.since("2.2-dev21");
 		Skript.registerEvent("Inventory Open", SimpleEvent.class, InventoryOpenEvent.class, "inventory open[ed]")
 				.description("Called when an inventory is opened for player.")
@@ -526,17 +467,6 @@ public class SimpleEvents {
 					"\tbroadcast event-timespan",
 					"\tbroadcast past event-timespan",
 					"\tbroadcast xp cooldown change reason"
-			)
-			.since("2.10");
-
-		Skript.registerEvent("Vehicle Move", SimpleEvent.class, VehicleMoveEvent.class, "vehicle move")
-			.description(
-				"Called when a vehicle moves.",
-				"Please note that using this event can cause lag if there are multiple vehicle entities, i.e. Horse, Pig, Boat, Minecart")
-			.examples(
-				"on vehicle move:",
-					"\tbroadcast past event-location",
-					"\tbroadcast event-location"
 			)
 			.since("2.10");
 

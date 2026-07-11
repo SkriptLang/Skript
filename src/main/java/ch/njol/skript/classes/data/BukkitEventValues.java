@@ -192,62 +192,9 @@ public final class BukkitEventValues {
 		registry.register(EventValue.simple(SignChangeEvent.class, Player.class, SignChangeEvent::getPlayer));
 		registry.register(EventValue.simple(SignChangeEvent.class, Component[].class, event -> event.lines().toArray(new Component[0])));
 
-		// ProjectileHitEvent
-		// ProjectileHitEvent#getHitBlock was added in 1.11
-		if (Skript.methodExists(ProjectileHitEvent.class, "getHitBlock"))
-			registry.register(EventValue.simple(ProjectileHitEvent.class, Block.class, ProjectileHitEvent::getHitBlock));
-		registry.register(EventValue.builder(ProjectileHitEvent.class, Entity.class)
-			.getter(event -> {
-				assert false;
-				return event.getEntity();
-			})
-			.excludes(ProjectileHitEvent.class)
-			.excludedErrorMessage("Use 'projectile' and/or 'shooter' in projectile hit events")
-			.build());
-		registry.register(EventValue.simple(ProjectileHitEvent.class, Projectile.class, ProjectileHitEvent::getEntity));
-		if (Skript.methodExists(ProjectileHitEvent.class, "getHitBlockFace")) {
-			registry.register(EventValue.simple(ProjectileHitEvent.class, Direction.class, event -> {
-				BlockFace theHitFace = event.getHitBlockFace();
-				if (theHitFace == null) return null;
-				return new Direction(theHitFace, 1);
-			}));
-		}
-		// ProjectileLaunchEvent
-		registry.register(EventValue.builder(ProjectileLaunchEvent.class, Entity.class)
-			.getter(event -> {
-				assert false;
-				return event.getEntity();
-			})
-			.excludes(ProjectileLaunchEvent.class)
-			.excludedErrorMessage("Use 'projectile' and/or 'shooter' in shoot events")
-			.build());
-		//ProjectileCollideEvent
-		if (Skript.classExists("com.destroystokyo.paper.event.entity.ProjectileCollideEvent")) {
-			registry.register(EventValue.simple(ProjectileCollideEvent.class, Projectile.class, ProjectileCollideEvent::getEntity));
-			registry.register(EventValue.simple(ProjectileCollideEvent.class, Entity.class, ProjectileCollideEvent::getCollidedWith));
-		}
-		registry.register(EventValue.simple(ProjectileLaunchEvent.class, Projectile.class, ProjectileLaunchEvent::getEntity));
 		// EntityTameEvent
 		registry.register(EventValue.simple(EntityTameEvent.class, Entity.class, EntityTameEvent::getEntity));
 
-		// AreaEffectCloudApplyEvent
-		registry.register(EventValue.simple(AreaEffectCloudApplyEvent.class, LivingEntity[].class, event -> event.getAffectedEntities().toArray(new LivingEntity[0])));
-		registry.register(EventValue.simple(AreaEffectCloudApplyEvent.class, PotionEffectType.class, new Converter<>() {
-			private final boolean HAS_POTION_TYPE_METHOD = Skript.methodExists(AreaEffectCloud.class, "getBasePotionType");
-
-			@Override
-			public PotionEffectType convert(AreaEffectCloudApplyEvent event) {
-				// TODO needs to be reworked to support multiple values (there can be multiple potion effects)
-				if (HAS_POTION_TYPE_METHOD) {
-					PotionType base = event.getEntity().getBasePotionType();
-					if (base != null)
-						return base.getEffectType();
-				} else {
-					return event.getEntity().getBasePotionData().getType().getEffectType();
-				}
-				return null;
-			}
-		}));
 		// ItemSpawnEvent
 		registry.register(EventValue.simple(ItemSpawnEvent.class, ItemStack.class, event -> event.getEntity().getItemStack()));
 		// LightningStrikeEvent
@@ -279,23 +226,7 @@ public final class BukkitEventValues {
 			state.setType(event.getBucket() == Material.WATER_BUCKET ? Material.WATER : Material.LAVA);
 			return new BlockStateBlock(state, true);
 		}));
-		// PlayerDropItemEvent
-		registry.register(EventValue.simple(PlayerDropItemEvent.class, Player.class, PlayerEvent::getPlayer));
-		registry.register(EventValue.simple(PlayerDropItemEvent.class, Item.class, PlayerDropItemEvent::getItemDrop));
-		registry.register(EventValue.simple(PlayerDropItemEvent.class, ItemStack.class, event -> event.getItemDrop().getItemStack()));
-		registry.register(EventValue.simple(PlayerDropItemEvent.class, Entity.class, PlayerEvent::getPlayer));
-		// EntityDropItemEvent
-		registry.register(EventValue.simple(EntityDropItemEvent.class, Item.class, EntityDropItemEvent::getItemDrop));
-		registry.register(EventValue.simple(EntityDropItemEvent.class, ItemStack.class, event -> event.getItemDrop().getItemStack()));
-		// PlayerPickupItemEvent
-		registry.register(EventValue.simple(PlayerPickupItemEvent.class, Player.class, PlayerEvent::getPlayer));
-		registry.register(EventValue.simple(PlayerPickupItemEvent.class, Item.class, PlayerPickupItemEvent::getItem));
-		registry.register(EventValue.simple(PlayerPickupItemEvent.class, ItemStack.class, event -> event.getItem().getItemStack()));
-		registry.register(EventValue.simple(PlayerPickupItemEvent.class, Entity.class, PlayerEvent::getPlayer));
-		// EntityPickupItemEvent
-		registry.register(EventValue.simple(EntityPickupItemEvent.class, Entity.class, EntityPickupItemEvent::getEntity));
-		registry.register(EventValue.simple(EntityPickupItemEvent.class, Item.class, EntityPickupItemEvent::getItem));
-		registry.register(EventValue.simple(EntityPickupItemEvent.class, ItemType.class, event -> new ItemType(event.getItem().getItemStack())));
+
 		// PlayerItemConsumeEvent
 		registry.register(EventValue.builder(PlayerItemConsumeEvent.class, ItemStack.class)
 			.getter(PlayerItemConsumeEvent::getItem)
@@ -354,21 +285,6 @@ public final class BukkitEventValues {
 		}));
 		// HangingPlaceEvent
 		registry.register(EventValue.simple(HangingPlaceEvent.class, Player.class, HangingPlaceEvent::getPlayer));
-
-		// --- VehicleEvents ---
-		registry.register(EventValue.simple(VehicleEvent.class, Vehicle.class, VehicleEvent::getVehicle));
-		registry.register(EventValue.simple(VehicleEvent.class, World.class, event -> event.getVehicle().getWorld()));
-		registry.register(EventValue.simple(VehicleExitEvent.class, LivingEntity.class, VehicleExitEvent::getExited));
-
-		registry.register(EventValue.simple(VehicleEnterEvent.class, Entity.class, VehicleEnterEvent::getEntered));
-
-		// We could error here instead but it's preferable to not do it in this case
-		registry.register(EventValue.simple(VehicleDamageEvent.class, Entity.class, VehicleDamageEvent::getAttacker));
-
-		registry.register(EventValue.simple(VehicleDestroyEvent.class, Entity.class, VehicleDestroyEvent::getAttacker));
-
-		registry.register(EventValue.simple(VehicleEvent.class, Entity.class, event -> event.getVehicle().getPassenger()));
-
 
 		// === CommandEvents ===
 		// PlayerCommandPreprocessEvent is a PlayerEvent
@@ -675,13 +591,6 @@ public final class BukkitEventValues {
 		registry.register(EventValue.simple(PlayerExpCooldownChangeEvent.class, Timespan.class, event -> new Timespan(Timespan.TimePeriod.TICK, event.getNewCooldown())));
 		registry.register(EventValue.builder(PlayerExpCooldownChangeEvent.class, Timespan.class)
 			.getter(event -> new Timespan(Timespan.TimePeriod.TICK, event.getPlayer().getExpCooldown()))
-			.time(Time.PAST)
-			.build());
-
-		// VehicleMoveEvent
-		registry.register(EventValue.simple(VehicleMoveEvent.class, Location.class, VehicleMoveEvent::getTo));
-		registry.register(EventValue.builder(VehicleMoveEvent.class, Location.class)
-			.getter(VehicleMoveEvent::getFrom)
 			.time(Time.PAST)
 			.build());
 

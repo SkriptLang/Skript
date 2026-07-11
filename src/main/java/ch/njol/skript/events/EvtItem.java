@@ -27,7 +27,6 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleEvent;
-import ch.njol.util.coll.CollectionUtils;
 
 @SuppressWarnings("deprecation")
 public class EvtItem extends SkriptEvent {
@@ -46,17 +45,7 @@ public class EvtItem extends SkriptEvent {
 				.examples("on item spawn of iron sword:",
 						"\tbroadcast \"Someone dropped an iron sword!\"")
 				.since("unknown (before 2.1)");
-		Skript.registerEvent("Drop", EvtItem.class, CollectionUtils.array(PlayerDropItemEvent.class, EntityDropItemEvent.class),
-				"[player|1:entity] drop[ping] [[of] %-itemtypes%]")
-				.description("Called when a player drops an item from their inventory, or an entity drops an item, such as a chicken laying an egg.")
-				.examples("on drop:",
-						"\tif event-item is compass:",
-						"\t\tcancel event",
-						"",
-						"on entity drop of an egg:",
-						"\tif event-entity is a chicken:",
-						"\t\tset item of event-dropped item to a diamond")
-				.since("unknown (before 2.1), 2.7 (entity)");
+
 		Skript.registerEvent("Prepare Craft", EvtItem.class, PrepareItemCraftEvent.class, "[player] (preparing|beginning) craft[ing] [[of] %-itemtypes%]")
 				.description("Called just before displaying crafting result to player. Note that setting the result item might or might not work due to Bukkit bugs.")
 				.examples("on preparing craft of torch:")
@@ -67,12 +56,6 @@ public class EvtItem extends SkriptEvent {
 				.description("Called when a player crafts an item.")
 				.examples("on craft:")
 				.since("unknown (before 2.1)");
-		Skript.registerEvent("Pick Up", EvtItem.class, CollectionUtils.array(PlayerPickupItemEvent.class, EntityPickupItemEvent.class),
-					"[(player|1¦entity)] (pick[ ]up|picking up) [[of] %-itemtypes%]")
-				.description("Called when a player/entity picks up an item. Please note that the item is still on the ground when this event is called.")
-				.examples("on pick up:", "on entity pickup of wheat:")
-				.since("unknown (before 2.1), 2.5 (entity)")
-				.keywords("pickup");
 		Skript.registerEvent("Consume", EvtItem.class, PlayerItemConsumeEvent.class, "[player] ((eat|drink)[ing]|consum(e|ing)) [[of] %-itemtypes%]")
 				.description("Called when a player is done eating/drinking something, e.g. an apple, bread, meat, milk or a potion.")
 				.examples("on consume:")
@@ -151,10 +134,6 @@ public class EvtItem extends SkriptEvent {
 			itemStack = blockDispenseEvent.getItem();
 		} else if (event instanceof ItemSpawnEvent itemSpawnEvent) {
 			itemStack = itemSpawnEvent.getEntity().getItemStack();
-		} else if (event instanceof PlayerDropItemEvent playerDropItemEvent) {
-			itemStack = playerDropItemEvent.getItemDrop().getItemStack();
-		} else if (event instanceof EntityDropItemEvent entityDropItemEvent) {
-			itemStack = entityDropItemEvent.getItemDrop().getItemStack();
 		} else if (event instanceof CraftItemEvent craftItemEvent) {
 			Recipe recipe = craftItemEvent.getRecipe();
 			if (recipe instanceof ComplexRecipe) {
@@ -172,10 +151,6 @@ public class EvtItem extends SkriptEvent {
 		} else if (HAS_PLAYER_STONECUTTER_RECIPE_SELECT_EVENT
 			&& event instanceof PlayerStonecutterRecipeSelectEvent stonecutterRecipeSelectEvent) {
 			itemStack = stonecutterRecipeSelectEvent.getStonecuttingRecipe().getResult();
-		} else if (event instanceof EntityPickupItemEvent entityPickupItemEvent) {
-			itemStack = entityPickupItemEvent.getItem().getItemStack();
-		} else if (event instanceof PlayerPickupItemEvent playerPickupItemEvent) {
-			itemStack = playerPickupItemEvent.getItem().getItemStack();
 		} else if (event instanceof PlayerItemConsumeEvent playerItemConsumeEvent) {
 			itemStack = playerItemConsumeEvent.getItem();
 		} else if (event instanceof InventoryClickEvent inventoryClickEvent) {
@@ -197,7 +172,7 @@ public class EvtItem extends SkriptEvent {
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "dispense/spawn/drop/craft/pickup/consume/break/despawn/merge/move/stonecutting" + (types == null ? "" : " of " + types);
+		return "dispense/spawn/craft/consume/break/despawn/merge/move/stonecutting" + (types == null ? "" : " of " + types);
 	}
 	
 }

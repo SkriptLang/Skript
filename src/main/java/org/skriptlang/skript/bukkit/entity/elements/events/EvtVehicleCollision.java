@@ -1,13 +1,12 @@
-package ch.njol.skript.events;
+package org.skriptlang.skript.bukkit.entity.elements.events;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
-import ch.njol.skript.registrations.EventValues;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
@@ -16,26 +15,48 @@ import org.bukkit.event.vehicle.VehicleBlockCollisionEvent;
 import org.bukkit.event.vehicle.VehicleCollisionEvent;
 import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class EvtVehicleCollision extends SkriptEvent {
 
-	static {
-		Skript.registerEvent("Vehicle Collision", EvtVehicleCollision.class, new Class[]{VehicleBlockCollisionEvent.class, VehicleEntityCollisionEvent.class},
+	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry) {
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtVehicleCollision.class, "Vehicle Collision")
+			.supplier(EvtVehicleCollision::new)
+			.addEvents(CollectionUtils.array(VehicleBlockCollisionEvent.class, VehicleEntityCollisionEvent.class))
+			.addPatterns(
 				"vehicle collision [(with|of) [a[n]] %-itemtypes/blockdatas/entitydatas%]",
 				"vehicle block collision [(with|of) [a[n]] %-itemtypes/blockdatas%]",
-				"vehicle entity collision [(with|of) [a[n]] %-entitydatas%]")
-				.description("Called when a vehicle collides with a block or entity.")
-				.examples("on vehicle collision:", "on vehicle collision with obsidian:", "on vehicle collision with a zombie:")
-				.since("2.10");
+				"vehicle entity collision [(with|of) [a[n]] %-entitydatas%]"
+			)
+			.addDescription("Called when a vehicle collides with a block or entity.")
+			.addExample("""
+				on vehicle collision:
+				    broadcast "COLLISION!"
+				""")
+			.addExample("""
+				on vehicle collision with obsidian:
+				    broadcast "Looks like something hard was hit.."
+				""")
+			.addExample("""
+				on vehicle collision with a zombie:
+				    broadcast "How dare you hit the undead!"
+				""")
+			.addSince("2.10")
+			.build());
 
-		// VehicleBlockCollisionEvent
-		EventValues.registerEventValue(VehicleBlockCollisionEvent.class, Block.class, VehicleBlockCollisionEvent::getBlock);
+		eventValueRegistry.register(EventValue.builder(VehicleBlockCollisionEvent.class, Block.class)
+			.getter(VehicleBlockCollisionEvent::getBlock)
+			.build());
 
-		// VehicleEntityCollisionEvent
-		EventValues.registerEventValue(VehicleEntityCollisionEvent.class, Entity.class, VehicleEntityCollisionEvent::getEntity);
+		eventValueRegistry.register(EventValue.builder(VehicleEntityCollisionEvent.class, Entity.class)
+			.getter(VehicleEntityCollisionEvent::getEntity)
+			.build());
 	}
 
 	private Literal<?> expr;
@@ -66,17 +87,13 @@ public class EvtVehicleCollision extends SkriptEvent {
 
 	@Override
 	public boolean check(Event event) {
-		if (!(event instanceof VehicleCollisionEvent collisionEvent))
-			return false;
-
 		if (expr == null) {
 			if (blockCollision && !(event instanceof VehicleBlockCollisionEvent)) {
 				return false;
-			} else if (entityCollision && !(event instanceof VehicleEntityCollisionEvent)) {
-				return false;
-			}
-			return true;
+			} else return !entityCollision || event instanceof VehicleEntityCollisionEvent;
 		}
+
+		VehicleCollisionEvent collisionEvent = (VehicleCollisionEvent) event;
 
 		if (collisionEvent instanceof VehicleBlockCollisionEvent blockCollisionEvent && (!itemTypes.isEmpty() || !blockDatas.isEmpty())) {
 			Block eventBlock = blockCollisionEvent.getBlock();
@@ -102,17 +119,13 @@ public class EvtVehicleCollision extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		builder.append("vehicle");
-		if (blockCollision) {
-			builder.append("block");
-		} else if (entityCollision) {
-			builder.append("entity");
-		}
-		builder.append("collision");
-		if (expr != null)
-			builder.append("of", expr);
-		return builder.toString();
+		return new SyntaxStringBuilder(event, debug)
+			.append("vehicle")
+			.appendIf(blockCollision, "block")
+			.appendIf(entityCollision, "entity")
+			.append("collision")
+			.appendIf(expr != null, "of", expr)
+			.toString();
 	}
 
 }

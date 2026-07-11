@@ -4,6 +4,7 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.util.SimpleEvent;
+import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
@@ -11,16 +12,23 @@ import com.destroystokyo.paper.event.entity.EntityJumpEvent;
 import com.destroystokyo.paper.event.entity.EntityPathfindEvent;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Villager;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.vehicle.*;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue.Time;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
+
+import java.util.List;
 
 import static org.skriptlang.skript.bukkit.lang.eventvalue.EventValue.Time.PAST;
 
@@ -210,6 +218,31 @@ public class EntityEvents {
 			.supplier(() -> new SimpleEvent("entity toggling swim"))
 			.build());
 
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Pathfind")
+			.addDescription("Called whenever an entity tries to pathfind to a location or another entity.")
+			.addExample("""
+				on pathfind:
+						broadcast "%event-entity% is about to move to %event-location%!"
+				""")
+			.addSince("2.16")
+			.addPattern("[entity] [start[s]] pathfind[ing]")
+			.addEvent(EntityPathfindEvent.class)
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(EntityPathfindEvent.class, Location.class)
+			.getter(EntityPathfindEvent::getLoc)
+			.patterns("target location")
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(EntityPathfindEvent.class, Entity.class)
+			.getter(EntityPathfindEvent::getTargetEntity)
+			.patterns("target entity")
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(EntityPathfindEvent.class, Location.class)
+			.getter(event -> event.getEntity().getLocation())
+			.build());
+
 		//
 		// Entity specific events (e.g. CreeperPowerEvent)
 		//
@@ -228,6 +261,22 @@ public class EntityEvents {
 				""")
 			.addSince("1.0")
 			.supplier(() -> new SimpleEvent("creeper power"))
+			.build());
+
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Creeper Power")
+			.addEvent(ExplosionPrimeEvent.class)
+			.addPatterns("explosion prim(e|ing)")
+			.addDescription("""
+				Called when an explosive is primed, i.e. an entity will explode shortly.
+				Creepers can abort the explosion if the player gets too far away,\s
+				while TNT will explode no matter what after a short period of time.
+				""")
+			.addExample("""
+				on explosion prime:
+				    broadcast "The explosion is primed!"
+				""")
+			.addSince("1.0, INSERT VERSION (updated pattern)")
+			.supplier(() -> new SimpleEvent("explosion prime"))
 			.build());
 
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Sheep Regrow Wool")
@@ -375,29 +424,234 @@ public class EntityEvents {
 			.getter(EndermanAttackPlayerEvent::getPlayer)
 			.build());
 
-		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Pathfind")
-			.addDescription("Called whenever an entity tries to pathfind to a location or another entity.")
-			.addExample("""
-				on pathfind:
-						broadcast "%event-entity% is about to move to %event-location%!"
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Area Cloud Effect")
+			.addEvent(AreaEffectCloudApplyEvent.class)
+			.addPatterns("(area|AoE) [cloud] effect")
+			.addDescription("""
+				Called when area effect cloud applies its potion effect.
+				This happens every 5 ticks by default.
 				""")
-			.addSince("2.16")
-			.addPattern("[entity] [start[s]] pathfind[ing]")
-			.addEvent(EntityPathfindEvent.class)
+			.addExample("""
+				on area cloud effect:
+				    broadcast "Try to avoid the effect cloud!"
+				""")
+			.addSince("2.2-dev21")
+			.supplier(() -> new SimpleEvent("area cloud effect"))
 			.build());
 
-		eventValueRegistry.register(EventValue.builder(EntityPathfindEvent.class, Location.class)
-			.getter(EntityPathfindEvent::getLoc)
-			.patterns("target location")
+		eventValueRegistry.register(EventValue.builder(AreaEffectCloudApplyEvent.class, LivingEntity[].class)
+			.getter(event -> event.getAffectedEntities().toArray(new LivingEntity[0]))
 			.build());
 
-		eventValueRegistry.register(EventValue.builder(EntityPathfindEvent.class, Entity.class)
-			.getter(EntityPathfindEvent::getTargetEntity)
-			.patterns("target entity")
+		eventValueRegistry.register(EventValue.builder(AreaEffectCloudApplyEvent.class, PotionEffectType[].class)
+			.getter(event -> {
+				PotionType base = event.getEntity().getBasePotionType();
+				if (base != null)
+					return base.getPotionEffects().stream()
+						.map(PotionEffect::getType)
+						.toArray(PotionEffectType[]::new);
+				return null;
+			})
 			.build());
 
-		eventValueRegistry.register(EventValue.builder(EntityPathfindEvent.class, Location.class)
-			.getter(event -> event.getEntity().getLocation())
+		// Vehicle Event Values
+
+		eventValueRegistry.register(EventValue.builder(VehicleEvent.class, Vehicle.class)
+			.getter(VehicleEvent::getVehicle)
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(VehicleEvent.class, World.class)
+			.getter(event -> event.getVehicle().getWorld())
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(VehicleEvent.class, Entity[].class)
+			.getter(event -> event.getVehicle().getPassengers().toArray(new Entity[0]))
+			.build());
+
+		// To avoid breaking changes
+		eventValueRegistry.register(EventValue.builder(VehicleEvent.class, Entity.class)
+			.getter(event -> {
+				List<Entity> passengers = event.getVehicle().getPassengers();
+				if (passengers.isEmpty())
+					return null;
+				return passengers.getFirst();
+			})
+			.build());
+
+		// Vehicle Events
+
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Vehicle Move")
+			.addEvent(VehicleMoveEvent.class)
+			.addPatterns("vehicle mov(e|ing)")
+			.addDescription("""
+				Called when a vehicle moves.
+				Note that this event may be called extremely often depending on how many vehicles are in the world and cause performance issues.
+				""")
+			.addExample("""
+				on vehicle move:
+				    send actionbar "A vehicle is moving from %past event location% to %event-location%!" to (all players)
+				""")
+			.addSince("2.10, INSERT VERSION (pattern update)")
+			.supplier(() -> new SimpleEvent("vehicle moving"))
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(VehicleMoveEvent.class, Location.class)
+			.getter(VehicleMoveEvent::getTo)
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(VehicleMoveEvent.class, Location.class)
+			.getter(VehicleMoveEvent::getFrom)
+			.time(Time.PAST)
+			.build());
+
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Vehicle Exit")
+			.addEvent(VehicleExitEvent.class)
+			.addPatterns("vehicle exit", "exit[ing] [a] vehicle")
+			.addDescription("Called when an entity exits a vehicle.")
+			.addExample("""
+				on vehicle exit:
+				    event-entity is a spider
+				    kill event-entity
+				""")
+			.addSince("1.0")
+			.supplier(() -> new SimpleEvent("vehicle exit"))
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(VehicleExitEvent.class, LivingEntity.class)
+			.getter(VehicleExitEvent::getExited)
+			.build());
+
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Vehicle Enter")
+			.addEvent(VehicleEnterEvent.class)
+			.addPatterns("vehicle enter", "enter[ing] [a] vehicle")
+			.addDescription("""
+				Called when an <a href='#entity'>entity</a> enters a vehicle,\s
+				either deliberately (players) or by falling into them (mobs).
+				""")
+			.addExample("""
+				on vehicle enter:
+				    event-entity is a player
+				    cancel event
+				""")
+			.addSince("1.0")
+			.supplier(() -> new SimpleEvent("vehicle enter"))
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(VehicleEnterEvent.class, Entity.class)
+			.getter(VehicleEnterEvent::getEntered)
+			.build());
+
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Vehicle Destroy")
+			.addEvent(VehicleDestroyEvent.class)
+			.addPatterns("vehicle destroy", "destr(oy[ing]|uction of) [a] vehicle")
+			.addDescription("""
+				Called when a vehicle is destroyed.
+				Note that all <a href='#ExprPassenger'>passengers</a> will be ejected and the vehicle might drop some item(s).
+				""")
+			.addExample("""
+				on vehicle destroy:
+				    broadcast "Not our vehicle!"
+				""")
+			.addSince("1.0")
+			.supplier(() -> new SimpleEvent("vehicle destroy"))
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(VehicleDestroyEvent.class, Entity.class)
+			.getter(VehicleDestroyEvent::getAttacker)
+			.build());
+
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Vehicle Damage")
+			.addEvent(VehicleDamageEvent.class)
+			.addPatterns("vehicle damage", "damag(e|ing) [of] [a] vehicle")
+			.addDescription("""
+				Called when a vehicle gets damaged.
+				Note that too much damage will <a href='#vehicle_destroy'>destroy</a> the vehicle.
+				""")
+			.addExample("""
+				on vehicle damage:
+				    broadcast "How dare you hurt %event-vehicle%!"
+				""")
+			.addSince("1.0")
+			.supplier(() -> new SimpleEvent("vehicle damage"))
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(VehicleDamageEvent.class, Entity.class)
+			.getter(VehicleDamageEvent::getAttacker)
+			.build());
+
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Vehicle Create")
+			.addEvent(VehicleCreateEvent.class)
+			.addPatterns("vehicle create", "creat(e|ing|ion of) [a] vehicle")
+			.addDescription("""
+				Called when a new vehicle is created,\s
+				e.g. when a player places a boat or minecart.
+				""")
+			.addExample("""
+				on vehicle create:
+				    broadcast "+1 %event-vehicle% now in the world.."
+				""")
+			.addSince("1.0")
+			.supplier(() -> new SimpleEvent("vehicle create"))
+			.build());
+
+		// Projectile Events
+
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Projectile Shoot")
+			.addEvent(ProjectileLaunchEvent.class)
+			.addPatterns("[projectile] (shoot|launch[ing])")
+			.addDescription("""
+				Called whenever a <a href='#projectile'>projectile</a> is shot.
+				See <a href='#ExprShooter'>shooter expression</a> for how to get who shot the projectile.
+				""")
+			.addExample("""
+				on projectile shoot:
+				    projectile is an arrow
+				    send "You shot an arrow!" to shooter
+				""")
+			.addSince("1.0, INSERT VERSION (ing)")
+			.supplier(() -> new SimpleEvent("projectile shoot"))
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(ProjectileLaunchEvent.class, Entity.class)
+			.getter(ProjectileLaunchEvent::getEntity)
+			.excludes(ProjectileLaunchEvent.class)
+			.excludedErrorMessage("Use 'projectile' and/or 'shooter' in shoot events")
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(ProjectileLaunchEvent.class, Projectile.class)
+			.getter(ProjectileLaunchEvent::getEntity)
+			.build());
+
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Projectile Hit")
+			.addEvent(ProjectileHitEvent.class)
+			.addPatterns("projectile hit[ting]")
+			.addDescription("Called when a projectile hits an entity or block.")
+			.addExample("""
+				on projectile hit:
+				   victim's health <= 3
+				   delete event-projectile
+				""")
+			.addSince("1.0, INSERT VERSION (pattern update)")
+			.supplier(() -> new SimpleEvent("projectile hit"))
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(ProjectileHitEvent.class, Block.class)
+			.getter(ProjectileHitEvent::getHitBlock)
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(ProjectileHitEvent.class, Entity.class)
+			.getter(ProjectileHitEvent::getEntity)
+			.excludes(ProjectileHitEvent.class)
+			.excludedErrorMessage("Use 'projectile' and/or 'shooter' in projectile hit events")
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(ProjectileHitEvent.class, Direction.class)
+			.getter(event -> {
+				BlockFace blockFace = event.getHitBlockFace();
+				if (blockFace == null)
+					return null;
+				return new Direction(blockFace, 1);
+			})
 			.build());
 	}
 

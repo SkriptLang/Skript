@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.entity.elements.events;
 
-
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;

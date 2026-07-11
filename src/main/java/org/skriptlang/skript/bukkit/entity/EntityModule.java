@@ -58,14 +58,18 @@ public class EntityModule extends HierarchicalAddonModule {
 			EvtEntityBlockChange::register,
 			EvtEntityDamage::register,
 			EvtEntityDeath::register,
+			EvtEntityDropItem::register,
 			EvtEntityHeal::register,
 			EvtEntityLeash::register,
 			EvtEntityMove::register,
+			EvtEntityPickupItem::register,
 			EvtEntityShootBow::register,
 			EvtEntityTeleport::register,
 			EvtEntityTransform::register,
 			EvtExperienceSpawn::register,
-			EvtFireworkExplode::register
+			EvtFireworkExplode::register,
+			EvtProjectileCollide::register,
+			EvtVehicleCollision::register
 		);
 
 		register(addon,
