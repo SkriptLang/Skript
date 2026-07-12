@@ -71,7 +71,7 @@ public class PlayerModule extends HierarchicalAddonModule {
 			.addEvent(AsyncChatEvent.class)
 			.build());
 
-		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Player Respawn")
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Respawn")
 			.addDescription("Called when a player respawns via death or entering the end portal in the end. You should prefer this event over the <a href='#death'>death event</a> as the player is technically alive when this event is called.")
 			.addExample("on respawn:")
 			.addSince("1.0")
@@ -79,7 +79,7 @@ public class PlayerModule extends HierarchicalAddonModule {
 			.addEvent(PlayerRespawnEvent.class)
 			.build());
 
-		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "After Player Respawn")
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "After Respawn")
 			.addDescription("Called after a player respawns via death or entering the end portal in the end. You should prefer this event over the <a href='#respawn'>respawn event</a> if you need to ensure your changes to the player stick after they respawn.")
 			.addExample("""
 				after respawn:
