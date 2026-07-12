@@ -127,7 +127,10 @@ public class ExprSecCreateBossBar extends SectionExpression<BossBar> {
 		}
 
 		if (isKeyed) {
-			NamespacedKey key = NamespacedUtils.checkValidationAndSend(this.key.getSingle(event), this);
+			String stringKey = this.key.getSingle(event);
+			if (stringKey == null)
+				return new BossBar[0];
+			NamespacedKey key = NamespacedUtils.checkValidationAndSend(stringKey, this);
 			if (key == null)
 				return new BossBar[0];
 			Bukkit.createBossBar(key, legacyTitle, barColor, BarStyle.SOLID);
