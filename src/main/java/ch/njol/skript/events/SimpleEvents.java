@@ -8,6 +8,7 @@ import com.destroystokyo.paper.event.entity.EntityJumpEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
+import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
 import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import io.papermc.paper.event.player.*;
@@ -208,6 +209,16 @@ public class SimpleEvents {
 				.description("Called when a player respawns via death or entering the end portal in the end. You should prefer this event over the <a href='#death'>death event</a> as the player is technically alive when this event is called.")
 				.examples("on respawn:")
 				.since("1.0");
+		Skript.registerEvent("Post Respawn", SimpleEvent.class, PlayerPostRespawnEvent.class, "[after|post] [player] respawn[s|ing]")
+				.description("Called after a player respawns via death or entering the end portal in the end. You should prefer this event over the <a href='#respawn'>respawn event</a> if you need to ensure your changes to the player stick after they respawn.")
+				.examples("after respawn:",
+					"	if respawn location is a bed:",
+					"		broadcast \"%player% respawned at their bed at %respawn location%\"",
+					"	else if respawn location is a respawn anchor:",
+					"		broadcast \"%player% respawned at their anchor at %respawn location%\"",
+					"	else:",
+					"		broadcast \"%player% respawned at %respawn location%\"")
+				.since("INSERT VERSION");
 		Skript.registerEvent("Sneak Toggle", SimpleEvent.class, PlayerToggleSneakEvent.class, "[player] toggl(e|ing) sneak", "[player] sneak toggl(e|ing)")
 				.description("Called when a player starts or stops sneaking. Use <a href='#CondIsSneaking'>is sneaking</a> to get whether the player was sneaking before the event was called.")
 				.examples("# make players that stop sneaking jump",

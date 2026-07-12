@@ -1,9 +1,11 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.entity.player.elements.expressions;
 
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import io.papermc.paper.event.player.AbstractRespawnEvent;
+import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -14,10 +16,10 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.log.ErrorQuality;
+import org.skriptlang.skript.registration.DefaultSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
@@ -30,10 +32,13 @@ import ch.njol.util.coll.CollectionUtils;
 @Since("2.2-dev35")
 public class ExprRespawnLocation extends SimpleExpression<Location> implements EventRestrictedSyntax {
 
-	static {
-		Skript.registerExpression(ExprRespawnLocation.class, Location.class, ExpressionType.SIMPLE, "[the] respawn location");
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, DefaultSyntaxInfos.Expression.builder(ExprRespawnLocation.class, Location.class)
+			.supplier(ExprRespawnLocation::new)
+			.addPattern("[the] respawn location")
+			.build());
 	}
-	
+
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		return true;
@@ -41,16 +46,17 @@ public class ExprRespawnLocation extends SimpleExpression<Location> implements E
 
 	@Override
 	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(PlayerRespawnEvent.class);
+		return CollectionUtils.array(AbstractRespawnEvent.class);
 	}
 	
 	@Override
 	@Nullable
 	protected Location[] get(Event event) {
-		if (!(event instanceof PlayerRespawnEvent))
+		if (!(event instanceof AbstractRespawnEvent respawnEvent)) {
 			return null;
+		}
 
-		return CollectionUtils.array(((PlayerRespawnEvent)event).getRespawnLocation());
+		return CollectionUtils.array(respawnEvent.getRespawnLocation());
 	}
 
 	@Override
@@ -65,23 +71,33 @@ public class ExprRespawnLocation extends SimpleExpression<Location> implements E
 	
 	@Override
 	public String toString(final @Nullable Event event, final boolean debug) {
-		return "the respawn location " + ((event != null) ? ": " + ((PlayerRespawnEvent)event).getRespawnLocation() : "");
+		return "the respawn location " + ((event != null) ? ": " + ((AbstractRespawnEvent)event).getRespawnLocation() : "");
 	}
-	
+
 	@Nullable
 	@Override
-	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
-		if (mode == ChangeMode.SET)
-			return CollectionUtils.array(Location.class);
-		return null;
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		if (mode != ChangeMode.SET)
+			return null;
+
+		if (getParser().isCurrentEvent(PlayerPostRespawnEvent.class)) {
+			Skript.error("The respawn location cannot be changed after the player has respawned.");
+			return null;
+		}
+
+		return CollectionUtils.array(Location.class);
 	}
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
-		if (!(event instanceof PlayerRespawnEvent))
+		if (delta == null || (!(event instanceof PlayerRespawnEvent respawnEvent)))
 			return;
 
-		if (delta != null) ((PlayerRespawnEvent)event).setRespawnLocation((Location)delta[0]);
+		Location respawnLocation = (Location) delta[0];
+		if (respawnLocation == null)
+			return;
+
+		respawnEvent.setRespawnLocation(respawnLocation);
 	}
 	
 }

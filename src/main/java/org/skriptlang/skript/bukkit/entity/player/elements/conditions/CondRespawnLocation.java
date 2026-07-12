@@ -1,6 +1,5 @@
-package ch.njol.skript.conditions;
+package org.skriptlang.skript.bukkit.entity.player.elements.conditions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Description;
@@ -13,9 +12,11 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import io.papermc.paper.event.player.AbstractRespawnEvent;
 import org.bukkit.event.Event;
-import org.bukkit.event.player.PlayerRespawnEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Is Bed/Anchor Spawn")
 @Description("Checks what the respawn location of a player in the respawn event is.")
@@ -29,8 +30,11 @@ import org.jetbrains.annotations.Nullable;
 @Events("respawn")
 public class CondRespawnLocation extends Condition implements EventRestrictedSyntax {
 
-	static {
-		Skript.registerCondition(CondRespawnLocation.class, "[the] respawn location (was|is)[1:(n'| no)t] [a] (:bed|respawn anchor)");
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(CondRespawnLocation.class)
+			.supplier(CondRespawnLocation::new)
+			.addPattern("[the] respawn location (was|is)[1:(n'| no)t] [a] (:bed|respawn anchor)")
+			.build());
 	}
 
 	private boolean bedSpawn;
@@ -44,15 +48,15 @@ public class CondRespawnLocation extends Condition implements EventRestrictedSyn
 
 	@Override
 	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(PlayerRespawnEvent.class);
+		return CollectionUtils.array(AbstractRespawnEvent.class);
 	}
 
 	@Override
 	public boolean check(Event event) {
-		if (event instanceof PlayerRespawnEvent) {
-			PlayerRespawnEvent respawnEvent = (PlayerRespawnEvent) event;
+		if (event instanceof AbstractRespawnEvent respawnEvent) {
 			return (bedSpawn ? respawnEvent.isBedSpawn() : respawnEvent.isAnchorSpawn()) != isNegated();
 		}
+
 		return false;
 	}
 
