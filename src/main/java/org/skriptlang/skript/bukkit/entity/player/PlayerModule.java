@@ -77,6 +77,7 @@ public class PlayerModule extends HierarchicalAddonModule {
 			.addSince("1.0")
 			.addPattern("[player] respawn[ing]")
 			.addEvent(PlayerRespawnEvent.class)
+			.supplier(() -> new SimpleEvent("player respawn"))
 			.build());
 
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "After Respawn")
@@ -93,6 +94,7 @@ public class PlayerModule extends HierarchicalAddonModule {
 			.addSince("INSERT VERSION")
 			.addPattern("after [player] respawn[ing]")
 			.addEvent(PlayerPostRespawnEvent.class)
+			.supplier(() -> new SimpleEvent("after respawn"))
 			.build());
 	}
 
