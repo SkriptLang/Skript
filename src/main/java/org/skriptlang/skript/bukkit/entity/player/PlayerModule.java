@@ -94,7 +94,7 @@ public class PlayerModule extends HierarchicalAddonModule {
 			.addSince("INSERT VERSION")
 			.addPattern("after [player] respawn[ing]")
 			.addEvent(PlayerPostRespawnEvent.class)
-			.supplier(() -> new SimpleEvent("after respawn"))
+			.supplier(() -> new SimpleEvent("after player respawn"))
 			.build());
 	}
 
