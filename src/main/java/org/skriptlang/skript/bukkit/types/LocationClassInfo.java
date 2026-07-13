@@ -27,6 +27,9 @@ import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.WXYZHandler;
 import org.skriptlang.skript.lang.properties.handlers.base.PropertyHandler;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import java.io.StreamCorruptedException;
 
 @ApiStatus.Internal
@@ -147,10 +150,49 @@ public class LocationClassInfo extends ClassInfo<Location> {
 	}
 
 	private static class LocationParser extends Parser<Location> {
+		private static final String NUMBER = "[-+]?\\d+(?:\\.\\d+)?";
+
+		private static final Pattern LOCATION_PATTERN = Pattern.compile(
+		"^x:\\s*(" + NUMBER + ")" +
+			",\\s*y:\\s*(" + NUMBER + ")" +
+			",\\s*z:\\s*(" + NUMBER + ")" +
+			",\\s*yaw:\\s*(" + NUMBER + ")" +
+			",\\s*pitch:\\s*(" + NUMBER + ")" +
+			"(?:\\s+in\\s+'([^']+)')?$"
+		);
+
 		//<editor-fold desc="location parser" defaultstate="collapsed">
 		@Override
 		public boolean canParse(ParseContext context) {
-			return false;
+			return true;
+		}
+
+		@Override
+		public @Nullable Location parse(String input, ParseContext context) {
+			Matcher matcher = LOCATION_PATTERN.matcher(input.trim());
+			if (!matcher.matches())
+				return null;
+
+			try {
+				double x = Double.parseDouble(matcher.group(1));
+				double y = Double.parseDouble(matcher.group(2));
+				double z = Double.parseDouble(matcher.group(3));
+				float yaw = Float.parseFloat(matcher.group(4));
+				float pitch = Float.parseFloat(matcher.group(5));
+
+				String worldName = matcher.group(6);
+				World world = null;
+
+				if (worldName != null) {
+					world = Bukkit.getWorld(worldName);
+					if (world == null)
+						return null;
+				}
+
+				return new Location(world, x, y, z, yaw, pitch);
+			} catch (NumberFormatException exception) {
+				return null;
+			}
 		}
 
 		@Override
