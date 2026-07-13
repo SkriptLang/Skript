@@ -70,14 +70,19 @@ public class ScriptSuggestionProvider {
 	 * @return Future to obtain suggestions.
 	 */
 	public CompletableFuture<Suggestions> getSuggestions(ArgumentData<?> argumentData, ArgumentType<?> argument,
-	                                                     CommandContext<CommandSourceStack> context,
-														 SuggestionsBuilder builder) throws CommandSyntaxException {
+														 CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
 		// build context
 		List<ArgumentData<?>> currentArguments = arguments.subList(0, arguments.indexOf(argumentData));
 		// TODO null executor is questionable, but currently only used by cooldowns which would not be available here
-		Map<ArgumentData<?>, Object> mappedArguments = ScriptCommandExecutor.getArguments(currentArguments, context,
-			new ScriptCommandEvent(context.getNodes().getFirst().getNode().getName(), builder.getInput(),
-				null, context.getSource()));
+		Map<ArgumentData<?>, Object> mappedArguments;
+		try {
+			mappedArguments = ScriptCommandExecutor.getArguments(currentArguments, context,
+				new ScriptCommandEvent(context.getNodes().getFirst().getNode().getName(), builder.getInput(),
+					null, context.getSource()));
+		} catch (CommandSyntaxException e) {
+			// TODO is it better to just provide no arguments?
+			return builder.buildFuture();
+		}
 		CommandSuggestionEvent suggestionEvent = new CommandSuggestionEvent(mappedArguments, argumentData,
 			builder.getInput().substring(1), builder.getRemaining(), builder.getStart());
 

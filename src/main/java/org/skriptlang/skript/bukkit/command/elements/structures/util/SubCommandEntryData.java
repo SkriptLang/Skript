@@ -91,7 +91,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 		.addEntry("description", null, true)
 		.addEntryData(new VariableStringEntryData("usage", null, true))
 		.addEntry("prefix", null, true)
-		.addEntryData(new TriggerEntryData("suggestions", null, true))
+		.addEntryData(new SuggestionsEntryData())
 		.addEntry("permission", null, true)
 		.addEntryData(new KeyValueEntryData<Set<ExecutableBy>>("executable by", null, true) {
 			private final Pattern pattern = Pattern.compile("\\s*,(?:\\s+(?:and|or)\\s+)?\\s*|\\s+(?:and|or)\\s+");
