@@ -15,9 +15,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
 import org.skriptlang.skript.bukkit.command.custom.ScriptCommandRegistrar;
 import org.skriptlang.skript.bukkit.command.custom.ScriptBrigadierCommand;
-import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandExecutionEvent;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.SubCommandEntryData;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
@@ -38,14 +39,15 @@ public class StructCommand extends Structure {
 
 		EventValueRegistry evRegistry = addon.registry(EventValueRegistry.class);
 		evRegistry.register(EventValue.simple(ScriptCommandEvent.class, CommandSender.class, ScriptCommandEvent::getSender));
-		evRegistry.register(EventValue.simple(ScriptCommandEvent.class, String[].class,
-			event -> event.getArguments().values().stream()
-				.map(Classes::toString)
-				.toArray(String[]::new)));
 		evRegistry.register(EventValue.simple(ScriptCommandEvent.class, Block.class,
 			event -> event.getSender() instanceof BlockCommandSender sender ? sender.getBlock() : null));
 		evRegistry.register(EventValue.simple(ScriptCommandEvent.class, Location.class, ScriptCommandEvent::getLocation));
 		evRegistry.register(EventValue.simple(ScriptCommandEvent.class, World.class, event -> event.getLocation().getWorld()));
+
+		evRegistry.register(EventValue.simple(ScriptCommandExecutionEvent.class, String[].class,
+			event -> event.getArguments().values().stream()
+				.map(Classes::toString)
+				.toArray(String[]::new)));
 	}
 
 	private static final SubCommandEntryData ROOT_ENTRY_DATA =

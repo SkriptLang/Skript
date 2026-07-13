@@ -27,7 +27,7 @@ import org.skriptlang.skript.bukkit.command.custom.CommandParsingData.ExecutorDa
 import org.skriptlang.skript.bukkit.command.custom.CooldownManager;
 import org.skriptlang.skript.bukkit.command.custom.ExecutableBy;
 import org.skriptlang.skript.bukkit.command.custom.ScriptArgumentType.NativeArgumentData;
-import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandExecutionEvent;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandCompiler.ArgumentCommandElement;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandCompiler.CommandElement;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandCompiler.CompilationResult;
@@ -160,7 +160,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 
 		// set context for parsing
 		ParserInstance parser = ParserInstance.get();
-		parser.setCurrentEvent("command", ScriptCommandEvent.class);
+		parser.setCurrentEvent("command", ScriptCommandExecutionEvent.class);
 
 		// parse arguments
 		CommandParsingData parsingData = parser.getData(CommandParsingData.class);

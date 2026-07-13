@@ -24,7 +24,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.command.custom.ArgumentData;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandSuggestionEvent;
-import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandExecutionEvent;
 import org.skriptlang.skript.bukkit.command.custom.CommandParsingData;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -79,7 +79,7 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		ParserInstance parser = getParser();
-		boolean scriptCommand = parser.isCurrentEvent(ScriptCommandEvent.class, CommandSuggestionEvent.class);
+		boolean scriptCommand = parser.isCurrentEvent(ScriptCommandExecutionEvent.class, CommandSuggestionEvent.class);
 
 		type = switch (matchedPattern) {
 			case 0 -> ArgumentType.LAST;
@@ -196,7 +196,7 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 	@Override
 	public Class<? extends Event>[] supportedEvents() {
 		// important note: this expression is not actually evaluated for CommandSuggestionEvent
-		return CollectionUtils.array(ScriptCommandEvent.class, PlayerCommandPreprocessEvent.class, ServerCommandEvent.class,
+		return CollectionUtils.array(ScriptCommandExecutionEvent.class, PlayerCommandPreprocessEvent.class, ServerCommandEvent.class,
 			CommandSuggestionEvent.class);
 	}
 
@@ -204,8 +204,8 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 	protected Object @Nullable [] get(Event event) {
 		if (argument != null) {
 			Object value;
-			if (event instanceof ScriptCommandEvent scriptCommandEvent) {
-				value = scriptCommandEvent.getArgument(argument.name());
+			if (event instanceof ScriptCommandExecutionEvent scriptCommandExecutionEvent) {
+				value = scriptCommandExecutionEvent.getArgument(argument.name());
 			} else {
 				value = ((CommandSuggestionEvent) event).getPreviousArguments().get(argument);
 				if (value == null) {

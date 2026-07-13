@@ -29,7 +29,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.skriptlang.skript.bukkit.command.custom.ScriptBrigadierCommand;
-import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandExecutionEvent;
 import org.skriptlang.skript.bukkit.command.custom.ScriptCommandRegistrar;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.registration.SyntaxInfo;
@@ -151,7 +151,7 @@ public class ExprCommandInfo extends SimpleExpression<String> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		commandName = (Expression<String>) exprs[0];
-		if (commandName == null && !getParser().isCurrentEvent(ScriptCommandEvent.class, PlayerCommandPreprocessEvent.class, ServerCommandEvent.class)) {
+		if (commandName == null && !getParser().isCurrentEvent(ScriptCommandExecutionEvent.class, PlayerCommandPreprocessEvent.class, ServerCommandEvent.class)) {
 			Skript.error("There's no command in " + Utils.a(getParser().getCurrentEventName()) + " event. Please provide a command");
 			return false;
 		}
@@ -205,7 +205,7 @@ public class ExprCommandInfo extends SimpleExpression<String> {
 		}
 
 		String fullCommand = switch (event) {
-			case ScriptCommandEvent scriptCommandEvent -> scriptCommandEvent.getLabel();
+			case ScriptCommandExecutionEvent scriptCommandEvent -> scriptCommandEvent.getLabel();
 			case ServerCommandEvent serverCommandEvent -> serverCommandEvent.getCommand();
 			case PlayerCommandPreprocessEvent preprocessEvent -> preprocessEvent.getMessage().substring(1);
 			default -> throw new IllegalStateException("Unexpected value: " + event);

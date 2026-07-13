@@ -23,7 +23,7 @@ import ch.njol.util.Kleenean;
 import org.skriptlang.skript.bukkit.command.custom.CommandParsingData;
 import org.skriptlang.skript.bukkit.command.custom.CommandParsingData.ExecutorData;
 import org.skriptlang.skript.bukkit.command.custom.CooldownManager;
-import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandExecutionEvent;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -70,12 +70,12 @@ public class ExprCmdCooldownInfo extends SimpleExpression<Object> implements Eve
 
 	@Override
 	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(ScriptCommandEvent.class);
+		return CollectionUtils.array(ScriptCommandExecutionEvent.class);
 	}
 
 	@Override
 	protected Object[] get(Event event) {
-		if (!(event instanceof ScriptCommandEvent commandEvent)) {
+		if (!(event instanceof ScriptCommandExecutionEvent commandEvent)) {
 			return (Object[]) Array.newInstance(getReturnType(), 0);
 		}
 
@@ -126,7 +126,7 @@ public class ExprCmdCooldownInfo extends SimpleExpression<Object> implements Eve
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (!(event instanceof ScriptCommandEvent commandEvent)) {
+		if (!(event instanceof ScriptCommandExecutionEvent commandEvent)) {
 			return;
 		}
 

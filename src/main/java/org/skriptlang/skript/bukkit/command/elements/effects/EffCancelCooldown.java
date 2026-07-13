@@ -17,7 +17,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.util.Kleenean;
 import org.skriptlang.skript.bukkit.command.custom.CommandParsingData;
 import org.skriptlang.skript.bukkit.command.custom.CommandParsingData.ExecutorData;
-import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandExecutionEvent;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -58,12 +58,12 @@ public class EffCancelCooldown extends Effect implements EventRestrictedSyntax {
 
 	@Override
 	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(ScriptCommandEvent.class);
+		return CollectionUtils.array(ScriptCommandExecutionEvent.class);
 	}
 
 	@Override
 	protected void execute(Event event) {
-		if (event instanceof ScriptCommandEvent commandEvent) {
+		if (event instanceof ScriptCommandExecutionEvent commandEvent) {
 			assert commandEvent.getCommandExecutor().getCooldownManager() != null;
 			commandEvent.getCommandExecutor().getCooldownManager()
 				.setStartDate(event, commandEvent.getSender(), cancel ? null : Date.now());

@@ -33,6 +33,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandSuggestionEvent.CommandSuggestion;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.ScriptSuggestionProvider;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.ScriptSuggestionProvider.FilteringMode;
 
@@ -202,8 +203,9 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 		}
 		Iterator<T> iterator = supplier.get();
 		while (iterator.hasNext()) {
-			ScriptSuggestionProvider.suggest(builder, Classes.toString(iterator.next()).toLowerCase(Locale.ENGLISH)
-				.replace(' ', '_'), filteringMode);
+			String suggestion = Classes.toString(iterator.next()).toLowerCase(Locale.ENGLISH)
+				.replace(' ', '_');
+			ScriptSuggestionProvider.suggest(builder, new CommandSuggestion(suggestion, null), filteringMode);
 		}
 		return builder.buildFuture();
 	}

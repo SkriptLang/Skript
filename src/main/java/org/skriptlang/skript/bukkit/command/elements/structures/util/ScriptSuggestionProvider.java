@@ -7,12 +7,15 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.MessageComponentSerializer;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.bukkit.command.custom.ArgumentData;
 import org.skriptlang.skript.bukkit.command.custom.ScriptArgumentType;
-import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandExecutionEvent;
 import org.skriptlang.skript.bukkit.command.custom.ScriptCommandExecutor;
+import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandSuggestionEvent.CommandSuggestion;
 
 import java.util.List;
 import java.util.Locale;
@@ -77,25 +80,25 @@ public class ScriptSuggestionProvider {
 		Map<ArgumentData<?>, Object> mappedArguments;
 		try {
 			mappedArguments = ScriptCommandExecutor.getArguments(currentArguments, context,
-				new ScriptCommandEvent(context.getNodes().getFirst().getNode().getName(), builder.getInput(),
+				new ScriptCommandExecutionEvent(context.getNodes().getFirst().getNode().getName(), builder.getInput(),
 					null, context.getSource()));
 		} catch (CommandSyntaxException e) {
 			// TODO is it better to just provide no arguments?
 			return builder.buildFuture();
 		}
 		CommandSuggestionEvent suggestionEvent = new CommandSuggestionEvent(mappedArguments, argumentData,
-			builder.getInput().substring(1), builder.getRemaining(), builder.getStart());
+			builder.getInput().substring(1), builder.getRemaining(), builder.getStart(), context.getSource());
 
 		// obtain and suggest suggestions
 		suggestionsProvider.execute(suggestionEvent);
-		List<String> suggestions = suggestionEvent.suggestions.get(argumentData.name());
+		List<CommandSuggestion> suggestions = suggestionEvent.suggestions.get(argumentData.name());
 		if (suggestions == null) { // nothing explicitly set, rely on argument's default suggestions
 			if (argument instanceof ScriptArgumentType<?> scriptArgument) {
 				return scriptArgument.listSuggestions(context, builder, suggestionEvent.filteringMode);
 			}
 			return argument.listSuggestions(context, builder);
 		}
-		for (String suggestion : suggestions) {
+		for (CommandSuggestion suggestion : suggestions) {
 			suggest(builder, suggestion, suggestionEvent.filteringMode);
 		}
 		return builder.buildFuture();
@@ -107,13 +110,18 @@ public class ScriptSuggestionProvider {
 	 * @param builder The builder to add the suggestion to.
 	 * @param suggestion The suggestion.
 	 */
-	public static void suggest(@NotNull SuggestionsBuilder builder, String suggestion, FilteringMode filteringMode) {
+	public static void suggest(@NotNull SuggestionsBuilder builder, CommandSuggestion suggestion, FilteringMode filteringMode) {
 		if (suggestion == null) {
 			return;
 		}
 
 		if (filteringMode == FilteringMode.NONE) {
-			builder.suggest(suggestion);
+			Component tooltip = suggestion.tooltip();
+			if (tooltip == null) {
+				builder.suggest(suggestion.suggestion());
+			} else {
+				builder.suggest(suggestion.suggestion(), MessageComponentSerializer.message().serialize(tooltip));
+			}
 			return;
 		}
 
@@ -126,7 +134,7 @@ public class ScriptSuggestionProvider {
 		if (remaining.contains(" ")) {
 			remaining = remaining.replace(' ', '_');
 		}
-		String suggestionLower = suggestion.toLowerCase(Locale.ENGLISH);
+		String suggestionLower = suggestion.suggestion().toLowerCase(Locale.ENGLISH);
 		if (!suggestionLower.isEmpty() && suggestionLower.charAt(0) == '"') {
 			suggestionLower = suggestionLower.substring(1);
 		}
@@ -139,7 +147,12 @@ public class ScriptSuggestionProvider {
 			return;
 		}
 
-		builder.suggest(suggestion);
+		Component tooltip = suggestion.tooltip();
+		if (tooltip == null) {
+			builder.suggest(suggestion.suggestion());
+		} else {
+			builder.suggest(suggestion.suggestion(), MessageComponentSerializer.message().serialize(tooltip));
+		}
 	}
 
 }

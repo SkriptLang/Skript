@@ -36,7 +36,7 @@ public class ScriptCommandExecutor {
 	 * @throws CommandSyntaxException If an error occurs while resolving certain arguments.
 	 */
 	public static Map<ArgumentData<?>, Object> getArguments(List<ArgumentData<?>> arguments, CommandContext<CommandSourceStack> context,
-	                                                        ScriptCommandEvent commandEvent) throws CommandSyntaxException {
+	                                                        ScriptCommandExecutionEvent commandEvent) throws CommandSyntaxException {
 		Map<ArgumentData<?>, Object> argumentMap = new HashMap<>();
 		// argument assembly
 		Set<String> providedArgs = context.getNodes().stream()
@@ -100,8 +100,8 @@ public class ScriptCommandExecutor {
 
 	public int execute(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 		CommandSourceStack source = context.getSource();
-		ScriptCommandEvent commandEvent =
-			new ScriptCommandEvent(context.getNodes().getFirst().getNode().getName(), context.getInput(), this, source);
+		ScriptCommandExecutionEvent commandEvent =
+			new ScriptCommandExecutionEvent(context.getNodes().getFirst().getNode().getName(), context.getInput(), this, source);
 
 		// final validations
 		if (cooldownManager != null && !cooldownManager.checkExecution(commandEvent, source.getSender())) {

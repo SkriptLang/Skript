@@ -12,7 +12,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandExecutionEvent;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -45,14 +45,14 @@ public class ExprCommandExecutor extends SimpleExpression<Entity> implements Eve
 	@Override
 	public Class<? extends Event>[] supportedEvents() {
 		//noinspection unchecked
-		return new Class[]{ScriptCommandEvent.class};
+		return new Class[]{ScriptCommandExecutionEvent.class};
 	}
 
 	@Override
 	protected Entity[] get(Event event) {
 		Entity executor = null;
-		if (event instanceof ScriptCommandEvent scriptCommandEvent) {
-			executor = scriptCommandEvent.getExecutor();
+		if (event instanceof ScriptCommandExecutionEvent scriptCommandExecutionEvent) {
+			executor = scriptCommandExecutionEvent.getExecutor();
 		}
 		return executor == null ? new Entity[0] : new Entity[]{executor};
 	}

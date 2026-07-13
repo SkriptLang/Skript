@@ -1,11 +1,11 @@
 package org.skriptlang.skript.bukkit.command.elements.structures.util;
 
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.command.custom.ArgumentData;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.ScriptSuggestionProvider.FilteringMode;
 
 import java.util.HashMap;
@@ -16,7 +16,19 @@ import java.util.Map;
  * Internal event for managing context during "suggestions" entry evaluation in {@link SubCommandEntryData}.
  */
 @ApiStatus.Internal
-public class CommandSuggestionEvent extends Event {
+public class CommandSuggestionEvent extends ScriptCommandEvent {
+
+	/**
+	 * @param suggestion The suggestion.
+	 * @param tooltip An optional tooltip to display when hovering over this suggestion.
+	 */
+	public record CommandSuggestion(String suggestion, @Nullable Component tooltip) {
+
+		public CommandSuggestion(String suggestion) {
+			this(suggestion, null);
+		}
+
+	}
 
 	private final Map<ArgumentData<?>, Object> previousArguments;
 	private final ArgumentData<?> currentArgument;
@@ -27,11 +39,12 @@ public class CommandSuggestionEvent extends Event {
 	/**
 	 * Map keyed by argument name.
 	 */
-	public final Map<String, List<String>> suggestions = new HashMap<>();
+	public final Map<String, List<CommandSuggestion>> suggestions = new HashMap<>();
 	public FilteringMode filteringMode = FilteringMode.STARTS_WITH;
 
 	public CommandSuggestionEvent(Map<ArgumentData<?>, Object> previousArguments, ArgumentData<?> currentArgument,
-								  String fullInput, String input, int inputStartIndex) {
+	                              String fullInput, String input, int inputStartIndex, CommandSourceStack source) {
+		super(source);
 		this.previousArguments = previousArguments;
 		this.currentArgument = currentArgument;
 		this.fullInput = fullInput;
@@ -72,12 +85,6 @@ public class CommandSuggestionEvent extends Event {
 	 */
 	public int getInputStartIndex() {
 		return inputStartIndex;
-	}
-
-	@Override
-	@Contract("-> fail")
-	public @NotNull HandlerList getHandlers() {
-		throw new UnsupportedOperationException();
 	}
 
 }

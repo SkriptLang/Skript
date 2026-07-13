@@ -12,10 +12,13 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandSuggestionEvent;
+import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandSuggestionEvent.CommandSuggestion;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -29,24 +32,36 @@ import java.util.List;
 	""")
 @Example("""
 	command /menu <text> <text>:
-	    suggestions:
-	        if arg-1 is not set:
-	            set arg-1's suggestions to "Appetizers", "Entrees", and "Desserts"
-	        else if arg-1 is "Appetizers":
-	            set arg-2's suggestions to "Salads", "Breads", and "Fried Delights"
-	        else if arg-1 is "Entrees":
-	            set arg-2's suggestions to "Pastas", "Handhelds", and "Pizzas"
-	        else if arg-1 is "Desserts":
-	            set arg-2's suggestions to "Cakes", "Ice Creams", and "Pies"
-	    trigger:
-	        send "Yum!"
+		suggestions:
+			if arg-1 is not set:
+				set arg-1's suggestions to "Appetizers", "Entrees", and "Desserts"
+			else if arg-1 is "Appetizers":
+				set arg-2's suggestions to "Salads", "Breads", and "Fried Delights"
+			else if arg-1 is "Entrees":
+				set arg-2's suggestions to "Pastas", "Handhelds", and "Pizzas"
+			else if arg-1 is "Desserts":
+				set arg-2's suggestions to "Cakes", "Ice Creams", and "Pies"
+		trigger:
+			send "Yum!"
+	""")
+@Example("""
+	command /home2:
+		subcommand set <name: text>:
+			trigger:
+				set {homes::%player%::%{_name}%} to the player's location
+		subcommand <name: text>:
+			suggestions:
+				loop {homes::%player%::*}:
+					add formatted "<ttp:'Location: %loop-value%'>%loop-index%" to the suggestions for the text argument
+			trigger:
+				teleport the player to {homes::%player%::%{_name}%}
 	""")
 @Since("INSERT VERSION")
-public class ExprCommandSuggestions extends SimpleExpression<String> implements EventRestrictedSyntax {
+public class ExprCommandSuggestions extends SimpleExpression<Component> implements EventRestrictedSyntax {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(SyntaxRegistry.EXPRESSION,
-			SyntaxInfo.Expression.simple(ExprCommandSuggestions.class, ExprCommandSuggestions::new, String.class,
+			SyntaxInfo.Expression.simple(ExprCommandSuggestions.class, ExprCommandSuggestions::new, Component.class,
 				"[the] [command] (suggestions|tab completions) (of|for) %objects%",
 				"%objects%'[s] [command] (suggestions|tab completions)"));
 	}
@@ -71,16 +86,28 @@ public class ExprCommandSuggestions extends SimpleExpression<String> implements 
 	}
 
 	@Override
-	protected String @Nullable [] get(Event event) {
+	protected Component[] get(Event event) {
 		assert argument.argument != null;
-		List<String> suggestions = ((CommandSuggestionEvent) event).suggestions.get(argument.argument.name());
-		return suggestions == null ? new String[0] : suggestions.toArray(new String[0]);
+		List<CommandSuggestion> suggestions = ((CommandSuggestionEvent) event).suggestions.get(argument.argument.name());
+		if (suggestions == null) {
+			return new Component[0];
+		}
+		return suggestions.stream()
+			.map(suggestion -> {
+				Component result = Component.text(suggestion.suggestion());
+				if (suggestion.tooltip() != null) {
+					result = result.hoverEvent(suggestion.tooltip());
+				}
+				return result;
+			})
+			.toArray(Component[]::new);
 	}
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case ADD, SET, REMOVE, DELETE, RESET -> new Class[]{String[].class, argument.getReturnType().arrayType()};
+			case ADD, SET, REMOVE, DELETE, RESET ->
+				new Class[]{String[].class, argument.getReturnType().arrayType(), Component[].class};
 			default -> null;
 		};
 	}
@@ -95,7 +122,7 @@ public class ExprCommandSuggestions extends SimpleExpression<String> implements 
 			return;
 		}
 
-		List<String> currentSuggestions = ((CommandSuggestionEvent) event).suggestions
+		List<CommandSuggestion> currentSuggestions = ((CommandSuggestionEvent) event).suggestions
 			.computeIfAbsent(argumentName, ignored -> new ArrayList<>());
 
 		switch (mode) {
@@ -105,21 +132,13 @@ public class ExprCommandSuggestions extends SimpleExpression<String> implements 
 			case ADD:
 				assert delta != null;
 				for (Object object : delta) {
-					if (object instanceof String string) {
-						currentSuggestions.add(string);
-					} else {
-						currentSuggestions.add(Classes.toString(object));
-					}
+					currentSuggestions.add(asSuggestion(object));
 				}
 				break;
 			case REMOVE:
 				assert delta != null;
 				for (Object object : delta) {
-					if (object instanceof String string) {
-						currentSuggestions.remove(string);
-					} else {
-						currentSuggestions.remove(Classes.toString(object));
-					}
+					currentSuggestions.remove(asSuggestion(object));
 				}
 				break;
 			case DELETE:
@@ -128,14 +147,29 @@ public class ExprCommandSuggestions extends SimpleExpression<String> implements 
 		}
 	}
 
+	private CommandSuggestion asSuggestion(Object object) {
+		return switch (object) {
+			case String string -> new CommandSuggestion(string);
+			case Component component when !Component.class.isAssignableFrom(argument.getReturnType()) -> {
+				Component tooltip = null;
+				var hoverEvent = component.hoverEvent();
+				if (hoverEvent != null && hoverEvent.value() instanceof Component hover) {
+					tooltip = hover;
+				}
+				yield new CommandSuggestion(PlainTextComponentSerializer.plainText().serialize(component), tooltip);
+			}
+			default -> new CommandSuggestion(Classes.toString(object));
+		};
+	}
+
 	@Override
 	public boolean isSingle() {
 		return false;
 	}
 
 	@Override
-	public Class<? extends String> getReturnType() {
-		return String.class;
+	public Class<? extends Component> getReturnType() {
+		return Component.class;
 	}
 
 	@Override
