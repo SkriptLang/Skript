@@ -164,7 +164,7 @@ public class LocationClassInfo extends ClassInfo<Location> {
 		//<editor-fold desc="location parser" defaultstate="collapsed">
 		@Override
 		public boolean canParse(ParseContext context) {
-			return true;
+			return (context != ParseContext.COMMAND);
 		}
 
 		@Override
@@ -185,8 +185,6 @@ public class LocationClassInfo extends ClassInfo<Location> {
 
 				if (worldName != null) {
 					world = Bukkit.getWorld(worldName);
-					if (world == null)
-						return null;
 				}
 
 				return new Location(world, x, y, z, yaw, pitch);
