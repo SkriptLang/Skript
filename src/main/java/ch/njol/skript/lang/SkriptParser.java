@@ -5,7 +5,10 @@ import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
+import ch.njol.skript.command.Argument;
 import ch.njol.skript.command.Commands;
+import ch.njol.skript.command.ScriptCommand;
+import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.expressions.ExprParse;
 import ch.njol.skript.lang.DefaultExpressionUtils.DefaultExpressionError;
 import ch.njol.skript.lang.function.ExprFunctionCall;
@@ -1212,6 +1215,34 @@ public final class SkriptParser {
 				.toArray(Expression[]::new);
 
 		return new FunctionReference<>(newReference.name(), null, newReference.namespace(), types, expressions);
+	}
+
+	/*
+	 * Command parsing
+	 */
+
+	/**
+	 * Prints parse errors (i.e. must start a ParseLog before calling this method)
+	 * @deprecated This method is no longer used and there is no replacement.
+	 * Command arguments are now generally parsed by Brigadier.
+	 * See {@link org.skriptlang.skript.bukkit.command.custom.ScriptCommandExecutor}.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public static boolean parseArguments(String args, ScriptCommand command, ScriptCommandEvent event) {
+		SkriptParser parser = new SkriptParser(args, PARSE_LITERALS, ParseContext.COMMAND);
+		ParseResult parseResult = parser.parse_i(command.getPattern());
+		if (parseResult == null)
+			return false;
+
+		List<Argument<?>> arguments = command.getArguments();
+		assert arguments.size() == parseResult.exprs.length;
+		for (int i = 0; i < parseResult.exprs.length; i++) {
+			if (parseResult.exprs[i] == null)
+				arguments.get(i).setToDefault(event);
+			else
+				arguments.get(i).set(event, parseResult.exprs[i].getArray(event));
+		}
+		return true;
 	}
 
 	/*
