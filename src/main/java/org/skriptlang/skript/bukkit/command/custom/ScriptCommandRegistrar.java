@@ -201,7 +201,8 @@ public final class ScriptCommandRegistrar {
 
 		// register new help topics
 		for (String label : labels) {
-			Command bukkitCommand = commandMap.getCommand(label);
+			// we prefer accessing the map directly as "getCommand" enforces lowercase
+			Command bukkitCommand = commandMap.getKnownCommands().get(label);
 			assert bukkitCommand != null;
 			if (command.usage() != null) {
 				bukkitCommand.setUsage(command.usage());
