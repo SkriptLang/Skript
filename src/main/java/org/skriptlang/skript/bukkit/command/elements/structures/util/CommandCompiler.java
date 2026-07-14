@@ -6,6 +6,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.log.RetainingLogHandler;
+import ch.njol.skript.patterns.MalformedPatternException;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import org.jetbrains.annotations.Nullable;
@@ -231,7 +232,14 @@ final class CommandCompiler {
 			char c = pattern.charAt(i);
 			if (c == '[' || c == '(') { // indicates optional choice or general grouping
 				boolean isOptional = c == '[';
-				int end = SkriptParser.nextBracket(pattern, isOptional ? ']' : ')', c, i + 1, true);
+				int end;
+				try {
+					end = SkriptParser.nextBracket(pattern, isOptional ? ']' : ')', c, i + 1, true);
+				} catch (MalformedPatternException ignored) {
+					Skript.error("Missing expected closing bracket '" + (isOptional ? ']' : ')') + "' starting from input: " +
+						pattern.substring(i));
+					return null;
+				}
 				CommandElement commandElement = compile(pattern.substring(i + 1, end), existingArguments, arguments);
 				if (commandElement == null) {
 					return null;
@@ -283,7 +291,13 @@ final class CommandCompiler {
 					return null;
 				}
 
-				int end = SkriptParser.nextBracket(pattern, '>', c, i + 1, true);
+				int end;
+				try {
+					end = SkriptParser.nextBracket(pattern, '>', c, i + 1, true);
+				} catch (MalformedPatternException ignored) {
+					Skript.error("Missing expected closing bracket '>' starting from input: " + pattern.substring(i));
+					return null;
+				}
 				ArgumentData<?> argument = parseArgument(pattern.substring(i + 1, end),
 					Stream.concat(existingArguments.stream(), arguments.stream()).toList());
 				if (argument == null) {
@@ -394,14 +408,14 @@ final class CommandCompiler {
 		if (typeMatcher.group(2) != null) { // has min
 			min = type.getParser().parse(typeMatcher.group(2), ParseContext.COMMAND);
 			if (min == null) {
-				Skript.error("Invalid minimum range: " + min);
+				Skript.error("Invalid minimum range: " + typeMatcher.group(2));
 				return null;
 			}
 		}
 		if (typeMatcher.group(3) != null) { // has max
 			max = type.getParser().parse(typeMatcher.group(3), ParseContext.COMMAND);
 			if (max == null) {
-				Skript.error("Invalid maximum range: " + max);
+				Skript.error("Invalid maximum range: " + typeMatcher.group(3));
 				return null;
 			}
 		}
