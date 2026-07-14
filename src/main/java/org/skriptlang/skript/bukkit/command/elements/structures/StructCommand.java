@@ -71,7 +71,7 @@ public class StructCommand extends Structure {
 		if (result == null) { // parsing failed, entry will have emitted a specific error message
 			return false;
 		}
-		if (result.arguments().size() != 1 || !(result.arguments().getFirst().build() instanceof LiteralCommandNode<CommandSourceStack> node)) {
+		if (result.arguments().size() != 1 || !(result.arguments().getFirst().builder().build() instanceof LiteralCommandNode<CommandSourceStack> node)) {
 			Skript.error("A command must have a name.");
 			return false;
 		}

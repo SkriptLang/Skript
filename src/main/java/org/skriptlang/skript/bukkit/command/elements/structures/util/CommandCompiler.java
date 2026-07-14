@@ -16,7 +16,6 @@ import org.skriptlang.skript.bukkit.command.custom.ScriptArgumentType.NativeArgu
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,7 +42,8 @@ final class CommandCompiler {
 		protected final Set<CommandElement> children;
 
 		private CommandElement() {
-			this(new HashSet<>());
+			// we want to keep orderings consistent for the same definition
+			this(new LinkedHashSet<>());
 		}
 
 		private CommandElement(Set<CommandElement> children) {
@@ -157,8 +157,6 @@ final class CommandCompiler {
 		private static final CommandElement EMPTY = new CommandElement(null);
 
 		private ChoiceCommandElement() {
-			// we use a linked hash set as ordering is now necessary
-			super(new LinkedHashSet<>());
 			children.add(EMPTY);
 		}
 

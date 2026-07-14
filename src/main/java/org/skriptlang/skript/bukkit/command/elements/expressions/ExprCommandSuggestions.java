@@ -72,7 +72,8 @@ public class ExprCommandSuggestions extends SimpleExpression<Component> implemen
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!(expressions[0] instanceof ExprArgument exprArgument) || exprArgument.argument == null) {
-			Skript.error("It is only possible to obtain or change command suggestions of an argument!");
+			Skript.error("It is only possible to obtain or change command suggestions of an argument!" +
+				" Is the argument expression written correctly?");
 			return false;
 		}
 		argument = exprArgument;

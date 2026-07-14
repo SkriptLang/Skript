@@ -54,7 +54,8 @@ public class EffSuggestionFilteringMode extends Effect implements EventRestricte
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!(expressions[0] instanceof ExprCommandSuggestions exprCommandSuggestions)) {
-			Skript.error("It is only possible to change the filtering mode of suggestions!");
+			Skript.error("It is only possible to change the filtering mode of suggestions!" +
+				" Is the suggestions expression written correctly?");
 			return false;
 		}
 		suggestions = exprCommandSuggestions;

@@ -14,12 +14,12 @@ import ch.njol.skript.variables.HintManager;
 import ch.njol.util.coll.CollectionUtils;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.command.custom.ArgumentData;
 import org.skriptlang.skript.bukkit.command.custom.CommandParsingData;
@@ -44,10 +44,12 @@ import org.skriptlang.skript.lang.entry.util.TriggerEntryData;
 import org.skriptlang.skript.lang.entry.util.VariableStringEntryData;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.log.runtime.ErrorSource;
+import org.skriptlang.skript.util.Priority;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -58,7 +60,7 @@ import java.util.regex.Pattern;
 public class SubCommandEntryData extends EntryData<Result> {
 
 	public record Result(
-		List<ArgumentBuilder<CommandSourceStack, ?>> arguments,
+		List<ScriptArgumentBuilder> arguments,
 		Collection<String> aliases,
 		@Nullable String description,
 		@Nullable String usage,
@@ -173,7 +175,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 			if (isRoot) {
 				Skript.error("A command must have a name.");
 			} else {
-				Skript.error("A subcommand must have at least one argument, literal or dynamic.");
+				Skript.error("A subcommand must have at least one required argument, literal or dynamic.");
 			}
 			return null;
 		}
@@ -349,7 +351,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 		}
 
 		// attach subcommand pieces
-		List<ArgumentBuilder<CommandSourceStack, ?>> subcommands =
+		List<ScriptArgumentBuilder> subcommands =
 			entryContainer.getAll("subcommand", Result.class, false).stream()
 				.flatMap(result -> result.arguments().stream())
 				.toList();
@@ -358,15 +360,13 @@ public class SubCommandEntryData extends EntryData<Result> {
 			return null;
 		}
 
-		//noinspection rawtypes
-		var result = (List) compilationResult.root().children().stream()
+		var result = compilationResult.root().children().stream()
 			.map(child -> parse(child, executor, commandRequires, suggestionProvider, subcommands))
 			.toList();
 
 		parsingData.popExecutorData();
 		parsingData.popArguments();
 
-		//noinspection unchecked
 		return new Result(result, aliases, description, usage, prefix, permission);
 	}
 
@@ -392,18 +392,18 @@ public class SubCommandEntryData extends EntryData<Result> {
 	 * @param subcommands Subcommands to attach to any leaf elements.
 	 * @return Builder representing the completed command tree from the root.
 	 */
-	private static ArgumentBuilder<CommandSourceStack, ?> parse(
+	private static ScriptArgumentBuilder parse(
 		CommandElement commandElement,
 		@Nullable ScriptCommandExecutor executor,
 		@Nullable Predicate<CommandSourceStack> requires,
 		@Nullable ScriptSuggestionProvider suggestionProvider,
-		Collection<ArgumentBuilder<CommandSourceStack, ?>> subcommands
+		Collection<ScriptArgumentBuilder> subcommands
 	) {
 		Collection<CommandElement> children = commandElement.children();
 
-		ArgumentBuilder<CommandSourceStack, ?> argument;
+		ScriptArgumentBuilder argument;
 		if (commandElement instanceof LiteralCommandElement literalCommandElement) {
-			argument = Commands.literal(literalCommandElement.literal());
+			argument = new ScriptArgumentBuilder(Commands.literal(literalCommandElement.literal()), null);
 		} else { // ArgumentCommandElement
 			ArgumentData<?> data = ((ArgumentCommandElement) commandElement).argument();
 
@@ -415,7 +415,8 @@ public class SubCommandEntryData extends EntryData<Result> {
 				nativeType = nativeMapping.mapper().apply(data);
 			}
 			if (nativeType == null) {
-				if (children.isEmpty() && subcommands.isEmpty()) { // last argument can be greedy
+				if ((children.isEmpty() || (children.size() == 1 && children.contains(null))) && subcommands.isEmpty()) {
+					// last argument can be greedy
 					nativeType = StringArgumentType.greedyString();
 				} else {
 					nativeType = StringArgumentType.string();
@@ -423,45 +424,75 @@ public class SubCommandEntryData extends EntryData<Result> {
 				nativeType = new ScriptArgumentType<>(data, (StringArgumentType) nativeType);
 			}
 
-			argument = Commands.argument(data.name(), nativeType);
+			argument = new ScriptArgumentBuilder(Commands.argument(data.name(), nativeType), data);
 
 			// attach suggestion provider to argument if available
 			if (suggestionProvider != null) {
 				ArgumentType<?> finalNativeType = nativeType;
 				//noinspection unchecked
-				((RequiredArgumentBuilder<CommandSourceStack, ?>) argument).suggests(
+				((RequiredArgumentBuilder<CommandSourceStack, ?>) argument.builder()).suggests(
 					(context, builder) ->
 						suggestionProvider.getSuggestions(data, finalNativeType, context, builder));
 			}
 		}
 
 		if (requires != null) {
-			argument.requires(requires);
+			argument.builder().requires(requires);
 		}
 
-		// we parse and append the children elements to this argument
+		// we track all possible arguments to later be sorted
+		List<ScriptArgumentBuilder> possibleArguments = new ArrayList<>();
+
+		if (commandElement.isLeaf()) {
+			if (executor != null) {
+				argument.builder().executes(executor::execute);
+			}
+			possibleArguments.addAll(subcommands);
+		}
+
+		// we parse the children to append to this element
 		for (CommandElement element : children) {
 			if (element == null) {
 				continue;
 			}
 			// we don't need to pass requirements down to children. just on the root is good enough.
-			argument.then(parse(element, executor, null, suggestionProvider, subcommands));
+			possibleArguments.add(parse(element, executor, null, suggestionProvider, subcommands));
 		}
 
-		// this is intentionally placed AFTER iterating over the children
-		// for conflicting command arguments, the argument at this level should be preferred over a subcommand's argument
-		// it is not guaranteed to conflict if two arguments are at the same level
-		// e.g. Player-then-Number conflicts but Number-then-Player doesn't
-		if (commandElement.isLeaf()) {
-			for (var subcommand : subcommands) {
-				argument.then(subcommand);
-			}
-			if (executor != null) {
-				argument.executes(executor::execute);
-			}
+		// sort and append all children to this element
+		possibleArguments.sort(Comparator.comparing(SubCommandEntryData::getPriority));
+		for (var possibleArgument : possibleArguments) {
+			argument.builder().then(possibleArgument.builder());
 		}
 
 		return argument;
+	}
+
+	private static final Priority LITERAL = Priority.base();
+	private static final Priority ARGUMENT = Priority.after(LITERAL);
+	private static final Priority SELECTOR_ARGUMENT = Priority.after(ARGUMENT);
+	private static final Priority STRING_ARGUMENT = Priority.after(SELECTOR_ARGUMENT);
+
+	/**
+	 * Computes a priority for an argument.
+	 * This is done because Brigadier is sensitive to the ordering of arguments at the same level.
+	 * For example, a Player argument followed by a Number argument conflicts, but a Number argument followed by a Player argument does not.
+	 * We attempt to mitigate this with some manual reordering.
+	 * @param argument The argument to obtain the priority of.
+	 * @return A priority for this argument.
+	 */
+	private static Priority getPriority(ScriptArgumentBuilder argument) {
+		if (argument.data() == null) {
+			return LITERAL;
+		}
+		Class<?> type = argument.data().type().getC();
+		if (Entity.class.isAssignableFrom(type)) {
+			return SELECTOR_ARGUMENT;
+		}
+		if (String.class.isAssignableFrom(type)) {
+			return STRING_ARGUMENT;
+		}
+		return ARGUMENT;
 	}
 
 }
