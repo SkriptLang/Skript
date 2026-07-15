@@ -39,6 +39,7 @@ public class BlockModule extends HierarchicalAddonModule {
 			BukkitSyntaxInfos.Event.KEY,
 			BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Block Damage Abort")
 				.addEvent(BlockDamageAbortEvent.class)
+				.supplier(() -> new SimpleEvent("block damage abort"))
 				.addPattern("block damage abort")
 				.addDescription("Called when a player stops damaging a block before it breaks.")
 				.addExample("""
@@ -49,16 +50,12 @@ public class BlockModule extends HierarchicalAddonModule {
 				.build()
 		);
 
-		eventValueRegistry.register(EventValue.simple(
-			BlockDamageAbortEvent.class,
-			Player.class,
-			BlockDamageAbortEvent::getPlayer
-		));
-		eventValueRegistry.register(EventValue.simple(
-			BlockDamageAbortEvent.class,
-			ItemStack.class,
-			BlockDamageAbortEvent::getItemInHand
-		));
+		eventValueRegistry.register(EventValue.builder(BlockDamageAbortEvent.class, Player.class)
+			.getter(BlockDamageAbortEvent::getPlayer)
+			.build());
+		eventValueRegistry.register(EventValue.builder(BlockDamageAbortEvent.class, ItemStack.class)
+			.getter(BlockDamageAbortEvent::getItemInHand)
+			.build());
 	}
 
 	@Override
