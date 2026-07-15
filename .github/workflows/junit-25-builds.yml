@@ -13,9 +13,9 @@ jobs:
         if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
         uses: ./.github/workflows/parallelize-tests.yml
         with:
-            environments: 26.1.2
+            environments: 26.1.2,26.2
             java_version: 25
-            parallel_jobs: 3
+            parallel_jobs: 1
 
     build:
         name: ${{ matrix.display }}
