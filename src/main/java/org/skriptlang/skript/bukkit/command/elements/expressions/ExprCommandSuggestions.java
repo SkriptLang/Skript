@@ -19,6 +19,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandSuggestionEvent;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandSuggestionEvent.CommandSuggestion;
+import org.skriptlang.skript.bukkit.command.elements.structures.util.SuggestingArgumentData;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -107,8 +108,10 @@ public class ExprCommandSuggestions extends SimpleExpression<Component> implemen
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case ADD, SET, REMOVE, DELETE, RESET ->
-				new Class[]{String[].class, argument.getReturnType().arrayType(), Component[].class};
+			case ADD, SET, REMOVE, DELETE, RESET -> {
+				getParser().getData(SuggestingArgumentData.class).arguments.add(argument.argument);
+				yield new Class[]{String[].class, argument.getReturnType().arrayType(), Component[].class};
+			}
 			default -> null;
 		};
 	}

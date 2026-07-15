@@ -93,7 +93,7 @@ public class ScriptSuggestionProvider {
 		suggestionsProvider.execute(suggestionEvent);
 		List<CommandSuggestion> suggestions = suggestionEvent.suggestions.get(argumentData.name());
 		if (suggestions == null) { // nothing explicitly set, rely on argument's default suggestions
-			if (argument instanceof ScriptArgumentType<?> scriptArgument) {
+			if (argument instanceof ScriptArgumentType.Suggesting<?> scriptArgument) {
 				return scriptArgument.listSuggestions(context, builder, suggestionEvent.filteringMode);
 			}
 			return argument.listSuggestions(context, builder);

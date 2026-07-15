@@ -131,6 +131,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 
 	static {
 		ParserInstance.registerData(CommandParsingData.class, CommandParsingData::new);
+		ParserInstance.registerData(SuggestingArgumentData.class, SuggestingArgumentData::new);
 	}
 
 	public SubCommandEntryData(String key, boolean optional, boolean multiple) {
@@ -336,10 +337,15 @@ public class SubCommandEntryData extends EntryData<Result> {
 		Trigger suggestionsTrigger = entryContainer.getOptional("suggestions", Trigger.class, false);
 		parser.deleteCurrentEvent();
 		ScriptSuggestionProvider suggestionProvider;
+		List<ArgumentData<?>> suggestingArguments;
 		if (suggestionsTrigger != null) {
+			SuggestingArgumentData suggestingArgumentData = parser.getData(SuggestingArgumentData.class);
 			suggestionProvider = new ScriptSuggestionProvider(allArguments, suggestionsTrigger);
+			suggestingArguments = List.copyOf(suggestingArgumentData.arguments);
+			suggestingArgumentData.arguments.clear();
 		} else {
 			suggestionProvider = null;
+			suggestingArguments = List.of();
 		}
 
 		// setup executor
@@ -361,7 +367,8 @@ public class SubCommandEntryData extends EntryData<Result> {
 		}
 
 		var result = compilationResult.root().children().stream()
-			.map(child -> parse(child, executor, commandRequires, suggestionProvider, subcommands))
+			.map(child -> parse(child, executor, commandRequires, suggestionProvider,
+				suggestingArguments, subcommands))
 			.toList();
 
 		parsingData.popExecutorData();
@@ -389,6 +396,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 	 * @param executor Executor to execute the command at any leaf elements.
 	 * @param requires Predicate testing whether the command can be used.
 	 * @param suggestionProvider Provider for custom suggestions.
+	 * @param suggestingArguments Arguments to suggest for using {@code suggestionProvider}.
 	 * @param subcommands Subcommands to attach to any leaf elements.
 	 * @return Builder representing the completed command tree from the root.
 	 */
@@ -397,12 +405,14 @@ public class SubCommandEntryData extends EntryData<Result> {
 		@Nullable ScriptCommandExecutor executor,
 		@Nullable Predicate<CommandSourceStack> requires,
 		@Nullable ScriptSuggestionProvider suggestionProvider,
+		List<ArgumentData<?>> suggestingArguments,
 		Collection<ScriptArgumentBuilder> subcommands
 	) {
 		Collection<CommandElement> children = commandElement.children();
 
 		ScriptArgumentBuilder argument;
 		if (commandElement instanceof LiteralCommandElement literalCommandElement) {
+			System.out.println("LITERAL: " + literalCommandElement.literal());
 			argument = new ScriptArgumentBuilder(Commands.literal(literalCommandElement.literal()), null);
 		} else { // ArgumentCommandElement
 			ArgumentData<?> data = ((ArgumentCommandElement) commandElement).argument();
@@ -421,13 +431,19 @@ public class SubCommandEntryData extends EntryData<Result> {
 				} else {
 					nativeType = StringArgumentType.string();
 				}
-				nativeType = new ScriptArgumentType<>(data, (StringArgumentType) nativeType);
+				// we only want to override the suggestions method if we will actually provide them
+				if (data.type().getSupplier() == null) {
+					nativeType = new ScriptArgumentType<>(data, (StringArgumentType) nativeType);
+				} else {
+					nativeType = new ScriptArgumentType.Suggesting<>(data, (StringArgumentType) nativeType);
+				}
 			}
 
 			argument = new ScriptArgumentBuilder(Commands.argument(data.name(), nativeType), data);
 
-			// attach suggestion provider to argument if available
-			if (suggestionProvider != null) {
+			// attach suggestion provider to argument if available and argument needs it
+			if (suggestingArguments.contains(data)) {
+				assert suggestionProvider != null;
 				ArgumentType<?> finalNativeType = nativeType;
 				//noinspection unchecked
 				((RequiredArgumentBuilder<CommandSourceStack, ?>) argument.builder()).suggests(
@@ -456,7 +472,8 @@ public class SubCommandEntryData extends EntryData<Result> {
 				continue;
 			}
 			// we don't need to pass requirements down to children. just on the root is good enough.
-			possibleArguments.add(parse(element, executor, null, suggestionProvider, subcommands));
+			possibleArguments.add(parse(element, executor, null, suggestionProvider,
+				suggestingArguments, subcommands));
 		}
 
 		// sort and append all children to this element

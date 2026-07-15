@@ -151,8 +151,8 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 	private static final Dynamic2CommandExceptionType ERROR_INVALID_INPUT = new Dynamic2CommandExceptionType(
 		(input, type) -> new LiteralMessage("'%s' is not a valid %s.".formatted(input, type)));
 
-	private final ArgumentData<T> argument;
-	private final StringArgumentType nativeType;
+	protected final ArgumentData<T> argument;
+	protected final StringArgumentType nativeType;
 
 	public ScriptArgumentType(@NotNull ArgumentData<T> argument, @NotNull StringArgumentType nativeType) {
 		this.argument = argument;
@@ -190,24 +190,33 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 		return nativeType;
 	}
 
-	@Override
-	public @NotNull CompletableFuture<Suggestions> listSuggestions(@NotNull CommandContext context, @NotNull SuggestionsBuilder builder) {
-		return listSuggestions(context, builder, FilteringMode.STARTS_WITH);
-	}
+	/**
+	 * A {@link ScriptArgumentType} that also provides custom suggestions using a {@link ClassInfo}'s {@link ClassInfo#getSupplier()}.
+	 */
+	public static class Suggesting<T> extends ScriptArgumentType<T> {
 
-	public @NotNull CompletableFuture<Suggestions> listSuggestions(@NotNull CommandContext<?> context, @NotNull SuggestionsBuilder builder,
-																   @NotNull FilteringMode filteringMode) {
-		Supplier<Iterator<T>> supplier = argument.type().getSupplier();
-		if (supplier == null) {
-			return Suggestions.empty();
+		public Suggesting(@NotNull ArgumentData<T> argument, @NotNull StringArgumentType nativeType) {
+			super(argument, nativeType);
 		}
-		Iterator<T> iterator = supplier.get();
-		while (iterator.hasNext()) {
-			String suggestion = Classes.toString(iterator.next()).toLowerCase(Locale.ENGLISH)
-				.replace(' ', '_');
-			ScriptSuggestionProvider.suggest(builder, new CommandSuggestion(suggestion, null), filteringMode);
+
+		@Override
+		public @NotNull CompletableFuture<Suggestions> listSuggestions(@NotNull CommandContext context, @NotNull SuggestionsBuilder builder) {
+			return listSuggestions(context, builder, FilteringMode.STARTS_WITH);
 		}
-		return builder.buildFuture();
+
+		public @NotNull CompletableFuture<Suggestions> listSuggestions(@NotNull CommandContext<?> context, @NotNull SuggestionsBuilder builder,
+		                                                               @NotNull FilteringMode filteringMode) {
+			Supplier<Iterator<T>> supplier = argument.type().getSupplier();
+			assert supplier != null;
+			Iterator<T> iterator = supplier.get();
+			while (iterator.hasNext()) {
+				String suggestion = Classes.toString(iterator.next()).toLowerCase(Locale.ENGLISH)
+					.replace(' ', '_');
+				ScriptSuggestionProvider.suggest(builder, new CommandSuggestion(suggestion, null), filteringMode);
+			}
+			return builder.buildFuture();
+		}
+
 	}
 
 }
