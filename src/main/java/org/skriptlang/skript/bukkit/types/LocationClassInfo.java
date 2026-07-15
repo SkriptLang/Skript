@@ -9,7 +9,6 @@ import ch.njol.skript.command.Commands;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.log.ErrorQuality;
-import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
 import ch.njol.yggdrasil.Fields;
 import org.bukkit.Bukkit;
@@ -28,9 +27,6 @@ import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.WXYZHandler;
 import org.skriptlang.skript.lang.properties.handlers.base.PropertyHandler;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import java.io.StreamCorruptedException;
 
