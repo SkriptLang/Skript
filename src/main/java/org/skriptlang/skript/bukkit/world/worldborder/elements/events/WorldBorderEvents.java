@@ -1,66 +1,21 @@
-package org.skriptlang.skript.bukkit.worldborder.elements;
+package org.skriptlang.skript.bukkit.world.worldborder.elements.events;
 
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleEvent;
-import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Timespan;
 import io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent;
 import io.papermc.paper.event.world.border.WorldBorderBoundsChangeFinishEvent;
 import io.papermc.paper.event.world.border.WorldBorderCenterChangeEvent;
 import org.bukkit.Location;
 import org.bukkit.WorldBorder;
-import org.skriptlang.skript.addon.AddonModule;
-import org.skriptlang.skript.addon.HierarchicalAddonModule;
-import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue.Time;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
-import org.skriptlang.skript.bukkit.worldborder.elements.effects.EffWorldBorderExpand;
-import org.skriptlang.skript.bukkit.worldborder.elements.expressions.*;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-public class WorldBorderModule extends HierarchicalAddonModule {
+public class WorldBorderEvents {
 
-	public WorldBorderModule(AddonModule parentModule) {
-		super(parentModule);
-	}
-
-	@Override
-	protected void initSelf(SkriptAddon addon) {
-		Classes.registerClass(new ClassInfo<>(WorldBorder.class, "worldborder")
-			.user("world ?borders?")
-			.name("World Border")
-			.description("Represents the border of a world or player.")
-			.since("2.11")
-			.parser(new Parser<>() {
-				@Override
-				public boolean canParse(ParseContext context) {
-					return false;
-				}
-
-				@Override
-				public String toString(WorldBorder border, int flags) {
-					if (border.getWorld() == null)
-						return "virtual world border";
-					return "world border of world named '" + border.getWorld().getName() + "'";
-				}
-
-				@Override
-				public String toVariableNameString(WorldBorder border) {
-					return toString(border, 0);
-				}
-			})
-			.defaultExpression(new EventValueExpression<>(WorldBorder.class)));
-	}
-
-	@Override
-	protected void loadSelf(SkriptAddon addon) {
-		EventValueRegistry eventValueRegistry = addon.registry(EventValueRegistry.class);
-		SyntaxRegistry syntaxRegistry = moduleRegistry(addon);
-
+	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry) {
 		syntaxRegistry.register(
 			BukkitSyntaxInfos.Event.KEY,
 			BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "World Border Bounds Change")
@@ -81,15 +36,18 @@ public class WorldBorderModule extends HierarchicalAddonModule {
 		eventValueRegistry.register(EventValue.builder(WorldBorderBoundsChangeEvent.class, WorldBorder.class)
 			.getter(WorldBorderBoundsChangeEvent::getWorldBorder)
 			.build());
+
 		eventValueRegistry.register(EventValue.builder(WorldBorderBoundsChangeEvent.class, Number.class)
 			.getter(WorldBorderBoundsChangeEvent::getNewSize)
 			.build());
+
 		eventValueRegistry.register(EventValue.builder(WorldBorderBoundsChangeEvent.class, Timespan.class)
 			.getter(event -> new Timespan(event.getDurationTicks()))
 			.build());
+
 		eventValueRegistry.register(EventValue.builder(WorldBorderBoundsChangeEvent.class, Number.class)
 			.getter(WorldBorderBoundsChangeEvent::getOldSize)
-			.time(EventValue.Time.PAST)
+			.time(Time.PAST)
 			.build());
 
 		syntaxRegistry.register(
@@ -112,13 +70,15 @@ public class WorldBorderModule extends HierarchicalAddonModule {
 		eventValueRegistry.register(EventValue.builder(WorldBorderBoundsChangeFinishEvent.class, WorldBorder.class)
 			.getter(WorldBorderBoundsChangeFinishEvent::getWorldBorder)
 			.build());
+
 		eventValueRegistry.register(EventValue.builder(WorldBorderBoundsChangeFinishEvent.class, Number.class)
 			.getter(WorldBorderBoundsChangeFinishEvent::getNewSize)
 			.build());
 		eventValueRegistry.register(EventValue.builder(WorldBorderBoundsChangeFinishEvent.class, Number.class)
 			.getter(WorldBorderBoundsChangeFinishEvent::getOldSize)
-			.time(EventValue.Time.PAST)
+			.time(Time.PAST)
 			.build());
+
 		eventValueRegistry.register(EventValue.builder(WorldBorderBoundsChangeFinishEvent.class, Timespan.class)
 			.getter(event -> new Timespan((long) event.getDuration()))
 			.build());
@@ -143,30 +103,16 @@ public class WorldBorderModule extends HierarchicalAddonModule {
 		eventValueRegistry.register(EventValue.builder(WorldBorderCenterChangeEvent.class, WorldBorder.class)
 			.getter(WorldBorderCenterChangeEvent::getWorldBorder)
 			.build());
+
 		eventValueRegistry.register(EventValue.builder(WorldBorderCenterChangeEvent.class, Location.class)
 			.getter(WorldBorderCenterChangeEvent::getNewCenter)
 			.build());
+
 		eventValueRegistry.register(EventValue.builder(WorldBorderCenterChangeEvent.class, Location.class)
 			.getter(WorldBorderCenterChangeEvent::getOldCenter)
-			.time(EventValue.Time.PAST)
+			.time(Time.PAST)
 			.build());
 
-		register(addon,
-			a -> ExprSecCreateWorldBorder.register(a, eventValueRegistry),
-			EffWorldBorderExpand::register,
-			ExprWorldBorder::register,
-			ExprWorldBorderCenter::register,
-			ExprWorldBorderDamageAmount::register,
-			ExprWorldBorderDamageBuffer::register,
-			ExprWorldBorderSize::register,
-			ExprWorldBorderWarningDistance::register,
-			ExprWorldBorderWarningTime::register
-		);
-	}
-
-	@Override
-	public String name() {
-		return "worldborder";
 	}
 
 }

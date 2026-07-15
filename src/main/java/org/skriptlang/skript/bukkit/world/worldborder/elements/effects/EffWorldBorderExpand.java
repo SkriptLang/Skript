@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.worldborder.elements.effects;
+package org.skriptlang.skript.bukkit.world.worldborder.elements.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;

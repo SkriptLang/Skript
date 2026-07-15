@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.worldborder.elements.expressions;
+package org.skriptlang.skript.bukkit.world.worldborder.elements.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -12,25 +12,25 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Damage Amount of World Border")
+@Name("Damage Buffer of World Border")
 @Description({
-	"The amount of damage a player takes per second for each block they are outside the border plus the border buffer.",
-	"Players only take damage when outside of the world's world border, and the damage value cannot be less than 0.",
+	"The amount of blocks a player may safely be outside the border before taking damage.",
+	"Players only take damage when outside of the world's world border, and the damage buffer distance cannot be less than 0."
 })
-@Example("set world border damage amount of {_worldborder} to 1")
+@Example("set world border damage buffer of {_worldborder} to 10")
 @Since("2.11")
-public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldBorder, Double>  {
+public class ExprWorldBorderDamageBuffer extends SimplePropertyExpression<WorldBorder, Double> {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprWorldBorderDamageAmount.class, Double.class, "world[ ]border damage amount", "worldborders", true)
-				.supplier(ExprWorldBorderDamageAmount::new)
+			infoBuilder(ExprWorldBorderDamageBuffer.class, Double.class, "world[ ]border damage buffer", "worldborders", true)
+				.supplier(ExprWorldBorderDamageBuffer::new)
 				.build());
 	 }
 
 	@Override
 	public @Nullable Double convert(WorldBorder worldBorder) {
-		return worldBorder.getDamageAmount();
+		return worldBorder.getDamageBuffer();
 	}
 
 	@Override
@@ -43,20 +43,16 @@ public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldB
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		double input = mode == ChangeMode.RESET ? 0.2 : ((Number) delta[0]).doubleValue();
+		double input = mode == ChangeMode.RESET ? 5 : ((Number) delta[0]).doubleValue();
 		if (Double.isNaN(input)) {
-			error("NaN is not a valid world border damage amount");
-			return;
-		}
-		if (Double.isInfinite(input)) {
-			error("World border damage amount cannot be infinite");
+			error("NaN is not a valid world border damage buffer");
 			return;
 		}
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
-				case SET, RESET -> worldBorder.setDamageAmount(Math.max(input, 0));
-				case ADD -> worldBorder.setDamageAmount(Math.max(worldBorder.getDamageAmount() + input, 0));
-				case REMOVE -> worldBorder.setDamageAmount(Math.max(worldBorder.getDamageAmount() - input, 0));
+				case SET, RESET -> worldBorder.setDamageBuffer(Math.max(input, 0));
+				case ADD -> worldBorder.setDamageBuffer(Math.max(worldBorder.getDamageBuffer() + input, 0));
+				case REMOVE -> worldBorder.setDamageBuffer(Math.max(worldBorder.getDamageBuffer() - input, 0));
 			}
 		}
 	}
@@ -68,7 +64,7 @@ public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldB
 
 	@Override
 	protected String getPropertyName() {
-		return "world border damage amount";
+		return "world border damage buffer";
 	}
 
 }
