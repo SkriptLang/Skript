@@ -2506,6 +2506,15 @@ particle:
 	white_ash: white ash particle¦s @a
 	white_smoke: white smoke particle¦s @a
 	witch: witch particle¦s @a
+    # 26.2
+	noxious_gas: noxious gas particle¦s @a, nausea gas particle¦s @a
+	noxious_gas_cloud: noxious gas cloud¦s @a, nausea gas cloud particle¦s @a
+	sulfur_cube_goo: sulfur cube goo particle¦s @a, sulfur cube jump particle¦s @a, sulfur cube jumping particle¦s @a
+	sulfur_bubbles: sulfur bubbles particle¦s @a, sulfur bubble column particle¦s @a
+	geyser: geyser particle¦s @a
+	geyser_base: geyser base particle¦s @a
+	geyser_plume: geyser plume particle¦s @a
+	geyser_poof: geyser poof particle¦s @a
 
 # -- Statistics --
 statistics:
@@ -2592,15 +2601,6 @@ statistics:
 	walk_on_water_one_cm: walk on water one cm, walk on water distance
 	walk_one_cm: walk one cm, walk distance
 	walk_under_water_one_cm: walk under water one cm, walk underwater once cm, walk under water distance, walk underwater distance
-	# 26.2
-	noxious_gas: noxious gas particle¦s @a, nausea gas particle¦s @a
-	noxious_gas_cloud: noxious gas cloud¦s @a, nausea gas cloud particle¦s @a
-	sulfur_cube_goo: sulfur cube goo particle¦s @a, sulfur cube jump particle¦s @a, sulfur cube jumping particle¦s @a
-	sulfur_bubbles: sulfur bubbles particle¦s @a, sulfur bubble column particle¦s @a
-	geyser: geyser particle¦s @a
-	geyser_base: geyser base particle¦s @a
-	geyser_plume: geyser plume particle¦s @a
-	geyser_poof: geyser poof particle¦s @a
 
 # -- Teleport Flags --
 teleport flags:
