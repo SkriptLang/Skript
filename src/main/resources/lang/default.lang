@@ -286,6 +286,8 @@ biomes:
 	cherry_grove: cherry grove
 	# 1.21.3
 	pale_garden: pale garden
+	# 26.2
+	sulfur_caves: sulfur caves
 
 # -- Tree Types --
 tree types:
@@ -1596,6 +1598,11 @@ entities:
 		name: parched¦s
 		pattern: parched[plural:s]
 
+	# 26.2
+	sulfur cube:
+		name: sulfur cube¦s
+		pattern: sulfur cube[plural:s]
+
 	# SuperTypes
 	human:
 		name: human¦s
@@ -2066,6 +2073,12 @@ attribute types:
 	camera_distance: camera distance
 	waypoint_transmit_range: waypoint transmit range
 	waypoint_receive_range: waypoint receive range
+	# 26.2
+	bounciness: bounciness
+	friction_modifier: friction modifier
+	below_name_distance: below name distance, nameplate score visibility distance, name tag score visibility distance
+	air_drag_modifier: air drag modifier
+	name_tag_distance: name tag distance, nameplate visibility distance, name tag visibility distance
 
 # -- Environments --
 environments:
@@ -2255,6 +2268,25 @@ game effect:
 	trial_spawner_detect_player_ominous: ominous trial spawner detect player effect
 	trial_spawner_become_ominous: trial spawner become ominous effect
 	trial_spawner_spawn_item: trial spawner spawn item effect
+
+	# 26.2
+	dispenser_dispense: dispenser dispense effect
+	dispenser_fail: dispenser fail effect, dispenser fail to dispense effect, dispenser failure to dispense effect
+	dispenser_projectile_launch: dispenser projectile launch effect
+	record_stop: record stop effect, music disc stop effect
+	ender_dragon_shoot: ender dragon shoot effect, ender dragon shoots fireball effect
+	zombie_converted_to_villager: zombie converted to villager effect, zombie villager cured effect
+	wind_charge_shoot: wind charge shoot effect
+	sulfur_spike_land: sulfur spike land effect
+	smoke_shoot: smoke shoot effect, smoke eruption effect
+	destroy_block: destroy block effect, block destruction effect
+	ender_dragon_breath: ender dragon breath effect, ender dragon breathing effect
+	white_smoke_shoot: white smoke shoot effect, white smoke eruption effect
+	ender_dragon_growl: ender dragon growl effect, ender dragon growling effect
+	sculk_charge: sculk charge effect,
+	sculk_shriek: sculk shriek effect,
+	brush_block_complete: brush block complete effect, finish brushing block effect,
+	egg_crack: egg crack effect
 
 # -- Entity Effects --
 # all patterns should include the word 'effect' or 'animation'
@@ -2475,6 +2507,15 @@ particle:
 	white_smoke: white smoke particle¦s @a
 	witch: witch particle¦s @a
 
+	# 26.2
+	noxious_gas: noxious gas particle¦s @a, nausea gas particle¦s @a
+	noxious_gas_cloud: noxious gas cloud¦s @a, nausea gas cloud particle¦s @a
+	sulfur_cube_goo: sulfur cube goo particle¦s @a, sulfur cube jump particle¦s @a, sulfur cube jumping particle¦s @a
+	sulfur_bubbles: sulfur bubbles particle¦s @a, sulfur bubble column particle¦s @a
+	geyser: geyser particle¦s @a
+	geyser_base: geyser base particle¦s @a
+	geyser_plume: geyser plume particle¦s @a
+	geyser_poof: geyser poof particle¦s @a
 
 # -- Teleport Flags --
 teleport flags:
@@ -2748,6 +2789,8 @@ damage types:
 	wind_charge: wind charge
 	wither: wither
 	wither_skull: wither skull
+	# 26.2
+	sulfur_cube_hot: sulfur cube hot, hot sulfur cube, magma sulfur cube
 
 # -- Boolean --
 boolean:
