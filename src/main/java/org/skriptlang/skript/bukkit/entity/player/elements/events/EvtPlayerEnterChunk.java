@@ -22,7 +22,7 @@ public class EvtPlayerEnterChunk extends SkriptEvent {
 				""")
 			.addExample("""
 				on player enter a chunk:
-				    send "You entered a chunk: %past event-chunk% -> %event-chunk%!" to player"
+					send "You entered a chunk: %past event-chunk% -> %event-chunk%!" to player"
 				""")
 			.addSince("2.7")
 			.build());

@@ -63,25 +63,25 @@ public class EvtClick extends SkriptEvent {
 				""")
 			.addExample("""
 				on rightclick holding a fishing rod:
-				    send "Nice %event-item stack% you got there!" to player
+					send "Nice %event-item stack% you got there!" to player
 				""")
 			.addExample("""
 				on rightclick on a creeper:
-				    send "How has it not exploded by now?" to player
-				    push target entity of player upwards at speed 2
+					send "How has it not exploded by now?" to player
+					push target entity of player upwards at speed 2
 				""")
 			.addExample("""
 				on click on chest[facing=north]:
-				    send "Well its a chest alright.." to player
-				    set event-block to chest[facing=south]
-				    send "I don't think it likes me.." to player
+					send "Well its a chest alright.." to player
+					set event-block to chest[facing=south]
+					send "I don't think it likes me.." to player
 				""")
 			.addExample("""
 				on leftclick on obsidian:
-				    send "Looks pretty hard to break.."
-				    chance of 10%:
-				        break event-block using player's tool
-				        send "How.." to player
+					send "Looks pretty hard to break.."
+					chance of 10%:
+						break event-block using player's tool
+						send "How.." to player
 				""")
 			.addSince("1.0, 2.10 (blockdata)")
 			.build());

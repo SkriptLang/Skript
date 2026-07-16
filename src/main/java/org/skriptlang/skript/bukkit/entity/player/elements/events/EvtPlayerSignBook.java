@@ -19,7 +19,7 @@ public class EvtPlayerSignBook extends SkriptEvent {
 			.addDescription("Called when a player signs a book.")
 			.addExample("""
 				on player sign book:
-				    send "Now everyone will know you wrote %event-item stack%<reset>!" to player
+					send "Now everyone will know you wrote %event-item stack%<reset>!" to player
 				""")
 			.addSince("2.2-dev31, INSERT VERSION (added pattern)")
 			.build());

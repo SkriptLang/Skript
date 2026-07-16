@@ -27,9 +27,9 @@ public class EvtPressurePlate extends SkriptEvent {
 			.addDescription("Called when a <i>player</i> steps on a pressure plate or tripwire respectively.")
 			.addExample("""
 				on step on pressure plate:
-				    chance of 25%:
-				         spawn primed tnt above block at player
-				         send "Run!" to player
+					chance of 25%:
+						 spawn primed tnt above block at player
+						 send "Run!" to player
 				""")
 			.addSince("1.0 (pressure plate), 1.4.4 (tripwire)")
 			.build());

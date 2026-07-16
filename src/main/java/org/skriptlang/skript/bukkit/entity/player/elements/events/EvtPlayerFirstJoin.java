@@ -19,7 +19,7 @@ public class EvtPlayerFirstJoin extends SkriptEvent {
 			.addDescription("Called when a player joins the server for the first time.")
 			.addExample("""
 				on player first join:
-				    set the join message to "[NEW] %player%!"
+					set the join message to "[NEW] %player%!"
 				""")
 			.addSince("1.3.7, INSERT VERSION (updated pattern)")
 			.build());

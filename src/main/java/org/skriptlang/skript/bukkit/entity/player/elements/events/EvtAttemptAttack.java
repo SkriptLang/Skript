@@ -34,7 +34,7 @@ public class EvtAttemptAttack extends SkriptEvent {
 				""")
 			.addExample("""
 				on attempt to attack an animal:
-				    cancel event
+					cancel event
 				""")
 			.addExample("""
 				on attempt to attack a zombie or creeper:

@@ -35,7 +35,7 @@ public class EvtPlayerCommandSend extends SkriptEvent {
 			.addExample("""
 				on send command list:
 					set command list to command list where [input does not contain ":"]
-				    remove "help" from command list
+					remove "help" from command list
 				""")
 			.addSince("2.8.0")
 			.build());

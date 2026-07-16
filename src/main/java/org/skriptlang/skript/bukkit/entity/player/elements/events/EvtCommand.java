@@ -29,19 +29,19 @@ public class EvtCommand extends SkriptEvent {
 				""")
 			.addExample("""
 				on command "/ban":
-				    player is not op
-				    send "Nice try.." to player
-				    cancel event
+					player is not op
+					send "Nice try.." to player
+					cancel event
 				""")
 			.addExample("""
 				on command:
-				    add command to {commands::%player's uuid%}
+					add command to {commands::%player's uuid%}
 				""")
 			.addExample("""
 				on command:
-				    if {combat::%player's uuid%} is set:
-				        cancel event
-				        send "No commands for you!" to player
+					if {combat::%player's uuid%} is set:
+						cancel event
+						send "No commands for you!" to player
 				""")
 			.addSince("2.0")
 			.build());

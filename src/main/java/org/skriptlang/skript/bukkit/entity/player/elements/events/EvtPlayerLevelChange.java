@@ -23,11 +23,11 @@ public class EvtPlayerLevelChange extends SkriptEvent {
 				""")
 			.addExample("""
 				on player level change:
-				    send "experience!" to player
+					send "experience!" to player
 				""")
 			.addExample("""
 				on player level up:
-				    send "Its going up!" to player
+					send "Its going up!" to player
 				""")
 			.addSince("1.0, 2.4 (level up/down)")
 			.build());

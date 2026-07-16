@@ -31,12 +31,12 @@ public class EvtResourcePackResponse extends SkriptEvent {
 				""")
 			.addExample("""
 				on resource pack request response:
-				    if the resource pack was declined or failed to download:
-				        kick player due to "<red>You must accept the resource pack to play!"
+					if the resource pack was declined or failed to download:
+						kick player due to "<red>You must accept the resource pack to play!"
 				""")
 			.addExample("""
 				on resource pack accept:
-				    send "Welcome to the server!" to player
+					send "Welcome to the server!" to player
 				""")
 			.addSince("2.4")
 			.build());
