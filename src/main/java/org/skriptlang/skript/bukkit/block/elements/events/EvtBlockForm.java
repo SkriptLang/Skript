@@ -26,7 +26,7 @@ public class EvtBlockForm extends SkriptEvent {
 				""")
 			.addExample("""
 				on form of snow:
-				    broadcast "Great even more snow.."
+					broadcast "Great even more snow.."
 				""")
 			.addSince("1.0, 2.6 (BlockData support)")
 			.build());

@@ -21,15 +21,15 @@ public class EvtBlockBurn extends SkriptEvent {
 			.addDescription("Called when a block is destroyed by fire.")
 			.addExample("""
 				on block burn:
-				    broadcast "AHH IT BURNS!!"
+					broadcast "AHH IT BURNS!!"
 				""")
 			.addExample("""
 				on block burn of oak wood:
-				    broadcast "Lets hope this wood is not a part of the house.."
+					broadcast "Lets hope this wood is not a part of the house.."
 				""")
 			.addExample("""
 				on burn of oak_log[axis=y]:
-				    broadcast "Very specific.."
+					broadcast "Very specific.."
 				""")
 			.addSince("1.0, 2.6 (BlockData support)")
 			.build());

@@ -28,19 +28,19 @@ public class EvtBlockDrop extends SkriptEvent {
 			.addEvent(BlockDropItemEvent.class)
 			.addPattern("block drop[ping] [[of] %-itemtypes/blockdatas%]")
 			.addDescription("""
-			    Called when a block broken by a player drops something.
-			    Note that if breaking of the block leads to others being broken,\s
-			    such as torches, they will appear in the event-items and event-entities.
-			    """)
+				Called when a block broken by a player drops something.
+				Note that if breaking of the block leads to others being broken,\s
+				such as torches, they will appear in the event-items and event-entities.
+				""")
 			.addExample("""
 				on block drop:
-				    send "Nice %event-item stacks% you got %player%!" to player
+					send "Nice %event-item stacks% you got %player%!" to player
 				""")
 			.addExample("""
 				on block drop of oak log:
-				    chance of 42%:
-				        kill event-player
-				        send "Well you got unlucky and a black hole dropped from %past event-block% instead.."
+					chance of 42%:
+						kill event-player
+						send "Well you got unlucky and a black hole dropped from %past event-block% instead.."
 				""")
 			.addSince("2.10")
 			.build());

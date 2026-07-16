@@ -39,20 +39,20 @@ public class EvtBlockBreak extends SkriptEvent {
 				""")
 			.addExample("""
 				on break of tnt:
-				    send "Nice job preventing disaster!" to player
+					send "Nice job preventing disaster!" to player
 				""")
 			.addExample("""
 				on mine of coal ore:
-				    send "You just got %sizes of drops of event-block% drops!" to player
+					send "You just got %sizes of drops of event-block% drops!" to player
 				""")
 			.addExample("""
 				on break of chest[facing=north]:
-				    send "This chest seems to like facing north a lot.." to player
+					send "This chest seems to like facing north a lot.." to player
 				""")
 			.addExample("""
 				on break of potatoes[age=7]:
-				    send "At least you harvested it during harvest season.." to player
-				    give player 15 potatoes
+					send "At least you harvested it during harvest season.." to player
+					give player 15 potatoes
 				""")
 			.addSince("1.0 (break, mine), 2.6 (BlockData support)")
 			.build());

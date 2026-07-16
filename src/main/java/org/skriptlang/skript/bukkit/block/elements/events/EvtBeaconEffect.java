@@ -28,20 +28,20 @@ public class EvtBeaconEffect extends SkriptEvent {
 			.addDescription("Called when a player gets an effect from a beacon.")
 			.addExample("""
 				on beacon effect:
-				    broadcast "%event-player% just got %applied effect% beacon effect at the beacon %event-block%!"
-				    broadcast
+					broadcast "%event-player% just got %applied effect% beacon effect at the beacon %event-block%!"
+					broadcast
 				""")
 			.addExample("""
 				on primary beacon effect apply of haste:
-				    broadcast "I could mine through a mountain.."
+					broadcast "I could mine through a mountain.."
 				""")
 			.addExample("""
 					on application of secondary beacon effect:
-					    broadcast "secondary exposure!"
+						broadcast "secondary exposure!"
 				""")
 			.addExample("""
 				on beacon effect of speed:
-				    broadcast "Feeling speedy today!"
+					broadcast "Feeling speedy today!"
 				""")
 			.addSince("2.10")
 			.build());

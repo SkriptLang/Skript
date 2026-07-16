@@ -31,7 +31,7 @@ public class EvtBlockGrow extends SkriptEvent {
 				""")
 			.addExample("""
 				on crop growth:
-				    broadcast "IT GREW!"
+					broadcast "IT GREW!"
 				""")
 			.addSince("2.2-Fixes-V10, INSERT VERSION (BlockData support)")
 			.build());

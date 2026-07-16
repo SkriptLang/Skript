@@ -38,11 +38,11 @@ public class EvtBlockPlace extends SkriptEvent {
 			.addDescription("Called when a player places a block.")
 			.addExample("""
 				on place:
-				    send "Nice %event-item stack% you got there!" to player
+					send "Nice %event-item stack% you got there!" to player
 				""")
 			.addExample("""
 				on place of a furnace, crafting table or chest:
-				    send "Basic utilities eh?"
+					send "Basic utilities eh?"
 				""")
 			.addSince("1.0, 2.6 (BlockData support)")
 			.build());

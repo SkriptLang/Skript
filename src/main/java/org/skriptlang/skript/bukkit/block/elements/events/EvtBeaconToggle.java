@@ -26,15 +26,15 @@ public class EvtBeaconToggle extends SkriptEvent {
 			.addDescription("Called when a beacon is activated or deactivated.")
 			.addExample("""
 				on beacon toggle:
-				    broadcast "A beacon was just toggled!"
+					broadcast "A beacon was just toggled!"
 				""")
 			.addExample("""
 				on beacon activate:
-				    broadcast "A beacon was just activated!"
+					broadcast "A beacon was just activated!"
 				""")
 			.addExample("""
 				on beacon deactivate:
-				    broadcast "A beacon was just deactivated :("
+					broadcast "A beacon was just deactivated :("
 				""")
 			.addSince("2.10")
 			.build());

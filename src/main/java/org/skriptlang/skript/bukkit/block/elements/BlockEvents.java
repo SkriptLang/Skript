@@ -54,7 +54,7 @@ public class BlockEvents {
 				""")
 			.addExample("""
 				on block can build check:
-				    broadcast "We gotta do a check!"
+					broadcast "We gotta do a check!"
 				""")
 			.addSince("1.0 (basic), 2.0 ([un]cancellable)")
 			.supplier(() -> new SimpleEvent("block can build check"))
@@ -86,8 +86,8 @@ public class BlockEvents {
 				""")
 			.addExample("""
 				on player damaging a block:
-				    if event-block is tagged with minecraft tag "logs":
-				        send "You cannot break the holy log!" to player
+					if event-block is tagged with minecraft tag "logs":
+						send "You cannot break the holy log!" to player
 				""")
 			.addSince("1.0, INSERT VERSION (added new pattern)")
 			.supplier(() -> new SimpleEvent("block damage"))
@@ -106,8 +106,8 @@ public class BlockEvents {
 				""")
 			.addExample("""
 				on block flow:
-				    if event-block is water:
-				        broadcast "Build more dams! It's starting to get wet in here!"
+					if event-block is water:
+						broadcast "Build more dams! It's starting to get wet in here!"
 				""")
 			.addSince("1.0")
 			.supplier(() -> new SimpleEvent("block flow"))
@@ -127,9 +127,9 @@ public class BlockEvents {
 				""")
 			.addExample("""
 				on block ignite:
-				    if event-block is a ladder:
-				        cancel event
-				        broadcast "No ladders were harmed in the making of this film."
+					if event-block is a ladder:
+						cancel event
+						broadcast "No ladders were harmed in the making of this film."
 				""")
 			.addSince("1.0")
 			.supplier(() -> new SimpleEvent("block ignite"))
@@ -149,10 +149,10 @@ public class BlockEvents {
 				""")
 			.addExample("""
 				on block physics:
-				    if event-block is sand:
-				        cancel event
-				        add 1 to {sand}
-				        send actionbar "This code has stopped %{sand}%x sand from falling!" to all players
+					if event-block is sand:
+						cancel event
+						add 1 to {sand}
+						send actionbar "This code has stopped %{sand}%x sand from falling!" to all players
 				""")
 			.addSince("1.4.6")
 			.supplier(() -> new SimpleEvent("block physics"))
@@ -164,7 +164,7 @@ public class BlockEvents {
 			.addDescription("Called when a piston is about to extend.")
 			.addExample("""
 				on piston extend:
-				    broadcast "A piston is extending!"
+					broadcast "A piston is extending!"
 				""")
 			.addSince("1.0")
 			.supplier(() -> new SimpleEvent("piston extend"))
@@ -176,7 +176,7 @@ public class BlockEvents {
 			.addDescription("Called when a piston is about to retract.")
 			.addExample("""
 				on piston retract:
-				    broadcast "A piston is retracting!"
+					broadcast "A piston is retracting!"
 				""")
 			.addSince("1.0")
 			.supplier(() -> new SimpleEvent("piston retract"))
@@ -188,7 +188,7 @@ public class BlockEvents {
 			.addDescription("Called when the redstone current of a block changes.")
 			.addExample("""
 				on redstone change:
-				    broadcast "Someone is using redstone!" to console
+					broadcast "Someone is using redstone!" to console
 				""")
 			.addSince("1.0")
 			.supplier(() -> new SimpleEvent("redstone"))
@@ -203,7 +203,7 @@ public class BlockEvents {
 				""")
 			.addExample("""
 				on block spread:
-				    broadcast "its spreading!"
+					broadcast "its spreading!"
 				""")
 			.addSince("1.0")
 			.supplier(() -> new SimpleEvent("block spread"))
@@ -215,7 +215,7 @@ public class BlockEvents {
 			.addDescription("Called when a player fertilizes blocks.")
 			.addExample("""
 				on block fertilize:
-				    broadcast "Ew.. %size of event-blocks% got fertilized.."
+					broadcast "Ew.. %size of event-blocks% got fertilized.."
 				""")
 			.addSince("2.5")
 			.supplier(() -> new SimpleEvent("block fertilize"))
@@ -233,8 +233,8 @@ public class BlockEvents {
 			.build());
 
 		//
- 		// Block specific events (e.g. LeavesDecayEvent)
- 		//
+		// Block specific events (e.g. LeavesDecayEvent)
+		//
 
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Leaves Decay")
 			.addEvent(LeavesDecayEvent.class)
@@ -242,7 +242,7 @@ public class BlockEvents {
 			.addDescription("Called when a leaf block decays due to not being connected to a tree.")
 			.addExample("""
 				on leaves decay:
-				    broadcast "Its beginning to look a lot like fall.."
+					broadcast "Its beginning to look a lot like fall.."
 				""")
 			.addSince("1.0")
 			.supplier(() -> new SimpleEvent("leaves decay"))
@@ -254,7 +254,7 @@ public class BlockEvents {
 			.addDescription("Called when a player finishes editing a sign after placing it or right clicking on it if its not waxed.")
 			.addExample("""
 				on player changing a sign:
-				    set line 1 to "It must be a sign!"
+					set line 1 to "It must be a sign!"
 				""")
 			.addSince("1.0")
 			.supplier(() -> new SimpleEvent("sign change"))
@@ -274,8 +274,8 @@ public class BlockEvents {
 			.addDescription("Called when a sponge absorbs blocks.")
 			.addExample("""
 				on sponge absorb:
-				    loop absorbed blocks:
-				        broadcast "%loop-block% was absorbed by a sponge!"
+					loop absorbed blocks:
+						broadcast "%loop-block% was absorbed by a sponge!"
 				""")
 			.addSince("2.5")
 			.supplier(() -> new SimpleEvent("sponge absorb"))
@@ -287,7 +287,7 @@ public class BlockEvents {
 			.addDescription("Called when a bell is rung.")
 			.addExample("""
 				on bell ring:
-				    send "<gold>Ding-dong!" to (all players in radius 10 of event-block)
+					send "<gold>Ding-dong!" to (all players in radius 10 of event-block)
 				""")
 			.addSince("2.9.0")
 			.supplier(() -> new SimpleEvent("bell ring"))
@@ -307,7 +307,7 @@ public class BlockEvents {
 			.addDescription("Called when a bell resonates, highlighting nearby raiders.")
 			.addExample("""
 				on bell resonate:
-				    send "<red>There are raiders nearby!" to (all players in radius 32 of event-block)
+					send "<red>There are raiders nearby!" to (all players in radius 32 of event-block)
 				""")
 			.addSince("2.9.0")
 			.supplier(() -> new SimpleEvent("bell resonate"))
@@ -323,7 +323,7 @@ public class BlockEvents {
 			.addDescription("Called when a vault in a trial chamber is about to display an item.")
 			.addExample("""
 				on vault display item:
-				    set event-item to netherite ingot
+					set event-item to netherite ingot
 				""")
 			.addSince("2.12")
 			.supplier(() -> new SimpleEvent("vault display item"))

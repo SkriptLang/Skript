@@ -27,12 +27,12 @@ public class EvtBlockFade extends SkriptEvent {
 			.addDescription("Called when a block 'fades away', e.g. ice or snow melts.")
 			.addExample("""
 				on block fade of snow or blue ice:
-				    broadcast "Great just what we need: Less of %past event-block%.."
+					broadcast "Great just what we need: Less of %past event-block%.."
 				""")
 			.addExample("""
 				on block fade of snow[layers=2]:
-				    set event-block to lava
-				    broadcast "Now its getting hot!"
+					set event-block to lava
+					broadcast "Now its getting hot!"
 				""")
 			.addSince("1.0, 2.6 (BlockData support)")
 			.build());
