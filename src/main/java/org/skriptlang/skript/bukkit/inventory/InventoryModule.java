@@ -27,8 +27,6 @@ public class InventoryModule extends HierarchicalAddonModule {
 
 		InventoryEvents.register(syntaxRegistry, eventValueRegistry);
 		EvtInventoryClick.register(syntaxRegistry, eventValueRegistry);
-
-
 	}
 
 	@Override
