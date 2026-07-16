@@ -24,10 +24,10 @@ public class ItemModule extends HierarchicalAddonModule {
 	@Override
 	public void loadSelf(SkriptAddon addon) {
 		register(addon,
-			ExprItemWithLore::register,
-			ExprLore::register,
 			ExprItemModel::register,
-			ExprItemWithModel::register
+			ExprItemWithLore::register,
+			ExprItemWithModel::register,
+			ExprLore::register
 		);
 	}
 

@@ -14,13 +14,13 @@ import org.skriptlang.skript.registration.DefaultSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Item With Model")
-@Keywords("item model")
 @Description("Returns a copy of an item with a custom item model. Accepts a Namespaced Key (e.g. 'minecraft:emerald').")
 @Example("""
 	set {_item} to emerald with model "minecraft:diamond" named "fake diamond"'
 	give {_item} to player
 	""")
 @Since("INSERT VERSION")
+@Keywords("item model")
 public class ExprItemWithModel extends PropertyExpression<ItemType, ItemType> {
 
 	public static void register(SyntaxRegistry registry) {
@@ -33,19 +33,19 @@ public class ExprItemWithModel extends PropertyExpression<ItemType, ItemType> {
 		);
 	}
 
-	private Expression<String> keyExpr;
+	private Expression<String> key;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<ItemType>) exprs[0]);
-		keyExpr = (Expression<String>) exprs[1];
+		key = (Expression<String>) exprs[1];
 		return true;
 	}
 
 	@Override
 	protected ItemType[] get(Event event, ItemType[] source) {
-		String keyString = keyExpr.getSingle(event);
+		String keyString = key.getSingle(event);
 		if (keyString == null)
 			return source;
 
@@ -66,7 +66,7 @@ public class ExprItemWithModel extends PropertyExpression<ItemType, ItemType> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return getExpr().toString(event, debug) + " with item model " + keyExpr.toString(event, debug);
+		return getExpr().toString(event, debug) + " with item model " + key.toString(event, debug);
 	}
 
 }

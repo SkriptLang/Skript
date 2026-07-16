@@ -37,9 +37,18 @@ public class ExprItemModel extends SimplePropertyExpression<ItemType, String> {
 	@Override
 	public @Nullable String convert(ItemType from) {
 		NamespacedKey key = from.getItemMeta().getItemModel();
-		if (key == null) return null;
+		if (key == null)
+			return null;
 
 		return key.asString();
+	}
+
+	@Override
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case SET, DELETE, RESET -> CollectionUtils.array(String.class);
+			default -> null;
+		};
 	}
 
 	@Override
@@ -52,14 +61,6 @@ public class ExprItemModel extends SimplePropertyExpression<ItemType, String> {
 			meta.setItemModel(key);
 			item.setItemMeta(meta);
 		}
-	}
-
-	@Override
-	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		return switch (mode) {
-			case SET, DELETE, RESET -> CollectionUtils.array(String.class);
-			default -> null;
-		};
 	}
 
 	@Override
