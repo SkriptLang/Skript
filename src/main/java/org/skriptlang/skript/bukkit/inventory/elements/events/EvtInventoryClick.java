@@ -34,24 +34,16 @@ public class EvtInventoryClick extends SkriptEvent {
 			.addDescription("Called when a player clicks on an inventory slot.")
 			.addExample("""
 				on inventory click:
-				    if event-item is tnt:
-				        broadcast "Explosives found!"
-				        kill player
+					if event-item is tnt:
+						broadcast "Explosives found!"
+						kill player
 				""")
 			.addExample("""
 				on inventory click at bedrock:
-				    cancel event
-				    send "You cannot click on an illegal item!"
+					cancel event
+					send "You cannot click on an illegal item!"
 				""")
 			.addSince("2.2-Fixes-V10, INSERT VERSION (on)")
-			.build());
-
-		eventValueRegistry.register(EventValue.builder(InventoryClickEvent.class, Player.class)
-			.getter(event -> event.getWhoClicked() instanceof Player player ? player : null)
-			.build());
-
-		eventValueRegistry.register(EventValue.builder(InventoryClickEvent.class, World.class)
-			.getter(event -> event.getWhoClicked().getWorld())
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(InventoryClickEvent.class, ItemStack.class)

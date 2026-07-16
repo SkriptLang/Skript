@@ -36,6 +36,14 @@ public class InventoryEvents {
 			.getter(InventoryEvent::getInventory)
 			.build());
 
+		eventValueRegistry.register(EventValue.builder(InventoryInteractEvent.class, Player.class)
+			.getter(event -> event.getWhoClicked() instanceof Player player ? player : null)
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(InventoryInteractEvent.class, World.class)
+			.getter(event -> event.getWhoClicked().getWorld())
+			.build());
+
 		// Inventory Events
 
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Player Inventory Open")
@@ -47,7 +55,7 @@ public class InventoryEvents {
 				""")
 			.addExample("""
 				on inventory open:
-				    send "its an inventory!" to player
+					send "its an inventory!" to player
 				""")
 			.addSince("2.2-dev21, INSERT VERSION (added new pattern and updated existing one)")
 			.supplier(() -> new SimpleEvent("player inventory open"))
@@ -66,7 +74,7 @@ public class InventoryEvents {
 				""")
 			.addExample("""
 				on player close inventory:
-				    send "closed!" to player
+					send "closed!" to player
 				""")
 			.addSince("2.2-dev21, INSERT VERSION (updated pattern)")
 			.supplier(() -> new SimpleEvent("player inventory close"))
@@ -86,7 +94,7 @@ public class InventoryEvents {
 			.addDescription("Called when an inventory (a hopper, a hopper minecart, etc.) picks up an item.")
 			.addExample("""
 				on inventory pickup:
-				    broadcast "An inventory just picked up an item!"
+					broadcast "An inventory just picked up an item!"
 				""")
 			.addSince("2.5.1, INSERT VERSION (updated pattern)")
 			.supplier(() -> new SimpleEvent("inventory pick up"))
@@ -111,9 +119,9 @@ public class InventoryEvents {
 			.addDescription("Called when a player drags an item in their cursor across the inventory.")
 			.addExample("""
 				on inventory drag item:
-				    if player's top inventory is {example}:
-				        sends "You cannot drag items here!" to player
-				        cancel event
+					if player's top inventory is {example}:
+						sends "You cannot drag items here!" to player
+						cancel event
 				""")
 			.addSince("2.7, INSERT VERSION (updated pattern)")
 			.supplier(() -> new SimpleEvent("inventory drag item"))
@@ -190,7 +198,7 @@ public class InventoryEvents {
 				""")
 			.addExample("""
 				on inventory item move:
-				    broadcast "%holder of past event-inventory% is transporting %event-item% to %holder of event-inventory%!"
+					broadcast "%holder of past event-inventory% is transporting %event-item% to %holder of event-inventory%!"
 				""")
 			.addSince("2.8.0")
 			.supplier(() -> new SimpleEvent("inventory item move"))
