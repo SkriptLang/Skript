@@ -683,7 +683,7 @@ parse:
 	results: {EventValues::on area effect}
 	code:
 		on area effect:
-			set {_values::*} to event-living entities and event-potion effect type
+			set {_values::*} to event-living entities and event-potion effect types
 
 parse:
 	results: {EventValues::on sheep grow wool}
