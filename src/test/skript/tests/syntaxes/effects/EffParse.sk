@@ -1,0 +1,48 @@
+test "parse effect":
+	# test single value
+	set {_value} to "5"
+	parse {_value} as int
+	assert {_value} = 5 with "couldn't parse a single value"
+
+	set {_value} to "a"
+	try to parse {_value} as int
+	assert {_value} is set with "using 'try to' still deletes the value"
+
+	parse {_value} as int
+	assert {_value} isn't set with "failed parse didn't delete the value"
+
+	# test lists
+	set {_values::*} to "1", "2a", "3", "4b"
+	parse {_values::*} as int
+	assert {_values::1} = 1 with "couldn't parse a list - 1"
+	assert {_values::2} isn't set with "couldn't parse a list - 2"
+	assert {_values::3} = 3 with "couldn't parse a list - 3"
+	assert {_values::4} isn't set with "couldn't parse a list - 4"
+	assert size of (last parse errors) is 2 with "parse errors aren't set"
+
+	# test multiple expressions
+	set {_a} to "3"
+	set {_b} to "hello"
+	set {_c} to "5"
+	parse {_a}, {_b} and {_c} as int
+	assert {_a} = 3 with "couldn't parse multiple expressions - 1"
+	assert {_b} isn't set with "couldn't parse multiple expressions - 2"
+	assert {_c} = 5 with "couldn't parse multiple expressions - 3"
+
+	# test if lists keep their indices
+	delete {_values::*}
+	set {_values::a} to "3"
+	set {_values::b} to "5"
+	parse {_values::*} as integer
+	assert {_values::a} = 3 with "lists didn't keep their indices - 1"
+	assert {_values::b} = 5 with "lists didn't keep their indices - 2"
+
+	# test multiple data types
+	delete {_values::*}
+	set {_values::1} to "2"
+	set {_values::2} to 6
+	set {_values::3} to "10"
+	parse {_values::*} as integer
+	assert {_values::1} = 2 with "multiple data types don't work - 1"
+	assert {_values::2} isn't set with "multiple data types don't work - 2"
+	assert {_values::3} = 10 with "multiple data types don't work - 3"
