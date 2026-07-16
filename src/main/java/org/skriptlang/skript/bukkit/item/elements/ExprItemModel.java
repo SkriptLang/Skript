@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.item.elements;
 
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.NamespacedUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -53,8 +54,11 @@ public class ExprItemModel extends SimplePropertyExpression<ItemType, String> {
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		//noinspection DataFlowIssue
-		NamespacedKey key = (mode == SET) ? NamespacedKey.fromString((String) delta[0]) : null;
+		NamespacedKey key = null;
+		if (mode == SET) {
+			//noinspection DataFlowIssue
+			key = NamespacedUtils.checkValidationAndSend((String) delta[0], this);
+		}
 
 		for (ItemType item : getExpr().getArray(event)) {
 			ItemMeta meta = item.getItemMeta();

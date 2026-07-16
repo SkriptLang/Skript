@@ -1,3 +1,5 @@
+using error catching
+
 test "ExprItemModel":
 	set {_item} to diamond
 
@@ -35,5 +37,10 @@ test "ExprItemModel":
 	assert item model of {_item} is "minecraft:test_string" with "Item with item model of variable string"
 
 	set {_item} to diamond
-	set item model of {_item} to "with spaces"
-	assert item model of {_item} is not set with "Attempt to set invalid key for item model"
+	catch runtime errors:
+		set item model of {_item} to "with spaces"
+	assert last caught runtime errors are set with "Runtime errors produced for invalid key for item model"
+
+	catch runtime errors:
+		set {_item} to diamond with model "with spaces"
+	assert last caught runtime errors are set with "Runtime errors produced for invalid key for item with model"

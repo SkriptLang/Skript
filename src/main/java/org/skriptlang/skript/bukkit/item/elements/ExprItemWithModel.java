@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.item.elements;
 
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.NamespacedUtils;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
@@ -49,7 +50,7 @@ public class ExprItemWithModel extends PropertyExpression<ItemType, ItemType> {
 		if (keyString == null)
 			return source;
 
-		NamespacedKey key = NamespacedKey.fromString(keyString);
+		NamespacedKey key = NamespacedUtils.checkValidationAndSend(keyString, this);
 		return get(source, itemType -> {
 			itemType = itemType.clone();
 			ItemMeta itemMeta = itemType.getItemMeta();
