@@ -446,11 +446,11 @@ public class EntityEvents {
 		eventValueRegistry.register(EventValue.builder(AreaEffectCloudApplyEvent.class, PotionEffectType[].class)
 			.getter(event -> {
 				PotionType base = event.getEntity().getBasePotionType();
-				if (base != null)
-					return base.getPotionEffects().stream()
-						.map(PotionEffect::getType)
-						.toArray(PotionEffectType[]::new);
-				return null;
+				if (base == null)
+					return null;
+				return base.getPotionEffects().stream()
+					.map(PotionEffect::getType)
+					.toArray(PotionEffectType[]::new);
 			})
 			.build());
 
