@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.DefaultSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Item with model")
+@Name("Item With Model")
 @Keywords("item model")
 @Description("Returns a copy of an item with a custom item model. Accepts a Namespaced Key (e.g. 'minecraft:emerald').")
 @Example("""
@@ -68,4 +68,5 @@ public class ExprItemWithModel extends PropertyExpression<ItemType, ItemType> {
 	public String toString(@Nullable Event event, boolean debug) {
 		return getExpr().toString(event, debug) + " with item model " + keyExpr.toString(event, debug);
 	}
+
 }
