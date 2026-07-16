@@ -25,7 +25,9 @@ public class ItemModule extends HierarchicalAddonModule {
 	public void loadSelf(SkriptAddon addon) {
 		register(addon,
 			ExprItemWithLore::register,
-			ExprLore::register
+			ExprLore::register,
+			ExprItemModel::register,
+			ExprItemWithModel::register
 		);
 	}
 
