@@ -51,6 +51,9 @@ public class ExprItemWithModel extends PropertyExpression<ItemType, ItemType> {
 			return source;
 
 		NamespacedKey key = NamespacedUtils.checkValidationAndSend(keyString, this);
+		if (key == null)
+			return source;
+
 		return get(source, itemType -> {
 			itemType = itemType.clone();
 			ItemMeta itemMeta = itemType.getItemMeta();

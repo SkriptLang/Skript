@@ -58,6 +58,9 @@ public class ExprItemModel extends SimplePropertyExpression<ItemType, String> {
 		if (mode == SET) {
 			//noinspection DataFlowIssue
 			key = NamespacedUtils.checkValidationAndSend((String) delta[0], this);
+			if (key == null) {
+				return;
+			}
 		}
 
 		for (ItemType item : getExpr().getArray(event)) {
