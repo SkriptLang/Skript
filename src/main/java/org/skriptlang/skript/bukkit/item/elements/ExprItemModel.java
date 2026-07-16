@@ -71,4 +71,5 @@ public class ExprItemModel extends SimplePropertyExpression<ItemType, String> {
 	protected String getPropertyName() {
 		return "item model";
 	}
+
 }
