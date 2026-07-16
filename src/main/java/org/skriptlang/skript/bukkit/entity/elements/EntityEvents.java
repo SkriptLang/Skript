@@ -273,7 +273,7 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on explosion prime:
-				    broadcast "The explosion is primed!"
+					broadcast "The explosion is primed!"
 				""")
 			.addSince("1.0, INSERT VERSION (updated pattern)")
 			.supplier(() -> new SimpleEvent("explosion prime"))
@@ -433,7 +433,7 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on area cloud effect:
-				    broadcast "Try to avoid the effect cloud!"
+					broadcast "Try to avoid the effect cloud!"
 				""")
 			.addSince("2.2-dev21")
 			.supplier(() -> new SimpleEvent("area cloud effect"))
@@ -489,7 +489,7 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on vehicle move:
-				    send actionbar "A vehicle is moving from %past event location% to %event-location%!" to (all players)
+					send actionbar "A vehicle is moving from %past event location% to %event-location%!" to (all players)
 				""")
 			.addSince("2.10, INSERT VERSION (pattern update)")
 			.supplier(() -> new SimpleEvent("vehicle moving"))
@@ -510,8 +510,8 @@ public class EntityEvents {
 			.addDescription("Called when an entity exits a vehicle.")
 			.addExample("""
 				on vehicle exit:
-				    event-entity is a spider
-				    kill event-entity
+					event-entity is a spider
+					kill event-entity
 				""")
 			.addSince("1.0")
 			.supplier(() -> new SimpleEvent("vehicle exit"))
@@ -530,8 +530,8 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on vehicle enter:
-				    event-entity is a player
-				    cancel event
+					event-entity is a player
+					cancel event
 				""")
 			.addSince("1.0")
 			.supplier(() -> new SimpleEvent("vehicle enter"))
@@ -550,7 +550,7 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on vehicle destroy:
-				    broadcast "Not our vehicle!"
+					broadcast "Not our vehicle!"
 				""")
 			.addSince("1.0")
 			.supplier(() -> new SimpleEvent("vehicle destroy"))
@@ -569,7 +569,7 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on vehicle damage:
-				    broadcast "How dare you hurt %event-vehicle%!"
+					broadcast "How dare you hurt %event-vehicle%!"
 				""")
 			.addSince("1.0")
 			.supplier(() -> new SimpleEvent("vehicle damage"))
@@ -588,7 +588,7 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on vehicle create:
-				    broadcast "+1 %event-vehicle% now in the world.."
+					broadcast "+1 %event-vehicle% now in the world.."
 				""")
 			.addSince("1.0")
 			.supplier(() -> new SimpleEvent("vehicle create"))
@@ -605,8 +605,8 @@ public class EntityEvents {
 				""")
 			.addExample("""
 				on projectile shoot:
-				    projectile is an arrow
-				    send "You shot an arrow!" to shooter
+					projectile is an arrow
+					send "You shot an arrow!" to shooter
 				""")
 			.addSince("1.0, INSERT VERSION (ing)")
 			.supplier(() -> new SimpleEvent("projectile shoot"))

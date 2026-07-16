@@ -37,15 +37,15 @@ public class EvtVehicleCollision extends SkriptEvent {
 			.addDescription("Called when a vehicle collides with a block or entity.")
 			.addExample("""
 				on vehicle collision:
-				    broadcast "COLLISION!"
+					broadcast "COLLISION!"
 				""")
 			.addExample("""
 				on vehicle collision with obsidian:
-				    broadcast "Looks like something hard was hit.."
+					broadcast "Looks like something hard was hit.."
 				""")
 			.addExample("""
 				on vehicle collision with a zombie:
-				    broadcast "How dare you hit the undead!"
+					broadcast "How dare you hit the undead!"
 				""")
 			.addSince("2.10")
 			.build());

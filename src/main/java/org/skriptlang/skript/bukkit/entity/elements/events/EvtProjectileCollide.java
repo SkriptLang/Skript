@@ -29,7 +29,7 @@ public class EvtProjectileCollide extends SkriptEvent {
 				""")
 			.addExample("""
 				on projectile collide:
-				    teleport shooter of event-projectile to event-entity
+					teleport shooter of event-projectile to event-entity
 				""")
 			.addSince("2.5, INSERT VERSION (ing)")
 			.build());

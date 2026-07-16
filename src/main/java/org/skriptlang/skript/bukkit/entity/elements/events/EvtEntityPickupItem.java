@@ -31,16 +31,16 @@ public class EvtEntityPickupItem extends SkriptEvent {
 				   """)
 			.addExample("""
 				on player pickup:
-				    broadcast "Great just what I need: More junk.."
+					broadcast "Great just what I need: More junk.."
 				""")
 			.addExample("""
 				on entity pickup of iron chestplate:
-				    cancel event
-				    broadcast "%event-entity% tried to equip themself with gear, but failed!"
+					cancel event
+					broadcast "%event-entity% tried to equip themself with gear, but failed!"
 				""")
 			.addExample("""
 				on player pickup of bedrock:
-				    broadcast "%player% just got a forbidden item! Get them!!"
+					broadcast "%player% just got a forbidden item! Get them!!"
 				""")
 			.addSince("unknown (before 2.1), 2.5 (entity), INSERT VERSION (entity data)")
 			.build());
