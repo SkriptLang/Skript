@@ -87,18 +87,6 @@ public class SimpleEvents {
 				.description("Called when a new block <a href='#form'>forms</a> as a result of a block that can spread, e.g. water or mushrooms.")
 				.examples("on spread:")
 				.since("1.0");
-		Skript.registerEvent("Chunk Load", SimpleEvent.class, ChunkLoadEvent.class, "chunk load[ing]")
-				.description("Called when a chunk loads. The chunk might or might not contain mobs when it's loaded.")
-				.examples("on chunk load:")
-				.since("1.0");
-		Skript.registerEvent("Chunk Generate", SimpleEvent.class, ChunkPopulateEvent.class, "chunk (generat|populat)(e|ing)")
-				.description("Called after a new chunk was generated.")
-				.examples("on chunk generate:")
-				.since("1.0");
-		Skript.registerEvent("Chunk Unload", SimpleEvent.class, ChunkUnloadEvent.class, "chunk unload[ing]")
-				.description("Called when a chunk is unloaded due to not being near any player.")
-				.examples("on chunk unload:")
-				.since("1.0");
 		Skript.registerEvent("Creeper Power", SimpleEvent.class, CreeperPowerEvent.class, "creeper power")
 				.description("Called when a creeper is struck by lighting and gets powered. Cancel the event to prevent the creeper from being powered.")
 				.examples("on creeper power:")

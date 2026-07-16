@@ -11,7 +11,6 @@ import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.world.worldborder.elements.effects.EffWorldBorderExpand;
-import org.skriptlang.skript.bukkit.world.worldborder.elements.events.WorldBorderEvents;
 import org.skriptlang.skript.bukkit.world.worldborder.elements.expressions.*;
 
 public class WorldBorderModule extends HierarchicalAddonModule {

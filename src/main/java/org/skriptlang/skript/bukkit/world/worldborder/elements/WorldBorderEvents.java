@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.world.worldborder.elements.events;
+package org.skriptlang.skript.bukkit.world.worldborder.elements;
 
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.util.Timespan;
@@ -30,6 +30,7 @@ public class WorldBorderEvents {
 						broadcast "The diameter of %event-worldborder% is changing from %past event-number% to %event-number% over the next %event-timespan%
 					""")
 				.addSince("2.11")
+				.supplier(() -> new SimpleEvent("world border bounds change"))
 				.build()
 		);
 
@@ -64,6 +65,7 @@ public class WorldBorderEvents {
 						broadcast "Over the past %event-timespan%, the diameter of %event-worldborder% went from %past event-number% to %event-number%"
 					""")
 				.addSince("2.11")
+				.supplier(() -> new SimpleEvent("world border bounds finish change"))
 				.build()
 		);
 
@@ -97,6 +99,7 @@ public class WorldBorderEvents {
 						broadcast "The center of %event-worldborder% has moved from %past event-location% to %event-location%
 					""")
 				.addSince("2.11")
+				.supplier(() -> new SimpleEvent("world border center change"))
 				.build()
 		);
 
