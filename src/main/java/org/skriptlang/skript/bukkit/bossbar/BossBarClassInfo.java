@@ -34,11 +34,17 @@ public class BossBarClassInfo extends ClassInfo<BossBar> {
 			.changer(new BossBarChangeHandler())
 			.defaultExpression(new EventValueExpression<>(BossBar.class))
 			.property(Property.TITLE,
-				"The title of a boss bar.",
+				"""
+					The title of a boss bar.
+					Note that due to Bukkit limitations formatting like shadow, sprites or fonts will not work.
+					""",
 				addon,
 				new BossBarTitleHandler())
 			.property(Property.NAME,
-				"The name of a boss bar.",
+				"""
+					The name of a boss bar.
+					Note that due to Bukkit limitations formatting like shadow, sprites or fonts will not work.
+					""",
 				addon,
 				new BossBarTitleHandler())
 			.property(Property.PROGRESS,
@@ -94,9 +100,8 @@ public class BossBarClassInfo extends ClassInfo<BossBar> {
 		public void change(BossBar[] bars, Object @Nullable [] delta, ChangeMode mode) {
 			for (BossBar bar : bars) {
 				bar.removeAll();
-				if (bar instanceof KeyedBossBar keyed) {
+				if (bar instanceof KeyedBossBar keyed)
 					Bukkit.removeBossBar(keyed.getKey());
-				}
 			}
 		}
 		//</editor-fold>
