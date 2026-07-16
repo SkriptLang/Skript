@@ -1,7 +1,6 @@
 package org.skriptlang.skript.bukkit.item.elements;
 
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -11,7 +10,6 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -37,10 +35,7 @@ public class ExprItemModel extends SimplePropertyExpression<ItemType, String> {
 
 	@Override
 	public @Nullable String convert(ItemType from) {
-		ItemStack itemStack = ItemUtils.asItemStack(from);
-		if (itemStack == null) return null;
-
-		NamespacedKey key = itemStack.getItemMeta().getItemModel();
+		NamespacedKey key = from.getItemMeta().getItemModel();
 		if (key == null) return null;
 
 		return key.asString();
