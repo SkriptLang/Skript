@@ -46,18 +46,18 @@ public class ExprItemWithModel extends PropertyExpression<ItemType, ItemType> {
 
 	@Override
 	protected ItemType[] get(Event event, ItemType[] source) {
-		String keyString = this.key.getSingle(event);
-		if (keyString == null)
+		String key = this.key.getSingle(event);
+		if (key == null)
 			return source;
 
-		NamespacedKey key = NamespacedUtils.checkValidationAndSend(keyString, this);
-		if (key == null)
+		NamespacedKey namespacedKey = NamespacedUtils.checkValidationAndSend(key, this);
+		if (namespacedKey == null)
 			return source;
 
 		return get(source, itemType -> {
 			itemType = itemType.clone();
 			ItemMeta itemMeta = itemType.getItemMeta();
-			itemMeta.setItemModel(key);
+			itemMeta.setItemModel(namespacedKey);
 			itemType.setItemMeta(itemMeta);
 			return itemType;
 		});
