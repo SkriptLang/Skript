@@ -24,8 +24,8 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Keywords("item model")
 public class ExprItemWithModel extends PropertyExpression<ItemType, ItemType> {
 
-	public static void register(SyntaxRegistry registry) {
-		registry.register(
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(
 			SyntaxRegistry.EXPRESSION,
 			DefaultSyntaxInfos.Expression.builder(ExprItemWithModel.class, ItemType.class)
 				.addPattern("%itemtype% with [the] [item] model %string%")
@@ -46,7 +46,7 @@ public class ExprItemWithModel extends PropertyExpression<ItemType, ItemType> {
 
 	@Override
 	protected ItemType[] get(Event event, ItemType[] source) {
-		String keyString = key.getSingle(event);
+		String keyString = this.key.getSingle(event);
 		if (keyString == null)
 			return source;
 

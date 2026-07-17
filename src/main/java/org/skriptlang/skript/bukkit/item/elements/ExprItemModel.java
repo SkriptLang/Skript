@@ -26,8 +26,8 @@ import static ch.njol.skript.classes.Changer.ChangeMode.SET;
 @Since("INSERT VERSION")
 public class ExprItemModel extends SimplePropertyExpression<ItemType, String> {
 
-	public static void register(SyntaxRegistry registry) {
-		registry.register(
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(
 			SyntaxRegistry.EXPRESSION,
 			infoBuilder(ExprItemModel.class, String.class, "item model", "itemtypes", true)
 				.supplier(ExprItemModel::new)
