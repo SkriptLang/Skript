@@ -17,6 +17,7 @@ import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.EmptyIterator;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.function.TriFunction;
 import org.bukkit.event.Event;
@@ -29,6 +30,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 
 @Name("Elements")
 @Description({
@@ -50,6 +52,7 @@ public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderEx
 			{"[the] (first|1:last) element [out] (of|in) %objects%", new ElementType[]{ElementType.FIRST_ELEMENT, ElementType.LAST_ELEMENT}},
 			{"[the] (first|1:last) %integer% elements [out] (of|in) %objects%", new ElementType[]{ElementType.FIRST_X_ELEMENTS, ElementType.LAST_X_ELEMENTS}},
 			{"[a] random element [out] (of|in) %objects%", new ElementType[]{ElementType.RANDOM}},
+			{"%integer% random [:distinct] elements [out] (of|in) %objects%", new ElementType[]{ElementType.RANDOM_ELEMENTS, ElementType.RANDOM_DISTINCT_ELEMENTS}},
 			{"[the] %integer%(st|nd|rd|th) [1:[to] last] element [out] (of|in) %objects%", new ElementType[]{ElementType.ORDINAL, ElementType.TAIL_END_ORDINAL}},
 			{"[the] elements (from|between) %integer% (to|and) %integer% [out] (of|in) %objects%", new ElementType[]{ElementType.RANGE}},
 	});
@@ -74,6 +77,26 @@ public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderEx
 				return EmptyIterator.get();
 			Object element = CollectionUtils.getRandom(array);
 			return Iterators.singletonIterator(element);
+		}),
+		RANDOM_ELEMENTS((iterator, amount) -> {
+			Object[] array = Iterators.toArray(iterator, Object.class);
+			if (array.length == 0)
+				return EmptyIterator.get();
+			return IntStream.range(0, amount).mapToObj(ignored -> CollectionUtils.getRandom(array)).iterator();
+		}),
+		RANDOM_DISTINCT_ELEMENTS((iterator, amount) -> {
+			List<Object> remaining = Lists.newArrayList(iterator);
+			if (remaining.isEmpty())
+				return EmptyIterator.get();
+			Random random = ThreadLocalRandom.current();
+			return IntStream.range(0, Math.min(amount, remaining.size()))
+				.mapToObj(ignored -> {
+					int index = random.nextInt(remaining.size());
+					Object element = remaining.get(index);
+					remaining.remove(index);
+					return element;
+				})
+				.iterator();
 		}),
 		ORDINAL((iterator, index) -> {
 			Iterators.advance(iterator, index - 1);
@@ -138,13 +161,17 @@ public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderEx
 		switch (type = types[parseResult.mark]) {
 			case RANGE:
 				endIndex = (Expression<Integer>) expressions[1];
-			case FIRST_X_ELEMENTS, LAST_X_ELEMENTS, ORDINAL, TAIL_END_ORDINAL:
+			case FIRST_X_ELEMENTS, LAST_X_ELEMENTS, RANDOM_ELEMENTS, ORDINAL, TAIL_END_ORDINAL:
 				startIndex = (Expression<Integer>) expressions[0];
 				break;
 			default:
 				startIndex = null;
 				break;
 		}
+
+		if (type == ElementType.RANDOM_ELEMENTS && parseResult.hasTag("distinct"))
+			this.type = ElementType.RANDOM_DISTINCT_ELEMENTS;
+
 		this.keyed = KeyProviderExpression.canReturnKeys(this.expr);
 		return LiteralUtils.canInitSafely(expr);
 	}
@@ -242,8 +269,17 @@ public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderEx
 		return switch (type) {
 			case FIRST_ELEMENT -> CollectionUtils.array((T) queue.pollFirst());
 			case LAST_ELEMENT -> CollectionUtils.array((T) queue.pollLast());
-			case RANDOM ->
-					CollectionUtils.array((T) queue.removeSafely(ThreadLocalRandom.current().nextInt(0, queue.size())));
+			case RANDOM -> {
+				Random random = ThreadLocalRandom.current();
+				yield CollectionUtils.array((T) queue.removeSafely(random.nextInt(0, queue.size())));
+			}
+			case RANDOM_ELEMENTS, RANDOM_DISTINCT_ELEMENTS -> {
+				Random random = ThreadLocalRandom.current();
+				T[] elements = (T[]) Array.newInstance(getReturnType(), Math.min(startIndex, queue.size()));
+				for (int i = 0; i < elements.length; i++)
+					elements[i] = (T) queue.removeSafely(random.nextInt(0, queue.size()));
+				yield elements;
+			}
 			case ORDINAL -> CollectionUtils.array((T) queue.removeSafely(startIndex - 1));
 			case TAIL_END_ORDINAL -> CollectionUtils.array((T) queue.removeSafely(queue.size() - startIndex));
 			case FIRST_X_ELEMENTS -> CollectionUtils.array((T[]) queue.removeRangeSafely(0, startIndex));
@@ -291,7 +327,10 @@ public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderEx
 
 	@Override
 	public boolean isSingle() {
-		return type != ElementType.FIRST_X_ELEMENTS && type != ElementType.LAST_X_ELEMENTS && type != ElementType.RANGE;
+		return switch (type) {
+			case FIRST_X_ELEMENTS, LAST_X_ELEMENTS, RANDOM_ELEMENTS, RANDOM_DISTINCT_ELEMENTS, RANGE -> false;
+			default -> true;
+		};
 	}
 
 	@Override
@@ -344,6 +383,14 @@ public class ExprElement<T> extends SimpleExpression<T> implements KeyProviderEx
 				break;
 			case RANDOM:
 				prefix = "a random";
+				break;
+			case RANDOM_ELEMENTS:
+				assert startIndex != null;
+				prefix = startIndex.toString(event, debug) + " random";
+				break;
+			case RANDOM_DISTINCT_ELEMENTS:
+				assert startIndex != null;
+				prefix = startIndex.toString(event, debug) + " distinct random";
 				break;
 			case ORDINAL:
 			case TAIL_END_ORDINAL:

@@ -37,7 +37,7 @@ public class StructAliases extends Structure {
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @Nullable EntryContainer entryContainer) {
 		// noinspection ConstantConditions - entry container cannot be null as this structure is not simple
 		SectionNode node = entryContainer.getSource();
-		node.convertToEntries(0, "=");
+		node.convertToEntries(1, "=");
 
 		// Initialize and load script aliases
 		Script script = getParser().getCurrentScript();
