@@ -28,7 +28,7 @@ public class ExprItemHoverText extends SimplePropertyExpression<ItemStack, Compo
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			SyntaxInfo.Expression.builder(ExprItemHoverText.class, Component.class)
-				.addPattern("[a[n]] [show] item hover [text] component (for|using|from) %itemstacks%")
+				.addPattern("[a[n]] [show] item hover [text] component[s] (for|using|from) %itemstacks%")
 				.supplier(ExprItemHoverText::new)
 				.build());
 	}
@@ -45,11 +45,12 @@ public class ExprItemHoverText extends SimplePropertyExpression<ItemStack, Compo
 
 	@Override
 	protected String getPropertyName() {
-		throw new IllegalStateException("toString should be overridden");
+		return "item hover component";
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "item hover component for " + getExpr().toString(event, debug);
 	}
+
 }
