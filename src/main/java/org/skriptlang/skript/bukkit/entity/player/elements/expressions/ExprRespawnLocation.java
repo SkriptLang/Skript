@@ -73,7 +73,6 @@ protected Location @Nullable [] get(Event event) {
 		return "the respawn location " + ((event != null) ? ": " + ((AbstractRespawnEvent)event).getRespawnLocation() : "");
 	}
 
-	@Nullable
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (mode != ChangeMode.SET)
