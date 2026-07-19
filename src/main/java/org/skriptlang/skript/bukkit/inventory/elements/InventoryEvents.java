@@ -127,13 +127,6 @@ public class InventoryEvents {
 			.supplier(() -> new SimpleEvent("inventory drag item"))
 			.build());
 
-		eventValueRegistry.register(EventValue.builder(InventoryDragEvent.class, Player.class)
-			.getter(event -> event.getWhoClicked() instanceof Player player ? player : null)
-			.build());
-
-		eventValueRegistry.register(EventValue.builder(InventoryDragEvent.class, World.class)
-			.getter(event -> event.getWhoClicked().getWorld())
-			.build());
 
 		eventValueRegistry.register(EventValue.builder(InventoryDragEvent.class, ItemStack.class)
 			.getter(InventoryDragEvent::getOldCursor)
