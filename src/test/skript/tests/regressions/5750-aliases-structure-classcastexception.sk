@@ -1,0 +1,9 @@
+parse:
+  results: {aliases structure class cast exception::*}
+  code:
+    aliases:
+      {my custom variation}:
+        abc = stone
+
+test "5750-aliases structure class cast exception":
+  assert {aliases structure class cast exception::*} isn't set
