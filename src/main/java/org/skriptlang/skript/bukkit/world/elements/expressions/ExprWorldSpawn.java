@@ -62,7 +62,7 @@ public class ExprWorldSpawn extends PropertyExpression<World, Location> {
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (delta == null)
 			return;
 

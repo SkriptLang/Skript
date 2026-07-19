@@ -51,7 +51,7 @@ public class ExprDifficulty extends SimplePropertyExpression<World, Difficulty> 
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (delta == null)
 			return;
 

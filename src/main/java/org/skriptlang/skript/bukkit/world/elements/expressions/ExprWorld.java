@@ -111,9 +111,7 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return new SyntaxStringBuilder(event, debug)
-			.append("the world of", getExpr())
-			.toString();
+		return "the world of" + getExpr().toString(event, debug);
 	}
 
 }
