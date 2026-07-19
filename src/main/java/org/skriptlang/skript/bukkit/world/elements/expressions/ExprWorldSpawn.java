@@ -1,6 +1,5 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.world.elements.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -9,7 +8,6 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.Delay;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -18,38 +16,46 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.bukkit.event.world.SpawnChangeEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Spawn")
+@Name("World Spawn")
 @Description("The spawn point of a world.")
 @Example("teleport all players to spawn")
 @Example("set the spawn point of \"world\" to the player's location")
 @Since("1.4.2")
-public class ExprSpawn extends PropertyExpression<World, Location> {
+public class ExprWorldSpawn extends PropertyExpression<World, Location> {
 
-	static {
-		Skript.registerExpression(ExprSpawn.class, Location.class, ExpressionType.PROPERTY,
-				"[the] spawn[s] [(point|location)[s]] [of %worlds%]",
-				"%worlds%'[s] spawn[s] [(point|location)[s]]"
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprWorldSpawn.class,
+				Location.class,
+				"[the] spawn[s] [(point|location)[s]]",
+				"worlds",
+				false
+			)
+				.supplier(ExprWorldSpawn::new)
+				.build()
 		);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		setExpr((Expression<? extends World>) exprs[0]);
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		setExpr((Expression<? extends World>) expressions[0]);
 		return true;
 	}
 
 	@Override
 	protected Location[] get(Event event, World[] source) {
-		if (getTime() == -1 && event instanceof SpawnChangeEvent && !Delay.isDelayed(event))
-			return new Location[] {((SpawnChangeEvent) event).getPreviousLocation()};
+		if (getTime() == -1 && event instanceof SpawnChangeEvent worldEvent && !Delay.isDelayed(event))
+			return new Location[]{worldEvent.getPreviousLocation()};
 		return get(source, World::getSpawnLocation);
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET)
 			return CollectionUtils.array(Location.class);
 		return null;
@@ -57,26 +63,26 @@ public class ExprSpawn extends PropertyExpression<World, Location> {
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		//noinspection ConstantConditions
 		if (delta == null)
 			return;
 
 		Location originalLocation = (Location) delta[0];
-		assert originalLocation != null;
+		if (originalLocation == null)
+			return;
+
 		for (World world : getExpr().getArray(event)) {
 			Location location = originalLocation.clone();
 			World locationWorld = location.getWorld();
-			if (locationWorld == null) {
-				location.setWorld(world);
-				world.setSpawnLocation(location);
-			} else if (locationWorld.equals(world)) {
-				world.setSpawnLocation(location);
-			}
+
+			if (locationWorld != null && !locationWorld.equals(world))
+				continue;
+
+			location.setWorld(world);
+			world.setSpawnLocation(location);
 		}
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public boolean setTime(int time) {
 		return super.setTime(time, getExpr(), SpawnChangeEvent.class);
 	}
@@ -92,3 +98,4 @@ public class ExprSpawn extends PropertyExpression<World, Location> {
 	}
 
 }
+

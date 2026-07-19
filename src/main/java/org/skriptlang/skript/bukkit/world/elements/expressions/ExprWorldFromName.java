@@ -1,12 +1,10 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.world.elements.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
@@ -14,6 +12,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("World from Name")
 @Description("Returns the world from a string.")
@@ -22,31 +22,35 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.6.1")
 public class ExprWorldFromName extends SimpleExpression<World> {
 
-	static {
-		Skript.registerExpression(ExprWorldFromName.class, World.class, ExpressionType.SIMPLE, "[the] world [(named|with name)] %string%");
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprWorldFromName.class, World.class)
+				.addPatterns("[the] world [(named|with name)] %string%")
+				.supplier(ExprWorldFromName::new)
+				.build()
+		);
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<String> worldName;
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		worldName = (Expression<String>) exprs[0];
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		worldName = (Expression<String>) expressions[0];
 		return true;
 	}
 
 	@Override
-	@Nullable
-	protected World[] get(Event e) {
-		String worldName = this.worldName.getSingle(e);
+	protected World @Nullable [] get(Event event) {
+		String worldName = this.worldName.getSingle(event);
 		if (worldName == null)
-			return null;
+			return new World[0];
 		World world = Bukkit.getWorld(worldName);
 		if (world == null)
-			return null;
+			return new World[0];
 
-		return new World[] {world};
+		return new World[]{world};
 	}
 
 	@Override
@@ -60,8 +64,8 @@ public class ExprWorldFromName extends SimpleExpression<World> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the world with name " + worldName.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the world with name " + worldName.toString(event, debug);
 	}
 
 }

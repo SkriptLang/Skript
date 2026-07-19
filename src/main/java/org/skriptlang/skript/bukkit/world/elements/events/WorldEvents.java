@@ -48,7 +48,7 @@ public class WorldEvents {
 			BukkitSyntaxInfos.Event.KEY,
 			BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Chunk Generate")
 				.addEvent(ChunkPopulateEvent.class)
-				.addPatterns("chunk unload[ing]")
+				.addPatterns("[on] chunk (generat|populat)(e|ing)")
 				.addDescription("Called after a chunk has been generated for first time.")
 				.addExample("""
 					on chunk generate:

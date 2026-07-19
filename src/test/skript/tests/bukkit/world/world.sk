@@ -1,0 +1,12 @@
+
+# Tests for more basic world expressions/effects
+test "world":
+	set {_world} to test-world
+	assert all worlds contains {_world} with "Failed to get all worlds"
+	set {_difficulty} to difficulty of {_world}
+	set {_world}'s difficulty to peaceful
+	assert {_world}'s difficulty is peaceful with "Failed to set difficulty of world"
+	set {_world}'s difficulty to {_difficulty}
+	set {_world}'s gamerule pvp to true
+	assert {_world}'s gamerule pvp is true with "Failed to set gamerule 'pvp' of world"
+

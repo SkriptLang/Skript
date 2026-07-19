@@ -460,12 +460,6 @@ public class BukkitClasses {
 					}
 				}));
 
-		Classes.registerClass(new EnumClassInfo<>(Difficulty.class, "difficulty", "difficulties")
-				.user("difficult(y|ies)")
-				.name("Difficulty")
-				.description("The difficulty of a <a href='#world'>world</a>.")
-				.since("2.3"));
-
 		Classes.registerClass(new EnumClassInfo<>(Status.class, "resourcepackstate", "resource pack states")
 				.user("resource ?pack ?states?")
 				.name("Resource Pack State")
@@ -533,19 +527,6 @@ public class BukkitClasses {
 						"See <a href='https://minecraft.wiki/w/Attribute#Attributes'>attribute types</a> for more info.",
 					"NOTE: Minecraft namespaces are supported, ex: 'minecraft:generic.attack_damage'.")
 				.since("2.5"));
-
-		Classes.registerClass(new EnumClassInfo<>(Environment.class, "environment", "environments")
-				.user("(world ?)?environments?")
-				.name("World Environment")
-				.description("Represents the environment of a world.")
-				.since("2.7"));
-
-		if (Skript.classExists("io.papermc.paper.world.MoonPhase"))
-			Classes.registerClass(new EnumClassInfo<>(MoonPhase.class, "moonphase", "moon phases")
-					.user("(lunar|moon) ?phases?")
-					.name("Moon Phase")
-					.description("Represents the phase of a moon.")
-					.since("2.7"));
 
 		if (Skript.classExists("org.bukkit.event.player.PlayerQuitEvent$QuitReason"))
 			Classes.registerClass(new EnumClassInfo<>(QuitReason.class, "quitreason", "quit reasons")

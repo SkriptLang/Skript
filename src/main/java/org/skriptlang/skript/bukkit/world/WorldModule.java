@@ -1,12 +1,18 @@
 package org.skriptlang.skript.bukkit.world;
 
+import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.registrations.Classes;
+import io.papermc.paper.world.MoonPhase;
+import org.bukkit.Difficulty;
 import org.bukkit.World;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
+import org.skriptlang.skript.bukkit.world.elements.effects.EffLoadWorld;
+import org.skriptlang.skript.bukkit.world.elements.effects.EffSaveWorld;
 import org.skriptlang.skript.bukkit.world.elements.events.*;
+import org.skriptlang.skript.bukkit.world.elements.expressions.*;
 import org.skriptlang.skript.bukkit.world.worldborder.elements.WorldBorderModule;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
@@ -21,8 +27,7 @@ public class WorldModule extends HierarchicalAddonModule {
 	}
 
 	public Iterable<AddonModule> children() {
-		return List.of(
-			new WorldBorderModule(this)
+		return List.of(new WorldBorderModule(this)
 		);
 	}
 
@@ -30,6 +35,24 @@ public class WorldModule extends HierarchicalAddonModule {
 	protected void initSelf(SkriptAddon addon) {
 		Classes.registerClass(new WorldClassInfo());
 		Comparators.registerComparator(World.class, String.class, (world, name) -> Relation.get(world.getName().equalsIgnoreCase(name)));
+
+		Classes.registerClass(new EnumClassInfo<>(World.Environment.class, "environment", "environments")
+				.user("(world ?)?environments?")
+				.name("World Environment")
+				.description("Represents the environment of a <a href='#world'>world</a>.")
+				.since("2.7"));
+
+		Classes.registerClass(new EnumClassInfo<>(Difficulty.class, "difficulty", "difficulties")
+				.user("difficult(y|ies)")
+				.name("Difficulty")
+				.description("The difficulty of a <a href='#world'>world</a>.")
+				.since("2.3"));
+
+		Classes.registerClass(new EnumClassInfo<>(MoonPhase.class, "moonphase", "moon phases")
+			.user("(lunar|moon) ?phases?")
+			.name("Moon Phase")
+			.description("Represents the phase of a moon in a world.")
+			.since("2.7"));
 	}
 
 	@Override
@@ -41,8 +64,21 @@ public class WorldModule extends HierarchicalAddonModule {
 		register(addon,
 			EvtWeatherChange::register,
 			EvtWorldInit::register,
+			EvtWorldLoad::register,
 			EvtWorldSave::register,
-			EvtWorldUnload::register
+			EvtWorldUnload::register,
+			EffLoadWorld::register,
+			EffSaveWorld::register,
+			ExprAllWorlds::register,
+			ExprDifficulty::register,
+			ExprGameRule::register,
+			ExprMoonPhase::register,
+			ExprSeaLevel::register,
+			ExprWorld::register,
+			ExprWorldEnvironment::register,
+			ExprWorldFromName::register,
+			ExprWorldSeed::register,
+			ExprWorldSpawn::register
 		);
 	}
 

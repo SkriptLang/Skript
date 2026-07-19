@@ -1,6 +1,5 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.world.elements.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
@@ -9,6 +8,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import io.papermc.paper.world.MoonPhase;
 import org.bukkit.World;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Moon Phase")
 @Description("The current moon phase of a world.")
@@ -19,15 +19,23 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.7")
 public class ExprMoonPhase extends SimplePropertyExpression<World, MoonPhase> {
 
-	static {
-		// TODO - remove this when Spigot support is dropped
-		if (Skript.classExists("io.papermc.paper.world.MoonPhase"))
-			register(ExprMoonPhase.class, MoonPhase.class, "(lunar|moon) phase[s]", "worlds");
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprMoonPhase.class,
+				MoonPhase.class,
+				"(lunar|moon) phase[s]",
+				"worlds",
+				false
+			)
+				.supplier(ExprMoonPhase::new)
+				.build()
+		);
 	}
 
 	@Override
-	@Nullable
-	public MoonPhase convert(World world) {
+	public @Nullable MoonPhase convert(World world) {
 		return world.getMoonPhase();
 	}
 

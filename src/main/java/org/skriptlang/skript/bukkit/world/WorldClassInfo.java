@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.world;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
@@ -9,6 +10,8 @@ import ch.njol.yggdrasil.Fields;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
 import java.io.StreamCorruptedException;
 import java.util.regex.Matcher;
@@ -21,8 +24,8 @@ public class WorldClassInfo extends ClassInfo<World> {
 		this.user("worlds?")
 			.name("World")
 			.description("""
-				One of the server's worlds. Worlds can be put into scripts by surrounding their name with double quotes, e.g. "world_nether",\s
-				but this might not work reliably as <a href='#string'>text</a> uses the same syntax.
+				One of the server's worlds. Worlds can be put into scripts by surrounding their name with double quotes, e.g.\s
+				"world_nether" and it will be converted to a world if valid.
 				""")
 			.usage("""
 			    <code>"world_name"</code>, e.g. "world"
@@ -34,6 +37,11 @@ public class WorldClassInfo extends ClassInfo<World> {
 			.after("string")
 			.serializer(new WorldSerializer())
 			.parser(new WorldParser())
+			.property(Property.NAME,
+				"A world's name, as text. Cannot be changed.",
+				Skript.instance(),
+				ExpressionPropertyHandler.of(World::getName, String.class)
+			)
 			.defaultExpression(new EventValueExpression<>(World.class));
 	}
 
@@ -77,6 +85,12 @@ public class WorldClassInfo extends ClassInfo<World> {
 		@Override
 		public void deserialize(World world, Fields fields) {
 			assert false;
+		}
+
+		@Override
+		@Nullable
+		public World deserialize(final String s) {
+			return Bukkit.getWorld(s);
 		}
 
 		@Override

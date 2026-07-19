@@ -14,11 +14,14 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
+import static org.skriptlang.skript.lang.script.ScriptWarning.printDeprecationWarning;
+
 @Name("PvP")
 @Description("Set the PvP state for a given world.")
 @Example("enable PvP #(current world only)")
 @Example("disable PvP in all worlds")
 @Since("1.3.4")
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class EffPvP extends Effect {
 
 	private static final boolean PVP_GAME_RULE_EXISTS = Skript.fieldExists(GameRule.class, "PVP");
@@ -36,6 +39,7 @@ public class EffPvP extends Effect {
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		worlds = (Expression<World>) exprs[0];
 		enable = matchedPattern == 0;
+		printDeprecationWarning("This element is deprecated and scheduled for removal. Please use the gamerule expression to toggle PvP.");
 		return true;
 	}
 	
