@@ -67,7 +67,7 @@ public class ExprRespawnLocation extends SimpleExpression<Location> implements E
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (delta == null || (!(event instanceof PlayerRespawnEvent respawnEvent)))
 			return;
 
