@@ -69,7 +69,7 @@ protected Location @Nullable [] get(Event event) {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event event, final boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the respawn location " + ((event != null) ? ": " + ((AbstractRespawnEvent)event).getRespawnLocation() : "");
 	}
 
