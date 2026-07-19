@@ -31,7 +31,7 @@ public class EvtProjectileCollide extends SkriptEvent {
 				on projectile collide:
 					teleport shooter of event-projectile to event-entity
 				""")
-			.addSince("2.5, INSERT VERSION (ing)")
+			.addSince("2.5, INSERT VERSION (pattern update)")
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(ProjectileCollideEvent.class, Projectile.class)

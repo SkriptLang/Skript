@@ -608,10 +608,10 @@ parse:
 			set {_values::*} to event-world, event-blocks and event-entity
 
 parse:
-	results: {EventValues::on projectile collide}
-	code:
-		on projectile collide:
-			set {_values::*} to event-projectile and event-entity
+    results: {EventValues::on projectile collide}
+    code:
+        on projectile collide:
+            set {_values::*} to event-projectile and event-entity
 
 parse:
 	results: {EventValues::on shoot}
@@ -961,6 +961,7 @@ test "Event Values":
 		loop {EventValues::*}:
 			set {_string} to {_string} + newline + "		%loop-index%: %loop-value%"
 		clear {EventValues::*}
+		{_string} does not contain "on projectile collide: [Deprecated] This event is deprecated and scheduled for removal. Please use the projectile hit event instead."
 		assert true is false with {_string}
 	else:
 		clear {EventValues::*}
