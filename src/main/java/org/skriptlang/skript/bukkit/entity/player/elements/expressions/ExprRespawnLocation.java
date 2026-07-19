@@ -50,8 +50,7 @@ public class ExprRespawnLocation extends SimpleExpression<Location> implements E
 	}
 	
 	@Override
-	@Nullable
-	protected Location[] get(Event event) {
+protected Location @Nullable [] get(Event event) {
 		if (!(event instanceof AbstractRespawnEvent respawnEvent)) {
 			return null;
 		}
