@@ -22,6 +22,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.help.HelpMap;
 import org.bukkit.help.HelpTopic;
 import org.bukkit.plugin.SimplePluginManager;
@@ -236,35 +237,45 @@ public abstract class Commands {
 	private static boolean registeredListeners = false;
 
 	public static void registerListeners() {
-		if (!registeredListeners) {
-			Bukkit.getPluginManager().registerEvents(new Listener() {
-				@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-				public void onPlayerChat(AsyncPlayerChatEvent event) {
-					if ((!SkriptConfig.enableEffectCommands.value() && !Skript.testing()) || !event.getMessage().startsWith(SkriptConfig.effectCommandToken.value()))
-						return;
-					if (!event.isAsynchronous()) {
-						if (handleEffectCommand(event.getPlayer(), event.getMessage()))
-							event.setCancelled(true);
-					} else {
-						Future<Boolean> f = Bukkit.getScheduler().callSyncMethod(Skript.getInstance(), () -> handleEffectCommand(event.getPlayer(), event.getMessage()));
-						try {
-							while (true) {
-								try {
-									if (f.get())
-										event.setCancelled(true);
-									break;
-								} catch (InterruptedException ignored) {
-								}
-							}
-						} catch (ExecutionException e) {
-							Skript.exception(e);
+		if (registeredListeners) {
+			return;
+		}
+		Bukkit.getPluginManager().registerEvents(new Listener() {
+			@EventHandler(priority = EventPriority.HIGHEST)
+			public void onServerCommand(ServerCommandEvent event) {
+				if (event.getCommand().isEmpty() || event.isCancelled())
+					return;
+				if ((Skript.testing() || SkriptConfig.enableEffectCommands.value()) && event.getCommand().startsWith(SkriptConfig.effectCommandToken.value())) {
+					if (handleEffectCommand(event.getSender(), event.getCommand()))
+						event.setCancelled(true);
+				}
+			}
+
+			@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+			public void onPlayerChat(AsyncPlayerChatEvent event) {
+				if ((!SkriptConfig.enableEffectCommands.value() && !Skript.testing()) || !event.getMessage().startsWith(SkriptConfig.effectCommandToken.value()))
+					return;
+				if (!event.isAsynchronous()) {
+					if (handleEffectCommand(event.getPlayer(), event.getMessage()))
+						event.setCancelled(true);
+				} else {
+					Future<Boolean> f = Bukkit.getScheduler().callSyncMethod(Skript.getInstance(), () -> handleEffectCommand(event.getPlayer(), event.getMessage()));
+					try {
+						while (true) {
+							try {
+								if (f.get())
+									event.setCancelled(true);
+								break;
+							} catch (InterruptedException ignored) { }
 						}
+					} catch (ExecutionException e) {
+						Skript.exception(e);
 					}
 				}
-			}, Skript.getInstance());
+			}
+		}, Skript.getInstance());
 
-			registeredListeners = true;
-		}
+		registeredListeners = true;
 	}
 
 	/**
