@@ -29,7 +29,7 @@ allprojects {
 	}
 }
 
-final paperVersion = '26.1.2'
+final paperVersion = '26.2'
 
 dependencies {
 	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.2.1'
