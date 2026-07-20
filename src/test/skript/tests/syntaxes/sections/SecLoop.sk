@@ -1,0 +1,8 @@
+test "SecLoop":
+	# test next loop-value skipping iterations
+	set {_values::*} to 1, 2, and 3
+	loop {_values::*}:
+		set {_x} to the next loop-value
+		set {_x} to the next loop-value
+		add 1 to {_count}
+	assert {_count} is 3 with "did not run 3 times as expected when using next loop-value"
