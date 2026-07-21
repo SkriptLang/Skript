@@ -21,7 +21,8 @@ public class EvtPlayerFirstJoin extends SkriptEvent {
 				on player first join:
 					set the join message to "[NEW] %player%!"
 				""")
-			.addSince("1.3.7, INSERT VERSION (updated pattern)")
+			.addSince("1.3.7")
+			.addSince("INSERT VERSION (updated pattern)")
 			.build());
 	}
 

@@ -83,7 +83,8 @@ public class EvtClick extends SkriptEvent {
 						break event-block using player's tool
 						send "How.." to player
 				""")
-			.addSince("1.0, 2.10 (blockdata)")
+			.addSince("1.0 ")
+			.addSince("2.10 (blockdata)")
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(PlayerInteractEntityEvent.class, Entity.class)
@@ -93,12 +94,11 @@ public class EvtClick extends SkriptEvent {
 		eventValueRegistry.register(EventValue.builder(PlayerInteractEntityEvent.class, ItemStack.class)
 			.getter(event -> {
 				EquipmentSlot hand = event.getHand();
-				if (hand == EquipmentSlot.HAND)
-					return event.getPlayer().getInventory().getItemInMainHand();
-				else if (hand == EquipmentSlot.OFF_HAND)
-					return event.getPlayer().getInventory().getItemInOffHand();
-				else
-					return null;
+				return switch (hand) {
+					case EquipmentSlot.HAND -> event.getPlayer().getInventory().getItemInMainHand();
+					case EquipmentSlot.OFF_HAND -> event.getPlayer().getInventory().getItemInOffHand();
+					default -> null;
+				};
 			})
 			.build());
 
@@ -262,11 +262,10 @@ public class EvtClick extends SkriptEvent {
 	public String toString(@Nullable Event event, boolean debug) {
 		return new SyntaxStringBuilder(event, debug)
 			.append(switch (click) {
-				case LEFT -> "left";
-				case RIGHT -> "right";
-				default -> "";
+				case LEFT -> "left click";
+				case RIGHT -> "right click";
+				default -> "click";
 			})
-			.append("click")
 			.appendIf(type != null, "on", type)
 			.appendIf(tools != null, "holding", tools)
 			.toString();

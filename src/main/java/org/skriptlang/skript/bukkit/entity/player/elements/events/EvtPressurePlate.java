@@ -31,7 +31,8 @@ public class EvtPressurePlate extends SkriptEvent {
 						 spawn primed tnt above block at player
 						 send "Run!" to player
 				""")
-			.addSince("1.0 (pressure plate), 1.4.4 (tripwire)")
+			.addSince("1.0 (pressure plate)")
+			.addSince("1.4.4 (tripwire)")
 			.build());
 
 		// event values for this are handled in #EvtClick

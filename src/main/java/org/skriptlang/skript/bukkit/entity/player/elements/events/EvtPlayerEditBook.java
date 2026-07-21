@@ -27,7 +27,8 @@ public class EvtPlayerEditBook extends SkriptEvent {
 				on player edit book:
 					send "Nice edit!" to player
 				""")
-			.addSince("2.2-dev31, INSERT VERSION (added pattern)")
+			.addSince("2.2-dev31")
+			.addSince("INSERT VERSION (added pattern)")
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(PlayerEditBookEvent.class, ItemStack.class)

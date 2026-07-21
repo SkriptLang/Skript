@@ -21,7 +21,8 @@ public class EvtPlayerSignBook extends SkriptEvent {
 				on player sign book:
 					send "Now everyone will know you wrote %event-item stack%<reset>!" to player
 				""")
-			.addSince("2.2-dev31, INSERT VERSION (added pattern)")
+			.addSince("2.2-dev31")
+			.addSince("INSERT VERSION (added pattern)")
 			.build());
 	}
 
