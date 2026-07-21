@@ -8,7 +8,6 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Chunk;
@@ -41,7 +40,7 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 				World.class,
 				"[the] world",
 				"locations/entities/chunk",
-				false
+				true
 			)
 				.supplier(ExprWorld::new)
 				.build()

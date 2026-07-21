@@ -51,7 +51,7 @@ public class WorldModule extends HierarchicalAddonModule {
 		Classes.registerClass(new EnumClassInfo<>(MoonPhase.class, "moonphase", "moon phases")
 			.user("(lunar|moon) ?phases?")
 			.name("Moon Phase")
-			.description("Represents the phase of a moon in a world.")
+			.description("Represents the phase of a moon in a <a href='#world'>world</a>.")
 			.since("2.7"));
 	}
 
