@@ -15,7 +15,7 @@ public class EvtPlayerFirstJoin extends SkriptEvent {
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtPlayerFirstJoin.class, "Player First Join")
 			.supplier(EvtPlayerFirstJoin::new)
 			.addEvent(PlayerJoinEvent.class)
-			.addPatterns("[player] first (join|login[ging in])")
+			.addPatterns("[player] first (join|log[ging ]in)")
 			.addDescription("Called when a player joins the server for the first time.")
 			.addExample("""
 				on player first join:
