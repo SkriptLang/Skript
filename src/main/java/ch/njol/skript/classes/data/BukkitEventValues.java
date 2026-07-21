@@ -79,8 +79,7 @@ public final class BukkitEventValues {
 	private static final ItemStack AIR_IS = new ItemStack(Material.AIR);
 
 	public static void register(EventValueRegistry registry) {
-		// === WorldEvents ===
-		registry.register(EventValue.simple(WorldEvent.class, World.class, WorldEvent::getWorld));
+
 		// StructureGrowEvent - a WorldEvent
 		registry.register(EventValue.simple(StructureGrowEvent.class, Block.class, event -> event.getLocation().getBlock()));
 
@@ -103,10 +102,6 @@ public final class BukkitEventValues {
 				.toArray(Block[]::new))
 			.time(Time.FUTURE)
 			.build());
-		// WeatherEvent - not a WorldEvent (wtf ô_Ô)
-		registry.register(EventValue.simple(WeatherEvent.class, World.class, WeatherEvent::getWorld));
-		// ChunkEvents
-		registry.register(EventValue.simple(ChunkEvent.class, Chunk.class, ChunkEvent::getChunk));
 
 		// === BlockEvents ===
 		registry.register(EventValue.simple(BlockEvent.class, Block.class, BlockEvent::getBlock));

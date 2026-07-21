@@ -4,9 +4,16 @@ test "world":
 	set {_world} to test-world
 	assert all worlds contains {_world} with "Failed to get all worlds"
 	set {_difficulty} to difficulty of {_world}
-	set {_world}'s difficulty to peaceful
-	assert {_world}'s difficulty is peaceful with "Failed to set difficulty of world"
+	set {_world}'s difficulty to hard
+	assert {_world}'s difficulty is hard with "Failed to set difficulty of world"
 	set {_world}'s difficulty to {_difficulty}
 	set {_world}'s gamerule pvp to true
 	assert {_world}'s gamerule pvp is true with "Failed to set gamerule 'pvp' of world"
-
+	assert moon phase of {_world} is set with "Failed to get moon phase of world"
+	assert sea level of {_world} is set with "Failed to get sea level of world"
+	assert environment of {_world} is normal with "Failed to get environment of world"
+	assert world named "world" is set with "Failed to get world from string"
+	set {_oldloc} to spawn of {_world}
+	set spawn of {_world} to location(5, 7, 14, {_world})
+	assert spawn of {_world} is location(5, 7, 14, {_world}) with "Failed to set spawn of world"
+	set spawn of {_world} to {_oldloc}

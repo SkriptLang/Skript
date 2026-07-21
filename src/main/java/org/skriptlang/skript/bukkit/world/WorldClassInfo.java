@@ -37,6 +37,7 @@ public class WorldClassInfo extends ClassInfo<World> {
 			.after("string")
 			.serializer(new WorldSerializer())
 			.parser(new WorldParser())
+			.supplier(() -> Bukkit.getWorlds().iterator())
 			.property(Property.NAME,
 				"A world's name, as text. Cannot be changed.",
 				Skript.instance(),
@@ -85,12 +86,6 @@ public class WorldClassInfo extends ClassInfo<World> {
 		@Override
 		public void deserialize(World world, Fields fields) {
 			assert false;
-		}
-
-		@Override
-		@Nullable
-		public World deserialize(final String s) {
-			return Bukkit.getWorld(s);
 		}
 
 		@Override

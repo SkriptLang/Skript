@@ -24,6 +24,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.2-dev35, INSERT VERSION (updated pattern)")
 public class ExprWorldSeed extends PropertyExpression<World, Long> {
 
+	// TODO: turn this into a type property
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(
 			SyntaxRegistry.EXPRESSION,

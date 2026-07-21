@@ -1,9 +1,10 @@
 package org.skriptlang.skript.bukkit.world.elements.events;
 
 import ch.njol.skript.lang.util.SimpleEvent;
-import org.bukkit.event.world.ChunkLoadEvent;
-import org.bukkit.event.world.ChunkPopulateEvent;
-import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.Chunk;
+import org.bukkit.World;
+import org.bukkit.event.world.*;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -11,6 +12,16 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public class WorldEvents {
 
 	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry) {
+
+		// World Event Values
+		eventValueRegistry.register(EventValue.builder(WorldEvent.class, World.class)
+			.getter(WorldEvent::getWorld)
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(ChunkEvent.class, Chunk.class)
+			.getter(ChunkEvent::getChunk)
+			.build());
+
 		syntaxRegistry.register(
 			BukkitSyntaxInfos.Event.KEY,
 			BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Chunk Load")

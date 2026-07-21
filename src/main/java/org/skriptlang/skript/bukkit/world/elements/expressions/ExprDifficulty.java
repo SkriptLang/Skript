@@ -21,7 +21,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.3")
 public class ExprDifficulty extends SimplePropertyExpression<World, Difficulty> {
 
-	private final static boolean USE_DEPRECATED = Skript.fieldExists(org.bukkit.World.class, "setSpawnFlags");
+	private final static boolean USE_DEPRECATED = Skript.methodExists(World.class, "setSpawnFlags", boolean.class, boolean.class);
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(

@@ -61,15 +61,15 @@ public class WorldModule extends HierarchicalAddonModule {
 		EventValueRegistry eventValueRegistry = addon.registry(EventValueRegistry.class);
 
 		WorldEvents.register(syntaxRegistry, eventValueRegistry);
+		EvtWeatherChange.register(syntaxRegistry, eventValueRegistry);
+
 		register(addon,
-			EvtWeatherChange::register,
 			EvtWorldInit::register,
 			EvtWorldLoad::register,
 			EvtWorldSave::register,
 			EvtWorldUnload::register,
 			EffLoadWorld::register,
 			EffSaveWorld::register,
-			ExprAllWorlds::register,
 			ExprDifficulty::register,
 			ExprGameRule::register,
 			ExprMoonPhase::register,

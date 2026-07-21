@@ -11,16 +11,18 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.bukkit.event.weather.ThunderChangeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
-import org.bukkit.event.world.WorldInitEvent;
+import org.bukkit.event.weather.WeatherEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class EvtWeatherChange extends SkriptEvent {
 
-	public static void register(SyntaxRegistry syntaxRegistry) {
-		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtWorldInit.class, "Weather Change")
-			.supplier(EvtWorldInit::new)
+	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry) {
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtWeatherChange.class, "Weather Change")
+			.supplier(EvtWeatherChange::new)
 			.addEvents(CollectionUtils.array(WeatherChangeEvent.class, ThunderChangeEvent.class))
 			.addPatterns("weather change [to %-weathertypes%] [in %-worlds%]")
 			.addDescription("Called when a world's weather changes.")
@@ -34,6 +36,11 @@ public class EvtWeatherChange extends SkriptEvent {
 				""")
 			.addSince("1.0, INSERT VERSION (defining worlds)")
 			.build());
+
+		// Not a world event for some reason
+		eventValueRegistry.register(EventValue.builder(WeatherEvent.class, World.class)
+			.getter(WeatherEvent::getWorld)
+			.build());
 	}
 
 	private @Nullable Literal<WeatherType> weatherType;
@@ -43,13 +50,14 @@ public class EvtWeatherChange extends SkriptEvent {
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		if (args[0] != null) {
-			world = (Literal<World>) args[0];
-			if (world.getAnd() && world instanceof LiteralList<World> list)
+			weatherType = (Literal<WeatherType>) args[0];
+			if (weatherType.getAnd() && weatherType instanceof LiteralList<WeatherType> list)
 				list.invertAnd();
 		}
+
 		if (args[1] != null) {
-			weatherType = (Literal<WeatherType>) args[1];
-			if (weatherType.getAnd() && weatherType instanceof LiteralList<WeatherType> list)
+			world = (Literal<World>) args[1];
+			if (world.getAnd() && world instanceof LiteralList<World> list)
 				list.invertAnd();
 		}
 		return true;
@@ -59,14 +67,31 @@ public class EvtWeatherChange extends SkriptEvent {
 	public boolean check(Event event) {
 		boolean worldMatched = true;
 		boolean weatherMatched = true;
+		World world;
 
-		WorldInitEvent worldEvent = (WorldInitEvent) event;
+		world = switch (event) {
+			case WeatherChangeEvent weatherEvent -> weatherEvent.getWorld();
+			case ThunderChangeEvent thunderEvent -> thunderEvent.getWorld();
+			default -> null;
+		};
 
-		if (world != null)
-			worldMatched = world.check(event, world -> world.equals(worldEvent.getWorld()));
+		if (this.world != null)
+			worldMatched = this.world.check(event, worldCheck -> worldCheck.equals(world));
 
 		if (weatherType != null) {
-			weatherMatched = weatherType.check(event, weather -> weather.isWeather(worldEvent.getWorld()));
+			boolean rain;
+			boolean thunder;
+			if (event instanceof WeatherChangeEvent weatherEvent) {
+				rain = weatherEvent.toWeatherState();
+				thunder = world.isThundering();
+			} else if (event instanceof ThunderChangeEvent thunderEvent) {
+				rain = world.hasStorm();
+				thunder = thunderEvent.toThunderState();
+			} else {
+				return false;
+			}
+
+			weatherMatched = weatherType.check(event, weather -> weather.isWeather(rain, thunder));
 		}
 
 		return worldMatched && weatherMatched;
