@@ -11,7 +11,7 @@ test "world":
 		set {_world}'s gamerule fall_damage to true
 		set {_falldamage} to whether gamerule fall_damage of {_world} is true
 		assert {_falldamage} is true with "Failed to set gamerule 'fall_damage' of world"
-	parse if not running minecraft "1.21.11":
+	parse if running below minecraft "1.21.9":
 		set {_world}'s gamerule fallDamage to true
 		set {_falldamage} to whether gamerule fallDamage of {_world} is true
 		assert {_falldamage} is true with "Failed to set gamerule 'fallDamage' of world"
