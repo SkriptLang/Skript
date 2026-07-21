@@ -95,7 +95,7 @@ public class WorldEvents {
 				.addDescription("Called when lightning strikes in a world.")
 				.addExample("""
 					on lightning strike:
-					    spawn a zombie at event-location
+					    spawn a zombie at event-entity
 					""")
 				.addSince("1.0, INSERT VERSION (pattern change)")
 				.supplier(() -> new SimpleEvent("lightning strike"))
