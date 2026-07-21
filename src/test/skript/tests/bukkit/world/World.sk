@@ -7,9 +7,14 @@ test "world":
 	set {_world}'s difficulty to hard
 	assert {_world}'s difficulty is hard with "Failed to set difficulty of world"
 	set {_world}'s difficulty to {_difficulty}
-	set {_world}'s gamerule fall_damage to true
-	set {_falldamage} to whether gamerule fall_damage of {_world} is true
-	assert {_falldamage} is true with "Failed to set gamerule 'fall_damage' of world"
+	if running minecraft "1.21.11":
+		set {_world}'s gamerule fall_damage to true
+		set {_falldamage} to whether gamerule fall_damage of {_world} is true
+		assert {_falldamage} is true with "Failed to set gamerule 'fall_damage' of world"
+	else:
+		set {_world}'s gamerule fallDamage to true
+		set {_falldamage} to whether gamerule fallDamage of {_world} is true
+		assert {_falldamage} is true with "Failed to set gamerule 'fallDamage' of world"
 	assert moon phase of {_world} is set with "Failed to get moon phase of world"
 	assert sea level of {_world} is set with "Failed to get sea level of world"
 	assert environment of {_world} is normal with "Failed to get environment of world"
