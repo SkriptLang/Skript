@@ -125,10 +125,6 @@ public class SimpleEvents {
 				.description("Called when a leaf block decays due to not being connected to a tree.")
 				.examples("on leaves decay:")
 				.since("1.0");
-		Skript.registerEvent("Lightning Strike", SimpleEvent.class, LightningStrikeEvent.class, "lightning [strike]")
-				.description("Called when lightning strikes.")
-				.examples("on lightning:", "\tspawn a zombie at location of event-entity")
-				.since("1.0");
 		Skript.registerEvent("Pig Zap", SimpleEvent.class, PigZapEvent.class, "pig[ ]zap")
 				.description("Called when a pig is stroke by lightning and transformed into a zombie pigman. Cancel the event to prevent the transformation.")
 				.examples("on pig zap:")
@@ -238,11 +234,6 @@ public class SimpleEvents {
 				.examples("on sign change:",
 						"	line 2 is empty",
 						"	set line 1 to \"&lt;red&gt;%line 1%\"")
-				.since("1.0");
-		Skript.registerEvent("Spawn Change", SimpleEvent.class, SpawnChangeEvent.class, "[world] spawn change")
-				.description("Called when the spawn point of a world changes.")
-				.examples("on spawn change:",
-						"\tbroadcast \"someone changed the spawn!\"")
 				.since("1.0");
 		Skript.registerEvent("Vehicle Create", SimpleEvent.class, VehicleCreateEvent.class, "vehicle create", "creat(e|ing|ion of) [a] vehicle")
 				.description("Called when a new vehicle is created, e.g. when a player places a boat or minecart.")

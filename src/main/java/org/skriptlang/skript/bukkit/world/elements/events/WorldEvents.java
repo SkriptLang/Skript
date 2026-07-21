@@ -3,6 +3,8 @@ package org.skriptlang.skript.bukkit.world.elements.events;
 import ch.njol.skript.lang.util.SimpleEvent;
 import org.bukkit.Chunk;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.*;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
@@ -70,5 +72,38 @@ public class WorldEvents {
 				.build()
 		);
 
+		syntaxRegistry.register(
+			BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "World Spawn Change")
+				.addEvent(SpawnChangeEvent.class)
+				.addPatterns("[world] spawn change")
+				.addDescription("Called when the spawn point of a world changes.")
+				.addExample("""
+					on world spawn change:
+					    broadcast "Someone changed the world spawn!"
+					""")
+				.addSince("1.0")
+				.supplier(() -> new SimpleEvent("world spawn change"))
+				.build()
+		);
+
+		syntaxRegistry.register(
+			BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Lightning Strike")
+				.addEvent(LightningStrikeEvent.class)
+				.addPatterns("lightning [strik(e|ing]")
+				.addDescription("Called when lightning strikes in a world.")
+				.addExample("""
+					on lightning strike:
+					    spawn a zombie at event-location
+					""")
+				.addSince("1.0, INSERT VERSION (pattern change)")
+				.supplier(() -> new SimpleEvent("lightning strike"))
+				.build()
+		);
+
+		eventValueRegistry.register(EventValue.builder(LightningStrikeEvent.class, Entity.class)
+			.getter(LightningStrikeEvent::getLightning)
+			.build());
 	}
 }
