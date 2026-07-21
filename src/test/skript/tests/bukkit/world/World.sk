@@ -6,12 +6,9 @@ test "world":
 	set {_difficulty} to difficulty of {_world}
 	set {_world}'s difficulty to hard
 	assert {_world}'s difficulty is hard with "Failed to set difficulty of world"
-	if running minecraft "1.21.6":
-	    stop
-	assert all gamemodes is not set with "Debug - %all gamemodes%"
 	set {_world}'s difficulty to {_difficulty}
-	#set {_world}'s gamerule fall_damage to true
-	#set {_falldamage} to whether gamerule fall_damage of {_world} is true
+	set {_world}'s gamerule fall_damage to true
+	set {_falldamage} to whether gamerule fall_damage of {_world} is true
 	assert {_falldamage} is true with "Failed to set gamerule 'fall_damage' of world"
 	assert moon phase of {_world} is set with "Failed to get moon phase of world"
 	assert sea level of {_world} is set with "Failed to get sea level of world"
