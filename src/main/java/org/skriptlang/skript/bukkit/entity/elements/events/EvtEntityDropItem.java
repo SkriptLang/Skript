@@ -103,7 +103,7 @@ public class EvtEntityDropItem extends SkriptEvent {
 		if (event instanceof PlayerDropItemEvent playerEvent) {
 			entity = playerEvent.getPlayer();
 			drop = playerEvent.getItemDrop();
-		} else if (event instanceof EntityDropItemEvent entityEvent ){
+		} else if (event instanceof EntityDropItemEvent entityEvent) {
 			entity = entityEvent.getEntity();
 			drop = entityEvent.getItemDrop();
 		} else {
