@@ -91,7 +91,7 @@ public class WorldEvents {
 			BukkitSyntaxInfos.Event.KEY,
 			BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Lightning Strike")
 				.addEvent(LightningStrikeEvent.class)
-				.addPatterns("lightning [strik(e|ing]]")
+				.addPatterns("lightning [strik(e|ing)]")
 				.addDescription("Called when lightning strikes in a world.")
 				.addExample("""
 					on lightning strike:
