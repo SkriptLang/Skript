@@ -21,7 +21,6 @@ import static org.skriptlang.skript.lang.script.ScriptWarning.printDeprecationWa
 @Example("PvP is enabled")
 @Example("PvP is disabled in \"world\"")
 @Since("1.3.4")
-@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class CondPvP extends Condition {
 
 	private static final boolean PVP_GAME_RULE_EXISTS = Skript.fieldExists(GameRule.class, "PVP");
@@ -39,7 +38,6 @@ public class CondPvP extends Condition {
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		worlds = (Expression<World>) exprs[0];
 		enabled = matchedPattern == 0;
-		printDeprecationWarning("This element is deprecated and scheduled for removal. Please check the PvP gamerule of a world instead.");
 		return true;
 	}
 	
