@@ -7,7 +7,7 @@ test "world":
 	set {_world}'s difficulty to hard
 	assert {_world}'s difficulty is hard with "Failed to set difficulty of world"
 	set {_world}'s difficulty to {_difficulty}
-	set {_world}'s gamerule keep inventory to true
+	set {_world}'s gamerule keep_inventory to true
 	set {_pvp} to whether gamerule keep_inventory of {_world} is true
 	assert {_pvp} is true with "Failed to set gamerule 'pvp' of world"
 	assert moon phase of {_world} is set with "Failed to get moon phase of world"
