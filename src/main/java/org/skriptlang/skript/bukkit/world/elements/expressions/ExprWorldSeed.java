@@ -21,7 +21,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
     not as you specified it in world configuration.
     """)
 @Example("broadcast \"Seed: %seed of player's world%\"")
-@Since("2.2-dev35, INSERT VERSION (updated pattern)")
+@Since({"2.2-dev35", "INSERT VERSION (updated pattern)"})
 public class ExprWorldSeed extends PropertyExpression<World, Long> {
 
 	// TODO: turn this into a type property

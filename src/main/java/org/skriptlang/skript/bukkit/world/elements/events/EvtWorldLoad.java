@@ -32,7 +32,8 @@ public class EvtWorldLoad extends SkriptEvent {
 				on world load of "world":
 				    broadcast "The main world is being loaded!"
 				""")
-			.addSince("1.0, 2.8.0 (defining worlds)")
+			.addSince("1.0")
+			.addSince("2.8.0 (defining worlds)")
 			.build());
 	}
 

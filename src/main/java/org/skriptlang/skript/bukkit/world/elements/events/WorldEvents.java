@@ -97,7 +97,8 @@ public class WorldEvents {
 					on lightning strike:
 					    spawn a zombie at event-entity
 					""")
-				.addSince("1.0, INSERT VERSION (pattern change)")
+				.addSince("1.0")
+				.addSince("INSERT VERSION (pattern change)")
 				.supplier(() -> new SimpleEvent("lightning strike"))
 				.build()
 		);

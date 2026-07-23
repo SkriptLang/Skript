@@ -33,7 +33,8 @@ public class EvtWorldInit extends SkriptEvent {
 				on world init of "new_world:
 				    broadcast "World 'new world' was just initialized!"
 				""")
-			.addSince("1.0, 2.8.0 (defining worlds)")
+			.addSince("1.0")
+			.addSince("2.8.0 (defining worlds)")
 			.build());
 	}
 

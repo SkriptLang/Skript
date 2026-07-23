@@ -32,7 +32,8 @@ public class EvtWorldSave extends SkriptEvent {
 				on world save of "world":
 				    broadcast "The main world is being saved!"
 				""")
-			.addSince("1.0, 2.8.0 (defining worlds)")
+			.addSince("1.0")
+			.addSince("2.8.0 (defining worlds)")
 			.build());
 	}
 
