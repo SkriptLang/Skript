@@ -24,7 +24,7 @@ public class EvtWeatherChange extends SkriptEvent {
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtWeatherChange.class, "Weather Change")
 			.supplier(EvtWeatherChange::new)
 			.addEvents(CollectionUtils.array(WeatherChangeEvent.class, ThunderChangeEvent.class))
-			.addPatterns("weather change[[d] to %-weathertypes%] [in %-worlds%]")
+			.addPatterns("weather change[[d] to %-weathertypes%]")
 			.addDescription("Called when a world's weather changes.")
 			.addExample("""
 				on weather change to rain in world "example":
@@ -45,7 +45,6 @@ public class EvtWeatherChange extends SkriptEvent {
 	}
 
 	private @Nullable Literal<WeatherType> weatherType;
-	private @Nullable Literal<World> world;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -55,19 +54,14 @@ public class EvtWeatherChange extends SkriptEvent {
 			if (weatherType.getAnd() && weatherType instanceof LiteralList<WeatherType> list)
 				list.invertAnd();
 		}
-
-		if (args[1] != null) {
-			world = (Literal<World>) args[1];
-			if (world.getAnd() && world instanceof LiteralList<World> list)
-				list.invertAnd();
-		}
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
-		boolean worldMatched = true;
-		boolean weatherMatched = true;
+		if (weatherType == null)
+			return true;
+
 		World world;
 
 		world = switch (event) {
@@ -76,26 +70,19 @@ public class EvtWeatherChange extends SkriptEvent {
 			default -> null;
 		};
 
-		if (this.world != null)
-			worldMatched = this.world.check(event, worldCheck -> worldCheck.equals(world));
-
-		if (weatherType != null) {
-			boolean rain;
-			boolean thunder;
-			if (event instanceof WeatherChangeEvent weatherEvent) {
-				rain = weatherEvent.toWeatherState();
-				thunder = world.isThundering();
-			} else if (event instanceof ThunderChangeEvent thunderEvent) {
-				rain = world.hasStorm();
-				thunder = thunderEvent.toThunderState();
-			} else {
-				return false;
-			}
-
-			weatherMatched = weatherType.check(event, weather -> weather.isWeather(rain, thunder));
+		boolean rain;
+		boolean thunder;
+		if (event instanceof WeatherChangeEvent weatherEvent) {
+			rain = weatherEvent.toWeatherState();
+			thunder = world.isThundering();
+		} else if (event instanceof ThunderChangeEvent thunderEvent) {
+			rain = world.hasStorm();
+			thunder = thunderEvent.toThunderState();
+		} else {
+			return false;
 		}
 
-		return worldMatched && weatherMatched;
+		return weatherType.check(event, weather -> weather.isWeather(rain, thunder));
 	}
 
 	@Override
@@ -103,7 +90,6 @@ public class EvtWeatherChange extends SkriptEvent {
 		return new SyntaxStringBuilder(event, debug)
 			.append("weather change")
 			.appendIf(weatherType != null,"to", weatherType)
-			.appendIf(world != null, "in", world)
 			.toString();
 	}
 
