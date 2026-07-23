@@ -27,8 +27,7 @@ public class WorldModule extends HierarchicalAddonModule {
 	}
 
 	public Iterable<AddonModule> children() {
-		return List.of(new WorldBorderModule(this)
-		);
+		return List.of(new WorldBorderModule(this));
 	}
 
 	@Override

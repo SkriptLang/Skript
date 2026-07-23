@@ -52,12 +52,11 @@ public class WorldClassInfo extends ClassInfo<World> {
 		private final Pattern parsePattern = Pattern.compile("(?:(?:the )?world )?\"(.+)\"", Pattern.CASE_INSENSITIVE);
 
 		@Override
-		@Nullable
-		public World parse(final String string, final ParseContext context) {
+		public @Nullable World parse(String string, ParseContext context) {
 			// REMIND allow shortcuts '[over]world', 'nether' and '[the_]end' (server.properties: 'level-name=world') // inconsistent with 'world is "..."'
 			if (context == ParseContext.COMMAND || context == ParseContext.PARSE || context == ParseContext.CONFIG)
 				return Bukkit.getWorld(string);
-			final Matcher matcher = parsePattern.matcher(string);
+			Matcher matcher = parsePattern.matcher(string);
 			if (matcher.matches())
 				return Bukkit.getWorld(matcher.group(1));
 			return null;

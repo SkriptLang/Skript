@@ -24,7 +24,7 @@ public class EvtWeatherChange extends SkriptEvent {
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtWeatherChange.class, "Weather Change")
 			.supplier(EvtWeatherChange::new)
 			.addEvents(CollectionUtils.array(WeatherChangeEvent.class, ThunderChangeEvent.class))
-			.addPatterns("weather change [to %-weathertypes%] [in %-worlds%]")
+			.addPatterns("weather change[[d] to %-weathertypes%] [in %-worlds%]")
 			.addDescription("Called when a world's weather changes.")
 			.addExample("""
 				on weather change to rain in world "example":

@@ -21,7 +21,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Name("Load World")
 @Description("""
 	Allows you to load or unload a world.
-	Note that if you use `load` a new world be created if one by the provided string does not exist.
+	Note that if you use `load` a new world will be created if one does not exist with the provided name.
 	When attempting to load a normal vanilla world you must define it's environment i.e "world_nether" must be loaded with nether environment.
 	""")
 @Example("load world \"world_nether\" with environment nether")
@@ -80,9 +80,10 @@ public class EffLoadWorld extends Effect {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return new SyntaxStringBuilder(event, debug)
-			.append(load ? "load" : "unload", "the world(s)", worlds)
-			.appendIf(!load, save ? "with saving" : "without saving")
-			.appendIf(load && environment != null, "with environment", environment)
+			.append(load ? "load" : "unload")
+			.append("the world(s)", worlds)
+			.appendIf(!save, "without saving")
+			.appendIf(environment != null, "with environment", environment)
 			.toString();
 	}
 
