@@ -100,14 +100,16 @@ public class EvtRealTime extends SkriptEvent {
 			return;
 		}
 
-		Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
-			RealTimeEvent event = new RealTimeEvent();
-			SkriptEventHandler.logEventStart(event);
-			SkriptEventHandler.logTriggerStart(trigger);
-			trigger.execute(event);
-			SkriptEventHandler.logTriggerEnd(trigger);
-			SkriptEventHandler.logEventEnd();
-		});
+		Skript.getScheduler().runGlobalTask(
+			() -> {
+				RealTimeEvent event = new RealTimeEvent();
+				SkriptEventHandler.logEventStart(event);
+				SkriptEventHandler.logTriggerStart(trigger);
+				trigger.execute(event);
+				SkriptEventHandler.logTriggerEnd(trigger);
+				SkriptEventHandler.logEventEnd();
+			}
+		);
 	}
 
 	@Override

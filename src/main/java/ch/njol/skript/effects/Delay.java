@@ -16,9 +16,12 @@ import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
-import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.util.Scheduler;
 
 import java.util.Collections;
 import java.util.List;
@@ -52,11 +55,11 @@ import java.util.WeakHashMap;
 public class Delay extends EffectSection {
 
 	static {
-		Skript.registerSection(Delay.class, "(wait|halt) [for] %timespan%");
+		Skript.registerSection(Delay.class, "(wait|halt) [for] %timespan% [for %-entity/location/block%]");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	protected Expression<Timespan> duration;
+	private Expression<Object> target;
 
 	private @Nullable Trigger trigger;
 
@@ -76,6 +79,7 @@ public class Delay extends EffectSection {
 				Skript.warning("Delays less than one tick are not possible, defaulting to one tick.");
 			}
 		}
+		target = (Expression<Object>) exprs[1];
 
 		if (hasSection()) {
 			assert sectionNode != null;
@@ -118,7 +122,7 @@ public class Delay extends EffectSection {
 			boolean isSection = trigger != null;
 			Object localVars = isSection ? Variables.copyLocalVariables(event) : Variables.removeLocals(event);
 
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
+			Runnable runnable = () -> {
 				addDelayedEvent(event);
 				Skript.debug(getIndentation() + "... continuing after " + (System.nanoTime() - start) / 1_000_000_000. + "s");
 
@@ -128,7 +132,19 @@ public class Delay extends EffectSection {
 				TriggerItem.walk(afterDelay, event);
 
 				Variables.removeLocals(event); // Clean up local vars, we may be exiting now
-			}, ticks);
+			};
+
+			Scheduler scheduler = Skript.getScheduler();
+			Object object = null;
+			if (this.target != null)
+				object = this.target.getOptionalSingle(event).orElse(null);
+
+			switch (object) {
+				case Entity entity -> scheduler.runEntityDelayedTask(entity, runnable, null, ticks);
+				case Location location -> scheduler.runRegionDelayedTask(location, runnable, ticks);
+				case Block block -> scheduler.runRegionDelayedTask(block.getLocation(), runnable, ticks);
+				case null, default -> scheduler.runGlobalDelayedTask(runnable, ticks);
+			}
 		}
 
 		if (trigger != null)

@@ -13,7 +13,6 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.util.ExceptionUtils;
-import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.HintManager;
 import ch.njol.util.OpenCloseable;
@@ -729,7 +728,7 @@ public class ScriptLoader {
 		}
 
 		// In always sync task, enable stuff
-		Callable<Void> callable = () -> {
+		Runnable runnable = () -> {
 			// Remove the script from the disabled scripts list
 			File file = config.getFile();
 			assert file != null;
@@ -741,13 +740,12 @@ public class ScriptLoader {
 
 			ScriptLoader.eventRegistry().events(ScriptInitEvent.class)
 					.forEach(event -> event.onInit(script));
-			return null;
 		};
 		if (isAsync()) { // Need to delegate to main thread
-			Task.callSync(callable);
+			Skript.getScheduler().runGlobalTask(runnable);
 		} else { // We are in main thread, execute immediately
 			try {
-				callable.call();
+				runnable.run();
 			} catch (Exception e) {
 				//noinspection ThrowableNotThrown
 				Skript.exception(e);

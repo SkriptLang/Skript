@@ -40,8 +40,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.regex.Pattern;
 
 //TODO option to disable replacement of <color>s in command arguments?
@@ -159,15 +157,19 @@ public abstract class Commands {
 			if (event.getCommand().isEmpty() || event.isCancelled())
 				return;
 			if ((Skript.testing() || SkriptConfig.enableEffectCommands.value()) && event.getCommand().startsWith(SkriptConfig.effectCommandToken.value())) {
-				if (handleEffectCommand(event.getSender(), event.getCommand()))
+				if (canHandleEffectCommand(event.getSender())) {
+					handleEffectCommand(event.getSender(), event.getCommand());
 					event.setCancelled(true);
+				}
 			}
 		}
 	};
 
-	static boolean handleEffectCommand(CommandSender sender, String command) {
-		if (!(Skript.testing() || sender instanceof ConsoleCommandSender || sender.hasPermission("skript.effectcommands") || SkriptConfig.allowOpsToUseEffectCommands.value() && sender.isOp()))
-			return false;
+	static boolean canHandleEffectCommand(CommandSender sender) {
+		return Skript.testing() || sender instanceof ConsoleCommandSender || sender.hasPermission("skript.effectcommands") || SkriptConfig.allowOpsToUseEffectCommands.value() && sender.isOp();
+	}
+
+	static void handleEffectCommand(CommandSender sender, String command) {
 		try {
 			command = "" + command.substring(SkriptConfig.effectCommandToken.value().length()).trim();
 			RetainingLogHandler log = SkriptLogger.startRetainingLog();
@@ -206,11 +208,9 @@ public abstract class Commands {
 			} finally {
 				log.stop();
 			}
-			return true;
 		} catch (Exception e) {
 			Skript.exception(e, "Unexpected error while executing effect command '" + TextComponentParser.instance().escape(command) + "' by '" + sender.getName() + "'");
 			sender.sendRichMessage("<red>An internal error occurred while executing this effect. Please refer to the server log for details.");
-			return true;
 		}
 	}
 
@@ -286,24 +286,18 @@ public abstract class Commands {
 				public void onPlayerChat(AsyncPlayerChatEvent event) {
 					if ((!SkriptConfig.enableEffectCommands.value() && !Skript.testing()) || !event.getMessage().startsWith(SkriptConfig.effectCommandToken.value()))
 						return;
+					if (!canHandleEffectCommand(event.getPlayer()))
+						return;
 					if (!event.isAsynchronous()) {
-						if (handleEffectCommand(event.getPlayer(), event.getMessage()))
-							event.setCancelled(true);
+						handleEffectCommand(event.getPlayer(), event.getMessage());
 					} else {
-						Future<Boolean> f = Bukkit.getScheduler().callSyncMethod(Skript.getInstance(), () -> handleEffectCommand(event.getPlayer(), event.getMessage()));
-						try {
-							while (true) {
-								try {
-									if (f.get())
-										event.setCancelled(true);
-									break;
-								} catch (InterruptedException ignored) {
-								}
-							}
-						} catch (ExecutionException e) {
-							Skript.exception(e);
-						}
+						Skript.getScheduler().runEntityTask(
+							event.getPlayer(),
+							() -> handleEffectCommand(event.getPlayer(), event.getMessage()),
+							null
+						);
 					}
+					event.setCancelled(true);
 				}
 			}, Skript.getInstance());
 

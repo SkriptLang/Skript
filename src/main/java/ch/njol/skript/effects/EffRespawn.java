@@ -53,15 +53,13 @@ public class EffRespawn extends Effect {
 	@Override
 	protected void execute(final Event e) {
 		for (final Player p : players.getArray(e)) {
-			if (forceDelay) { // Use Bukkit runnable
-				new BukkitRunnable() {
-
-					@Override
-					public void run() {
-						p.spigot().respawn();
-					}
-
-				}.runTaskLater(Skript.getInstance(), 1);
+			if (forceDelay) {
+				Skript.getScheduler().runEntityDelayedTask(
+					p,
+					() -> p.spigot().respawn(),
+					null,
+					1
+				);
 			} else { // Just respawn
 				p.spigot().respawn();
 			}

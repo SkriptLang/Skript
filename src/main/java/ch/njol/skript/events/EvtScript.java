@@ -70,7 +70,7 @@ public class EvtScript extends SkriptEvent {
 			trigger.execute(event);
 		} else {
 			if (Skript.getInstance().isEnabled())
-				Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> trigger.execute(event));
+				Skript.getScheduler().runGlobalTask(() -> trigger.execute(event));
 		}
 	}
 	

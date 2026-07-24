@@ -323,7 +323,7 @@ public class ScriptCommand implements TabExecutor {
 			runnable.run();
 		} else {
 			// must not wait for the command to complete as some plugins call commands in such a way that the server will deadlock
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), runnable);
+			Skript.getScheduler().runGlobalTask(runnable);
 		}
 
 		return true; // Skript prints its own error message anyway

@@ -87,6 +87,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.registration.SyntaxRegistry.Key;
 import org.skriptlang.skript.util.ClassLoader;
 import org.skriptlang.skript.util.Priority;
+import org.skriptlang.skript.util.Scheduler;
 
 import java.io.File;
 import java.io.IOException;
@@ -150,6 +151,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	@Nullable
 	private static Skript instance = null;
 
+	private static Scheduler scheduler = null;
+
 	private static org.skriptlang.skript.@UnknownNullability Skript skript = null;
 	private static org.skriptlang.skript.@UnknownNullability Skript unmodifiableSkript = null;
 
@@ -160,6 +163,12 @@ public final class Skript extends JavaPlugin implements Listener {
 		if (instance == null)
 			throw new IllegalStateException();
 		return instance;
+	}
+
+	public static Scheduler getScheduler() {
+		if (scheduler == null)
+			throw new IllegalStateException();
+		return scheduler;
 	}
 
 	/**
@@ -234,6 +243,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	public static ServerPlatform getServerPlatform() {
 		if (classExists("net.glowstone.GlowServer")) {
 			return ServerPlatform.BUKKIT_GLOWSTONE; // Glowstone has timings too, so must check for it first
+		} else if (classExists("io.papermc.paper.threadedregions.RegionizedServer")) {
+			return ServerPlatform.BUKKIT_FOLIA;
 		} else if (classExists("co.aikar.timings.Timings")) {
 			return ServerPlatform.BUKKIT_PAPER; // Could be Sponge, but it doesn't work at all at the moment
 		} else if (classExists("org.spigotmc.SpigotConfig")) {
@@ -289,7 +300,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		} else if (!serverPlatform.supported) {
 			Skript.warning("This server platform (" + serverPlatform.name + ") is not supported by Skript.");
 			Skript.warning("It will still probably work, but if it does not, you are on your own.");
-			Skript.warning("Skript officially supports Paper and Spigot.");
+			Skript.warning("Skript officially supports Paper and Folia.");
 		}
 
 		// If nothing got triggered, everything is probably ok
@@ -363,6 +374,8 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	@Override
 	public void onEnable() {
+		scheduler = new Scheduler(this);
+
 		Bukkit.getPluginManager().registerEvents(this, this);
 		if (disabled) {
 			Skript.error(m_invalid_reload.toString());
@@ -582,7 +595,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			info(" " + Language.get("skript.copyright"));
 
 		final long tick = testing() ? Bukkit.getWorlds().get(0).getFullTime() : 0;
-		Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+		Skript.getScheduler().runGlobalTask(new Runnable() {
 			@SuppressWarnings("synthetic-access")
 			@Override
 			public void run() {
@@ -693,11 +706,13 @@ public final class Skript extends JavaPlugin implements Listener {
 						// delay + chunk loading necessary to allow world to fully generate and start ticking before tests run.
 						World world = Bukkit.getWorlds().get(0);
 						world.setSpawnLocation(0, 0, 0);
-						Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
-							world.addPluginChunkTicket(0, 0, Skript.getInstance());
-							world.addPluginChunkTicket(100, 100, Skript.getInstance());
-							Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> runTests(), 100);
-						}, 5);
+						Skript.getScheduler().runGlobalDelayedTask(
+							() -> {
+								world.addPluginChunkTicket(0, 0, Skript.getInstance());
+								world.addPluginChunkTicket(100, 100, Skript.getInstance());
+								Skript.getScheduler().runGlobalDelayedTask(() -> runTests(), 100);
+							}, 5
+						);
 					}
 				}
 
@@ -741,13 +756,12 @@ public final class Skript extends JavaPlugin implements Listener {
 										|| !record.getMessage().toLowerCase(Locale.ENGLISH).startsWith("can't keep up!");
 								};
 								BukkitLoggerFilter.addFilter(filter);
-								Bukkit.getScheduler().scheduleSyncDelayedTask(
-									Skript.this,
+								Skript.getScheduler().runGlobalDelayedTask(
 									() -> BukkitLoggerFilter.removeFilter(filter),
-									1);
+									1
+								);
 							} else {
-								Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.this,
-									EvtSkript::onSkriptStart);
+								Skript.getScheduler().runGlobalTask(EvtSkript::onSkriptStart);
 							}
 						} catch (Exception e) {
 							// Something went wrong, we need to make sure the exception is printed
@@ -795,10 +809,10 @@ public final class Skript extends JavaPlugin implements Listener {
 			if (!event.getPlayer().hasPermission("skript.admin"))
 				return;
 
-			new Task(Skript.this, 0) {
-				@Override
-				public void run() {
-					Player player = event.getPlayer();
+			Player player = event.getPlayer();
+			Skript.getScheduler().runEntityTask(
+				player,
+				() -> {
 					SkriptUpdater updater = getUpdater();
 
 					// Don't actually check for updates to avoid breaking GitHub rate limit
@@ -814,8 +828,8 @@ public final class Skript extends JavaPlugin implements Listener {
 					Skript.info(player, SkriptUpdater.m_update_available.toString(update.id, Skript.getVersion()));
 					player.sendMessage(TextComponentParser.instance()
 						.parse("Download it at: <aqua><underlined><click:open_url:" + update.downloadUrl + ">" + update.downloadUrl));
-				}
-			};
+				}, null
+			);
 		}
   	}
 
@@ -926,24 +940,26 @@ public final class Skript extends JavaPlugin implements Listener {
 			info("Testing done, shutting down the server in " + display + " second" + (display == 1 ? "" : "s") + "...");
 
 			// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
-			Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
-				info("Shutting down server.");
-				if (TestMode.JUNIT && !EffObjectives.isJUnitComplete())
-					EffObjectives.fail();
+			Skript.getScheduler().runGlobalDelayedTask(
+				() -> {
+					info("Shutting down server.");
+					if (TestMode.JUNIT && !EffObjectives.isJUnitComplete())
+						EffObjectives.fail();
 
-				info("Collecting results to " + TestMode.RESULTS_FILE);
-				String results = new GsonBuilder()
-					.setPrettyPrinting() // Easier to read lines
-					.disableHtmlEscaping() // Fixes issue with "'" character in test strings going unicode
-					.create().toJson(TestTracker.collectResults());
-				try {
-					Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
-				} catch (IOException e) {
-					Skript.exception(e, "Failed to write test results.");
-				}
-				// delay by 1 tick to avoid the watchdog from thinking the shutdown tick took too long.
-				Bukkit.getScheduler().runTaskLater(Skript.this, () -> Bukkit.getServer().shutdown(), 1);
-			}, shutdownDelay.get());
+					info("Collecting results to " + TestMode.RESULTS_FILE);
+					String results = new GsonBuilder()
+						.setPrettyPrinting() // Easier to read lines
+						.disableHtmlEscaping() // Fixes issue with "'" character in test strings going unicode
+						.create().toJson(TestTracker.collectResults());
+					try {
+						Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
+					} catch (IOException e) {
+						Skript.exception(e, "Failed to write test results.");
+					}
+					// delay by 1 tick to avoid the watchdog from thinking the shutdown tick took too long.
+					Skript.getScheduler().runGlobalDelayedTask(() -> Bukkit.getServer().shutdown(), 1);
+				}, shutdownDelay.get()
+			);
 		});
 	}
 
@@ -1277,7 +1293,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			beforeDisable();
 		}
 
-		Bukkit.getScheduler().cancelTasks(this);
+		getScheduler().cancelAllTasks();
 
 		for (Closeable c : closeOnDisable) {
 			try {

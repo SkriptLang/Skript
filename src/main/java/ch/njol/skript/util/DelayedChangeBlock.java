@@ -155,12 +155,10 @@ public class DelayedChangeBlock implements Block {
 		if (newState != null) {
 			newState.setType(type);
 		} else {
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
-				@Override
-				public void run() {
-					block.setType(type);
-				}
-			});
+			Skript.getScheduler().runRegionTask(
+				getLocation(),
+				() -> block.setType(type)
+			);
 		}
 	}
 
@@ -284,12 +282,10 @@ public class DelayedChangeBlock implements Block {
 		if (newState != null) {
 			return false;
 		} else {
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
-				@Override
-				public void run() {
-					block.breakNaturally();
-				}
-			});
+			Skript.getScheduler().runRegionTask(
+				getLocation(),
+				block::breakNaturally
+			);
 			return true;
 		}
 	}
@@ -299,12 +295,10 @@ public class DelayedChangeBlock implements Block {
 		if (newState != null) {
 			return false;
 		} else {
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
-				@Override
-				public void run() {
-					block.breakNaturally(tool);
-				}
-			});
+			Skript.getScheduler().runRegionTask(
+				getLocation(),
+				() -> block.breakNaturally(tool)
+			);
 			return true;
 		}
 	}
@@ -314,12 +308,10 @@ public class DelayedChangeBlock implements Block {
 		if (newState != null) {
 			return false;
 		} else {
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
-				@Override
-				public void run() {
-					block.breakNaturally(triggerEffect);
-				}
-			});
+			Skript.getScheduler().runRegionTask(
+				getLocation(),
+				() -> block.breakNaturally(triggerEffect)
+			);
 			return true;
 		}
 	}
@@ -329,12 +321,10 @@ public class DelayedChangeBlock implements Block {
 		if (newState != null) {
 			return false;
 		} else {
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
-				@Override
-				public void run() {
-					block.breakNaturally(tool, triggerEffect);
-				}
-			});
+			Skript.getScheduler().runRegionTask(
+				getLocation(),
+				() -> block.breakNaturally(tool, triggerEffect)
+			);
 			return true;
 		}
 	}
@@ -344,12 +334,10 @@ public class DelayedChangeBlock implements Block {
 		if (newState != null) {
 			return false;
 		} else {
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
-				@Override
-				public void run() {
-					block.breakNaturally(tool, triggerEffect, dropExperience, forceEffect);
-				}
-			});
+			Skript.getScheduler().runRegionTask(
+				getLocation(),
+				() -> block.breakNaturally(tool, triggerEffect, dropExperience, forceEffect)
+			);
 			return true;
 		}
 	}
@@ -408,12 +396,10 @@ public class DelayedChangeBlock implements Block {
 		if (newState != null) {
 			newState.setType(type);
 		} else {
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
-				@Override
-				public void run() {
-					block.setType(type, applyPhysics);
-				}
-			});
+			Skript.getScheduler().runRegionTask(
+				getLocation(),
+				() -> block.setType(type, applyPhysics)
+			);
 		}
 	}
 
@@ -432,7 +418,10 @@ public class DelayedChangeBlock implements Block {
 		if (newState != null) {
 			newState.setBlockData(data);
 		} else {
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> block.setBlockData(data, applyPhysics));
+			Skript.getScheduler().runRegionTask(
+				getLocation(),
+				() -> block.setBlockData(data, applyPhysics)
+			);
 		}
 	}
 

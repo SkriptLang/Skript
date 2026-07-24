@@ -14,10 +14,10 @@ import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RedirectingLogHandler;
 import ch.njol.skript.log.TimingLogHandler;
-import ch.njol.skript.util.Task;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import com.google.common.collect.Lists;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
@@ -34,6 +34,7 @@ import org.skriptlang.skript.registration.DefaultSyntaxInfos.Structure.NodeType;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 @Name("Auto Reload")
@@ -67,7 +68,7 @@ public class StructAutoReload extends Structure {
 	}
 
 	private Script script;
-	private Task task;
+	private ScheduledTask task;
 
 	@Override
 	public boolean init(Literal<?> @NotNull [] arguments, int pattern, ParseResult result, EntryContainer container) {
@@ -115,9 +116,8 @@ public class StructAutoReload extends Structure {
 
 	@Override
 	public boolean postLoad() {
-		task = new Task(Skript.getInstance(), 0, 20 * 2, true) {
-			@Override
-			public void run() {
+		task = Skript.getScheduler().runAsyncRepeatingTask(
+			() -> {
 				AutoReload data = script.getData(AutoReload.class);
 				File file = script.getConfig().getFile();
 				if (data == null || file == null || !file.exists())
@@ -138,8 +138,8 @@ public class StructAutoReload extends Structure {
 					//noinspection ThrowableNotThrown
 					Skript.exception(e, "Exception occurred while automatically reloading a script", script.getConfig().getFileName());
 				}
-			}
-		};
+			}, 0, 2, TimeUnit.SECONDS
+		);
 		return true;
 	}
 

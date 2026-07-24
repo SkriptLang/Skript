@@ -432,7 +432,7 @@ public class SkriptCommand implements CommandExecutor {
 				ScriptLoader.loadScripts(scriptFile, errorCounter)
 					.thenAccept(scriptInfo ->
 						// Code should run on server thread
-						Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
+						Skript.getScheduler().runGlobalTask(() -> {
 							Bukkit.getPluginManager().callEvent(new SkriptTestEvent()); // Run it
 							ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
 

@@ -16,7 +16,6 @@ import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
-import ch.njol.skript.util.Task;
 import com.google.common.collect.Iterables;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -78,10 +77,7 @@ public class StructParse extends Structure {
 
 	@Override
 	public boolean postLoad() {
-		Task.callSync(() -> {
-			resultsExpression.change(ContextlessEvent.get(), logs, ChangeMode.SET);
-			return null;
-		});
+		Skript.getScheduler().runGlobalTask(() -> resultsExpression.change(ContextlessEvent.get(), logs, ChangeMode.SET));
 		return true;
 	}
 
