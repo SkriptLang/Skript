@@ -174,11 +174,10 @@ public final class SkriptEventHandler {
 			if (trigger.getEvent().check(event))
 				execute.run();
 		} else { // Ensure main thread
-			Skript.getScheduler().runGlobalTask(() -> {
-					if (trigger.getEvent().check(event))
-						execute.run();
-				}
-			);
+			Skript.getScheduler().callSyncGlobal(() -> {
+				if (trigger.getEvent().check(event))
+					execute.run();
+			});
 		}
 	}
 

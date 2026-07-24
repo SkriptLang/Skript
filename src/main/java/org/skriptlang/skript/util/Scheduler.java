@@ -1,5 +1,6 @@
 package org.skriptlang.skript.util;
 
+import ch.njol.skript.Skript;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -8,6 +9,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 public class Scheduler {
@@ -28,6 +31,7 @@ public class Scheduler {
 
 	@NotNull
 	public ScheduledTask runGlobalDelayedTask(@NotNull Runnable runnable, long delayTicks) {
+		if (delayTicks <= 0) delayTicks = 1;
 		return Bukkit.getServer().getGlobalRegionScheduler().runDelayed(
 			plugin,
 			scheduledTask -> runnable.run(),
@@ -37,6 +41,7 @@ public class Scheduler {
 
 	@NotNull
 	public ScheduledTask runGlobalRepeatingTask(@NotNull Runnable runnable, long initialDelayTicks, long periodTicks) {
+		if (initialDelayTicks <= 0) initialDelayTicks = 1;
 		return Bukkit.getServer().getGlobalRegionScheduler().runAtFixedRate(
 			plugin,
 			scheduledTask -> runnable.run(),
@@ -56,6 +61,7 @@ public class Scheduler {
 
 	@NotNull
 	public ScheduledTask runRegionDelayedTask(@NotNull Location location, @NotNull Runnable runnable, long delayTicks) {
+		if (delayTicks <= 0) delayTicks = 1;
 		return Bukkit.getServer().getRegionScheduler().runDelayed(
 			plugin,
 			location,
@@ -66,6 +72,7 @@ public class Scheduler {
 
 	@NotNull
 	public ScheduledTask runRegionRepeatingTask(@NotNull Location location, @NotNull Runnable runnable, long initialDelayTicks, long periodTicks) {
+		if (initialDelayTicks <= 0) initialDelayTicks = 1;
 		return Bukkit.getServer().getRegionScheduler().runAtFixedRate(
 			plugin,
 			location,
@@ -85,6 +92,7 @@ public class Scheduler {
 
 	@NotNull
 	public ScheduledTask runAsyncDelayedTask(@NotNull Runnable runnable, long delay, @NotNull TimeUnit unit) {
+		if (delay <= 0) delay = 1;
 		return Bukkit.getServer().getAsyncScheduler().runDelayed(
 			plugin,
 			scheduledTask -> runnable.run(),
@@ -95,6 +103,7 @@ public class Scheduler {
 
 	@NotNull
 	public ScheduledTask runAsyncRepeatingTask(@NotNull Runnable runnable, long initialDelay, long period, @NotNull TimeUnit unit) {
+		if (initialDelay <= 0) initialDelay = 1;
 		return Bukkit.getServer().getAsyncScheduler().runAtFixedRate(
 			plugin,
 			scheduledTask -> runnable.run(),
@@ -115,6 +124,7 @@ public class Scheduler {
 
 	@Nullable
 	public ScheduledTask runEntityDelayedTask(@NotNull Entity entity, @NotNull Runnable runnable, @Nullable Runnable retired, long delayTicks) {
+		if (delayTicks <= 0) delayTicks = 1;
 		return entity.getScheduler().runDelayed(
 			plugin,
 			scheduledTask -> runnable.run(),
@@ -125,6 +135,7 @@ public class Scheduler {
 
 	@Nullable
 	public ScheduledTask runEntityRepeatingTask(@NotNull Entity entity, @NotNull Runnable runnable, @Nullable Runnable retired, long initialDelayTicks, long periodTicks) {
+		if (initialDelayTicks <= 0) initialDelayTicks = 1;
 		return entity.getScheduler().runAtFixedRate(
 			plugin,
 			scheduledTask -> runnable.run(),
@@ -145,5 +156,13 @@ public class Scheduler {
 
 	public void cancelAllAsyncTasks() {
 		Bukkit.getAsyncScheduler().cancelTasks(plugin);
+	}
+
+	public void callSyncGlobal(Runnable runnable) {
+		if (Bukkit.isGlobalTickThread() || Bukkit.isPrimaryThread()) {
+			runnable.run();
+		} else {
+			Bukkit.getGlobalRegionScheduler().execute(plugin, runnable);
+		}
 	}
 }

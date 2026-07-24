@@ -742,7 +742,7 @@ public class ScriptLoader {
 					.forEach(event -> event.onInit(script));
 		};
 		if (isAsync()) { // Need to delegate to main thread
-			Skript.getScheduler().runGlobalTask(runnable);
+			Skript.getScheduler().callSyncGlobal(runnable);
 		} else { // We are in main thread, execute immediately
 			try {
 				runnable.run();
