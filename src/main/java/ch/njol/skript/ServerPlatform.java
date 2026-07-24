@@ -19,7 +19,7 @@ public enum ServerPlatform {
 	/**
 	 * Spigot, with its Bukkit API extensions. Officially supported.
 	 */
-	BUKKIT_SPIGOT("Spigot", true, true),
+	BUKKIT_SPIGOT("Spigot", false, false),
 	
 	/**
 	 * Paper Minecraft server, which is a Spigot fork with additional features.
