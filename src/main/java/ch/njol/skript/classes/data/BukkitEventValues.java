@@ -434,8 +434,6 @@ public final class BukkitEventValues {
 		registry.register(EventValue.simple(CommandEvent.class, Block.class, event -> event.getSender() instanceof BlockCommandSender sender ? sender.getBlock() : null));
 
 		// === ServerEvents ===
-		// Script load/unload event
-		registry.register(EventValue.simple(ScriptEvent.class, CommandSender.class, event -> Bukkit.getConsoleSender()));
 		// Server load event
 		registry.register(EventValue.simple(SkriptStartEvent.class, CommandSender.class, event -> Bukkit.getConsoleSender()));
 		// Server stop event
