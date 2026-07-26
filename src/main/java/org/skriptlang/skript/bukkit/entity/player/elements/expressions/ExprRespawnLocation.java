@@ -9,7 +9,6 @@ import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -42,6 +41,11 @@ public class ExprRespawnLocation extends SimpleExpression<Location> implements E
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(AbstractRespawnEvent.class);
 	}
 
 	@Override
@@ -91,11 +95,6 @@ public class ExprRespawnLocation extends SimpleExpression<Location> implements E
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the respawn location " + ((event != null) ? ": " + ((AbstractRespawnEvent) event).getRespawnLocation() : "");
-	}
-
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(AbstractRespawnEvent.class);
 	}
 
 }
