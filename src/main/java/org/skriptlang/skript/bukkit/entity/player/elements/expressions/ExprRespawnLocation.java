@@ -97,4 +97,5 @@ public class ExprRespawnLocation extends SimpleExpression<Location> implements E
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the respawn location " + ((event != null) ? ": " + ((AbstractRespawnEvent)event).getRespawnLocation() : "");
 	}
+
 }
