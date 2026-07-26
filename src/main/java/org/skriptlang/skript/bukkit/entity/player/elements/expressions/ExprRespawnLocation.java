@@ -45,12 +45,7 @@ public class ExprRespawnLocation extends SimpleExpression<Location> implements E
 	}
 
 	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(AbstractRespawnEvent.class);
-	}
-	
-	@Override
-protected Location @Nullable [] get(Event event) {
+	protected Location @Nullable [] get(Event event) {
 		if (!(event instanceof AbstractRespawnEvent respawnEvent)) {
 			return null;
 		}
@@ -59,18 +54,8 @@ protected Location @Nullable [] get(Event event) {
 	}
 
 	@Override
-	public boolean isSingle() {
-		return true;
-	}
-
-	@Override
-	public Class<? extends Location> getReturnType() {
-		return Location.class;
-	}
-	
-	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "the respawn location " + ((event != null) ? ": " + ((AbstractRespawnEvent)event).getRespawnLocation() : "");
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(AbstractRespawnEvent.class);
 	}
 
 	@Override
@@ -97,5 +82,19 @@ protected Location @Nullable [] get(Event event) {
 
 		respawnEvent.setRespawnLocation(respawnLocation);
 	}
-	
+
+	@Override
+	public boolean isSingle() {
+		return true;
+	}
+
+	@Override
+	public Class<? extends Location> getReturnType() {
+		return Location.class;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the respawn location " + ((event != null) ? ": " + ((AbstractRespawnEvent)event).getRespawnLocation() : "");
+	}
 }
