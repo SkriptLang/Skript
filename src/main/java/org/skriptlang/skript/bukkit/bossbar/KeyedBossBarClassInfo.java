@@ -1,14 +1,17 @@
 package org.skriptlang.skript.bukkit.bossbar;
 
+import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
+import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.Fields;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.boss.KeyedBossBar;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.StreamCorruptedException;
 
@@ -20,6 +23,7 @@ public class KeyedBossBarClassInfo extends ClassInfo<KeyedBossBar> {
 			.name(ClassInfo.NO_DOC)
 			.since("2.16")
 			.parser(new KeyedBossBarParser())
+			.changer(new KeyedBossBarChangeHandler())
 			.supplier(Bukkit::getBossBars)
 			.serializer(new KeyedBossBarSerializer())
 			.defaultExpression(new EventValueExpression<>(KeyedBossBar.class));
@@ -46,6 +50,25 @@ public class KeyedBossBarClassInfo extends ClassInfo<KeyedBossBar> {
 		@Override
 		public String toVariableNameString(KeyedBossBar bar) {
 			return toString(bar, 0);
+		}
+		//</editor-fold>
+	}
+
+	private static class KeyedBossBarChangeHandler implements Changer<KeyedBossBar> {
+		//<editor-fold desc="keyed boss bar change handler" defaultstate="collapsed">
+		@Override
+		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+			if (mode == ChangeMode.DELETE)
+				return CollectionUtils.array();
+			return null;
+		}
+
+		@Override
+		public void change(KeyedBossBar[] bars, Object @Nullable [] delta, ChangeMode mode) {
+			for (KeyedBossBar bar : bars) {
+				bar.removeAll();
+				Bukkit.removeBossBar(bar.getKey());
+			}
 		}
 		//</editor-fold>
 	}
