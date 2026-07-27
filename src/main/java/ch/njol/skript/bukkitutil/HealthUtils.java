@@ -114,7 +114,7 @@ public class HealthUtils {
 			damage(damageable, -health);
 			return;
 		}
-		damageable.heal(health);
+		damageable.heal(health * 2);
 	}
 
 	public static double getDamage(EntityDamageEvent event) {
