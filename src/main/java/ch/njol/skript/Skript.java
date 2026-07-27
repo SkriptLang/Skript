@@ -710,7 +710,11 @@ public final class Skript extends JavaPlugin implements Listener {
 							() -> {
 								world.addPluginChunkTicket(0, 0, Skript.getInstance());
 								world.addPluginChunkTicket(100, 100, Skript.getInstance());
-								Skript.getScheduler().runGlobalDelayedTask(() -> runTests(), 100);
+								Skript.getScheduler().runRegionDelayedTask(
+									SkriptJUnitTest.getTestLocation(),
+									() -> runTests(),
+									100
+								);
 							}, 5
 						);
 					}
