@@ -1,4 +1,4 @@
-package ch.njol.skript.events;
+package org.skriptlang.skript.bukkit.misc.elements.events;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptEventHandler;
@@ -13,27 +13,40 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 
-	static {
-		Skript.registerEvent("*At Time", EvtAtTime.class, ScheduledEvent.class, "at %time% [in %worlds%]")
-				.description("An event that occurs at a given <a href='#time'>minecraft time</a> in every world or only in specific worlds.")
-				.examples("at 18:00", "at 7am in \"world\"")
-				.since("1.3.4");
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtAtTime.class, "At Time")
+			.supplier(EvtAtTime::new)
+			.addEvent(ScheduledEvent.class)
+			.addPattern("at %time% [in %worlds%]")
+			.addDescription("An event that occurs at a given <a href='#time'>minecraft time</a> in every world or only in specific worlds.")
+			.addExample("""
+				at 7am in "world":
+				    broadcast "Rise and shine!"
+				""")
+			.addExample("""
+				at 9pm:
+				    broadcast "Time to get some sleep.."
+				""")
+			.addSince("1.3.4")
+			.build());
 	}
-	
+
 	private static final int CHECK_PERIOD = 10;
 
 	private static final Map<World, EvtAtInfo> TRIGGERS = new ConcurrentHashMap<>();
 
 	private static final class EvtAtInfo {
+
 		/**
 		 * Stores the last world time that this object's instances were checked.
 		 */
@@ -48,14 +61,18 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 
 	private int time;
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private World[] worlds;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		time = ((Literal<Time>) args[0]).getSingle().getTicks();
-		worlds = args[1] == null ? Bukkit.getWorlds().toArray(new World[0]) : ((Literal<World>) args[1]).getAll();
+
+		if (args[1] == null) {
+			worlds = Bukkit.getWorlds().toArray(new World[0]);
+		} else {
+			worlds = ((Literal<World>) args[1]).getAll();
+		}
 		return true;
 	}
 
@@ -100,14 +117,14 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 	}
 
 	private static int taskID = -1;
-	
+
 	private static void registerListener() {
 		if (taskID != -1)
 			return;
 		// For each world:
 		// check each instance in order until triggerTime > (worldTime + period)
 		taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(Skript.getInstance(), () -> {
-			for (Entry<World, EvtAtInfo> entry : TRIGGERS.entrySet()) {
+			for (Map.Entry<World, EvtAtInfo> entry : TRIGGERS.entrySet()) {
 				EvtAtInfo info = entry.getValue();
 				int worldTime = (int) entry.getKey().getTime();
 
@@ -153,15 +170,15 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 			}
 		}, 0, CHECK_PERIOD);
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "at " + Time.toString(time) + " in worlds " + Classes.toString(worlds, true);
 	}
-	
+
 	@Override
 	public int compareTo(@Nullable EvtAtTime event) {
 		return event == null ? time : time - event.time;
 	}
-	
+
 }
