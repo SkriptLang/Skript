@@ -17,7 +17,7 @@ import java.util.Collection;
 public class EvtPlayerCommandSend extends SkriptEvent {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
-		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtPlayerCommandSend.class, "Player First Join")
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtPlayerCommandSend.class, "Send Command List")
 			.supplier(EvtPlayerCommandSend::new)
 			.addEvent(PlayerCommandSendEvent.class)
 			.addPatterns(
