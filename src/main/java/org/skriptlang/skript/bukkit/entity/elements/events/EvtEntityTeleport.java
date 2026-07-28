@@ -42,7 +42,8 @@ public class EvtEntityTeleport extends SkriptEvent {
 				on wolf teleport:
 					send "Your wolf just teleported!" to owner of event-entity
 				""")
-			.addSince("1.0, 2.9.0 (entity teleport)")
+			.addSince("1.0")
+			.addSince("2.9.0 (entity teleport)")
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(PlayerTeleportEvent.class, Location.class)

@@ -33,7 +33,9 @@ public class EvtEntityPortal extends SkriptEvent {
 					set world of event-location to player's world
 					add 9000 to x-pos of event-location
 				""")
-			.addSince("1.0, 2.5.3 (entities), 2.13 (location changers)")
+			.addSince("1.0")
+			.addSince("2.5.3 (entities)")
+			.addSince("2.13 (location changers)")
 			.build());
 	}
 

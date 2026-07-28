@@ -34,7 +34,8 @@ public class EvtEntitySpawn extends SkriptEvent {
 					loop all players in radius 120 of event-entity:
 						send "A great beast has been seen near you.." to loop-value
 				""")
-			.addSince("1.0, 2.5.1 (non-living entities)")
+			.addSince("1.0")
+			.addSince("2.5.1 (non-living entities)")
 			.build());
 	}
 

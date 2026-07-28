@@ -32,7 +32,8 @@ public class EvtEntityBreakDoor extends SkriptEvent {
 				on husk breaking a door:
 					broadcast "Rest in peace villagers.."
 				""")
-			.addSince("1.0, INSERT VERSION (entity types)")
+			.addSince("1.0")
+			.addSince("INSERT VERSION (entity types)")
 			.build());
 	}
 

@@ -243,6 +243,22 @@ public class EntityEvents {
 			.getter(event -> event.getEntity().getLocation())
 			.build());
 
+		// This technically is only called for players but in the future it may support other human entities
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Hunger Meter Change")
+			.addEvent(FoodLevelChangeEvent.class)
+			.addPatterns("(food|hunger) (level|met(er|re)|bar) chang(e|ing)")
+			.addDescription("""
+				Called when the hunger bar of a player changes,\s
+				i.e. either increases by eating or decreases over time.
+				""")
+			.addExample("""
+				on food bar change:
+				    send "Getting hungry eh?" to event-entity
+				""")
+			.addSince("1.4.4")
+			.supplier(() -> new SimpleEvent("hunger meter change"))
+			.build());
+
 		//
 		// Entity specific events (e.g. CreeperPowerEvent)
 		//
@@ -275,7 +291,8 @@ public class EntityEvents {
 				on explosion prime:
 					broadcast "The explosion is primed!"
 				""")
-			.addSince("1.0, INSERT VERSION (updated pattern)")
+			.addSince("1.0")
+			.addSince("INSERT VERSION (updated pattern)")
 			.supplier(() -> new SimpleEvent("explosion prime"))
 			.build());
 
@@ -491,7 +508,8 @@ public class EntityEvents {
 				on vehicle move:
 					send actionbar "A vehicle is moving from %past event location% to %event-location%!" to (all players)
 				""")
-			.addSince("2.10, INSERT VERSION (pattern update)")
+			.addSince("2.10")
+			.addSince("INSERT VERSION (pattern update)")
 			.supplier(() -> new SimpleEvent("vehicle moving"))
 			.build());
 
@@ -608,7 +626,8 @@ public class EntityEvents {
 					projectile is an arrow
 					send "You shot an arrow!" to shooter
 				""")
-			.addSince("1.0, INSERT VERSION (ing)")
+			.addSince("1.0")
+			.addSince("INSERT VERSION (pattern update)")
 			.supplier(() -> new SimpleEvent("projectile shoot"))
 			.build());
 
@@ -631,7 +650,8 @@ public class EntityEvents {
 				   victim's health <= 3
 				   delete event-projectile
 				""")
-			.addSince("1.0, INSERT VERSION (pattern update)")
+			.addSince("1.0")
+			.addSince("INSERT VERSION (pattern update)")
 			.supplier(() -> new SimpleEvent("projectile hit"))
 			.build());
 

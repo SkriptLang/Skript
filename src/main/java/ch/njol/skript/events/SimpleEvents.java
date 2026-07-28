@@ -93,10 +93,6 @@ public class SimpleEvents {
 				.examples("on chunk unload:")
 				.since("1.0");
 //		Skript.registerEvent(SimpleEvent.class, EntityInteractEvent.class, "interact");// = entity interacts with block, e.g. endermen?; player -> PlayerInteractEvent // likely tripwires, pressure plates, etc.
-		Skript.registerEvent("Hunger Meter Change", SimpleEvent.class, FoodLevelChangeEvent.class, "(food|hunger) (level|met(er|re)|bar) chang(e|ing)")
-				.description("Called when the hunger bar of a player changes, i.e. either increases by eating or decreases over time.")
-				.examples("on food bar change:")
-				.since("1.4.4");
 		Skript.registerEvent("Leaves Decay", SimpleEvent.class, LeavesDecayEvent.class, "leaves decay[ing]")
 				.description("Called when a leaf block decays due to not being connected to a tree.")
 				.examples("on leaves decay:")

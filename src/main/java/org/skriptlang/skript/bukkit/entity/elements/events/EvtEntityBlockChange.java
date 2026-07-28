@@ -46,7 +46,9 @@ public class EvtEntityBlockChange extends SkriptEvent {
 					event-entity is a falling dirt
 					cancel event
 				""")
-			.addSince("unknown, 2.5.2 (falling block), 2.8.0 (any entity support)")
+			.addSince("unknown")
+			.addSince("2.5.2 (falling block)")
+			.addSince("2.8.0 (any entity support)")
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(EntityChangeBlockEvent.class, Block.class)

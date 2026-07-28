@@ -42,7 +42,9 @@ public class EvtEntityPickupItem extends SkriptEvent {
 				on player pickup of bedrock:
 					broadcast "%player% just got a forbidden item! Get them!!"
 				""")
-			.addSince("unknown (before 2.1), 2.5 (entity), INSERT VERSION (entity data)")
+			.addSince("unknown (before 2.1)")
+			.addSince("2.5 (entity)")
+			.addSince("INSERT VERSION (entity data)")
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(EntityPickupItemEvent.class, Item.class)

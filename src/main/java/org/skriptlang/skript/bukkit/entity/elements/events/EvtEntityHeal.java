@@ -40,7 +40,8 @@ public class EvtEntityHeal extends SkriptEvent {
 				on player healing from a regeneration potion:
 					send "all better!" to event-entity
 				""")
-			.addSince("1.0, 2.9.0 (by reason)")
+			.addSince("1.0")
+			.addSince("2.9.0 (by reason)")
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(EntityRegainHealthEvent.class, RegainReason.class)

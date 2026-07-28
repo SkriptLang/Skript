@@ -45,7 +45,9 @@ public class EvtEntityDropItem extends SkriptEvent {
 				on drop:
 					broadcast "%event-item stack% was just dropped at %location of event-item stack%!"
 				""")
-			.addSince("unknown (before 2.1), 2.7 (entity), INSERT VERSION (entity data)")
+			.addSince("unknown (before 2.1)")
+			.addSince("2.7 (entity)")
+			.addSince("INSERT VERSION (entity data)")
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(PlayerDropItemEvent.class, Player.class)

@@ -52,7 +52,8 @@ public class EvtEntityMove extends SkriptEvent {
 					if event-world is "no_skeleton_movement":
 						cancel event
 				""")
-			.addSince("2.6, 2.8.0 (turn around)")
+			.addSince("2.6")
+			.addSince("2.8.0 (turn around)")
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(EntityMoveEvent.class, Location.class)

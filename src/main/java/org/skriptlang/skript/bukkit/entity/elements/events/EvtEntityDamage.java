@@ -37,7 +37,8 @@ public class EvtEntityDamage extends SkriptEvent {
 					if attacker is a player:
 						send "You monster.." to attacker
 				""")
-			.addSince("1.0, 2.7 (by entity)")
+			.addSince("1.0")
+			.addSince("2.7 (by entity)")
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(EntityDamageEvent.class, DamageCause.class)
