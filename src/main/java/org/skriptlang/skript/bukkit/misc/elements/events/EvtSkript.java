@@ -37,13 +37,11 @@ public class EvtSkript extends SkriptEvent {
 				""")
 			.addExample("""
 				on skript start:
-				    kill all entities where [data tag "example" of input is set] # just in case Skript stop didn't catch them for some reason
-				    spawn interaction at {mylocation}:
-				        set data tag "example" of entity to true
+				    set {-example} to diamond pickaxe named "<blue>Example"
 				""")
 			.addExample("""
 				on skript stop:
-				    kill all entities where [data tag "example" of input is set]
+				    broadcast "Stopping!"
 				""")
 			.addSince("2.0")
 			.build());

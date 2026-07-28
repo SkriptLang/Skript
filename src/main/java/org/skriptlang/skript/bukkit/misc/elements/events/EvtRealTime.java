@@ -29,12 +29,12 @@ public class EvtRealTime extends SkriptEvent {
 			.addDescription("Called when the local time of the system the server is running on reaches the provided real-life time.")
 			.addExample("""
 				at 2:30am in real time:
-				    broadcast "Time to get some sleep.."
+					broadcast "Time to get some sleep.."
 				""")
 			.addExample("""
 				at 12am real time:
-				    resetDailyQuests()
-				    broadcast "All daily quests have reset!"
+					resetDailyQuests()
+					broadcast "All daily quests have reset!"
 				""")
 			.addSince("2.11")
 			.build());

@@ -31,11 +31,11 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 			.addDescription("An event that occurs at a given <a href='#time'>minecraft time</a> in every world or only in specific worlds.")
 			.addExample("""
 				at 7am in "world":
-				    broadcast "Rise and shine!"
+					broadcast "Rise and shine!"
 				""")
 			.addExample("""
 				at 9pm:
-				    broadcast "Time to get some sleep.."
+					broadcast "Time to get some sleep.."
 				""")
 			.addSince("1.3.4")
 			.build());

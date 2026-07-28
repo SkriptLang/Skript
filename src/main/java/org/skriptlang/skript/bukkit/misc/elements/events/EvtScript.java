@@ -31,13 +31,13 @@ public class EvtScript extends SkriptEvent {
 				""")
 			.addExample("""
 				on script load:
-				    set {running::%script%} to true
-				    broadcast "%script% is now running!"
+					set {running::%script%} to true
+					broadcast "%script% is now running!"
 				""")
 			.addExample("""
 				on script unload:
-				    set {running::%script%} to false
-				    broadcast "%script% is no longer running!"
+					set {running::%script%} to false
+					broadcast "%script% is no longer running!"
 				""")
 			.addSince("2.0")
 			.build());

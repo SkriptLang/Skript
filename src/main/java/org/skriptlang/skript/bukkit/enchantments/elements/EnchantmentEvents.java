@@ -25,8 +25,8 @@ public class EnchantmentEvents {
 				""")
 			.addExample("""
 				on item enchant prepare:
-				    set enchant offer 1 to sharpness 1
-				    set the cost of enchantment offer 1 to 10 levels
+					set enchant offer 1 to sharpness 1
+					set the cost of enchantment offer 1 to 10 levels
 				""")
 			.addSince("2.5")
 			.supplier(() -> new SimpleEvent("item enchant prepare"))
@@ -53,8 +53,8 @@ public class EnchantmentEvents {
 				""")
 			.addExample("""
 				on enchant:
-				    if the clicked button is 1:
-				        set the applied enchantments to (sharpness 10 and unbreaking 10)
+					if the clicked button is 1:
+						set the applied enchantments to (sharpness 10 and unbreaking 10)
 				""")
 			.addSince("2.5")
 			.supplier(() -> new SimpleEvent("item enchant"))

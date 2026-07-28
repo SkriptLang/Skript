@@ -27,11 +27,11 @@ public class EvtPeriodical extends SkriptEvent {
 			.addDescription("An event that is called periodically.")
 			.addExample("""
 				every 2 seconds:
-				    send actionbar "hello!" to all players
+					send actionbar "hello!" to all players
 				""")
 			.addExample("""
 				every minecraft hour:
-				    broadcast "Another hour has passed in this virtual world.."
+					broadcast "Another hour has passed in this virtual world.."
 				""")
 			.documentationId("eventperiodical")
 			.addSince("1.0")
@@ -44,17 +44,17 @@ public class EvtPeriodical extends SkriptEvent {
 			.addDescription("An event that is called periodically.")
 			.addExample("""
 				every 2 seconds in "adminworld":
-				    send actionbar "<red>Hi admins!" to all players
+					send actionbar "<red>Hi admins!" to all players
 				""")
 			.addExample("""
 				every tick in "superflat":
-				    add 1 to {-ticks}
-				    if {bar} is not set:
-				        set {bar} to a boss bar:
-				            set title of event-boss bar to "Existence: 0 ticks"
-				            add all players in event-world to viewers of event-boss bar
-				   else:
-				       set title of {bar} to "Existence: %{-ticks}% ticks"
+					add 1 to {-ticks}
+					if {bar} is not set:
+						set {bar} to a boss bar:
+							set title of event-boss bar to "Existence: 0 ticks"
+							add all players in event-world to viewers of event-boss bar
+				else:
+					set title of {bar} to "Existence: %{-ticks}% ticks"
 				""")
 			.documentationId("eventperiodical")
 			.addSince("1.0")
@@ -63,7 +63,7 @@ public class EvtPeriodical extends SkriptEvent {
 		eventValueRegistry.register(EventValue.builder(ScheduledEvent.class, World.class)
 			.getter(ScheduledEvent::getWorld)
 			.excludes(ScheduledNoWorldEvent.class)
-			.excludedErrorMessage("Theres no world in a periodic event if no world is provided.")
+			.excludedErrorMessage("There's no world in a periodic event if no world is given in the event (e.g. like 'every hour in \\\"world\\\"')")
 			.build());
 	}
 
