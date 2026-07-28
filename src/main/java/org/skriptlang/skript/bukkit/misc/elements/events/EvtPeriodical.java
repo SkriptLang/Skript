@@ -63,7 +63,7 @@ public class EvtPeriodical extends SkriptEvent {
 		eventValueRegistry.register(EventValue.builder(ScheduledEvent.class, World.class)
 			.getter(ScheduledEvent::getWorld)
 			.excludes(ScheduledNoWorldEvent.class)
-			.excludedErrorMessage("There's no world in a periodic event if no world is given in the event (e.g. like 'every hour in \\\"world\\\"')")
+			.excludedErrorMessage("There's no world in a periodic event if no world is given in the event (e.g. like 'every hour in \"world\"')")
 			.build());
 	}
 
