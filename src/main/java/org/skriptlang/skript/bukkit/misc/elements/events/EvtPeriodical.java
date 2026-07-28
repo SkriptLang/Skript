@@ -53,8 +53,8 @@ public class EvtPeriodical extends SkriptEvent {
 						set {bar} to a boss bar:
 							set title of event-boss bar to "Existence: 0 ticks"
 							add all players in event-world to viewers of event-boss bar
-				else:
-					set title of {bar} to "Existence: %{-ticks}% ticks"
+					else:
+						set title of {bar} to "Existence: %{-ticks}% ticks"
 				""")
 			.documentationId("eventperiodical")
 			.addSince("1.0")
