@@ -4,6 +4,7 @@ import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
+import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -57,7 +58,8 @@ public class InventoryEvents {
 				on inventory open:
 					send "its an inventory!" to player
 				""")
-			.addSince("2.2-dev21, INSERT VERSION (added new pattern and updated existing one)")
+			.addSince("2.2-dev21")
+			.addSince("INSERT VERSION (pattern updates)")
 			.supplier(() -> new SimpleEvent("player inventory open"))
 			.build());
 
@@ -69,14 +71,15 @@ public class InventoryEvents {
 			.addEvent(InventoryCloseEvent.class)
 			.addPatterns("[player] inventory clos(ing|e[d])", "[player] clos[e|ing] inventory")
 			.addDescription("""
-				Called when a player closes the inventory they are currently viewing.
-				Note that this event is not called when a player closes their own inventory.
-				""")
+			    Called when a player closes the inventory they are currently viewing.
+			    This event is also called when a player closes their own inventory.
+			    """)
 			.addExample("""
 				on player close inventory:
 					send "closed!" to player
 				""")
-			.addSince("2.2-dev21, INSERT VERSION (updated pattern)")
+			.addSince("2.2-dev21")
+			.addSince("INSERT VERSION (updated pattern)")
 			.supplier(() -> new SimpleEvent("player inventory close"))
 			.build());
 
@@ -96,7 +99,8 @@ public class InventoryEvents {
 				on inventory pickup:
 					broadcast "An inventory just picked up an item!"
 				""")
-			.addSince("2.5.1, INSERT VERSION (updated pattern)")
+			.addSince("2.5.1")
+			.addSince("INSERT VERSION (updated pattern)")
 			.supplier(() -> new SimpleEvent("inventory pick up"))
 			.build());
 
@@ -123,7 +127,8 @@ public class InventoryEvents {
 						sends "You cannot drag items here!" to player
 						cancel event
 				""")
-			.addSince("2.7, INSERT VERSION (updated pattern)")
+			.addSince("2.7")
+			.addSince("INSERT VERSION (updated pattern)")
 			.supplier(() -> new SimpleEvent("inventory drag item"))
 			.build());
 
@@ -229,6 +234,22 @@ public class InventoryEvents {
 
 		eventValueRegistry.register(EventValue.builder(InventoryMoveItemEvent.class, ItemStack.class)
 			.getter(InventoryMoveItemEvent::getItem)
+			.build());
+
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Anvil Damage")
+			.addEvent(AnvilDamagedEvent.class)
+			.addPatterns("anvil damag(e|ing)")
+			.addDescription("""
+			    Called when an anvil is damaged/broken from being used to repair/rename items.
+			    Note that this event is not called if the anvil is damaged from falling.
+			    """)
+			.addExample("""
+				on anvil damage:
+				    cancel event
+				    broadcast "No anvil being damaged here!"
+				""")
+			.addSince("2.7")
+			.supplier(() -> new SimpleEvent("anvil damage"))
 			.build());
 	}
 

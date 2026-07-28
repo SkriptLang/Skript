@@ -3,7 +3,6 @@ package ch.njol.skript.events;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
 import ch.njol.skript.lang.util.SimpleEvent;
-import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.entity.EntityJumpEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
@@ -477,14 +476,6 @@ public class SimpleEvents {
 				.examples("on entity jump:",
 					"\tif entity is a wither skeleton:",
 					"\t\tcancel event")
-				.since("2.7");
-		}
-		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
-			Skript.registerEvent("Anvil Damage", SimpleEvent.class, AnvilDamagedEvent.class, "anvil damag(e|ing)")
-				.description("Called when an anvil is damaged/broken from being used to repair/rename items.",
-							 "Note: this does not include anvil damage from falling.")
-				.examples("on anvil damage:",
-					"\tcancel the event")
 				.since("2.7");
 		}
 
