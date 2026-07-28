@@ -390,22 +390,6 @@ public class SimpleEvents {
 					"	cancel event")
 				.since("2.3");
 
-		Class<? extends Event> serverListPingEventClass = (Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent")
-			? PaperServerListPingEvent.class : ServerListPingEvent.class);
-		Skript.registerEvent("Server List Ping", SimpleEvent.class, serverListPingEventClass, "server [list] ping")
-				.description("Called when a server list ping is coming in, generally when a Minecraft client pings the server to show its information in the server list.",
-						"The <a href='#ExprIP'>IP</a> expression can be used to get the IP adress of the pinger.",
-						"This event can be cancelled on PaperSpigot 1.12.2+ only and this means the player will see the server as offline (but still can join).",
-						"",
-						"Also you can use <a href='#ExprMOTD'>MOTD</a>, <a href='#ExprMaxPlayers'>Max Players</a>, " +
-						"<a href='#ExprOnlinePlayersCount'>Online Players Count</a>, <a href='#ExprProtocolVersion'>Protocol Version</a>, " +
-						"<a href='#ExprVersionString'>Version String</a>, <a href='#ExprHoverList'>Hover List</a> and <a href='#ExprServerIcon'>Server Icon</a> " +
-						"expressions, and <a href='#EffPlayerInfoVisibility'>Player Info Visibility</a> and <a href='#EffHidePlayerFromServerList'>Hide Player from Server List</a> effects to modify the server list.")
-				.examples("on server list ping:",
-						"	set the motd to \"Welcome %{player-by-IP::%ip%}%! Join now!\" if {player-by-IP::%ip%} is set, else \"Join now!\"",
-						"	set the fake max players count to (online players count + 1)",
-						"	set the shown icon to a random server icon out of {server-icons::*}")
-				.since("2.3");
 		Skript.registerEvent("Swim Toggle", SimpleEvent.class, EntityToggleSwimEvent.class, "[entity] toggl(e|ing) swim",
 				"[entity] swim toggl(e|ing)")
 				.description("Called when an entity swims or stops swimming.")
@@ -628,14 +612,6 @@ public class SimpleEvents {
 				)
 				.since("2.10");
 		}
-
-		Skript.registerEvent("Broadcast", SimpleEvent.class, BroadcastMessageEvent.class, "broadcast")
-			.description("Called when a message is broadcasted.")
-			.examples(
-				"on broadcast:",
-					"\tset broadcast-message to \"&c[BROADCAST] %broadcasted message%\""
-			)
-			.since("2.10");
 
 		Skript.registerEvent("Experience Cooldown Change", SimpleEvent.class, PlayerExpCooldownChangeEvent.class, "player (experience|[e]xp) cooldown change")
 			.description(
