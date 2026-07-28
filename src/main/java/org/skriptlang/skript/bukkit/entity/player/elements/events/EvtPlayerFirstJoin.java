@@ -22,7 +22,7 @@ public class EvtPlayerFirstJoin extends SkriptEvent {
 					set the join message to "[NEW] %player%!"
 				""")
 			.addSince("1.3.7")
-			.addSince("INSERT VERSION (updated pattern)")
+			.addSince("INSERT VERSION ('player' and 'logging in' in pattern)")
 			.build());
 	}
 

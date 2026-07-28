@@ -15,14 +15,14 @@ public class EvtPlayerSignBook extends SkriptEvent {
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtPlayerSignBook.class, "Player Sign Book")
 			.supplier(EvtPlayerSignBook::new)
 			.addEvent(PlayerEditBookEvent.class)
-			.addPatterns("book sign[ing]", "[player] sign[ing] book")
+			.addPatterns("book sign[ing]", "[player] sign[ing] [a] book")
 			.addDescription("Called when a player signs a book.")
 			.addExample("""
 				on player sign book:
 					send "Now everyone will know you wrote %event-item stack%<reset>!" to player
 				""")
 			.addSince("2.2-dev31")
-			.addSince("INSERT VERSION (added pattern)")
+			.addSince("INSERT VERSION ('player signing a book' pattern)")
 			.build());
 	}
 

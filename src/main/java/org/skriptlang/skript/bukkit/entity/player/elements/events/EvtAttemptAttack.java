@@ -70,10 +70,7 @@ public class EvtAttemptAttack extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return new SyntaxStringBuilder(event, debug)
-			.appendIf(entityData != null, "attack attempt")
-			.appendIf(entityData == null, "attempting to attack", entityData)
-			.toString();
+		return entityData != null ? "attempting to attack" + entityData.toString(event,debug) : "attack attempt";
 	}
 
 }

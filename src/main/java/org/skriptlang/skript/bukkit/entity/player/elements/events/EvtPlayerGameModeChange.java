@@ -45,8 +45,8 @@ public class EvtPlayerGameModeChange extends SkriptEvent {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Literal<?>[] literals, int i, ParseResult parseResult) {
-		gamemode = (Literal<GameMode>) literals[0];
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
+		gamemode = (Literal<GameMode>) args[0];
 		return true;
 	}
 

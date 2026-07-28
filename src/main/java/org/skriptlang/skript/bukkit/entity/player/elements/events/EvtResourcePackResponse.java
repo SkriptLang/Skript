@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.entity.player.elements.events;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent;
@@ -46,7 +46,7 @@ public class EvtResourcePackResponse extends SkriptEvent {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		if (matchedPattern == 1)
 			states = (Literal<Status>) args[0];
 		return true;
@@ -65,10 +65,7 @@ public class EvtResourcePackResponse extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return new SyntaxStringBuilder(event, debug)
-			.appendIf(states != null, "resource pack", states)
-			.appendIf(states == null, "resource pack request response")
-			.toString();
+		return states != null ? "resource pack" + states.toString(event, debug) : "resource pack request response";
 	}
 
 }
