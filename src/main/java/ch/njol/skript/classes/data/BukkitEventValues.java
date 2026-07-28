@@ -547,14 +547,7 @@ public final class BukkitEventValues {
 		registry.register(EventValue.simple(InventoryPickupItemEvent.class, Inventory.class, InventoryPickupItemEvent::getInventory));
 		registry.register(EventValue.simple(InventoryPickupItemEvent.class, Item.class, InventoryPickupItemEvent::getItem));
 		registry.register(EventValue.simple(InventoryPickupItemEvent.class, ItemStack.class, event -> event.getItem().getItemStack()));
-		//PortalCreateEvent
-		registry.register(EventValue.simple(PortalCreateEvent.class, World.class, WorldEvent::getWorld));
-		registry.register(EventValue.simple(PortalCreateEvent.class, Block[].class, event -> event.getBlocks().stream()
-			.map(BlockState::getBlock)
-			.toArray(Block[]::new)));
-		if (Skript.methodExists(PortalCreateEvent.class, "getEntity")) { // Minecraft 1.14+
-			registry.register(EventValue.simple(PortalCreateEvent.class, Entity.class, PortalCreateEvent::getEntity));
-		}
+
 		//PlayerEditBookEvent
 		registry.register(EventValue.builder(PlayerEditBookEvent.class, ItemStack.class)
 			.getter(event -> {

@@ -3,6 +3,8 @@ package org.skriptlang.skript.bukkit.world.elements.events;
 import ch.njol.skript.lang.util.SimpleEvent;
 import org.bukkit.Chunk;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.*;
@@ -105,6 +107,38 @@ public class WorldEvents {
 
 		eventValueRegistry.register(EventValue.builder(LightningStrikeEvent.class, Entity.class)
 			.getter(LightningStrikeEvent::getLightning)
+			.build());
+
+		syntaxRegistry.register(
+			BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Portal Create")
+				.addEvent(PortalCreateEvent.class)
+				.addPattern("portal creat(e|ion)")
+				.addDescription("""
+					Called when a portal is created,\s
+					either by a player or mob lighting an obsidian frame on fire,\s
+					or by a nether portal creating its teleportation target in the nether/overworld.
+					See <a href='#ExprEntity'>the player</a> for how to get the player in this event.
+					Note that there may not always be a player (or other entity) in this event.
+					""")
+				.addExample("""
+					on portal create:
+					    broadcast "A portal is being created!"
+					""")
+				.addSince("1.0")
+				.addSince("2.5.3 (event-entity support)")
+				.supplier(() -> new SimpleEvent("portal create"))
+				.build()
+		);
+
+		eventValueRegistry.register(EventValue.builder(PortalCreateEvent.class, Block[].class)
+			.getter(event -> event.getBlocks().stream()
+				.map(BlockState::getBlock)
+				.toArray(Block[]::new))
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(PortalCreateEvent.class, Entity.class)
+			.getter(PortalCreateEvent::getEntity)
 			.build());
 	}
 }
