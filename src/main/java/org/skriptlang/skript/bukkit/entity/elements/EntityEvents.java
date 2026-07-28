@@ -63,7 +63,7 @@ public class EntityEvents {
 		eventValueRegistry.register(EventValue.builder(EntityEvent.class, EntityData.class)
 			.getter(event -> EntityData.fromEntity(event.getEntity()))
 			.excludes(EntityDamageEvent.class, EntityDeathEvent.class)
-			.excludedErrorMessage("Use 'type of attacker/victim' in damage/death events.")
+			.excludedErrorMessage("Use 'type of attacker/victim' in damage/death events")
 			.build());
 
 		//
@@ -292,7 +292,7 @@ public class EntityEvents {
 					broadcast "The explosion is primed!"
 				""")
 			.addSince("1.0")
-			.addSince("INSERT VERSION (updated pattern)")
+			.addSince("INSERT VERSION ('priming' in pattern)")
 			.supplier(() -> new SimpleEvent("explosion prime"))
 			.build());
 
@@ -509,7 +509,7 @@ public class EntityEvents {
 					send actionbar "A vehicle is moving from %past event location% to %event-location%!" to (all players)
 				""")
 			.addSince("2.10")
-			.addSince("INSERT VERSION (pattern update)")
+			.addSince("INSERT VERSION ('moving' in pattern)")
 			.supplier(() -> new SimpleEvent("vehicle moving"))
 			.build());
 
@@ -543,7 +543,7 @@ public class EntityEvents {
 			.addEvent(VehicleEnterEvent.class)
 			.addPatterns("vehicle enter", "enter[ing] [a] vehicle")
 			.addDescription("""
-				Called when an <a href='#entity'>entity</a> enters a vehicle,\s
+				Called when an <a href='#entity'>entity</a> enters a vehicle, \
 				either deliberately (players) or by falling into them (mobs).
 				""")
 			.addExample("""
@@ -601,7 +601,7 @@ public class EntityEvents {
 			.addEvent(VehicleCreateEvent.class)
 			.addPatterns("vehicle create", "creat(e|ing|ion of) [a] vehicle")
 			.addDescription("""
-				Called when a new vehicle is created,\s
+				Called when a new vehicle is created, \
 				e.g. when a player places a boat or minecart.
 				""")
 			.addExample("""
@@ -627,7 +627,7 @@ public class EntityEvents {
 					send "You shot an arrow!" to shooter
 				""")
 			.addSince("1.0")
-			.addSince("INSERT VERSION (pattern update)")
+			.addSince("INSERT VERSION ('ing' in pattern)")
 			.supplier(() -> new SimpleEvent("projectile shoot"))
 			.build());
 
@@ -651,7 +651,7 @@ public class EntityEvents {
 				   delete event-projectile
 				""")
 			.addSince("1.0")
-			.addSince("INSERT VERSION (pattern update)")
+			.addSince("INSERT VERSION ('hitting' in pattern)")
 			.supplier(() -> new SimpleEvent("projectile hit"))
 			.build());
 

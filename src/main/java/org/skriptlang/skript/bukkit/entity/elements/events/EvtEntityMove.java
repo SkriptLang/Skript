@@ -40,7 +40,7 @@ public class EvtEntityMove extends SkriptEvent {
 					if {frozen::%player's uuid%} is set:
 						cancel event
 						send actionbar "You are frozen!" to player
-						// Generally not recommended over setting movement & jump attributes but useful for older servers
+						# Generally not recommended over setting movement & jump attributes but useful for older servers
 				""")
 			.addExample("""
 				on player turning around:

@@ -25,9 +25,9 @@ public class EvtEntityTransform extends SkriptEvent {
 			.addPatterns("[%*-entitydatas%] transform[ing] [due to %-transformreasons%]")
 			.addDescription("""
 				Called when an entity is about to be replaced by another entity.
-				e.g. when a zombie gets cured and a villager spawns,\s
-				an entity drowns in water like a zombie that turns to a drown,\s
-				an entity that gets frozen in powder snow,\s
+				e.g. when a zombie gets cured and a villager spawns, \
+				an entity drowns in water like a zombie that turns to a drown, \
+				an entity that gets frozen in powder snow, \
 				a mooshroom that when sheared, spawns a new cow.
 				""")
 			.addExample("""

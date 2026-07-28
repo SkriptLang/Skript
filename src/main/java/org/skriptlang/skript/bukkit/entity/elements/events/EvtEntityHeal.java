@@ -26,9 +26,7 @@ public class EvtEntityHeal extends SkriptEvent {
 				"[%-entitydatas%] heal[ing] [(from|due to|by) %-healreasons%]"
 			)
 			.addDescription("""
-				Called when an entity is healed,\s
-				e.g. by eating (players),\s
-				being fed (pets),\s
+				Called when an entity is healed, e.g. by eating (players), being fed (pets), \
 				or by the effect of a potion of healing (overworld mobs) or harm (nether mobs).
 				""")
 			.addExample("""
