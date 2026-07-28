@@ -1,13 +1,17 @@
 package org.skriptlang.skript.bukkit.misc.elements.events;
 
 import ch.njol.skript.lang.util.SimpleEvent;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.server.BroadcastMessageEvent;
+import org.bukkit.inventory.ItemStack;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class MiscEvents {
 
-	public static void register(SyntaxRegistry syntaxRegistry) {
+	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry) {
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Broadcast Message")
 			.addEvent(BroadcastMessageEvent.class)
 			.addPatterns(
@@ -47,6 +51,28 @@ public class MiscEvents {
 				""")
 			.addSince("2.3")
 			.supplier(() -> new SimpleEvent("server list ping"))
+			.build());
+
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Anvil Prepare")
+			.addEvent(PrepareAnvilEvent.class)
+			.addPattern("anvil prepar(e|ing)")
+			.addDescription("""
+				Called when an item is put in a slot for repair by an anvil.
+				Note that this event is called multiple times in a single item slot move.
+				""")
+			.addExample("""
+				on anvil prepare:
+				    event-item is set
+				    chance of 5%:
+				        set repair cost to cost * 50%
+				        send "Your LUCKY! You got 50% discount!" to player
+				""")
+			.addSince("2.7")
+			.supplier(() -> new SimpleEvent("anvil prepare"))
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(PrepareAnvilEvent.class, ItemStack.class)
+			.getter(PrepareAnvilEvent::getResult)
 			.build());
 	}
 }

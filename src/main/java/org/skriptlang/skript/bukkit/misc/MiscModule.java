@@ -18,7 +18,7 @@ public class MiscModule extends HierarchicalAddonModule {
 	protected void loadSelf(SkriptAddon addon) {
 		EventValueRegistry eventValueRegistry = addon.registry(EventValueRegistry.class);
 
-		MiscEvents.register(moduleRegistry(addon));
+		MiscEvents.register(moduleRegistry(addon), eventValueRegistry);
 
 		register(addon,
 			EvtAtTime::register,

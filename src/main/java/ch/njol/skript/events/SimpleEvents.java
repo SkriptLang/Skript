@@ -411,20 +411,7 @@ public class SimpleEvents {
 					"\tloop absorbed blocks:",
 					"\t\tbroadcast \"%loop-block% was absorbed by a sponge\"!")
 				.since("2.5");
-		Skript.registerEvent("Enchant Prepare", SimpleEvent.class, PrepareItemEnchantEvent.class, "[item] enchant prepare")
-			.description("Called when a player puts an item into enchantment table. This event may be called multiple times.",
-				" To get the enchant item, see the <a href='#ExprEnchantEventsEnchantItem'>enchant item expression</a>")
-			.examples("on enchant prepare:",
-				"\tset enchant offer 1 to sharpness 1",
-				"\tset the cost of enchant offer 1 to 10 levels")
-			.since("2.5");
-		Skript.registerEvent("Enchant", SimpleEvent.class, EnchantItemEvent.class, "[item] enchant")
-		.description("Called when a player successfully enchants an item.",
-			" To get the enchanted item, see the <a href='#ExprEnchantEventsEnchantItem'>enchant item expression</a>")
-		.examples("on enchant:",
-			"\tif the clicked button is 1: # offer 1",
-			"\t\tset the applied enchantments to sharpness 10 and unbreaking 10")
-		.since("2.5");
+
 		Skript.registerEvent("Inventory Pickup", SimpleEvent.class, InventoryPickupItemEvent.class, "inventory pick[ ]up")
 				.description("Called when an inventory (a hopper, a hopper minecart, etc.) picks up an item")
 				.examples("on inventory pickup:")
@@ -453,14 +440,7 @@ public class SimpleEvents {
 				"\t\tcancel the event",
 				"\t\tsend \"Oops! Mending failed!\" to player")
 			.since("2.5.1");
-		Skript.registerEvent("Anvil Prepare", SimpleEvent.class, PrepareAnvilEvent.class, "anvil prepar(e|ing)")
-			.description("Called when an item is put in a slot for repair by an anvil. Please note that this event is called multiple times in a single item slot move.")
-			.examples("on anvil prepare:",
-				"\tevent-item is set # result item",
-				"\tchance of 5%:",
-				"\t\tset repair cost to repair cost * 50%",
-				"\t\tsend \"You're LUCKY! You got 50% discount.\" to player")
-			.since("2.7");
+
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerTradeEvent")) {
 			Skript.registerEvent("Player Trade", SimpleEvent.class, PlayerTradeEvent.class, "player trad(e|ing)")
 				.description("Called when a player has traded with a villager.")
