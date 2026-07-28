@@ -1,4 +1,4 @@
-package ch.njol.skript.events;
+package org.skriptlang.skript.bukkit.entity.player.elements.events;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
@@ -6,25 +6,40 @@ import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class EvtHealing extends SkriptEvent {
 
-	static {
-		Skript.registerEvent("Heal", EvtHealing.class, EntityRegainHealthEvent.class, "heal[ing] [of %-entitydatas%] [(from|due to|by) %-healreasons%]", "%entitydatas% heal[ing] [(from|due to|by) %-healreasons%]")
-				.description("Called when an entity is healed, e.g. by eating (players), being fed (pets), or by the effect of a potion of healing (overworld mobs) or harm (nether mobs).")
-				.examples(
-						"on heal:",
-						"on player healing from a regeneration potion:",
-						"on healing of a zombie, cow or a wither:",
-								"\theal reason is healing potion",
-								"\tcancel event"
-				)
-				.since("1.0, 2.9.0 (by reason)");
+	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry registry) {
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtHealing.class, "Healing")
+			.supplier(EvtHealing::new)
+			.addEvent(EntityRegainHealthEvent.class)
+			.addPattern("heal[ing] [of %-entitydatas%] [(from|due to|by) %-healreasons%]")
+			.addPattern("%entitydatas% heal[ing] [(from|due to|by) %-healreasons%]")
+			.addDescription("""
+				Called when an entity is healed, e.g. by eating (players), being fed (pets), or by the effect of a potion of healing (overworld mobs) or harm (nether mobs).
+				""")
+			.addExample("on heal")
+			.addExample("on player healing from a regeneration potion:")
+			.addExample("""
+				on healing of a zombie, cow or a wither:
+					heal reason is healing potion
+					cancel event
+				""")
+			.addSince("1.0, 2.9.0 (by reason)")
+			.build());
+
+		registry.register(EventValue.builder(EntityRegainHealthEvent.class, RegainReason.class)
+			.getter(EntityRegainHealthEvent::getRegainReason)
+			.patterns("healreason")
+			.build());
 	}
 
 	@Nullable
@@ -43,40 +58,45 @@ public class EvtHealing extends SkriptEvent {
 
 	@Override
 	public boolean check(Event event) {
-		if (!(event instanceof EntityRegainHealthEvent))
+		if (!(event instanceof EntityRegainHealthEvent healthEvent))
 			return false;
-		EntityRegainHealthEvent healthEvent = (EntityRegainHealthEvent) event;
+
 		if (entityDatas != null) {
 			Entity compare = healthEvent.getEntity();
 			boolean result = false;
+
 			for (EntityData<?> entityData : entityDatas.getAll()) {
 				if (entityData.isInstance(compare)) {
 					result = true;
 					break;
 				}
 			}
+
 			if (!result)
 				return false;
 		}
+
 		if (healReasons != null) {
 			RegainReason compare = healthEvent.getRegainReason();
 			boolean result = false;
+
 			for (RegainReason healReason : healReasons.getAll()) {
 				if (healReason == compare) {
 					result = true;
 					break;
 				}
 			}
-			if (!result)
-				return false;
+
+			return result;
 		}
+
 		return true;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "heal" + (entityDatas != null ? " of " + entityDatas.toString(event, debug) : "") +
-				(healReasons != null ? " by " + healReasons.toString(event, debug) : "");
+			(healReasons != null ? " by " + healReasons.toString(event, debug) : "");
 	}
 
 }

@@ -39,7 +39,8 @@ public class PlayerModule extends HierarchicalAddonModule {
 			ExprPlayerListPriority::register,
 			ExprQuitMessage::register,
 			ExprHealAmount::register,
-			ExprHealReason::register
+			ExprHealReason::register,
+			syntaxRegistry -> EvtHealing.register(syntaxRegistry, eventValueRegistry)
 		);
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerPickBlockEvent")) {
 			register(addon,
