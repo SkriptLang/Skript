@@ -1,14 +1,14 @@
 package org.skriptlang.skript.bukkit.entity.player.elements.events;
 
-import net.kyori.adventure.text.Component;
-import org.bukkit.Material;
-import org.bukkit.event.player.PlayerEditBookEvent;
-import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Material;
 import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerEditBookEvent;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue.Time;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;

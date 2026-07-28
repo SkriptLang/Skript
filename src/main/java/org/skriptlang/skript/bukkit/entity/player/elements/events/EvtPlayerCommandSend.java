@@ -1,13 +1,13 @@
 package org.skriptlang.skript.bukkit.entity.player.elements.events;
 
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableList;
-import org.bukkit.event.player.PlayerCommandSendEvent;
-import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
 import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerCommandSendEvent;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 

@@ -1,14 +1,13 @@
 package org.skriptlang.skript.bukkit.entity.player.elements.events;
 
 import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.lang.LiteralList;
-import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
-import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.LiteralList;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.SyntaxStringBuilder;
+import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
