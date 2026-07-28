@@ -19,15 +19,18 @@ import org.skriptlang.skript.lang.script.ScriptData;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 
 @Name("Options")
 @Description({
 	"Options are used for replacing parts of a script with something else.",
 	"For example, an option may represent a message that appears in multiple locations.",
-	"Take a look at the example below that showcases this."
+	"Take a look at the example below that showcases this.",
+	"Options defined in one script are shared with, and can be used by, every other loaded script " +
+		"(under the default, synchronous loading order, a script can only use options that were " +
+		"declared in a script that loads before it - e.g. one that sorts earlier alphabetically)."
 })
 @Example("""
 	options:
@@ -97,12 +100,21 @@ public class StructOptions extends Structure {
 
 	public static final class OptionsData implements ScriptData {
 
-		private final Map<String, String> options = new HashMap<>();
+		/**
+		 * Shared across every script that has been loaded (in this loading session), rather than kept
+		 * per-script. This is what allows an {@code options:} section declared in one .sk file to be used
+		 * with {@code {@option}} syntax in any other .sk file, as long as that other file is (re)loaded
+		 * after the options were registered.
+		 * <p>
+		 * A {@link ConcurrentHashMap} is used since, depending on server configuration, scripts may be
+		 * parsed on multiple threads concurrently (see {@code script loader thread size} in the config).
+		 */
+		private static final Map<String, String> options = new ConcurrentHashMap<>();
 
 		/**
-		 * Replaces all options in the provided String using the options of this data.
+		 * Replaces all options in the provided String using the shared, global option mappings.
 		 * @param string The String to replace options in.
-		 * @return A String with all options replaced, or the original String if the provided Script has no options.
+		 * @return A String with all options replaced, or the original String if no options are defined.
 		 */
 		@SuppressWarnings("ConstantConditions") // no way to get null as callback does not return null anywhere
 		public String replaceOptions(String string) {
@@ -117,7 +129,7 @@ public class StructOptions extends Structure {
 		}
 
 		/**
-		 * @return An unmodifiable version of this data's option mappings.
+		 * @return An unmodifiable version of the shared, global option mappings.
 		 */
 		public Map<String, String> getOptions() {
 			return Collections.unmodifiableMap(options);

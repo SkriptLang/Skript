@@ -998,7 +998,9 @@ public class ScriptLoader {
 
 	/**
 	 * Replaces options in a string.
-	 * Options are obtained from a {@link Script}'s {@link OptionsData}.
+	 * Options are shared globally across all loaded scripts (see {@link OptionsData}), so this will
+	 * resolve {@code {@option}} placeholders using options declared in any script, not just the one
+	 * currently being parsed.
 	 * Example: <code>script.getData(OptionsData.class)</code>
 	 */
 	// TODO this system should eventually be replaced with a more generalized "node processing" system
@@ -1006,9 +1008,10 @@ public class ScriptLoader {
 		ParserInstance parser = getParser();
 		if (!parser.isActive()) // getCurrentScript() is not safe to use
 			return string;
-		OptionsData optionsData = parser.getCurrentScript().getData(OptionsData.class);
-		if (optionsData == null)
-			return string;
+		// use getData(Class, Supplier) instead of getData(Class) so scripts that don't declare their own
+		// "options:" section still get an OptionsData instance - the underlying option map is shared/static,
+		// so this is enough to resolve options declared in other scripts.
+		OptionsData optionsData = parser.getCurrentScript().getData(OptionsData.class, OptionsData::new);
 		return optionsData.replaceOptions(string);
 	}
 
