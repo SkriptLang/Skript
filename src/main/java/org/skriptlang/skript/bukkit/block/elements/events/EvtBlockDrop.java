@@ -29,7 +29,7 @@ public class EvtBlockDrop extends SkriptEvent {
 			.addPattern("block drop[ping] [[of] %-itemtypes/blockdatas%]")
 			.addDescription("""
 				Called when a block broken by a player drops something.
-				Note that if breaking of the block leads to others being broken,\s
+				Note that if breaking of the block leads to others being broken,\
 				such as torches, they will appear in the event-items and event-entities.
 				""")
 			.addExample("""

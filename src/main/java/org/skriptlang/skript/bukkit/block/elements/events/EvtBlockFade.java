@@ -34,7 +34,8 @@ public class EvtBlockFade extends SkriptEvent {
 					set event-block to lava
 					broadcast "Now its getting hot!"
 				""")
-			.addSince("1.0, 2.6 (BlockData support)")
+			.addSince("1.0")
+			.addSince("2.6 (BlockData support)")
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(BlockFadeEvent.class, Block.class)

@@ -44,7 +44,8 @@ public class EvtBlockPlace extends SkriptEvent {
 				on place of a furnace, crafting table or chest:
 					send "Basic utilities eh?"
 				""")
-			.addSince("1.0, 2.6 (BlockData support)")
+			.addSince("1.0")
+			.addSince("2.6 (BlockData support)")
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(BlockPlaceEvent.class, Player.class)

@@ -19,16 +19,17 @@ public class EvtBlockForm extends SkriptEvent {
 			.addEvent(BlockFormEvent.class)
 			.addPattern("[block] form[ing] [[of] %-itemtypes/blockdatas%]")
 			.addDescription("""
-				Called when a block is created, but not by a player, e.g. snow forms due to snowfall,\s
+				Called when a block is created, but not by a player, e.g. snow forms due to snowfall,\
 				water freezes in cold biomes.
-				Note that is not called when block spreads (mushroom growth, water physics etc.),\s
+				Note that is not called when block spreads (mushroom growth, water physics etc.),\
 				as it has its own event (see <a href='#spread'>spread event</a>).
 				""")
 			.addExample("""
 				on form of snow:
 					broadcast "Great even more snow.."
 				""")
-			.addSince("1.0, 2.6 (BlockData support)")
+			.addSince("1.0")
+			.addSince("2.6 (BlockData support)")
 			.build());
 	}
 

@@ -31,7 +31,8 @@ public class EvtBlockBurn extends SkriptEvent {
 				on burn of oak_log[axis=y]:
 					broadcast "Very specific.."
 				""")
-			.addSince("1.0, 2.6 (BlockData support)")
+			.addSince("1.0")
+			.addSince("2.6 (BlockData support)")
 			.build());
 	}
 

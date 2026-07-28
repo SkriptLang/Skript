@@ -50,7 +50,7 @@ public class EvtGrow extends SkriptEvent {
 			)
 			.addDescription("""
 				Called when a tree, giant mushroom or plant grows to next stage.
-				"of" matches any grow event, "from" matches only the old state, "into" matches only the new state,\s
+				"of" matches any grow event, "from" matches only the old state, "into" matches only the new state,\
 				and "from into" requires matching both the old and new states.
 				Using "and" lists in this event is equivalent to using "or" lists.
 				The event will trigger if any one of the elements is what grew.
@@ -91,7 +91,9 @@ public class EvtGrow extends SkriptEvent {
 				on grow from wheat[age=0] to wheat[age=1] or wheat[age=2]:
 				broadcast "Wheat advanced a growth stage!"
 				""")
-			.addSince("1.0, 2.2-dev20 (plants), 2.8.0 (from, into, blockdata)")
+			.addSince("1.0")
+			.addSince("2.2-dev20 (plants)")
+			.addSince("2.8.0 (from, into, blockdata)")
 			.build());
 
 		// BlockFormEvent is covered in #EvtBlockGrow

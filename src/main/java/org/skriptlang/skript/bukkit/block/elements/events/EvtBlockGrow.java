@@ -33,7 +33,8 @@ public class EvtBlockGrow extends SkriptEvent {
 				on crop growth:
 					broadcast "IT GREW!"
 				""")
-			.addSince("2.2-Fixes-V10, INSERT VERSION (BlockData support)")
+			.addSince("2.2-Fixes-V10")
+			.addSince("INSERT VERSION (BlockData support)")
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(BlockGrowEvent.class, Block.class)

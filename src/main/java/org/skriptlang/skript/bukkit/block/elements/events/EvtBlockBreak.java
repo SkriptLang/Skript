@@ -54,7 +54,8 @@ public class EvtBlockBreak extends SkriptEvent {
 					send "At least you harvested it during harvest season.." to player
 					give player 15 potatoes
 				""")
-			.addSince("1.0 (break, mine), 2.6 (BlockData support)")
+			.addSince("1.0 (break, mine)")
+			.addSince("2.6 (BlockData support)")
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(BlockBreakEvent.class, Player.class)

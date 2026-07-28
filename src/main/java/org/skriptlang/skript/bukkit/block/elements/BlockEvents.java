@@ -56,7 +56,8 @@ public class BlockEvents {
 				on block can build check:
 					broadcast "We gotta do a check!"
 				""")
-			.addSince("1.0 (basic), 2.0 ([un]cancellable)")
+			.addSince("1.0 (basic)")
+			.addSince("2.0 ([un]cancellable)")
 			.supplier(() -> new SimpleEvent("block can build check"))
 			.build());
 
@@ -89,7 +90,8 @@ public class BlockEvents {
 					if event-block is tagged with minecraft tag "logs":
 						send "You cannot break the holy log!" to player
 				""")
-			.addSince("1.0, INSERT VERSION (added new pattern)")
+			.addSince("1.0")
+			.addSince("INSERT VERSION ('player damaging a block' pattern)")
 			.supplier(() -> new SimpleEvent("block damage"))
 			.build());
 
@@ -198,7 +200,7 @@ public class BlockEvents {
 			.addEvent(BlockSpreadEvent.class)
 			.addPatterns("[block] spread[ing]")
 			.addDescription("""
-				Called when a new block <a href='#form'>forms</a> as a result of a block that can spread,\s
+				Called when a new block <a href='#form'>forms</a> as a result of a block that can spread,\
 				e.g. water or mushrooms.
 				""")
 			.addExample("""
