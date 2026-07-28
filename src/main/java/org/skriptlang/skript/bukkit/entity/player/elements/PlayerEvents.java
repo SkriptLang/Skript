@@ -132,7 +132,8 @@ public class PlayerEvents {
 			.addEvent(PlayerItemDamageEvent.class)
 			.addPatterns("item damag(e|ing)")
 			.addDescription("""
-				Called when an item is damaged. Most tools are damaged by using them; armor is damaged when the wearer takes damage.
+				Called when an item is damaged.
+				Most tools are damaged by using them; armor is damaged when the wearer takes damage.
 				""")
 			.addExample("""
 				on item damaging:
@@ -657,7 +658,8 @@ public class PlayerEvents {
 					else: # default message format
 						set the chat format to "<orange>[player]<light gray>: <white>[message]"
 				""")
-			.addSince("1.4.1, INSERT VERSION (pattern change)")
+			.addSince("1.4.1")
+			.addSince("INSERT VERSION ('player' and 'chatting' in pattern)")
 			.supplier(() -> new SimpleEvent("player chat"))
 			.build());
 
