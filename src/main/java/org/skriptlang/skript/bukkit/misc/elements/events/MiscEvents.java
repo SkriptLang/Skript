@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.misc.elements.events;
 
 import ch.njol.skript.lang.util.SimpleEvent;
+import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.server.BroadcastMessageEvent;
 import org.bukkit.inventory.ItemStack;
@@ -29,7 +30,7 @@ public class MiscEvents {
 			.build());
 
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Server List Ping")
-			.addEvent(BroadcastMessageEvent.class)
+			.addEvent(PaperServerListPingEvent.class)
 			.addPattern("server [list] ping")
 			.addDescription("""
 				Called when a server list ping is coming in, generally when a Minecraft client pings the server to show its information in the server list.

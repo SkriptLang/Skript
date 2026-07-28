@@ -27,7 +27,7 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtAtTime.class, "At Time")
 			.supplier(EvtAtTime::new)
 			.addEvent(ScheduledEvent.class)
-			.addPattern("at %time% [in %worlds%]")
+			.addPattern("at %time% [in %-worlds%]")
 			.addDescription("An event that occurs at a given <a href='#time'>minecraft time</a> in every world or only in specific worlds.")
 			.addExample("""
 				at 7am in "world":
