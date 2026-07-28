@@ -611,15 +611,6 @@ public final class BukkitEventValues {
 			return new ch.njol.skript.util.slot.EquipmentSlot(equipment, hand);
 		}));
 
-		// PlayerPickupArrowEvent
-		// This event value is restricted to MC 1.14+ due to an API change which has the return type changed
-		// which throws a NoSuchMethodError if used in a 1.13 server.
-		if (Skript.isRunningMinecraft(1, 14))
-			registry.register(EventValue.simple(PlayerPickupArrowEvent.class, Projectile.class, PlayerPickupArrowEvent::getArrow));
-
-		registry.register(EventValue.simple(PlayerPickupArrowEvent.class, ItemStack.class, event -> event.getItem().getItemStack()));
-
-
 		// PlayerStonecutterRecipeSelectEvent
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent"))
 			registry.register(EventValue.simple(PlayerStonecutterRecipeSelectEvent.class, ItemStack.class, event -> event.getStonecuttingRecipe().getResult()));

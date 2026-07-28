@@ -18,6 +18,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.player.*;
 import org.bukkit.event.player.PlayerRespawnEvent.RespawnReason;
 import org.bukkit.inventory.ItemStack;
@@ -658,6 +659,27 @@ public class PlayerEvents {
 				""")
 			.addSince("1.4.1, INSERT VERSION (pattern change)")
 			.supplier(() -> new SimpleEvent("player chat"))
+			.build());
+
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Player Pickup Arrow")
+			.addEvent(PlayerPickupArrowEvent.class)
+			.addPattern("[player] (pick[ing| ]up [an] arrow|arrow pick[ing| ]up)")
+			.addDescription("Called when a palyer picks up an arrow from the ground.")
+			.addExample("""
+				on player picking up an arrow:
+				    cancel event
+				    teleport event-projectile to (location of event-projectile ~ vector(0, 5, 0))
+				""")
+			.addSince("2.8.0")
+			.supplier(() -> new SimpleEvent("player pickup arrow"))
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(PlayerPickupArrowEvent.class, Projectile.class)
+			.getter(PlayerPickupArrowEvent::getArrow)
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(PlayerPickupArrowEvent.class, ItemStack.class)
+			.getter(event -> event.getItem().getItemStack())
 			.build());
 
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Player Respawn")
