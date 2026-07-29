@@ -57,9 +57,13 @@ public class InventoryEvents {
 			.addExample("""
 				on inventory open:
 					send "it's an inventory!" to player
+					{-event} is true
+					if type of event-inventory is anvil inventory:
+					    cancel event
+					    send "You cannot open an anvil inventory during this event!"
 				""")
 			.addSince("2.2-dev21")
-			.addSince("INSERT VERSION (pattern updates)")
+			.addSince("INSERT VERSION (new pattern and 'player' in existing one)")
 			.supplier(() -> new SimpleEvent("player inventory open"))
 			.build());
 
@@ -76,10 +80,12 @@ public class InventoryEvents {
 			    """)
 			.addExample("""
 				on player close inventory:
-					send "closed!" to player
+					if {captcha::%player's uuid%} is not true:
+					    cancel event
+					    send "You need to complete the captcha to prove you're not a bot first!" to player
 				""")
 			.addSince("2.2-dev21")
-			.addSince("INSERT VERSION (updated pattern)")
+			.addSince("INSERT VERSION (new pattern and 'player' in existing one)")
 			.supplier(() -> new SimpleEvent("player inventory close"))
 			.build());
 
@@ -98,6 +104,9 @@ public class InventoryEvents {
 			.addExample("""
 				on inventory pickup:
 					broadcast "An inventory just picked up an item!"
+					if type of event-item stack is tnt:
+					    cancel event
+					    broadcast "No explosives allowed here!"
 				""")
 			.addSince("2.5.1")
 			.addSince("INSERT VERSION (updated pattern)")
@@ -128,7 +137,7 @@ public class InventoryEvents {
 						cancel event
 				""")
 			.addSince("2.7")
-			.addSince("INSERT VERSION (updated pattern)")
+			.addSince("INSERT VERSION ('dragging item' in pattern)")
 			.supplier(() -> new SimpleEvent("inventory drag item"))
 			.build());
 
