@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.entity.player.elements.events;
+package org.skriptlang.skript.bukkit.entity.elements;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
@@ -63,7 +63,7 @@ public class EvtPressurePlate extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return tripwire ? "trip on a tripwire" : "stepping on a pressure plate";
+		return tripwire ? "stepping on a tripwire" : "stepping on a pressure plate";
 	}
 
 }

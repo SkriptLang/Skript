@@ -35,7 +35,7 @@ public class EvtCommand extends SkriptEvent {
 				""")
 			.addExample("""
 				on command:
-					add command to {commands::%player's uuid%}
+					add command to {commands::%player's uuid%::*}
 				""")
 			.addExample("""
 				on command:
@@ -80,10 +80,10 @@ public class EvtCommand extends SkriptEvent {
 			return false;
 
 		return Arrays.stream(commands).anyMatch(candidate ->
-			StringUtils.startsWithIgnoreCase(message, candidate)
-				&& (candidate.contains(" ")
-				|| message.length() == candidate.length()
-				|| Character.isWhitespace(message.charAt(candidate.length()))));
+			StringUtils.startsWithIgnoreCase(message, candidate) // matches the command label
+				&& (candidate.contains(" ") // if candidate contains arguments, then any command that starts with the candidate is a match
+				|| message.length() == candidate.length() // exact match
+				|| Character.isWhitespace(message.charAt(candidate.length())))); // matches label with space after
 	}
 
 	@Override

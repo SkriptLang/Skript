@@ -57,7 +57,12 @@ public class EvtPlayerPickItem extends SkriptEvent {
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(PlayerPickItemEvent.class, Slot.class)
-			.getter(event -> new InventorySlot(event.getPlayer().getInventory(), event.getTargetSlot()))
+			.getter(event -> {
+				int source = event.getSourceSlot();
+				if (source == -1)
+					return null;
+				return new InventorySlot(event.getPlayer().getInventory(), source);
+			})
 			.registerChanger(ChangeMode.SET, (event, slot) -> {
 				if (!(slot instanceof InventorySlot inventorySlot) || inventorySlot.getInventory() != event.getPlayer().getInventory())
 					return;
@@ -67,12 +72,7 @@ public class EvtPlayerPickItem extends SkriptEvent {
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(PlayerPickItemEvent.class, Slot.class)
-			.getter(event -> {
-				int source = event.getSourceSlot();
-				if (source == -1)
-					return null;
-				return new InventorySlot(event.getPlayer().getInventory(), source);
-			})
+			.getter(event -> new InventorySlot(event.getPlayer().getInventory(), event.getTargetSlot()))
 			.registerChanger(ChangeMode.SET, (event, slot) -> {
 				if (!(slot instanceof InventorySlot inventorySlot) || inventorySlot.getInventory() != event.getPlayer().getInventory())
 					return;

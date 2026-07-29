@@ -547,26 +547,7 @@ public final class BukkitEventValues {
 		if (Skript.methodExists(PortalCreateEvent.class, "getEntity")) { // Minecraft 1.14+
 			registry.register(EventValue.simple(PortalCreateEvent.class, Entity.class, PortalCreateEvent::getEntity));
 		}
-		//PlayerEditBookEvent
-		registry.register(EventValue.builder(PlayerEditBookEvent.class, ItemStack.class)
-			.getter(event -> {
-				ItemStack book = new ItemStack(Material.WRITABLE_BOOK);
-				book.setItemMeta(event.getPreviousBookMeta());
-				return book;
-			})
-			.time(Time.PAST)
-			.build());
-		registry.register(EventValue.simple(PlayerEditBookEvent.class, ItemStack.class, event -> {
-			ItemStack book = new ItemStack(Material.WRITABLE_BOOK);
-			book.setItemMeta(event.getNewBookMeta());
-			return book;
-		}));
-		registry.register(EventValue.builder(PlayerEditBookEvent.class, Component[].class)
-			.getter(event -> ExprBookPages.getPages(event.getPreviousBookMeta()).toArray(new Component[0]))
-			.time(Time.PAST)
-			.build());
-		registry.register(EventValue.simple(PlayerEditBookEvent.class, Component[].class, event ->
-			ExprBookPages.getPages(event.getNewBookMeta()).toArray(new Component[0])));
+
 		//ItemDespawnEvent
 		registry.register(EventValue.simple(ItemDespawnEvent.class, Item.class, ItemDespawnEvent::getEntity));
 		registry.register(EventValue.simple(ItemDespawnEvent.class, ItemStack.class, event -> event.getEntity().getItemStack()));

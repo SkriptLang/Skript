@@ -7,6 +7,7 @@ import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.BukkitModule;
+import org.skriptlang.skript.bukkit.entity.elements.EvtPressurePlate;
 import org.skriptlang.skript.bukkit.entity.player.elements.effects.*;
 import org.skriptlang.skript.bukkit.entity.player.elements.events.*;
 import org.skriptlang.skript.bukkit.entity.player.elements.expressions.*;

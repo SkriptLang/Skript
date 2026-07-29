@@ -82,7 +82,7 @@ public class BukkitModule extends HierarchicalAddonModule {
 		// nothing to do
 	}
 
-	// TODO: Remove this once the pr for it is merged probably around 7/16/2026
+	// TODO: Remove this once the pr for it is merged (https://github.com/SkriptLang/Skript/pull/8741)
 	/**
 	 * Helper method that calls the given methods with a {@link SyntaxRegistry} and {@link EventValueRegistry}
 	 * @param syntaxRegistry The syntax registry to register with.

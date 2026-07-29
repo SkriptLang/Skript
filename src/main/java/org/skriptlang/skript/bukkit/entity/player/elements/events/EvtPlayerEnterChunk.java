@@ -18,7 +18,7 @@ public class EvtPlayerEnterChunk extends SkriptEvent {
 			.addPatterns("[player] (enter[s] [a] chunk|chunk enter[ing])")
 			.addDescription("""
 				Called when a player enters a chunk.
-				Note that this event is called and filtered extremely often internally and may cause performance issues.
+				Note that this event is based on 'player move' event, and may be called frequently internally.
 				""")
 			.addExample("""
 				on player enter a chunk:

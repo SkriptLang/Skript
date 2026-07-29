@@ -21,14 +21,13 @@ public class EvtPlayerEditBook extends SkriptEvent {
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtPlayerEditBook.class, "Player Edit Book")
 			.supplier(EvtPlayerEditBook::new)
 			.addEvent(PlayerEditBookEvent.class)
-			.addPatterns("book (edit|change|write)", "[player] (edit|change) book")
+			.addPatterns("book (edit|change|write)")
 			.addDescription("Called when a player edits a book.")
 			.addExample("""
 				on player edit book:
 					send "Nice edit!" to player
 				""")
 			.addSince("2.2-dev31")
-			.addSince("INSERT VERSION ('player change book' pattern)")
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(PlayerEditBookEvent.class, ItemStack.class)
