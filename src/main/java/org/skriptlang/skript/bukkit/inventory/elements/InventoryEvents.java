@@ -56,7 +56,7 @@ public class InventoryEvents {
 				""")
 			.addExample("""
 				on inventory open:
-					send "its an inventory!" to player
+					send "it's an inventory!" to player
 				""")
 			.addSince("2.2-dev21")
 			.addSince("INSERT VERSION (pattern updates)")
