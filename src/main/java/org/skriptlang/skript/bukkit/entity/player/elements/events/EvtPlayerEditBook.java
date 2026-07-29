@@ -24,7 +24,7 @@ public class EvtPlayerEditBook extends SkriptEvent {
 			.addPatterns("book (edit|change|write)")
 			.addDescription("Called when a player edits a book.")
 			.addExample("""
-				on player edit book:
+				on book change:
 					send "Nice edit!" to player
 				""")
 			.addSince("2.2-dev31")

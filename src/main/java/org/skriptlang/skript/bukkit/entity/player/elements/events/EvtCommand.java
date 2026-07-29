@@ -70,7 +70,7 @@ public class EvtCommand extends SkriptEvent {
 		if (commands == null)
 			return true;
 
-		String message = switch(event) {
+		String message = switch (event) {
 			case PlayerCommandPreprocessEvent playerEvent -> playerEvent.getMessage().substring(1);
 			case ServerCommandEvent serverEvent -> serverEvent.getCommand();
 			default -> null;

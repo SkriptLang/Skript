@@ -72,7 +72,7 @@ public class EvtClick extends SkriptEvent {
 				""")
 			.addExample("""
 				on click on chest[facing=north]:
-					send "Well its a chest alright.." to player
+					send "Well, it's a chest alright.." to player
 					set event-block to chest[facing=south]
 					send "I don't think it likes me.." to player
 				""")
@@ -83,7 +83,7 @@ public class EvtClick extends SkriptEvent {
 						break event-block using player's tool
 						send "How.." to player
 				""")
-			.addSince("1.0 ")
+			.addSince("1.0")
 			.addSince("2.10 (blockdata)")
 			.build());
 

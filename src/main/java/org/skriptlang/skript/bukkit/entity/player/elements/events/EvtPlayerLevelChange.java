@@ -16,7 +16,7 @@ public class EvtPlayerLevelChange extends SkriptEvent {
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtPlayerLevelChange.class, "Player Level Change")
 			.supplier(EvtPlayerLevelChange::new)
 			.addEvent(PlayerLevelChangeEvent.class)
-			.addPatterns("[player] level (change|1¦up|-1¦down)")
+			.addPatterns("[player] level (change|1:up|-1:down)")
 			.addDescription("""
 				Called when a player's <a href='#ExprLevel'>level</a> changes,\s
 				e.g. by gathering experience or by enchanting something.

@@ -69,7 +69,7 @@ public class EvtAttemptAttack extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return entityData != null ? "attempting to attack" + entityData.toString(event,debug) : "attack attempt";
+		return entityData != null ? "attempting to attack " + entityData.toString(event, debug) : "attack attempt";
 	}
 
 }
