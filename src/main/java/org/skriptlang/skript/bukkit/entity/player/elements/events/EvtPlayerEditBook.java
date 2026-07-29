@@ -71,7 +71,7 @@ public class EvtPlayerEditBook extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "player edit book";
+		return "book edit";
 	}
 
 }
