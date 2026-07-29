@@ -41,7 +41,8 @@ public class EvtInventoryClick extends SkriptEvent {
 					cancel event
 					send "You cannot click on an illegal item!"
 				""")
-			.addSince("2.2-Fixes-V10, INSERT VERSION (on)")
+			.addSince("2.2-Fixes-V10")
+			.addSince("INSERT VERSION ('on' in pattern)")
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(InventoryClickEvent.class, ItemStack.class)

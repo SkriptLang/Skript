@@ -158,14 +158,10 @@ public class EvtItem extends SkriptEvent {
 			itemStack = playerPickupItemEvent.getItem().getItemStack();
 		} else if (event instanceof PlayerItemConsumeEvent playerItemConsumeEvent) {
 			itemStack = playerItemConsumeEvent.getItem();
-		} else if (event instanceof InventoryClickEvent inventoryClickEvent) {
-			itemStack = inventoryClickEvent.getCurrentItem();
 		} else if (event instanceof ItemDespawnEvent itemDespawnEvent) {
 			itemStack = itemDespawnEvent.getEntity().getItemStack();
 		} else if (event instanceof ItemMergeEvent itemMergeEvent) {
 			itemStack = itemMergeEvent.getTarget().getItemStack();
-		} else if (event instanceof InventoryMoveItemEvent inventoryMoveItemEvent) {
-			itemStack = inventoryMoveItemEvent.getItem();
 		} else {
 			assert false;
 			return false;
