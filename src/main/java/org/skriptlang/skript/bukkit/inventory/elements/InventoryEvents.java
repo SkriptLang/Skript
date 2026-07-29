@@ -49,7 +49,7 @@ public class InventoryEvents {
 
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Player Inventory Open")
 			.addEvent(InventoryOpenEvent.class)
-			.addPatterns("[player] inventory open[ed]", "[player] open[ing] [an] inventory")
+			.addPatterns("inventory open[ed]", "open[ing] [an] inventory")
 			.addDescription("""
 				Called when an inventory is opened for a player.
 				Note that this event is not called when a player opens their own inventory.
@@ -63,7 +63,7 @@ public class InventoryEvents {
 					    send "You cannot open an anvil inventory during this event!"
 				""")
 			.addSince("2.2-dev21")
-			.addSince("INSERT VERSION (new pattern and 'player' in existing one)")
+			.addSince("INSERT VERSION (new pattern)")
 			.supplier(() -> new SimpleEvent("player inventory open"))
 			.build());
 
@@ -73,7 +73,7 @@ public class InventoryEvents {
 
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Player Inventory Close")
 			.addEvent(InventoryCloseEvent.class)
-			.addPatterns("[player] inventory clos(ing|e[d])", "[player] clos[e|ing] inventory")
+			.addPatterns("inventory clos(ing|e[d])", "clos[e|ing] inventory")
 			.addDescription("""
 			    Called when a player closes the inventory they are currently viewing.
 			    This event is also called when a player closes their own inventory.
@@ -85,7 +85,7 @@ public class InventoryEvents {
 					    send "You need to complete the captcha to prove you're not a bot first!" to player
 				""")
 			.addSince("2.2-dev21")
-			.addSince("INSERT VERSION (new pattern and 'player' in existing one)")
+			.addSince("INSERT VERSION (new pattern)")
 			.supplier(() -> new SimpleEvent("player inventory close"))
 			.build());
 
