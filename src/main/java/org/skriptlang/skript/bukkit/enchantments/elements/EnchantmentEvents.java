@@ -19,9 +19,9 @@ public class EnchantmentEvents {
 			.addEvent(PrepareItemEnchantEvent.class)
 			.addPatterns("[item] enchant prepare")
 			.addDescription("""
-				Called when a player puts an item into enchantment table.
+				Called when a player puts an item into an enchantment table.
 				This event may be called multiple times.
-				See <a href='#ExprEnchantEventsEnchantItem'>enchant item expression</a> for how to get the enchant item.
+				See <a href='#ExprEnchantEventsEnchantItem'>enchant item expression</a> on how to get the enchant item.
 				""")
 			.addExample("""
 				on item enchant prepare:
@@ -49,7 +49,7 @@ public class EnchantmentEvents {
 			.addPatterns("[item] enchant")
 			.addDescription("""
 				Called when a player successfully enchants an item.
-				See <a href='#ExprEnchantEventsEnchantItem'>enchant item expression</a> for how to get the enchanted item.
+				See <a href='#ExprEnchantEventsEnchantItem'>enchant item expression</a> on how to get the enchanted item.
 				""")
 			.addExample("""
 				on enchant:

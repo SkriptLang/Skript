@@ -36,10 +36,26 @@ public class EvtRealTime extends SkriptEvent {
 					resetDailyQuests()
 					broadcast "All daily quests have reset!"
 				""")
+			.addExample("""
+				at 3am or 5am in real time:
+					loop all players:
+						send "Your bed is at %the bed of loop-player%. Please go to sleep."
+				""")
+			.addExample("""
+				at 04:00 in real time:
+					broadcast "Time to wake up!"
+				""")
+			.addExample("""
+				at 07:00 in real time:
+					loop all players:
+						loop-player is sleeping
+						send "You overslept!" to loop-player
+						make loop-player wake up
+				""")
 			.addSince("2.11")
 			.build());
 
-		TIMER = new Timer("EvtSystemTime-Tasks");
+		TIMER = new Timer("EvtRealTime-Tasks");
 	}
 
 	private Literal<Time> times;
