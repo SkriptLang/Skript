@@ -295,7 +295,7 @@ tasks.register('JUnit') {
 // custom test task
 // usage: gradle customTest -PtestEnvs=<environment files, comma separated list.> -PtestEnvJavaVersion=<java version> -Ptimeout=<timeout in ms> -Pjunit=[true|false]
 // defaults: testEnvJavaVersion=latestJava, timeout=0, junit=false
-// example: gradle customTest -PtestEnvs="java21/paper-1.21.4,java21/paper-1.21.8" -PtestEnvJavaVersion=21 -Ptimeout=600000 -Pjunit=true
+// example: gradle customTest -PtestEnvs="java21/paper-1.21.5,java21/paper-1.21.8" -PtestEnvJavaVersion=21 -Ptimeout=600000 -Pjunit=true
 
 // get environments
 String propEnvs = project.hasProperty('testEnvs') ? project.property('testEnvs') as String : project.testEnv
