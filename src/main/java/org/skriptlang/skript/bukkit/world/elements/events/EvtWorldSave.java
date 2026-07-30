@@ -26,11 +26,11 @@ public class EvtWorldSave extends SkriptEvent {
 				""")
 			.addExample("""
 				on world save:
-				    broadcast "The world '%event-world%' is getting saved!"
+					broadcast "The world '%event-world%' is getting saved!"
 				""")
 			.addExample("""
 				on world save of "world":
-				    broadcast "The main world is being saved!"
+					broadcast "The main world is being saved!"
 				""")
 			.addSince("1.0")
 			.addSince("2.8.0 (defining worlds)")

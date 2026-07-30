@@ -28,11 +28,11 @@ public class EvtWeatherChange extends SkriptEvent {
 			.addDescription("Called when a world's weather changes.")
 			.addExample("""
 				on weather change to rain in world "example":
-				    broadcast "Its now raining!" to all players in world "example"
+					broadcast "Its now raining!" to all players in world "example"
 				""")
 			.addExample("""
 				on weather change to storm:
-				    broadcast "A storm is coming!"
+					broadcast "A storm is coming!"
 				""")
 			.addSince("1.0")
 			.addSince("INSERT VERSION (defining worlds)")

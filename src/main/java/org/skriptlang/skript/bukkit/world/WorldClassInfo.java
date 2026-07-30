@@ -28,11 +28,11 @@ public class WorldClassInfo extends ClassInfo<World> {
 				"world_nether" and it will be converted to a world if valid.
 				""")
 			.usage("""
-			    <code>"world_name"</code>, e.g. "world"
-			    """)
+				<code>"world_name"</code>, e.g. "world"
+				""")
 			.examples("""
-			    broadcast "Hello!" to the world "world_nether"
-			    """)
+				broadcast "Hello!" to the world "world_nether"
+				""")
 			.since("1.0, 2.2 (alternate syntax)")
 			.after("string")
 			.serializer(new WorldSerializer())

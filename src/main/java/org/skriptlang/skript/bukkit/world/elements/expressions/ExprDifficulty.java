@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.world.elements.expressions;
 
-import ch.njol.skript.Skript;
 import org.bukkit.Difficulty;
 import org.bukkit.World;
 import org.bukkit.event.Event;
@@ -20,8 +19,6 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Example("set the difficulty of \"world\" to hard")
 @Since("2.3")
 public class ExprDifficulty extends SimplePropertyExpression<World, Difficulty> {
-
-	private final static boolean USE_DEPRECATED = Skript.methodExists(World.class, "setSpawnFlags", boolean.class, boolean.class);
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(
@@ -61,15 +58,9 @@ public class ExprDifficulty extends SimplePropertyExpression<World, Difficulty> 
 
 		for (World world : getExpr().getArray(event)) {
 			world.setDifficulty(difficulty);
-			if (difficulty != Difficulty.PEACEFUL) {
+			if (difficulty != Difficulty.PEACEFUL)
 				// Force enable spawn monsters as changing difficulty won't change this by itself
-				if (USE_DEPRECATED) {
-					// This is deprecated since 26.2 and marked for removal
-					world.setSpawnFlags(true, world.getAllowAnimals());
-				} else {
-					world.setAllowMonsterSpawning(true);
-				}
-			}
+				world.setAllowMonsterSpawning(true);
 		}
 	}
 

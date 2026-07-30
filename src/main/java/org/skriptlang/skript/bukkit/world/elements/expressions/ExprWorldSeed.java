@@ -16,10 +16,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("World Seed")
 @Description("""
-    The seed of given world.
-    Note that it will be returned as Minecraft internally treats seeds,\s
-    not as you specified it in world configuration.
-    """)
+	The seed of given world.
+	Note that it will be returned as Minecraft internally treats seeds,\s
+	not as you specified it in world configuration.
+	""")
 @Example("broadcast \"Seed: %seed of player's world%\"")
 @Since({"2.2-dev35", "INSERT VERSION (updated pattern)"})
 public class ExprWorldSeed extends PropertyExpression<World, Long> {

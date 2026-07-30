@@ -26,11 +26,11 @@ public class EvtWorldLoad extends SkriptEvent {
 				""")
 			.addExample("""
 				on world load:
-				    broadcast "The world '%event-world%' is being loaded!"
+					broadcast "The world '%event-world%' is being loaded!"
 				""")
 			.addExample("""
 				on world load of "world":
-				    broadcast "The main world is being loaded!"
+					broadcast "The main world is being loaded!"
 				""")
 			.addSince("1.0")
 			.addSince("2.8.0 (defining worlds)")

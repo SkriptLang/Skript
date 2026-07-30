@@ -26,11 +26,11 @@ public class EvtWorldUnload extends SkriptEvent {
 				""")
 			.addExample("""
 				on world unload:
-				    broadcast "The world '%event-world%' is getting unloaded!"
+					broadcast "The world '%event-world%' is getting unloaded!"
 				""")
 			.addExample("""
 				on world unload of "world":
-				    broadcast "The main world is being unloaded!"
+					broadcast "The main world is being unloaded!"
 				""")
 			.addSince("1.0")
 			.addSince("2.8.0 (defining worlds)")

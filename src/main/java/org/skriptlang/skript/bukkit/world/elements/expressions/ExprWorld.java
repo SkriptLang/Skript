@@ -23,9 +23,9 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Name("World")
 @Description("The world of something.")
 @Example("""
-    if world is "world_nether":
-        broadcast "We're in another dimension!"
-    """)
+	if world is "world_nether":
+		broadcast "We're in another dimension!"
+	""")
 @Example("teleport the player to the world's spawn")
 @Example("set the weather in the player's world to rain")
 @Example("set {_world} to world of event-chunk")

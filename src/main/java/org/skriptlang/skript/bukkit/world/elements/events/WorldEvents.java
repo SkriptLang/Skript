@@ -37,7 +37,7 @@ public class WorldEvents {
 					""")
 				.addExample("""
 					on chunk load:
-					    broadcast "A chunk has loaded!"
+						broadcast "A chunk has loaded!"
 					""")
 				.addSince("1.0")
 				.supplier(() -> new SimpleEvent("chunk load"))
@@ -52,7 +52,7 @@ public class WorldEvents {
 				.addDescription("Called when a chunk is unloaded due to not being near any player.")
 				.addExample("""
 					on chunk unload:
-					    broadcast "A chunk is being unloaded!"
+						broadcast "A chunk is being unloaded!"
 					""")
 				.addSince("1.0")
 				.supplier(() -> new SimpleEvent("chunk unload"))
@@ -67,7 +67,7 @@ public class WorldEvents {
 				.addDescription("Called after a chunk has been generated for first time.")
 				.addExample("""
 					on chunk generate:
-					    broadcast "A chunk has been newly generated!"
+						broadcast "A chunk has been newly generated!"
 					""")
 				.addSince("1.0")
 				.supplier(() -> new SimpleEvent("chunk generate"))
@@ -82,7 +82,7 @@ public class WorldEvents {
 				.addDescription("Called when the spawn point of a world changes.")
 				.addExample("""
 					on world spawn change:
-					    broadcast "Someone changed the world spawn!"
+						broadcast "Someone changed the world spawn!"
 					""")
 				.addSince("1.0")
 				.supplier(() -> new SimpleEvent("world spawn change"))
@@ -97,7 +97,7 @@ public class WorldEvents {
 				.addDescription("Called when lightning strikes in a world.")
 				.addExample("""
 					on lightning strike:
-					    spawn a zombie at event-entity
+						spawn a zombie at event-entity
 					""")
 				.addSince("1.0")
 				.addSince("INSERT VERSION (pattern change)")
@@ -123,7 +123,7 @@ public class WorldEvents {
 					""")
 				.addExample("""
 					on portal create:
-					    broadcast "A portal is being created!"
+						broadcast "A portal is being created!"
 					""")
 				.addSince("1.0")
 				.addSince("2.5.3 (event-entity support)")
