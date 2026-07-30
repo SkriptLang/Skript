@@ -15,7 +15,7 @@ import org.skriptlang.skript.registration.DefaultSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Item With Model")
-@Description("Returns a copy of an item with a custom item model. Accepts a Namespaced Key (e.g. 'minecraft:emerald').")
+@Description("Returns a copy of an item with a custom item model. Accepts a Namespaced Key which takes the form of \"namespace:key\", e.g. \"minecraft:dirt\". See <a href='https://minecraft.wiki/w/Identifier'> this article</a> for more detail.")
 @Example("""
 	set {_item} to emerald with model "minecraft:diamond" named "fake diamond"'
 	give {_item} to player

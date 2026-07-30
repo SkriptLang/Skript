@@ -18,7 +18,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import static ch.njol.skript.classes.Changer.ChangeMode.SET;
 
 @Name("Item Model")
-@Description("The item model of an item. Accepts a Namespaced Key (e.g. 'minecraft:emerald').")
+@Description("The item model of an item. Accepts a Namespaced Key which takes the form of \"namespace:key\", e.g. \"minecraft:dirt\". See <a href='https://minecraft.wiki/w/Identifier'> this article</a> for more detail.")
 @Example("""
 	set the item model of player's held item to "diamond"
 	set the item model of {_item} to "minecraft:dirt"
