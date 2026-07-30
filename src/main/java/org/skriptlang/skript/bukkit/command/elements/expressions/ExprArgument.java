@@ -18,6 +18,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
+import org.bukkit.event.command.UnknownCommandEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.jetbrains.annotations.ApiStatus;
@@ -195,9 +196,8 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 
 	@Override
 	public Class<? extends Event>[] supportedEvents() {
-		// important note: this expression is not actually evaluated for CommandSuggestionEvent
-		return CollectionUtils.array(ScriptCommandExecutionEvent.class, PlayerCommandPreprocessEvent.class, ServerCommandEvent.class,
-			CommandSuggestionEvent.class);
+		return CollectionUtils.array(ScriptCommandExecutionEvent.class, CommandSuggestionEvent.class,
+			PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, UnknownCommandEvent.class);
 	}
 
 	@Override
@@ -221,12 +221,13 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 			}
 		}
 
-		String fullCommand;
-		if (event instanceof PlayerCommandPreprocessEvent preprocessEvent) {
-			fullCommand = preprocessEvent.getMessage().substring(1).trim();
-		} else if (event instanceof ServerCommandEvent serverCommandEvent) {
-			fullCommand = serverCommandEvent.getCommand().trim();
-		} else {
+		String fullCommand = switch (event) {
+			case PlayerCommandPreprocessEvent preprocessEvent -> preprocessEvent.getMessage().substring(1).trim();
+			case ServerCommandEvent serverCommandEvent -> serverCommandEvent.getCommand().trim();
+			case UnknownCommandEvent unknownCommandEvent -> unknownCommandEvent.getCommandLine().trim();
+			default -> null;
+		};
+		if (fullCommand == null) {
 			return new String[0];
 		}
 

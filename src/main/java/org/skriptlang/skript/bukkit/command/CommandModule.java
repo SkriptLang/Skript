@@ -8,8 +8,10 @@ import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.command.custom.ScriptCommandRegistrar;
 import org.skriptlang.skript.bukkit.command.elements.conditions.*;
 import org.skriptlang.skript.bukkit.command.elements.effects.*;
+import org.skriptlang.skript.bukkit.command.elements.events.*;
 import org.skriptlang.skript.bukkit.command.elements.expressions.*;
 import org.skriptlang.skript.bukkit.command.elements.structures.*;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 
 public class CommandModule extends HierarchicalAddonModule {
 
@@ -40,6 +42,9 @@ public class CommandModule extends HierarchicalAddonModule {
 			ExprCommandInput::register,
 			ExprCommandSender::register,
 			ExprCommandSuggestions::register,
+			ExprUnknownCommandMessage::register,
+			EvtCommand::register,
+			syntaxRegistry -> EvtUnknownCommand.register(syntaxRegistry, addon.registry(EventValueRegistry.class)),
 			syntaxRegistry -> StructCommand.register(addon, syntaxRegistry)
 		);
 	}

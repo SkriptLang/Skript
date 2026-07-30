@@ -3,6 +3,7 @@ package org.skriptlang.skript.bukkit.command.elements.expressions;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
+import org.bukkit.event.command.UnknownCommandEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.jetbrains.annotations.Nullable;
@@ -52,17 +53,18 @@ public class ExprCommand extends SimpleExpression<String> implements EventRestri
 
 	@Override
 	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, ScriptCommandExecutionEvent.class,
-			CommandSuggestionEvent.class);
+		return CollectionUtils.array(ScriptCommandExecutionEvent.class, CommandSuggestionEvent.class,
+			PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, UnknownCommandEvent.class);
 	}
 
 	@Override
 	protected String[] get(Event event) {
 		String input = switch (event) {
-			case PlayerCommandPreprocessEvent preprocessEvent -> preprocessEvent.getMessage().substring(1).trim();
-			case ServerCommandEvent serverCommandEvent -> serverCommandEvent.getCommand().trim();
 			case ScriptCommandExecutionEvent scriptCommandEvent -> scriptCommandEvent.getRawInput();
 			case CommandSuggestionEvent suggestionEvent -> suggestionEvent.getFullInput();
+			case PlayerCommandPreprocessEvent preprocessEvent -> preprocessEvent.getMessage().substring(1).trim();
+			case ServerCommandEvent serverCommandEvent -> serverCommandEvent.getCommand().trim();
+			case UnknownCommandEvent unknownCommandEvent -> unknownCommandEvent.getCommandLine().trim();
 			default -> throw new IllegalStateException("Unexpected value: " + event);
 		};
 		if (fullCommand) {

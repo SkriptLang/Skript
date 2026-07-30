@@ -283,6 +283,9 @@ public final class ScriptCommandRegistrar {
 		return Set.copyOf(REGISTERED_COMMANDS.keySet());
 	}
 
+	/**
+	 * Utility index help topic to replace the help topic for Skript itself.
+	 */
 	private static class SkriptIndexHelpTopic extends IndexHelpTopic {
 
 		public SkriptIndexHelpTopic() {
@@ -321,6 +324,9 @@ public final class ScriptCommandRegistrar {
 
 	}
 
+	/**
+	 * Utility command help topic to adjust default behavior.
+	 */
 	private static class SkriptGenericCommandHelpTopic extends GenericCommandHelpTopic {
 
 		public SkriptGenericCommandHelpTopic(Command command) {
