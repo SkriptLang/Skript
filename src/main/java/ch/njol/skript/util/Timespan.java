@@ -372,23 +372,40 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 
 	@Override
 	public long get(TemporalUnit unit) {
-		if (unit instanceof TimePeriod period)
-			return this.getAs(period);
+		if (unit instanceof TimePeriod period) {
+			return getComponent(period);
+		}
 
 		if (!(unit instanceof ChronoUnit chrono))
 			throw new UnsupportedTemporalTypeException("Not a supported temporal unit: " + unit);
 
 		return switch (chrono) {
-			case MILLIS -> this.getAs(TimePeriod.MILLISECOND);
-			case SECONDS -> this.getAs(TimePeriod.SECOND);
-			case MINUTES -> this.getAs(TimePeriod.MINUTE);
-			case HOURS -> this.getAs(TimePeriod.HOUR);
-			case DAYS -> this.getAs(TimePeriod.DAY);
-			case WEEKS -> this.getAs(TimePeriod.WEEK);
-			case MONTHS -> this.getAs(TimePeriod.MONTH);
-			case YEARS -> this.getAs(TimePeriod.YEAR);
+			case YEARS -> getComponent(TimePeriod.YEAR);
+			case MONTHS -> getComponent(TimePeriod.MONTH);
+			case WEEKS -> getComponent(TimePeriod.WEEK);
+			case DAYS -> getComponent(TimePeriod.DAY);
+			case HOURS -> getComponent(TimePeriod.HOUR);
+			case MINUTES -> getComponent(TimePeriod.MINUTE);
+			case SECONDS -> getComponent(TimePeriod.SECOND);
+			case MILLIS -> getComponent(TimePeriod.MILLISECOND);
 			default -> throw new UnsupportedTemporalTypeException("Not a supported time unit: " + chrono);
 		};
+	}
+
+	private long getComponent(TimePeriod period) {
+		if (isInfinite()) {
+			return Long.MAX_VALUE;
+		}
+
+		long remainder = this.millis;
+
+		for (TimePeriod p : TimePeriod.values()) {
+			if (p.ordinal() > period.ordinal()) {
+				remainder %= p.getTime();
+			}
+		}
+
+		return remainder / period.getTime();
 	}
 
 	@Override
@@ -413,7 +430,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 
 	@Override
 	public int hashCode() {
-		return 31 + (int) (millis / Integer.MAX_VALUE);
+		return Long.hashCode(millis);
 	}
 
 	@Override
