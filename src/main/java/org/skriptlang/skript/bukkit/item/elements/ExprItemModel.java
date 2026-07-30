@@ -15,14 +15,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import static ch.njol.skript.classes.Changer.ChangeMode.SET;
-
 @Name("Item Model")
-@Description("The item model of an item. Accepts a Namespaced Key which takes the form of \"namespace:key\", e.g. \"minecraft:dirt\". See <a href='https://minecraft.wiki/w/Identifier'> this article</a> for more detail.")
-@Example("""
-	set the item model of player's held item to "diamond"
-	set the item model of {_item} to "minecraft:dirt"
+@Description("""
+	The item model of an item. \
+	Accepts a Namespaced Key which takes the form of "namespace:key", e.g. "minecraft:dirt". \
+	See <a href='https://minecraft.wiki/w/Identifier'> this article</a> for more detail. \
 	""")
+@Example("set the item model of player's held item to \"diamond\"")
+@Example("set the item model of {_item} to \"minecraft:dirt\"")
 @Since("INSERT VERSION")
 public class ExprItemModel extends SimplePropertyExpression<ItemType, String> {
 
@@ -55,8 +55,7 @@ public class ExprItemModel extends SimplePropertyExpression<ItemType, String> {
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		NamespacedKey key = null;
-		if (mode == SET) {
-			//noinspection DataFlowIssue
+		if (delta != null) {
 			key = NamespacedUtils.checkValidationAndSend((String) delta[0], this);
 			if (key == null) {
 				return;
