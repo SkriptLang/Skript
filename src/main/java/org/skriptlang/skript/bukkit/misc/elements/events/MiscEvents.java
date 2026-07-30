@@ -60,4 +60,5 @@ public class MiscEvents {
 			.getter(PrepareAnvilEvent::getResult)
 			.build());
 	}
+
 }
