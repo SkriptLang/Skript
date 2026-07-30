@@ -22,8 +22,8 @@ public class MiscModule extends HierarchicalAddonModule {
 
 		register(addon,
 			EvtAtTime::register,
-			EvtRealTime::register,
 			syntaxRegistry -> EvtPeriodical.register(syntaxRegistry, eventValueRegistry),
+			EvtRealTime::register,
 			syntaxRegistry -> EvtScript.register(syntaxRegistry, eventValueRegistry),
 			syntaxRegistry -> EvtSkript.register(syntaxRegistry, eventValueRegistry),
 			EffRotate::register,

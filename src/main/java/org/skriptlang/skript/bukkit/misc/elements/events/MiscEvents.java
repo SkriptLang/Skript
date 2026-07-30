@@ -13,22 +13,6 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public class MiscEvents {
 
 	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry) {
-		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Broadcast Message")
-			.addEvent(BroadcastMessageEvent.class)
-			.addPatterns(
-				"broadcast [message]",
-				"message being broadcast[ed]"
-			)
-			.addDescription("Called when a message is broadcasted.")
-			.addExample("""
-				on message being broadcasted:
-				   set broadcast-message to "<gray>[<red><bold>BROADCAST<reset><gray>] <white>%broadcasted message%"
-				""")
-			.addSince("2.10")
-			.addSince("INSERT VERSION ('message being broadcast' pattern)")
-			.supplier(() -> new SimpleEvent("broadcast message"))
-			.build());
-
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Server List Ping")
 			.addEvent(PaperServerListPingEvent.class)
 			.addPattern("server [list] ping")

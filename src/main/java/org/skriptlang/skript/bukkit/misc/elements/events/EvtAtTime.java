@@ -67,7 +67,6 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		time = ((Literal<Time>) args[0]).getSingle().getTicks();
-
 		if (args[1] == null) {
 			worlds = Bukkit.getWorlds().toArray(new World[0]);
 		} else {
