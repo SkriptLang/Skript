@@ -49,7 +49,7 @@ public class InventoryEvents {
 
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Player Inventory Open")
 			.addEvent(InventoryOpenEvent.class)
-			.addPatterns("inventory open[ed]", "open[ing] [an] inventory")
+			.addPattern("inventory open[ed]")
 			.addDescription("""
 				Called when an inventory is opened for a player.
 				Note that this event is not called when a player opens their own inventory.
@@ -73,7 +73,7 @@ public class InventoryEvents {
 
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Player Inventory Close")
 			.addEvent(InventoryCloseEvent.class)
-			.addPatterns("inventory clos(ing|e[d])", "clos[e|ing] inventory")
+			.addPattern("inventory clos(ing|e[d])")
 			.addDescription("""
 			    Called when a player closes the inventory they are currently viewing.
 			    This event is also called when a player closes their own inventory.
