@@ -31,7 +31,7 @@ public class ExprWorldSeed extends PropertyExpression<World, Long> {
 			infoBuilder(
 				ExprWorldSeed.class,
 				Long.class,
-				"[the] [world] seed[s]",
+				"[world] seed[s]",
 				"worlds",
 				false
 			)

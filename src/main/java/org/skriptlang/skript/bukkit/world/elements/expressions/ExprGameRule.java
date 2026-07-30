@@ -37,7 +37,7 @@ public class ExprGameRule extends SimpleExpression<GameruleValue> {
 			infoBuilder(
 				ExprGameRule.class,
 				GameruleValue.class,
-				"[the] gamerule %gamerule%",
+				"gamerule %gamerule%",
 				"worlds",
 				false
 			)

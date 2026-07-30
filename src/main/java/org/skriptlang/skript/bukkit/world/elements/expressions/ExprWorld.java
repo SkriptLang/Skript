@@ -39,7 +39,7 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 			infoBuilder(
 				ExprWorld.class,
 				World.class,
-				"[the] world",
+				"world",
 				"locations/entities/chunk",
 				true
 			)

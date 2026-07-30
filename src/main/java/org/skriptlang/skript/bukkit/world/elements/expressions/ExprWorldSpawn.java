@@ -31,7 +31,7 @@ public class ExprWorldSpawn extends PropertyExpression<World, Location> {
 			infoBuilder(
 				ExprWorldSpawn.class,
 				Location.class,
-				"[the] spawn[s] [(point|location)[s]]",
+				"spawn[s] [(point|location)[s]]",
 				"worlds",
 				false
 			)
