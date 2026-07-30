@@ -7,6 +7,7 @@ import ch.njol.skript.events.bukkit.ScheduledNoWorldEvent;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.util.Timespan;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -132,7 +133,10 @@ public class EvtPeriodical extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "every " + period;
+		return new SyntaxStringBuilder(event, debug)
+			.append("every", period)
+			.appendIf(worlds != null, "in", worlds)
+			.toString();
 	}
 
 }
