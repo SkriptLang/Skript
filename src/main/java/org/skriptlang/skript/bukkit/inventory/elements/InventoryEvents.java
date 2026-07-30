@@ -63,7 +63,6 @@ public class InventoryEvents {
 					    send "You cannot open an anvil inventory during this event!"
 				""")
 			.addSince("2.2-dev21")
-			.addSince("INSERT VERSION (new pattern)")
 			.supplier(() -> new SimpleEvent("player inventory open"))
 			.build());
 
@@ -85,7 +84,6 @@ public class InventoryEvents {
 					    send "You need to complete the captcha to prove you're not a bot first!" to player
 				""")
 			.addSince("2.2-dev21")
-			.addSince("INSERT VERSION (new pattern)")
 			.supplier(() -> new SimpleEvent("player inventory close"))
 			.build());
 
