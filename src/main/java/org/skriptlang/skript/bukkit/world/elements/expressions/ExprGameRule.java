@@ -59,6 +59,7 @@ public class ExprGameRule extends SimpleExpression<GameruleValue> {
 			gamerule = (Expression<GameRule<?>>) expressions[1];
 			worlds = (Expression<World>) expressions[0];
 		}
+
 		return true;
 	}
 
@@ -98,6 +99,7 @@ public class ExprGameRule extends SimpleExpression<GameruleValue> {
 		if (delta == null)
 			return;
 		Object value = delta[0];
+
 		if (!gamerule.getType().isAssignableFrom(value.getClass())) {
 			String currentClassName = Classes.toString(Classes.getSuperClassInfo(value.getClass()));
 			currentClassName = Utils.a(currentClassName);
@@ -109,9 +111,8 @@ public class ExprGameRule extends SimpleExpression<GameruleValue> {
 			return;
 		}
 
-		for (World world : worlds.getArray(event)) {
+		for (World world : worlds.getArray(event))
 			world.setGameRule((GameRule<Object>) gamerule, value);
-		}
 	}
 
 	@Override
@@ -132,4 +133,3 @@ public class ExprGameRule extends SimpleExpression<GameruleValue> {
 	}
 
 }
-

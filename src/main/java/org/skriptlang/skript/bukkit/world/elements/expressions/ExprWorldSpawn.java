@@ -98,4 +98,3 @@ public class ExprWorldSpawn extends PropertyExpression<World, Location> {
 	}
 
 }
-

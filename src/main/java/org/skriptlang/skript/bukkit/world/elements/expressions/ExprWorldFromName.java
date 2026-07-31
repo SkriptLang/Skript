@@ -46,6 +46,7 @@ public class ExprWorldFromName extends SimpleExpression<World> {
 		String worldName = this.worldName.getSingle(event);
 		if (worldName == null)
 			return new World[0];
+
 		World world = Bukkit.getWorld(worldName);
 		if (world == null)
 			return new World[0];

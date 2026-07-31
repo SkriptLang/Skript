@@ -35,7 +35,6 @@ public class EvtWeatherChange extends SkriptEvent {
 					broadcast "A storm is coming!"
 				""")
 			.addSince("1.0")
-			.addSince("INSERT VERSION (defining worlds)")
 			.build());
 
 		// Not a world event for some reason

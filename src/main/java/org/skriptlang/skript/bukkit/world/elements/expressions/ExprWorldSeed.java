@@ -63,4 +63,3 @@ public class ExprWorldSeed extends PropertyExpression<World, Long> {
 	}
 
 }
-
