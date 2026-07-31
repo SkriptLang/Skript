@@ -26,7 +26,6 @@ public class ExprHealReason extends EventValueExpression<RegainReason> {
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprHealReason.class, RegainReason.class)
 			.supplier(ExprHealReason::new)
-			.priority(SyntaxInfo.SIMPLE)
 			.addPattern("(regen|health regain|heal[ing]) (reason|cause)")
 			.build());
 	}
