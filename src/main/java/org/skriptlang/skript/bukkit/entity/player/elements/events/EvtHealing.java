@@ -27,10 +27,16 @@ public class EvtHealing extends SkriptEvent {
 			.addDescription("""
 				Called when an entity is healed, e.g. by eating (players), being fed (pets), or by the effect of a potion of healing (overworld mobs) or harm (nether mobs).
 				""")
-			.addExample("on heal")
-			.addExample("on player healing from a regeneration potion:")
 			.addExample("""
-				on healing of a zombie, cow or a wither:
+				on heal:
+					broadcast "%event-entity% was healed by %heal amount% hearts"
+				""")
+			.addExample("""
+				on player healing from regen:
+					send "You regenerated %heal amount% hearts!"
+				""")
+			.addExample("""
+				on healing of a zombie, cow, or a wither:
 					heal reason is healing potion
 					cancel event
 				""")
