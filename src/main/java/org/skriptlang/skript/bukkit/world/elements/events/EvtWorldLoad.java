@@ -21,7 +21,7 @@ public class EvtWorldLoad extends SkriptEvent {
 			.addPatterns("world load[ing] [of %-worlds%]")
 			.addDescription("""
 				Called when a world is loaded.
-				As with the world init event,\s
+				As with the world init event, \
 				this event will not be called for the server's default world(s).
 				""")
 			.addExample("""

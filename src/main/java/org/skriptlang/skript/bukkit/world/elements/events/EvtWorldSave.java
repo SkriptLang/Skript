@@ -21,7 +21,7 @@ public class EvtWorldSave extends SkriptEvent {
 			.addPatterns("world sav(e|ing) [of %-worlds%]")
 			.addDescription("""
 				Called when a world is saved to disk.
-				Usually all worlds are saved simultaneously,\s
+				Usually all worlds are saved simultaneously, \
 				but world management plugins could change this.
 				""")
 			.addExample("""
