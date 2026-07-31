@@ -26,11 +26,11 @@ public class EffPvP extends Effect {
 	static {
 		Skript.registerEffect(EffPvP.class, "enable PvP [in %worlds%]", "disable PVP [in %worlds%]");
 	}
-	
+
 	@SuppressWarnings("null")
 	private Expression<World> worlds;
 	private boolean enable;
-	
+
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
@@ -38,21 +38,21 @@ public class EffPvP extends Effect {
 		enable = matchedPattern == 0;
 		return true;
 	}
-	
+
 	@Override
 	protected void execute(Event event) {
 		if (PVP_GAME_RULE_EXISTS) {
 			for (World world : worlds.getArray(event))
-				world.setGameRule(GameRule.PVP, enable);
+				Skript.getScheduler().runGlobalTask(() -> world.setGameRule(GameRule.PVP, enable));
 		} else {
 			for (World world : worlds.getArray(event))
-				world.setPVP(enable);
+				Skript.getScheduler().runGlobalTask(() -> world.setPVP(enable));
 		}
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return (enable ? "enable" : "disable") + " PvP in " + worlds.toString(event, debug);
 	}
-	
+
 }
