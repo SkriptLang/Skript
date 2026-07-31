@@ -33,7 +33,8 @@ public class EvtHealing extends SkriptEvent {
 					heal reason is healing potion
 					cancel event
 				""")
-			.addSince("1.0, 2.9.0 (by reason)")
+			.addSince("1.0")
+			.addSince("2.9.0 (by reason)")
 			.build());
 
 		registry.register(EventValue.builder(EntityRegainHealthEvent.class, RegainReason.class)
