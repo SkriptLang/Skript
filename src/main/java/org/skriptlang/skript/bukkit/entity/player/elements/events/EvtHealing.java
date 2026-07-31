@@ -32,7 +32,7 @@ public class EvtHealing extends SkriptEvent {
 					broadcast "%event-entity% was healed by %heal amount% hearts"
 				""")
 			.addExample("""
-				on player healing from regen:
+				on player healing from satiated:
 					send "You regenerated %heal amount% hearts!"
 				""")
 			.addExample("""
