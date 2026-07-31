@@ -13,19 +13,27 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Warning Distance of World Border")
-@Description({
-	"The warning distance of a world border. The player's screen will be tinted red when they are within this distance of the border.",
-	"Players only see a red tint when approaching a world's worldborder and the warning distance has to be an integer greater than or equal to 0."
-})
+@Description("""
+	The warning distance of a world border. The player's screen will be tinted red when they are within this distance of the border.
+	Players only see a red tint when approaching a world's worldborder and the warning distance has to be an integer greater than or equal to 0.
+	""")
 @Example("set world border warning distance of {_worldborder} to 1")
 @Since("2.11")
 public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<WorldBorder, Integer> {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
-		syntaxRegistry.register(SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprWorldBorderWarningDistance.class, Integer.class, "world[ ]border warning distance", "worldborders", true)
+		syntaxRegistry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprWorldBorderWarningDistance.class,
+				Integer.class,
+				"world[ ]border warning distance",
+				"worldborders",
+				true
+			)
 				.supplier(ExprWorldBorderWarningDistance::new)
-				.build());
+				.build()
+		);
 	}
 
 	@Override

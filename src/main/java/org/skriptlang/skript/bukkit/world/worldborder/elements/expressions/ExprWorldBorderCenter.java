@@ -20,10 +20,18 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public class ExprWorldBorderCenter extends SimplePropertyExpression<WorldBorder, Location> {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
-		syntaxRegistry.register(SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprWorldBorderCenter.class, Location.class, "world[ ]border (center|middle)", "worldborders", true)
+		syntaxRegistry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprWorldBorderCenter.class,
+				Location.class,
+				"world[ ]border (center|middle)",
+				"worldborders",
+				true
+			)
 				.supplier(ExprWorldBorderCenter::new)
-				.build());
+				.build()
+		);
 	}
 
 	@Override

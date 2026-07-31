@@ -18,28 +18,36 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Size of World Border")
-@Description({
-	"The size of a world border.",
-	"The size can not be smaller than 1."
-})
+@Description("""
+	The size of a world border.
+	The size can not be smaller than 1.
+	""")
 @Example("set world border radius of {_worldborder} to 10")
 @Since("2.11")
 public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, Double> {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
-		syntaxRegistry.register(SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprWorldBorderSize.class, Double.class, "world[ ]border (size|diameter|:radius)", "worldborders", true)
+		syntaxRegistry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprWorldBorderSize.class,
+				Double.class,
+				"world[ ]border (size|diameter|:radius)",
+				"worldborders",
+				true
+			)
 				.supplier(ExprWorldBorderSize::new)
-				.build());
+				.build()
+		);
 	}
 
 	private boolean radius;
 	private static final double MAX_WORLDBORDER_SIZE = 59999968;
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		radius = parseResult.hasTag("radius");
-		return super.init(exprs, matchedPattern, isDelayed, parseResult);
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override

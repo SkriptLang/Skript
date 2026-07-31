@@ -20,11 +20,11 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Expand/Shrink World Border")
-@Description({
-	"Expand or shrink the size of a world border.",
-	"Using `by` adds/subtracts from the current size of the world border.",
-	"Using `to` sets to the specified size."
-})
+@Description("""
+	Expand or shrink the size of a world border.
+	Using `by` adds/subtracts from the current size of the world border.
+	Using `to` sets to the specified size.
+	""")
 @Example("expand world border of player by 100 over 5 seconds")
 @Example("shrink world border of world \"world\" to 100 over 10 seconds")
 @Since("2.11")
@@ -47,17 +47,17 @@ public class EffWorldBorderExpand extends Effect {
 	private boolean radius;
 	private boolean to;
 	private Expression<WorldBorder> worldBorders;
-	private Expression<Number> numberExpr;
+	private Expression<Number> number;
 	private @Nullable Expression<Timespan> timespan;
 	private static final double MAX_WORLDBORDER_SIZE = 59999968;
 	private static final boolean USE_DEPRECATED = !Skript.methodExists(WorldBorder.class, "changeSize");
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		worldBorders = (Expression<WorldBorder>) exprs[0];
-		numberExpr = (Expression<Number>) exprs[1];
-		timespan = (Expression<Timespan>) exprs[2];
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		worldBorders = (Expression<WorldBorder>) expressions[0];
+		number = (Expression<Number>) expressions[1];
+		timespan = (Expression<Timespan>) expressions[2];
 		shrink = matchedPattern > 1;
 		radius = parseResult.hasTag("radius");
 		to = parseResult.hasTag("to");
@@ -66,7 +66,7 @@ public class EffWorldBorderExpand extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		Number number = numberExpr.getSingle(event);
+		Number number = this.number.getSingle(event);
 		if (number == null)
 			return;
 		double input = number.doubleValue();
@@ -113,15 +113,14 @@ public class EffWorldBorderExpand extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		builder.append(shrink ? "shrink" : "expand");
-		builder.append(radius ? "radius" : "diameter");
-		builder.append("of", worldBorders);
-		builder.append(to ? "to" : "by");
-		builder.append(numberExpr);
-		if (timespan != null)
-			builder.append("over", timespan);
-		return builder.toString();
+		return new SyntaxStringBuilder(event, debug)
+			.append(shrink ? "shrink" : "expand")
+			.append(radius ? "radius" : "diameter")
+			.append("of", worldBorders)
+			.append(to ? "to" : "by")
+			.append(number)
+			.appendIf(timespan != null, "over", timespan)
+			.toString();
 	}
 
 }

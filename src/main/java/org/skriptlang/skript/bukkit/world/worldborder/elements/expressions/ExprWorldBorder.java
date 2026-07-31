@@ -8,27 +8,37 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Difficulty;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.world.elements.expressions.ExprDifficulty;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("World Border")
-@Description({
-	"Get the border of a world or a player.",
-	"A player's world border is not persistent. Restarts, quitting, death or changing worlds will reset the border."
-})
+@Description("""
+	Get the border of a world or a player.
+	A player's world border is not persistent. Restarts, quitting, death or changing worlds will reset the border.
+	""")
 @Example("set {_border} to world border of player's world")
 @Since("2.11")
 public class ExprWorldBorder extends SimplePropertyExpression<Object, WorldBorder> {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
-		syntaxRegistry.register(SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprWorldBorder.class, WorldBorder.class, "world[ ]border", "worlds/players", true)
+		syntaxRegistry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprWorldBorder.class,
+				WorldBorder.class,
+				"world[ ]border",
+				"worlds/players",
+				true
+			)
 				.supplier(ExprWorldBorder::new)
-				.build());
+				.build()
+		);
 	}
 
 	private static final boolean USE_DEPRECATED = !Skript.methodExists(WorldBorder.class, "getWarningTimeTicks");
@@ -61,6 +71,8 @@ public class ExprWorldBorder extends SimplePropertyExpression<Object, WorldBorde
 			}
 			return;
 		}
+		if (delta == null)
+			return;
 		WorldBorder to = (WorldBorder) delta[0];
 		assert to != null;
 		for (Object object : objects) {

@@ -13,20 +13,28 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Damage Amount of World Border")
-@Description({
-	"The amount of damage a player takes per second for each block they are outside the border plus the border buffer.",
-	"Players only take damage when outside of the world's world border, and the damage value cannot be less than 0.",
-})
+@Description("""
+	The amount of damage a player takes per second for each block they are outside the border plus the border buffer.
+	Players only take damage when outside of the world's world border, and the damage value cannot be less than 0.
+	""")
 @Example("set world border damage amount of {_worldborder} to 1")
 @Since("2.11")
 public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldBorder, Double>  {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
-		syntaxRegistry.register(SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprWorldBorderDamageAmount.class, Double.class, "world[ ]border damage amount", "worldborders", true)
+		syntaxRegistry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprWorldBorderDamageAmount.class,
+				Double.class,
+				"world[ ]border damage amount",
+				"worldborders",
+				true
+			)
 				.supplier(ExprWorldBorderDamageAmount::new)
-				.build());
-	 }
+				.build()
+		);
+	}
 
 	@Override
 	public @Nullable Double convert(WorldBorder worldBorder) {

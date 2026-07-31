@@ -27,11 +27,11 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import java.util.List;
 
 @Name("Create WorldBorder")
-@Description({
-	"Creates a new, unused world border. World borders can be assigned to either worlds or specific players.",
-	"Borders assigned to worlds apply to all players in that world.",
-	"Borders assigned to players apply only to those players, and different players can have different borders."
-})
+@Description("""
+	Creates a new, unused world border. World borders can be assigned to either worlds or specific players.
+	Borders assigned to worlds apply to all players in that world.
+	Borders assigned to players apply only to those players, and different players can have different borders.
+	""")
 @Example("""
 	on join:
 		set {_location} to location of player
@@ -56,6 +56,7 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 				.addPattern("a [virtual] world[ ]border")
 				.build()
 		);
+
 		eventValueRegistry.register(EventValue.builder(CreateWorldborderEvent.class, WorldBorder.class)
 			.getter(CreateWorldborderEvent::getWorldBorder)
 			.build());
@@ -64,7 +65,7 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 	private Trigger trigger = null;
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
+	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult parseResult, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
 		if (node != null) {
 			trigger = SectionUtils.loadLinkedCode("create worldborder", (beforeLoading, afterLoading)
 					-> loadCode(node, "create worldborder", beforeLoading, afterLoading, CreateWorldborderEvent.class));
