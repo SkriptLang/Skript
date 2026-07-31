@@ -136,8 +136,7 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 			return nativeArgumentData;
 		}
 		if (classInfo instanceof RegistryClassInfo<?> registryClassInfo) {
-			// TODO need to map RegistryClassInfo to RegistryKey
-			RegistryKey<?> key = null;
+			RegistryKey<?> key = registryClassInfo.registryKey();
 			if (key != null) {
 				return new NativeArgumentData(ignored -> ArgumentTypes.resource(key));
 			}

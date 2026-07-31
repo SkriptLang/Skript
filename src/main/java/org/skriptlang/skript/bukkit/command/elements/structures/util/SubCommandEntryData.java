@@ -412,7 +412,6 @@ public class SubCommandEntryData extends EntryData<Result> {
 
 		ScriptArgumentBuilder argument;
 		if (commandElement instanceof LiteralCommandElement literalCommandElement) {
-			System.out.println("LITERAL: " + literalCommandElement.literal());
 			argument = new ScriptArgumentBuilder(Commands.literal(literalCommandElement.literal()), null);
 		} else { // ArgumentCommandElement
 			ArgumentData<?> data = ((ArgumentCommandElement) commandElement).argument();
