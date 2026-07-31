@@ -38,10 +38,7 @@ public class EvtHealing extends SkriptEvent {
 			.addSince("2.9.0 (by reason)")
 			.build());
 
-		registry.register(EventValue.builder(EntityRegainHealthEvent.class, RegainReason.class)
-			.getter(EntityRegainHealthEvent::getRegainReason)
-			.patterns("healreason")
-			.build());
+		registry.register(EventValue.simple(EntityRegainHealthEvent.class, RegainReason.class, EntityRegainHealthEvent::getRegainReason));
 	}
 
 	@Nullable
