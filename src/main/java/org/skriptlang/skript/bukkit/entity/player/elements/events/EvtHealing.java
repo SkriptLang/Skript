@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.entity.player.elements.events;
 
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
@@ -96,8 +97,21 @@ public class EvtHealing extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "heal" + (entityDatas != null ? " of " + entityDatas.toString(event, debug) : "") +
-			(healReasons != null ? " by " + healReasons.toString(event, debug) : "");
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+
+		builder.append("heal");
+
+		if (entityDatas != null) {
+			builder.append("of");
+			builder.append(entityDatas);
+		}
+
+		if (healReasons != null) {
+			builder.append("by");
+			builder.append(healReasons);
+		}
+
+		return builder.toString();
 	}
 
 }
