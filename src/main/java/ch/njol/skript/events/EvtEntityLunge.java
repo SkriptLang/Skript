@@ -26,7 +26,7 @@ public class EvtEntityLunge extends SkriptEvent {
 						set lunge power to 4
 					""",
 					"""
-					on ravager lunge:
+					on zombie lunge:
 						cancel event
 					"""
 				)

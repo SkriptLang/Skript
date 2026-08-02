@@ -57,8 +57,7 @@ public class ExprLungePower extends SimpleExpression<Integer> implements EventRe
 
 	@Override
 	public Integer[] get(Event event) {
-		if (event instanceof EntityLungeEvent lungeEvent)
-		{
+		if (event instanceof EntityLungeEvent lungeEvent) {
 			return new Integer[]{lungeEvent.getLungePower()};
 		}
 		return new Integer[0];
