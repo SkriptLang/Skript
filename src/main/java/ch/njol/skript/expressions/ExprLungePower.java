@@ -11,6 +11,9 @@ import ch.njol.util.coll.CollectionUtils;
 import io.papermc.paper.event.entity.EntityLungeEvent;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.DefaultSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Lunge Power")
 @Description("""
@@ -36,13 +39,21 @@ import org.jetbrains.annotations.Nullable;
 			send "Slowed you down a bit"
 	""")
 @Since("INSERT VERSION")
+@Events("lunge")
 public class ExprLungePower extends SimpleExpression<Integer> implements EventRestrictedSyntax {
 
-	static {
+	public static void register(SyntaxRegistry registry) {
 		// Since paper 26.1.2
-		if (Skript.classExists("io.papermc.paper.event.entity.EntityLungeEvent")) {
-			Skript.registerExpression(ExprLungePower.class, Integer.class, ExpressionType.SIMPLE, "[the] [event-]lunge power");
+		if (!Skript.classExists("io.papermc.paper.event.entity.EntityLungeEvent")) {
+			return;
 		}
+		registry.register(SyntaxRegistry.EXPRESSION,
+			DefaultSyntaxInfos.Expression.builder(ExprLungePower.class, Integer.class)
+				.supplier(ExprLungePower::new)
+				.priority(SyntaxInfo.SIMPLE)
+				.addPattern("[the] [event-]lunge power")
+				.build()
+		);
 	}
 
 	@Override
