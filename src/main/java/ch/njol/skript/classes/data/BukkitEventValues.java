@@ -62,6 +62,7 @@ import org.bukkit.event.world.WorldEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import org.skriptlang.skript.bukkit.item.book.elements.expressions.ExprBookPages;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue.Time;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
@@ -576,11 +577,11 @@ public final class BukkitEventValues {
 			return book;
 		}));
 		registry.register(EventValue.builder(PlayerEditBookEvent.class, Component[].class)
-			.getter(event -> event.getPreviousBookMeta().pages().toArray(new Component[0]))
+			.getter(event -> ExprBookPages.getPages(event.getPreviousBookMeta()).toArray(new Component[0]))
 			.time(Time.PAST)
 			.build());
 		registry.register(EventValue.simple(PlayerEditBookEvent.class, Component[].class, event ->
-			event.getNewBookMeta().pages().toArray(new Component[0])));
+			ExprBookPages.getPages(event.getNewBookMeta()).toArray(new Component[0])));
 		//ItemDespawnEvent
 		registry.register(EventValue.simple(ItemDespawnEvent.class, Item.class, ItemDespawnEvent::getEntity));
 		registry.register(EventValue.simple(ItemDespawnEvent.class, ItemStack.class, event -> event.getEntity().getItemStack()));
@@ -805,35 +806,6 @@ public final class BukkitEventValues {
 		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerElytraBoostEvent")) {
 			registry.register(EventValue.simple(PlayerElytraBoostEvent.class, ItemStack.class, PlayerElytraBoostEvent::getItemStack));
 			registry.register(EventValue.simple(PlayerElytraBoostEvent.class, Entity.class, PlayerElytraBoostEvent::getFirework));
-		}
-
-		// === WorldBorderEvents ===
-		if (Skript.classExists("io.papermc.paper.event.world.border.WorldBorderEvent")) {
-			// WorldBorderEvent
-			registry.register(EventValue.simple(WorldBorderEvent.class, WorldBorder.class, WorldBorderEvent::getWorldBorder));
-
-			// WorldBorderBoundsChangeEvent
-			registry.register(EventValue.simple(WorldBorderBoundsChangeEvent.class, Number.class, WorldBorderBoundsChangeEvent::getNewSize));
-			registry.register(EventValue.builder(WorldBorderBoundsChangeEvent.class, Number.class)
-				.getter(WorldBorderBoundsChangeEvent::getOldSize)
-				.time(Time.PAST)
-				.build());
-			registry.register(EventValue.simple(WorldBorderBoundsChangeEvent.class, Timespan.class, event -> new Timespan(event.getDuration())));
-
-			// WorldBorderBoundsChangeFinishEvent
-			registry.register(EventValue.simple(WorldBorderBoundsChangeFinishEvent.class, Number.class, WorldBorderBoundsChangeFinishEvent::getNewSize));
-			registry.register(EventValue.builder(WorldBorderBoundsChangeFinishEvent.class, Number.class)
-				.getter(WorldBorderBoundsChangeFinishEvent::getOldSize)
-				.time(Time.PAST)
-				.build());
-			registry.register(EventValue.simple(WorldBorderBoundsChangeFinishEvent.class, Timespan.class, event -> new Timespan((long) event.getDuration())));
-
-			// WorldBorderCenterChangeEvent
-			registry.register(EventValue.simple(WorldBorderCenterChangeEvent.class, Location.class, WorldBorderCenterChangeEvent::getNewCenter));
-			registry.register(EventValue.builder(WorldBorderCenterChangeEvent.class, Location.class)
-				.getter(WorldBorderCenterChangeEvent::getOldCenter)
-				.time(Time.PAST)
-				.build());
 		}
 
 		if (Skript.classExists("org.bukkit.event.block.VaultDisplayItemEvent")) {

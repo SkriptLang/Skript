@@ -6,9 +6,11 @@ import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.block.BlockModule;
+import org.skriptlang.skript.bukkit.bossbar.BossBarModule;
 import org.skriptlang.skript.bukkit.breeding.BreedingModule;
 import org.skriptlang.skript.bukkit.brewing.BrewingModule;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceModule;
+import org.skriptlang.skript.bukkit.enchantments.EnchantmentModule;
 import org.skriptlang.skript.bukkit.entity.EntityModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
@@ -22,6 +24,7 @@ import org.skriptlang.skript.bukkit.potion.PotionModule;
 import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.bukkit.text.TextModule;
 import org.skriptlang.skript.bukkit.types.*;
+import org.skriptlang.skript.bukkit.worldborder.elements.WorldBorderModule;
 
 import java.util.List;
 
@@ -36,9 +39,11 @@ public class BukkitModule extends HierarchicalAddonModule {
 	public Iterable<AddonModule> children() {
 		return List.of(
 			new BlockModule(this),
+			new BossBarModule(this),
 			new BreedingModule(this),
 			new BrewingModule(this),
 			new DamageSourceModule(this),
+			new EnchantmentModule(this),
 			new EntityModule(this),
 			new FishingModule(this),
 			new InputModule(this),
@@ -50,7 +55,8 @@ public class BukkitModule extends HierarchicalAddonModule {
 			new PDCModule(this),
 			new PotionModule(this),
 			new TagModule(this),
-			new TextModule(this)
+			new TextModule(this),
+			new WorldBorderModule(this)
 		);
 	}
 

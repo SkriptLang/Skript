@@ -151,7 +151,7 @@ test "potion effects of entities/items":
 	# test invalid usage
 	parse:
 		clear the hidden potion effects of {_holders::1}'s tool
-	assert last parse logs is "Items (such as potions or stews) do not have hidden effects" with "hidden potion effects of item did not error"
+	assert last parse logs is "Only living entities have hidden effects" with "hidden potion effects of item did not error"
 
 	# cleanup
 	delete the entity within {_holders::1}
@@ -227,7 +227,7 @@ test "specific potion effect of entities/items":
 	# test invalid usage
 	parse:
 		clear the hidden speed effects of {_entity}'s tool
-	assert last parse logs is "Items (such as potions or stews) do not have hidden effects" with "hidden speed effects of item did not error"
+	assert last parse logs is "Only living entities have hidden effects" with "hidden speed effects of item did not error"
 
 	# cleanup
 	delete the entity within {_entity}
