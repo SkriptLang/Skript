@@ -115,7 +115,7 @@ public class ExprSecCreateBossBar extends SectionExpression<BossBar> {
 		if (this.color != null)
 			color = this.color.getSingle(event);
 		BarColor barColor;
-		barColor = color != null && nearest(color) != null ? nearest(color) : BarColor.WHITE;
+		barColor = (color != null && nearest(color) != null) ? nearest(color) : BarColor.WHITE;
 		if (barColor == null)
 			return new BossBar[0];
 
