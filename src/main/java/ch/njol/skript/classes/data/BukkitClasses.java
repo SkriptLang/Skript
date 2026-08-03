@@ -11,6 +11,7 @@ import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
 import ch.njol.yggdrasil.Fields;
+import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.world.MoonPhase;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
@@ -326,7 +327,7 @@ public class BukkitClasses {
 				.since("2.0")
 				.changer(DefaultChangers.itemChanger));
 
-		Classes.registerClass(new RegistryClassInfo<>(Biome.class, Registry.BIOME, "biome", "biomes")
+		Classes.registerClass(new RegistryClassInfo<>(Biome.class, RegistryKey.BIOME, "biome", "biomes")
 				.user("biomes?")
 				.name("Biome")
 				.description("All possible biomes Minecraft uses to generate a world.",
@@ -600,7 +601,7 @@ public class BukkitClasses {
 					ExpressionPropertyHandler.of(GameRule::getName, String.class)
 				));
 
-		Classes.registerClass(new RegistryClassInfo<>(Attribute.class, Registry.ATTRIBUTE, "attributetype", "attribute types")
+		Classes.registerClass(new RegistryClassInfo<>(Attribute.class, RegistryKey.ATTRIBUTE, "attributetype", "attribute types")
 				.user("attribute ?types?")
 				.name("Attribute Type")
 				.description("Represents the type of an attribute. Note that this type does not contain any numerical values." +
@@ -659,14 +660,14 @@ public class BukkitClasses {
 				.description("Represents a change reason of an <a href='#experience cooldown change event'>experience cooldown change event</a>.")
 				.since("2.10"));
 
-		Classes.registerClass(new RegistryClassInfo<>(Villager.Type.class, Registry.VILLAGER_TYPE, "villagertype", "villager types")
+		Classes.registerClass(new RegistryClassInfo<>(Villager.Type.class, RegistryKey.VILLAGER_TYPE, "villagertype", "villager types")
 				.user("villager ?types?")
 				.name("Villager Type")
 				.description("Represents the different types of villagers. These are usually the biomes a villager can be from.")
 				.after("biome")
 				.since("2.10"));
 
-		Classes.registerClass(new RegistryClassInfo<>(Villager.Profession.class, Registry.VILLAGER_PROFESSION, "villagerprofession", "villager professions")
+		Classes.registerClass(new RegistryClassInfo<>(Villager.Profession.class, RegistryKey.VILLAGER_PROFESSION, "villagerprofession", "villager professions")
 				.user("villager ?professions?")
 				.name("Villager Profession")
 				.description("Represents the different professions of villagers.")
@@ -705,27 +706,7 @@ public class BukkitClasses {
 				.description("Represents a banner pattern.")
 				.since("2.10"));
 
-		ClassInfo<?> patternTypeInfo;
-		Registry<PatternType> patternRegistry = Bukkit.getRegistry(PatternType.class);
-		if (patternRegistry != null) {
-			patternTypeInfo = new RegistryClassInfo<>(PatternType.class, patternRegistry, "bannerpatterntype", "banner pattern types");
-		} else {
-			try {
-				Class<?> patternClass = Class.forName("org.bukkit.block.banner.PatternType");
-				if (patternClass.isEnum()) {
-					//noinspection unchecked,rawtypes
-					Class<? extends Enum> enumClass = (Class<? extends Enum>) patternClass;
-					//noinspection rawtypes,unchecked
-					patternTypeInfo = new EnumClassInfo<>(enumClass, "bannerpatterntype", "banner pattern types");
-				} else {
-					throw new IllegalStateException("PatternType is neither an enum nor a valid registry.");
-				}
-			} catch (ClassNotFoundException e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		Classes.registerClass(patternTypeInfo
+		Classes.registerClass(new RegistryClassInfo<>(PatternType.class, RegistryKey.BANNER_PATTERN, "bannerpatterntype", "banner pattern types")
 				.user("banner ?pattern ?types?")
 				.name("Banner Pattern Type")
 				.description("Represents the various banner patterns that can be applied to a banner.")
