@@ -1,0 +1,8 @@
+test "tame effect":
+	spawn 1 horse at location(10,10,10, world "world")
+	set {_horse} to last spawned horse
+	assert {_horse} is not tamed with "horse should not be tamed after spawn"
+	tame {_horse}
+	assert {_horse} is tamed with "horse should be tamed after tame effect"
+	untame {_horse}
+	assert {_horse} is not tamed with "horse should not be tamed after untame"

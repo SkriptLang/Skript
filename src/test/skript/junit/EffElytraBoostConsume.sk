@@ -1,0 +1,9 @@
+test "EffElytraBoostConsumeTest" when running JUnit:
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.effects.EffElytraBoostConsumeTest" completes "check boost consume"
+
+on elytra boost:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.effects.EffElytraBoostConsumeTest"
+	junit test is {_test}
+
+	prevent the used firework from being consumed
+	complete objective "check boost consume" for {_test}
