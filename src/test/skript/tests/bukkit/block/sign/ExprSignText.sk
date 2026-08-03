@@ -9,7 +9,10 @@ test "ExprSignText":
 
 	loop 4 times:
 		set line loop-number of event-block to "%loop-number%"
+		set line loop-number of the back side of event-block to "%loop-number% back"
 		assert line loop-number of event-block is "%loop-number%" with "setting line %loop-number% did not work"
+		assert line loop-number of the front side of event-block is "%loop-number%" with "setting line %loop-number% did not work"
+		assert line loop-number of the back side of event-block is "%loop-number% back" with "setting line %loop-number% did not work"
 
 	set block at event-block to {_old_block}
 	set block below event-block to {_old_block_below}

@@ -24,38 +24,43 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Sign Text")
-@Description("A line of text on a sign. Can be changed, but note that there is a 16 character limit per line.")
+@Description("""
+	A line of text on a sign. \
+	Can be changed, but note that there is a 16 character limit per line. \
+	If a sign side is not specified, the front side will be used by default.
+	""")
 @Example("""
 	on right click:
 		clicked block is tagged as "minecraft:all_signs"
 		if line 2 of the clicked block is "[Heal]":
 			heal the player
 	""")
-@Since("1.3")
-// TODO SignSide support
+@Since({"1.3", "INSERT VERSION (sign side support)"})
 public class ExprSignText extends SimpleExpression<Component> {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprSignText.class, Component.class)
 			.supplier(ExprSignText::new)
 			.priority(PropertyExpression.DEFAULT_PRIORITY)
-			.addPatterns("line %integer% [of %block%]",
-				"[the] (1:1st|1:first|2:2nd|2:second|3:3rd|3:third|4:4th|4:fourth) line [of %block%]")
+			.addPatterns("line %integer% [of [[the] (front|:back) [side[s]] of] %block%]",
+				"[the] (1:1st|1:first|2:2nd|2:second|3:3rd|3:third|4:4th|4:fourth) line [of [[the] (front|:back) [side[s]] of] %block%]")
 			.build());
 	}
 
 	private Expression<Integer> line;
 	private Expression<Block> block;
+	private Side side;
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (matchedPattern == 0) {
 			line = (Expression<Integer>) exprs[0];
 		} else {
 			line = new SimpleLiteral<>(parseResult.mark, false);
 		}
 		block = (Expression<Block>) exprs[exprs.length - 1];
+		side = parseResult.hasTag("back") ? Side.BACK : Side.FRONT;
 		return true;
 	}
 
@@ -78,14 +83,19 @@ public class ExprSignText extends SimpleExpression<Component> {
 		if (line == -1) {
 			return new Component[0];
 		}
-		if (getTime() >= 0 && block.isDefault() && event instanceof SignChangeEvent signEvent && !Delay.isDelayed(event)) {
-			return new Component[]{signEvent.line(line)};
+		Side side = this.side;
+		if (getTime() >= 0 && block.isDefault() && event instanceof SignChangeEvent signEvent) {
+			if (Delay.isDelayed(event)) { // event is delayed, obtain with regular methods on the correct side
+				side = signEvent.getSide();
+			} else {
+				return new Component[]{signEvent.line(line)};
+			}
 		}
 		Block block = this.block.getSingle(event);
 		if (block == null || !(block.getState() instanceof Sign signState)) {
 			return new Component[0];
 		}
-		return new Component[]{signState.getSide(Side.FRONT).line(line)};
+		return new Component[]{signState.getSide(side).line(line)};
 	}
 
 	@Override
@@ -104,16 +114,21 @@ public class ExprSignText extends SimpleExpression<Component> {
 			return;
 		}
 
-		if (getTime() >= 0 && block.isDefault() && event instanceof SignChangeEvent signEvent && !Delay.isDelayed(event)) {
-			signEvent.line(line, delta == null ? null : (Component) delta[0]);
-			return;
+		Side side = this.side;
+		if (getTime() >= 0 && block.isDefault() && event instanceof SignChangeEvent signEvent) {
+			if (Delay.isDelayed(event)) { // event is delayed, modify with regular methods on the correct side
+				side = signEvent.getSide();
+			} else {
+				signEvent.line(line, delta == null ? null : (Component) delta[0]);
+				return;
+			}
 		}
 
 		Block block = this.block.getSingle(event);
 		if (block == null || !(block.getState() instanceof Sign signState)) {
 			return;
 		}
-		signState.getSide(Side.FRONT).line(line, delta == null ? Component.empty() : (Component) delta[0]);
+		signState.getSide(side).line(line, delta == null ? Component.empty() : (Component) delta[0]);
 		signState.update(false, false);
 	}
 
@@ -129,7 +144,8 @@ public class ExprSignText extends SimpleExpression<Component> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "line " + line.toString(event, debug) + " of " + block.toString(event, debug);
+		return "line " + line.toString(event, debug) + " of the " + (side == Side.FRONT ? "front" : "back") + " side of " +
+			block.toString(event, debug);
 	}
 
 	@Override
