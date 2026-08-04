@@ -49,8 +49,8 @@ public class ChunkClassInfo extends ClassInfo<Chunk> {
 		}
 
 		@Override
-		public String toVariableNameString(final Chunk c) {
-			return c.getWorld().getName() + ":" + c.getX() + "," + c.getZ();
+		public String toVariableNameString(Chunk chunk) {
+			return chunk.getWorld().getName() + ":" + chunk.getX() + "," + chunk.getZ();
 		}
 		//</editor-fold>
 	}
