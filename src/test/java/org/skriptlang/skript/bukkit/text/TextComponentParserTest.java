@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.text;
 
+import ch.njol.skript.Skript;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.ClickEvent.Payload;
@@ -98,7 +99,9 @@ public class TextComponentParserTest {
 		// Example: forgot to allow all formatting, so tag is not parsed, but URL is attempted to be automatically formatted
 		ClickEvent<?> result = parser.parseSafe("<url:'https://skriptlang.org/'>My Website").children().getFirst().clickEvent();
 		assertNotNull(result);
-		assertEquals("https://skriptlang.org/'", ((Payload.Text) result.payload()).value());
+		if (Skript.methodExists(ClickEvent.class, "payload")) { // TODO remove when supporting 1.21.6+
+			assertEquals("https://skriptlang.org/'", ((Payload.Text) result.payload()).value());
+		}
 	}
 
 }
