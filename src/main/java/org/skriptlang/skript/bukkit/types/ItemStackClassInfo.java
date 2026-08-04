@@ -16,6 +16,7 @@ import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.WrittenBookContent;
 import io.papermc.paper.text.Filtered;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -23,7 +24,6 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.item.book.BookUtils;
-import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
@@ -144,7 +144,8 @@ public class ItemStackClassInfo extends ClassInfo<ItemStack> {
 		public @Nullable Component convert(ItemStack item) {
 			if (item.hasData(DataComponentTypes.WRITTEN_BOOK_CONTENT)) {
 				//noinspection ConstantConditions - checked via hasData
-				return item.getData(DataComponentTypes.WRITTEN_BOOK_CONTENT).asBook().title();
+				return LegacyComponentSerializer.legacySection()
+					.deserialize(item.getData(DataComponentTypes.WRITTEN_BOOK_CONTENT).title().raw());
 			}
 			return null;
 		}
@@ -161,7 +162,7 @@ public class ItemStackClassInfo extends ClassInfo<ItemStack> {
 		public void change(ItemStack item, Object @Nullable [] delta, ChangeMode mode) {
 			boolean hasBookContent = item.hasData(DataComponentTypes.WRITTEN_BOOK_CONTENT);
 			if (hasBookContent || item.getType() == Material.WRITTEN_BOOK) {
-				String title = delta == null ? "" : TextComponentParser.instance().toLegacyString((Component) delta[0]);
+				String title = delta == null ? "" : LegacyComponentSerializer.legacySection().serialize((Component) delta[0]);
 				WrittenBookContent newContent;
 				if (hasBookContent) {
 					newContent = BookUtils.modifyWrittenContent(item.getData(DataComponentTypes.WRITTEN_BOOK_CONTENT),

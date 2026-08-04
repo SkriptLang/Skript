@@ -10,12 +10,12 @@ import ch.njol.util.coll.CollectionUtils;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.WrittenBookContent;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.item.book.BookUtils;
-import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Book Author")
@@ -38,7 +38,8 @@ public class ExprBookAuthor extends SimplePropertyExpression<ItemStack, Componen
 	public @Nullable Component convert(ItemStack book) {
 		if (book.hasData(DataComponentTypes.WRITTEN_BOOK_CONTENT)) {
 			//noinspection ConstantConditions - checked via hasData
-			return book.getData(DataComponentTypes.WRITTEN_BOOK_CONTENT).asBook().author();
+			return LegacyComponentSerializer.legacySection()
+				.deserialize(book.getData(DataComponentTypes.WRITTEN_BOOK_CONTENT).author());
 		}
 		return null;
 	}
@@ -53,7 +54,7 @@ public class ExprBookAuthor extends SimplePropertyExpression<ItemStack, Componen
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		String author = delta == null ? "" : TextComponentParser.instance().toLegacyString((Component) delta[0]);
+		String author = delta == null ? "" : LegacyComponentSerializer.legacySection().serialize(((Component) delta[0]));
 		for (ItemStack book : getExpr().getArray(event)) {
 			boolean hasContent = book.hasData(DataComponentTypes.WRITTEN_BOOK_CONTENT);
 			if (!hasContent && book.getType() != Material.WRITTEN_BOOK) {

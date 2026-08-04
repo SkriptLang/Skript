@@ -72,7 +72,7 @@ public class ExprBookPages extends SimpleExpression<Component> {
 	protected Component[] get(Event event) {
 		List<Component> allPages = new ArrayList<>();
 		for (ItemStack book : books.getArray(event)) {
-			List<Component> pages = BookUtils.getPages(book);
+			List<? extends Component> pages = BookUtils.getPages(book);
 			if (isAllPages()) {
 				allPages.addAll(pages);
 				continue;
