@@ -1,0 +1,7 @@
+using reflection
+
+on scripts loading:
+	add the loading scripts to {-EvtScripts::*}
+
+test "EvtScripts":
+	assert {-EvtScripts::*} contains the current script with "loading scripts did not contain current script"
