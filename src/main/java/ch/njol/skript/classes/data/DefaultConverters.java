@@ -131,6 +131,11 @@ public class DefaultConverters {
 			ItemStack i = s.getItem();
 			return new ItemType(i != null ? i : new ItemStack(Material.AIR, 1));
 		});
+		// Slot - ItemStack
+		Converters.registerConverter(Slot.class, ItemStack.class, slot -> {
+			ItemStack item = slot.getItem();
+			return item == null ? new ItemStack(Material.AIR, 1) : item;
+		});
 
 		// Block - InventoryHolder
 		Converters.registerConverter(Block.class, InventoryHolder.class, b -> {

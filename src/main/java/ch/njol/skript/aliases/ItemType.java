@@ -211,6 +211,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		for (final ItemData d : i) {
 			types.add(d.clone());
 		}
+		isRandom = i.isRandom;
 	}
 
 	public ItemType(Block block) {
@@ -669,6 +670,8 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 	private final static Random random = new Random();
 
+	public boolean isRandom = false;
+
 	/**
 	 * @return One random ItemStack that this ItemType represents. If you have a List or an Inventory, use {@link #addTo(Inventory)} or {@link #addTo(List)} respectively.
 	 * @see #addTo(Inventory)
@@ -680,6 +683,11 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 * @see #removeFrom(List...)
 	 */
 	public @Nullable ItemStack getRandom() {
+		if (isRandom) {
+			ItemStack stack = types.getFirst().getStack();
+			stack.setAmount(getAmount());
+			return stack;
+		}
 		List<ItemData> datas = types.stream()
 				.filter(data -> data.stack != null)
 				.collect(Collectors.toList());
