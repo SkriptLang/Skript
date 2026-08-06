@@ -1,8 +1,11 @@
 package org.skriptlang.skript.bukkit.entity.player;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.lang.util.SimpleEvent;
+import ch.njol.skript.registrations.Classes;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import org.bukkit.Statistic;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
@@ -20,10 +23,23 @@ public class PlayerModule extends HierarchicalAddonModule {
 	}
 
 	@Override
+	protected void initSelf(SkriptAddon addon) {
+		Classes.registerClass(new EnumClassInfo<>(Statistic.class, "statistic", "statistics")
+			.user("statistics?")
+			.name("Statistic")
+			.description(
+				"Represents a countable statistic, which is tracked by the server. "
+					+ "For the list of all available statistics, "
+					+ "see <a href='https://minecraft.wiki/w/Statistics'>the Minecraft wiki</a>.")
+			.since("INSERT VERSION"));
+	}
+
+	@Override
 	protected void loadSelf(SkriptAddon addon) {
 		EventValueRegistry eventValueRegistry = addon.registry(EventValueRegistry.class);
 
 		register(addon,
+			syntaxRegistry -> EvtPlayerStatisticChange.register(syntaxRegistry, eventValueRegistry),
 			EffBan::register,
 			EffKick::register,
 			syntaxRegistry -> EvtPlayerGameModeChange.register(syntaxRegistry, eventValueRegistry),
@@ -37,7 +53,8 @@ public class PlayerModule extends HierarchicalAddonModule {
 			ExprPlayerListHeaderFooter::register,
 			ExprPlayerListName::register,
 			ExprPlayerListPriority::register,
-			ExprQuitMessage::register
+			ExprQuitMessage::register,
+			ExprStatistic::register
 		);
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerPickBlockEvent")) {
 			register(addon,
