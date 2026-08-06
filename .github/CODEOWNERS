@@ -71,5 +71,8 @@
 # EntityData
 /src/main/java/ch/njol/skript/entity @Absolutionism @skriptlang/core-developers
 
+# /sk Command
+/src/main/java/ch/njol/skript/skcommand @erenkarakal
+
 # Particles/Effects
 /src/main/java/org/skriptlang/skript/bukkit/particles @sovdeeth @skriptlang/core-developers
