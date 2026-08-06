@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
+import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
 import org.skriptlang.skript.lang.experiment.LifeCycle;
@@ -66,6 +67,11 @@ public enum TestFeatures implements Experiment {
 		if (!TestMode.GEN_DOCS) {
 			registerAll(Skript.getAddonInstance(), Skript.experiments());
 		}
+	}
+
+	@Override
+	public Documentation documentation() {
+		return Documentation.NONE;
 	}
 
 }

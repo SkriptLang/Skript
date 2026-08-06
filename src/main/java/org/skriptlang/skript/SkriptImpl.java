@@ -26,7 +26,8 @@ final class SkriptImpl implements Skript {
 
 	SkriptImpl(Class<?> source, String name) {
 		addon = new SkriptAddonImpl(this, source, name, Localizer.of(this));
-		storeRegistry(SyntaxRegistry.class, SyntaxRegistry.withOrigin(SyntaxRegistry.empty(), Origin.of(this)));
+		storeRegistry(SyntaxRegistry.class, SyntaxRegistry.withOrigin(SyntaxRegistry.empty(),
+			syntaxInfo -> Origin.of(this, syntaxInfo.type())));
 	}
 
 	/*
@@ -131,14 +132,12 @@ final class SkriptImpl implements Skript {
 		private final Class<?> source;
 		private final String name;
 		private final Localizer localizer;
-		private final Origin origin;
 
 		SkriptAddonImpl(Skript skript, Class<?> source, String name, @Nullable Localizer localizer) {
 			this.skript = skript;
 			this.source = source;
 			this.name = name;
 			this.localizer = localizer == null ? Localizer.of(this) : localizer;
-			this.origin = Origin.of(this);
 		}
 
 		@Override
@@ -171,7 +170,8 @@ final class SkriptImpl implements Skript {
 			R registry = skript.registry(registryClass);
 			if (registryClass == SyntaxRegistry.class) {
 				//noinspection unchecked
-				return (R) SyntaxRegistry.withOrigin((SyntaxRegistry) registry, origin);
+				return (R) SyntaxRegistry.withOrigin((SyntaxRegistry) registry,
+					syntaxInfo -> Origin.of(this, syntaxInfo.type()));
 			}
 			return registry;
 		}

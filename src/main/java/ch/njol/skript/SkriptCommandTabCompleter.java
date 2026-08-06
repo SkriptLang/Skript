@@ -1,6 +1,5 @@
 package ch.njol.skript;
 
-import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.util.StringUtils;
 import org.bukkit.command.Command;
@@ -101,7 +100,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			options.add("list");
 			options.add("show");
 			options.add("info");
-			if (Documentation.getDocsTemplateDirectory().exists())
+			if (TestMode.GEN_DOCS)
 				options.add("gen-docs");
 			if (TestMode.DEV_MODE)
 				options.add("test");

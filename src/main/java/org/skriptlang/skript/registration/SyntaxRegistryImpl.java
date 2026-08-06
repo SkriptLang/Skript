@@ -2,14 +2,17 @@ package org.skriptlang.skript.registration;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.docs.Origin;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 final class SyntaxRegistryImpl implements SyntaxRegistry {
 
@@ -52,7 +55,7 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 
 	@Override
 	public Collection<SyntaxInfo<?>> elements() {
-		ImmutableSet.Builder<SyntaxInfo<?>> builder = ImmutableSet.builder();
+		ImmutableSet.Builder<@NotNull SyntaxInfo<?>> builder = ImmutableSet.builder();
 		registers.values().forEach(register -> {
 			synchronized (register.syntaxes) {
 				builder.addAll(register.syntaxes);
@@ -61,14 +64,27 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 		return builder.build();
 	}
 
+	@Override
+	public void write(DocumentationAdapter adapter) {
+		write(adapter, registers.keySet().stream().filter(key -> key != SyntaxRegistry.STATEMENT).toList());
+	}
+
 	static final class OriginApplyingRegistry implements SyntaxRegistry {
 
 		private final SyntaxRegistry syntaxRegistry;
-		private final Origin origin;
+		private final @Nullable Origin origin;
+		private final @Nullable Function<SyntaxInfo<?>, Origin> originFactory;
 
-		OriginApplyingRegistry(SyntaxRegistry syntaxRegistry, Origin origin) {
+		OriginApplyingRegistry(SyntaxRegistry syntaxRegistry, @NotNull Origin origin) {
 			this.syntaxRegistry = syntaxRegistry;
 			this.origin = origin;
+			this.originFactory = null;
+		}
+
+		OriginApplyingRegistry(SyntaxRegistry syntaxRegistry, @NotNull Function<SyntaxInfo<?>, Origin> originFactory) {
+			this.syntaxRegistry = syntaxRegistry;
+			this.origin = null;
+			this.originFactory = originFactory;
 		}
 
 		@Override
@@ -78,9 +94,18 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 
 		@Override
 		public <I extends SyntaxInfo<?>> void register(Key<I> key, I info) {
-			if (info.origin() == Origin.UNKNOWN) { // when origin is unspecified, add one
+			if (info.documentation().origin() == Origin.UNKNOWN) { // when origin is unspecified, add one
+				Origin origin = this.origin;
+				if (origin == null) {
+					assert originFactory != null;
+					origin = originFactory.apply(info);
+				}
 				//noinspection unchecked
-				info = (I) info.toBuilder().origin(origin).build();
+				info = (I) info.toBuilder()
+					.documentation(info.documentation().toBuilder()
+						.origin(origin)
+						.build())
+					.build();
 			}
 			syntaxRegistry.register(key, info);
 		}
@@ -98,6 +123,16 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 		@Override
 		public @Unmodifiable Collection<SyntaxInfo<?>> elements() {
 			return syntaxRegistry.elements();
+		}
+
+		@Override
+		public void write(DocumentationAdapter adapter) {
+			syntaxRegistry.write(adapter);
+		}
+
+		@Override
+		public void write(DocumentationAdapter adapter, Iterable<Key<?>> keys) {
+			syntaxRegistry.write(adapter, keys);
 		}
 
 	}
@@ -138,6 +173,16 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 		@Override
 		public SyntaxRegistry unmodifiableView() {
 			return this;
+		}
+
+		@Override
+		public void write(DocumentationAdapter adapter) {
+			registry.write(adapter);
+		}
+
+		@Override
+		public void write(DocumentationAdapter adapter, Iterable<Key<?>> keys) {
+			registry.write(adapter, keys);
 		}
 
 	}

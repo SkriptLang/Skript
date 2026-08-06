@@ -2,9 +2,7 @@ package ch.njol.skript;
 
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.command.CommandHelp;
-import ch.njol.skript.doc.Documentation;
-import ch.njol.skript.doc.HTMLGenerator;
-import ch.njol.skript.doc.JSONGenerator;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
@@ -32,7 +30,13 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.docs.Events;
+import org.skriptlang.skript.docs.DocumentationAdapter;
+import org.skriptlang.skript.docs.DocumentationGenerator;
+import org.skriptlang.skript.docs.DocumentationGenerator.AddonInfo;
+import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.registration.SyntaxInfo;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -73,7 +77,7 @@ public class SkriptCommand implements CommandExecutor {
 
 	static {
 		// Add command to generate documentation
-		if (TestMode.GEN_DOCS || Documentation.isDocsTemplateFound())
+		if (TestMode.GEN_DOCS)
 			SKRIPT_COMMAND_HELP.add("gen-docs");
 
 		// Add command to run individual tests
@@ -384,22 +388,41 @@ public class SkriptCommand implements CommandExecutor {
 					info(sender, "info.dependencies", "None");
 
 			} else if (args[0].equalsIgnoreCase("gen-docs")) {
-				File templateDir = Documentation.getDocsTemplateDirectory();
-				File outputDir = Documentation.getDocsOutputDirectory();
+				// determine addon to generate for
+				SkriptAddon addon;
+				if (args.length == 2) {
+					addon = Skript.instance().addon(args[1]);
+					if (addon == null) {
+						Skript.error(sender, "No addon by that name exists!");
+						return true;
+					}
+				} else {
+					addon = Skript.instance();
+				}
+
+				// generate
+				File outputDir = TestMode.getDocsOutputDirectory();
 				outputDir.mkdirs();
 
 				Skript.info(sender, "Generating docs...");
 
-				JSONGenerator.of(Skript.instance())
-					.generate(outputDir.toPath().resolve("docs.json"));
+				DocumentationAdapter documentationAdapter = DocumentationAdapter.of(addon, (adapter, documentable) -> {
+					if (documentable instanceof SyntaxInfo<?> info) {
+						Object instance = info.instance();
+						if (instance instanceof SimpleExperimentalSyntax experimental) {
+							adapter.write(experimental.getExperimentData());
+						}
+						if (instance instanceof EventRestrictedSyntax ers &&
+							info.documentation().additionalData(Events.class) == null) {
+							adapter.write(Events.of(ers.supportedEvents()));
+						}
+					}
+				});
 
-				if (!templateDir.exists()) {
-					Skript.info(sender, "JSON-only documentation generated!");
-					return true;
-				}
+				String version = JavaPlugin.getProvidingPlugin(addon.source()).getPluginMeta().getVersion();
+				DocumentationGenerator.json(addon, new AddonInfo(version), documentationAdapter)
+					.generate(outputDir.toPath().resolve(addon.name() + "-docs.json"));
 
-				HTMLGenerator htmlGenerator = new HTMLGenerator(templateDir, outputDir);
-				htmlGenerator.generate(); // Try to generate docs... hopefully
 				Skript.info(sender, "All documentation generated!");
 			} else if (args[0].equalsIgnoreCase("test") && TestMode.DEV_MODE) {
 				File scriptFile;

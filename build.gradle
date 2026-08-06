@@ -29,10 +29,12 @@ allprojects {
 	}
 }
 
+final paperVersion = '26.2'
+
 dependencies {
 	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.2.1'
 
-	implementation group: 'io.papermc.paper', name: 'paper-api', version: '26.2.build.+'
+	implementation group: 'io.papermc.paper', name: 'paper-api', version: "${paperVersion}.build.+"
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
 
 	// bundled with Minecraft 1.19.4+ for display entity transforms
@@ -416,23 +418,33 @@ tasks.register('nightlyRelease', ShadowJar) {
 }
 
 javadoc {
+	// TODO nightly version should have nightly version suffix... dependency handling is weird
 	mustRunAfter(tasks.withType(ProcessResources))
 	title = 'Skript ' + project.property('version')
 	source = sourceSets.main.allJava
 
-	exclude("ch/njol/skript/conditions/**")
-	exclude("ch/njol/skript/expressions/**")
-	exclude("ch/njol/skript/effects/**")
-	exclude("ch/njol/skript/events/**")
-	exclude("ch/njol/skript/sections/**")
-	exclude("ch/njol/skript/structures/**")
-	exclude("ch/njol/skript/lang/function/EffFunctionCall.java")
-	exclude("ch/njol/skript/lang/function/ExprFunctionCall.java")
-	exclude("ch/njol/skript/hooks/**")
-	exclude("ch/njol/skript/test/**")
+	// general solution to filter out most implementation files
+	exclude { details ->
+		details.file.name =~ /^(Struct|Sec|EffSec|ExprSec|Eff|Cond|PropCond|Expr|Lit|PropExpr|Evt)[A-Z].*\.java$/
+	}
 
 	classpath = configurations.compileClasspath + sourceSets.main.output
 	options.encoding = 'UTF-8'
 	// currently our javadoc has a lot of errors, so we need to suppress the linter
 	options.addStringOption('Xdoclint:none', '-quiet')
+
+	final adventureVersion = '4.26.1'
+	options.links(
+		"https://jd.papermc.io/paper/${paperVersion}/",
+		"https://jd.advntr.dev/api/${adventureVersion}/",
+		"https://jd.advntr.dev/key/${adventureVersion}/",
+		"https://jd.advntr.dev/text-minimessage/${adventureVersion}/",
+		"https://jd.advntr.dev/text-serializer-gson/${adventureVersion}/",
+		"https://jd.advntr.dev/text-serializer-legacy/${adventureVersion}/",
+		"https://jd.advntr.dev/text-serializer-plain/${adventureVersion}/",
+		"https://jd.advntr.dev/text-logger-slf4j/${adventureVersion}/",
+		"https://guava.dev/releases/33.5.0-jre/api/docs/",
+		"https://www.javadocs.dev/com.google.code.gson/gson/2.13.2",
+		"https://www.javadocs.dev/org.jetbrains/annotations/26.0.2/"
+	)
 }

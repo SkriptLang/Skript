@@ -31,6 +31,7 @@ import ch.njol.yggdrasil.Fields.FieldContext;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import io.papermc.paper.world.flag.FeatureDependant;
 import io.papermc.paper.world.flag.FeatureFlagSetHolder;
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -41,6 +42,9 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.docs.Documentation;
+import org.skriptlang.skript.docs.DocumentationAdapter;
+import org.skriptlang.skript.docs.Origin;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
@@ -322,6 +326,19 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			assert defaultName == other.defaultName;
 			assert entityClass == other.entityClass;
 			return true;
+		}
+
+		@Override
+		public Documentation documentation() {
+			return Documentation.builder()
+				.origin(Origin.of(Skript.instance(), getElementClass()))
+				.name(WordUtils.capitalizeFully(codeName))
+				.build();
+		}
+
+		@Override
+		public boolean canWrite(DocumentationAdapter adapter) {
+			return super.canWrite(adapter) && getElementClass() != SimpleEntityData.class;
 		}
 
 	}
@@ -960,6 +977,12 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		if (from == null)
 			return true;
 		return from == to;
+	}
+
+	public static void write(DocumentationAdapter adapter) {
+		adapter.enterScope("entitydatas");
+		infos.forEach(adapter::write);
+		adapter.exitScope();
 	}
 
 }

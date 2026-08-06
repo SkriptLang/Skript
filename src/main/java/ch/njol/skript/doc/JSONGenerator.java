@@ -5,6 +5,8 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.patterns.PatternCompiler;
+import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.EventValues.EventValueInfo;
@@ -23,6 +25,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.docs.DocumentationAdapter;
+import org.skriptlang.skript.docs.DocumentationGenerator.AddonInfo;
 import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
@@ -33,7 +37,6 @@ import org.skriptlang.skript.registration.DefaultSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,8 +45,10 @@ import java.util.Map.Entry;
 
 /**
  * Generates JSON docs
+ * @deprecated Use {@link org.skriptlang.skript.docs.DocumentationGenerator#json(SkriptAddon, AddonInfo, DocumentationAdapter)}.
  */
-public class JSONGenerator extends DocumentationGenerator {
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
+public class JSONGenerator {
 
 	/**
 	 * The current version of the JSON generator
@@ -74,20 +79,8 @@ public class JSONGenerator extends DocumentationGenerator {
 	private final @NotNull SkriptAddon source;
 
 	private JSONGenerator(@NotNull SkriptAddon source) {
-		super(Documentation.getDocsTemplateDirectory(), Documentation.getDocsOutputDirectory());
-
 		Preconditions.checkNotNull(source, "addon cannot be null");
-
 		this.source = source;
-	}
-
-	/**
-	 * @deprecated Use {@link #of(SkriptAddon)} instead.
-	 */
-	@Deprecated(forRemoval = true, since = "2.13")
-	public JSONGenerator(File templateDir, File outputDir) {
-		super(templateDir, outputDir);
-		source = Skript.instance();
 	}
 
 	/**
@@ -145,8 +138,7 @@ public class JSONGenerator extends DocumentationGenerator {
 
 		RelatedProperty relatedProperty = syntaxClass.getAnnotation(RelatedProperty.class);
 		Property<?> property = null;
-		if (relatedProperty != null
-			&& (property = PROPERTY_REGISTRY.get(relatedProperty.value())) != null) {
+		if (relatedProperty != null && (property = PROPERTY_REGISTRY.get(relatedProperty.value())) != null) {
 			PROPERTY_RELATED_SYNTAXES.computeIfAbsent(property, key -> new HashSet<>()).add(syntaxInfo);
 		}
 		syntaxJsonObject.add("property", property == null ? null : getPropertyDetails(property));
@@ -196,49 +188,18 @@ public class JSONGenerator extends DocumentationGenerator {
 
 		JsonArray array = new JsonArray();
 
-		for (String event : events.value()) {
-			JsonObject object = new JsonObject();
-
-			// determine candidate infos
-			List<BukkitSyntaxInfos.Event<?>> candidates = new ArrayList<>();
-			for (BukkitSyntaxInfos.Event<?> info : source.syntaxRegistry().syntaxes(BukkitSyntaxInfos.Event.KEY)) {
-				String infoName = info.name().toLowerCase(Locale.ENGLISH);
-				if (infoName.startsWith("on ")) {
-					infoName = infoName.substring(3);
-				}
-				if (infoName.equals(event.toLowerCase(Locale.ENGLISH)) || info.id().equals(event)) {
-					candidates.add(info);
-				} else if (event.equals(info.documentationId())) { // should be unique, this is an exact match
-					candidates.clear();
-					candidates.add(info);
-					break;
-				}
-			}
-
-			// determine id, name
-			String id;
-			String name;
-			if (candidates.isEmpty()) {
-				throw new IllegalArgumentException("No matching info found for event annotation: " + event);
-			} else if (candidates.size() == 1) {
-				var info = candidates.getFirst();
-				id = info.documentationId();
+		new org.skriptlang.skript.bukkit.docs.Events.LegacyEvents(events.value()).getRelatedInfos(source)
+			.forEach(info -> {
+				JsonObject object = new JsonObject();
+				// add properties
+				String id = info.documentationId();
 				if (id == null) {
 					id = info.id();
 				}
-				name = info.name();
-			} else {
-				// TODO other options?
-				throw new IllegalArgumentException("Multiple matching info found for event annotation: " + event +
-					"\nDifferentiate by specifying a documentationId on the relevant event infos.");
-			}
-
-			// add properties
-			object.addProperty("id", id);
-			object.addProperty("name", name);
-
-			array.add(object);
-		}
+				object.addProperty("id", id);
+				object.addProperty("name", info.name());
+				array.add(object);
+			});
 
 		return array;
 	}
@@ -437,7 +398,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.addProperty("name", Objects.requireNonNullElse(classInfo.getDocName(), classInfo.getCodeName()));
 		syntaxJsonObject.addProperty("since", classInfo.getSince());
 
-		syntaxJsonObject.add("patterns", cleanPatterns(classInfo.getUsage()));
+		syntaxJsonObject.add("patterns", convertToJsonArray(classInfo.getUsage()));
 		syntaxJsonObject.add("description", convertToJsonArray(classInfo.getDescription()));
 		syntaxJsonObject.add("requirements", convertToJsonArray(classInfo.getRequiredPlugins()));
 		syntaxJsonObject.add("examples", convertToJsonArray(classInfo.getExamples()));
@@ -660,6 +621,11 @@ public class JSONGenerator extends DocumentationGenerator {
 		return array;
 	}
 
+	private static final StringificationProperties STRINGIFICATION_PROPERTIES = StringificationProperties.builder()
+		.excludeParseTags()
+		.excludeTypeFlags()
+		.build();
+
 	/**
 	 * Cleans the provided patterns
 	 *
@@ -669,9 +635,8 @@ public class JSONGenerator extends DocumentationGenerator {
 	private static JsonArray cleanPatterns(String... strings) {
 		if (strings == null || strings.length == 0 || (strings.length == 1 && strings[0].isBlank()))
 			return null;
-
 		for (int i = 0; i < strings.length; i++) {
-			strings[i] = Documentation.cleanPatterns(strings[i], false, false);
+			strings[i] = PatternCompiler.compile(strings[i]).toString(STRINGIFICATION_PROPERTIES);
 		}
 		return convertToJsonArray(strings);
 	}
@@ -717,7 +682,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		jsonDocs.add("sections", generateSyntaxElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.SECTION)));
 		jsonDocs.add("types", generateClassInfoArray(Classes.getClassInfos().iterator()));
 		jsonDocs.add("functions", generateFunctionArray(Functions.getFunctions().iterator()));
-    	jsonDocs.add("experiments", generateExperiments());
+		jsonDocs.add("experiments", generateExperiments());
 		// do last so properties are mapped to syntaxes
 		jsonDocs.add("properties", generatePropertiesArray(PROPERTY_REGISTRY.iterator()));
 
@@ -726,19 +691,6 @@ public class JSONGenerator extends DocumentationGenerator {
 		} catch (IOException ex) {
 			Skript.exception(ex, "An error occurred while trying to generate JSON documentation");
 			throw new IOException(ex);
-		}
-	}
-
-	/**
-	 * @deprecated Use {@link #generate(Path)} instead.
-	 */
-	@Deprecated(forRemoval = true, since = "2.13")
-	@Override
-	public void generate() {
-		try {
-			generate(outputDir.toPath());
-		} catch (IOException ex) {
-			Skript.exception(ex, "An error occurred while trying to generate JSON documentation");
 		}
 	}
 
