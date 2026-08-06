@@ -23,6 +23,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
@@ -635,6 +636,11 @@ public class ScriptLoader {
 					parser.setInactive();
 
 					// trigger events
+					List<Script> eventScripts = scripts.stream()
+						.map(LoadingScriptInfo::script)
+						.toList();
+					ScriptLoader.eventRegistry().events(ScriptsLoadEvent.class)
+							.forEach(event -> event.onLoad(parser, eventScripts));
 					scripts.forEach(loadingInfo -> {
 						Script script = loadingInfo.script;
 
@@ -900,6 +906,9 @@ public class ScriptLoader {
 			.collect(Collectors.toCollection(ArrayList::new));
 
 		// trigger unload event before unloading scripts
+		Set<Script> finalScripts = scripts;
+		eventRegistry().events(ScriptsUnloadEvent.class)
+			.forEach(event -> event.onUnload(parser, Collections.unmodifiableSet(finalScripts)));
 		for (Script script : scripts) {
 			eventRegistry().events(ScriptUnloadEvent.class)
 				.forEach(event -> event.onUnload(parser, script));
@@ -1273,6 +1282,24 @@ public class ScriptLoader {
 	}
 
 	/**
+	 * Called when a batch of {@link Script}s are loaded in the {@link ScriptLoader}.
+	 * This event will trigger <b>after</b> the scripts are completely loaded ({@link Structure} initialization finished).
+	 * @see #loadScripts(File, OpenCloseable)
+	 * @see #loadScripts(Set, OpenCloseable)
+	 */
+	@FunctionalInterface
+	public interface ScriptsLoadEvent extends LoaderEvent {
+
+		/**
+		 * The method that is called when this event triggers.
+		 * @param parser The ParserInstance handling the loading of <code>script</code>.
+		 * @param scripts The Scripts being loaded.
+		 */
+		void onLoad(ParserInstance parser, @Unmodifiable Collection<Script> scripts);
+
+	}
+
+	/**
 	 * Called when a {@link Script} is loaded in the {@link ScriptLoader}.
 	 * This event will trigger <b>after</b> the script is completely loaded ({@link Structure} initialization finished).
 	 * @see #loadScripts(File, OpenCloseable)
@@ -1287,6 +1314,23 @@ public class ScriptLoader {
 		 * @param script The Script being loaded.
 		 */
 		void onLoad(ParserInstance parser, Script script);
+
+	}
+
+	/**
+	 * Called when a batch of {@link Script}s are unloaded in the {@link ScriptLoader}.
+	 * This event will trigger <b>before</b> the scripts are unloaded.
+	 * @see #unloadScript(Script)
+	 */
+	@FunctionalInterface
+	public interface ScriptsUnloadEvent extends LoaderEvent {
+
+		/**
+		 * The method that is called when this event triggers.
+		 * @param parser The ParserInstance handling the unloading of <code>script</code>.
+		 * @param scripts The Scripts being unloaded.
+		 */
+		void onUnload(ParserInstance parser, @Unmodifiable Collection<Script> scripts);
 
 	}
 
