@@ -15,7 +15,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class EvtPlayerGameModeChange extends SkriptEvent {
 
-	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry registry) {
+	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry) {
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtPlayerGameModeChange.class, "Player GameMode Change")
 			.supplier(EvtPlayerGameModeChange::new)
 			.addEvent(PlayerGameModeChangeEvent.class)
@@ -35,7 +35,7 @@ public class EvtPlayerGameModeChange extends SkriptEvent {
 			.addSince("1.0")
 			.build());
 
-		registry.register(EventValue.builder(PlayerGameModeChangeEvent.class, GameMode.class)
+		eventValueRegistry.register(EventValue.builder(PlayerGameModeChangeEvent.class, GameMode.class)
 			.getter(PlayerGameModeChangeEvent::getNewGameMode)
 			.patterns("gamemode")
 			.build());
@@ -45,8 +45,8 @@ public class EvtPlayerGameModeChange extends SkriptEvent {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Literal<?>[] literals, int i, ParseResult parseResult) {
-		gamemode = (Literal<GameMode>) literals[0];
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
+		gamemode = (Literal<GameMode>) args[0];
 		return true;
 	}
 
@@ -54,8 +54,10 @@ public class EvtPlayerGameModeChange extends SkriptEvent {
 	public boolean check(Event event) {
 		if (gamemode == null)
 			return true;
+
 		GameMode gamemode = this.gamemode.getSingle(event);
 		PlayerGameModeChangeEvent playerEvent = (PlayerGameModeChangeEvent) event;
+
 		return playerEvent.getNewGameMode().equals(gamemode);
 	}
 
