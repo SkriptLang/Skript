@@ -311,11 +311,6 @@ public class SimpleEvents {
 			}
 		}
 
-		Skript.registerEvent("Gliding State Change", SimpleEvent.class, EntityToggleGlideEvent.class, "(gliding state change|toggl(e|ing) gliding)")
-				.description("Called when an entity toggles glider on or off, or when server toggles gliding state of an entity forcibly.")
-				.examples("on toggling gliding:",
-					"	cancel the event # bad idea, but you CAN do it!")
-				.since("2.2-dev21");
 		Skript.registerEvent("AoE Cloud Effect", SimpleEvent.class, AreaEffectCloudApplyEvent.class, "(area|AoE) [cloud] effect")
 				.description("Called when area effect cloud applies its potion effect. This happens every 5 ticks by default.")
 				.examples("on area cloud effect:")
