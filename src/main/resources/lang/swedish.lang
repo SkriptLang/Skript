@@ -1,0 +1,190 @@
+# Default Swedish language file
+
+# Which version of Skript this language file was written for
+version: @version@
+
+# What null (nothing) should show up as in a string/text
+none: <none>
+
+# -- Skript --
+skript:
+	copyright: ~ skapad av & © Peter Güttinger även känd som Njol ~
+	prefix: <gray>[<gold>Skript<gray>] <reset>
+	quotes error: Ogiltig användning av citattecken ("). Om du vill använda citattecken i "citerad text", dubbla dem: "".
+	brackets error: Ogiltigt antal eller placering av parenteser. Se till att varje öppningsparentes har en motsvarande avslutande parentes.
+	invalid reload: Skript kan endast laddas om med Bukkits '/reload' eller Skripts '/skript reload' kommando.
+	no scripts: Inga skript hittades, kanske borde du skriva några ;)
+	no errors: Alla skript laddades utan fel.
+	scripts loaded: Laddade %s skript med totalt %s strukturer på %s
+	finished loading: Laddningen är klar.
+
+# -- Skript command --
+skript command:
+	usage: Användning:
+	help:
+		description: Skripts huvudkommando
+		help: Skriver ut detta hjälpmeddelande. Använd '/skript reload/enable/disable/update' för mer information
+		reload:
+			description: Laddar om ett specifikt skript, alla skript, konfigurationen eller allt
+			all: Laddar om konfigurationen, alla aliaskonfigurationer och alla skript
+			config: Laddar om huvudkonfigurationen
+			aliases: Laddar om aliaskonfigurationerna (aliases-english.zip eller plugin-jar)
+			scripts: Laddar om alla skript
+			<script>: Laddar om ett specifikt skript eller en mapp med skript
+		enable:
+			description: Aktiverar alla skript eller ett specifikt
+			all: Aktiverar alla skript
+			<script>: Aktiverar ett specifikt skript eller en mapp med skript
+		disable:
+			description: Inaktiverar alla skript eller ett specifikt
+			all: Inaktiverar alla skript
+			<script>: Inaktiverar ett specifikt skript eller en mapp med skript
+		update:
+			description: Sök efter uppdateringar eller läs ändringsloggen
+			check: Söker efter en ny version
+			changes: Listar alla ändringar sedan den nuvarande versionen
+		info: Skriver ut ett meddelande med länkar till Skripts alias och dokumentation
+		gen-docs: Genererar dokumentation med hjälp av docs/templates i plugin-mappen
+		test: Används för att köra interna Skript-tester
+
+	invalid script: Kan inte hitta skriptet <grey>'<gold>%s<grey>'<red> i skriptmappen!
+	invalid folder: Kan inte hitta mappen <grey>'<gold>%s<grey>'<red> i skriptmappen!
+	reload:
+		warning line info: <gold><bold>Rad %s:<gray> (%s)<reset>\n
+		error line info: <light red><bold>Rad %s:<gray> (%s)<reset>\n
+		reloading: Laddar om <gold>%s<reset>...
+		reloaded: <lime>Laddade om <gold>%s<lime> utan problem. <gray>(<gold>%2$sms<gray>)
+		error: <light red>Stötte på <gold>%2$s <light red>fel vid omladdning av <gold>%1$s<light red>! <gray>(<gold>%3$sms<gray>)
+		script disabled: <gold>%s<reset> är för närvarande inaktiverat. Använd <gray>/<gold>skript <cyan>enable <red>%s<reset> för att aktivera det.
+		warning details: <yellow>    %s<reset>\n
+		error details: <light red>    %s<reset>\n
+		other details: <white>    %s<reset>\n
+		line details: <gold>    Rad: <gray>%s<reset>\n <reset>
+
+		config, aliases and scripts: konfigurationen, alias och alla skript
+		scripts: alla skript
+		main config: huvudkonfigurationen
+		aliases: aliasen
+		script: <gold>%s<reset>
+		scripts in folder: alla skript i <gold>%s<reset>
+		x scripts in folder success: <gold>%2$s <lime>skript i <gold>%1$s<reset>
+		x scripts in folder error: <gold>%2$s <light red>skript i <gold>%1$s<reset>
+		empty folder: <gold>%s<reset> innehåller inga aktiverade skript.
+	enable:
+		all:
+			enabling: Aktiverar alla inaktiverade skript...
+			enabled: Aktiverade och parsade alla tidigare inaktiverade skript utan problem.
+			error: <light red>Stötte på <gold>%s <light red>fel vid parsning av inaktiverade skript!
+			io error: <light red>Kunde inte ladda ett eller flera skript - vissa skript kan redan ha bytt namn och kommer aktiveras när servern startas om: <gold>%s
+		single:
+			already enabled: <gold>%s<reset> är redan aktiverat! Använd <gray>/<gold>skript <cyan>reload <red>%s<reset> för att ladda om det om det har ändrats.
+			enabling: Aktiverar <gold>%s<reset>...
+			enabled: Aktiverade och parsade <gold>%s<reset> utan problem.
+			error: <light red>Stötte på <gold>%2$s <light red>fel vid parsning av <gold>%1$s<light red>!
+			io error: <light red>Kunde inte aktivera <gold>%s<light red>: <gold>%s
+		folder:
+			empty: <gold>%s<reset> innehåller inga inaktiverade skript.
+			enabling: Aktiverar <gold>%2$s <reset>skript i <gold>%1$s<reset>...
+			enabled: Aktiverade och parsade <gold>%2$s<reset> tidigare inaktiverade skript i <gold>%1$s<reset> utan problem.
+			error: <light red>Stötte på <gold>%2$s <light red>fel vid parsning av skript i <gold>%1$s<light red>!
+			io error: <light red>Fel vid aktivering av ett eller flera skript i <gold>%s <light red>(vissa skript kan aktiveras när servern startas om): <gold>%s
+	disable:
+		all:
+			disabled: Inaktiverade alla skript utan problem.
+			io error: <light red>Kunde inte byta namn på ett eller flera skript - vissa skript kan redan ha bytt namn och kommer inaktiveras när servern startas om: <gold>%s
+		single:
+			already disabled: <gold>%s<reset> är redan inaktiverat!
+			disabled: Inaktiverade <gold>%s<reset> utan problem.
+			io error: <light red>Kunde inte byta namn på <gold>%s<light red>, det kommer aktiveras igen när servern startas om: <gold>%s
+		folder:
+			empty: <gold>%s<reset> innehåller inga aktiverade skript.
+			disabled: Inaktiverade <gold>%2$s<reset> skript i <gold>%1$s<reset> utan problem.
+			io error: <light red>Kunde inte inaktivera ett eller flera skript i <gold>%s <light red>(vissa skript kan inaktiveras när servern startas om): <gold>%s
+	update:
+		# check/download: see Updater
+		changes:
+			# multiple versions:
+			# 	title: <gold>%s<r> uppdatering¦ har¦ar¦ släppts sedan denna version (<gold>%s<r>) av Skript:
+			# 	footer: För att visa ändringsloggen för en version skriv <gold>/skript update changes <version><reset>
+			# invalid version: Ingen ändringslogg tillgänglig för versionen <gold>%s<red>
+			title: <bold><cyan>%s<reset> (%s)
+			next page: <grey>sida %s av %s. Skriv <gold>/skript update changes %s<gray> för nästa sida (tips: använd piltangent uppåt)
+	info:
+		aliases: Skripts alias finns här: <aqua>https://github.com/SkriptLang/skript-aliases
+		documentation: Skripts dokumentation finns här: <aqua>https://docs.skriptlang.org/
+		tutorials: Skripts guider finns här: <aqua>https://docs.skriptlang.org/tutorials
+		version: Skript-version: <aqua>%s
+		server: Serverversion: <aqua>%s
+		addons: Installerade Skript-tillägg: <aqua>%s
+		dependencies: Installerade beroenden: <aqua>%s
+
+# -- Updater --
+updater:
+	not started: Skript har inte kontrollerat efter den senaste versionen ännu. Använd <gold>/skript update check<reset> för att göra det.
+	checking: Söker efter den senaste versionen av Skript...
+	check in progress: Sökning efter en ny version pågår redan.
+	updater disabled: Uppdateraren är inaktiverad, så ingen kontroll efter den senaste versionen av Skript utfördes.
+	check error: <red>Ett fel uppstod vid kontroll av den senaste versionen av Skript:<light red> %s
+	running latest version: Du kör för närvarande den senaste stabila versionen av Skript.
+	running latest version (beta): Du kör för närvarande en <i>beta<r>-version av Skript, och ingen ny <i>stabil<r>-version finns tillgänglig. Observera att du måste uppdatera till nyare betaversioner manuellt!
+	update available: En ny version av Skript finns tillgänglig: <gold>%s<reset> (du kör för närvarande <gold>%s<reset>)
+	downloading: Laddar ner Skript <gold>%s<reset>...
+	download in progress: Den senaste versionen av Skript laddas för närvarande ner.
+	download error: <red>Ett fel uppstod vid nedladdning av den senaste versionen av Skript:<light red> %s
+	downloaded: Den senaste versionen av Skript har laddats ner! Starta om servern eller använd /reload för att tillämpa ändringarna.
+	internal error: Ett internt fel uppstod vid kontroll av den senaste versionen av Skript. Se serverloggen för detaljer.
+	custom version: Du kör för närvarande en anpassad Skript-version. Inga uppdateringar kommer att installeras automatiskt.
+	nightly build: Du kör för närvarande en utvecklingsversion av Skript. Inga uppdateringar kommer att installeras automatiskt.
+
+# -- Commands --
+commands:
+	no permission message: Du har inte behörighet att använda det här kommandot
+	cooldown message: Du använder det här kommandot för ofta, försök igen senare
+	executable by players: Det här kommandot kan endast användas av spelare
+	executable by console: Det här kommandot kan endast användas av konsolen
+	correct usage: Korrekt användning:
+	invalid argument: Ogiltigt argument <gray>'%s<gray>'<reset>. Tillåtna är:
+	too many arguments: Det här kommandot kan endast ta emot en enda %2$s.
+	internal error: Ett internt fel uppstod vid försök att utföra det här kommandot.
+	no player starts with: Det finns ingen spelare online vars namn börjar med '%s'
+	multiple players start with: Det finns flera spelare online vars namn börjar med '%s'
+
+# -- Hooks --
+hooks:
+	hooked: Kopplade in i %s utan problem
+	error: Kunde inte koppla in i %1$s. Detta kan hända om Skript inte stöder den installerade versionen av %1$s
+
+# -- Aliases --
+aliases:
+	# Errors and warnings
+	empty string: '' är inte en itemtyp
+	invalid item type: '%s' är inte en itemtyp
+	empty name: Ett alias måste ha ett namn
+	brackets error: Ogiltig användning av parenteser
+	not enough brackets: Sektion som börjar vid tecken %s ('%s') måste stängas
+	too many brackets: Tecken %s ('%s') stänger en icke-existerande sektion
+	unknown variation: Variationen %s har inte definierats tidigare
+	missing aliases: Följande Minecraft-id har inga alias:
+	empty alias: Alias har inget Minecraft-id eller taggar definierade
+	invalid minecraft id: Minecraft-id %s är inte giltigt
+	useless variation: Variation har inget Minecraft-id eller taggar angivna, så den är oanvändbar
+	invalid tags: Angivna taggar är inte definierade i giltig JSON
+	unexpected section: Sektioner är inte tillåtna här
+	invalid variation section: En sektion ska vara en variationssektion, men %s är inte ett giltigt variationsnamn
+	outside section: Alias måste placeras i sektioner
+
+	# Other messages
+	loaded x aliases from: Laddade %s svenska alias från %s
+	loaded x aliases: Laddade totalt %s svenska alias
+
+# -- Time --
+time:
+	errors:
+		24 hours: Ett dygn har endast 24 timmar
+		12 hours: Med 12-timmarsformat tillåts inte mer än 12 timmar
+		60 minutes: En timme har endast 60 minuter
+
+# -- IO Exceptions --
+io exceptions:
+	unknownhostexception: Kan inte ansluta till %s
+	accessdeniedexception: Åtkomst nekad för %s
