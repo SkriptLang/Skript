@@ -81,7 +81,7 @@ public class ExprTime extends PropertyExpression<World, Time> {
 
 		World[] worlds = getExpr().getArray(event);
 
-		long ticks = 0;
+		long ticks;
 		if (time instanceof Time) {
 			if (mode != ChangeMode.SET) {
 				ticks = ((Time) time).getTicks() - TIME_TO_TIMESPAN_OFFSET;
@@ -92,21 +92,25 @@ public class ExprTime extends PropertyExpression<World, Time> {
 			ticks = ((Timespan) time).getAs(Timespan.TimePeriod.TICK);
 		} else if (time instanceof Timeperiod) {
 			ticks = ((Timeperiod) time).start;
+		} else {
+			ticks = 0;
 		}
 
-		for (World world : worlds) {
-			switch (mode) {
-				case ADD:
-					world.setTime(world.getTime() + ticks);
-					break;
-				case REMOVE:
-					world.setTime(world.getTime() - ticks);
-					break;
-				case SET:
-					world.setTime(ticks);
-					break;
+		Skript.getScheduler().runGlobalTask(() -> {
+			for (World world : worlds) {
+				switch (mode) {
+					case ADD:
+						world.setTime(world.getTime() + ticks);
+						break;
+					case REMOVE:
+						world.setTime(world.getTime() - ticks);
+						break;
+					case SET:
+						world.setTime(ticks);
+						break;
+				}
 			}
-		}
+		});
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Time;
 import ch.njol.util.Math2;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.Event;
@@ -83,9 +84,9 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 				iterator.remove();
 		}
 
-		if (taskID != -1 && TRIGGERS.isEmpty()) { // Unregister Bukkit listener if possible
-			Bukkit.getScheduler().cancelTask(taskID);
-			taskID = -1;
+		if (scheduledTask != null && TRIGGERS.isEmpty()) { // Unregister Bukkit listener if possible
+			scheduledTask.cancel();
+			scheduledTask = null;
 		}
 	}
 
@@ -99,59 +100,61 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 		return false;
 	}
 
-	private static int taskID = -1;
-	
+	private static ScheduledTask scheduledTask;
+
 	private static void registerListener() {
-		if (taskID != -1)
+		if (scheduledTask != null)
 			return;
 		// For each world:
 		// check each instance in order until triggerTime > (worldTime + period)
-		taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(Skript.getInstance(), () -> {
-			for (Entry<World, EvtAtInfo> entry : TRIGGERS.entrySet()) {
-				EvtAtInfo info = entry.getValue();
-				int worldTime = (int) entry.getKey().getTime();
+		scheduledTask = Skript.getScheduler().runGlobalRepeatingTask(
+			() -> {
+				for (Entry<World, EvtAtInfo> entry : TRIGGERS.entrySet()) {
+					EvtAtInfo info = entry.getValue();
+					int worldTime = (int) entry.getKey().getTime();
 
-				// Stupid Bukkit scheduler
-				// TODO: is this really necessary?
-				if (info.lastCheckedTime == worldTime)
-					continue;
-
-				// Check if time changed, e.g. by a command or plugin
-				// if the info was last checked more than 2 cycles ago
-				// then reset the last checked time to the period just before now.
-				if (info.lastCheckedTime + CHECK_PERIOD * 2 < worldTime || (info.lastCheckedTime > worldTime && info.lastCheckedTime - 24000 + CHECK_PERIOD * 2 < worldTime))
-					info.lastCheckedTime = Math2.mod(worldTime - CHECK_PERIOD, 24000);
-
-				// if we rolled over from 23999 to 0, subtract 24000 from last checked
-				boolean midnight = info.lastCheckedTime > worldTime; // actually 6:00
-				if (midnight)
-					info.lastCheckedTime -= 24000;
-
-				// loop instances from earliest to latest
-				for (EvtAtTime event : info.instances) {
-					// if we just rolled over, the last checked time will be x - 24000, so we need to do the same to the event time
-					int eventTime = midnight && event.time > 12000 ? event.time - 24000 : event.time;
-
-					// if the event time is in the future, we don't need to check any more events.
-					if (eventTime > worldTime)
-						break;
-
-					// if we should have already caught this time previously, check the next one
-					if (eventTime <= info.lastCheckedTime)
+					// Stupid Bukkit scheduler
+					// TODO: is this really necessary?
+					if (info.lastCheckedTime == worldTime)
 						continue;
 
-					// anything that makes it here must satisfy lastCheckedTime < eventTime <= worldTime
-					// and therefore should trigger this event.
-					ScheduledEvent scheduledEvent = new ScheduledEvent(entry.getKey());
-					SkriptEventHandler.logEventStart(scheduledEvent);
-					SkriptEventHandler.logTriggerEnd(event.trigger);
-					event.trigger.execute(scheduledEvent);
-					SkriptEventHandler.logTriggerEnd(event.trigger);
-					SkriptEventHandler.logEventEnd();
+					// Check if time changed, e.g. by a command or plugin
+					// if the info was last checked more than 2 cycles ago
+					// then reset the last checked time to the period just before now.
+					if (info.lastCheckedTime + CHECK_PERIOD * 2 < worldTime || (info.lastCheckedTime > worldTime && info.lastCheckedTime - 24000 + CHECK_PERIOD * 2 < worldTime))
+						info.lastCheckedTime = Math2.mod(worldTime - CHECK_PERIOD, 24000);
+
+					// if we rolled over from 23999 to 0, subtract 24000 from last checked
+					boolean midnight = info.lastCheckedTime > worldTime; // actually 6:00
+					if (midnight)
+						info.lastCheckedTime -= 24000;
+
+					// loop instances from earliest to latest
+					for (EvtAtTime event : info.instances) {
+						// if we just rolled over, the last checked time will be x - 24000, so we need to do the same to the event time
+						int eventTime = midnight && event.time > 12000 ? event.time - 24000 : event.time;
+
+						// if the event time is in the future, we don't need to check any more events.
+						if (eventTime > worldTime)
+							break;
+
+						// if we should have already caught this time previously, check the next one
+						if (eventTime <= info.lastCheckedTime)
+							continue;
+
+						// anything that makes it here must satisfy lastCheckedTime < eventTime <= worldTime
+						// and therefore should trigger this event.
+						ScheduledEvent scheduledEvent = new ScheduledEvent(entry.getKey());
+						SkriptEventHandler.logEventStart(scheduledEvent);
+						SkriptEventHandler.logTriggerEnd(event.trigger);
+						event.trigger.execute(scheduledEvent);
+						SkriptEventHandler.logTriggerEnd(event.trigger);
+						SkriptEventHandler.logEventEnd();
+					}
+					info.lastCheckedTime = worldTime;
 				}
-				info.lastCheckedTime = worldTime;
-			}
-		}, 0, CHECK_PERIOD);
+			}, 1, CHECK_PERIOD
+		);
 	}
 	
 	@Override

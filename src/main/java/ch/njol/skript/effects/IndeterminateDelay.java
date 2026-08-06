@@ -29,17 +29,19 @@ public class IndeterminateDelay extends Delay {
 			
 			// Back up local variables
 			Object localVars = Variables.removeLocals(event);
-			
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
-				Delay.addDelayedEvent(event);
-				Skript.debug(getIndentation() + "... continuing after " + (System.nanoTime() - start) / 1_000_000_000. + "s");
 
-				// Re-set local variables
-				if (localVars != null)
-					Variables.setLocalVariables(event, localVars);
+			Skript.getScheduler().runGlobalDelayedTask(
+				() -> {
+					Delay.addDelayedEvent(event);
+					Skript.debug(getIndentation() + "... continuing after " + (System.nanoTime() - start) / 1_000_000_000. + "s");
 
-				TriggerItem.walk(next, event);
-			}, duration.getAs(Timespan.TimePeriod.TICK));
+					// Re-set local variables
+					if (localVars != null)
+						Variables.setLocalVariables(event, localVars);
+
+					TriggerItem.walk(next, event);
+				}, duration.getAs(Timespan.TimePeriod.TICK)
+			);
 		}
 
 		return null;

@@ -16,7 +16,6 @@ import ch.njol.skript.lang.Variable;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.Task;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
@@ -237,14 +236,13 @@ public class StructVariables extends Structure {
 		} else if (data.isLoaded()) {
 			return true;
 		}
-		Task.callSync(() -> {
+		Skript.getScheduler().callSyncGlobal(() -> {
 			for (NonNullPair<String, Object> pair : data.getVariables()) {
 				String name = pair.getKey();
 				if (Variables.getVariable(name, null, false) != null)
 					continue;
 				Variables.setVariable(name, pair.getValue(), null, false);
 			}
-			return null;
 		});
 		data.loaded = true;
 		return true;

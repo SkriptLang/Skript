@@ -172,57 +172,59 @@ public class BlockClassInfo extends ClassInfo<Block> {
 		public void change(Block[] blocks, Object @Nullable [] delta, ChangeMode mode) {
 			for (Block block : blocks) {
 				assert block != null;
-				switch (mode) {
-					case SET:
-						assert delta != null;
-						Object object = delta[0];
-						if (object instanceof ItemType itemType) {
-							itemType.getBlock().setBlock(block, true);
-						} else if (object instanceof BlockData blockData) {
-							block.setBlockData(blockData);
-						}
-						break;
-					case DELETE:
-						block.setType(Material.AIR, true);
-						break;
-					case ADD:
-					case REMOVE:
-					case REMOVE_ALL:
-						assert delta != null;
-						BlockState state = block.getState();
-						if (!(state instanceof InventoryHolder inventoryHolder))
-							break;
-						Inventory invi = inventoryHolder.getInventory();
-						if (mode == ChangeMode.ADD) {
-							for (Object obj : delta) {
-								if (obj instanceof Inventory itemStacks) {
-									for (ItemStack itemStack : itemStacks) {
-										if (itemStack != null)
-											invi.addItem(itemStack);
-									}
-								} else {
-									((ItemType) obj).addTo(invi);
-								}
+				Skript.getScheduler().runRegionTask(block.getLocation(), () -> {
+					switch (mode) {
+						case SET:
+							assert delta != null;
+							Object object = delta[0];
+							if (object instanceof ItemType itemType) {
+								itemType.getBlock().setBlock(block, true);
+							} else if (object instanceof BlockData blockData) {
+								block.setBlockData(blockData);
 							}
-						} else {
-							for (Object obj : delta) {
-								if (obj instanceof Inventory inventory) {
-									invi.removeItem(Arrays.stream(inventory.getContents())
+							break;
+						case DELETE:
+							block.setType(Material.AIR, true);
+							break;
+						case ADD:
+						case REMOVE:
+						case REMOVE_ALL:
+							assert delta != null;
+							BlockState state = block.getState();
+							if (!(state instanceof InventoryHolder inventoryHolder))
+								break;
+							Inventory invi = inventoryHolder.getInventory();
+							if (mode == ChangeMode.ADD) {
+								for (Object obj : delta) {
+									if (obj instanceof Inventory itemStacks) {
+										for (ItemStack itemStack : itemStacks) {
+											if (itemStack != null)
+												invi.addItem(itemStack);
+										}
+									} else {
+										((ItemType) obj).addTo(invi);
+									}
+								}
+							} else {
+								for (Object obj : delta) {
+									if (obj instanceof Inventory inventory) {
+										invi.removeItem(Arrays.stream(inventory.getContents())
 											.filter(Objects::nonNull)
 											.toArray(ItemStack[]::new));
-								} else {
-									if (mode == ChangeMode.REMOVE)
-										((ItemType) obj).removeFrom(invi);
-									else
-										((ItemType) obj).removeAll(invi);
+									} else {
+										if (mode == ChangeMode.REMOVE)
+											((ItemType) obj).removeFrom(invi);
+										else
+											((ItemType) obj).removeAll(invi);
+									}
 								}
 							}
-						}
-						state.update();
-						break;
-					case RESET:
-						assert false;
-				}
+							state.update();
+							break;
+						case RESET:
+							assert false;
+					}
+				});
 			}
 		}
 		//</editor-fold>

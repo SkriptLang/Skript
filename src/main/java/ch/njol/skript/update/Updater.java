@@ -1,11 +1,11 @@
 package ch.njol.skript.update;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.util.Task;
 
 /**
  * Extensible updater system. Note: starts disabled, must be enabled using
@@ -126,13 +126,7 @@ public abstract class Updater {
 				// Call this again later
 				long ticks = checkFrequency;
 				if (ticks > 0) {
-					new Task(Skript.getInstance(), ticks, true) {
-						
-						@Override
-						public void run() {
-							checkUpdates();
-						}
-					};
+					Skript.getScheduler().runAsyncDelayedTask(this::checkUpdates, ticks * 50, TimeUnit.MILLISECONDS);
 				}
 			}
 		}).whenComplete((none, e) -> {

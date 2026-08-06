@@ -1,5 +1,6 @@
 package ch.njol.skript.bukkitutil;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.effects.EffCancelEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -47,14 +48,15 @@ public class ClickEventTracker {
 	 */
 	private final Set<Cancellable> modifiedEvents;
 	
-	public ClickEventTracker(JavaPlugin plugin) {
+	public ClickEventTracker() {
 		this.firstEvents = new HashMap<>();
 		this.modifiedEvents = new HashSet<>();
-		Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin,
-				() -> {
-					firstEvents.clear();
-					modifiedEvents.clear();
-				}, 1, 1);
+		Skript.getScheduler().runGlobalRepeatingTask(
+			() -> {
+				firstEvents.clear();
+				modifiedEvents.clear();
+			}, 1, 1
+		);
 	}
 	
 	/**

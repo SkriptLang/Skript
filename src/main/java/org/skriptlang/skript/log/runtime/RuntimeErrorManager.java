@@ -2,8 +2,8 @@ package org.skriptlang.skript.log.runtime;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.log.runtime.Frame.FrameLimit;
@@ -11,6 +11,7 @@ import org.skriptlang.skript.log.runtime.Frame.FrameLimit;
 import java.io.Closeable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
@@ -74,7 +75,7 @@ public class RuntimeErrorManager implements Closeable {
 		}
 	}
 
-	private final Task task;
+	private final ScheduledTask task;
 
 	private final Map<RuntimeErrorFilter, Set<RuntimeErrorConsumer>> filterMap = new ConcurrentHashMap<>();
 
@@ -86,9 +87,8 @@ public class RuntimeErrorManager implements Closeable {
 	 * @param frameLength The length of a frame in ticks.
 	 */
 	public RuntimeErrorManager(long frameLength) {
-		task = new Task(Skript.getInstance(), frameLength, frameLength, true) {
-			@Override
-			public void run() {
+		task = Skript.getScheduler().runAsyncRepeatingTask(
+			() -> {
 				for (var entry : filterMap.entrySet()) {
 					RuntimeErrorFilter filter = entry.getKey();
 					if (filter == null)
@@ -103,8 +103,8 @@ public class RuntimeErrorManager implements Closeable {
 					consumers.forEach(consumer -> consumer.printFrameOutput(warningFrame.getFrameOutput(), Level.WARNING));
 					warningFrame.nextFrame();
 				}
-			}
-		};
+			}, frameLength * 50 , frameLength * 50, TimeUnit.MILLISECONDS
+		);
 	}
 
 	/**
@@ -196,7 +196,7 @@ public class RuntimeErrorManager implements Closeable {
 
 	@Override
 	public void close() {
-		task.close();
+		task.cancel();
 	}
 
 }

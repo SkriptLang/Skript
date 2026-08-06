@@ -19,13 +19,19 @@ public enum ServerPlatform {
 	/**
 	 * Spigot, with its Bukkit API extensions. Officially supported.
 	 */
-	BUKKIT_SPIGOT("Spigot", true, true),
+	BUKKIT_SPIGOT("Spigot", false, false),
 	
 	/**
 	 * Paper Minecraft server, which is a Spigot fork with additional features.
 	 * Officially supported.
 	 */
 	BUKKIT_PAPER("Paper", true, true),
+
+	/**
+	 * Folia Minecraft server, which is a Paper fork with multi-threading.
+	 * Officially supported.
+	 */
+	BUKKIT_FOLIA("Folia", true, true),
 	
 	/**
 	 * Glowstone (or similar) fully open source Minecraft server, which

@@ -511,12 +511,12 @@ public abstract class Utils {
 			listener));
 
 		// if we haven't gotten a response after a minute, let's just assume there wil never be one
-		Bukkit.getScheduler().scheduleSyncDelayedTask(skript, () -> {
-
-			if (!completableFuture.isDone())
-				completableFuture.cancel(true);
-
-		}, 60 * 20);
+		Skript.getScheduler().runGlobalDelayedTask(
+			() -> {
+				if (!completableFuture.isDone())
+					completableFuture.cancel(true);
+			}, 60 * 20
+		);
 
 		ByteArrayDataOutput out = ByteStreams.newDataOutput();
 		Stream.of(data).forEach(out::writeUTF);
