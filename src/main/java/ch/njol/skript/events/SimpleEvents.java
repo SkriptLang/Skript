@@ -6,11 +6,7 @@ import ch.njol.skript.lang.util.SimpleEvent;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.entity.EntityJumpEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
-import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
-import com.destroystokyo.paper.event.player.PlayerJumpEvent;
-import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
-import io.papermc.paper.event.player.*;
 import io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent;
 import io.papermc.paper.event.world.border.WorldBorderBoundsChangeFinishEvent;
 import io.papermc.paper.event.world.border.WorldBorderCenterChangeEvent;
@@ -145,82 +141,6 @@ public class SimpleEvents {
 				.description("Called when a pig is stroke by lightning and transformed into a zombie pigman. Cancel the event to prevent the transformation.")
 				.examples("on pig zap:")
 				.since("1.0");
-		Skript.registerEvent("Bed Enter", SimpleEvent.class, PlayerBedEnterEvent.class, "bed enter[ing]", "[player] enter[ing] [a] bed")
-				.description("Called when a player starts sleeping.")
-				.examples("on bed enter:")
-				.since("1.0");
-		Skript.registerEvent("Bed Leave", SimpleEvent.class, PlayerBedLeaveEvent.class, "bed leav(e|ing)", "[player] leav(e|ing) [a] bed")
-				.description("Called when a player leaves a bed.")
-				.examples("on player leaving a bed:")
-				.since("1.0");
-		Skript.registerEvent("Bucket Empty", SimpleEvent.class, PlayerBucketEmptyEvent.class, "bucket empty[ing]", "[player] empty[ing] [a] bucket")//TODO , "emptying bucket [of %itemtype%]", "emptying %itemtype% bucket") -> place of water/lava)
-		.description("Called when a player empties a bucket. You can also use the <a href='#place'>place event</a> with a check for water or lava.")
-				.examples("on bucket empty:")
-				.since("1.0");
-		Skript.registerEvent("Bucket fill", SimpleEvent.class, PlayerBucketFillEvent.class, "bucket fill[ing]", "[player] fill[ing] [a] bucket")//TODO , "filling bucket [(with|of) %itemtype%]", "filling %itemtype% bucket");)
-		.description("Called when a player fills a bucket.")
-				.examples("on player filling a bucket:")
-				.since("1.0");
-		Skript.registerEvent("Egg Throw", SimpleEvent.class, PlayerEggThrowEvent.class, "throw[ing] [of] [an] egg", "[player] egg throw")
-				.description(
-						"Called when a player throws an egg and it lands. You can just use the <a href='#shoot'>shoot event</a> in most cases." +
-						" However, this event allows modification of properties like the hatched entity type and the number of entities to hatch."
-				)
-				.examples("on throw of an egg:")
-				.since("1.0");
-		Skript.registerEvent("Item Break", SimpleEvent.class, PlayerItemBreakEvent.class, "[player] tool break[ing]", "[player] break[ing] (a|the|) tool")
-				.description("Called when a player breaks their tool because its damage reached the maximum value.",
-					"This event cannot be cancelled.")
-				.examples("on tool break:")
-				.since("2.1.1");
-		Skript.registerEvent("Item Damage", SimpleEvent.class, PlayerItemDamageEvent.class, "item damag(e|ing)")
-				.description("Called when an item is damaged. Most tools are damaged by using them; armor is damaged when the wearer takes damage.")
-				.examples("on item damage:",
-						"\tcancel event")
-				.since("2.5");
-		Skript.registerEvent("Tool Change", SimpleEvent.class, PlayerItemHeldEvent.class, "[player['s]] (tool|item held|held item) chang(e|ing)")
-				.description("Called whenever a player changes their held item by selecting a different slot (e.g. the keys 1-9 or the mouse wheel), <i>not</i> by dropping or replacing the item in the current slot.")
-				.examples("on player's held item change:")
-				.since("1.0");
-		Skript.registerEvent("Join", SimpleEvent.class, PlayerJoinEvent.class, "[player] (login|logging in|join[ing])")
-				.description("Called when the player joins the server. The player is already in a world when this event is called, so if you want to prevent players from joining you should prefer <a href='#connect'>on connect</a> over this event.")
-				.examples("on join:",
-						"	message \"Welcome on our awesome server!\"",
-						"	broadcast \"%player% just joined the server!\"")
-				.since("1.0");
-		Skript.registerEvent("Connect", SimpleEvent.class, PlayerLoginEvent.class, "[player] connect[ing]")
-				.description("Called when the player connects to the server. This event is called before the player actually joins the server, so if you want to prevent players from joining you should prefer this event over <a href='#join'>on join</a>.")
-				.examples("on connect:",
-						"	player doesn't have permission \"VIP\"",
-						"	number of players is greater than 15",
-						"	kick the player due to \"The last 5 slots are reserved for VIP players.\"")
-				.since("2.0");
-		Skript.registerEvent("Kick", SimpleEvent.class, PlayerKickEvent.class, "[player] (kick|being kicked)")
-				.description("Called when a player is kicked from the server. You can change the <a href='#ExprMessage'>kick message</a> or <a href='#EffCancelEvent'>cancel the event</a> entirely.")
-				.examples("on kick:")
-				.since("1.0");
-		Skript.registerEvent("Quit", SimpleEvent.class, PlayerQuitEvent.class, "(quit[ting]|disconnect[ing]|log[ ]out|logging out|leav(e|ing))")
-				.description("Called when a player leaves the server.")
-				.examples("on quit:",
-						"on disconnect:")
-				.since("1.0 (simple disconnection)");
-		Skript.registerEvent("Respawn", SimpleEvent.class, PlayerRespawnEvent.class, "[player] respawn[ing]")
-				.description("Called when a player respawns via death or entering the end portal in the end. You should prefer this event over the <a href='#death'>death event</a> as the player is technically alive when this event is called.")
-				.examples("on respawn:")
-				.since("1.0");
-		Skript.registerEvent("Sneak Toggle", SimpleEvent.class, PlayerToggleSneakEvent.class, "[player] toggl(e|ing) sneak", "[player] sneak toggl(e|ing)")
-				.description("Called when a player starts or stops sneaking. Use <a href='#CondIsSneaking'>is sneaking</a> to get whether the player was sneaking before the event was called.")
-				.examples("# make players that stop sneaking jump",
-						"on sneak toggle:",
-						"	player is sneaking",
-						"	push the player upwards at speed 0.5")
-				.since("1.0");
-		Skript.registerEvent("Sprint Toggle", SimpleEvent.class, PlayerToggleSprintEvent.class, "[player] toggl(e|ing) sprint", "[player] sprint toggl(e|ing)")
-				.description("Called when a player starts or stops sprinting. Use <a href='#CondIsSprinting'>is sprinting</a> to get whether the player was sprinting before the event was called.")
-				.examples("on sprint toggle:",
-						"	player is not sprinting",
-						"	send \"Run!\"")
-				.since("1.0");
 		Skript.registerEvent("Portal Create", SimpleEvent.class, PortalCreateEvent.class, "portal creat(e|ion)")
 				.description("Called when a portal is created, either by a player or mob lighting an obsidian frame on fire, or by a nether portal creating its teleportation target in the nether/overworld.",
 						"In Minecraft 1.14+, you can use <a href='#ExprEntity'>the player</a> in this event.", "Please note that there may not always be a player (or other entity) in this event.")
@@ -350,45 +270,6 @@ public class SimpleEvents {
 				)
 				.since("2.2-dev28")
 				.listeningBehavior(ListeningBehavior.ANY);
-		Skript.registerEvent("Player World Change", SimpleEvent.class, PlayerChangedWorldEvent.class, "[player] world chang(ing|e[d])")
-				.description("Called when a player enters a world. Does not work with other entities!")
-				.examples("on player world change:",
-						"	world is \"city\"",
-						"	send \"Welcome to the City!\"")
-				.since("2.2-dev28");
-		Skript.registerEvent("Flight Toggle", SimpleEvent.class, PlayerToggleFlightEvent.class, "[player] flight toggl(e|ing)", "[player] toggl(e|ing) flight")
-				.description("Called when a players stops/starts flying.")
-				.examples("on flight toggle:",
-						"	if {game::%player%::playing} exists:",
-						"		cancel event")
-				.since("2.2-dev36");
-		Skript.registerEvent("Language Change", SimpleEvent.class, PlayerLocaleChangeEvent.class, "[player] (language|locale) chang(e|ing)", "[player] chang(e|ing) (language|locale)")
-				.description("Called after a player changed their language in the game settings. You can use the <a href='#ExprLanguage'>language</a> expression to get the current language of the player.")
-				.examples("on language change:",
-					"	if player's language starts with \"en\":",
-					"		send \"Hello!\"")
-				.since("2.3");
-
-		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerJumpEvent")) {
-			Skript.registerEvent("Jump", SimpleEvent.class, PlayerJumpEvent.class, "[player] jump[ing]")
-					.description("Called whenever a player jumps.",
-							"This event requires PaperSpigot.")
-					.examples("on jump:",
-							"	event-player does not have permission \"jump\"",
-							"	cancel event")
-					.since("2.3");
-		}
-		Skript.registerEvent("Hand Item Swap", SimpleEvent.class, PlayerSwapHandItemsEvent.class, "swap[ping of] [(hand|held)] item[s]")
-				.description("Called whenever a player swaps the items in their main- and offhand slots.",
-					"Works also when one or both of the slots are empty.",
-					"The event is called before the items are actually swapped,",
-					"so when you use the player's tool or player's offtool expressions,",
-					"they will return the values before the swap -",
-					"this enables you to cancel the event before anything happens.")
-				.examples("on swap hand items:",
-					"	event-player's tool is a diamond sword",
-					"	cancel event")
-				.since("2.3");
 
 		Class<? extends Event> serverListPingEventClass = (Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent")
 			? PaperServerListPingEvent.class : ServerListPingEvent.class);
@@ -414,12 +295,6 @@ public class SimpleEvents {
 					"	event-entity does not have permission \"swim\"",
 					"	cancel event")
 				.since("2.3");
-		Skript.registerEvent("Riptide", SimpleEvent.class, PlayerRiptideEvent.class, "[use of] riptide [enchant[ment]]")
-				.description("Called when the player activates the riptide enchantment, using their trident to propel them through the air.",
-					"Note: the riptide action is performed client side, so manipulating the player in this event may have undesired effects.")
-				.examples("on riptide:",
-					"	send \"You are riptiding!\"")
-				.since("2.5");
 		Skript.registerEvent("Sponge Absorb", SimpleEvent.class, SpongeAbsorbEvent.class, "sponge absorb")
 				.description("Called when a sponge absorbs blocks.")
 				.requiredPlugins("Minecraft 1.13 or newer")
@@ -455,20 +330,7 @@ public class SimpleEvents {
 			.examples("on block fertilize:",
 				"\tsend \"Fertilized %size of fertilized blocks% blocks got fertilized.\"")
 			.since("2.5");
-		Skript.registerEvent("Arm Swing", SimpleEvent.class, PlayerAnimationEvent.class, "[player] arm swing")
-			.description("Called when a player swings their arm.")
-			.examples("on arm swing:",
-				"\tsend \"You swung your arm!\"")
-			.since("2.5.1");
 
-		Skript.registerEvent("Item Mend", SimpleEvent.class, PlayerItemMendEvent.class, "item mend[ing]")
-			.description("Called when a player has an item repaired via the Mending enchantment.")
-			.requiredPlugins("Minecraft 1.13 or newer")
-			.examples("on item mend:",
-				"\tchance of 50%:",
-				"\t\tcancel the event",
-				"\t\tsend \"Oops! Mending failed!\" to player")
-			.since("2.5.1");
 		Skript.registerEvent("Anvil Prepare", SimpleEvent.class, PrepareAnvilEvent.class, "anvil prepar(e|ing)")
 			.description("Called when an item is put in a slot for repair by an anvil. Please note that this event is called multiple times in a single item slot move.")
 			.examples("on anvil prepare:",
@@ -477,15 +339,7 @@ public class SimpleEvents {
 				"\t\tset repair cost to repair cost * 50%",
 				"\t\tsend \"You're LUCKY! You got 50% discount.\" to player")
 			.since("2.7");
-		if (Skript.classExists("io.papermc.paper.event.player.PlayerTradeEvent")) {
-			Skript.registerEvent("Player Trade", SimpleEvent.class, PlayerTradeEvent.class, "player trad(e|ing)")
-				.description("Called when a player has traded with a villager.")
-				.examples("on player trade:",
-					"\tchance of 50%:",
-					"\t\tcancel event",
-					"\t\tsend \"The trade was somehow denied!\" to player")
-				.since("2.7");
-		}
+
 		if (Skript.classExists("com.destroystokyo.paper.event.entity.EntityJumpEvent")) {
 			Skript.registerEvent("Entity Jump", SimpleEvent.class, EntityJumpEvent.class, "entity jump[ing]")
 				.description("Called when an entity jumps.")
@@ -502,65 +356,6 @@ public class SimpleEvents {
 					"\tcancel the event")
 				.since("2.7");
 		}
-
-		if (Skript.classExists("io.papermc.paper.event.player.PlayerStopUsingItemEvent")) {
-			Skript.registerEvent("Stop Using Item", SimpleEvent.class, PlayerStopUsingItemEvent.class,
-							"[player] (stop|end) (using item|item use)")
-					.description("Called when a player stops using an item. For example, when the player releases the " +
-							"interact button when holding a bow, an edible item, or a spyglass.",
-							"Note that event-timespan will return the time the item was used for.")
-					.examples(
-						"on player stop using item:",
-							"\tbroadcast \"%player% used %event-item% for %event-timespan%.\"")
-					.since("2.8.0");
-		}
-
-		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerReadyArrowEvent")) {
-			Skript.registerEvent("Ready Arrow", SimpleEvent.class, PlayerReadyArrowEvent.class, "[player] ((ready|choose|draw|load) arrow|arrow (choose|draw|load))")
-					.description("Called when a player is firing a bow and the server is choosing an arrow to use.",
-							"Cancelling this event will skip the current arrow item and fire a new event for the next arrow item.",
-							"The arrow and bow in the event can be accessed with the Readied Arrow/Bow expression.")
-					.examples(
-						"on player ready arrow:",
-							"\tselected bow's name is \"Spectral Bow\"",
-							"\tif selected arrow is not a spectral arrow:",
-								"\t\tcancel event"
-					)
-					.since("2.8.0");
-		}
-
-		if (Skript.classExists("io.papermc.paper.event.player.PlayerInventorySlotChangeEvent")) {
-			Skript.registerEvent("Inventory Slot Change", SimpleEvent.class, PlayerInventorySlotChangeEvent.class, "[player] inventory slot chang(e|ing)")
-					.description("Called when a slot in a player's inventory is changed.", "Warning: setting the event-slot to a new item can result in an infinite loop.")
-					.examples(
-						"on inventory slot change:",
-							"\tif event-item is a diamond:",
-								"\t\tsend \"You obtained a diamond!\" to player"
-					)
-					.since("2.7");
-		}
-
-		if (Skript.classExists("io.papermc.paper.event.player.PlayerDeepSleepEvent")) {
-			Skript.registerEvent("Player Deep Sleep", SimpleEvent.class, PlayerDeepSleepEvent.class, "[player] deep sleep[ing]")
-					.description(
-							"Called when a player has slept long enough to count as passing the night/storm.",
-							"Cancelling this event will prevent the player from being counted as deeply sleeping unless they exit and re-enter the bed."
-					)
-					.examples(
-							"on player deep sleeping:",
-							"\tsend \"Zzzz..\" to player"
-					)
-					.since("2.7");
-		}
-
-		Skript.registerEvent("Player Pickup Arrow", SimpleEvent.class, PlayerPickupArrowEvent.class, "[player] (pick[ing| ]up [an] arrow|arrow pick[ing| ]up)")
-				.description("Called when a player picks up an arrow from the ground.")
-				.examples(
-						"on arrow pickup:",
-								"\tcancel the event",
-								"\tteleport event-projectile to block 5 above event-projectile"
-				)
-				.since("2.8.0");
 
 		Skript.registerEvent("Inventory Drag", SimpleEvent.class, InventoryDragEvent.class, "inventory drag[ging]")
 				.description("Called when a player drags an item in their cursor across the inventory.")
@@ -600,33 +395,17 @@ public class SimpleEvents {
 
 		if (Skript.classExists("com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent")) {
 			Skript.registerEvent("Enderman Enrage", SimpleEvent.class, com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent.class, "enderman (enrage|anger)")
-					.description(
-						"Called when an enderman gets mad because a player looked at them.",
-						"Note: This does not stop enderman from targeting the player as a result of getting damaged."
-					)
-					.examples(
-						"# Stops endermen from getting angry players with the permission \"safeFrom.enderman\"",
-						"on enderman enrage:",
-							"\tif player has permission \"safeFrom.enderman\":",
-								"\t\tcancel event"
-					)
-					.since("2.9.0");
-		}
-
-		if (Skript.classExists("io.papermc.paper.event.player.PlayerChangeBeaconEffectEvent")) {
-			Skript.registerEvent("Beacon Change Effect", SimpleEvent.class, PlayerChangeBeaconEffectEvent.class,
-					"beacon change effect", "beacon effect change", "player chang(e[s]|ing) [of] beacon effect")
-				.description("Called when a player changes the effects of a beacon.")
-				.examples(
-					"on beacon effect change:",
-						"\tbroadcast event-player",
-						"\tbroadcast event-block",
-						"\tbroadcast primary beacon effect",
-						"\tbroadcast secondary beacon effect",
-					"on beacon change effect:",
-					"on player change beacon effect:"
+				.description(
+					"Called when an enderman gets mad because a player looked at them.",
+					"Note: This does not stop enderman from targeting the player as a result of getting damaged."
 				)
-				.since("2.10");
+				.examples(
+					"# Stops endermen from getting angry players with the permission \"safeFrom.enderman\"",
+					"on enderman enrage:",
+					"\tif player has permission \"safeFrom.enderman\":",
+					"\t\tcancel event"
+				)
+				.since("2.9.0");
 		}
 
 		Skript.registerEvent("Broadcast", SimpleEvent.class, BroadcastMessageEvent.class, "broadcast")
@@ -634,20 +413,6 @@ public class SimpleEvents {
 			.examples(
 				"on broadcast:",
 					"\tset broadcast-message to \"&c[BROADCAST] %broadcasted message%\""
-			)
-			.since("2.10");
-
-		Skript.registerEvent("Experience Cooldown Change", SimpleEvent.class, PlayerExpCooldownChangeEvent.class, "player (experience|[e]xp) cooldown change")
-			.description(
-				"Called when a player's experience cooldown changes.",
-				"Experience cooldown is how long until a player can pick up another orb of experience."
-			)
-			.examples(
-				"on player experience cooldown change:",
-					"\tbroadcast event-player",
-					"\tbroadcast event-timespan",
-					"\tbroadcast past event-timespan",
-					"\tbroadcast xp cooldown change reason"
 			)
 			.since("2.10");
 
@@ -661,17 +426,6 @@ public class SimpleEvents {
 					"\tbroadcast event-location"
 			)
 			.since("2.10");
-
-		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerElytraBoostEvent")) {
-			Skript.registerEvent("Elytra Boost", SimpleEvent.class, PlayerElytraBoostEvent.class, "elytra boost")
-				.description("Called when a player uses a firework to boost their fly speed when flying with an elytra.")
-				.examples(
-					"on elytra boost:",
-						"\tif the used firework will be consumed:",
-							"\t\tprevent the used firework from being consume"
-				)
-				.since("2.10");
-		}
 
 		Skript.registerEvent("Bat Toggle Sleep", SimpleEvent.class, BatToggleSleepEvent.class, "bat toggle sleep")
 			.description("Called when a bat attempts to go to sleep or wakes up.")

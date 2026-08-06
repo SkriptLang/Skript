@@ -59,7 +59,7 @@ on beacon toggle:
 	if event-block is set:
 		complete objective "toggled - got block" for junit test {@EvtBeaconTest}
 
-on beacon change effect:
+on player changing of beacon effect:
 	junit test is {@EvtBeaconTest}
 	complete objective "beacon change effect" for junit test {@EvtBeaconTest}
 	if event-player is set:

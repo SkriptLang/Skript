@@ -311,29 +311,7 @@ public final class BukkitEventValues {
 		// --- PlayerEvents ---
 		registry.register(EventValue.simple(PlayerEvent.class, Player.class, PlayerEvent::getPlayer));
 		registry.register(EventValue.simple(PlayerEvent.class, World.class, event -> event.getPlayer().getWorld()));
-		// PlayerBedEnterEvent
-		registry.register(EventValue.simple(PlayerBedEnterEvent.class, Block.class, PlayerBedEnterEvent::getBed));
-		// PlayerBedLeaveEvent
-		registry.register(EventValue.simple(PlayerBedLeaveEvent.class, Block.class, PlayerBedLeaveEvent::getBed));
-		// PlayerBucketEvents
-		registry.register(EventValue.simple(PlayerBucketFillEvent.class, Block.class, PlayerBucketEvent::getBlockClicked));
-		registry.register(EventValue.builder(PlayerBucketFillEvent.class, Block.class)
-			.getter(event -> {
-				BlockState state = event.getBlockClicked().getState();
-				state.setType(Material.AIR);
-				return new BlockStateBlock(state, true);
-			})
-			.time(Time.FUTURE)
-			.build());
-		registry.register(EventValue.builder(PlayerBucketEmptyEvent.class, Block.class)
-			.getter(event -> event.getBlockClicked().getRelative(event.getBlockFace()))
-			.time(Time.PAST)
-			.build());
-		registry.register(EventValue.simple(PlayerBucketEmptyEvent.class, Block.class, event -> {
-			BlockState state = event.getBlockClicked().getRelative(event.getBlockFace()).getState();
-			state.setType(event.getBucket() == Material.WATER_BUCKET ? Material.WATER : Material.LAVA);
-			return new BlockStateBlock(state, true);
-		}));
+
 		// PlayerDropItemEvent
 		registry.register(EventValue.simple(PlayerDropItemEvent.class, Player.class, PlayerEvent::getPlayer));
 		registry.register(EventValue.simple(PlayerDropItemEvent.class, Item.class, PlayerDropItemEvent::getItemDrop));
@@ -356,8 +334,6 @@ public final class BukkitEventValues {
 			.getter(PlayerItemConsumeEvent::getItem)
 			.registerChanger(ChangeMode.SET, PlayerItemConsumeEvent::setItem)
 			.build());
-		// PlayerItemBreakEvent
-		registry.register(EventValue.simple(PlayerItemBreakEvent.class, ItemStack.class, PlayerItemBreakEvent::getBrokenItem));
 		// PlayerInteractEntityEvent
 		registry.register(EventValue.simple(PlayerInteractEntityEvent.class, Entity.class, PlayerInteractEntityEvent::getRightClicked));
 		registry.register(EventValue.simple(PlayerInteractEntityEvent.class, ItemStack.class, event -> {
@@ -375,24 +351,6 @@ public final class BukkitEventValues {
 		registry.register(EventValue.simple(PlayerInteractEvent.class, Direction.class, event -> new Direction(new double[]{event.getBlockFace().getModX(), event.getBlockFace().getModY(), event.getBlockFace().getModZ()})));
 		// PlayerShearEntityEvent
 		registry.register(EventValue.simple(PlayerShearEntityEvent.class, Entity.class, PlayerShearEntityEvent::getEntity));
-		// PlayerMoveEvent
-		registry.register(EventValue.simple(PlayerMoveEvent.class, Block.class, event -> event.getTo().clone().subtract(0, 0.5, 0).getBlock()));
-		registry.register(EventValue.builder(PlayerMoveEvent.class, Location.class)
-			.getter(PlayerMoveEvent::getFrom)
-			.time(Time.PAST)
-			.build());
-		registry.register(EventValue.simple(PlayerMoveEvent.class, Location.class, PlayerMoveEvent::getTo));
-		registry.register(EventValue.builder(PlayerMoveEvent.class, Chunk.class)
-			.getter(event -> event.getFrom().getChunk())
-			.time(Time.PAST)
-			.build());
-		registry.register(EventValue.simple(PlayerMoveEvent.class, Chunk.class, event -> event.getTo().getChunk()));
-		// PlayerItemDamageEvent
-		registry.register(EventValue.simple(PlayerItemDamageEvent.class, ItemStack.class, PlayerItemDamageEvent::getItem));
-		//PlayerItemMendEvent
-		registry.register(EventValue.simple(PlayerItemMendEvent.class, Player.class, PlayerEvent::getPlayer));
-		registry.register(EventValue.simple(PlayerItemMendEvent.class, ItemStack.class, PlayerItemMendEvent::getItem));
-		registry.register(EventValue.simple(PlayerItemMendEvent.class, Entity.class, PlayerItemMendEvent::getExperienceOrb));
 
 		// --- HangingEvents ---
 
@@ -604,21 +562,7 @@ public final class BukkitEventValues {
 		}
 		//CreatureSpawnEvent
 		registry.register(EventValue.simple(CreatureSpawnEvent.class, SpawnReason.class, CreatureSpawnEvent::getSpawnReason));
-		//PlayerRespawnEvent - 1.21.5+ added AbstractRespawnEvent as a base class, where prior to that, getRespawnReason was in PlayerRespawnEvent
-		if (Skript.classExists("org.bukkit.event.player.AbstractRespawnEvent")) {
-			registry.register(EventValue.simple(PlayerRespawnEvent.class, RespawnReason.class, PlayerRespawnEvent::getRespawnReason));
-		} else {
-			try {
-				Method method = PlayerRespawnEvent.class.getMethod("getRespawnReason");
-				registry.register(EventValue.simple(PlayerRespawnEvent.class, RespawnReason.class, event -> {
-					try {
-						return (RespawnReason) method.invoke(event);
-					} catch (Exception e) {
-						return null;
-					}
-				}));
-			} catch (NoSuchMethodException ignored) {}
-		}
+
 		//FireworkExplodeEvent
 		registry.register(EventValue.simple(FireworkExplodeEvent.class, Firework.class, FireworkExplodeEvent::getEntity));
 		registry.register(EventValue.simple(FireworkExplodeEvent.class, FireworkEffect.class, event -> {
@@ -644,26 +588,7 @@ public final class BukkitEventValues {
 				return null;
 			return colors.toArray(Color[]::new);
 		}));
-		//PlayerRiptideEvent
-		registry.register(EventValue.simple(PlayerRiptideEvent.class, ItemStack.class, PlayerRiptideEvent::getItem));
-		//PlayerInventorySlotChangeEvent
-		if (Skript.classExists("io.papermc.paper.event.player.PlayerInventorySlotChangeEvent")) {
-			registry.register(EventValue.simple(PlayerInventorySlotChangeEvent.class, ItemStack.class, PlayerInventorySlotChangeEvent::getNewItemStack));
-			registry.register(EventValue.builder(PlayerInventorySlotChangeEvent.class, ItemStack.class)
-				.getter(PlayerInventorySlotChangeEvent::getOldItemStack)
-				.time(Time.PAST)
-				.build());
-			registry.register(EventValue.simple(PlayerInventorySlotChangeEvent.class, Slot.class, event -> {
-				PlayerInventory inv = event.getPlayer().getInventory();
-				int slotIndex = event.getSlot();
-				// Not all indices point to inventory slots. Equipment, for example
-				if (slotIndex >= 36) {
-					return new ch.njol.skript.util.slot.EquipmentSlot(event.getPlayer(), slotIndex);
-				} else {
-					return new InventorySlot(inv, slotIndex);
-				}
-			}));
-		}
+
 		//PrepareItemEnchantEvent
 		registry.register(EventValue.simple(PrepareItemEnchantEvent.class, Player.class, PrepareItemEnchantEvent::getEnchanter));
 		registry.register(EventValue.simple(PrepareItemEnchantEvent.class, ItemStack.class, PrepareItemEnchantEvent::getItem));
@@ -676,24 +601,6 @@ public final class BukkitEventValues {
 			.toArray(EnchantmentType[]::new)));
 		registry.register(EventValue.simple(EnchantItemEvent.class, Block.class, EnchantItemEvent::getEnchantBlock));
 		registry.register(EventValue.simple(HorseJumpEvent.class, Entity.class, HorseJumpEvent::getEntity));
-		// PlayerTradeEvent
-		if (Skript.classExists("io.papermc.paper.event.player.PlayerTradeEvent")) {
-			registry.register(EventValue.simple(PlayerTradeEvent.class, AbstractVillager.class, PlayerTradeEvent::getVillager));
-		}
-		// PlayerChangedWorldEvent
-		registry.register(EventValue.builder(PlayerChangedWorldEvent.class, World.class)
-			.getter(PlayerChangedWorldEvent::getFrom)
-			.time(Time.PAST)
-			.build());
-
-		// PlayerEggThrowEvent
-		registry.register(EventValue.simple(PlayerEggThrowEvent.class, Egg.class, PlayerEggThrowEvent::getEgg));
-
-		// PlayerStopUsingItemEvent
-		if (Skript.classExists("io.papermc.paper.event.player.PlayerStopUsingItemEvent")) {
-			registry.register(EventValue.simple(PlayerStopUsingItemEvent.class, Timespan.class, event -> new Timespan(Timespan.TimePeriod.TICK, event.getTicksHeldFor())));
-			registry.register(EventValue.simple(PlayerStopUsingItemEvent.class, ItemType.class, event -> new ItemType(event.getItem())));
-		}
 
 		// EntityResurrectEvent
 		registry.register(EventValue.simple(EntityResurrectEvent.class, Slot.class, event -> {
@@ -703,25 +610,6 @@ public final class BukkitEventValues {
 				return null;
 			return new ch.njol.skript.util.slot.EquipmentSlot(equipment, hand);
 		}));
-
-		// PlayerItemHeldEvent
-		registry.register(EventValue.simple(PlayerItemHeldEvent.class, Slot.class, event -> new InventorySlot(event.getPlayer().getInventory(), event.getNewSlot())));
-		registry.register(EventValue.builder(PlayerItemHeldEvent.class, Slot.class)
-			.getter(event -> new InventorySlot(event.getPlayer().getInventory(), event.getPreviousSlot()))
-			.time(Time.PAST)
-			.build());
-
-		// PlayerPickupArrowEvent
-		// This event value is restricted to MC 1.14+ due to an API change which has the return type changed
-		// which throws a NoSuchMethodError if used in a 1.13 server.
-		if (Skript.isRunningMinecraft(1, 14))
-			registry.register(EventValue.simple(PlayerPickupArrowEvent.class, Projectile.class, PlayerPickupArrowEvent::getArrow));
-
-		registry.register(EventValue.simple(PlayerPickupArrowEvent.class, ItemStack.class, event -> event.getItem().getItemStack()));
-
-		//PlayerQuitEvent
-		if (Skript.classExists("org.bukkit.event.player.PlayerQuitEvent$QuitReason"))
-			registry.register(EventValue.simple(PlayerQuitEvent.class, QuitReason.class, PlayerQuitEvent::getReason));
 
 		// PlayerStonecutterRecipeSelectEvent
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent"))
@@ -773,14 +661,6 @@ public final class BukkitEventValues {
 		registry.register(EventValue.simple(BlockDropItemEvent.class, ItemStack[].class, event -> event.getItems().stream().map(Item::getItemStack).toArray(ItemStack[]::new)));
 		registry.register(EventValue.simple(BlockDropItemEvent.class, Entity[].class, event -> event.getItems().toArray(Entity[]::new)));
 
-		// PlayerExpCooldownChangeEvent
-		registry.register(EventValue.simple(PlayerExpCooldownChangeEvent.class, ChangeReason.class, PlayerExpCooldownChangeEvent::getReason));
-		registry.register(EventValue.simple(PlayerExpCooldownChangeEvent.class, Timespan.class, event -> new Timespan(Timespan.TimePeriod.TICK, event.getNewCooldown())));
-		registry.register(EventValue.builder(PlayerExpCooldownChangeEvent.class, Timespan.class)
-			.getter(event -> new Timespan(Timespan.TimePeriod.TICK, event.getPlayer().getExpCooldown()))
-			.time(Time.PAST)
-			.build());
-
 		// VehicleMoveEvent
 		registry.register(EventValue.simple(VehicleMoveEvent.class, Location.class, VehicleMoveEvent::getTo));
 		registry.register(EventValue.builder(VehicleMoveEvent.class, Location.class)
@@ -796,16 +676,6 @@ public final class BukkitEventValues {
 				.excludedErrorMessage("Use 'applied effect' in beacon effect events.")
 				.build());
 			registry.register(EventValue.simple(BeaconEffectEvent.class, Player.class, BeaconEffectEvent::getPlayer));
-		}
-		// PlayerChangeBeaconEffectEvent
-		if (Skript.classExists("io.papermc.paper.event.player.PlayerChangeBeaconEffectEvent")) {
-			registry.register(EventValue.simple(PlayerChangeBeaconEffectEvent.class, Block.class, PlayerChangeBeaconEffectEvent::getBeacon));
-		}
-
-		// PlayerElytraBoostEvent
-		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerElytraBoostEvent")) {
-			registry.register(EventValue.simple(PlayerElytraBoostEvent.class, ItemStack.class, PlayerElytraBoostEvent::getItemStack));
-			registry.register(EventValue.simple(PlayerElytraBoostEvent.class, Entity.class, PlayerElytraBoostEvent::getFirework));
 		}
 
 		if (Skript.classExists("org.bukkit.event.block.VaultDisplayItemEvent")) {
