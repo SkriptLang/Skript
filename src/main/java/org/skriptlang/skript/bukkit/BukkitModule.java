@@ -14,6 +14,8 @@ import org.skriptlang.skript.bukkit.enchantments.EnchantmentModule;
 import org.skriptlang.skript.bukkit.entity.EntityModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
+import org.skriptlang.skript.bukkit.inventory.InventoryClassInfo;
+import org.skriptlang.skript.bukkit.inventory.InventoryModule;
 import org.skriptlang.skript.bukkit.item.ItemModule;
 import org.skriptlang.skript.bukkit.itemcomponents.ItemComponentModule;
 import org.skriptlang.skript.bukkit.loottables.LootTableModule;
@@ -47,6 +49,7 @@ public class BukkitModule extends HierarchicalAddonModule {
 			new EntityModule(this),
 			new FishingModule(this),
 			new InputModule(this),
+			new InventoryModule(this),
 			new ItemModule(this),
 			new ItemComponentModule(this),
 			new LootTableModule(this),
@@ -64,7 +67,6 @@ public class BukkitModule extends HierarchicalAddonModule {
 	protected void initSelf(SkriptAddon addon) {
 		Classes.registerClass(new BlockClassInfo());
 		Classes.registerClass(new EntityClassInfo());
-		Classes.registerClass(new InventoryClassInfo());
 		Classes.registerClass(new ItemStackClassInfo());
 		Classes.registerClass(new ItemTypeClassInfo());
 		Classes.registerClass(new LocationClassInfo());
