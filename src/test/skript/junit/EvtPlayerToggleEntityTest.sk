@@ -1,0 +1,36 @@
+test "EvtPlayerToggleEntityAgeJUnit" when running JUnit:
+    running minecraft "26.1"
+    set {_tests::1} to "age lock event"
+    set {_tests::2} to "age unlock event"
+    set {_tests::3} to "age toggle event"
+    ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtPlayerToggleEntityAgeTest" completes {_tests::*}
+
+parse:
+    results: {EvtPlayerToggleEntityAge::parse::lock::*}
+    code:
+        on player entity age lock:
+            set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtPlayerToggleEntityAgeTest"
+            junit test is {_test}
+            complete objective "age lock event" for {_test}
+
+parse:
+    results: {EvtPlayerToggleEntityAge::parse::unlock::*}
+    code:
+        on player entity age unlock:
+            set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtPlayerToggleEntityAgeTest"
+            junit test is {_test}
+            complete objective "age unlock event" for {_test}
+
+parse:
+    results: {EvtPlayerToggleEntityAge::parse::toggle::*}
+    code:
+        on player entity age toggle:
+            set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtPlayerToggleEntityAgeTest"
+            junit test is {_test}
+            complete objective "age toggle event" for {_test}
+
+test "EvtPlayerToggleEntityAge":
+    if running minecraft "26.1":
+        assert recursive size of {EvtPlayerToggleEntityAge::parse::*} is 0 with "Player toggle entity age lock event failed to parse in 26.1 and above"
+    else:
+        assert recursive size of {EvtPlayerToggleEntityAge::parse::*} isn't 0 with "Player toggle entity age lock event successfully parsed below 26.1"
