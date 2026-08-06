@@ -1,0 +1,72 @@
+package org.skriptlang.skript.bukkit.command.custom;
+
+import com.google.common.collect.Sets;
+import org.bukkit.command.BlockCommandSender;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.command.RemoteConsoleCommandSender;
+import org.bukkit.entity.Player;
+
+import java.util.Set;
+import java.util.function.Predicate;
+
+/**
+ * Enum describing the types of {@link CommandSender}s that can execute this command.
+ */
+public enum ExecutableBy {
+
+	/**
+	 * This command is only executable by players.
+	 */
+	PLAYERS(sender -> sender instanceof Player),
+
+	/**
+	 * This command is only executable by operators.
+	 */
+	OPERATORS(CommandSender::isOp),
+
+	/**
+	 * This command is only executable by console.
+	 */
+	CONSOLE(sender -> sender instanceof ConsoleCommandSender || sender instanceof RemoteConsoleCommandSender),
+
+	/**
+	 * This command is only executable by blocks (e.g, command blocks).
+	 */
+	BLOCKS(sender -> sender instanceof BlockCommandSender);
+
+	private final Predicate<CommandSender> predicate;
+
+	ExecutableBy(Predicate<CommandSender> predicate) {
+		this.predicate = predicate;
+	}
+
+	/**
+	 * @return A predicate to validate the behavior expected by this restriction.
+	 */
+	public Predicate<CommandSender> predicate() {
+		return predicate;
+	}
+
+	@Override
+	public String toString() {
+		return switch (this) {
+			case PLAYERS -> "players";
+			case OPERATORS -> "operators";
+			case CONSOLE -> "the console";
+			case BLOCKS -> "blocks";
+		};
+	}
+
+	/**
+	 * Compares whether a set of {@link ExecutableBy}s is a superset of another.
+	 * @param first The first set.
+	 * @param second The second set.
+	 * @return Whether the first set includes all {@link CommandSender}s covered by the second.
+	 */
+	public static boolean isSuperSet(Set<ExecutableBy> first, Set<ExecutableBy> second) {
+		Set<ExecutableBy> difference = Sets.difference(second, first);
+		return difference.isEmpty() || difference.equals(Set.of(ExecutableBy.OPERATORS));
+	}
+
+}

@@ -64,7 +64,10 @@ import java.util.UUID;
 
 /**
  * This class is used for user-defined commands.
+ * @deprecated There is no direct replacement for this command.
+ * The closest alternative is {@link org.skriptlang.skript.bukkit.command.custom.ScriptBrigadierCommand}.
  */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class ScriptCommand implements TabExecutor {
 
 	public final static Message m_executable_by_players = new Message("commands.executable by players");
@@ -332,7 +335,7 @@ public class ScriptCommand implements TabExecutor {
 	boolean execute2(final ScriptCommandEvent event, final CommandSender sender, final String commandLabel, final String rest) {
 		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
-			final boolean ok = SkriptParser.parseArguments(rest, ScriptCommand.this, event);
+			final boolean ok = false;
 			if (!ok) {
 				final LogEntry e = log.getError();
 				if (e != null)

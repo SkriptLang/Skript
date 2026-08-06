@@ -1223,7 +1223,11 @@ public final class SkriptParser {
 
 	/**
 	 * Prints parse errors (i.e. must start a ParseLog before calling this method)
+	 * @deprecated This method is no longer used and there is no replacement.
+	 * Command arguments are now generally parsed by Brigadier.
+	 * See {@link org.skriptlang.skript.bukkit.command.custom.ScriptCommandExecutor}.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static boolean parseArguments(String args, ScriptCommand command, ScriptCommandEvent event) {
 		SkriptParser parser = new SkriptParser(args, PARSE_LITERALS, ParseContext.COMMAND);
 		ParseResult parseResult = parser.parse_i(command.getPattern());
