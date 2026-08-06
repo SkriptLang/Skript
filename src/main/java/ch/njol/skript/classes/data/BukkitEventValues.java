@@ -79,8 +79,7 @@ public final class BukkitEventValues {
 	private static final ItemStack AIR_IS = new ItemStack(Material.AIR);
 
 	public static void register(EventValueRegistry registry) {
-		// === WorldEvents ===
-		registry.register(EventValue.simple(WorldEvent.class, World.class, WorldEvent::getWorld));
+
 		// StructureGrowEvent - a WorldEvent
 		registry.register(EventValue.simple(StructureGrowEvent.class, Block.class, event -> event.getLocation().getBlock()));
 
@@ -103,10 +102,6 @@ public final class BukkitEventValues {
 				.toArray(Block[]::new))
 			.time(Time.FUTURE)
 			.build());
-		// WeatherEvent - not a WorldEvent (wtf ô_Ô)
-		registry.register(EventValue.simple(WeatherEvent.class, World.class, WeatherEvent::getWorld));
-		// ChunkEvents
-		registry.register(EventValue.simple(ChunkEvent.class, Chunk.class, ChunkEvent::getChunk));
 
 		// === BlockEvents ===
 		registry.register(EventValue.simple(BlockEvent.class, Block.class, BlockEvent::getBlock));
@@ -301,8 +296,6 @@ public final class BukkitEventValues {
 		}));
 		// ItemSpawnEvent
 		registry.register(EventValue.simple(ItemSpawnEvent.class, ItemStack.class, event -> event.getEntity().getItemStack()));
-		// LightningStrikeEvent
-		registry.register(EventValue.simple(LightningStrikeEvent.class, Entity.class, LightningStrikeEvent::getLightning));
 		// EndermanAttackPlayerEvent
 		if (Skript.classExists("com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent")) {
 			registry.register(EventValue.simple(EndermanAttackPlayerEvent.class, Player.class, EndermanAttackPlayerEvent::getPlayer));
@@ -554,14 +547,7 @@ public final class BukkitEventValues {
 		registry.register(EventValue.simple(InventoryPickupItemEvent.class, Inventory.class, InventoryPickupItemEvent::getInventory));
 		registry.register(EventValue.simple(InventoryPickupItemEvent.class, Item.class, InventoryPickupItemEvent::getItem));
 		registry.register(EventValue.simple(InventoryPickupItemEvent.class, ItemStack.class, event -> event.getItem().getItemStack()));
-		//PortalCreateEvent
-		registry.register(EventValue.simple(PortalCreateEvent.class, World.class, WorldEvent::getWorld));
-		registry.register(EventValue.simple(PortalCreateEvent.class, Block[].class, event -> event.getBlocks().stream()
-			.map(BlockState::getBlock)
-			.toArray(Block[]::new)));
-		if (Skript.methodExists(PortalCreateEvent.class, "getEntity")) { // Minecraft 1.14+
-			registry.register(EventValue.simple(PortalCreateEvent.class, Entity.class, PortalCreateEvent::getEntity));
-		}
+
 		//PlayerEditBookEvent
 		registry.register(EventValue.builder(PlayerEditBookEvent.class, ItemStack.class)
 			.getter(event -> {
