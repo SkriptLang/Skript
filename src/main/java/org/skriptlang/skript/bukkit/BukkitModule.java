@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.registrations.Classes;
+import org.bukkit.event.Event;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
@@ -16,6 +17,7 @@ import org.skriptlang.skript.bukkit.fishing.FishingModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
 import org.skriptlang.skript.bukkit.item.ItemModule;
 import org.skriptlang.skript.bukkit.itemcomponents.ItemComponentModule;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.loottables.LootTableModule;
 import org.skriptlang.skript.bukkit.misc.MiscModule;
 import org.skriptlang.skript.bukkit.particles.ParticleModule;
@@ -24,6 +26,8 @@ import org.skriptlang.skript.bukkit.potion.PotionModule;
 import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.bukkit.text.TextModule;
 import org.skriptlang.skript.bukkit.types.*;
+import org.skriptlang.skript.docs.Origin;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.bukkit.worldborder.elements.WorldBorderModule;
 
 import java.util.List;
@@ -78,6 +82,26 @@ public class BukkitModule extends HierarchicalAddonModule {
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
 		// nothing to do
+	}
+
+	// TODO: Remove this once the pr for it is merged probably around 7/16/2026
+	/**
+	 * Helper method that calls the given methods with a {@link SyntaxRegistry} and {@link EventValueRegistry}
+	 * @param syntaxRegistry The syntax registry to register with.
+	 * @param eventValueRegistry The event value registry to register with.
+	 * @param functions A series of consumers to call the register syntax.
+	 */
+	public static void register(SyntaxRegistry syntaxRegistry,EventValueRegistry eventValueRegistry, EventRegistrar... functions) {
+		for (EventRegistrar value : functions)
+			value.register(syntaxRegistry, eventValueRegistry);
+	}
+
+	/**
+	 * A method of registration via a {@link SyntaxRegistry} and {@link EventValueRegistry}
+	 */
+	@FunctionalInterface
+	public interface EventRegistrar {
+		void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry);
 	}
 
 	@Override
