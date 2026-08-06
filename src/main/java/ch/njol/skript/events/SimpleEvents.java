@@ -34,59 +34,6 @@ public class SimpleEvents {
 	static {
 		// TODO - remove unncessary classExists checks when Spigot support is dropped
 
-		Skript.registerEvent("Can Build Check", SimpleEvent.class, BlockCanBuildEvent.class, "[block] can build check")
-				.description("Called when a player rightclicks on a block while holding a block or a placeable item. You can either cancel the event to prevent the block from being built, or uncancel it to allow it.",
-						"Please note that the <a href='#ExprDurability'>data value</a> of the block to be placed is not available in this event, only its <a href='#ExprIdOf'>ID</a>.")
-				.examples("on block can build check:",
-						"\tcancel event")
-				.since("1.0 (basic), 2.0 ([un]cancellable)");
-		Skript.registerEvent("Block Damage", SimpleEvent.class, BlockDamageEvent.class, "block damag(ing|e)")
-				.description("Called when a player starts to break a block. You can usually just use the leftclick event for this.")
-				.examples("on block damaging:",
-						"\tif block is tagged with minecraft tag \"logs\":",
-						"\t\tsend \"You can't break the holy log!\"")
-				.since("1.0");
-		Skript.registerEvent("Flow", SimpleEvent.class, BlockFromToEvent.class, "[block] flow[ing]", "block mov(e|ing)")
-				.description("Called when a blocks flows or teleports to another block. This not only applies to water and lava, but teleporting dragon eggs as well.")
-				.examples("on block flow:",
-						"\tif event-block is water:",
-						"\t\tbroadcast \"Build more dams! It's starting to get wet in here\"")
-				.since("1.0");
-		Skript.registerEvent("Ignition", SimpleEvent.class, BlockIgniteEvent.class, "[block] ignit(e|ion)")
-				.description("Called when a block starts burning, i.e. a fire block is placed next to it and this block is flammable.",
-						"The <a href='#burn'>burn event</a> will be called when the block is about do be destroyed by the fire.")
-				.examples("on block ignite:",
-						"\tif event-block is a ladder:",
-						"\t\tcancel event")
-				.since("1.0");
-		Skript.registerEvent("Physics", SimpleEvent.class, BlockPhysicsEvent.class, "[block] physics")
-				.description("Called when a physics check is done on a block. By cancelling this event you can prevent some things from happening, " +
-						"e.g. sand falling, dirt turning into grass, torches dropping if their supporting block is destroyed, etc." +
-						"Please note that using this event might cause quite some lag since it gets called extremely often.")
-				.examples("# prevents sand from falling",
-						"on block physics:",
-						"	block is sand",
-						"	cancel event")
-				.since("1.4.6");
-		Skript.registerEvent("Piston Extend", SimpleEvent.class, BlockPistonExtendEvent.class, "piston extend[ing]")
-				.description("Called when a piston is about to extend.")
-				.examples("on piston extend:",
-						"\tbroadcast \"A piston is extending!\"")
-				.since("1.0");
-		Skript.registerEvent("Piston Retract", SimpleEvent.class, BlockPistonRetractEvent.class, "piston retract[ing]")
-				.description("Called when a piston is about to retract.")
-				.examples("on piston retract:",
-						"\tbroadcast \"A piston is retracting!\"")
-				.since("1.0");
-		Skript.registerEvent("Redstone", SimpleEvent.class, BlockRedstoneEvent.class, "redstone [current] [chang(e|ing)]")
-				.description("Called when the redstone current of a block changes. This event is of not much use yet.")
-				.examples("on redstone change:",
-						"\tsend \"someone is using redstone\" to console")
-				.since("1.0");
-		Skript.registerEvent("Spread", SimpleEvent.class, BlockSpreadEvent.class, "spread[ing]")
-				.description("Called when a new block <a href='#form'>forms</a> as a result of a block that can spread, e.g. water or mushrooms.")
-				.examples("on spread:")
-				.since("1.0");
 		Skript.registerEvent("Chunk Load", SimpleEvent.class, ChunkLoadEvent.class, "chunk load[ing]")
 				.description("Called when a chunk loads. The chunk might or might not contain mobs when it's loaded.")
 				.examples("on chunk load:")
@@ -133,10 +80,6 @@ public class SimpleEvents {
 				.description("Called when the hunger bar of a player changes, i.e. either increases by eating or decreases over time.")
 				.examples("on food bar change:")
 				.since("1.4.4");
-		Skript.registerEvent("Leaves Decay", SimpleEvent.class, LeavesDecayEvent.class, "leaves decay[ing]")
-				.description("Called when a leaf block decays due to not being connected to a tree.")
-				.examples("on leaves decay:")
-				.since("1.0");
 		Skript.registerEvent("Lightning Strike", SimpleEvent.class, LightningStrikeEvent.class, "lightning [strike]")
 				.description("Called when lightning strikes.")
 				.examples("on lightning:", "\tspawn a zombie at location of event-entity")
@@ -244,12 +187,6 @@ public class SimpleEvents {
 				.examples("on shoot:",
 						"\tif projectile is an arrow:",
 						"\t\tsend \"you shot an arrow!\" to shooter")
-				.since("1.0");
-		Skript.registerEvent("Sign Change", SimpleEvent.class, SignChangeEvent.class, "sign (chang[e]|edit)[ing]", "[player] (chang[e]|edit)[ing] [a] sign")
-				.description("As signs are placed empty, this event is called when a player is done editing a sign.")
-				.examples("on sign change:",
-						"	line 2 is empty",
-						"	set line 1 to \"&lt;red&gt;%line 1%\"")
 				.since("1.0");
 		Skript.registerEvent("Spawn Change", SimpleEvent.class, SpawnChangeEvent.class, "[world] spawn change")
 				.description("Called when the spawn point of a world changes.")
@@ -420,13 +357,6 @@ public class SimpleEvents {
 				.examples("on riptide:",
 					"	send \"You are riptiding!\"")
 				.since("2.5");
-		Skript.registerEvent("Sponge Absorb", SimpleEvent.class, SpongeAbsorbEvent.class, "sponge absorb")
-				.description("Called when a sponge absorbs blocks.")
-				.requiredPlugins("Minecraft 1.13 or newer")
-				.examples("on sponge absorb:",
-					"\tloop absorbed blocks:",
-					"\t\tbroadcast \"%loop-block% was absorbed by a sponge\"!")
-				.since("2.5");
 		Skript.registerEvent("Enchant Prepare", SimpleEvent.class, PrepareItemEnchantEvent.class, "[item] enchant prepare")
 			.description("Called when a player puts an item into enchantment table. This event may be called multiple times.",
 				" To get the enchant item, see the <a href='#ExprEnchantEventsEnchantItem'>enchant item expression</a>")
@@ -449,12 +379,6 @@ public class SimpleEvents {
 			.description("Called when a horse jumps.")
 			.examples("on horse jump:", "\tpush event-entity upwards at speed 2")
 			.since("2.5.1");
-		Skript.registerEvent("Block Fertilize", SimpleEvent.class, BlockFertilizeEvent.class, "[block] fertilize")
-			.description("Called when a player fertilizes blocks.")
-			.requiredPlugins("Minecraft 1.13 or newer")
-			.examples("on block fertilize:",
-				"\tsend \"Fertilized %size of fertilized blocks% blocks got fertilized.\"")
-			.since("2.5");
 		Skript.registerEvent("Arm Swing", SimpleEvent.class, PlayerAnimationEvent.class, "[player] arm swing")
 			.description("Called when a player swings their arm.")
 			.examples("on arm swing:",
@@ -582,21 +506,6 @@ public class SimpleEvents {
 					"\t\tcancel event"
 				)
 				.since("2.10");
-		Skript.registerEvent("Bell Ring", SimpleEvent.class, BellRingEvent.class, "bell ring[ing]")
-			.description("Called when a bell is rung.")
-			.examples(
-				"on bell ring:",
-					"\tsend \"<gold>Ding-dong!<reset>\" to all players in radius 10 of event-block"
-			)
-			.since("2.9.0");
-
-		Skript.registerEvent("Bell Resonate", SimpleEvent.class, BellResonateEvent.class, "bell resonat(e|ing)")
-			.description("Called when a bell resonates, highlighting nearby raiders.")
-			.examples(
-				"on bell resonate:",
-					"\tsend \"<red>Raiders are nearby!\" to all players in radius 32 around event-block"
-			)
-			.since("2.9.0");
 
 		if (Skript.classExists("com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent")) {
 			Skript.registerEvent("Enderman Enrage", SimpleEvent.class, com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent.class, "enderman (enrage|anger)")
@@ -677,20 +586,6 @@ public class SimpleEvents {
 			.description("Called when a bat attempts to go to sleep or wakes up.")
 			.examples("on bat toggle sleep:")
 			.since("2.11");
-
-		if (Skript.classExists("org.bukkit.event.block.VaultDisplayItemEvent")) {
-			Skript.registerEvent("Vault Display Item", SimpleEvent.class, VaultDisplayItemEvent.class,
-					"vault display[ing] item")
-				.description("Called when a vault in a trial chamber is about to display an item.")
-				.examples(
-					"""
-					on vault display item:
-						set event-item to a netherite ingot	
-					"""
-				)
-				.since("2.12")
-				.requiredPlugins("Minecraft 1.21.1+");
-		}
 
 		Skript.registerEvent("Villager Career Change", SimpleEvent.class, VillagerCareerChangeEvent.class,
 				"villager career chang(e[d]|ing)")
