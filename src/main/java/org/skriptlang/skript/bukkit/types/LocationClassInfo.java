@@ -8,6 +8,7 @@ import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.BlockUtils;
 import ch.njol.yggdrasil.Fields;
 import org.bukkit.Bukkit;
@@ -148,15 +149,74 @@ public class LocationClassInfo extends ClassInfo<Location> {
 
 	private static class LocationParser extends Parser<Location> {
 		//<editor-fold desc="location parser" defaultstate="collapsed">
+		private static final String X_PREFIX = "x: ";
+		private static final String Y_SEPARATOR = ", y: ";
+		private static final String Z_SEPARATOR = ", z: ";
+		private static final String YAW_SEPARATOR = ", yaw: ";
+		private static final String PITCH_SEPARATOR = ", pitch: ";
+		private static final String WORLD_SEPARATOR = " in '";
+
+		private static final String[] REQUIRED_SEPARATORS = { Y_SEPARATOR, Z_SEPARATOR, YAW_SEPARATOR, PITCH_SEPARATOR };
+
 		@Override
 		public boolean canParse(ParseContext context) {
-			return false;
+			return context == ParseContext.PARSE;
+		}
+
+		@Nullable
+		public Location parse(String input, ParseContext context) {
+			if (!input.startsWith(X_PREFIX)) {
+				parseError();
+				return null;
+			}
+			input = input.substring(X_PREFIX.length());
+
+			String[] tokens = new String[5]; // x, y, z, yaw, pitch
+			for (int i = 0; i < REQUIRED_SEPARATORS.length; i++) {
+				int separator = input.indexOf(REQUIRED_SEPARATORS[i]);
+				if (separator == -1) {
+					parseError();
+					return null;
+				}
+				tokens[i] = input.substring(0, separator);
+				input = input.substring(separator + REQUIRED_SEPARATORS[i].length());
+			}
+
+			World world = null;
+			int worldSeparator = input.indexOf(WORLD_SEPARATOR);
+			if (worldSeparator == -1) {
+				tokens[4] = input;
+			} else {
+				tokens[4] = input.substring(0, worldSeparator);
+				String worldString = input.substring(worldSeparator + WORLD_SEPARATOR.length());
+				if (!worldString.endsWith("'")) {
+					parseError();
+					return null;
+				}
+				world = Bukkit.getWorld(worldString.substring(0, worldString.length() - 1));
+			}
+
+			try {
+				double x = Double.parseDouble(tokens[0]);
+				double y = Double.parseDouble(tokens[1]);
+				double z = Double.parseDouble(tokens[2]);
+				float yaw = Float.parseFloat(tokens[3]);
+				float pitch = Float.parseFloat(tokens[4]);
+				return new Location(world, x, y, z, yaw, pitch);
+			} catch (NumberFormatException exception) {
+				parseError();
+				return null;
+			}
+		}
+
+		private static void parseError() {
+			Skript.error("Expected format: 'x: <number>, y: <number>, z: <number>, yaw: <number>, pitch: <number> [in '<world>']'", ErrorQuality.SEMANTIC_ERROR);
 		}
 
 		@Override
 		public String toString(Location loc, int flags) {
-			String worldPart = loc.getWorld() == null ? "" : " in '" + loc.getWorld().getName() + "'"; // Safety: getWorld is marked as Nullable by Paper
-			return "x: " + Skript.toString(loc.getX()) + ", y: " + Skript.toString(loc.getY()) + ", z: " + Skript.toString(loc.getZ()) + ", yaw: " + Skript.toString(loc.getYaw()) + ", pitch: " + Skript.toString(loc.getPitch()) + worldPart;
+			String worldPart = loc.getWorld() == null ? "" : WORLD_SEPARATOR + loc.getWorld().getName() + "'"; // Safety: getWorld is marked as Nullable by Paper
+			return X_PREFIX + Skript.toString(loc.getX()) + Y_SEPARATOR + Skript.toString(loc.getY()) + Z_SEPARATOR + Skript.toString(loc.getZ()) + YAW_SEPARATOR + Skript.toString(loc.getYaw()) + PITCH_SEPARATOR + Skript.toString(loc.getPitch()) + worldPart;
 		}
 
 		@Override
