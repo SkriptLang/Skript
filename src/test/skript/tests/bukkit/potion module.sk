@@ -50,6 +50,8 @@ test "potion effect creation":
 	assert amplifier of {_potion} is 5 with "amplifier is not 5"
 	assert {_potion} is infinite with "potion is infinite"
 
+	assert {_potion} is a potion effect with "potion effect is not a potion effect"
+
 # ExprPotionEffects
 test "potion effects of entities/items":
 	# setup
