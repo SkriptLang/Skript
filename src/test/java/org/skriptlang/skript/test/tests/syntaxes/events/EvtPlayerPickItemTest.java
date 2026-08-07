@@ -10,6 +10,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +33,6 @@ public class EvtPlayerPickItemTest extends SkriptJUnitTest {
 	}
 
 	@Test
-	@SuppressWarnings("UnstableApiUsage")
 	public void test() {
 		if (!SUPPORTS_PICK_EVENT)
 			return;
@@ -50,8 +50,8 @@ public class EvtPlayerPickItemTest extends SkriptJUnitTest {
 		Event event = null;
 		try {
 			Class<?> eventClass = Class.forName("io.papermc.paper.event.player.PlayerPickBlockEvent");
-			event = (Event) eventClass.getConstructor(Player.class, Block.class, boolean.class, int.class, int.class)
-					.newInstance(player, pickedBlock, true, 0, 0);
+			event = (Event) eventClass.getConstructor(Player.class, Block.class, ItemStack.class, boolean.class, int.class, int.class)
+					.newInstance(player, pickedBlock, ItemStack.empty(), true, 0, 0);
 		} catch (Exception ignored) {}
 		return event;
 	}
@@ -60,8 +60,8 @@ public class EvtPlayerPickItemTest extends SkriptJUnitTest {
 		Event event = null;
 		try {
 			Class<?> eventClass = Class.forName("io.papermc.paper.event.player.PlayerPickEntityEvent");
-			event = (Event) eventClass.getConstructor(Player.class, Entity.class, boolean.class, int.class, int.class)
-					.newInstance(player, pickedEntity, true, 0, 0);
+			event = (Event) eventClass.getConstructor(Player.class, Entity.class, ItemStack.class, boolean.class, int.class, int.class)
+					.newInstance(player, pickedEntity, ItemStack.empty(), true, 0, 0);
 		} catch (Exception ignored) {}
 		return event;
 	}
