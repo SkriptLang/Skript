@@ -1,4 +1,4 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.entity.player.elements.expressions;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
@@ -6,9 +6,11 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.registrations.EventValues;
 
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Heal Reason")
 @Description("The <a href='#healreason'>heal reason</a> of a <a href='#heal'>heal event</a>.")
@@ -21,8 +23,11 @@ import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 @Since("2.5")
 public class ExprHealReason extends EventValueExpression<RegainReason> {
 
-	static {
-		register(ExprHealReason.class, RegainReason.class, "(regen|health regain|heal[ing]) (reason|cause)");
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprHealReason.class, RegainReason.class)
+			.supplier(ExprHealReason::new)
+			.addPattern("(regen|health regain|heal[ing]) (reason|cause)")
+			.build());
 	}
 
 	public ExprHealReason() {
@@ -31,8 +36,9 @@ public class ExprHealReason extends EventValueExpression<RegainReason> {
 
 	@Override
 	public boolean setTime(int time) {
-		if (time == EventValues.TIME_FUTURE)
+		if (time == EventValue.Time.FUTURE.value())
 			return false;
+
 		return super.setTime(time);
 	}
 
