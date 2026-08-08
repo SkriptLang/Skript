@@ -43,7 +43,7 @@ public class BlockModule extends HierarchicalAddonModule {
 			.addDescription("Called when a player stops breaking a block.")
 			.addExample("""
 				on stop breaking block:
-					send "Hey! You have to finish what you started!"
+					send "Hey! You have to finish what you started!" to player
 				""")
 			.addSince("INSERT VERSION")
 			.supplier(() -> new SimpleEvent("block damage abort"))
