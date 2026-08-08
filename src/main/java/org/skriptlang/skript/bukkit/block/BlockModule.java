@@ -54,9 +54,6 @@ public class BlockModule extends HierarchicalAddonModule {
 			.getter(BlockDamageAbortEvent::getPlayer)
 			.build());
 
-		eventValueRegistry.register(EventValue.builder(BlockDamageAbortEvent.class, Block.class)
-			.getter(BlockDamageAbortEvent::getBlock)
-			.build());
 
 		eventValueRegistry.register(EventValue.builder(BlockDamageAbortEvent.class, ItemStack.class)
 			.getter(BlockDamageAbortEvent::getItemInHand)
