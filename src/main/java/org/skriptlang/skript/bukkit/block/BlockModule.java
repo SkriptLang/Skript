@@ -50,6 +50,7 @@ public class BlockModule extends HierarchicalAddonModule {
 			.build());
 
 		EventValueRegistry eventValueRegistry = addon.registry(EventValueRegistry.class);
+		
 		eventValueRegistry.register(EventValue.builder(BlockDamageAbortEvent.class, Player.class)
 			.getter(BlockDamageAbortEvent::getPlayer)
 			.build());
