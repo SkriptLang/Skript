@@ -35,13 +35,10 @@ public class BlockModule extends HierarchicalAddonModule {
 		// Register the event
 		moduleRegistry(addon).register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Block Damage Abort")
 			.addEvent(BlockDamageAbortEvent.class)
-			.addPatterns("[block] damage (abort|stop)")
-			.addPatterns("(stop|abort) [of] [block] damage")
-			.addPatterns("[block] (stop|abort) break[ing]")
-			.addPatterns("block (stop|abort) damag(e|ing)")
-			.addDescription("""
-                Called when a player stops breaking a block.
-                """)
+			.addPatterns("block damage (abort|stop)")
+			.addPatterns("(stop|abort) [of] block (break[ing]|damag(e|ing))")
+			.addPatterns("block (stop|abort) (break[ing]|damag(e|ing))")
+			.addDescription("Called when a player stops breaking a block.")
 			.addExample("""
                 on block stop breaking:
                     send "Hey! You have to finish what you started!"
@@ -55,6 +52,7 @@ public class BlockModule extends HierarchicalAddonModule {
 		eventValueRegistry.register(EventValue.builder(BlockDamageAbortEvent.class, Player.class)
 			.getter(BlockDamageAbortEvent::getPlayer)
 			.build());
+
 		eventValueRegistry.register(EventValue.builder(BlockDamageAbortEvent.class, Block.class)
 			.getter(BlockDamageAbortEvent::getBlock)
 			.build());
