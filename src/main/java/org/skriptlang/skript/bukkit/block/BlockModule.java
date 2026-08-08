@@ -4,6 +4,7 @@ import ch.njol.skript.lang.util.SimpleEvent;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockDamageAbortEvent;
+import org.bukkit.inventory.ItemStack;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
@@ -32,11 +33,11 @@ public class BlockModule extends HierarchicalAddonModule {
 	@Override
 	public void loadSelf(SkriptAddon addon) {
 
-		// Register the event
 		moduleRegistry(addon).register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Block Damage Abort")
 			.addEvent(BlockDamageAbortEvent.class)
-			.addPatterns("(stop|abort) [of] block (break[ing]|damag(e|ing))")
-			.addPatterns("block (stop|abort) (break[ing]|damag(e|ing))")
+			.addPatterns("[player] (stop|abort[ing]) (damag(e|ing)|break(ing)) [a] block")
+				.addPatterns("block damage abort")
+				.addPatterns("block damage being aborted")
 			.addDescription("Called when a player stops breaking a block.")
 			.addExample("""
                 on block stop breaking:
@@ -46,7 +47,6 @@ public class BlockModule extends HierarchicalAddonModule {
 			.supplier(() -> new SimpleEvent("block damage abort"))
 			.build());
 
-		// Register values for said event
 		EventValueRegistry eventValueRegistry = addon.registry(EventValueRegistry.class);
 		eventValueRegistry.register(EventValue.builder(BlockDamageAbortEvent.class, Player.class)
 			.getter(BlockDamageAbortEvent::getPlayer)
@@ -54,6 +54,10 @@ public class BlockModule extends HierarchicalAddonModule {
 
 		eventValueRegistry.register(EventValue.builder(BlockDamageAbortEvent.class, Block.class)
 			.getter(BlockDamageAbortEvent::getBlock)
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(BlockDamageAbortEvent.class, ItemStack.class)
+			.getter(BlockDamageAbortEvent::getItemInHand)
 			.build());
 	}
 
