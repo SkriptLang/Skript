@@ -35,7 +35,7 @@ public class BlockModule extends HierarchicalAddonModule {
 		moduleRegistry(addon).register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Block Damage Abort")
 			.addEvent(BlockDamageAbortEvent.class)
 			.addPatterns(
-				"[player] (interrupt|stop|abort[ing]) (damag(e|ing)|break(ing)) [a] block",
+				"[player] (stop[ping]|abort[ing]) (damag(e|ing)|break(ing)) [a] block",
 				"block (break|damage) (interrupt|stop|abort)",
 				"block (break|damage) being (interrupted|stopped|aborted)"
 			)
@@ -49,7 +49,6 @@ public class BlockModule extends HierarchicalAddonModule {
 			.build());
 
 		EventValueRegistry eventValueRegistry = addon.registry(EventValueRegistry.class);
-
 
 		eventValueRegistry.register(EventValue.simple(BlockDamageAbortEvent.class, Player.class, BlockDamageAbortEvent::getPlayer));
 
