@@ -1,7 +1,6 @@
 package org.skriptlang.skript.bukkit.block;
 
 import ch.njol.skript.lang.util.SimpleEvent;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockDamageAbortEvent;
 import org.bukkit.inventory.ItemStack;
@@ -50,15 +49,11 @@ public class BlockModule extends HierarchicalAddonModule {
 			.build());
 
 		EventValueRegistry eventValueRegistry = addon.registry(EventValueRegistry.class);
-		
-		eventValueRegistry.register(EventValue.builder(BlockDamageAbortEvent.class, Player.class)
-			.getter(BlockDamageAbortEvent::getPlayer)
-			.build());
 
 
-		eventValueRegistry.register(EventValue.builder(BlockDamageAbortEvent.class, ItemStack.class)
-			.getter(BlockDamageAbortEvent::getItemInHand)
-			.build());
+		eventValueRegistry.register(EventValue.simple(BlockDamageAbortEvent.class, Player.class, BlockDamageAbortEvent::getPlayer));
+
+		eventValueRegistry.register(EventValue.simple(BlockDamageAbortEvent.class, ItemStack.class, BlockDamageAbortEvent::getItemInHand));
 	}
 
 	@Override
