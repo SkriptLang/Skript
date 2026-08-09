@@ -1,7 +1,6 @@
 package org.skriptlang.skript.bukkit.block;
 
 import ch.njol.skript.lang.util.SimpleEvent;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockDamageAbortEvent;
 import org.bukkit.inventory.ItemStack;
@@ -36,31 +35,25 @@ public class BlockModule extends HierarchicalAddonModule {
 		moduleRegistry(addon).register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Block Damage Abort")
 			.addEvent(BlockDamageAbortEvent.class)
 			.addPatterns(
-				"[player] (stop|abort[ing]) (damag(e|ing)|break(ing)) [a] block",
-				"block damage abort",
-				"block damage being aborted"
+				"[player] (interrupt|stop|abort[ing]) (damag(e|ing)|break(ing)) [a] block",
+				"block damage (interrupt|abort|stop)",
+				"block damage being (interrupted|aborted|stopped)"
 			)
 			.addDescription("Called when a player stops breaking a block.")
 			.addExample("""
-                on stop breaking block:
-                    send "Hey! You have to finish what you started!"
-                """)
+				on stop breaking block:
+					send "Hey! You have to finish what you started!" to player
+				""")
 			.addSince("INSERT VERSION")
 			.supplier(() -> new SimpleEvent("block damage abort"))
 			.build());
 
 		EventValueRegistry eventValueRegistry = addon.registry(EventValueRegistry.class);
-		eventValueRegistry.register(EventValue.builder(BlockDamageAbortEvent.class, Player.class)
-			.getter(BlockDamageAbortEvent::getPlayer)
-			.build());
 
-		eventValueRegistry.register(EventValue.builder(BlockDamageAbortEvent.class, Block.class)
-			.getter(BlockDamageAbortEvent::getBlock)
-			.build());
 
-		eventValueRegistry.register(EventValue.builder(BlockDamageAbortEvent.class, ItemStack.class)
-			.getter(BlockDamageAbortEvent::getItemInHand)
-			.build());
+		eventValueRegistry.register(EventValue.simple(BlockDamageAbortEvent.class, Player.class, BlockDamageAbortEvent::getPlayer));
+
+		eventValueRegistry.register(EventValue.simple(BlockDamageAbortEvent.class, ItemStack.class, BlockDamageAbortEvent::getItemInHand));
 	}
 
 	@Override
@@ -69,3 +62,4 @@ public class BlockModule extends HierarchicalAddonModule {
 	}
 
 }
+
