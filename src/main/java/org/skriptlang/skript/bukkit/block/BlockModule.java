@@ -35,9 +35,9 @@ public class BlockModule extends HierarchicalAddonModule {
 		moduleRegistry(addon).register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Block Damage Abort")
 			.addEvent(BlockDamageAbortEvent.class)
 			.addPatterns(
-				"[player] (stop|abort[ing]) (damag(e|ing)|break(ing)) [a] block",
-				"block damage abort",
-				"block damage being aborted"
+				"[player] (interrupt|stop|abort[ing]) (damag(e|ing)|break(ing)) [a] block",
+				"block (break|damage) (interrupt|stop|abort)",
+				"block (break|damage) being (interrupted|stopped|aborted)"
 			)
 			.addDescription("Called when a player stops breaking a block.")
 			.addExample("""
