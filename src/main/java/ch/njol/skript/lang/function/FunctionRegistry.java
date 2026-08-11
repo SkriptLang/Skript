@@ -153,7 +153,7 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 		if (signature.hasModifier(Signature.Modifier.LOCAL)) {
 			throw new IllegalArgumentException("Cannot register a local signature in the global namespace");
 		}
-		register0(GLOBAL_NAMESPACE, signature);
+		register(GLOBAL_NAMESPACE, signature);
 	}
 
 	@Override
@@ -163,10 +163,10 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 			throw new IllegalArgumentException("Cannot register a global signature in a local namespace");
 		}
 
-		register0(new NamespaceIdentifier(namespace), signature);
+		register(new NamespaceIdentifier(namespace), signature);
 	}
 
-	private void register0(@NotNull NamespaceIdentifier namespace, @NotNull Signature<?> signature) {
+	private void register(@NotNull NamespaceIdentifier namespace, @NotNull Signature<?> signature) {
 		Preconditions.checkArgument(FUNCTION_NAME_PATTERN.matcher(signature.name()).matches(),
 				"Invalid signature name '%s'".formatted(signature.name()));
 
@@ -201,9 +201,7 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 				error.append(".");
 			}
 
-			Skript.error(error.toString());
-
-			return;
+			throw new SkriptAPIException(error.toString());
 		}
 
 		Skript.debug("Registering signature '%s'", signature.name());
@@ -229,44 +227,39 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 
 	@Override
 	public void register(@NotNull Function<?> function) {
-		register(null, function);
+		Preconditions.checkNotNull(function, "function cannot be null");
+		if (function.signature().hasModifier(Signature.Modifier.LOCAL)) {
+			throw new IllegalArgumentException("Cannot register a local function in the global namespace");
+		}
+		register(GLOBAL_NAMESPACE, function);
 	}
 
 	@Override
-	public void register(@Nullable String namespace, @NotNull Function<?> function) {
-		Signature<?> signature = function.signature();
+	public void register(@NotNull String namespace, @NotNull Function<?> function) {
 		Preconditions.checkNotNull(function, "function cannot be null");
-		if (signature.hasModifier(Signature.Modifier.LOCAL) && namespace == null) {
-			throw new IllegalArgumentException("Cannot register a local function in the global namespace");
-		}
-		if (!signature.hasModifier(Signature.Modifier.LOCAL) && namespace != null) {
+		if (!function.signature().hasModifier(Signature.Modifier.LOCAL)) {
 			throw new IllegalArgumentException("Cannot register a global function in a local namespace");
 		}
+		register(new NamespaceIdentifier(namespace), function);
+	}
+
+	private void register(@NotNull NamespaceIdentifier namespace, @NotNull Function<?> function) {
+		Signature<?> signature = function.signature();
+		Preconditions.checkArgument(FUNCTION_NAME_PATTERN.matcher(signature.name()).matches(),
+				"Invalid signature name '%s'".formatted(signature.name()));
+
 		Skript.debug("Registering function '%s'", signature.name());
 
-		String name = signature.name();
-		if (!FUNCTION_NAME_PATTERN.matcher(name).matches()) {
-			throw new SkriptAPIException("Invalid function name '" + name + "'");
-		}
-
-		// namespace
-		NamespaceIdentifier namespaceId;
-		if (namespace != null) {
-			namespaceId = new NamespaceIdentifier(namespace);
-		} else {
-			namespaceId = GLOBAL_NAMESPACE;
-		}
-
 		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
-		if (!signatureExists(namespaceId, identifier)) {
+		if (!signatureExists(namespace, identifier)) {
 			register(namespace, signature);
 		}
 
-		Namespace ns = namespaces.computeIfAbsent(namespaceId, n -> new Namespace());
+		Namespace ns = namespaces.computeIfAbsent(namespace, n -> new Namespace());
 
 		Function<?> existing = ns.functions.putIfAbsent(identifier, function);
 		if (existing != null) {
-			alreadyRegisteredError(name, identifier, namespaceId);
+			alreadyRegisteredError(signature.name(), identifier, namespace);
 		}
 	}
 
