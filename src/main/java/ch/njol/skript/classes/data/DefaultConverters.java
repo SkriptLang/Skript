@@ -21,8 +21,6 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntitySnapshot;
 import org.bukkit.entity.LivingEntity;
@@ -113,12 +111,6 @@ public class DefaultConverters {
 
 		// Block - ItemType
 		Converters.registerConverter(Block.class, ItemType.class, ItemType::new, Converter.NO_LEFT_CHAINING | Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
-
-		// Block - Location
-		Converters.registerConverter(Block.class, Location.class, BlockUtils::getLocation, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
-
-		// Entity - Location
-		Converters.registerConverter(Entity.class, Location.class, Entity::getLocation, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
 
 		// Entity - EntityData
 		Converters.registerConverter(Entity.class, EntityData.class, EntityData::fromEntity, Commands.CONVERTER_NO_COMMAND_ARGUMENTS | Converter.NO_RIGHT_CHAINING);
@@ -285,33 +277,8 @@ public class DefaultConverters {
 				Converter.NO_RIGHT_CHAINING);
 		}
 
-		// InventoryHolder - Location
-		// since the individual ones can't be trusted to chain.
-		Converters.registerConverter(InventoryHolder.class, Location.class, holder -> {
-			if (holder instanceof Entity entity)
-				return entity.getLocation();
-			if (holder instanceof Block block)
-				return block.getLocation();
-			if (holder instanceof BlockState state)
-				return BlockUtils.getLocation(state.getBlock());
-			if (holder instanceof DoubleChest doubleChest) {
-				if (doubleChest.getLeftSide() != null) {
-					return BlockUtils.getLocation(((BlockState) doubleChest.getLeftSide()).getBlock());
-				} else if (doubleChest.getRightSide() != null) {
-					return BlockUtils.getLocation(((BlockState) doubleChest.getRightSide()).getBlock());
-				}
-			}
-			return null;
-		});
-
-		// Enchantment - EnchantmentType
-		Converters.registerConverter(Enchantment.class, EnchantmentType.class, e -> new EnchantmentType(e, -1));
-
 		// Vector - Direction
 		Converters.registerConverter(Vector.class, Direction.class, Direction::new);
-
-		// EnchantmentOffer - EnchantmentType
-		Converters.registerConverter(EnchantmentOffer.class, EnchantmentType.class, eo -> new EnchantmentType(eo.getEnchantment(), eo.getEnchantmentLevel()));
 
 		Converters.registerConverter(String.class, World.class, Bukkit::getWorld);
 

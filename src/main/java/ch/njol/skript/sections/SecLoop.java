@@ -79,13 +79,13 @@ public class SecLoop extends LoopSection {
 
 	protected @UnknownNullability Expression<?> expression;
 
-	private final transient Map<Event, Object> current = new WeakHashMap<>();
 	private final transient Map<Event, Iterator<?>> iteratorMap = new WeakHashMap<>();
 	private final transient Map<Event, Object> previous = new WeakHashMap<>();
+	private final transient Map<Event, Object> current = new WeakHashMap<>();
+	private final transient Map<Event, Object> next = new WeakHashMap<>();
 
 	protected @Nullable TriggerItem actualNext;
 	private boolean guaranteedToLoop;
-	private Object nextValue = null;
 	private boolean loopPeeking;
 	protected boolean iterableSingle;
 	protected boolean keyed;
@@ -156,6 +156,7 @@ public class SecLoop extends LoopSection {
 			}
 		}
 
+		Object nextValue = next.get(event);
 		if (iter == null || (!iter.hasNext() && nextValue == null)) {
 			exit(event);
 			debug(event, false);
@@ -164,7 +165,7 @@ public class SecLoop extends LoopSection {
 			previous.put(event, current.get(event));
 			if (nextValue != null) {
 				this.store(event, nextValue);
-				nextValue = null;
+				next.remove(event);
 			} else if (iter.hasNext()) {
 				this.store(event, iter.next());
 			}
@@ -194,12 +195,17 @@ public class SecLoop extends LoopSection {
 	public @Nullable Object getNext(Event event) {
 		if (!loopPeeking)
 			return null;
+		Object nextValue = next.get(event);
+		if (nextValue != null) {
+			return nextValue;
+		}
 		Iterator<?> iter = iteratorMap.get(event);
 		if (iter == null || !iter.hasNext())
 			return null;
 		if (iter instanceof PeekingIterator<?> peekingIterator)
 			return peekingIterator.peek();
 		nextValue = iter.next();
+		next.put(event, nextValue);
 		return nextValue;
 	}
 
@@ -236,10 +242,10 @@ public class SecLoop extends LoopSection {
 
 	@Override
 	public void exit(Event event) {
-		current.remove(event);
 		iteratorMap.remove(event);
 		previous.remove(event);
-		nextValue = null;
+		current.remove(event);
+		next.remove(event);
 		super.exit(event);
 	}
 
