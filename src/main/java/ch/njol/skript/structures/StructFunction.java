@@ -180,7 +180,7 @@ public class StructFunction extends Structure {
 	public void unload() {
 		assert signature != null;
 		FunctionRegistry.getRegistry().remove(signature);
-		signature.calls().forEach(FunctionReference::invalidateCache);
+		signature.calls().forEach(FunctionReference::invalidate);
 		VALIDATE_FUNCTIONS.set(true);
 	}
 
