@@ -7,6 +7,7 @@ import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.common.elements.expressions.ExprColorFromHexCode;
 import org.skriptlang.skript.common.elements.expressions.ExprHexCode;
 import org.skriptlang.skript.common.elements.expressions.ExprRecursiveSize;
+import org.skriptlang.skript.common.elements.expressions.ExprReplace;
 import org.skriptlang.skript.common.elements.sections.ExprSecFunction;
 import org.skriptlang.skript.common.properties.PropertiesModule;
 import org.skriptlang.skript.common.types.QuaternionClassInfo;
