@@ -3,11 +3,12 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
-import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -15,55 +16,53 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 
-@Name("Hostname")
-@Description("The hostname used by the connecting player to connect to the server in a <a href='#connect'>connect</a> event.")
+@Name("Enchantment Bonus")
+@Description("The enchantment bonus in an enchant prepare event. This represents the number of bookshelves affecting/surrounding the enchantment table.")
 @Example("""
-	on connect:
-		hostname is "testers.example.com"
-		send "Welcome back tester!"
+	on enchant:
+		send "There are %enchantment bonus% bookshelves surrounding this enchantment table!" to player
 	""")
-@Since("2.6.1")
-public class ExprHostname extends SimpleExpression<String> implements EventRestrictedSyntax {
+@Events("enchant prepare")
+@Since("2.5")
+public class ExprEnchantmentBonus extends SimpleExpression<Long> implements EventRestrictedSyntax {
 
 	static {
-		Skript.registerExpression(ExprHostname.class, String.class, ExpressionType.SIMPLE, "[the] (host|domain)[ ][name]");
+		Skript.registerExpression(ExprEnchantmentBonus.class, Long.class, ExpressionType.SIMPLE, "[the] enchantment bonus");
 	}
 
 	@Override
-	@SuppressWarnings({"null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		return true;
 	}
 
 	@Override
 	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(PlayerLoginEvent.class);
+		return CollectionUtils.array(PrepareItemEnchantEvent.class);
 	}
-	
+
 	@Override
 	@Nullable
-	protected String[] get(Event e) {
-		if (!(e instanceof PlayerLoginEvent))
-			return null;
-
-		return new String[] {((PlayerLoginEvent) e).getHostname()};
+	protected Long[] get(Event e) {
+		return new Long[]{(long) ((PrepareItemEnchantEvent) e).getEnchantmentBonus()};
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
-	
+
+
 	@Override
-	public Class<String> getReturnType() {
-		return String.class;
-	}	
-	
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "hostname";
+		return "enchantment bonus";
 	}
-	
+
 }

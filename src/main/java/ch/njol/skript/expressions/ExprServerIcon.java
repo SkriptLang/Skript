@@ -35,16 +35,10 @@ public class ExprServerIcon extends SimpleExpression<CachedServerIcon> {
 				"[the] [(1¦(default)|2¦(shown|sent))] [server] icon");
 	}
 
-	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
-
 	private boolean isServerPingEvent, isDefault;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!PAPER_EVENT_EXISTS) {
-			Skript.error("The server icon expression requires Paper 1.12.2 or newer");
-			return false;
-		}
 		isServerPingEvent = getParser().isCurrentEvent(PaperServerListPingEvent.class);
 		isDefault = (parseResult.mark == 0 && !isServerPingEvent) || parseResult.mark == 1;
 		if (!isServerPingEvent && !isDefault) {
@@ -57,8 +51,8 @@ public class ExprServerIcon extends SimpleExpression<CachedServerIcon> {
 	@Override
 	@Nullable
 	public CachedServerIcon[] get(Event e) {
-		CachedServerIcon icon = null;
-		if ((isServerPingEvent && !isDefault) && PAPER_EVENT_EXISTS) {
+		CachedServerIcon icon;
+		if ((isServerPingEvent && !isDefault)) {
 			if (!(e instanceof PaperServerListPingEvent))
 				return null;
 			icon = ((PaperServerListPingEvent) e).getServerIcon();
