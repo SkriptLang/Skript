@@ -1,0 +1,8 @@
+test "ExprResolvedComponent":
+	spawn a pig at event-location:
+		set {_entity} to event-entity
+
+	set {_message} to formatted "<selector:@s>" resolved for {_entity}
+	assert "%{_message}%" ends with "<lang:entity.minecraft.pig>" with "Selector component did not resolve (got: '%{_message}%')"
+
+	delete the entity within {_entity}

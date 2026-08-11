@@ -112,7 +112,7 @@ public class SimpleEvents {
 				.examples("on combust:")
 				.since("1.0");
 		Skript.registerEvent("Explode", SimpleEvent.class, EntityExplodeEvent.class, "explo(d(e|ing)|sion)")
-				.description("Called when an entity (a primed TNT or a creeper) explodes.")
+				.description("Called when an entity (a primed TNT or a creeper) explodes. When the mob griefing gamerule is false, this is not called for entities.")
 				.examples("on explosion:")
 				.since("1.0");
 //		Skript.registerEvent(SimpleEvent.class, EntityInteractEvent.class, "interact");// = entity interacts with block, e.g. endermen?; player -> PlayerInteractEvent // likely tripwires, pressure plates, etc.
@@ -677,42 +677,6 @@ public class SimpleEvents {
 			.description("Called when a bat attempts to go to sleep or wakes up.")
 			.examples("on bat toggle sleep:")
 			.since("2.11");
-
-		// WorldBorder Events
-		if (Skript.classExists("io.papermc.paper.event.world.border.WorldBorderEvent")) {
-			Skript.registerEvent("World Border Bounds Change", SimpleEvent.class, WorldBorderBoundsChangeEvent.class, "world[ ]border [bounds] chang(e|ing)")
-				.description(
-					"Called when a world border changes its bounds, either over time, or instantly.",
-					"This event does not get called for virtual borders."
-				)
-				.examples(
-					"on worldborder bounds change:",
-						"\tbroadcast \"The diameter of %event-worldborder% is changing from %past event-number% to %event-number% over the next %event-timespan%\""
-				)
-				.since("2.11");
-
-			Skript.registerEvent("World Border Bounds Finish Change", SimpleEvent.class, WorldBorderBoundsChangeFinishEvent.class, "world[ ]border [bounds] finish chang(e|ing)")
-				.description(
-					"Called when a moving world border has finished its move.",
-					"This event does not get called for virtual borders."
-				)
-				.examples(
-					"on worldborder bounds finish change:",
-						"\tbroadcast \"Over the past %event-timespan%, the diameter of %event-worldborder% went from %past event-number% to %event-number%\""
-				)
-				.since("2.11");
-
-			Skript.registerEvent("World Border Center Change", SimpleEvent.class, WorldBorderCenterChangeEvent.class, "world[ ]border center chang(e|ing)")
-				.description(
-					"Called when a world border's center has changed.",
-					"This event does not get called for virtual borders."
-				)
-				.examples(
-					"on worldborder center change:",
-						"\tbroadcast \"The center of %event-worldborder% has moved from %past event-location% to %event-location%\""
-				)
-				.since("2.11");
-		}
 
 		if (Skript.classExists("org.bukkit.event.block.VaultDisplayItemEvent")) {
 			Skript.registerEvent("Vault Display Item", SimpleEvent.class, VaultDisplayItemEvent.class,
