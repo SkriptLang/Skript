@@ -1,12 +1,13 @@
 package ch.njol.skript.entity;
 
-import ch.njol.skript.bukkitutil.BukkitUtils;
-import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.coll.CollectionUtils;
+import com.google.common.collect.Iterators;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.entity.Frog;
 import org.bukkit.entity.Frog.Variant;
 import org.jetbrains.annotations.NotNull;
@@ -26,16 +27,8 @@ public class FrogData extends EntityData<Frog> {
 	private static final Variant[] VARIANTS;
 
 	static {
-		EntityData.register(FrogData.class, "frog", Frog.class, 0, PATTERNS.getPatterns());
-		VARIANTS = new Variant[]{Variant.TEMPERATE, Variant.WARM, Variant.COLD};
-		ClassInfo<?> frogVariantClassInfo = BukkitUtils.getRegistryClassInfo(
-			"org.bukkit.entity.Frog$Variant",
-			"FROG_VARIANT",
-			"frogvariant",
-			"frog variants"
-		);
-		assert frogVariantClassInfo != null;
-		Classes.registerClass(frogVariantClassInfo
+		var frogVariantInfo = new RegistryClassInfo<>(Variant.class, RegistryKey.FROG_VARIANT, "frogvariant", "frog variants");
+		Classes.registerClass(frogVariantInfo
 			.user("frog ?variants?")
 			.name("Frog Variant")
 			.description("Represents the variant of a frog entity.",
@@ -43,6 +36,9 @@ public class FrogData extends EntityData<Frog> {
 			.since("2.13")
 			.documentationId("FrogVariant")
 		);
+		VARIANTS = Iterators.toArray(frogVariantInfo.getSupplier().get(), Variant.class);
+
+		EntityData.register(FrogData.class, "frog", Frog.class, 0, PATTERNS.getPatterns());
 	}
 
 	private @Nullable Variant variant = null;

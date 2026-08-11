@@ -1,0 +1,9 @@
+parse:
+  results: {aliases structure oome::*}
+  code:
+    aliases:
+      {null} = null
+
+test "5871-aliases structure oome":
+  assert {aliases structure oome::*} contains "Minecraft id null is not valid"
+  assert {aliases structure oome::*} contains "The variation {null} has not been defined before"

@@ -35,10 +35,11 @@ public class CommonModule extends HierarchicalAddonModule {
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
 		register(addon,
-				ExprColorFromHexCode::register,
-				ExprHexCode::register,
-				ExprRecursiveSize::register,
-				ExprSecFunction::register
+			ExprColorFromHexCode::register,
+			ExprHexCode::register,
+			ExprRecursiveSize::register,
+			ExprReplace::register,
+			ExprSecFunction::register
 		);
 	}
 

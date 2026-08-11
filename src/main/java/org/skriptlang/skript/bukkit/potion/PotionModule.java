@@ -1,19 +1,17 @@
 package org.skriptlang.skript.bukkit.potion;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.yggdrasil.Fields;
-import org.bukkit.Registry;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionEffectTypeCategory;
-import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
@@ -129,15 +127,7 @@ public class PotionModule extends HierarchicalAddonModule {
 				}
 			}));
 
-		Registry<@NotNull PotionEffectType> petRegistry;
-		if (BukkitUtils.registryExists("MOB_EFFECT")) { // Paper (1.21.4)
-			petRegistry = Registry.MOB_EFFECT;
-		} else if (BukkitUtils.registryExists("EFFECT")) { // Bukkit (1.20.3)
-			petRegistry = Registry.EFFECT;
-		} else {
-			throw new IllegalStateException("Potion effect registry does not exist");
-		}
-		Classes.registerClass(new RegistryClassInfo<>(PotionEffectType.class, petRegistry, "potioneffecttype", "potion effect types", false)
+		Classes.registerClass(new RegistryClassInfo<>(PotionEffectType.class, RegistryKey.MOB_EFFECT, "potioneffecttype", "potion effect types")
 			.user("potion ?effect ?types?")
 			.name("Potion Effect Type")
 			.description("A potion effect type, e.g. 'strength' or 'swiftness'.")

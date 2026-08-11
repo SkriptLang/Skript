@@ -7,11 +7,15 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.BookMeta;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Book Title")
@@ -21,6 +25,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		message "You finished your book titled %title of event-item%"
 	""")
 @Since("2.2-dev31")
+@Deprecated(since = "2.16", forRemoval = true)
 public class ExprBookTitle extends SimplePropertyExpression<ItemType, Component> {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
@@ -28,6 +33,12 @@ public class ExprBookTitle extends SimplePropertyExpression<ItemType, Component>
 			"book (name|title)", "itemtypes", false)
 				.supplier(ExprBookTitle::new)
 				.build());
+	}
+
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		ScriptWarning.printDeprecationWarning("This element is deprecated and scheduled for removal in a future release. Consider using 'title of '" + "" + exprs[0].toString(null, false) + "' instead.");
+		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
