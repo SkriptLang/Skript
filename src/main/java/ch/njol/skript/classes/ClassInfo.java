@@ -144,7 +144,6 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 	 * @see SimpleLiteral
 	 */
 	public ClassInfo<T> defaultExpression(final DefaultExpression<T> defaultExpression) {
-		assert this.defaultExpression == null;
 		if (!defaultExpression.isDefault())
 			throw new IllegalArgumentException("defaultExpression.isDefault() must return true for the default expression of a class");
 		this.defaultExpression = defaultExpression;
