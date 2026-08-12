@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 @Since("1.3.4")
 public class CondPvP extends Condition {
 
+	// Added in 1.21.9
 	private static final boolean PVP_GAME_RULE_EXISTS = Skript.fieldExists(GameRule.class, "PVP");
 	
 	static {

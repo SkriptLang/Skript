@@ -1,6 +1,5 @@
 package ch.njol.skript.conditions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
@@ -27,21 +26,14 @@ import org.bukkit.inventory.MainHand;
 @Since("2.8.0")
 public class CondIsLeftHanded extends PropertyCondition<LivingEntity> {
 
-	// TODO - remove this when Spigot support is dropped
-	private static final boolean CAN_USE_ENTITIES = Skript.methodExists(Mob.class, "isLeftHanded");
-
 	static {
-		if (CAN_USE_ENTITIES) {
-			register(CondIsLeftHanded.class, "(:left|right)( |-)handed", "livingentities");
-		} else {
-			register(CondIsLeftHanded.class, "(:left|right)( |-)handed", "players");
-		}
+		register(CondIsLeftHanded.class, "(:left|right)( |-)handed", "livingentities");
 	}
 
 	private MainHand hand;
 
 	@Override
-	public boolean init(Expression[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		hand = parseResult.hasTag("left") ? MainHand.LEFT : MainHand.RIGHT;
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
@@ -49,7 +41,7 @@ public class CondIsLeftHanded extends PropertyCondition<LivingEntity> {
 	@Override
 	public boolean check(LivingEntity livingEntity) {
 		// check if entity is a mob and if the method exists
-		if (CAN_USE_ENTITIES && livingEntity instanceof Mob mob)
+		if (livingEntity instanceof Mob mob)
 			return mob.isLeftHanded() == (hand == MainHand.LEFT);
 
 		// check if entity is a player
@@ -68,8 +60,10 @@ public class CondIsLeftHanded extends PropertyCondition<LivingEntity> {
 	@Override
 	protected void change(LivingEntity livingEntity, boolean value, ChangeMode mode) {
 		value = value == (hand == MainHand.LEFT);
-		if (CAN_USE_ENTITIES && livingEntity instanceof Mob mob) {
+		if (livingEntity instanceof Mob mob) {
 			mob.setLeftHanded(value);
+		} else if (livingEntity instanceof HumanEntity ignored) {
+			error("It is not possible to change the main hand of a player.");
 		}
 	}
 
