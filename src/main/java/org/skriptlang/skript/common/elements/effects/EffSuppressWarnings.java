@@ -1,4 +1,4 @@
-package ch.njol.skript.effects;
+package org.skriptlang.skript.common.elements.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -13,6 +13,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.script.ScriptWarning;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Locally Suppress Warning")
 @Description("Suppresses target warnings from the current script.")
@@ -21,15 +23,19 @@ import org.skriptlang.skript.lang.script.ScriptWarning;
 @Since("2.3")
 public class EffSuppressWarnings extends Effect {
 
-	static {
+	public static void register(SyntaxRegistry syntaxRegistry) {
 		StringBuilder warnings = new StringBuilder();
 		ScriptWarning[] values = ScriptWarning.values();
 		for (int i = 0; i < values.length; i++) {
-			if (i != 0)
+			if (i != 0) {
 				warnings.append('|');
-			warnings.append(values[i].ordinal()).append(':').append(values[i].getPattern());
+			}
+			warnings.append(values[i].ordinal())
+				.append(':')
+				.append(values[i].getPattern());
 		}
-		Skript.registerEffect(EffSuppressWarnings.class, "[local[ly]] suppress [the] (" + warnings + ") warning[s]");
+		syntaxRegistry.register(SyntaxRegistry.EFFECT, SyntaxInfo.simple(EffSuppressWarnings.class, EffSuppressWarnings::new,
+			"[local[ly]] suppress [the] (" + warnings + ") warning[s]"));
 	}
 
 	private @UnknownNullability ScriptWarning warning;
