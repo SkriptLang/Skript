@@ -11,7 +11,6 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -35,10 +34,12 @@ public class EffSuppressWarnings extends Effect {
 				.append(values[i].getPattern());
 		}
 		syntaxRegistry.register(SyntaxRegistry.EFFECT, SyntaxInfo.simple(EffSuppressWarnings.class, EffSuppressWarnings::new,
-			"[local[ly]] suppress [the] (" + warnings + ") warning[s]"));
+			"[local[ly]] [stop:un]suppress [the] (" + warnings + ") warning[s]",
+			"[start|:stop] [local[ly]] suppressing [the] (" + warnings + ") warning[s]"));
 	}
 
-	private @UnknownNullability ScriptWarning warning;
+	private ScriptWarning warning;
+	private boolean stop;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
@@ -48,8 +49,11 @@ public class EffSuppressWarnings extends Effect {
 		}
 
 		warning = ScriptWarning.values()[parseResult.mark];
+		stop = parseResult.hasTag("stop");
 		if (warning.isDeprecated()) {
 			Skript.warning(warning.getDeprecationMessage());
+		} else if (stop) {
+			getParser().getCurrentScript().allowWarning(warning);
 		} else {
 			getParser().getCurrentScript().suppressWarning(warning);
 		}
@@ -61,7 +65,7 @@ public class EffSuppressWarnings extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "suppress " + warning.getWarningName() + " warnings";
+		return (stop ? "un" : "") + "suppress " + warning.getWarningName() + " warnings";
 	}
 
 }
