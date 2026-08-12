@@ -1,8 +1,6 @@
 package ch.njol.skript.entity;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.bukkitutil.BukkitUtils;
-import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
@@ -10,7 +8,9 @@ import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterators;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.entity.Pig;
+import org.bukkit.entity.Pig.Variant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,8 +18,7 @@ import java.util.Objects;
 
 public class PigData extends EntityData<Pig> {
 
-	private static final boolean VARIANTS_ENABLED;
-	private static final Object[] VARIANTS;
+	private static final Variant[] VARIANTS;
 	private static final Patterns<Kleenean> PATTERNS = new Patterns<>(new Object[][]{
 		{"pig", Kleenean.UNKNOWN},
 		{"saddled pig", Kleenean.TRUE},
@@ -27,17 +26,8 @@ public class PigData extends EntityData<Pig> {
 	});
 
 	static {
-		ClassInfo<?> pigVariantClassInfo = BukkitUtils.getRegistryClassInfo(
-			"org.bukkit.entity.Pig$Variant",
-			"PIG_VARIANT",
-			"pigvariant",
-			"pig variants"
-		);
-		if (pigVariantClassInfo == null) {
-			// Registers a dummy/placeholder class to ensure working operation on MC versions that do not have 'Pig.Variant' (1.21.4-)
-			pigVariantClassInfo = new ClassInfo<>(PigVariantDummy.class, "pigvariant");
-		}
-		Classes.registerClass(pigVariantClassInfo
+		var pigVariantInfo = new RegistryClassInfo<>(Variant.class, RegistryKey.PIG_VARIANT, "pigvariant", "pig variants");
+		Classes.registerClass(pigVariantInfo
 			.user("pig ?variants?")
 			.name("Pig Variant")
 			.description("Represents the variant of a pig entity.",
@@ -45,24 +35,17 @@ public class PigData extends EntityData<Pig> {
 			.since("2.12")
 			.requiredPlugins("Minecraft 1.21.5+")
 			.documentationId("PigVariant"));
+		VARIANTS = Iterators.toArray(pigVariantInfo.getSupplier().get(), Pig.Variant.class);
 
 		register(PigData.class, "pig", Pig.class, 0, PATTERNS.getPatterns());
-		if (Skript.classExists("org.bukkit.entity.Pig$Variant")) {
-			VARIANTS_ENABLED = true;
-			VARIANTS = Iterators.toArray(Classes.getExactClassInfo(Pig.Variant.class).getSupplier().get(), Pig.Variant.class);
-		} else {
-			VARIANTS_ENABLED = false;
-			VARIANTS = null;
-		}
 	}
 	
 	private Kleenean saddled = Kleenean.UNKNOWN;
-	private @Nullable Object variant = null;
+	private @Nullable Variant variant;
 
 	public PigData() {}
 
-	// TODO: When safe, 'variant' should have the type changed to 'Pig.Variant' when 1.21.5 is minimum supported version
-	public PigData(@Nullable Kleenean saddled, @Nullable Object variant) {
+	public PigData(@Nullable Kleenean saddled, @Nullable Variant variant) {
 		this.saddled = saddled != null ? saddled : Kleenean.UNKNOWN;
 		this.variant = variant;
 		super.codeNameIndex = PATTERNS.getMatchedPattern(this.saddled, 0).orElse(0);
@@ -71,7 +54,7 @@ public class PigData extends EntityData<Pig> {
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
 		saddled = PATTERNS.getInfo(matchedCodeName);
-		if (VARIANTS_ENABLED && exprs[0] != null) {
+		if (exprs[0] != null) {
 			//noinspection unchecked
 			variant = ((Literal<Pig.Variant>) exprs[0]).getSingle();
 		}
@@ -83,8 +66,7 @@ public class PigData extends EntityData<Pig> {
 		if (pig != null) {
 			saddled = Kleenean.get(pig.hasSaddle());
 			super.codeNameIndex = PATTERNS.getMatchedPattern(saddled, 0).orElse(0);
-			if (VARIANTS_ENABLED)
-				variant = pig.getVariant();
+			variant = pig.getVariant();
 		}
 		return true;
 	}
@@ -92,11 +74,9 @@ public class PigData extends EntityData<Pig> {
 	@Override
 	public void set(Pig pig) {
 		pig.setSaddle(saddled.isTrue());
-		if (VARIANTS_ENABLED) {
-			Object finalVariant = variant != null ? variant : CollectionUtils.getRandom(VARIANTS);
-			assert finalVariant != null;
-			pig.setVariant((Pig.Variant) finalVariant);
-		}
+		Variant finalVariant = variant != null ? variant : CollectionUtils.getRandom(VARIANTS);
+		assert finalVariant != null;
+		pig.setVariant(finalVariant);
 	}
 	
 	@Override
@@ -139,9 +119,4 @@ public class PigData extends EntityData<Pig> {
 		return variant == null || variant == other.variant;
 	}
 
-	/**
-	 * A dummy/placeholder class to ensure working operation on MC versions that do not have `Pig.Variant`
-	 */
-	public static class PigVariantDummy {}
-	
 }

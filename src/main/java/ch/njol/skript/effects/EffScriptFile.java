@@ -1,6 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.ScriptLoader.ScriptInfo;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptCommand;
 import ch.njol.skript.command.ScriptCommand;
@@ -123,7 +124,8 @@ public class EffScriptFile extends Effect {
 		FileFilter filter = ScriptLoader.getDisabledScriptsFilter();
 		switch (mark) {
 			case ENABLE:
-				if (ScriptLoader.getLoadedScripts().contains(ScriptLoader.getScript(scriptFile)))
+				Script script = ScriptLoader.getScript(scriptFile);
+				if (script != null && ScriptLoader.getLoadedScripts().contains(script))
 					return;
 				if (filter.accept(scriptFile)) {
 					try {
@@ -148,7 +150,9 @@ public class EffScriptFile extends Effect {
 				if (filter.accept(scriptFile))
 					return;
 
-				this.unloadScripts(scriptFile);
+				if (!this.unloadScripts(scriptFile)) {
+					return;
+				}
 
 				ScriptLoader.loadScripts(scriptFile, openCloseable);
 				break;
@@ -164,7 +168,9 @@ public class EffScriptFile extends Effect {
 				if (filter.accept(scriptFile))
 					return;
 
-				this.unloadScripts(scriptFile);
+				if (!this.unloadScripts(scriptFile)) {
+					return;
+				}
 
 				try {
 					FileUtils.move(
@@ -183,21 +189,25 @@ public class EffScriptFile extends Effect {
 		}
 	}
 
-	private void unloadScripts(File file) {
-		Set<Script> loaded = ScriptLoader.getLoadedScripts();
+	private boolean unloadScripts(File file) {
 		if (file.isDirectory()) {
-			Set<Script> scripts = ScriptLoader.getScripts(file);
-			if (scripts.isEmpty())
-				return;
-			scripts.retainAll(loaded); // skip any that are not loaded (avoid throwing error)
-			ScriptLoader.unloadScripts(scripts);
-		} else {
-			Script script = ScriptLoader.getScript(file);
-			if (!loaded.contains(script))
-				return; // don't need to unload if not loaded (avoid throwing error)
-			if (script != null)
-				ScriptLoader.unloadScript(script);
+			ScriptInfo info = ScriptLoader.unloadScripts(ScriptLoader.getScripts(file));
+			if (info.files == 0) {
+				error("Failed to unload one or more scripts within '" + file.getName() + "'. Were they already loading or unloading?");
+				return false;
+			}
+			return true;
 		}
+		Script script = ScriptLoader.getScript(file);
+		if (script == null) {
+			return true; // we want the file to still be marked disabled
+		}
+		ScriptInfo info = ScriptLoader.unloadScript(script);
+		if (info.files == 0) {
+			error("Failed to unload the script '" + script.nameAndPath() + "'. Was it already loading or unloading?");
+			return false;
+		}
+		return true;
 	}
 
 	@Override
