@@ -100,6 +100,12 @@ public abstract class Condition extends Statement implements Conditional<Event>,
 
 	/**
 	 * Checks whether this condition can be changed using a specific change mode.
+	 * The following change modes are not intended to be supported:
+	 * <ul>
+	 *     <li>{@link ChangeMode#ADD}</li>
+	 *     <li>{@link ChangeMode#REMOVE}</li>
+	 *     <li>{@link ChangeMode#REMOVE_ALL}</li>
+	 * </ul>
 	 * @param mode The change mode to consider.
 	 * @return Whether this condition can be changed using {@code mode}.
 	 */
@@ -110,11 +116,12 @@ public abstract class Condition extends Statement implements Conditional<Event>,
 	/**
 	 * Changes the value this condition checks for some holders (to be determined by the implementation).
 	 * @param event Event providing context.
-	 * @param value The new value.
-	 *              This is always false for {@link ChangeMode#DELETE} and {@link ChangeMode#RESET}.
+	 * @param deltaValue The new value.
+	 *  This is always false for {@link ChangeMode#DELETE} and {@link ChangeMode#RESET}.
 	 * @param mode The type of change to perform.
+	 *  See {@link #acceptChange(ChangeMode)} for further information about expected change modes.
 	 */
-	public void change(Event event, boolean value, ChangeMode mode) { }
+	public void change(Event event, boolean deltaValue, ChangeMode mode) { }
 
 	/**
 	 * Sets the negation state of this condition. This will change the behaviour of {@link Expression#check(Event, Predicate, boolean)}.

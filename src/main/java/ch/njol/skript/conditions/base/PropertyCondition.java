@@ -182,20 +182,20 @@ public abstract class PropertyCondition<T> extends Condition implements Predicat
 	}
 
 	@Override
-	public void change(Event event, boolean value, ChangeMode mode) {
+	public void change(Event event, boolean deltaValue, ChangeMode mode) {
 		for (T what : expr.getArray(event)) {
-			change(what, value, mode);
+			change(what, deltaValue, mode);
 		}
 	}
 
 	/**
 	 * Changes the value of the property this condition represents for a property holder.
 	 * @param what The property holder.
-	 * @param value The new value.
+	 * @param deltaValue The new value.
 	 *              This is always false for {@link ChangeMode#DELETE} and {@link ChangeMode#RESET}.
 	 * @param mode The type of change to perform.
 	 */
-	protected void change(T what, boolean value, ChangeMode mode) { }
+	protected void change(T what, boolean deltaValue, ChangeMode mode) { }
 
 	protected abstract String getPropertyName();
 

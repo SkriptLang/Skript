@@ -58,10 +58,10 @@ public class CondIsLeftHanded extends PropertyCondition<LivingEntity> {
 	}
 
 	@Override
-	protected void change(LivingEntity livingEntity, boolean value, ChangeMode mode) {
-		value = value == (hand == MainHand.LEFT);
+	protected void change(LivingEntity livingEntity, boolean deltaValue, ChangeMode mode) {
+		deltaValue = deltaValue == (hand == MainHand.LEFT);
 		if (livingEntity instanceof Mob mob) {
-			mob.setLeftHanded(value);
+			mob.setLeftHanded(deltaValue);
 		} else if (livingEntity instanceof HumanEntity ignored) {
 			error("It is not possible to change the main hand of a player.");
 		}

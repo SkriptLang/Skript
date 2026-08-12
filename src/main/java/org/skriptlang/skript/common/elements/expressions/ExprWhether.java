@@ -17,12 +17,15 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Whether")
 @Description("""
-	A shorthand for returning the result of a condition (true or false).
+	A shorthand for returning the result of a condition (true or false). \
 	This is functionally identical to using 'true if <condition> else false'.
+	Many conditions also support being changed through this expression, typically using 'set'.
 	""")
 @Example("set {fly} to whether player can fly")
 @Example("broadcast \"Flying: %whether player is flying%\"")
-@Since("2.9.0")
+@Example("set whether the player can fly to true")
+@Example("toggle whether the player can pick up items")
+@Since({"2.9.0", "INSERT VERSION (changing)"})
 public class ExprWhether extends SimpleExpression<Boolean> {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
