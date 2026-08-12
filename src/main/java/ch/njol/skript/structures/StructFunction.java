@@ -163,7 +163,7 @@ public class StructFunction extends Structure {
 		if (function.getSignature().isLocal()) {
 			FunctionRegistry.getRegistry().register(script.getConfig().getFileName(), function);
 		} else {
-			FunctionRegistry.getRegistry().register(null, function);
+			FunctionRegistry.getRegistry().register(function);
 		}
 	}
 

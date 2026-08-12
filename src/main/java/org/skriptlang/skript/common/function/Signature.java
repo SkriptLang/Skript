@@ -7,7 +7,6 @@ import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
-import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.Set;
 
@@ -35,7 +34,6 @@ public interface Signature<T> {
 	/**
 	 * @return An unmodifiable view of all the parameters that this signature has.
 	 */
-	@UnmodifiableView
 	@NotNull Parameters parameters();
 
 	/**

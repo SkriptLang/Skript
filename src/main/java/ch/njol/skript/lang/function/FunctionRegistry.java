@@ -169,6 +169,7 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 	private void register(@NotNull NamespaceIdentifier namespace, @NotNull Signature<?> signature) {
 		Preconditions.checkArgument(FUNCTION_NAME_PATTERN.matcher(signature.name()).matches(),
 				"Invalid signature name '%s'".formatted(signature.name()));
+		Skript.checkAcceptRegistrations();
 
 		Retrieval<org.skriptlang.skript.common.function.Signature<?>> existing;
 		Parameter<?>[] parameters = signature.parameters().all();
@@ -247,6 +248,7 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 		Signature<?> signature = function.signature();
 		Preconditions.checkArgument(FUNCTION_NAME_PATTERN.matcher(signature.name()).matches(),
 				"Invalid signature name '%s'".formatted(signature.name()));
+		Skript.checkAcceptRegistrations();
 
 		Skript.debug("Registering function '%s'", signature.name());
 

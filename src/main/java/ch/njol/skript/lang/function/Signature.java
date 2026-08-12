@@ -189,9 +189,6 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 		return (Class<T>) returns;
 	}
 
-	/**
-	 * @return A {@link SequencedMap} containing all parameters.
-	 */
 	@Override
 	public @NotNull Parameters parameters() {
 		return parameters;

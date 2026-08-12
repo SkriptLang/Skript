@@ -70,7 +70,7 @@ public abstract class Functions {
 		}
 		globalFunctions.put(function.name(), javaNamespace);
 
-		FunctionRegistry.getRegistry().register(null, function);
+		FunctionRegistry.getRegistry().register(function);
 
 		return function;
 	}
@@ -91,7 +91,7 @@ public abstract class Functions {
 		}
 		globalFunctions.put(function.getName(), javaNamespace);
 
-		FunctionRegistry.getRegistry().register(null, function);
+		FunctionRegistry.getRegistry().register(function);
 
 		return function;
 	}
@@ -130,7 +130,7 @@ public abstract class Functions {
 		if (function.getSignature().isLocal()) {
 			FunctionRegistry.getRegistry().register(script.getConfig().getFileName(), function);
 		} else {
-			FunctionRegistry.getRegistry().register(null, function);
+			FunctionRegistry.getRegistry().register(function);
 		}
 
 		return function;
