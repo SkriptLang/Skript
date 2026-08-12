@@ -6,7 +6,6 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.events.EvtClick;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -24,6 +23,7 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.entity.player.elements.events.EvtClick;
 
 @Name("Cancel Event")
 @Description("Cancels the event (e.g. prevent blocks from being placed, or damage being taken).")
