@@ -1,10 +1,12 @@
 package org.skriptlang.skript.lang.experiment;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptAddon;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.Skript;
+import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.util.Registry;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -12,14 +14,7 @@ import java.util.Set;
 /**
  * A manager for registering (and identifying) experimental feature flags.
  */
-/*
-* TODO
-* 	This is designed to be (replaced by|refactored into) a proper registry when the registries rework PR
-* 	is completed. The overall skeleton is designed to remain, so that there should be no breaking changes
-* 	for anything using it. I.e. you will still be able to use Skript#experiments() and obtain 'this' class
-* 	although these will just become helper methods for the proper registry behaviour.
-* */
-public class ExperimentRegistry implements Experimented {
+public class ExperimentRegistry implements Registry<Experiment>, Experimented {
 
 	private final Skript skript;
 	private final Set<Experiment> experiments;
@@ -27,6 +22,14 @@ public class ExperimentRegistry implements Experimented {
 	public ExperimentRegistry(Skript skript) {
 		this.skript = skript;
 		this.experiments = new LinkedHashSet<>();
+	}
+
+	/**
+	 * @deprecated Use {@link #ExperimentRegistry(Skript)}.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public ExperimentRegistry(ch.njol.skript.Skript ignored) {
+		this(ch.njol.skript.Skript.instance());
 	}
 
 	/**
@@ -50,6 +53,14 @@ public class ExperimentRegistry implements Experimented {
 	 */
 	public Experiment[] registered() {
 		return experiments.toArray(new Experiment[0]);
+	}
+
+	/**
+	 * @return An unmodifiable set containing all currently-registered experiments.
+	 */
+	@Override
+	public @Unmodifiable Set<Experiment> elements() {
+		return Set.copyOf(experiments);
 	}
 
 	/**

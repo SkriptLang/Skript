@@ -203,8 +203,6 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	@Nullable
 	private static Version version = null;
-	@Deprecated(since = "2.9.0", forRemoval = true) // TODO this field will be replaced by a proper registry later
-	private static @UnknownNullability ExperimentRegistry experimentRegistry;
 
 	public static Version getVersion() {
 		final Version v = version;
@@ -339,9 +337,13 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	/**
 	 * @return The manager for experimental, optional features.
+	 * @deprecated {@link ExperimentRegistry} is now a regular registry, and should be accessed as such.
+	 * See {@link org.skriptlang.skript.addon.SkriptAddon#registry(Class)}.
 	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static ExperimentRegistry experiments() {
-		return experimentRegistry;
+		// intentionally returning the modifiable view
+		return skript.registry(ExperimentRegistry.class);
 	}
 
 	/**
@@ -469,8 +471,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		// initialize the old Skript SkriptAddon instance
 		getAddonInstance();
 
-		experimentRegistry = new ExperimentRegistry(this);
-		Feature.registerAll(getAddonInstance(), experimentRegistry);
+		skript.storeRegistry(ExperimentRegistry.class, new ExperimentRegistry(skript));
+		Feature.registerAll(skript, skript.registry(ExperimentRegistry.class));
 
 		skript.storeRegistry(PropertyRegistry.class, new PropertyRegistry(this));
 		Property.registerDefaultProperties();
@@ -1286,8 +1288,6 @@ public final class Skript extends JavaPlugin implements Listener {
 				Skript.exception(e, "An error occurred while shutting down.", "This might or might not cause any issues.");
 			}
 		}
-
-		this.experimentRegistry = null;
 	}
 
 	// ================ CONSTANTS, OPTIONS & OTHER ================
