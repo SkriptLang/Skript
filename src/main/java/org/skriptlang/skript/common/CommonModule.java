@@ -31,8 +31,8 @@ public class CommonModule extends HierarchicalAddonModule {
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
 		register(addon,
-			EffSuppressTypeHints::register,
-			EffSuppressWarnings::register,
+			EffSecSuppressTypeHints::register,
+			EffSecSuppressWarnings::register,
 			ExprColorFromHexCode::register,
 			ExprHexCode::register,
 			ExprRecursiveSize::register,
