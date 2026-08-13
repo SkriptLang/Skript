@@ -2,28 +2,43 @@ package ch.njol.skript.classes.data;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.EntityUtils;
-import ch.njol.skript.classes.*;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.EnumClassInfo;
+import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.PatternedParser;
+import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.BlockUtils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.world.MoonPhase;
 import net.kyori.adventure.text.Component;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Difficulty;
+import org.bukkit.FireworkEffect;
+import org.bukkit.GameMode;
+import org.bukkit.GameRule;
+import org.bukkit.Material;
+import org.bukkit.SoundCategory;
+import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.banner.PatternType;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.*;
+import org.bukkit.entity.EntitySnapshot;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Vehicle;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
@@ -84,67 +99,6 @@ public class BukkitClasses {
 				.since("1.0")
 				.defaultExpression(new EventValueExpression<>(Projectile.class))
 				.changer(DefaultChangers.nonLivingEntityChanger));
-
-		Classes.registerClass(new ClassInfo<>(BlockData.class, "blockdata")
-				.user("block ?datas?")
-				.name("Block Data")
-				.description("Block data is the detailed information about a block, referred to in Minecraft as BlockStates, " +
-						"allowing for the manipulation of different aspects of the block, including shape, waterlogging, direction the block is facing, " +
-						"and so much more. Information regarding each block's optional data can be found on Minecraft's Wiki. Find the block you're " +
-						"looking for and scroll down to 'Block States'. Different states must be separated by a semicolon (see examples). " +
-						"The 'minecraft:' namespace is optional, as well as are underscores.")
-				.examples("set block at player to campfire[lit=false]",
-						"set target block of player to oak stairs[facing=north;waterlogged=true]",
-						"set block at player to grass_block[snowy=true]",
-						"set loop-block to minecraft:chest[facing=north]",
-						"set block above player to oak_log[axis=y]",
-						"set target block of player to minecraft:oak_leaves[distance=2;persistent=false]")
-				.after("itemtype")
-				.since("2.5")
-				.parser(new Parser<>() {
-					@Nullable
-					@Override
-					public BlockData parse(String input, ParseContext context) {
-						return BlockUtils.createBlockData(input);
-					}
-
-					@Override
-					public String toString(BlockData o, int flags) {
-						return o.getAsString().replace(",", ";");
-					}
-
-					@Override
-					public String toVariableNameString(BlockData o) {
-						return "blockdata:" + o.getAsString();
-					}
-				})
-				.serializer(new Serializer<>() {
-					@Override
-					public Fields serialize(BlockData blockData) {
-						return Fields.singletonObject("blockdata", blockData.getAsString());
-					}
-
-					@Override
-					protected BlockData deserialize(Fields fields) throws StreamCorruptedException {
-						String data = fields.getObject("blockdata", String.class);
-						assert data != null;
-						try {
-							return Bukkit.createBlockData(data);
-						} catch (IllegalArgumentException ex) {
-							throw new StreamCorruptedException("Invalid block data: " + data);
-						}
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return true;
-					}
-
-					@Override
-					protected boolean canBeInstantiated() {
-						return false;
-					}
-				}).cloner(BlockData::clone));
 
 		Classes.registerClass(new ClassInfo<>(World.class, "world")
 				.user("worlds?")

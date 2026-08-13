@@ -14,6 +14,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.misc.elements.expressions.ExprDirection;
 
 @Name("Vectors - Create from Direction")
 @Description({

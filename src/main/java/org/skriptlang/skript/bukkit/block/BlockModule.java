@@ -3,6 +3,7 @@ package org.skriptlang.skript.bukkit.block;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.block.blockdata.BlockDataModule;
 import org.skriptlang.skript.bukkit.block.furnace.FurnaceModule;
 import org.skriptlang.skript.bukkit.block.sign.SignModule;
 
@@ -17,6 +18,7 @@ public class BlockModule extends HierarchicalAddonModule {
 	@Override
 	public Iterable<AddonModule> children() {
 		return List.of(
+			new BlockDataModule(this),
 			new FurnaceModule(this),
 			new SignModule(this)
 		);
