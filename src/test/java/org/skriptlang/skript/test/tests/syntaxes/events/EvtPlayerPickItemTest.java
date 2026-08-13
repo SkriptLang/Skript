@@ -10,6 +10,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +18,7 @@ import org.junit.Test;
 public class EvtPlayerPickItemTest extends SkriptJUnitTest {
 
 	private static final boolean SUPPORTS_PICK_EVENT = Skript.classExists("io.papermc.paper.event.player.PlayerPickBlockEvent");
+	private static final boolean SUPPORTS_PICKED_ITEM = Skript.isRunningMinecraft(26, 2);
 
 	private Player player;
 	private Pig pickedEntity;
@@ -32,7 +34,6 @@ public class EvtPlayerPickItemTest extends SkriptJUnitTest {
 	}
 
 	@Test
-	@SuppressWarnings("UnstableApiUsage")
 	public void test() {
 		if (!SUPPORTS_PICK_EVENT)
 			return;
@@ -50,8 +51,13 @@ public class EvtPlayerPickItemTest extends SkriptJUnitTest {
 		Event event = null;
 		try {
 			Class<?> eventClass = Class.forName("io.papermc.paper.event.player.PlayerPickBlockEvent");
-			event = (Event) eventClass.getConstructor(Player.class, Block.class, boolean.class, int.class, int.class)
+			if (SUPPORTS_PICKED_ITEM) {
+				event = (Event) eventClass.getConstructor(Player.class, Block.class, ItemStack.class, boolean.class, int.class, int.class)
+					.newInstance(player, pickedBlock, ItemStack.empty(), true, 0, 0);
+			} else {
+				event = (Event) eventClass.getConstructor(Player.class, Block.class, boolean.class, int.class, int.class)
 					.newInstance(player, pickedBlock, true, 0, 0);
+			}
 		} catch (Exception ignored) {}
 		return event;
 	}
@@ -60,8 +66,13 @@ public class EvtPlayerPickItemTest extends SkriptJUnitTest {
 		Event event = null;
 		try {
 			Class<?> eventClass = Class.forName("io.papermc.paper.event.player.PlayerPickEntityEvent");
-			event = (Event) eventClass.getConstructor(Player.class, Entity.class, boolean.class, int.class, int.class)
+			if (SUPPORTS_PICKED_ITEM) {
+				event = (Event) eventClass.getConstructor(Player.class, Entity.class, ItemStack.class, boolean.class, int.class, int.class)
+					.newInstance(player, pickedEntity, ItemStack.empty(), true, 0, 0);
+			} else {
+				event = (Event) eventClass.getConstructor(Player.class, Entity.class, boolean.class, int.class, int.class)
 					.newInstance(player, pickedEntity, true, 0, 0);
+			}
 		} catch (Exception ignored) {}
 		return event;
 	}
