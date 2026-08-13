@@ -62,24 +62,21 @@ public class ExprBlockData extends SimplePropertyExpression<Object, BlockData> {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		BlockData newBlockData = delta == null ? null : ((BlockData) delta[0]);
 		for (Object object : getExpr().getArray(event)) {
 			BlockDataHolder holder = BlockDataHolder.getHolder(object);
 			if (holder == null)
 				continue;
-			if (newBlockData != null) {
-				//noinspection unchecked
+			if (newBlockData != null)
 				holder.setBlockData(object, newBlockData);
-			}
 			if (mode != ChangeMode.RESET)
 				continue;
-			//noinspection unchecked
 			BlockData blockData = holder.getBlockData(object);
 			String dataString = blockData.getMaterial().getKey() + "[]";
 			try {
 				BlockData newData = Bukkit.createBlockData(dataString);
-				//noinspection unchecked
 				holder.setBlockData(object, newData);
 			} catch (Exception ignored) {}
 		}

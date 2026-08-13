@@ -26,6 +26,7 @@ public interface BlockDataValueType<Type> {
 	 * {@link BlockDataValueType} for {@link BlockData} tags with {@link Integer} values.
 	 */
 	BlockDataValueType<Integer> INTEGER = new BlockDataValueType<>() {
+		//<editor-fold desc="INTEGER", defaultstate="collapsed">
 		@Override
 		public Class<Integer> getTypeClass() {
 			return Integer.class;
@@ -35,12 +36,14 @@ public interface BlockDataValueType<Type> {
 		public @Nullable Integer parse(String string) {
 			return string.matches("\\d+") ? Integer.parseInt(string) : null;
 		}
+		//</editor-fold>
 	};
 
 	/**
 	 * {@link BlockDataValueType} for {@link BlockData} tags with {@link Boolean} values.
 	 */
 	BlockDataValueType<Boolean> BOOLEAN = new BlockDataValueType<>() {
+		//<editor-fold desc="BOOLEAN", defaultstate="collapsed">
 		@Override
 		public Class<Boolean> getTypeClass() {
 			return Boolean.class;
@@ -56,13 +59,14 @@ public interface BlockDataValueType<Type> {
 		public boolean hasValidityCheck() {
 			return false;
 		}
+		//</editor-fold>
 	};
 
 	/**
 	 * {@link BlockDataValueType} for {@link BlockData} tags with {@link Direction} values.
 	 */
 	BlockDataValueType<Direction> DIRECTION = new BlockDataValueType<>() {
-
+		//<editor-fold desc="DIRECTION", defaultstate="collapsed">
 		@Override
 		public Class<Direction> getTypeClass() {
 			return Direction.class;
@@ -92,7 +96,7 @@ public interface BlockDataValueType<Type> {
 		public String toStringConversion(Direction direction) {
 			return Direction.toNearestBlockFace(direction.getDirection()).toString().toLowerCase(Locale.ENGLISH);
 		}
-
+		//</editor-fold>
 	};
 
 
@@ -101,6 +105,7 @@ public interface BlockDataValueType<Type> {
 	 * This is the default value type and will match against any value.
 	 */
 	BlockDataValueType<String> STRING = new BlockDataValueType<>() {
+		//<editor-fold desc="STRING", defaultstate="collapsed">
 		@Override
 		public Class<String> getTypeClass() {
 			return String.class;
@@ -117,7 +122,7 @@ public interface BlockDataValueType<Type> {
 		public @Nullable String parse(String string) {
 			return string;
 		}
-
+		//</editor-fold>
 	};
 
 	/**

@@ -34,49 +34,58 @@ public class BlockDataClassInfo extends ClassInfo<BlockData> {
 					"set target block of player to minecraft:oak_leaves[distance=2;persistent=false]")
 			.after("itemtype")
 			.since("2.5")
-			.parser(new Parser<>() {
-				@Override
-				public @Nullable BlockData parse(String input, ParseContext context) {
-					return BlockUtils.createBlockData(input);
-				}
+			.parser(new BlockDataParser())
+			.serializer(new BlockDataSerializer())
+			.cloner(BlockData::clone);
+	}
 
-				@Override
-				public String toString(BlockData blockData, int flags) {
-					return blockData.getAsString().replace(",", ";");
-				}
+	private static class BlockDataParser extends Parser<BlockData> {
+		//<editor-fold desc="BlockDataParser", defaultstate="collapsed">
+		@Override
+		public @Nullable BlockData parse(String input, ParseContext context) {
+			return BlockUtils.createBlockData(input);
+		}
 
-				@Override
-				public String toVariableNameString(BlockData blockData) {
-					return "blockdata:" + blockData.getAsString();
-				}
-			})
-			.serializer(new Serializer<>() {
-				@Override
-				public Fields serialize(BlockData blockData) {
-					return Fields.singletonObject("blockdata", blockData.getAsString());
-				}
+		@Override
+		public String toString(BlockData blockData, int flags) {
+			return blockData.getAsString().replace(",", ";");
+		}
 
-				@Override
-				protected BlockData deserialize(Fields fields) throws StreamCorruptedException {
-					String data = fields.getObject("blockdata", String.class);
-					assert data != null;
-					try {
-						return Bukkit.createBlockData(data);
-					} catch (IllegalArgumentException ex) {
-						throw new StreamCorruptedException("Invalid block data: " + data);
-					}
-				}
+		@Override
+		public String toVariableNameString(BlockData blockData) {
+			return "blockdata:" + blockData.getAsString();
+		}
+		//</editor-fold>
+	}
 
-				@Override
-				public boolean mustSyncDeserialization() {
-					return true;
-				}
+	private static class BlockDataSerializer extends Serializer<BlockData> {
+		//<editor-fold desc="BlockDataSerializer", defaultstate="collapsed">
+		@Override
+		public Fields serialize(BlockData blockData) {
+			return Fields.singletonObject("blockdata", blockData.getAsString());
+		}
 
-				@Override
-				protected boolean canBeInstantiated() {
-					return false;
-				}
-			}).cloner(BlockData::clone);
+		@Override
+		protected BlockData deserialize(Fields fields) throws StreamCorruptedException {
+			String data = fields.getObject("blockdata", String.class);
+			assert data != null;
+			try {
+				return Bukkit.createBlockData(data);
+			} catch (IllegalArgumentException ex) {
+				throw new StreamCorruptedException("Invalid block data: " + data);
+			}
+		}
+
+		@Override
+		public boolean mustSyncDeserialization() {
+			return true;
+		}
+
+		@Override
+		protected boolean canBeInstantiated() {
+			return false;
+		}
+		//</editor-fold>
 	}
 
 }

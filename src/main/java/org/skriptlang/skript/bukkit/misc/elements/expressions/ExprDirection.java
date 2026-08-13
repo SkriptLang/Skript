@@ -52,6 +52,7 @@ public class ExprDirection extends SimpleExpression<Direction> {
 			BlockFace.UP, BlockFace.DOWN,
 			BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST,
 			BlockFace.NORTH_EAST, BlockFace.NORTH_WEST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_WEST};
+
 	private final static int UP = 0, DOWN = 1,
 			NORTH = 2, SOUTH = 3, EAST = 4, WEST = 5,
 			NORTH_EAST = 6, NORTH_WEST = 7, SOUTH_EAST = 8, SOUTH_WEST = 9;
@@ -96,24 +97,23 @@ public class ExprDirection extends SimpleExpression<Direction> {
 		//noinspection unchecked
 		amount = (Expression<Number>) exprs[0];
 		switch (matchedPattern) {
-			case 0:
+			case 0 -> {
 				direction = new Vector(byMark[parseResult.mark].getModX(), byMark[parseResult.mark].getModY(), byMark[parseResult.mark].getModZ());
 				if (exprs[1] != null) {
 					if (!(exprs[1] instanceof ExprDirection exprDirection) || (exprDirection.direction == null))
 						return false;
 					next = (ExprDirection) exprs[1];
 				}
-				break;
-			case 1:
-			case 2:
+			}
+			case 1, 2 -> {
 				relativeTo = exprs[1];
 				horizontal = parseResult.mark % 2 != 0;
 				facing = parseResult.mark >= 2;
-				break;
-			case 3:
-			case 4:
+			}
+			case 3, 4 -> {
 				yaw = Math.PI / 2 * parseResult.mark;
 				horizontal = matchedPattern == 4;
+			}
 		}
 		return true;
 	}

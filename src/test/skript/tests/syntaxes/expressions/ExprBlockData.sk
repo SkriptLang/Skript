@@ -29,7 +29,6 @@ test "invalid block data":
 	set {_error} to "The blockdata tag 'half' does not support the text value 'left' for the block type: oak stairs"
 	assert last caught runtime errors contains {_error} with "String BlockData should error with non-supported string value for 'half'"
 
-
 test "block data":
 	set {_loc} to test-location
 	set block at {_loc} to campfire[lit=false;waterlogged=true]

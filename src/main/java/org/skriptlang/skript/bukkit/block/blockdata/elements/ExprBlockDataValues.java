@@ -46,36 +46,36 @@ import java.util.stream.Collectors;
 		- tag "pickles" will always return an integer value, and can be changed to an integer value or string of an integer: "1"
 	""")
 @Example("""
-	set the blockdata tag "waterlogged" of {_campfire} to false
-	set block data "waterlogged" of {_campfire} to "true"
-	if block data value "waterlogged" of {_campfire} is "true":
+	set blockdata  "waterlogged" of {_campfire} to false
+	set blockdata "waterlogged" of {_campfire} to "true"
+	if blockdata "waterlogged" of {_campfire} is "true":
 		# FAILS
-	else if the block data tag value "waterlogged" of {_campfire} is true:
+	else if blockdata "waterlogged" of {_campfire} is true:
 		# PASSES
 	""")
 @Example("""
-	set the blockdata tag "facing" of {_oakStairs} to north
-	set block data "facing" of {_oakStairs} to "west"
-	if block data value "facing" of {_oakStairs} is "west":
+	set blockdata "facing" of {_oakStairs} to north
+	set blockdata "facing" of {_oakStairs} to "west"
+	if blockdata "facing" of {_oakStairs} is "west":
 		# FAILS
-	else if the block data tag value "facing" of {_oakStairs} is west:
+	else if blockdata "facing" of {_oakStairs} is west:
 		# PASSES
 	""")
 @Example("""
-	set the blockdata tag "pickles" of {_seaPickle} to 1
-	set block data "pickles" of {_seaPickle} to "5"
-	if block data value "pickles" of {_seaPickle} is "5":
+	set blockdata "pickles" of {_seaPickle} to 1
+	set blockdata "pickles" of {_seaPickle} to "5"
+	if blockdata value "pickles" of {_seaPickle} is "5":
 		# FAILS
-	else if the block data tag value "pickles" of {_seaPickle} is 5:
+	else if blockdata tag value "pickles" of {_seaPickle} is 5:
 		# PASSES
 	""")
 @Example("""
-	set the blockdata tag "half" of {_oakStairs} to "top"
-	if block data value "half" of {_oakStairs} is "top":
+	set blockdata "half" of {_oakStairs} to "top"
+	if blockdata "half" of {_oakStairs} is "top":
 		# PASSES
 	""")
 @Example("""
-	reset the block data "waterlogged", "facing", "half", "shape" of {_oakStairs}
+	reset blockdata "waterlogged", "facing", "half" and "shape" of {_oakStairs}
 	""")
 @Since("INSERT VERSION")
 public class ExprBlockDataValues extends SimpleExpression<Object> {
@@ -129,7 +129,7 @@ public class ExprBlockDataValues extends SimpleExpression<Object> {
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Object change = delta != null ? delta[0] : null;
-		Set<String> strings = Arrays.stream(this.strings.getArray(event)).map(String::toLowerCase).collect(Collectors.toSet());
+		Set<String> strings = this.strings.stream(event).map(String::toLowerCase).collect(Collectors.toSet());
 		Map<BlockDataValueType<?>, List<String>> rejected = new HashMap<>();
 		Map<BlockDataValueType<?>, Map<BlockDataTag, List<Material>>> invalid = new HashMap<>();
 
