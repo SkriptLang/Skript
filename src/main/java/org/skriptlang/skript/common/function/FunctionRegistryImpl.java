@@ -1,4 +1,4 @@
-package ch.njol.skript.lang.function;
+package org.skriptlang.skript.common.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
@@ -11,14 +11,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.NonNull;
-import org.skriptlang.skript.common.function.Function;
-import org.skriptlang.skript.common.function.Parameter;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
-import org.skriptlang.skript.common.function.Signature;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -93,23 +91,33 @@ public final class FunctionRegistryImpl implements org.skriptlang.skript.common.
 		}
 
 		@Override
-		public @NotNull Retrieval<Function<?>> getFunction(@NotNull String name, @NonNull @NotNull Class<?>... args) {
+		public @NotNull Retrieval<Function<?>> getFunction(@NotNull String name, @NotNull Class<?>... args) {
 			return registry.getFunction(name, args);
 		}
 
 		@Override
-		public @NotNull Retrieval<Function<?>> getFunction(@NotNull String namespace, @NotNull String name, @NonNull @NotNull Class<?>... args) {
+		public @NotNull Retrieval<Function<?>> getFunction(@NotNull String namespace, @NotNull String name, @NotNull Class<?>... args) {
 			return registry.getFunction(namespace, name, args);
 		}
 
 		@Override
-		public @NotNull Retrieval<Signature<?>> getSignature(@NotNull String name, @NonNull @NotNull Class<?>... args) {
+		public @NotNull Retrieval<Signature<?>> getSignature(@NotNull String name, @NotNull Class<?>... args) {
 			return registry.getSignature(name, args);
 		}
 
 		@Override
-		public @NotNull Retrieval<Signature<?>> getSignature(@NotNull String namespace, @NotNull String name, @NonNull @NotNull Class<?>... args) {
+		public @NotNull Retrieval<Signature<?>> getSignature(@NotNull String namespace, @NotNull String name, @NotNull Class<?>... args) {
 			return registry.getSignature(namespace, name, args);
+		}
+
+		@Override
+		public Retrieval<Signature<?>> getExactSignature(@NotNull String name, @NonNull @NotNull Class<?>... args) {
+			return registry.getExactSignature(name, args);
+		}
+
+		@Override
+		public Retrieval<Signature<?>> getExactSignature(@NotNull String namespace, @NotNull String name, @NonNull @NotNull Class<?>... args) {
+			return registry.getExactSignature(namespace, name, args);
 		}
 
 		@Override
@@ -360,7 +368,7 @@ public final class FunctionRegistryImpl implements org.skriptlang.skript.common.
 	}
 
 	@Override
-	public @NonNull Retrieval<Signature<?>> getSignature(
+	public @NotNull Retrieval<Signature<?>> getSignature(
 			@Nullable String namespace,
 			@NotNull String name,
 			@NotNull Class<?>... args
@@ -381,47 +389,29 @@ public final class FunctionRegistryImpl implements org.skriptlang.skript.common.
 		return getSignatures(null, name);
 	}
 
-	/**
-	 * Gets the signature for a function with the given name and arguments. If no local function is found,
-	 * checks for global functions. If {@code namespace} is null, only global signatures will be checked.
-	 * <p>
-	 * This function checks performs no argument conversions, and is only used for determining whether a
-	 * signature already exists with the exact specified arguments. In almost all cases, {@link #getSignature(String, String, Class[])}
-	 * should be used.
-	 * </p>
-	 *
-	 * @param namespace The namespace to get the function from.
-	 *                  Usually represents the path of the script this function is registered in.
-	 * @param name      The name of the function.
-	 * @param args      The types of the arguments of the function.
-	 * @return The signature for the function with the given name and argument types, or null if no such function exists.
-	 */
+	@Override
 	public Retrieval<Signature<?>> getExactSignature(
-			@Nullable String namespace,
 			@NotNull String name,
 			@NotNull Class<?>... args
 	) {
-		Retrieval<Signature<?>> attempt = null;
-		if (namespace != null) {
-			attempt = getSignature(new NamespaceIdentifier(namespace),
-					FunctionIdentifier.of(name, true, args), true);
-		}
+		return getSignature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args), true);
+	}
 
-		if (attempt == null || attempt.result() == RetrievalResult.NOT_REGISTERED) {
+	@Override
+	public Retrieval<Signature<?>> getExactSignature(
+			@NotNull String namespace,
+			@NotNull String name,
+			@NotNull Class<?>... args
+	) {
+		Retrieval<Signature<?>> attempt = getSignature(new NamespaceIdentifier(namespace),
+				FunctionIdentifier.of(name, true, args), true);
+
+		if (attempt.result() == RetrievalResult.NOT_REGISTERED) {
 			attempt = getSignature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args), true);
 		}
 		return attempt;
 	}
 
-	/**
-	 * Gets every signature with the name {@code name}.
-	 * This includes global functions and, if {@code namespace} is not null, functions under that namespace (if valid).
-	 *
-	 * @param namespace The additional namespace to obtain signatures from.
-	 *                  Usually represents the path of the script this function is registered in.
-	 * @param name      The name of the signature(s) to obtain.
-	 * @return A list of all signatures named {@code name}.
-	 */
 	@Override
 	public @Unmodifiable @NotNull Set<Signature<?>> getSignatures(@Nullable String namespace, @NotNull String name) {
 		Preconditions.checkNotNull(name, "name cannot be null");

@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.Skript;
-import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.util.Registry;
 import org.skriptlang.skript.util.ViewProvider;
 
@@ -34,7 +33,7 @@ public interface FunctionRegistry extends Registry<Function<?>>, ViewProvider<Fu
 	 */
 	@Contract("_ -> new")
 	static FunctionRegistry empty(Skript skript) {
-		return new ch.njol.skript.lang.function.FunctionRegistry(skript);
+		return new FunctionRegistryImpl(skript);
 	}
 
 	/**
@@ -194,6 +193,45 @@ public interface FunctionRegistry extends Registry<Function<?>>, ViewProvider<Fu
 	 * @return Information related to the attempt to get the specified signature, stored in a {@link Retrieval} object.
 	 */
 	@NotNull Retrieval<Signature<?>> getSignature(
+			@NotNull String namespace,
+			@NotNull String name,
+			@NotNull Class<?>... args
+	);
+
+	/**
+	 * Gets the signature for a function with the given name and arguments.
+	 * Only checks for global functions.
+	 * <p>
+	 * This function checks performs no argument conversions, and is only used for determining whether a
+	 * signature already exists with the exact specified arguments. In almost all cases, {@link #getSignature(String, Class[])}
+	 * should be used.
+	 * </p>
+	 *
+	 * @param name The name of the function.
+	 * @param args The types of the arguments of the function.
+	 * @return The signature for the function with the given name and argument types, or null if no such function exists.
+	 */
+	Retrieval<Signature<?>> getExactSignature(
+			@NotNull String name,
+			@NotNull Class<?>... args
+	);
+
+	/**
+	 * Gets the signature for a function with the given name and arguments. If no local function is found,
+	 * checks for global functions.
+	 * <p>
+	 * This function checks performs no argument conversions, and is only used for determining whether a
+	 * signature already exists with the exact specified arguments. In almost all cases, {@link #getSignature(String, String, Class[])}
+	 * should be used.
+	 * </p>
+	 *
+	 * @param namespace The namespace to get the function from.
+	 *                  Usually represents the path of the script this function is registered in.
+	 * @param name The name of the function.
+	 * @param args The types of the arguments of the function.
+	 * @return The signature for the function with the given name and argument types, or null if no such function exists.
+	 */
+	Retrieval<Signature<?>> getExactSignature(
 			@NotNull String namespace,
 			@NotNull String name,
 			@NotNull Class<?>... args
