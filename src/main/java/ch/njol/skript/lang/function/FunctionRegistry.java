@@ -11,9 +11,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * A registry for functions.
+ * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionRegistry} instead.
  */
-@ApiStatus.Internal
+@Deprecated(forRemoval = true, since = "INSERT VERSION")
 public final class FunctionRegistry implements Registry<Function<?>> {
 
 	private static org.skriptlang.skript.common.function.FunctionRegistry newRegistry;
@@ -26,10 +26,10 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	private static FunctionRegistry registry;
 
 	/**
-	 * Gets the global function registry.
-	 *
-	 * @return The global function registry.
+	 * @deprecated Use {@link org.skriptlang.skript.addon.SkriptAddon#registry(Class)}
+	 * and {@link org.skriptlang.skript.common.function.FunctionRegistry} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static FunctionRegistry getRegistry() {
 		if (registry == null) {
 			registry = new FunctionRegistry();
@@ -37,6 +37,10 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 		return registry;
 	}
 
+	/**
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionRegistry#elements()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	@Override
 	public @Unmodifiable @NotNull Collection<Function<?>> elements() {
 		return newRegistry.elements().stream()
@@ -44,6 +48,10 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 				.collect(Collectors.toUnmodifiableSet());
 	}
 
+	/**
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionRegistry#register(String, org.skriptlang.skript.common.function.Signature)} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public void register(@Nullable String namespace, @NotNull Signature<?> signature) {
 		if (namespace == null) {
 			newRegistry.register(signature);
@@ -52,6 +60,10 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 		}
 	}
 
+	/**
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionRegistry#register(String, org.skriptlang.skript.common.function.Function)} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public void register(@Nullable String namespace, @NotNull Function<?> function) {
 		if (namespace == null) {
 			newRegistry.register(function);
@@ -117,6 +129,10 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	) {
 	}
 
+	/**
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionRegistry#getFunction(String, String, Class[])} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public @NotNull Retrieval<Function<?>> getFunction(
 			@Nullable String namespace,
 			@NotNull String name,
@@ -133,6 +149,10 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 		return new Retrieval<>(RetrievalResult.valueOf(retrieval.result().name()), (Function<?>) retrieval.retrieved(), retrieval.conflictingArgs());
 	}
 
+	/**
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionRegistry#getSignature(String, String, Class[])} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public Retrieval<Signature<?>> getSignature(
 			@Nullable String namespace,
 			@NotNull String name,
@@ -180,6 +200,10 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 		return new Retrieval<>(RetrievalResult.valueOf(retrieval.result().name()), (Signature<?>) retrieval.retrieved(), retrieval.conflictingArgs());
 	}
 
+	/**
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionRegistry#getSignatures(String, String)} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public @Unmodifiable @NotNull Set<Signature<?>> getSignatures(@Nullable String namespace, @NotNull String name) {
 		Set<org.skriptlang.skript.common.function.Signature<?>> signatures;
 
@@ -194,6 +218,10 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 				.collect(Collectors.toUnmodifiableSet());
 	}
 
+	/**
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionRegistry#remove(org.skriptlang.skript.common.function.Signature)} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public void remove(@NotNull Signature<?> signature) {
 		newRegistry.remove(signature);
 	}

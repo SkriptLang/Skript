@@ -91,10 +91,10 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 	public final T @Nullable [] execute(Object[][] params) {
 		FunctionEvent<? extends T> event = new FunctionEvent<>(this);
 
-		// Call function event only if requested by addon
-		// Functions may be called VERY often, so this might have performance impact
 		if (Functions.callFunctionEvents)
 			Bukkit.getPluginManager().callEvent(event);
+		org.skriptlang.skript.common.function.Function.eventRegistry().events(Function.CallEvent.class)
+				.forEach(e -> e.onCall(this));
 
 		// Parameters taken by the function.
 		Parameters parameters = sign.parameters();

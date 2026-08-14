@@ -19,8 +19,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Static methods to work with functions.
+ * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionRegistry} instead.
  */
+@Deprecated(forRemoval = true, since = "INSERT VERSION")
 public abstract class Functions {
 
 	private Functions() {
@@ -52,6 +53,10 @@ public abstract class Functions {
 	 */
 	private static final Map<String, Namespace> globalFunctions = new HashMap<>();
 
+	/**
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.Function#eventRegistry()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static boolean callFunctionEvents = false;
 
 	/**
@@ -343,18 +348,11 @@ public abstract class Functions {
 		return javaNamespace.getFunctions();
 	}
 
+
 	/**
-	 * Normally, function calls do not cause actual Bukkit events to be
-	 * called. If an addon requires such functionality, it should call this
-	 * method. After doing so, the events will be called. Calling this method
-	 * many times will not cause any additional changes.
-	 * <p>
-	 * Note that calling events is not free; performance might vary
-	 * once you have enabled that.
-	 *
-	 * @param addon Addon instance.
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.Function#eventRegistry()} instead.
 	 */
-	@SuppressWarnings({"null", "unused"})
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static void enableFunctionEvents(SkriptAddon addon) {
 		if (addon == null) {
 			throw new SkriptAPIException("enabling function events requires addon instance");

@@ -195,6 +195,8 @@ public final class FunctionReference<T> implements Debuggable {
 
 		if (Functions.callFunctionEvents)
 			Bukkit.getPluginManager().callEvent(fnEvent);
+		org.skriptlang.skript.common.function.Function.eventRegistry().events(Function.CallEvent.class)
+				.forEach(e -> e.onCall(function));
 
 		return function.execute(fnEvent, new FunctionArgumentsImpl(args));
 	}
