@@ -136,6 +136,10 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 		this(namespace, name, initParameters(parameters), returnType, false, contract);
 	}
 
+	public Signature(String namespace, String name, org.skriptlang.skript.common.function.Parameter<?>[] parameters, Class<T> returnType, boolean local, boolean single, @Nullable Contract contract) {
+		this(namespace, name, initParameters(parameters), returnType, local, contract);
+	}
+
 	@Override
 	public @NotNull String name() {
 		return name;

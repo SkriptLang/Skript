@@ -62,6 +62,15 @@ public sealed interface DefaultFunction<T>
 	interface Builder<T> {
 
 		/**
+		 * Designates this function to be local.
+		 *
+		 * @param namespace The namespace for this function.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		Builder<T> local(@NotNull String namespace);
+
+		/**
 		 * Sets this function builder's {@link ch.njol.skript.util.Contract}.
 		 *
 		 * @param contract The contract.

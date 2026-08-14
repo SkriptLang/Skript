@@ -6,7 +6,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.ArgsMessage;
@@ -118,16 +117,17 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 		}
 
 		ParserInstance parser = ParserInstance.get();
+		Set<Signature<?>> options;
 		String namespace;
 		if (parser.isActive()) {
 			namespace = parser.getCurrentScript().getConfig().getFileName();
+			options = Skript.instance().registry(FunctionRegistry.class).getSignatures(namespace, name);
 		} else {
 			namespace = null;
+			options = Skript.instance().registry(FunctionRegistry.class).getSignatures(name);
 		}
 
 		// try to find a matching signature to get which types to parse args with
-		Set<Signature<?>> options = FunctionRegistry.getRegistry().getSignatures(namespace, name);
-
 		if (options.isEmpty()) {
 			doesNotExist(name, arguments, options);
 			log.printError();
@@ -293,7 +293,8 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 				int lastCheck = -1;
 				// the index of the last unnamed argument slot that was filled
 				int lastFilled = -1;
-				fill: for (int i = 0; i < arguments.length; i++) {
+				fill:
+				for (int i = 0; i < arguments.length; i++) {
 					Argument<String> argument = arguments[i];
 					if (argument.type() == ArgumentType.NAMED) {
 						priorNames.add(argument.name());
@@ -482,8 +483,8 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 	/**
 	 * Prints the error for when a function does not exist.
 	 *
-	 * @param name      The function name.
-	 * @param arguments The passed arguments to the function call.
+	 * @param name               The function name.
+	 * @param arguments          The passed arguments to the function call.
 	 * @param possibleSignatures A set of signatures that may contain what the user intended to match.
 	 */
 	private void doesNotExist(String name, FunctionReference.Argument<String>[] arguments, Set<Signature<?>> possibleSignatures) {
@@ -519,22 +520,22 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 
 		String possibleMatch = "";
 		var intended = possibleSignatures.stream()
-			.filter(signature -> { // filter for signatures that contain all known arguments
-				List<Class<?>> currentArgumentTypes = new ArrayList<>(argumentTypes);
-				Arrays.stream(signature.parameters().all())
-					.map(parameter -> Utils.getComponentType(parameter.type()))
-					.forEach(type -> {
-						var iterator = currentArgumentTypes.iterator();
-						while (iterator.hasNext()) {
-							if (type.isAssignableFrom(iterator.next())) {
-								iterator.remove();
-								break;
-							}
-						}
-					});
-				return currentArgumentTypes.isEmpty();
-			})
-			.min(Comparator.comparingInt(signature -> Math.abs(arguments.length - signature.parameters().maxCount())));
+				.filter(signature -> { // filter for signatures that contain all known arguments
+					List<Class<?>> currentArgumentTypes = new ArrayList<>(argumentTypes);
+					Arrays.stream(signature.parameters().all())
+							.map(parameter -> Utils.getComponentType(parameter.type()))
+							.forEach(type -> {
+								var iterator = currentArgumentTypes.iterator();
+								while (iterator.hasNext()) {
+									if (type.isAssignableFrom(iterator.next())) {
+										iterator.remove();
+										break;
+									}
+								}
+							});
+					return currentArgumentTypes.isEmpty();
+				})
+				.min(Comparator.comparingInt(signature -> Math.abs(arguments.length - signature.parameters().maxCount())));
 		if (intended.isPresent()) {
 			possibleMatch = " " + POTENTIAL_SIGNATURE.toString(intended.get().toString());
 		}
@@ -624,10 +625,10 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 	 * Attempts to parse an argument into an expression.
 	 * This method will log parsing errors.
 	 *
-	 * @param argument The argument.
+	 * @param argument   The argument.
 	 * @param targetData The target type to parse to, and the fallback value.
 	 * @return {@code targetData.fallback} if the argument does not have a value.
-	 * 	Otherwise, the parsed expression or null if parsing failed.
+	 * Otherwise, the parsed expression or null if parsing failed.
 	 */
 	private Expression<?> parseExpression(Argument<String> argument, ArgumentParseTarget targetData) {
 		if (argument.value() == null) {
@@ -640,7 +641,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 			Expression<?> expression = parser.parseExpression(targetData.type());
 			if (expression == null) {
 				logHandler.printError(INVALID_ARGUMENT.toString(
-					argument.name(), Classes.getSuperClassInfo(targetData.type()).getName().getSingular(), argument.value()
+						argument.name(), Classes.getSuperClassInfo(targetData.type()).getName().getSingular(), argument.value()
 				));
 			}
 			return expression;

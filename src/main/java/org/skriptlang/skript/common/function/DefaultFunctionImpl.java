@@ -29,6 +29,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	DefaultFunctionImpl(
 			SkriptAddon source,
 			String name,
+			String namespace,
 			SequencedMap<String, Parameter<?>> parameters,
 			Class<T> returnType, boolean single,
 			@Nullable ch.njol.skript.util.Contract contract,
@@ -36,7 +37,8 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			String[] description, String[] since, String[] examples,
 			String[] keywords, String[] requires
 	) {
-		super(new Signature<>(null, name, parameters.values().toArray(new Parameter[0]), returnType, single, contract));
+		super(new Signature<>(namespace, name, parameters.values().toArray(new Parameter[0]),
+				returnType, namespace != null, single, contract));
 
 		Preconditions.checkNotNull(source, "source cannot be null");
 		Preconditions.checkNotNull(name, "name cannot be null");
@@ -188,6 +190,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		private final Class<T> returnType;
 		private final SequencedMap<String, Parameter<?>> parameters = new LinkedHashMap<>();
 
+		private String namespace = null;
 		private ch.njol.skript.util.Contract contract = null;
 
 		private String[] description;
@@ -204,6 +207,14 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			this.source = source;
 			this.name = name;
 			this.returnType = returnType;
+		}
+
+		@Override
+		public Builder<T> local(@NotNull String namespace) {
+			Preconditions.checkNotNull(namespace, "namespace cannot be null");
+
+			this.namespace = namespace;
+			return this;
 		}
 
 		@Override
@@ -272,7 +283,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		public DefaultFunction<T> build(@NotNull Function<FunctionArguments, T> execute) {
 			Preconditions.checkNotNull(execute, "execute cannot be null");
 
-			return new DefaultFunctionImpl<>(source, name, parameters,
+			return new DefaultFunctionImpl<>(source, name, namespace, parameters,
 					returnType, !returnType.isArray(), contract, execute,
 					description, since, examples, keywords, requires);
 		}
@@ -293,10 +304,10 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	/**
 	 * A parameter for a {@link DefaultFunction}.
 	 *
-	 * @param name The name.
-	 * @param type The type's class.
+	 * @param name      The name.
+	 * @param type      The type's class.
 	 * @param modifiers The modifiers.
-	 * @param <T> The type.
+	 * @param <T>       The type.
 	 */
 	record DefaultParameter<T>(String name, Class<T> type, Set<Modifier> modifiers)
 			implements Parameter<T> {

@@ -4,13 +4,13 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
+import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
 import ch.njol.skript.structures.StructFunction;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.function.DefaultFunction;
 import org.skriptlang.skript.common.function.FunctionParser;
 import org.skriptlang.skript.common.function.FunctionReference;
-import org.skriptlang.skript.common.function.FunctionRegistry.Retrieval;
-import org.skriptlang.skript.common.function.FunctionRegistry.RetrievalResult;
 import org.skriptlang.skript.common.function.Parameter;
 import org.skriptlang.skript.common.function.Signature.Modifier;
 import org.skriptlang.skript.lang.script.Script;
@@ -23,7 +23,8 @@ import java.util.stream.Collectors;
  */
 public abstract class Functions {
 
-	private Functions() {}
+	private Functions() {
+	}
 
 	/**
 	 * @deprecated Unused.
@@ -70,7 +71,7 @@ public abstract class Functions {
 		}
 		globalFunctions.put(function.name(), javaNamespace);
 
-		FunctionRegistry.getRegistry().register(function);
+		FunctionRegistry.getRegistry().register(null, (Function<?>) function);
 
 		return function;
 	}
@@ -91,7 +92,7 @@ public abstract class Functions {
 		}
 		globalFunctions.put(function.getName(), javaNamespace);
 
-		FunctionRegistry.getRegistry().register(function);
+		FunctionRegistry.getRegistry().register(null, function);
 
 		return function;
 	}
@@ -130,7 +131,7 @@ public abstract class Functions {
 		if (function.getSignature().isLocal()) {
 			FunctionRegistry.getRegistry().register(script.getConfig().getFileName(), function);
 		} else {
-			FunctionRegistry.getRegistry().register(function);
+			FunctionRegistry.getRegistry().register(null, function);
 		}
 
 		return function;
@@ -149,7 +150,7 @@ public abstract class Functions {
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static @Nullable Signature<?> registerSignature(Signature<?> signature) {
-		Retrieval<org.skriptlang.skript.common.function.Signature<?>> existing;
+		Retrieval<Signature<?>> existing;
 		Parameter<?>[] parameters = signature.parameters().all();
 
 		if (parameters.length == 1 && !parameters[0].isSingle()) {
@@ -196,7 +197,7 @@ public abstract class Functions {
 		if (signature.isLocal()) {
 			FunctionRegistry.getRegistry().register(signature.namespace(), signature);
 		} else {
-			FunctionRegistry.getRegistry().register(signature);
+			FunctionRegistry.getRegistry().register(null, signature);
 		}
 
 		Skript.debug("Registered function signature: " + signature.getName());
@@ -227,7 +228,6 @@ public abstract class Functions {
 			function = namespace.getFunction(name);
 		return function;
 	}
-
 
 	/**
 	 * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionRegistry#getFunction(String, Class[])} instead.

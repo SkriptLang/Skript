@@ -3,7 +3,6 @@ package org.skriptlang.skript.common.function;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.function.FunctionEvent;
-import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
@@ -64,9 +63,16 @@ public final class FunctionReference<T> implements Debuggable {
 	public boolean validate() {
 		if (!validSignature) {
 			Class<?>[] parameters = Arrays.stream(cachedSignature.parameters().all())
-				.map(Parameter::type)
-				.toArray(Class[]::new);
-			var result = FunctionRegistry.getRegistry().getSignature(namespace, name, parameters);
+					.map(Parameter::type)
+					.toArray(Class[]::new);
+
+			Retrieval<Signature<?>> result;
+			if (namespace == null) {
+				result = Skript.instance().registry(FunctionRegistry.class).getSignature(name, parameters);
+			} else {
+				result = Skript.instance().registry(FunctionRegistry.class).getSignature(namespace, name, parameters);
+			}
+
 			if (result.result() == RetrievalResult.EXACT) {
 				//noinspection unchecked
 				cachedSignature = (Signature<T>) result.retrieved();
@@ -77,9 +83,9 @@ public final class FunctionReference<T> implements Debuggable {
 				if (!printedInvalidSignatureWarning) {
 					printedInvalidSignatureWarning = true;
 					Skript.warning(String.format("The function '%s' from the script '%s' no longer exists."
-						+ " Skript will continue to use the old function until this function is registered again."
-						+ " Function call: %s",
-						name, namespace, toString(null, false)));
+									+ " Skript will continue to use the old function until this function is registered again."
+									+ " Function call: %s",
+							name, namespace, toString(null, false)));
 				}
 			}
 		}
@@ -253,7 +259,13 @@ public final class FunctionReference<T> implements Debuggable {
 					.map(Parameter::type)
 					.toArray(Class[]::new);
 
-			Retrieval<Function<?>> retrieval = FunctionRegistry.getRegistry().getFunction(namespace, name, parameters);
+			Retrieval<Function<?>> retrieval;
+			if (namespace == null) {
+				retrieval = Skript.instance().registry(FunctionRegistry.class).getFunction(name, parameters);
+			} else {
+				retrieval = Skript.instance().registry(FunctionRegistry.class).getFunction(namespace, name, parameters);
+			}
+
 			if (retrieval.result() == RetrievalResult.EXACT) {
 				//noinspection unchecked
 				cachedFunction = (Function<T>) retrieval.retrieved();

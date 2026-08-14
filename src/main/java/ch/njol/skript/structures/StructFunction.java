@@ -122,7 +122,7 @@ public class StructFunction extends Structure {
 			if (signature.isLocal()) {
 				ch.njol.skript.lang.function.FunctionRegistry.getRegistry().register(signature.namespace(), signature);
 			} else {
-				ch.njol.skript.lang.function.FunctionRegistry.getRegistry().register(signature);
+				ch.njol.skript.lang.function.FunctionRegistry.getRegistry().register(null, signature);
 			}
 		} catch (SkriptAPIException ex) {
 			Skript.error(ex.getMessage());
@@ -163,7 +163,7 @@ public class StructFunction extends Structure {
 		if (function.getSignature().isLocal()) {
 			FunctionRegistry.getRegistry().register(script.getConfig().getFileName(), function);
 		} else {
-			FunctionRegistry.getRegistry().register(function);
+			FunctionRegistry.getRegistry().register(null, function);
 		}
 	}
 

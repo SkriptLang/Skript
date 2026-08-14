@@ -481,7 +481,9 @@ public final class Skript extends JavaPlugin implements Listener {
 		//noinspection removal
 		EventValues.setEventValueRegistry(eventValueRegistry);
 
-		skript.storeRegistry(FunctionRegistry.class, FunctionRegistry.empty(skript));
+		FunctionRegistry functionRegistry = FunctionRegistry.empty(skript);
+		skript.storeRegistry(FunctionRegistry.class, functionRegistry);
+		ch.njol.skript.lang.function.FunctionRegistry.setNewRegistry(functionRegistry);
 
 		// TODO this upcoming portion is a bad circular dependency
 		// some modules depend on the config
