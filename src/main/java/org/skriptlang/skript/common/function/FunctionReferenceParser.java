@@ -44,7 +44,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 
 	private static final ArgsMessage UNEXPECTED_ARGUMENT = new ArgsMessage("functions.unexpected argument");
 	private static final ArgsMessage INVALID_ARGUMENT = new ArgsMessage("functions.invalid argument");
-	private static final ArgsMessage UNKNOWN_FUNCTION = new ArgsMessage("functions.unknown function");
+	private static final ArgsMessage DOES_NOT_EXIST = new ArgsMessage("functions.does not exist");
 	private static final ArgsMessage POTENTIAL_SIGNATURE = new ArgsMessage("functions.potential signature");
 
 	/**
@@ -539,7 +539,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 		if (intended.isPresent()) {
 			possibleMatch = " " + POTENTIAL_SIGNATURE.toString(intended.get().toString(false, false));
 		}
-		Skript.error(UNKNOWN_FUNCTION.toString(name, joiner) + possibleMatch);
+		Skript.error(DOES_NOT_EXIST.toString("%s(%s)".formatted(name, joiner)) + possibleMatch);
 	}
 
 	/**
