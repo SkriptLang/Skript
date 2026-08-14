@@ -6,42 +6,35 @@ import ch.njol.skript.util.Utils;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
-import org.jspecify.annotations.NonNull;
-import org.skriptlang.skript.common.function.Function;
 import org.skriptlang.skript.common.function.Parameter;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
-import org.skriptlang.skript.common.function.Signature;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.util.Registry;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-@Experimental
+/**
+ * A registry for functions.
+ */
 @ApiStatus.Internal
-public final class FunctionRegistry implements org.skriptlang.skript.common.function.FunctionRegistry {
-
-	private final org.skriptlang.skript.Skript skript;
-
-	public FunctionRegistry(org.skriptlang.skript.Skript skript) {
-		this.skript = skript;
-	}
+public final class FunctionRegistry implements Registry<Function<?>> {
 
 	private static FunctionRegistry registry;
 
 	/**
-	 * @deprecated Accessing the function registry requires a Skript instance to allow modification.
-	 * Therefore, this method only returns an unmodifiable registry.
+	 * Gets the global function registry.
+	 *
+	 * @return The global function registry.
 	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static FunctionRegistry getRegistry() {
 		if (registry == null) {
-			registry = new FunctionRegistry(Skript.instance());
+			registry = new FunctionRegistry();
 		}
 		return registry;
 	}
@@ -50,7 +43,7 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 	 * The pattern for a valid function name.
 	 * Functions must start with a letter or underscore and can only contain letters, numbers, and underscores.
 	 */
-	final static Pattern FUNCTION_NAME_PATTERN = Pattern.compile("[\\p{IsAlphabetic}_][\\p{IsAlphabetic}\\d_]*");
+	final static Pattern FUNCTION_NAME_PATTERN = Pattern.compile(Functions.functionNamePattern);
 
 	/**
 	 * The namespace for registered global functions.
@@ -63,7 +56,7 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 	private final Map<NamespaceIdentifier, Namespace> namespaces = new ConcurrentHashMap<>();
 
 	@Override
-	public Collection<Function<?>> elements() {
+	public @Unmodifiable @NotNull Collection<Function<?>> elements() {
 		Set<Function<?>> functions = new HashSet<>();
 
 		for (Namespace namespace : namespaces.values()) {
@@ -73,141 +66,43 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 		return Collections.unmodifiableSet(functions);
 	}
 
-	private record UnmodifiableFunctionRegistry(
-			org.skriptlang.skript.common.function.FunctionRegistry registry) implements org.skriptlang.skript.common.function.FunctionRegistry {
-
-		@Override
-		public org.skriptlang.skript.common.function.FunctionRegistry unmodifiableView() {
-			return this;
-		}
-
-		@Override
-		public Collection<Function<?>> elements() {
-			return registry.elements();
-		}
-
-		@Override
-		public void register(@NotNull Signature<?> signature) {
-			throw new UnsupportedOperationException("Cannot register signatures on an unmodifiable function registry");
-		}
-
-		@Override
-		public void register(@NotNull String namespace, @NotNull Signature<?> signature) {
-			throw new UnsupportedOperationException("Cannot register signatures on an unmodifiable function registry");
-		}
-
-		@Override
-		public void register(@NotNull Function<?> function) {
-			throw new UnsupportedOperationException("Cannot register functions on an unmodifiable function registry");
-		}
-
-		@Override
-		public void register(@NotNull String namespace, @NotNull Function<?> function) {
-			throw new UnsupportedOperationException("Cannot register functions on an unmodifiable function registry");
-		}
-
-		@Override
-		public @NotNull Retrieval<Function<?>> getFunction(@NotNull String name, @NonNull @NotNull Class<?>... args) {
-			return registry.getFunction(name, args);
-		}
-
-		@Override
-		public @NotNull Retrieval<Function<?>> getFunction(@NotNull String namespace, @NotNull String name, @NonNull @NotNull Class<?>... args) {
-			return registry.getFunction(namespace, name, args);
-		}
-
-		@Override
-		public @NotNull Retrieval<Signature<?>> getSignature(@NotNull String name, @NonNull @NotNull Class<?>... args) {
-			return registry.getSignature(name, args);
-		}
-
-		@Override
-		public @NotNull Retrieval<Signature<?>> getSignature(@NotNull String namespace, @NotNull String name, @NonNull @NotNull Class<?>... args) {
-			return registry.getSignature(namespace, name, args);
-		}
-
-		@Override
-		public @Unmodifiable @NotNull Set<Signature<?>> getSignatures(@NotNull String name) {
-			return registry.getSignatures(name);
-		}
-
-		@Override
-		public @Unmodifiable @NotNull Set<Signature<?>> getSignatures(@NotNull String namespace, @NotNull String name) {
-			return registry.getSignatures(namespace, name);
-		}
-
-		@Override
-		public void remove(@NotNull Signature<?> signature) {
-			throw new UnsupportedOperationException("Cannot remove functions on an unmodifiable function registry");
-		}
-	}
-
-	@Override
-	public org.skriptlang.skript.common.function.FunctionRegistry unmodifiableView() {
-		return new UnmodifiableFunctionRegistry(this);
-	}
-
-	@Override
-	public void register(@NotNull Signature<?> signature) {
+	/**
+	 * Registers a signature.
+	 * <p>
+	 * Attempting to register a local signature in the global namespace, or a global signature in
+	 * a local namespace, will throw an {@link IllegalArgumentException}.
+	 * If {@code namespace} is null, will register this signature globally,
+	 * only if the signature is global.
+	 * </p>
+	 *
+	 * @param namespace The namespace to register the signature in.
+	 *                  Usually represents the path of the script this signature is registered in.
+	 * @param signature The signature to register.
+	 * @throws SkriptAPIException       if a signature with the same name and parameters is already registered
+	 *                                  in this namespace.
+	 * @throws IllegalArgumentException if the signature is global and namespace is not null, or
+	 *                                  if the signature is local and namespace is null.
+	 */
+	public void register(@Nullable String namespace, @NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature cannot be null");
-		if (signature.hasModifier(Signature.Modifier.LOCAL)) {
+		if (signature.isLocal() && namespace == null) {
 			throw new IllegalArgumentException("Cannot register a local signature in the global namespace");
 		}
-		register(GLOBAL_NAMESPACE, signature);
-	}
-
-	@Override
-	public void register(@NotNull String namespace, @NotNull Signature<?> signature) {
-		Preconditions.checkNotNull(signature, "signature cannot be null");
-		if (!signature.hasModifier(Signature.Modifier.LOCAL)) {
+		if (!signature.isLocal() && namespace != null) {
 			throw new IllegalArgumentException("Cannot register a global signature in a local namespace");
 		}
 
-		register(new NamespaceIdentifier(namespace), signature);
-	}
+		Skript.debug("Registering signature '%s'", signature.getName());
 
-	private void register(@NotNull NamespaceIdentifier namespace, @NotNull Signature<?> signature) {
-		Preconditions.checkArgument(FUNCTION_NAME_PATTERN.matcher(signature.name()).matches(),
-				"Invalid signature name '%s'".formatted(signature.name()));
-		Skript.checkAcceptRegistrations();
-
-		Retrieval<org.skriptlang.skript.common.function.Signature<?>> existing;
-		Parameter<?>[] parameters = signature.parameters().all();
-
-		if (parameters.length == 1 && !parameters[0].isSingle()) {
-			existing = getExactSignature(signature.namespace(), signature.name(), parameters[0].type().arrayType());
+		// namespace
+		NamespaceIdentifier namespaceId;
+		if (namespace != null) {
+			namespaceId = new NamespaceIdentifier(namespace);
 		} else {
-			Class<?>[] types = new Class<?>[parameters.length];
-			for (int i = 0; i < parameters.length; i++) {
-				types[i] = parameters[i].type();
-			}
-
-			existing = getExactSignature(signature.namespace(), signature.name(), types);
+			namespaceId = GLOBAL_NAMESPACE;
 		}
 
-		// if this function has already been registered, only allow it if one function is local and one is global.
-		// if both are global or both are local, disallow.
-		if (existing.result() == RetrievalResult.EXACT && existing.retrieved().hasModifier(Signature.Modifier.LOCAL) == signature.hasModifier(Signature.Modifier.LOCAL)) {
-			StringBuilder error = new StringBuilder();
-
-			if (existing.retrieved().hasModifier(Signature.Modifier.LOCAL)) {
-				error.append("Local function ");
-			} else {
-				error.append("Function ");
-			}
-			error.append("'%s' with the same argument types already exists".formatted(signature.name()));
-			if (existing.retrieved().namespace() != null) {
-				error.append(" in script '%s'.".formatted(existing.retrieved().namespace()));
-			} else {
-				error.append(".");
-			}
-
-			throw new SkriptAPIException(error.toString());
-		}
-
-		Skript.debug("Registering signature '%s'", signature.name());
-
-		Namespace ns = namespaces.computeIfAbsent(namespace, n -> new Namespace());
+		Namespace ns = namespaces.computeIfAbsent(namespaceId, n -> new Namespace());
 		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
 		// register
@@ -217,57 +112,68 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 			Set<FunctionIdentifier> identifiersWithName = ns.identifiers.computeIfAbsent(identifier.name, s -> new HashSet<>());
 			boolean exists = identifiersWithName.add(identifier);
 			if (!exists) {
-				alreadyRegisteredError(signature.name(), identifier, namespace);
+				alreadyRegisteredError(signature.getName(), identifier, namespaceId);
 			}
 		}
 
-		if (ns.signatures.putIfAbsent(identifier, signature) != null) {
-			alreadyRegisteredError(signature.name(), identifier, namespace);
+		Signature<?> existing = ns.signatures.putIfAbsent(identifier, signature);
+		if (existing != null) {
+			alreadyRegisteredError(signature.getName(), identifier, namespaceId);
 		}
 	}
 
-	@Override
-	public void register(@NotNull Function<?> function) {
+	/**
+	 * Registers a function.
+	 * <p>
+	 * Attempting to register a local function in the global namespace, or a global function in
+	 * a local namespace, will throw an {@link IllegalArgumentException}.
+	 * If {@code namespace} is null, will register this function globally,
+	 * only if the function is global.
+	 * </p>
+	 *
+	 * @param namespace The namespace to register the function in.
+	 *                  Usually represents the path of the script this function is registered in.
+	 * @param function  The function to register.
+	 * @throws SkriptAPIException       if the function name is invalid or if
+	 *                                  a function with the same name and parameters is already registered
+	 *                                  in this namespace.
+	 * @throws IllegalArgumentException if the function is global and namespace is not null, or
+	 *                                  if the function is local and namespace is null.
+	 */
+	public void register(@Nullable String namespace, @NotNull Function<?> function) {
 		Preconditions.checkNotNull(function, "function cannot be null");
-		if (function.signature().hasModifier(Signature.Modifier.LOCAL)) {
+		if (function.getSignature().isLocal() && namespace == null) {
 			throw new IllegalArgumentException("Cannot register a local function in the global namespace");
 		}
-		register(GLOBAL_NAMESPACE, function);
-	}
-
-	@Override
-	public void register(@NotNull String namespace, @NotNull Function<?> function) {
-		Preconditions.checkNotNull(function, "function cannot be null");
-		if (!function.signature().hasModifier(Signature.Modifier.LOCAL)) {
+		if (!function.getSignature().isLocal() && namespace != null) {
 			throw new IllegalArgumentException("Cannot register a global function in a local namespace");
 		}
-		register(new NamespaceIdentifier(namespace), function);
-	}
+		Skript.debug("Registering function '%s'", function.getName());
 
-	private void register(@NotNull NamespaceIdentifier namespace, @NotNull Function<?> function) {
-		Signature<?> signature = function.signature();
-		Preconditions.checkArgument(FUNCTION_NAME_PATTERN.matcher(signature.name()).matches(),
-				"Invalid signature name '%s'".formatted(signature.name()));
-		Skript.checkAcceptRegistrations();
-
-		Skript.debug("Registering function '%s'", signature.name());
-
-		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
-		if (!signatureExists(namespace, identifier)) {
-			register(namespace, signature);
+		String name = function.getName();
+		if (!FUNCTION_NAME_PATTERN.matcher(name).matches()) {
+			throw new SkriptAPIException("Invalid function name '" + name + "'");
 		}
 
-		Namespace ns = namespaces.computeIfAbsent(namespace, n -> new Namespace());
+		// namespace
+		NamespaceIdentifier namespaceId;
+		if (namespace != null) {
+			namespaceId = new NamespaceIdentifier(namespace);
+		} else {
+			namespaceId = GLOBAL_NAMESPACE;
+		}
+
+		FunctionIdentifier identifier = FunctionIdentifier.of(function.getSignature());
+		if (!signatureExists(namespaceId, identifier)) {
+			register(namespace, function.getSignature());
+		}
+
+		Namespace ns = namespaces.computeIfAbsent(namespaceId, n -> new Namespace());
 
 		Function<?> existing = ns.functions.putIfAbsent(identifier, function);
 		if (existing != null) {
-			alreadyRegisteredError(signature.name(), identifier, namespace);
+			alreadyRegisteredError(name, identifier, namespaceId);
 		}
-	}
-
-	@Override
-	public org.skriptlang.skript.common.function.FunctionRegistry.@NotNull Retrieval<Function<?>> getFunction(@NotNull String name, @NotNull Class<?>... args) {
-		return getFunction(null, name, args);
 	}
 
 	private static void alreadyRegisteredError(String name, FunctionIdentifier identifier, NamespaceIdentifier namespace) {
@@ -305,7 +211,74 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 		return false;
 	}
 
-	@Override
+	/**
+	 * The result of attempting to retrieve a function.
+	 * Depending on the type, a {@link Retrieval} will feature different data.
+	 */
+	public enum RetrievalResult {
+
+		/**
+		 * The specified function or signature has not been registered.
+		 */
+		NOT_REGISTERED,
+
+		/**
+		 * There are multiple functions or signatures that may fit the provided name and argument types.
+		 */
+		AMBIGUOUS,
+
+		/**
+		 * A single function or signature has been found which matches the name and argument types.
+		 */
+		EXACT
+
+	}
+
+	/**
+	 * The result of trying to retrieve a function or signature.
+	 * <p>
+	 * When getting a function or signature, the following situations may occur.
+	 * These are specified by {@code type}.
+	 * <ul>
+	 *     <li>
+	 *         {@code NOT_REGISTERED}. The specified function or signature is not registered.
+	 *         Both {@code retrieved} and {@code conflictingArgs} will be null.
+	 *     </li>
+	 *     <li>
+	 *         {@code AMBIGUOUS}. There are multiple functions or signatures that
+	 *         may fit the provided name and argument types.
+	 *           {@code retrieved} will be null, and {@code conflictingArgs}
+	 * 		   will contain the conflicting function or signature parameters.
+	 *     </li>
+	 *     <li>
+	 *         {@code EXACT}. A single function or signature has been found which matches the name and argument types.
+	 *         {@code retrieved} will contain the function or signature, and {@code conflictingArgs} will be null.
+	 *     </li>
+	 * </ul>
+	 * </p>
+	 *
+	 * @param result          The result of the function or signature retrieval.
+	 * @param retrieved       The function or signature that was found if {@code result} is {@code EXACT}.
+	 * @param conflictingArgs The conflicting arguments if {@code result} is {@code AMBIGUOUS}.
+	 */
+	public record Retrieval<T>(
+			@NotNull RetrievalResult result,
+			T retrieved,
+			Class<?>[][] conflictingArgs
+	) {
+	}
+
+	/**
+	 * Gets a function from a script. If no local function is found, checks for global functions.
+	 * If {@code namespace} is null, only global functions will be checked.
+	 *
+	 * @param namespace The namespace to get the function from.
+	 *                  Usually represents the path of the script this function is registered in.
+	 * @param name      The name of the function.
+	 * @param args      The types of the arguments of the function.
+	 * @return Information related to the attempt to get the specified function,
+	 * stored in a {@link Retrieval} object.
+	 */
 	public @NotNull Retrieval<Function<?>> getFunction(
 			@Nullable String namespace,
 			@NotNull String name,
@@ -320,11 +293,6 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 			attempt = getFunction(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 		return attempt;
-	}
-
-	@Override
-	public org.skriptlang.skript.common.function.FunctionRegistry.@NotNull Retrieval<Signature<?>> getSignature(@NotNull String name, @NotNull Class<?>... args) {
-		return getSignature(null, name, args);
 	}
 
 	/**
@@ -373,8 +341,17 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 		}
 	}
 
-	@Override
-	public @NonNull Retrieval<Signature<?>> getSignature(
+	/**
+	 * Gets the signature for a function with the given name and arguments. If no local function is found,
+	 * checks for global functions. If {@code namespace} is null, only global signatures will be checked.
+	 *
+	 * @param namespace The namespace to get the function from.
+	 *                  Usually represents the path of the script this function is registered in.
+	 * @param name      The name of the function.
+	 * @param args      The types of the arguments of the function.
+	 * @return The signature for the function with the given name and argument types, or null if no such function exists.
+	 */
+	public Retrieval<Signature<?>> getSignature(
 			@Nullable String namespace,
 			@NotNull String name,
 			@NotNull Class<?>... args
@@ -388,11 +365,6 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 			attempt = getSignature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args), false);
 		}
 		return attempt;
-	}
-
-	@Override
-	public @Unmodifiable @NotNull Set<Signature<?>> getSignatures(@NotNull String name) {
-		return getSignatures(null, name);
 	}
 
 	/**
@@ -410,7 +382,7 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 	 * @param args      The types of the arguments of the function.
 	 * @return The signature for the function with the given name and argument types, or null if no such function exists.
 	 */
-	public Retrieval<Signature<?>> getExactSignature(
+	Retrieval<Signature<?>> getExactSignature(
 			@Nullable String namespace,
 			@NotNull String name,
 			@NotNull Class<?>... args
@@ -430,13 +402,11 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 	/**
 	 * Gets every signature with the name {@code name}.
 	 * This includes global functions and, if {@code namespace} is not null, functions under that namespace (if valid).
-	 *
 	 * @param namespace The additional namespace to obtain signatures from.
 	 *                  Usually represents the path of the script this function is registered in.
 	 * @param name      The name of the signature(s) to obtain.
 	 * @return A list of all signatures named {@code name}.
 	 */
-	@Override
 	public @Unmodifiable @NotNull Set<Signature<?>> getSignatures(@Nullable String namespace, @NotNull String name) {
 		Preconditions.checkNotNull(name, "name cannot be null");
 
@@ -465,8 +435,8 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 	 *
 	 * @param namespace The namespace to get the function from.
 	 * @param provided  The provided identifier of the function.
-	 * @param exact     When false, will convert arguments to different types to attempt to find a match.
-	 *                  When true, will not convert arguments.
+	 * @param exact When false, will convert arguments to different types to attempt to find a match.
+	 *              When true, will not convert arguments.
 	 * @return The signature for the function with the given name and argument types, or null if no such signature exists
 	 * in the specified namespace.
 	 */
@@ -512,8 +482,8 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 	 *
 	 * @param provided The provided function.
 	 * @param existing The existing functions with the same name.
-	 * @param exact    When false, will convert arguments to different types to attempt to find a match.
-	 *                 When true, will not convert arguments.
+	 * @param exact When false, will convert arguments to different types to attempt to find a match.
+	 *              When true, will not convert arguments.
 	 * @return An unmodifiable list of candidates for the provided function.
 	 */
 	private static @Unmodifiable @NotNull Set<FunctionIdentifier> candidates(
@@ -605,15 +575,19 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 		return Collections.unmodifiableSet(candidates);
 	}
 
-	@Override
+	/**
+	 * Removes a function's signature from the registry.
+	 *
+	 * @param signature The signature to remove.
+	 */
 	public void remove(@NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature cannot be null");
 
-		String name = signature.name();
+		String name = signature.getName();
 		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
 		Namespace namespace;
-		if (signature.hasModifier(Signature.Modifier.LOCAL)) {
+		if (signature.isLocal()) {
 			namespace = namespaces.get(new NamespaceIdentifier(signature.namespace()));
 		} else {
 			namespace = namespaces.get(GLOBAL_NAMESPACE);
@@ -659,6 +633,15 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 	 * An identifier for a function namespace.
 	 */
 	private record NamespaceIdentifier(@Nullable String name) {
+
+		/**
+		 * Returns whether this identifier is for local namespaces.
+		 *
+		 * @return Whether this identifier is for local namespaces.
+		 */
+		public boolean local() {
+			return name == null;
+		}
 
 	}
 
@@ -730,7 +713,7 @@ public final class FunctionRegistry implements org.skriptlang.skript.common.func
 				parameters[i] = param.type();
 			}
 
-			return new FunctionIdentifier(signature.name(), signature.hasModifier(Signature.Modifier.LOCAL),
+			return new FunctionIdentifier(signature.getName(), signature.isLocal(),
 					parameters.length - optionalArgs, parameters);
 		}
 
