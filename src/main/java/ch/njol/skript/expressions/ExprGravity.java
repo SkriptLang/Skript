@@ -17,7 +17,7 @@ import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Gravity")
 @Description("If entity is affected by gravity or not, i.e. if it has Minecraft 1.10+ NoGravity flag. This expression is deprecated and will be removed in a future version. Use the <a href='#EffGravity'>Entity Gravity</a> effect instead.")
-@Example("set gravity of player off")
+@Example("set gravity of player to off")
 @Since("2.2-dev21")
 @Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class ExprGravity extends SimplePropertyExpression<Entity, Boolean> {
