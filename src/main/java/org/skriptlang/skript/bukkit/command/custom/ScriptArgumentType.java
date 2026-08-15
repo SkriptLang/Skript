@@ -9,6 +9,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.registrations.Classes;
 import com.mojang.brigadier.LiteralMessage;
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
@@ -24,6 +25,7 @@ import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.GameMode;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
@@ -174,7 +176,8 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 			}
 			if (result == null) {
 				if (logHandler.hasError()) {
-					throw ERROR_PARSER_ERROR.create(logHandler.getError());
+					//noinspection ConstantConditions - getError is NotNull by hasError check
+					throw ERROR_PARSER_ERROR.create(logHandler.getError().getMessage());
 				} else {
 					throw ERROR_INVALID_INPUT.create(input, argument.type().getName().getSingular());
 				}
@@ -214,6 +217,53 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 				ScriptSuggestionProvider.suggest(builder, new CommandSuggestion(suggestion, null), filteringMode);
 			}
 			return builder.buildFuture();
+		}
+
+	}
+
+	/**
+	 * A custom argument type for OfflinePlayer that also supports selectors.
+	 */
+	public static final class OfflinePlayerArgument implements CustomArgumentType<Object, String> {
+
+		private final ArgumentData<OfflinePlayer> argument;
+		private final StringArgumentType nativeType;
+		private final ArgumentType<?> playerType;
+
+		public OfflinePlayerArgument(@NotNull ArgumentData<OfflinePlayer> argument, @NotNull StringArgumentType nativeType) {
+			this.argument = argument;
+			this.nativeType = nativeType;
+			playerType = argument.isSingle() ? ArgumentTypes.player() : ArgumentTypes.players();
+		}
+
+		@Override
+		public @NotNull Object parse(@NotNull StringReader reader) throws CommandSyntaxException {
+			throw new UnsupportedOperationException("This method will never be called.");
+		}
+
+		@Override
+		public <S> @NotNull Object parse(StringReader reader, @NotNull S source) throws CommandSyntaxException {
+			int cursor = reader.getCursor();
+			try {
+				String input = nativeType.parse(reader, source);
+				//noinspection ConstantConditions - OfflinePlayer always has a parser
+				OfflinePlayer offlinePlayer = argument.type().getParser().parse(input, ParseContext.COMMAND);
+				if (offlinePlayer != null) {
+					return offlinePlayer;
+				}
+			} catch (CommandSyntaxException ignored) { }
+			reader.setCursor(cursor);
+			return playerType.parse(reader, source);
+		}
+
+		@Override
+		public <S> @NotNull CompletableFuture<Suggestions> listSuggestions(@NotNull CommandContext<S> context, @NotNull SuggestionsBuilder builder) {
+			return playerType.listSuggestions(context, builder);
+		}
+
+		@Override
+		public @NotNull ArgumentType<String> getNativeType() {
+			return nativeType;
 		}
 
 	}

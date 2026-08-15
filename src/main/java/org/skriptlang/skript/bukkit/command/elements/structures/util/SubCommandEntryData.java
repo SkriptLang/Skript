@@ -18,6 +18,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.Component;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.Nullable;
@@ -431,7 +432,11 @@ public class SubCommandEntryData extends EntryData<Result> {
 					nativeType = StringArgumentType.string();
 				}
 				// we only want to override the suggestions method if we will actually provide them
-				if (data.type().getSupplier() == null) {
+				if (data.type().getC() == OfflinePlayer.class) {
+					//noinspection unchecked - verified by type check
+					nativeType = new ScriptArgumentType.OfflinePlayerArgument((ArgumentData<OfflinePlayer>) data,
+						(StringArgumentType) nativeType);
+				} else if (data.type().getSupplier() == null) {
 					nativeType = new ScriptArgumentType<>(data, (StringArgumentType) nativeType);
 				} else {
 					nativeType = new ScriptArgumentType.Suggesting<>(data, (StringArgumentType) nativeType);
