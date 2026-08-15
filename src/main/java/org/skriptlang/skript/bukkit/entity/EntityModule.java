@@ -100,7 +100,7 @@ public class EntityModule extends HierarchicalAddonModule {
 			EffGlowing::register,
 			EffGravity::register,
 			EffProjectileCriticalState::register,
-      EffTeleport::register,
+			EffTeleport::register,
 
 			ExprDeathMessage::register,
 			ExprPathfindingLocation::register,
