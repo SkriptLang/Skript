@@ -43,7 +43,7 @@ public class DamageSourceModule extends HierarchicalAddonModule {
 		);
 
 		Classes.registerClass(
-			new RegistryClassInfo<>(DamageType.class, RegistryAccess.registryAccess().getRegistry(RegistryKey.DAMAGE_TYPE),
+			new RegistryClassInfo<>(DamageType.class, RegistryKey.DAMAGE_TYPE,
 									"damagetype", "damage types")
 			.user("damage ?types?")
 			.name("Damage Type")

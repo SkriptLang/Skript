@@ -255,6 +255,10 @@ public class SimpleEntityData extends EntityData<Entity> {
 			addSimpleEntity("parched", Parched.class);
 		}
 
+		if (Skript.isRunningMinecraft(26, 2)) {
+			addSimpleEntity("sulfur cube", SulfurCube.class);
+		}
+
 		// SuperTypes
 		addSuperEntity("human", HumanEntity.class);
 		addSuperEntity("damageable", Damageable.class);

@@ -13,9 +13,9 @@ jobs:
         if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
         uses: ./.github/workflows/parallelize-tests.yml
         with:
-            environments: 1.21.4,1.21.5,1.21.8,1.21.10,1.21.11
+            environments: 1.21.5,1.21.8,1.21.10,1.21.11
             java_version: 21
-            parallel_jobs: 3
+            parallel_jobs: 2
 
     build:
         name: ${{ matrix.display }}
@@ -24,7 +24,7 @@ jobs:
         strategy:
             matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
               with:
                   submodules: recursive
             - name: validate gradle wrapper
