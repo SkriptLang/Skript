@@ -39,7 +39,6 @@ import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
@@ -756,9 +755,6 @@ public final class BukkitEventValues {
 			.time(Time.FUTURE)
 			.build());
 		registry.register(EventValue.simple(InventoryMoveItemEvent.class, ItemStack.class, InventoryMoveItemEvent::getItem));
-
-		// EntityRegainHealthEvent
-		registry.register(EventValue.simple(EntityRegainHealthEvent.class, RegainReason.class, EntityRegainHealthEvent::getRegainReason));
 
 		// FurnaceExtractEvent
 		registry.register(EventValue.simple(FurnaceExtractEvent.class, Player.class, FurnaceExtractEvent::getPlayer));

@@ -1,5 +1,5 @@
 
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.entity.player.elements.expressions;
 
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import org.bukkit.event.Event;
@@ -15,11 +15,12 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Heal Amount")
 @Description("The amount of health healed in a <a href='/#heal'>heal event</a>.")
@@ -32,8 +33,12 @@ import ch.njol.util.coll.CollectionUtils;
 @Since("2.5.1")
 public class ExprHealAmount extends SimpleExpression<Double> implements EventRestrictedSyntax {
 
-	static {
-		Skript.registerExpression(ExprHealAmount.class, Double.class, ExpressionType.SIMPLE, "[the] heal[ing] amount");
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprHealAmount.class, Double.class)
+			.supplier(ExprHealAmount::new)
+			.priority(SyntaxInfo.SIMPLE)
+			.addPattern("[the] heal[ing] amount")
+			.build());
 	}
 
 	private Kleenean delay;
@@ -49,46 +54,38 @@ public class ExprHealAmount extends SimpleExpression<Double> implements EventRes
 		return CollectionUtils.array(EntityRegainHealthEvent.class);
 	}
 
-	@Nullable
 	@Override
-	protected Double[] get(Event event) {
-		if (!(event instanceof EntityRegainHealthEvent))
+	protected Double @Nullable [] get(Event event) {
+		if (!(event instanceof EntityRegainHealthEvent healEvent))
 			return null;
-		return new Double[]{((EntityRegainHealthEvent) event).getAmount()};
+
+		return new Double[]{healEvent.getAmount() / 2};
 	}
 
-	@Nullable
 	@Override
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (delay != Kleenean.FALSE) {
 			Skript.error("The heal amount cannot be changed after the event has already passed");
 			return null;
 		}
+
 		if (mode == Changer.ChangeMode.REMOVE_ALL || mode == Changer.ChangeMode.RESET)
 			return null;
+
 		return CollectionUtils.array(Number.class);
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (!(event instanceof EntityRegainHealthEvent))
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		if (!(event instanceof EntityRegainHealthEvent healEvent))
 			return;
 
-		EntityRegainHealthEvent healthEvent = (EntityRegainHealthEvent) event;
-		double value = delta == null ? 0 : ((Number) delta[0]).doubleValue();
+		double amount = delta == null ? 0 : ((Number) delta[0]).doubleValue() * 2;
+
 		switch (mode) {
-			case SET:
-			case DELETE:
-				healthEvent.setAmount(value);
-				break;
-			case ADD:
-				healthEvent.setAmount(healthEvent.getAmount() + value);
-				break;
-			case REMOVE:
-				healthEvent.setAmount(healthEvent.getAmount() - value);
-				break;
-			default:
-				break;
+			case SET, DELETE -> healEvent.setAmount(amount);
+			case ADD -> healEvent.setAmount(healEvent.getAmount() + amount);
+			case REMOVE -> healEvent.setAmount(healEvent.getAmount() - amount);
 		}
 	}
 
