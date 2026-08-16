@@ -146,7 +146,11 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 			retrieval = newRegistry.getFunction(namespace, name, args);
 		}
 
-		return new Retrieval<>(RetrievalResult.valueOf(retrieval.result().name()), (Function<?>) retrieval.retrieved(), retrieval.conflictingArgs());
+		return new Retrieval<>(RetrievalResult.valueOf(retrieval.result().name()),
+				(Function<?>) retrieval.retrieved(),
+				retrieval.conflictingArgs().stream()
+						.map(it -> it.toArray(Class<?>[]::new))
+						.toArray(Class<?>[][]::new));
 	}
 
 	/**
@@ -166,7 +170,11 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 			retrieval = newRegistry.getSignature(namespace, name, args);
 		}
 
-		return new Retrieval<>(RetrievalResult.valueOf(retrieval.result().name()), (Signature<?>) retrieval.retrieved(), retrieval.conflictingArgs());
+		return new Retrieval<>(RetrievalResult.valueOf(retrieval.result().name()),
+				(Signature<?>) retrieval.retrieved(),
+				retrieval.conflictingArgs().stream()
+						.map(it -> it.toArray(Class<?>[]::new))
+						.toArray(Class<?>[][]::new));
 	}
 
 	/**
@@ -197,7 +205,11 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 			retrieval = newRegistry.getSignature(namespace, name, args);
 		}
 
-		return new Retrieval<>(RetrievalResult.valueOf(retrieval.result().name()), (Signature<?>) retrieval.retrieved(), retrieval.conflictingArgs());
+		return new Retrieval<>(RetrievalResult.valueOf(retrieval.result().name()),
+				(Signature<?>) retrieval.retrieved(),
+				retrieval.conflictingArgs().stream()
+						.map(it -> it.toArray(Class<?>[]::new))
+						.toArray(Class<?>[][]::new));
 	}
 
 	/**

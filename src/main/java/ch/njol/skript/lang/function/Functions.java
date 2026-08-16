@@ -171,10 +171,10 @@ public abstract class Functions {
 
 		// if this function has already been registered, only allow it if one function is local and one is global.
 		// if both are global or both are local, disallow.
-		if (existing.result() == RetrievalResult.EXACT && existing.retrieved().hasModifier(Modifier.LOCAL) == signature.isLocal()) {
+		if (existing.result() == RetrievalResult.EXACT && existing.retrieved().hasModifier(Modifier.Local.class) == signature.isLocal()) {
 			StringBuilder error = new StringBuilder();
 
-			if (existing.retrieved().hasModifier(Modifier.LOCAL)) {
+			if (existing.retrieved().hasModifier(Modifier.Local.class)) {
 				error.append("Local function ");
 			} else {
 				error.append("Function ");

@@ -330,7 +330,8 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 				} else if (modifier == Modifier.KEYED) {
 					result.add(new Modifier.Keyed());
 				} else if (modifier instanceof RangedModifier<?> rangedModifier) {
-					result.add(new Modifier.Ranged<>(rangedModifier.getMax(), rangedModifier.getMax()));
+					//noinspection rawtypes,unchecked
+					result.add(new Modifier.Ranged(rangedModifier.getMin(), rangedModifier.getMax()));
 				}
 			}
 			return result;

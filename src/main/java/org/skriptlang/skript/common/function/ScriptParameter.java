@@ -67,10 +67,10 @@ public record ScriptParameter<T>(String name, Class<T> type, Set<Modifier> modif
 
 		Set<Modifier> modifiers = new HashSet<>();
 		if (defaultValue != null) {
-			modifiers.add(Modifier.Optional.class);
+			modifiers.add(new Modifier.Optional());
 		}
 		if (type.isArray()) {
-			modifiers.add(Modifier.KEYED);
+			modifiers.add(new Modifier.Keyed());
 		}
 
 		return new ScriptParameter<>(name, type, defaultValue, modifiers.toArray(new Modifier[0]));

@@ -517,10 +517,10 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
 	}
 
-	private void ambiguousError(Class<?>[][] conflictingArgs) {
+	private void ambiguousError(Collection<SequencedCollection<Class<?>>> conflictingArgs) {
 		List<String> parts = new ArrayList<>();
-		for (Class<?>[] args : conflictingArgs) {
-			String argNames = Arrays.stream(args).map(arg -> {
+		for (SequencedCollection<Class<?>> args : conflictingArgs) {
+			String argNames = args.stream().map(arg -> {
 				String name = Classes.getExactClassName(arg);
 
 				if (name == null) {
