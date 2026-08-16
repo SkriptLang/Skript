@@ -27,10 +27,12 @@ public class PlayerModule extends HierarchicalAddonModule {
 		Classes.registerClass(new EnumClassInfo<>(Statistic.class, "statistic", "statistics")
 			.user("statistics?")
 			.name("Statistic")
-			.description(
-				"Represents a countable statistic, which is tracked by the server. "
-					+ "For the list of all available statistics, "
-					+ "see <a href='https://minecraft.wiki/w/Statistics'>the Minecraft wiki</a>.")
+			.description("""
+				    Represents a countable statistic, which is tracked by the server.
+				    
+				    For the list of all available statistics, see \
+				    <a href='https://minecraft.wiki/w/Statistics'>the Minecraft wiki</a>.
+				    """)
 			.since("INSERT VERSION"));
 	}
 
@@ -39,10 +41,10 @@ public class PlayerModule extends HierarchicalAddonModule {
 		EventValueRegistry eventValueRegistry = addon.registry(EventValueRegistry.class);
 
 		register(addon,
-			syntaxRegistry -> EvtPlayerStatisticChange.register(syntaxRegistry, eventValueRegistry),
 			EffBan::register,
 			EffKick::register,
 			syntaxRegistry -> EvtPlayerGameModeChange.register(syntaxRegistry, eventValueRegistry),
+			syntaxRegistry -> EvtPlayerStatisticChange.register(syntaxRegistry, eventValueRegistry),
 			ExprChatFormat::register,
 			ExprChatMessage::register,
 			ExprChatRecipients::register,

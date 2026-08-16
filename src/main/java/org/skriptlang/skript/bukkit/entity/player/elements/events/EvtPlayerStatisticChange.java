@@ -21,7 +21,7 @@ import static ch.njol.skript.bukkitutil.EntityUtils.toSkriptEntityData;
 @SuppressWarnings("unchecked")
 public class EvtPlayerStatisticChange extends SkriptEvent {
 
-	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry registry) {
+	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry) {
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtPlayerStatisticChange.class, "Player Statistic Change")
 			.supplier(EvtPlayerStatisticChange::new)
 			.addEvent(PlayerStatisticIncrementEvent.class)
@@ -36,39 +36,39 @@ public class EvtPlayerStatisticChange extends SkriptEvent {
 					broadcast "%player%'s statistic '%event-statistic%' increased! It is now %event-number%!
 				""")
 			.addExample("""
-				on player statistic increase of leave game:
+				on player statistic increase of leave game statistic:
 					broadcast "%player% has now left the game %event-number% times!"
 				""")
 			.addSince("INSERT VERSION")
 			.build());
 
-		registry.register(EventValue.builder(PlayerStatisticIncrementEvent.class, Integer.class)
+		eventValueRegistry.register(EventValue.builder(PlayerStatisticIncrementEvent.class, Integer.class)
 			.getter(PlayerStatisticIncrementEvent::getNewValue)
 			.build());
 
-		registry.register(EventValue.builder(PlayerStatisticIncrementEvent.class, Integer.class)
+		eventValueRegistry.register(EventValue.builder(PlayerStatisticIncrementEvent.class, Integer.class)
 			.getter(PlayerStatisticIncrementEvent::getPreviousValue)
 			.time(Time.PAST)
 			.build());
 
-		registry.register(EventValue.builder(PlayerStatisticIncrementEvent.class, Statistic.class)
+		eventValueRegistry.register(EventValue.builder(PlayerStatisticIncrementEvent.class, Statistic.class)
 			.getter(PlayerStatisticIncrementEvent::getStatistic)
 			.build());
 
-		registry.register(EventValue.builder(PlayerStatisticIncrementEvent.class, ItemType.class)
-			.getter(event -> new ItemType(event.getMaterial()))
+		eventValueRegistry.register(EventValue.builder(PlayerStatisticIncrementEvent.class, ItemType.class)
+			.getter(event -> event.getMaterial() != null ? new ItemType(event.getMaterial()) : null)
 			.build());
 
-		registry.register(EventValue.builder(PlayerStatisticIncrementEvent.class, EntityData.class)
-			.getter(event -> toSkriptEntityData(event.getEntityType()))
+		eventValueRegistry.register(EventValue.builder(PlayerStatisticIncrementEvent.class, EntityData.class)
+			.getter(event -> event.getEntityType() != null ? toSkriptEntityData(event.getEntityType()) : null)
 			.build());
 	}
 
 	private Literal<Statistic> statistics;
 
 	@Override
-	public boolean init(Literal<?>[] literals, int i, ParseResult parseResult) {
-		statistics = (Literal<Statistic>) literals[0];
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
+		statistics = (Literal<Statistic>) args[0];
 		return true;
 	}
 
@@ -76,9 +76,12 @@ public class EvtPlayerStatisticChange extends SkriptEvent {
 	public boolean check(Event event) {
 		if (statistics == null)
 			return true;
-		Statistic statistic = ((PlayerStatisticIncrementEvent) event).getStatistic();
+
+		PlayerStatisticIncrementEvent playerEvent = (PlayerStatisticIncrementEvent) event;
+		Statistic statistic = playerEvent.getStatistic();
+
 		for (Statistic value : this.statistics.getAll(event)) {
-			if (statistic.equals(value))
+			if (statistic == value)
 				return true;
 		}
 		return false;

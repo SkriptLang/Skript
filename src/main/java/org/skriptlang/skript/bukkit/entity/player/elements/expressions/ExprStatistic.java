@@ -42,12 +42,12 @@ import java.util.Arrays;
 	on death:
 		 chance of 50%:
 			 remove 1 from deaths statistic of player
-			 send "You got lucky and didn't ruin your kdr!" to victim
+			 send "You got lucky and didn't ruin your KDR!" to victim
 	""")
 @Example("""
 	on break of tnt:
 		chance of 25%:
-			 add 2 to mine block statistic using tnt (itemtype) of player
+			 add 2 to the player's mine block statistic using tnt block
 			 send "You gained +2 tnt broken! (25% chance)"
 	""")
 @Since("INSERT VERSION")
@@ -109,7 +109,7 @@ public class ExprStatistic extends PropertyExpression<OfflinePlayer, Integer> {
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		int amount = (mode == ChangeMode.RESET || mode == ChangeMode.DELETE) ? 0 : (Integer) delta[0];
+		int amount = delta == null ? 0 : (Integer) delta[0];
 		Statistic statistic = this.statistic.getSingle(event);
 		if (statistic == null)
 			return;
@@ -141,7 +141,7 @@ public class ExprStatistic extends PropertyExpression<OfflinePlayer, Integer> {
 	 * @param type The statistic type. Can be ITEM, BLOCK or ENTITY.
 	 * @return The value of the specified statistic of the player.
 	 */
-	private int getStatistic(OfflinePlayer player, Statistic statistic, Object type) {
+	private static int getStatistic(OfflinePlayer player, Statistic statistic, Object type) {
 		Statistic.Type statisticType = statistic.getType();
 		if (type instanceof ItemType item && (statisticType == Statistic.Type.ITEM || statisticType == Statistic.Type.BLOCK)) {
 			return player.getStatistic(statistic, item.getMaterial());
@@ -160,7 +160,7 @@ public class ExprStatistic extends PropertyExpression<OfflinePlayer, Integer> {
 	 * @param value The value that the statistic should be changed to.
 	 * @param type The statistic type. Can be ITEM, BLOCK or ENTITY.
 	 */
-	private void applyStatistic(OfflinePlayer player, Statistic statistic, Integer value, Object type) {
+	private static void applyStatistic(OfflinePlayer player, Statistic statistic, Integer value, Object type) {
 		Statistic.Type statisticType = statistic.getType();
 		value = Math.max(0, value);
 		if (type instanceof ItemType item && (statisticType == Statistic.Type.ITEM || statisticType == Statistic.Type.BLOCK)) {
@@ -174,7 +174,6 @@ public class ExprStatistic extends PropertyExpression<OfflinePlayer, Integer> {
 
 	/**
 	 * Checks if the specified statistic needs a type or not.
-	 *
 	 *
 	 * @param statistic The statistic itself. See <a href="https://minecraft.wiki/w/Statistics">Statistics</a> for a list of every possible statistic.
 	 * @param ofType The statistic type. Can be ITEM, BLOCK or ENTITY.
@@ -214,7 +213,7 @@ public class ExprStatistic extends PropertyExpression<OfflinePlayer, Integer> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return new SyntaxStringBuilder(event, debug)
-			.append("the statistic", statistic, "of", getExpr().getArray(event))
+			.append("the statistic", statistic, "of", getExpr())
 			.appendIf(ofType != null, "using", ofType)
 			.toString();
 	}
