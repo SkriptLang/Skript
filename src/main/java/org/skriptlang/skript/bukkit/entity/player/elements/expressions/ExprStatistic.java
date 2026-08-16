@@ -90,6 +90,7 @@ public class ExprStatistic extends PropertyExpression<OfflinePlayer, Integer> {
 		Statistic statistic = this.statistic.getSingle(event);
 		if (statistic == null)
 			return new Integer[0];
+
 		Object type = ofType != null ? ofType.getSingle(event) : null;
 		if (checkTyping(statistic, type))
 			return new Integer[0];
@@ -110,9 +111,11 @@ public class ExprStatistic extends PropertyExpression<OfflinePlayer, Integer> {
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		int amount = delta == null ? 0 : (Integer) delta[0];
+
 		Statistic statistic = this.statistic.getSingle(event);
 		if (statistic == null)
 			return;
+
 		Object type = ofType != null ? ofType.getSingle(event) : null;
 		if (checkTyping(statistic, type))
 			return;
