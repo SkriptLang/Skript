@@ -28,34 +28,62 @@ public class EffSendExperienceChange extends Effect {
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffSendExperienceChange.class)
 			.supplier(EffSendExperienceChange::new)
-			.addPatterns("make %players% see their [own] (experience|exp|xp) as level %integer% with %number% progress")
+			.addPatterns(
+				"make %players% see their [own] (experience|exp|xp) as level %integer% with %number% progress",
+			    "make %players% see their [own] (experience|exp|xp) progress as %number%",
+				"make %players% see their [own] (experience|exp|xp) as it[']s original value"
+			)
 			.build());
 	}
 
 	private Expression<Player> players;
 	private Expression<Number> progress;
 	private Expression<Integer> level;
+	private int matchedPattern;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		players = (Expression<Player>) expressions[0];
-		level = (Expression<Integer>) expressions[1];
-		progress = (Expression<Number>) expressions[2];
+		switch (matchedPattern) {
+			case 0 -> {
+				level = (Expression<Integer>) expressions[1];
+				progress = (Expression<Number>) expressions[2];
+			}
+			case 1 -> progress = (Expression<Number>) expressions[1];
+		}
+		this.matchedPattern = matchedPattern;
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
 		Player[] players = this.players.getArray(event);
+
+		if (matchedPattern == 2) {
+			for (Player player : players)
+				player.sendExperienceChange(player.getExp(), player.getExpToLevel());
+			return;
+		}
+
 		Number progress = this.progress.getSingle(event);
 		if (progress == null)
 			return;
+		float clampedProgress = Math.clamp(progress.floatValue(), 0.0f, 1.0f);
+
+		if (matchedPattern == 1) {
+			for (Player player : players)
+				player.sendExperienceChange(clampedProgress);
+			return;
+		}
+
 		Integer level = this.level.getSingle(event);
 		if (level == null)
 			return;
+		int clampedLevel = Math.max(level, 0);
+
 		for (Player player : players)
-			player.sendExperienceChange(Math.clamp(progress.floatValue(), 0.0f, 1.0f), Math.max(level, 0));
+			player.sendExperienceChange(clampedProgress, clampedLevel);
 	}
 
 	@Override

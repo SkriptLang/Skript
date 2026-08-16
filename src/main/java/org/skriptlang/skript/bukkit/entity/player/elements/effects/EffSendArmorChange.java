@@ -24,7 +24,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Name("Send Equipment Change")
 @Description("""
 	 Makes a player see an entity's armor as something else.
-	 Note that most entities can have armor but it is not visible.
+	 Note that while most entities can have armor, it may not be visible.
 	 """)
 @Example("""
 	on join:
