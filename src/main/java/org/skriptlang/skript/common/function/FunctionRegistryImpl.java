@@ -2,6 +2,7 @@ package org.skriptlang.skript.common.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.util.Utils;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
@@ -199,6 +200,9 @@ public final class FunctionRegistryImpl implements org.skriptlang.skript.common.
 		}
 
 		Skript.debug("Registering signature '%s'", signature.name());
+
+		if (signature instanceof ch.njol.skript.lang.function.Signature<?> oldSignature)
+			Functions.registerCompatibilitySignature(oldSignature);
 
 		Namespace ns = namespaces.computeIfAbsent(namespace, n -> new Namespace());
 		FunctionIdentifier identifier = FunctionIdentifier.of(signature);

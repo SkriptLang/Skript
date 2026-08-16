@@ -332,6 +332,8 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 				} else if (modifier instanceof RangedModifier<?> rangedModifier) {
 					//noinspection rawtypes,unchecked
 					result.add(new Modifier.Ranged(rangedModifier.getMin(), rangedModifier.getMax()));
+				} else {
+					result.add(modifier);
 				}
 			}
 			return result;
