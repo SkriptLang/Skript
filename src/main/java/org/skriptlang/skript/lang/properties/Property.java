@@ -276,20 +276,65 @@ public record Property<Handler extends PropertyHandler<?>>(
 			Skript.instance(),
 			ExpressionPropertyHandler.class);
 
+
+	/**
+	 * A property for getting the title of something
+	 */
+	public static final Property<ExpressionPropertyHandler<?,?>> TITLE = Property.of(
+		"title",
+		"The title of something.",
+		"2.16",
+		Skript.instance(),
+		ExpressionPropertyHandler.class);
+
+	/**
+	 * A property for getting the progress of something
+	 */
+	public static final Property<ExpressionPropertyHandler<?,?>> PROGRESS = Property.of(
+		"progress",
+		"The progress of something.",
+		"2.16",
+		Skript.instance(),
+		ExpressionPropertyHandler.class);
+
+	/**
+	 * A property for getting the style of something
+	 */
+	public static final Property<ExpressionPropertyHandler<?,?>> STYLE = Property.of(
+		"style",
+		"The style of something.",
+		"2.16",
+		Skript.instance(),
+		ExpressionPropertyHandler.class);
+
+	/**
+	 * A property for getting the viewers of something
+	 */
+	public static final Property<ExpressionPropertyHandler<?,?>> VIEWERS = Property.of(
+		"viewers",
+		"The viewers of something.",
+		"2.16",
+		Skript.instance(),
+		ExpressionPropertyHandler.class);
+
 	/**
 	 * Register all Skript's default properties. Should be done prior to loading classinfos.
 	 */
 	public static void registerDefaultProperties() {
-		NAME.register();
-		DISPLAY_NAME.register();
-		CONTAINS.register();
 		AMOUNT.register();
-		SIZE.register();
-		NUMBER.register();
+		CONTAINS.register();
+		DISPLAY_NAME.register();
 		IS_EMPTY.register();
-		TYPED_VALUE.register();
+		NAME.register();
+		NUMBER.register();
+		PROGRESS.register();
 		SCALE.register();
+		SIZE.register();
 		SPEED.register();
+		STYLE.register();
+		TITLE.register();
+		TYPED_VALUE.register();
+		VIEWERS.register();
 	}
 
 }

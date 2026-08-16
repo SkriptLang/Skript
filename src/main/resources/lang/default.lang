@@ -286,72 +286,44 @@ biomes:
 	cherry_grove: cherry grove
 	# 1.21.3
 	pale_garden: pale garden
+	# 26.2
+	sulfur_caves: sulfur caves
 
 # -- Tree Types --
 tree types:
-	tree:
-		name: tree¦s
-		pattern: (any )?trees?
-	regular:
-		name: oak¦s
-		pattern: (any )?(regular|normal|oak)( tree)?s?
-	small_regular:
-		name: small oak¦s
-		pattern: small (regular|normal|oak)( tree)?s?
-	big_regular:
-		name: big tree¦s
-		pattern: (big|large) (regular|normal|oak)( tree)?s?
-	redwood:
-		name: redwood¦s
-		pattern: (any )?(fir|pine|spruce|redwood)( tree)?s?
-	small_redwood:
-		name: small redwood¦s
-		pattern: small (fir|pine|spruce|redwood)( tree)?s?
-	big_redwood:
-		name: tall redwood¦s
-		pattern: (big|tall) (fir|pine|spruce|redwood)( tree)?s?
-	mega_redwood:
-		name: mega redwood¦s
-		pattern: (mega|giant) (fir|pine|spruce|redwood)( tree)?s?
-	birch:
-		name: birch¦es
-		pattern: birch( trees?|es)
-	tall_birch:
-		name: tall birch¦es
-		pattern: (tall|big) birch( trees?|es)
-	jungle:
-		name: jungle tree¦s
-		pattern: (any )?jungle( tree)?s?
-	small_jungle:
-		name: small jungle tree¦s
-		pattern: small jungle( tree)?s?
-	big_jungle:
-		name: big jungle tree¦s
-		pattern: (big|tall|huge|giant|large) jungle( tree)?s?
-	cocoa_tree:
-		name: cocoa tree¦s
-		pattern: cocoa trees?
-	acacia:
-		name: acacia¦s
-		pattern: acacia( tree)?s?
-	dark_oak:
-		name: dark oak¦s
-		pattern: dark oak( tree)?s?
-	jungle_bush:
-		name: bush¦es
-		pattern: (jungle )?bush(es)?
-	swamp:
-		name: swamp tree¦s
-		pattern: swamp trees?
-	mushroom:
-		name: huge mushroom¦s
-		pattern: (any )?(huge|giant|large|big) mushrooms?
-	red_mushroom:
-		name: huge red mushroom¦s
-		pattern: (huge|giant|large|big) red mushrooms?
-	brown_mushroom:
-		name: huge brown mushroom¦s
-		pattern: (huge|giant|large|big) brown mushrooms?
+	tree: tree, any tree
+	oak: oak tree, any oak tree, any normal tree, any regular tree
+	small_oak: small oak tree, small normal tree, small regular tree
+	big_oak: big oak tree, big normal tree, big regular tree
+	spruce: spruce tree, any spruce tree
+	small_spruce: small spruce tree
+	big_spruce: big spruce tree, tall spruce tree
+	mega_spruce: mega spruce tree, giant spruce tree
+	birch: birch tree, any birch tree
+	small_birch: small birch tree
+	tall_birch: tall birch tree
+	jungle: jungle tree, any jungle tree
+	small_jungle: small jungle tree
+	big_jungle: big jungle tree, tall jungle tree, giant jungle tree
+	cocoa_tree: cocoa tree, jungle cocoa tree, cocoa jungle tree
+	jungle_bush: jungle bush, jungle bush tree
+	acacia: acacia tree
+	dark_oak: dark oak tree
+	swamp: swamp tree, swamp oak, swamp oak tree
+	mushroom: huge mushroom, any huge mushroom
+	red_mushroom: huge red mushroom
+	brown_mushroom: huge brown mushroom
+	mangrove: mangrove tree, any mangrove treee
+	small_mangrove: small mangrove tree
+	big_mangrove: big mangrove tree
+	azalea: azalea tree
+	pale_oak: pale oak tree, any pale oak tree
+	pale_oak_normal: normal pale oak tree
+	pale_oak_creaking: creaking pale oak tree
+	cherry: cherry tree
+	crimson_fungus: crimson fungus, crimson tree, crimson fungus tree
+	warped_fungus: warped fungus, warped tree, warped fungus tree
+	chorus_plant: chorus plant
 
 # -- Time --
 time:
@@ -1626,6 +1598,11 @@ entities:
 		name: parched¦s
 		pattern: parched[plural:s]
 
+	# 26.2
+	sulfur cube:
+		name: sulfur cube¦s
+		pattern: sulfur cube[plural:s]
+
 	# SuperTypes
 	human:
 		name: human¦s
@@ -2096,6 +2073,12 @@ attribute types:
 	camera_distance: camera distance
 	waypoint_transmit_range: waypoint transmit range
 	waypoint_receive_range: waypoint receive range
+	# 26.2
+	bounciness: bounciness
+	friction_modifier: friction modifier
+	below_name_distance: below name distance, nameplate score visibility distance, name tag score visibility distance
+	air_drag_modifier: air drag modifier
+	name_tag_distance: name tag distance, nameplate visibility distance, name tag visibility distance
 
 # -- Environments --
 environments:
@@ -2285,6 +2268,25 @@ game effect:
 	trial_spawner_detect_player_ominous: ominous trial spawner detect player effect
 	trial_spawner_become_ominous: trial spawner become ominous effect
 	trial_spawner_spawn_item: trial spawner spawn item effect
+
+	# 26.2
+	dispenser_dispense: dispenser dispense effect
+	dispenser_fail: dispenser fail effect, dispenser fail to dispense effect, dispenser failure to dispense effect
+	dispenser_projectile_launch: dispenser projectile launch effect
+	record_stop: record stop effect, music disc stop effect
+	ender_dragon_shoot: ender dragon shoot effect, ender dragon shoots fireball effect
+	zombie_converted_to_villager: zombie converted to villager effect, zombie villager cured effect
+	wind_charge_shoot: wind charge shoot effect
+	sulfur_spike_land: sulfur spike land effect
+	smoke_shoot: smoke shoot effect, smoke eruption effect
+	destroy_block: destroy block effect, block destruction effect
+	ender_dragon_breath: ender dragon breath effect, ender dragon breathing effect
+	white_smoke_shoot: white smoke shoot effect, white smoke eruption effect
+	ender_dragon_growl: ender dragon growl effect, ender dragon growling effect
+	sculk_charge: sculk charge effect,
+	sculk_shriek: sculk shriek effect,
+	brush_block_complete: brush block complete effect, finish brushing block effect,
+	egg_crack: egg crack effect
 
 # -- Entity Effects --
 # all patterns should include the word 'effect' or 'animation'
@@ -2505,6 +2507,15 @@ particle:
 	white_smoke: white smoke particle¦s @a
 	witch: witch particle¦s @a
 
+	# 26.2
+	noxious_gas: noxious gas particle¦s @a, nausea gas particle¦s @a
+	noxious_gas_cloud: noxious gas cloud¦s @a, nausea gas cloud particle¦s @a
+	sulfur_cube_goo: sulfur cube goo particle¦s @a, sulfur cube jump particle¦s @a, sulfur cube jumping particle¦s @a
+	sulfur_bubbles: sulfur bubbles particle¦s @a, sulfur bubble column particle¦s @a
+	geyser: geyser particle¦s @a
+	geyser_base: geyser base particle¦s @a
+	geyser_plume: geyser plume particle¦s @a
+	geyser_poof: geyser poof particle¦s @a
 
 # -- Teleport Flags --
 teleport flags:
@@ -2717,6 +2728,15 @@ villager career change reasons:
 	employed: employment
 	losing_job: losing job
 
+# -- Boss Bars --
+
+boss bar styles:
+	segmented_6: 6 segments, six segments, notched with 6 segments, notched with six segments, 6 notches, six notches
+	segmented_10: 10 segments, ten segments, notched with 10 segments, notched with ten segments, 10 notches, ten notches
+	segmented_12: 12 segments, twelve segments, notched with 12 segments, notched with twelve segments, 12 notches, twelve notches
+	segmented_20: 20 segments, twenty segments, notched with 20 segments, notched with twenty segments, 20 notches, twenty notches
+	solid: solid, no notches, progress
+
 # -- Damage Types --
 damage types:
 	arrow: arrow
@@ -2769,6 +2789,8 @@ damage types:
 	wind_charge: wind charge
 	wither: wither
 	wither_skull: wither skull
+	# 26.2
+	sulfur_cube_hot: sulfur cube hot, hot sulfur cube, magma sulfur cube
 
 # -- Boolean --
 boolean:
@@ -2830,6 +2852,9 @@ types:
 	itementity: dropped item¦s @a # same as entities.dropped item.name
 	itemflag: item flag¦s @an
 	biome: biome¦s @a
+	bossbar: boss bar¦s @a
+	keyedbossbar: keyed boss bar¦s @a
+	bossbarstyle: boss bar style¦s @a
 	potioneffecttype: potion effect type¦s @a
 	potioneffecttypecategory: potion effect type categor¦y¦ies @a
 	potioneffect: potion effect¦s @a
@@ -2918,7 +2943,7 @@ types:
 	direction: direction¦s @a
 	slot: slot¦s @a
 	color: color¦s @a
-	structuretype: tree type¦s @a
+	treetype: tree type¦s @a
 	enchantmenttype: enchantment type¦s @an
 	experience: experience point¦s @an
 	experience.pattern: (e?xp|experience( points?)?)
