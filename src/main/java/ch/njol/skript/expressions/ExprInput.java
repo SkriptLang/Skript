@@ -1,6 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -17,6 +18,7 @@ import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.ClassInfoReference;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
@@ -118,6 +120,55 @@ public class ExprInput<T> extends SimpleExpression<T> {
 		} catch (ClassCastException exception) {
 			return (T[]) Array.newInstance(superType, 0);
 		}
+	}
+
+	@Override
+	public void change(Event event, Object[] delta, Changer.ChangeMode mode){
+		Object currentValue = isIndex ? inputSource.getCurrentIndex() : inputSource.getCurrentValue();
+
+		if (mode == Changer.ChangeMode.DELETE) {
+			currentValue = null;
+		}
+		else if (mode == Changer.ChangeMode.RESET ){
+			currentValue = inputSource.getUnchangedValue();
+		}
+		else if (mode == Changer.ChangeMode.ADD || mode == Changer.ChangeMode.REMOVE ) {
+			if(!(currentValue instanceof Number) || delta.length < 1 || !(delta[0] instanceof Number change)) {
+				Skript.error(mode.name() + " mode for input only accepts numbers");
+				return;
+			}
+
+			double doubleValue = ((Number) currentValue).doubleValue();
+
+			if(mode == Changer.ChangeMode.ADD)
+				doubleValue += change.doubleValue();
+			else if (mode == Changer.ChangeMode.REMOVE)
+				doubleValue -= change.doubleValue();
+			currentValue = doubleValue;
+
+		} else if (mode == Changer.ChangeMode.SET) {
+			currentValue = delta.length == 1 ? delta[0] : delta;
+		}
+
+		inputSource.updateCurrentValue(currentValue);
+	}
+
+	@Override
+	public Class<?>[] acceptChange(final Changer.ChangeMode mode) {
+		if(!inputSource.allowChange())
+			return null;
+
+		if (
+			mode == Changer.ChangeMode.SET ||
+			mode == Changer.ChangeMode.DELETE ||
+			mode == Changer.ChangeMode.RESET) {
+			return CollectionUtils.array(Object.class);
+		}
+		if (mode == Changer.ChangeMode.ADD ||
+			mode == Changer.ChangeMode.REMOVE) {
+			return CollectionUtils.array(Number.class);
+		}
+		return null;
 	}
 
 	@Override

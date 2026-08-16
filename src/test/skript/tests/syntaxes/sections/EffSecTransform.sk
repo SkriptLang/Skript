@@ -1,0 +1,85 @@
+test "transform effect":
+	set {_a::*} to integers between -10 and 10
+	assert size of {_a::*} is 21 with "invalid starting size"
+
+	transform {_a::*} using input + 2
+	assert {_a::*} is integers between -8 and 12 with "failed to transform with +2"
+
+	set {_a::*} to integers between -10 and 10
+	assert size of {_a::*} is 21 with "invalid starting size"
+
+	transform {_a::*} using input index
+	assert size of {_a::*} is 21 with "failed to transform using index"
+
+	loop {_a::*}:
+		assert loop-value is loop-index with "failed to transform to loop-index"
+
+	clear {_a::*}
+	set {_a::a} to "a"
+	set {_a::b} to "b"
+	set {_a::c} to "c"
+
+	transform {_a::*} using 1
+	assert {_a::*} is 1, 1, and 1 with "failed to transform with constant value"
+	assert indices of {_a::*} is "a", "b", and "c" with "transform failed to maintain indices"
+
+	transform {_a::*} using input and 2
+	assert {_a::*} is 1, 2, 1, 2, 1 and 2 with "failed to transform with plural expression"
+	assert indices of {_a::*} is "1", "2", "3", "4", "5" and "6" with "transform failed to re-set indices"
+
+using local variable type hints
+
+test "transform effect type hints":
+	set {_x::*} to true and false
+	transform {_x::*} using 0
+	parse:
+		set {_a::*} to {_x::*} in lowercase
+	assert last parse logs contains "Expected variable '{_x::*}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
+
+test "transform effect section":
+	set {_a::*} to integers between -10 and 10
+	assert size of {_a::*} is 21 with "invalid starting size"
+
+	transform {_a::*} using input + 2:
+		add 1 to input
+	assert {_a::*} is integers between -7 and 13 with "failed to transform with +3 using inline expression and section with change mode add"
+
+	set {_a::*} to integers between -10 and 10
+	assert size of {_a::*} is 21 with "invalid starting size"
+
+	transform {_a::*}:
+		remove 2 from input
+	assert {_a::*} is integers between -12 and 8 with "failed to transform with -2 using section with change mode remove"
+
+	set {_a::*} to integers between -10 and 10
+	assert size of {_a::*} is 21 with "invalid starting size"
+
+	transform {_a::*}:
+		if input is evenly divisible by 2:
+			delete input
+	assert size of {_a::*} is 10 with "failed to remove even numbers using section with change mode delete"
+
+	set {_a::*} to 1, 2 and 3
+	assert size of {_a::*} is 3 with "invalid starting size"
+
+	transform {_a::*}:
+		set input to "Transformed-%input%"
+
+	assert {_a::1} is "Transformed-1" with "failed to transform using change mode set with text"
+
+	set {_a::*} to 1, 2 and 3
+	assert size of {_a::*} is 3 with "invalid starting size"
+
+	transform {_a::*}:
+		set input to input * 3
+
+	assert {_a::*} is 3, 6 and 9 with "failed to transform using section with change mode set with number"
+
+	set {_a::*} to 1, 2 and 3
+	assert size of {_a::*} is 3 with "invalid starting size"
+
+	transform {_a::*} using input + 2:
+		set input to input * 2
+		reset input
+
+	assert {_a::*} is 1, 2 and 3 with "failed to reset input value in transform section"

@@ -1,15 +1,12 @@
-package ch.njol.skript.effects;
+package ch.njol.skript.sections;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Keywords;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.ExprInput;
 import ch.njol.skript.lang.*;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.variables.HintManager;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
@@ -18,11 +15,9 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+
 
 @Name("Transform List")
 @Description({
@@ -47,12 +42,24 @@ import java.util.Set;
 	# set all existing values of a list to 0:
 	transform {_list::*} with 0
 	""")
-@Since("2.10")
+@Example("""
+	# transform section:
+	set {_a::*} to 1, 2, and 3
+	transform {_a::*}:
+		add 2 to input
+		remove 1 from input
+		set input to input * 2
+	# {_a::*} is now 4, 6 and 8
+	""")
+@Since("2.10 with Section since (INSERT VERSION)")
 @Keywords("input")
-public class EffTransform extends Effect implements InputSource {
+public class EffSecTransform extends EffectSection implements InputSource{
 
 	static {
-		Skript.registerEffect(EffTransform.class, "(transform|map) %~objects% (using|with) <.+>");
+		Skript.registerSection(EffSecTransform.class,
+			"(transform|map) %~objects% (using|with) <.+>",
+			"(transform|map) %~objects%");
+
 		if (!ParserInstance.isRegistered(InputData.class))
 			ParserInstance.registerData(InputData.class, InputData::new);
 	}
@@ -64,12 +71,13 @@ public class EffTransform extends Effect implements InputSource {
 
 	private @Nullable Object currentValue;
 	private @UnknownNullability String currentIndex;
+	private @Nullable Object unchangedValue;
+	private boolean allowChange = false;
+
+	private @Nullable Trigger trigger;
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (parseResult.regexes.isEmpty()) {
-			return false;
-		}
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult, @Nullable SectionNode sectionNode, @Nullable List<TriggerItem> triggerItems) {
 
 		if (expressions[0].isSingle() || !(expressions[0] instanceof Variable<?> variable)) {
 			Skript.error("You can only transform list variables!");
@@ -77,25 +85,42 @@ public class EffTransform extends Effect implements InputSource {
 		}
 		unmappedObjects = variable;
 
-		String unparsedExpression = parseResult.regexes.get(0).group();
-		mappingExpr = parseExpression(unparsedExpression, getParser(), SkriptParser.ALL_FLAGS);
-		if (mappingExpr == null) {
-			return false;
+		if(!parseResult.regexes.isEmpty()) {
+			String unparsedExpression = parseResult.regexes.get(0).group();
+			mappingExpr = parseExpression(unparsedExpression, getParser(), SkriptParser.ALL_FLAGS);
+
+			// type hints
+			if (mappingExpr != null && HintManager.canUseHints(variable)) {
+				getParser().getHintManager().set(variable, mappingExpr.possibleReturnTypes());
+			}
 		}
 
-		// type hints
-		if (HintManager.canUseHints(variable)) {
-			getParser().getHintManager().set(variable, mappingExpr.possibleReturnTypes());
+
+		if (sectionNode != null) {
+			allowChange = true;
+			AtomicReference<InputSource> originalSource = new AtomicReference<>(null);
+			trigger = SectionUtils.loadLinkedCode("transform", (beforeLoading, afterLoading)
+					-> loadCode(sectionNode, "transform", () -> {
+						beforeLoading.run();
+						InputData inputData = getParser().getData(InputData.class);
+						originalSource.set(inputData.getSource());
+						inputData.setSource(EffSecTransform.this);
+					}, () -> {
+						getParser().getData(InputData.class).setSource(originalSource.get());
+						afterLoading.run();
+					}, Event.class));
+			allowChange = false;
 		}
 
-		return true;
+		return trigger != null || mappingExpr != null;
 	}
 
 	@Override
-	protected void execute(Event event) {
+	protected @Nullable TriggerItem walk(Event event) {
 		Map<String, Object> mappedValues = new HashMap<>();
-		assert mappingExpr != null;
-		boolean isSingle = mappingExpr.isSingle();
+
+		//assert mappingExpr != null;
+		boolean isSingle = mappingExpr != null ? mappingExpr.isSingle() : true;
 
 		String varName = unmappedObjects.getName().toString(event);
 		String varSubName = StringUtils.substring(varName, 0, -1);
@@ -106,12 +131,21 @@ public class EffTransform extends Effect implements InputSource {
 			KeyedValue<?> keyedValue = it.next();
 			currentIndex = keyedValue.key();
 			currentValue = keyedValue.value();
+			unchangedValue = currentValue;
 
 			if (isSingle) {
-				mappedValues.put(currentIndex, mappingExpr.getSingle(event));
+				if(mappingExpr != null)
+					currentValue = mappingExpr.getSingle(event);
+				if(trigger != null)
+					TriggerItem.walk(trigger, event);
+				mappedValues.put(currentIndex, currentValue);
 			} else {
 				for (Object value : mappingExpr.getArray(event)) {
-					mappedValues.put(String.valueOf(i++), value);
+					currentValue = value;
+					unchangedValue = currentValue;
+					if(trigger != null)
+						TriggerItem.walk(trigger, event);
+					mappedValues.put(String.valueOf(i++), currentValue);
 					mappedValues.putIfAbsent(currentIndex, null); // clears only unused indices instead of having to delete entire var.
 				}
 			}
@@ -119,6 +153,8 @@ public class EffTransform extends Effect implements InputSource {
 
 		for (Map.Entry<String, Object> pair : mappedValues.entrySet())
 			Variables.setVariable(varSubName + pair.getKey(), pair.getValue(), event, local);
+
+		return super.walk(event, false);
 	}
 
 	@Override
@@ -142,8 +178,24 @@ public class EffTransform extends Effect implements InputSource {
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "transform " + unmappedObjects.toString(event, debug) + " using " + mappingExpr.toString(event, debug);
+	public boolean allowChange() {
+		return allowChange;
 	}
 
+	@Override
+	public void updateCurrentValue(Object updatedValue) {
+		this.currentValue = updatedValue;
+	}
+
+	@Override
+	public @Nullable Object getUnchangedValue() {
+		return unchangedValue;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		if(mappingExpr == null || unmappedObjects == null)
+			return "transform section";
+		return "transform " + unmappedObjects.toString(event, debug) + " using " + mappingExpr.toString(event, debug);
+	}
 }
