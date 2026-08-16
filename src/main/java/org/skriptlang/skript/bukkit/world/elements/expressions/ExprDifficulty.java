@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.world.elements.expressions;
 
+import ch.njol.skript.Skript;
 import org.bukkit.Difficulty;
 import org.bukkit.World;
 import org.bukkit.event.Event;
@@ -19,6 +20,8 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Example("set the difficulty of \"world\" to hard")
 @Since("2.3")
 public class ExprDifficulty extends SimplePropertyExpression<World, Difficulty> {
+
+	final static boolean HAS_NEW_METHOD = Skript.methodExists(World.class, "setAllowMonsterSpawning", boolean.class);
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(
@@ -58,9 +61,14 @@ public class ExprDifficulty extends SimplePropertyExpression<World, Difficulty> 
 
 		for (World world : getExpr().getArray(event)) {
 			world.setDifficulty(difficulty);
-			if (difficulty != Difficulty.PEACEFUL)
-				// Force enable spawn monsters as changing difficulty won't change this by itself
-				world.setAllowMonsterSpawning(true);
+			if (difficulty != Difficulty.PEACEFUL) {
+				if (HAS_NEW_METHOD) {
+					world.setAllowMonsterSpawning(true);
+				} else {
+					// seems that on 26.2 setAllowMonsterSpawning doesn't exist
+					world.setSpawnFlags(true, world.getAllowAnimals());
+				}
+			}
 		}
 	}
 
