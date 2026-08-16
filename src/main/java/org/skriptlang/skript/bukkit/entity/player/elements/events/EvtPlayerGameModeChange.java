@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.entity.player.elements.events;
 
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.LiteralList;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -46,7 +47,11 @@ public class EvtPlayerGameModeChange extends SkriptEvent {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		gamemode = (Literal<GameMode>) args[0];
+		if (args[0] != null) {
+			gamemode = (Literal<GameMode>) args[0];
+			if (gamemode.getAnd() && gamemode instanceof LiteralList<GameMode> list)
+				list.invertAnd();
+		}
 		return true;
 	}
 
