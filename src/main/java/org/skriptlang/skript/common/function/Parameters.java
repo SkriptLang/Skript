@@ -31,7 +31,7 @@ public final class Parameters {
 
 		int j = size() - 1;
 		for (Parameter<?> parameter : Lists.reverse(new LinkedList<>(parameters.values()))) {
-			if (!parameter.hasModifier(Parameter.Modifier.OPTIONAL)) {
+			if (!parameter.hasModifier(Parameter.Modifier.Optional.class)) {
 				this.minCount = j + 1;
 				break;
 			}

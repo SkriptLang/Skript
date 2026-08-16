@@ -11,6 +11,8 @@ import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.util.Registry;
 import org.skriptlang.skript.util.ViewProvider;
 
+import java.util.Collection;
+import java.util.SequencedCollection;
 import java.util.Set;
 
 /**
@@ -139,8 +141,41 @@ public interface FunctionRegistry extends Registry<Function<?>>, ViewProvider<Fu
 	record Retrieval<T>(
 			@NotNull RetrievalResult result,
 			T retrieved,
-			Class<?>[][] conflictingArgs
+			@NotNull Collection<SequencedCollection<Class<?>>> conflictingArgs
 	) {
+
+		/**
+		 * @return Whether this result errored.
+		 */
+		public boolean isError() {
+			return result != RetrievalResult.EXACT;
+		}
+
+		/**
+		 * @param <T> The type to return.
+		 * @return A retrieval without a registration.
+		 */
+		public static <T> Retrieval<T> notRegistered() {
+			return new Retrieval<>(RetrievalResult.NOT_REGISTERED, null, Set.of());
+		}
+
+		/**
+		 * @param retrieved The retrieved object.
+		 * @param <T>       The type to return.
+		 * @return An exact retrieval.
+		 */
+		public static <T> Retrieval<T> exact(T retrieved) {
+			return new Retrieval<>(RetrievalResult.EXACT, retrieved, Set.of());
+		}
+
+		/**
+		 * @param conflictingArgs The function arguments of all conflicting functions.
+		 * @return An ambiguous retrieval.
+		 */
+		public static <T> Retrieval<T> ambiguous(Collection<SequencedCollection<Class<?>>> conflictingArgs) {
+			return new Retrieval<>(RetrievalResult.AMBIGUOUS, null, conflictingArgs);
+		}
+
 	}
 
 	/**
@@ -227,8 +262,8 @@ public interface FunctionRegistry extends Registry<Function<?>>, ViewProvider<Fu
 	 *
 	 * @param namespace The namespace to get the function from.
 	 *                  Usually represents the path of the script this function is registered in.
-	 * @param name The name of the function.
-	 * @param args The types of the arguments of the function.
+	 * @param name      The name of the function.
+	 * @param args      The types of the arguments of the function.
 	 * @return The signature for the function with the given name and argument types, or null if no such function exists.
 	 */
 	Retrieval<Signature<?>> getExactSignature(

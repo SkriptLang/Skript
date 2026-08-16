@@ -257,7 +257,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 				Expression<?> fallback;
 				if (parameter instanceof ScriptParameter<?> sp) {
 					fallback = sp.defaultValue();
-				} else if (parameter.hasModifier(Modifier.OPTIONAL)) {
+				} else if (parameter.hasModifier(Modifier.Optional.class)) {
 					fallback = new EmptyExpression();
 				} else {
 					fallback = null;
@@ -397,7 +397,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 			Expression<?> fallback;
 			if (parameter instanceof ScriptParameter<?> sp) {
 				fallback = sp.defaultValue();
-			} else if (parameter.hasModifier(Modifier.OPTIONAL)) {
+			} else if (parameter.hasModifier(Modifier.Optional.class)) {
 				fallback = new EmptyExpression();
 			} else {
 				fallback = null;

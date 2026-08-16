@@ -67,15 +67,15 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			Parameter<?> parameter = arrayParams[i];
 
 			if (arg == null || arg.length == 0) {
-				if (parameter.hasModifier(Modifier.OPTIONAL)) {
+				if (parameter.hasModifier(Modifier.Optional.class)) {
 					continue;
 				} else {
 					return null;
 				}
 			}
 
-			if (parameter.hasModifier(Modifier.RANGED)) {
-				RangedModifier<?> range = parameter.getModifier(RangedModifier.class);
+			if (parameter.hasModifier(Modifier.Ranged.class)) {
+				Modifier.Ranged<?> range = parameter.getModifier(Modifier.Ranged.class);
 				if (!range.inRange(arg)) {
 					return null;
 				}
@@ -123,12 +123,12 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			Parameter<?> parameter = parameters.get(name);
 			Object value = arguments.get(name);
 
-			if (value == null && !parameter.hasModifier(Modifier.OPTIONAL)) {
+			if (value == null && !parameter.hasModifier(Modifier.Optional.class)) {
 				return null;
 			}
 
-			if (parameter.hasModifier(Modifier.RANGED)) {
-				RangedModifier<?> range = parameter.getModifier(RangedModifier.class);
+			if (parameter.hasModifier(Modifier.Ranged.class)) {
+				Modifier.Ranged<?> range = parameter.getModifier(Modifier.Ranged.class);
 				if (!range.inRange(value)) {
 					return null;
 				}
@@ -313,12 +313,27 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			implements Parameter<T> {
 
 		DefaultParameter(String name, Class<T> type, Modifier... modifiers) {
-			this(name, type, Set.of(modifiers));
+			this(name, type, modernizeModifiers(modifiers));
 		}
 
 		@Override
 		public @NotNull String toString() {
 			return toFormattedString();
+		}
+
+		@SuppressWarnings("removal")
+		private static Set<Modifier> modernizeModifiers(Modifier[] modifiers) {
+			Set<Modifier> result = new LinkedHashSet<>();
+			for (Modifier modifier : modifiers) {
+				if (modifier == Modifier.OPTIONAL) {
+					result.add(new Modifier.Optional());
+				} else if (modifier == Modifier.KEYED) {
+					result.add(new Modifier.Keyed());
+				} else if (modifier instanceof RangedModifier<?> rangedModifier) {
+					result.add(new Modifier.Ranged<>(rangedModifier.getMax(), rangedModifier.getMax()));
+				}
+			}
+			return result;
 		}
 	}
 

@@ -88,10 +88,10 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 		this.modifiers = new HashSet<>();
 
 		if (def != null) {
-			modifiers.add(Modifier.OPTIONAL);
+			modifiers.add(new Modifier.Optional());
 		}
 		if (keyed) {
-			modifiers.add(Modifier.KEYED);
+			modifiers.add(new Modifier.Keyed());
 		}
 	}
 
@@ -110,10 +110,10 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 		this.modifiers = new HashSet<>();
 
 		if (optional) {
-			modifiers.add(Modifier.OPTIONAL);
+			modifiers.add(new Modifier.Optional());
 		}
 		if (keyed) {
-			modifiers.add(Modifier.KEYED);
+			modifiers.add(new Modifier.Keyed());
 		}
 	}
 
@@ -131,7 +131,7 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 		this.def = def;
 		this.single = single;
 		this.modifiers = Set.of(modifiers);
-		this.keyed = this.modifiers.contains(Modifier.KEYED);
+		this.keyed = hasModifier(Modifier.Keyed.class);
 	}
 
 	/**
@@ -139,7 +139,7 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	 * @return Whether this parameter is optional or not.
 	 */
 	public boolean isOptional() {
-		return modifiers.contains(Modifier.OPTIONAL);
+		return hasModifier(Modifier.Optional.class);
 	}
 
 	/**
@@ -180,10 +180,10 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 
 		Set<Modifier> modifiers = new HashSet<>();
 		if (d != null) {
-			modifiers.add(Modifier.OPTIONAL);
+			modifiers.add(new Modifier.Optional());
 		}
 		if (!single) {
-			modifiers.add(Modifier.KEYED);
+			modifiers.add(new Modifier.Keyed());
 		}
 
 		return new Parameter<>(name, type, single, d, modifiers.toArray(new Modifier[0]));
@@ -299,9 +299,9 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	// ns: numbers between 0 and 100 = 3
 	public String toString(boolean debug) {
 		String result = name + ": " + Utils.toEnglishPlural(type.getCodeName(), !single);
-		if (this.hasModifier(Modifier.RANGED)) {
-			RangedModifier<?> range = this.getModifier(RangedModifier.class);
-			result += " between " + Classes.toString(range.getMin()) + " and " + Classes.toString(range.getMax());
+		if (hasModifier(Modifier.Ranged.class)) {
+			Modifier.Ranged<?> range = this.getModifier(Modifier.Ranged.class);
+			result += " between " + Classes.toString(range.min()) + " and " + Classes.toString(range.max());
 		}
 		result += (def != null ? " = " + def.toString(null, debug) : "");
 		return result;

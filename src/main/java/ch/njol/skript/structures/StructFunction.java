@@ -10,12 +10,16 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.function.*;
+import ch.njol.skript.lang.function.FunctionEvent;
+import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.lang.function.ScriptFunction;
 import ch.njol.skript.lang.parser.ParserInstance;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.common.function.FunctionParser;
-import org.skriptlang.skript.common.function.FunctionReference;
+import org.skriptlang.skript.common.function.*;
+import org.skriptlang.skript.common.function.FunctionRegistry.Retrieval;
+import org.skriptlang.skript.common.function.FunctionRegistry.RetrievalResult;
+import org.skriptlang.skript.common.function.Signature.Modifier;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -107,7 +111,7 @@ public class StructFunction extends Structure {
 
 		// parse signature
 		getParser().setCurrentEvent((local ? "local " : "") + "function", FunctionEvent.class);
-		signature = (Signature<?>) FunctionParser.parse(
+		signature = FunctionParser.parse(
 				getParser().getCurrentScript().getConfig().getFileName(),
 				matcher.group("name"), matcher.group("args"), matcher.group("returns"), local
 		);
@@ -118,15 +122,58 @@ public class StructFunction extends Structure {
 	}
 
 	private static Signature<?> registerSignature(Signature<?> signature) {
-		try {
-			if (signature.isLocal()) {
-				ch.njol.skript.lang.function.FunctionRegistry.getRegistry().register(signature.namespace(), signature);
+		Retrieval<Signature<?>> existing;
+		Parameter<?>[] parameters = signature.parameters().all();
+		FunctionRegistry registry = Skript.instance().registry(FunctionRegistry.class);
+
+		if (parameters.length == 1 && !parameters[0].isSingle()) {
+			if (signature.namespace() != null) {
+				existing = registry.getExactSignature(signature.namespace(), signature.name(), parameters[0].type().arrayType());
 			} else {
-				ch.njol.skript.lang.function.FunctionRegistry.getRegistry().register(null, signature);
+				existing = registry.getExactSignature(signature.name());
 			}
-		} catch (SkriptAPIException ex) {
-			Skript.error(ex.getMessage());
+		} else {
+			Class<?>[] types = new Class<?>[parameters.length];
+			for (int i = 0; i < parameters.length; i++) {
+				types[i] = parameters[i].type();
+			}
+
+			if (signature.namespace() != null) {
+				existing = registry.getExactSignature(signature.namespace(), signature.name(), types);
+			} else {
+				existing = registry.getExactSignature(signature.name(), types);
+			}
 		}
+
+		// if this function has already been registered, only allow it if one function is local and one is global.
+		// if both are global or both are local, disallow.
+		if (existing.result() == RetrievalResult.EXACT && existing.retrieved().hasModifier(Modifier.Local.class) == signature.hasModifier(Modifier.Local.class)) {
+			StringBuilder error = new StringBuilder();
+
+			if (existing.retrieved().hasModifier(Modifier.Local.class)) {
+				error.append("Local function ");
+			} else {
+				error.append("Function ");
+			}
+			error.append("'%s' with the same argument types already exists".formatted(signature.name()));
+			if (existing.retrieved().namespace() != null) {
+				error.append(" in script '%s'.".formatted(existing.retrieved().namespace()));
+			} else {
+				error.append(".");
+			}
+
+			Skript.error(error.toString());
+
+			return null;
+		}
+
+		if (signature.namespace() != null) {
+			registry.register(signature.namespace(), signature);
+		} else {
+			registry.register(signature);
+		}
+
+		Skript.debug("Registered function signature: " + signature.name());
 
 		return signature;
 	}
@@ -148,22 +195,24 @@ public class StructFunction extends Structure {
 	}
 
 	private static void loadFunction(Script script, SectionNode node, Signature<?> signature) {
+		FunctionRegistry registry = Skript.instance().registry(FunctionRegistry.class);
+
 		Function<?> function;
 		try {
-			function = new ScriptFunction<>(signature, node);
+			function = new ScriptFunction<>((ch.njol.skript.lang.function.Signature<?>) signature, node);
 		} catch (SkriptAPIException ex) {
 			//noinspection ThrowableNotThrown
 			Skript.exception(ex, "Error while trying to load a function");
 
 			// avoid getting a "function is already registered" error when the function implementation is not known yet
-			FunctionRegistry.getRegistry().remove(signature);
+			registry.remove(signature);
 			return;
 		}
 
-		if (function.getSignature().isLocal()) {
-			FunctionRegistry.getRegistry().register(script.getConfig().getFileName(), function);
+		if (function.signature().hasModifier(Modifier.Local.class)) {
+			registry.register(script.getConfig().getFileName(), function);
 		} else {
-			FunctionRegistry.getRegistry().register(null, function);
+			registry.register(function);
 		}
 	}
 
@@ -179,8 +228,8 @@ public class StructFunction extends Structure {
 	@Override
 	public void unload() {
 		assert signature != null;
-		FunctionRegistry.getRegistry().remove(signature);
-		signature.calls().forEach(FunctionReference::invalidate);
+		Skript.instance().registry(FunctionRegistry.class).remove(signature);
+//		signature.calls().forEach(FunctionReference::invalidate);
 		VALIDATE_FUNCTIONS.set(true);
 	}
 

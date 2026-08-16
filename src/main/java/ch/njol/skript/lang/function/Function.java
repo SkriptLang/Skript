@@ -110,7 +110,7 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 		int i = 0;
 		// Execute parameters or default value expressions
 		for (org.skriptlang.skript.common.function.Parameter<?> parameter : parameters.all()) {
-			Object[] parameterValue = parameter.hasModifier(Modifier.KEYED) ? convertToKeyed(parameterValues[i]) : parameterValues[i];
+			Object[] parameterValue = parameter.hasModifier(Modifier.Keyed.class) ? convertToKeyed(parameterValues[i]) : parameterValues[i];
 
 			Expression<?> defaultValueExpr;
 			if (parameter instanceof Parameter<?> script) {
@@ -122,7 +122,7 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 			}
 
 			// see https://github.com/SkriptLang/Skript/pull/8135
-			if ((parameterValues[i] == null || parameterValues[i].length == 0) && parameter.hasModifier(Modifier.KEYED) && defaultValueExpr != null) {
+			if ((parameterValues[i] == null || parameterValues[i].length == 0) && parameter.hasModifier(Modifier.Keyed.class) && defaultValueExpr != null) {
 				Object[] defaultValue = defaultValueExpr.getArray(event);
 				if (defaultValue.length == 1) {
 					parameterValue = KeyedValue.zip(defaultValue, null);

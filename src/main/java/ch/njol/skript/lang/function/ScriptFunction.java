@@ -7,7 +7,6 @@ import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.variables.HintManager;
 import ch.njol.skript.variables.Variables;
-import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.function.FunctionArguments;
@@ -144,7 +143,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	}
 
 	@Override
-	public final void returnValues(Event event, Expression<? extends T> value) {
+	public final void returnValues(org.bukkit.event.Event event, Expression<? extends T> value) {
 		assert !returnValueSet.get();
 		returnValueSet.set(true);
 		this.returnValues.set(value.getArray(event));

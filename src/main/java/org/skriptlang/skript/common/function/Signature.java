@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -78,8 +79,18 @@ public interface Signature<T> {
 	 * @param modifier The modifier.
 	 * @return True when {@link #modifiers()} contains the specified modifier, false if not.
 	 */
-	default boolean hasModifier(Modifier modifier) {
-		return modifiers().contains(modifier);
+	default boolean hasModifier(Class<? extends Modifier> modifier) {
+		return modifiers().stream().anyMatch(modifier::isInstance);
+	}
+
+	/**
+	 * Returns whether this signature has the specified modifier.
+	 */
+	default <MT extends Modifier> Optional<MT> getModifier(Class<MT> modifier) {
+		return modifiers().stream()
+				.filter(modifier::isInstance)
+				.map(modifier::cast)
+				.findAny();
 	}
 
 	/**
@@ -87,17 +98,7 @@ public interface Signature<T> {
 	 */
 	interface Modifier {
 
-		/**
-		 * @return A new Modifier instance to be used as a custom flag.
-		 */
-		static Modifier of() {
-			return new Modifier() { };
-		}
-
-		/**
-		 * Indicates the signature is local.
-		 */
-		Modifier LOCAL = of();
+		class Local implements Modifier { }
 
 	}
 

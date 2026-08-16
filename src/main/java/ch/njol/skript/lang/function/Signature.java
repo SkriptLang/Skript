@@ -84,7 +84,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 		this.parameters = initParameters(parameters);
 		this.local = local;
 		if (local)
-			modifiers.add(Modifier.LOCAL);
+			modifiers.add(new Modifier.Local());
 		this.returnType = returnType;
 		this.single = single;
 		if (returnType == null) {
@@ -114,7 +114,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 		this.parameters = parameters;
 		this.local = local;
 		if (local)
-			modifiers.add(Modifier.LOCAL);
+			modifiers.add(new Modifier.Local());
 		this.returns = returnType;
 		if (returnType != null) {
 			//noinspection unchecked
@@ -289,7 +289,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 
 		int i = parameters.size() - 1;
 		for (org.skriptlang.skript.common.function.Parameter<?> parameter : Lists.reverse(params)) {
-			if (!parameter.hasModifier(org.skriptlang.skript.common.function.Parameter.Modifier.OPTIONAL)) {
+			if (!parameter.hasModifier(org.skriptlang.skript.common.function.Parameter.Modifier.Optional.class)) {
 				return i + 1;
 			}
 			i--;

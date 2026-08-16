@@ -16,7 +16,6 @@ import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -144,7 +143,7 @@ public final class FunctionRegistryImpl implements org.skriptlang.skript.common.
 	@Override
 	public void register(@NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature cannot be null");
-		if (signature.hasModifier(Signature.Modifier.LOCAL)) {
+		if (signature.hasModifier(Signature.Modifier.Local.class)) {
 			throw new IllegalArgumentException("Cannot register a local signature in the global namespace");
 		}
 		register(GLOBAL_NAMESPACE, signature);
@@ -153,7 +152,7 @@ public final class FunctionRegistryImpl implements org.skriptlang.skript.common.
 	@Override
 	public void register(@NotNull String namespace, @NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature cannot be null");
-		if (!signature.hasModifier(Signature.Modifier.LOCAL)) {
+		if (!signature.hasModifier(Signature.Modifier.Local.class)) {
 			throw new IllegalArgumentException("Cannot register a global signature in a local namespace");
 		}
 
@@ -181,10 +180,10 @@ public final class FunctionRegistryImpl implements org.skriptlang.skript.common.
 
 		// if this function has already been registered, only allow it if one function is local and one is global.
 		// if both are global or both are local, disallow.
-		if (existing.result() == RetrievalResult.EXACT && existing.retrieved().hasModifier(Signature.Modifier.LOCAL) == signature.hasModifier(Signature.Modifier.LOCAL)) {
+		if (existing.result() == RetrievalResult.EXACT && existing.retrieved().hasModifier(Signature.Modifier.Local.class) == signature.hasModifier(Signature.Modifier.Local.class)) {
 			StringBuilder error = new StringBuilder();
 
-			if (existing.retrieved().hasModifier(Signature.Modifier.LOCAL)) {
+			if (existing.retrieved().hasModifier(Signature.Modifier.Local.class)) {
 				error.append("Local function ");
 			} else {
 				error.append("Function ");
@@ -223,7 +222,7 @@ public final class FunctionRegistryImpl implements org.skriptlang.skript.common.
 	@Override
 	public void register(@NotNull Function<?> function) {
 		Preconditions.checkNotNull(function, "function cannot be null");
-		if (function.signature().hasModifier(Signature.Modifier.LOCAL)) {
+		if (function.signature().hasModifier(Signature.Modifier.Local.class)) {
 			throw new IllegalArgumentException("Cannot register a local function in the global namespace");
 		}
 		register(GLOBAL_NAMESPACE, function);
@@ -232,7 +231,7 @@ public final class FunctionRegistryImpl implements org.skriptlang.skript.common.
 	@Override
 	public void register(@NotNull String namespace, @NotNull Function<?> function) {
 		Preconditions.checkNotNull(function, "function cannot be null");
-		if (!function.signature().hasModifier(Signature.Modifier.LOCAL)) {
+		if (!function.signature().hasModifier(Signature.Modifier.Local.class)) {
 			throw new IllegalArgumentException("Cannot register a global function in a local namespace");
 		}
 		register(new NamespaceIdentifier(namespace), function);
@@ -338,20 +337,18 @@ public final class FunctionRegistryImpl implements org.skriptlang.skript.common.
 		Set<FunctionIdentifier> existing = ns.identifiers.get(provided.name);
 		if (existing == null) {
 			Skript.debug("No functions named '%s' exist in the '%s' namespace", provided.name, namespace.name);
-			return new Retrieval<>(RetrievalResult.NOT_REGISTERED, null, null);
+			return Retrieval.notRegistered();
 		}
 
 		Set<FunctionIdentifier> candidates = candidates(provided, existing, false);
 		if (candidates.isEmpty()) {
 			Skript.debug("Failed to find a function for '%s'", provided.name);
-			return new Retrieval<>(RetrievalResult.NOT_REGISTERED, null, null);
+			return Retrieval.notRegistered();
 		} else if (candidates.size() == 1) {
 			if (Skript.debug()) {
 				Skript.debug("Matched function for '%s': %s", provided.name, candidates.stream().findAny().orElse(null));
 			}
-			return new Retrieval<>(RetrievalResult.EXACT,
-					ns.functions.get(candidates.stream().findAny().orElse(null)),
-					null);
+			return Retrieval.exact(ns.functions.get(candidates.stream().findAny().orElseThrow()));
 		} else {
 			if (Skript.debug()) {
 				String options = candidates.stream().map(Record::toString).collect(Collectors.joining(", "));
@@ -359,11 +356,10 @@ public final class FunctionRegistryImpl implements org.skriptlang.skript.common.
 				Skript.debug("Identifier: %s", provided);
 				Skript.debug("Options: %s", options);
 			}
-			return new Retrieval<>(RetrievalResult.AMBIGUOUS,
-					null,
+			return Retrieval.ambiguous(
 					candidates.stream()
-							.map(FunctionIdentifier::args)
-							.toArray(Class<?>[][]::new));
+							.map(it -> List.of(it.args()))
+							.collect(Collectors.toSet()));
 		}
 	}
 
@@ -453,21 +449,19 @@ public final class FunctionRegistryImpl implements org.skriptlang.skript.common.
 		Namespace ns = namespaces.getOrDefault(namespace, new Namespace());
 		if (!ns.identifiers.containsKey(provided.name)) {
 			Skript.debug("No signatures named '%s' exist in the '%s' namespace", provided.name, namespace.name);
-			return new Retrieval<>(RetrievalResult.NOT_REGISTERED, null, null);
+			return Retrieval.notRegistered();
 		}
 
 		Set<FunctionIdentifier> candidates = candidates(provided, ns.identifiers.get(provided.name), exact);
 		if (candidates.isEmpty()) {
 			Skript.debug("Failed to find a signature for '%s'", provided.name);
-			return new Retrieval<>(RetrievalResult.NOT_REGISTERED, null, null);
+			return Retrieval.notRegistered();
 		} else if (candidates.size() == 1) {
 			if (Skript.debug()) {
 				Skript.debug("Matched signature for '%s': %s",
 						provided.name, ns.signatures.get(candidates.stream().findAny().orElse(null)));
 			}
-			return new Retrieval<>(RetrievalResult.EXACT,
-					ns.signatures.get(candidates.stream().findAny().orElse(null)),
-					null);
+			return Retrieval.exact(ns.signatures.get(candidates.stream().findAny().orElseThrow()));
 		} else {
 			if (Skript.debug()) {
 				String options = candidates.stream().map(Record::toString).collect(Collectors.joining(", "));
@@ -475,11 +469,9 @@ public final class FunctionRegistryImpl implements org.skriptlang.skript.common.
 				Skript.debug("Identifier: %s", provided);
 				Skript.debug("Options: %s", options);
 			}
-			return new Retrieval<>(RetrievalResult.AMBIGUOUS,
-					null,
-					candidates.stream()
-							.map(FunctionIdentifier::args)
-							.toArray(Class<?>[][]::new));
+			return Retrieval.ambiguous(candidates.stream()
+							.map(it -> List.of(it.args()))
+							.collect(Collectors.toSet()));
 		}
 	}
 
@@ -589,7 +581,7 @@ public final class FunctionRegistryImpl implements org.skriptlang.skript.common.
 		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
 		Namespace namespace;
-		if (signature.hasModifier(Signature.Modifier.LOCAL)) {
+		if (signature.hasModifier(Signature.Modifier.Local.class)) {
 			namespace = namespaces.get(new NamespaceIdentifier(signature.namespace()));
 		} else {
 			namespace = namespaces.get(GLOBAL_NAMESPACE);
@@ -699,14 +691,14 @@ public final class FunctionRegistryImpl implements org.skriptlang.skript.common.
 			int optionalArgs = 0;
 			for (int i = 0; i < signatureParams.length; i++) {
 				Parameter<?> param = signatureParams[i];
-				if (param.hasModifier(Modifier.OPTIONAL)) {
+				if (param.hasModifier(Modifier.Optional.class)) {
 					optionalArgs++;
 				}
 
 				parameters[i] = param.type();
 			}
 
-			return new FunctionIdentifier(signature.name(), signature.hasModifier(Signature.Modifier.LOCAL),
+			return new FunctionIdentifier(signature.name(), signature.hasModifier(Signature.Modifier.Local.class),
 					parameters.length - optionalArgs, parameters);
 		}
 
