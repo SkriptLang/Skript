@@ -61,6 +61,7 @@ import java.util.regex.Pattern;
 public class SubCommandEntryData extends EntryData<Result> {
 
 	public record Result(
+		@Nullable ScriptCommandExecutor rootExecutor,
 		List<ScriptArgumentBuilder> arguments,
 		Collection<String> aliases,
 		@Nullable String description,
@@ -170,15 +171,16 @@ public class SubCommandEntryData extends EntryData<Result> {
 		CommandParsingData parsingData = parser.getData(CommandParsingData.class);
 		boolean isRoot = parsingData.isEmpty();
 
-		CompilationResult compilationResult = CommandCompiler.compile(commandMatcher.group(1), parsingData.getArguments());
+		String rawCommand = commandMatcher.group(1);
+		if (rawCommand == null) {
+			Skript.error("A command cannot be blank.");
+			return null;
+		}
+		CompilationResult compilationResult = CommandCompiler.compile(rawCommand, parsingData.getArguments());
 		if (compilationResult == null) { // failed for a reason reported by the compiler
 			return null;
-		} else if (compilationResult.root().isLeaf()) {
-			if (isRoot) {
-				Skript.error("A command must have a name.");
-			} else {
-				Skript.error("A subcommand must have at least one required argument, literal or dynamic.");
-			}
+		} else if (isRoot && compilationResult.root().isLeaf()) {
+			Skript.error("A command must have a name.");
 			return null;
 		}
 
@@ -358,15 +360,31 @@ public class SubCommandEntryData extends EntryData<Result> {
 		}
 
 		// attach subcommand pieces
-		List<ScriptArgumentBuilder> subcommands =
-			entryContainer.getAll("subcommand", Result.class, false).stream()
-				.flatMap(result -> result.arguments().stream())
-				.toList();
-		if (subcommands.isEmpty() && !hasExecute) {
+		List<Result> subcommands = entryContainer.getAll("subcommand", Result.class, false);
+		if (subcommands.stream().allMatch(result -> result.arguments().isEmpty()) && !hasExecute) {
 			Skript.error("You must have a 'trigger' entry if there are no subcommands!");
 			return null;
 		}
 
+		long optionalSubcommands = subcommands.stream()
+			.filter(result -> result.rootExecutor() != null)
+			.count();
+		if (optionalSubcommands != 0) {
+			if (hasExecute) {
+				Skript.error("It is not possible to have a 'trigger' entry if an optional subcommand is present!");
+				return null;
+			} else if (optionalSubcommands > 1) {
+				Skript.error("It is not possible to have more than one optional subcommand at the same level.");
+				return null;
+			}
+		}
+
+		ScriptCommandExecutor rootExecutor = null;
+		if (compilationResult.root().isLeaf()) { // this subcommand is optional
+			// meaning its executor should be the executor for the parent at attachment points
+			rootExecutor = executor;
+			compilationResult.root().children().remove(null);
+		}
 		var result = compilationResult.root().children().stream()
 			.map(child -> parse(child, executor, commandRequires, suggestionProvider,
 				suggestingArguments, subcommands))
@@ -375,7 +393,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 		parsingData.popExecutorData();
 		parsingData.popArguments();
 
-		return new Result(result, aliases, description, usage, prefix, permission);
+		return new Result(rootExecutor, result, aliases, description, usage, prefix, permission);
 	}
 
 	@Override
@@ -407,7 +425,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 		@Nullable Predicate<CommandSourceStack> requires,
 		@Nullable ScriptSuggestionProvider suggestionProvider,
 		List<ArgumentData<?>> suggestingArguments,
-		Collection<ScriptArgumentBuilder> subcommands
+		List<Result> subcommands
 	) {
 		Collection<CommandElement> children = commandElement.children();
 
@@ -467,7 +485,12 @@ public class SubCommandEntryData extends EntryData<Result> {
 			if (executor != null) {
 				argument.builder().executes(executor::execute);
 			}
-			possibleArguments.addAll(subcommands);
+			for (Result result : subcommands) {
+				possibleArguments.addAll(result.arguments());
+				if (result.rootExecutor() != null) { // will only ever be true for a single Result
+					argument.builder().executes(result.rootExecutor()::execute);
+				}
+			}
 		}
 
 		// we parse the children to append to this element
