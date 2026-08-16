@@ -20,6 +20,7 @@ import ch.njol.skript.log.*;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.Feature;
+import ch.njol.skript.structures.StructFunction;
 import ch.njol.skript.test.runner.*;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseManifest;
@@ -484,6 +485,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		FunctionRegistry functionRegistry = FunctionRegistry.empty(skript);
 		skript.storeRegistry(FunctionRegistry.class, functionRegistry);
 		ch.njol.skript.lang.function.FunctionRegistry.setNewRegistry(functionRegistry);
+		StructFunction.setRegistry(functionRegistry);
 
 		// TODO this upcoming portion is a bad circular dependency
 		// some modules depend on the config

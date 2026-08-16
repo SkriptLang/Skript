@@ -5,7 +5,6 @@ import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Utils.PluralResult;
@@ -32,7 +31,6 @@ public class FunctionParser {
 	 * @param returns The return type of the function, or null if the function should not return anything.
 	 * @param local   If the signature of function is local.
 	 * @return Parsed signature or null if something went wrong.
-	 * @see Functions#registerSignature(ch.njol.skript.lang.function.Signature)
 	 */
 	public static @Nullable Signature<?> parse(String script, String name, String args, @Nullable String returns, boolean local) {
 		Parameters parameters = parseParameters(args);

@@ -51,7 +51,7 @@ public interface Parameter<T> {
 	}
 
 	/**
-	 * Returns whether this signature has the specified modifier.
+	 * Returns whether this parameter has the specified modifier.
 	 *
 	 * @param modifier The modifier.
 	 * @return True when {@link #modifiers()} contains the specified modifier, false if not.
@@ -202,22 +202,6 @@ public interface Parameter<T> {
 			 */
 			public Ranged {
 				Preconditions.checkState(min.compareTo(max) < 1, "Min value cannot be greater than max value!");
-			}
-
-			/**
-			 * @return Min value of the range (inclusive)
-			 */
-			@Override
-			public T min() {
-				return min;
-			}
-
-			/**
-			 * @return Max value of the range (inclusive)
-			 */
-			@Override
-			public T max() {
-				return max;
 			}
 
 			/**

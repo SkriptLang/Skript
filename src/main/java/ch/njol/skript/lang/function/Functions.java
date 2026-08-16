@@ -7,6 +7,7 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
 import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
 import ch.njol.skript.structures.StructFunction;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.function.DefaultFunction;
 import org.skriptlang.skript.common.function.FunctionParser;
@@ -148,6 +149,17 @@ public abstract class Functions {
 	@Deprecated(forRemoval = true, since = "2.14")
 	public static @Nullable Signature<?> parseSignature(String script, String name, String args, @Nullable String returnType, boolean local) {
 		return (Signature<?>) FunctionParser.parse(script, name, args, returnType, local);
+	}
+
+	@ApiStatus.Internal
+	public static void registerCompatibilitySignature(Signature<?> signature) {
+		Namespace.Key namespaceKey = new Namespace.Key(Namespace.Origin.SCRIPT, signature.namespace());
+		Namespace namespace = namespaces.computeIfAbsent(namespaceKey, k -> new Namespace());
+		if (namespace.getSignature(signature.getName()) == null) {
+			namespace.addSignature(signature);
+		}
+		if (!signature.isLocal())
+			globalFunctions.put(signature.getName(), namespace);
 	}
 
 	/**

@@ -83,12 +83,15 @@ public interface Signature<T> {
 	}
 
 	/**
-	 * Returns whether this signature has the specified modifier.
+	 * Gets a modifier of the specified type if present.
+	 *
+	 * @param modifierClass The class of the modifier to retrieve
+	 * @return The modifier instance, or null if not present
 	 */
-	default <MT extends Modifier> MT getModifier(Class<MT> modifier) {
+	default <M extends Modifier> M getModifier(Class<M> modifierClass) {
 		return modifiers().stream()
-				.filter(modifier::isInstance)
-				.map(modifier::cast)
+				.filter(modifierClass::isInstance)
+				.map(modifierClass::cast)
 				.findAny()
 				.orElse(null);
 	}

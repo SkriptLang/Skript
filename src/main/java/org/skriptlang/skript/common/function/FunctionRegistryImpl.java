@@ -258,11 +258,6 @@ public final class FunctionRegistryImpl implements org.skriptlang.skript.common.
 		}
 	}
 
-	@Override
-	public org.skriptlang.skript.common.function.FunctionRegistry.@NotNull Retrieval<Function<?>> getFunction(@NotNull String name, @NotNull Class<?>... args) {
-		return getFunction(null, name, args);
-	}
-
 	private static void alreadyRegisteredError(String name, FunctionIdentifier identifier, NamespaceIdentifier namespace) {
 		throw new SkriptAPIException("Function '%s' with parameters %s is already registered in %s"
 				.formatted(name, Arrays.toString(Arrays.stream(identifier.args).map(Class::getSimpleName).toArray()),
@@ -300,24 +295,21 @@ public final class FunctionRegistryImpl implements org.skriptlang.skript.common.
 
 	@Override
 	public @NotNull Retrieval<Function<?>> getFunction(
-			@Nullable String namespace,
+			@NotNull String namespace,
 			@NotNull String name,
 			@NotNull Class<?>... args
 	) {
-		Retrieval<Function<?>> attempt = null;
-		if (namespace != null) {
-			attempt = getFunction(new NamespaceIdentifier(namespace),
-					FunctionIdentifier.of(name, true, args));
-		}
-		if (attempt == null || attempt.result() == RetrievalResult.NOT_REGISTERED) {
+		Retrieval<Function<?>> attempt = getFunction(new NamespaceIdentifier(namespace),
+				FunctionIdentifier.of(name, true, args));
+		if (attempt.result() == RetrievalResult.NOT_REGISTERED) {
 			attempt = getFunction(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 		return attempt;
 	}
 
 	@Override
-	public org.skriptlang.skript.common.function.FunctionRegistry.@NotNull Retrieval<Signature<?>> getSignature(@NotNull String name, @NotNull Class<?>... args) {
-		return getSignature(null, name, args);
+	public @NotNull Retrieval<Function<?>> getFunction(@NotNull String name, @NotNull Class<?>... args) {
+		return getFunction(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 	}
 
 	/**
@@ -361,6 +353,11 @@ public final class FunctionRegistryImpl implements org.skriptlang.skript.common.
 							.map(it -> List.of(it.args()))
 							.collect(Collectors.toSet()));
 		}
+	}
+
+	@Override
+	public @NotNull Retrieval<Signature<?>> getSignature(@NotNull String name, @NotNull Class<?>... args) {
+		return getSignature(null, name, args);
 	}
 
 	@Override

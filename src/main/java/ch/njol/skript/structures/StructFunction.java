@@ -15,10 +15,14 @@ import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.ScriptFunction;
 import ch.njol.skript.lang.parser.ParserInstance;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.common.function.*;
+import org.skriptlang.skript.common.function.Function;
+import org.skriptlang.skript.common.function.FunctionParser;
 import org.skriptlang.skript.common.function.FunctionRegistry.Retrieval;
 import org.skriptlang.skript.common.function.FunctionRegistry.RetrievalResult;
+import org.skriptlang.skript.common.function.Parameter;
+import org.skriptlang.skript.common.function.Signature;
 import org.skriptlang.skript.common.function.Signature.Modifier;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.script.Script;
@@ -48,6 +52,13 @@ import java.util.regex.Pattern;
 		""")
 @Since("2.2, 2.7 (local functions)")
 public class StructFunction extends Structure {
+
+	private static org.skriptlang.skript.common.function.FunctionRegistry registry;
+
+	@ApiStatus.Internal
+	public static void setRegistry(org.skriptlang.skript.common.function.FunctionRegistry registry) {
+		StructFunction.registry = registry;
+	}
 
 	public static final Priority PRIORITY = new Priority(400);
 
@@ -124,10 +135,8 @@ public class StructFunction extends Structure {
 	private static Signature<?> registerSignature(Signature<?> signature) {
 		Retrieval<Signature<?>> existing;
 		Parameter<?>[] parameters = signature.parameters().all();
-		FunctionRegistry registry = Skript.instance().registry(FunctionRegistry.class);
-
 		if (parameters.length == 1 && !parameters[0].isSingle()) {
-			if (signature.namespace() != null) {
+			if (signature.hasModifier(Modifier.Local.class)) {
 				existing = registry.getExactSignature(signature.namespace(), signature.name(), parameters[0].type().arrayType());
 			} else {
 				existing = registry.getExactSignature(signature.name());
@@ -138,7 +147,7 @@ public class StructFunction extends Structure {
 				types[i] = parameters[i].type();
 			}
 
-			if (signature.namespace() != null) {
+			if (signature.hasModifier(Modifier.Local.class)) {
 				existing = registry.getExactSignature(signature.namespace(), signature.name(), types);
 			} else {
 				existing = registry.getExactSignature(signature.name(), types);
@@ -167,7 +176,10 @@ public class StructFunction extends Structure {
 			return null;
 		}
 
-		if (signature.namespace() != null) {
+		if (signature instanceof ch.njol.skript.lang.function.Signature<?> oldSignature)
+			Functions.registerCompatibilitySignature(oldSignature);
+
+		if (signature.hasModifier(Modifier.Local.class)) {
 			registry.register(signature.namespace(), signature);
 		} else {
 			registry.register(signature);
@@ -195,8 +207,6 @@ public class StructFunction extends Structure {
 	}
 
 	private static void loadFunction(Script script, SectionNode node, Signature<?> signature) {
-		FunctionRegistry registry = Skript.instance().registry(FunctionRegistry.class);
-
 		Function<?> function;
 		try {
 			function = new ScriptFunction<>((ch.njol.skript.lang.function.Signature<?>) signature, node);
@@ -228,7 +238,7 @@ public class StructFunction extends Structure {
 	@Override
 	public void unload() {
 		assert signature != null;
-		Skript.instance().registry(FunctionRegistry.class).remove(signature);
+		registry.remove(signature);
 //		signature.calls().forEach(FunctionReference::invalidate);
 		VALIDATE_FUNCTIONS.set(true);
 	}

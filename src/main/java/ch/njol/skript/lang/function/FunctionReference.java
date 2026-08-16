@@ -13,15 +13,14 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.function.Function;
 import org.skriptlang.skript.common.function.FunctionReference.Argument;
 import org.skriptlang.skript.common.function.FunctionReference.ArgumentType;
 import org.skriptlang.skript.common.function.FunctionRegistry.Retrieval;
 import org.skriptlang.skript.common.function.FunctionRegistry.RetrievalResult;
 import org.skriptlang.skript.common.function.Parameter;
-import org.skriptlang.skript.common.function.Function;
-import org.skriptlang.skript.common.function.Signature;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
-import org.skriptlang.skript.common.function.Parameter.Modifier.RangedModifier;
+import org.skriptlang.skript.common.function.Signature;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.util.Executable;
 

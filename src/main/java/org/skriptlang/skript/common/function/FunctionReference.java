@@ -39,6 +39,29 @@ public final class FunctionReference<T> implements Debuggable {
 
 	private record ArgInfo(Expression<?> expression, Class<?> type, Set<Modifier> modifiers) {
 
+		/**
+		 * Returns whether this parameter has the specified modifier.
+		 *
+		 * @param modifier The modifier.
+		 * @return True when {@link #modifiers()} contains the specified modifier, false if not.
+		 */
+		boolean hasModifier(Class<? extends Modifier> modifier) {
+			return modifiers().stream().anyMatch(modifier::isInstance);
+		}
+
+		/**
+		 * Gets a modifier of the specified type if present.
+		 *
+		 * @param modifierClass The class of the modifier to retrieve
+		 * @return The modifier instance, or null if not present
+		 */
+		<M extends Modifier> M getModifier(Class<M> modifierClass) {
+			return modifiers().stream()
+					.filter(modifierClass::isInstance)
+					.map(modifierClass::cast)
+					.findFirst()
+					.orElse(null);
+		}
 	}
 
 	public FunctionReference(@Nullable String namespace,
@@ -174,7 +197,7 @@ public final class FunctionReference<T> implements Debuggable {
 
 		SequencedMap<String, Object> args = new LinkedHashMap<>();
 		cachedArguments.forEach((k, v) -> {
-			if (v.modifiers().contains(Modifier.KEYED)) {
+			if (v.hasModifier(Modifier.Keyed.class)) {
 				args.put(k, Classes.clone(evaluateKeyed(v.expression(), event)));
 				return;
 			}
