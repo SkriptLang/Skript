@@ -67,7 +67,7 @@ public interface InputSource {
 	 *
 	 * @return The unchanged value that {@link ExprInput} should use for reset.
 	 */
-	@Nullable default Object getUnchangedValue() {
+	default @Nullable Object getUnchangedValue() {
 		return getCurrentValue();
 	}
 

@@ -24,8 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 
 @Name("Transform List")
-@Description(
-	"""
+@Description("""
 		Transforms (or 'maps') a list's values using a given expression. This is akin to looping over the list and setting
 		each value to a modified version of itself.
 		Evaluates the given expression for each element in the list, replacing the original element with the expression's result.
@@ -92,14 +91,13 @@ public class EffSecTransform extends EffectSection implements InputSource {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult, @Nullable SectionNode sectionNode, @Nullable List<TriggerItem> triggerItems) {
-
 		if (expressions[0].isSingle() || !(expressions[0] instanceof Variable<?> variable)) {
 			Skript.error("You can only transform list variables!");
 			return false;
 		}
 		unmappedObjects = variable;
 
-		if(!parseResult.regexes.isEmpty()) {
+		if (!parseResult.regexes.isEmpty()) {
 			String unparsedExpression = parseResult.regexes.getFirst().group();
 			mappingExpr = parseExpression(unparsedExpression, getParser(), SkriptParser.ALL_FLAGS);
 
@@ -148,16 +146,16 @@ public class EffSecTransform extends EffectSection implements InputSource {
 			unchangedValue = currentValue;
 
 			if (isSingle) {
-				if(mappingExpr != null)
+				if (mappingExpr != null)
 					currentValue = mappingExpr.getSingle(event);
-				if(trigger != null)
+				if (trigger != null)
 					TriggerItem.walk(trigger, event);
 				mappedValues.put(currentIndex, currentValue);
 			} else {
 				for (Object value : mappingExpr.getArray(event)) {
 					currentValue = value;
 					unchangedValue = currentValue;
-					if(trigger != null)
+					if (trigger != null)
 						TriggerItem.walk(trigger, event);
 					mappedValues.put(String.valueOf(i++), currentValue);
 					mappedValues.putIfAbsent(currentIndex, null); // clears only unused indices instead of having to delete entire var.
@@ -212,4 +210,5 @@ public class EffSecTransform extends EffectSection implements InputSource {
 			return "transform section";
 		return "transform " + unmappedObjects.toString(event, debug) + " using " + mappingExpr.toString(event, debug);
 	}
+
 }

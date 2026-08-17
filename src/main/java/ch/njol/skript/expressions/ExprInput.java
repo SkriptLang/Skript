@@ -125,7 +125,7 @@ public class ExprInput<T> extends SimpleExpression<T> {
 	}
 
 	@Override
-	public void change(Event event, Object[] delta, ChangeMode mode){
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Object currentValue = isIndex ? inputSource.getCurrentIndex() : inputSource.getCurrentValue();
 
 		switch (mode) {
@@ -137,10 +137,10 @@ public class ExprInput<T> extends SimpleExpression<T> {
 				break;
 			case ADD:
 			case REMOVE:
-				if(currentValue == null)
+				if (currentValue == null)
 					currentValue = 0;
 
-				if(delta.length > 0 && delta[0] != null) {
+				if (delta.length > 0 && delta[0] != null) {
 					Operator operator = mode == ChangeMode.ADD
 						? Operator.ADDITION
 						: Operator.SUBTRACTION;
@@ -157,21 +157,14 @@ public class ExprInput<T> extends SimpleExpression<T> {
 	}
 
 	@Override
-	public Class<?>[] acceptChange(ChangeMode mode) {
-		if(!inputSource.allowChange())
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		if (!inputSource.allowChange())
 			return null;
 
-		if (
-				mode == ChangeMode.SET ||
-				mode == ChangeMode.DELETE ||
-				mode == ChangeMode.RESET ||
-				mode == ChangeMode.ADD ||
-				mode == ChangeMode.REMOVE
-		) {
-			return CollectionUtils.array(Object.class);
-		}
-
-		return null;
+		return switch (mode) {
+			case SET, DELETE, RESET, ADD, REMOVE -> CollectionUtils.array(Object.class);
+			default -> null;
+		};
 	}
 
 	@Override
