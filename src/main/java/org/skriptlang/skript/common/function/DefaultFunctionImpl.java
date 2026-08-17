@@ -325,11 +325,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		private static Set<Modifier> modernizeModifiers(Modifier[] modifiers) {
 			Set<Modifier> result = new LinkedHashSet<>();
 			for (Modifier modifier : modifiers) {
-				if (modifier == Modifier.OPTIONAL) {
-					result.add(new Modifier.Optional());
-				} else if (modifier == Modifier.KEYED) {
-					result.add(new Modifier.Keyed());
-				} else if (modifier instanceof RangedModifier<?> rangedModifier) {
+				if (modifier instanceof RangedModifier<?> rangedModifier) {
 					//noinspection rawtypes,unchecked
 					result.add(new Modifier.Ranged(rangedModifier.getMin(), rangedModifier.getMax()));
 				} else {

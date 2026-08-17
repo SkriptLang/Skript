@@ -14,9 +14,11 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.DefaultFunction.Builder;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.util.Priority;
 
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 /**
  * Represents a function parameter.
@@ -130,8 +132,15 @@ public interface Parameter<T> {
 
 		joiner.add("%s:".formatted(name()));
 
-		if (hasModifier(Modifier.Optional.class)) {
-			joiner.add("optional");
+		for (Modifier modifier : modifiers()) {
+			if (!modifier.toStringPriority().isBefore(Modifier.TYPE_PRIORITY)) {
+				continue;
+			}
+			String string = modifier.toFormattedString();
+			if (string.isEmpty()) {
+				continue;
+			}
+			joiner.add(string);
 		}
 
 		Noun exact = Classes.getSuperClassInfo(type()).getName();
@@ -141,12 +150,15 @@ public interface Parameter<T> {
 			joiner.add(exact.getSingular());
 		}
 
-		if (hasModifier(Modifier.Ranged.class)) {
-			Modifier.Ranged<?> range = getModifier(Modifier.Ranged.class);
-			joiner.add("between")
-					.add(range.min().toString())
-					.add("and")
-					.add(range.max().toString());
+		for (Modifier modifier : modifiers()) {
+			if (!modifier.toStringPriority().isAfter(Modifier.TYPE_PRIORITY)) {
+				continue;
+			}
+			String string = modifier.toFormattedString();
+			if (string.isEmpty()) {
+				continue;
+			}
+			joiner.add(string);
 		}
 
 		return joiner.toString();
@@ -159,22 +171,75 @@ public interface Parameter<T> {
 	interface Modifier {
 
 		/**
-		 * @return A new Modifier instance to be used as a custom flag.
+		 * The priority used for printing the type in a parameter's string representation.
 		 */
+		Priority TYPE_PRIORITY = Priority.base();
+
+		/**
+		 * @return The modifier as a human-readable, formatted string.
+		 */
+		@NotNull String toFormattedString();
+
+		/**
+		 * The priority used when converting this parameter to a string representation.
+		 *
+		 * <p>
+		 * Registering after {@link #TYPE_PRIORITY} will print after the type,
+		 * e.g. {@code x: number optional}.
+		 * Registering before {@link #TYPE_PRIORITY} will print before the type,
+		 * e.g. {@code x: optional number}.
+		 * </p>
+		 *
+		 * @return The priority used.
+		 */
+		@NotNull Priority toStringPriority();
+
+		/**
+		 * @deprecated Create a new class implementing {@link Modifier} instead.
+		 */
+		@Deprecated(forRemoval = true, since = "INSERT VERSION")
 		static Modifier of() {
-			return new Modifier() {};
+			return new Modifier() {
+
+				private static final Priority PRIORITY = Priority.after(TYPE_PRIORITY);
+
+				@Override
+				public @NotNull String toFormattedString() {
+					return "";
+				}
+
+				@Override
+				public @NotNull Priority toStringPriority() {
+					return PRIORITY;
+				}
+
+			};
 		}
 
 		/**
 		 * The modifier for parameters that are optional.
 		 */
-		class Optional implements Modifier { }
+		class Optional implements Modifier {
+
+			private static final Priority PRIORITY = Priority.before(TYPE_PRIORITY);
+
+			@Override
+			public @NotNull String toFormattedString() {
+				return "optional";
+			}
+
+			@Override
+			public @NotNull Priority toStringPriority() {
+				return PRIORITY;
+			}
+
+		}
 
 		/**
 		 * @deprecated Use {@link Optional} instead.
 		 */
 		@Deprecated(forRemoval = true, since = "INSERT VERSION")
-		Modifier OPTIONAL = of();
+		Modifier OPTIONAL = new Modifier.Optional();
 
 		/**
 		 * The modifier for parameters that support optional keyed expressions.
@@ -182,18 +247,35 @@ public interface Parameter<T> {
 		 * @see ch.njol.skript.lang.KeyProviderExpression
 		 * @see ch.njol.skript.lang.KeyReceiverExpression
 		 */
-		class Keyed implements Modifier { }
+		class Keyed implements Modifier {
+
+			private static final Priority PRIORITY = Priority.before(TYPE_PRIORITY);
+
+			@Override
+			public @NotNull String toFormattedString() {
+				return "keyed";
+			}
+
+			@Override
+			public @NotNull Priority toStringPriority() {
+				return PRIORITY;
+			}
+
+		}
 
 		/**
 		 * @deprecated Use {@link Keyed} instead.
 		 */
 		@Deprecated(forRemoval = true, since = "INSERT VERSION")
-		Modifier KEYED = of();
+		Modifier KEYED = new Modifier.Keyed();
 
 		/**
 		 * A modifier to use for checking if a parameter is ranged.
 		 */
 		record Ranged<T extends Comparable<T>>(T min, T max) implements Modifier {
+
+			private static final Priority PRIORITY = Priority.after(TYPE_PRIORITY);
+
 			/**
 			 * Inclusive range between min and max
 			 *
@@ -236,6 +318,17 @@ public interface Parameter<T> {
 				}
 				return true;
 			}
+
+			@Override
+			public @NotNull String toFormattedString() {
+				return "between %s and %s".formatted(min, max);
+			}
+
+			@Override
+			public @NotNull Priority toStringPriority() {
+				return PRIORITY;
+			}
+
 		}
 
 		/**
@@ -257,6 +350,9 @@ public interface Parameter<T> {
 		 */
 		@Deprecated(forRemoval = true, since = "INSERT VERSION")
 		class RangedModifier<T extends Comparable<T>> implements Modifier {
+
+			private static final Priority PRIORITY = Priority.before(TYPE_PRIORITY);
+
 			private final T min;
 			private final T max;
 
@@ -335,7 +431,18 @@ public interface Parameter<T> {
 				return "RangedModifier(min=" + min + ", max=" + max + ")";
 			}
 
+			@Override
+			public @NotNull String toFormattedString() {
+				return "between %s and %s".formatted(min, max);
+			}
+
+			@Override
+			public @NotNull Priority toStringPriority() {
+				return PRIORITY;
+			}
+
 		}
+
 	}
 
 }
