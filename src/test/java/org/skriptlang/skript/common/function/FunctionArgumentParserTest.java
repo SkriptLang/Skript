@@ -1,7 +1,6 @@
 package org.skriptlang.skript.common.function;
 
 import org.junit.Test;
-import org.skriptlang.skript.common.function.FunctionArgumentParser;
 import org.skriptlang.skript.common.function.FunctionReference.Argument;
 import org.skriptlang.skript.common.function.FunctionReference.ArgumentType;
 

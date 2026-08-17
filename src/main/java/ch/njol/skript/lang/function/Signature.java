@@ -2,6 +2,7 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Contract;
 import ch.njol.skript.util.Utils;
@@ -12,7 +13,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.FunctionReference;
+import org.skriptlang.skript.common.function.Parameter.Modifier;
 import org.skriptlang.skript.common.function.Parameters;
+import org.skriptlang.skript.util.Priority;
 
 import java.util.*;
 
@@ -311,8 +314,14 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	public String toString(boolean includeReturnType, boolean debug) {
 		StringBuilder signatureBuilder = new StringBuilder();
 
-		if (local)
-			signatureBuilder.append("local ");
+		for (Modifier modifier : modifiers()) {
+			String string = modifier.toFormattedString();
+			if (string == null || string.isEmpty()) {
+				continue;
+			}
+			signatureBuilder.append(string).append(" ");
+		}
+
 		signatureBuilder.append(name);
 
 		signatureBuilder.append('(')

@@ -101,7 +101,19 @@ public interface Signature<T> {
 	 */
 	interface Modifier {
 
-		class Local implements Modifier { }
+		/**
+		 * @return The modifier as a human-readable, formatted string.
+		 */
+		String toFormattedString();
+
+		class Local implements Modifier {
+
+			@Override
+			public String toFormattedString() {
+				return "local";
+			}
+
+		}
 
 	}
 
