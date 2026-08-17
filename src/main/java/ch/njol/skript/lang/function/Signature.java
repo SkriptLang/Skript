@@ -1,8 +1,6 @@
 package ch.njol.skript.lang.function;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Contract;
 import ch.njol.skript.util.Utils;
@@ -13,9 +11,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.FunctionReference;
-import org.skriptlang.skript.common.function.Parameter.Modifier;
 import org.skriptlang.skript.common.function.Parameters;
-import org.skriptlang.skript.util.Priority;
+import org.skriptlang.skript.common.function.Signature.Modifier.Returns;
 
 import java.util.*;
 
@@ -29,26 +26,14 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	 */
 	final @Nullable String script;
 
-	/**
-	 * Name of function this refers to.
-	 */
-	final String name; // Stored for hashCode
-
-	/**
-	 * Parameters taken by this function, in order.
-	 */
+	private final String name;
 	private final Parameters parameters;
-
-	/**
-	 * Whether this function is only accessible in the script it was declared in
-	 */
-	final boolean local;
+	private final Set<Modifier> modifiers = new HashSet<>();
 
 	/**
 	 * The return type.
 	 */
 	final @Nullable ClassInfo<T> returnType;
-	final Class<?> returns;
 
 	/**
 	 * Whether this function returns a single value, or multiple ones.
@@ -67,58 +52,43 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	final @Nullable Contract contract;
 
 	/**
-	 * The class path for the origin of this signature.
+	 * @deprecated Use {@link Signature#Signature(String, Set, SequencedMap, Contract)} instead.
 	 */
-	@Nullable String originClassPath;
-
-	private final Set<Modifier> modifiers = new HashSet<>();
-
-	static Class<?> getReturns(boolean single, Class<?> cls) {
-		if (single) {
-			return cls;
-		} else {
-			return cls.arrayType();
-		}
-	}
-
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public Signature(@Nullable String script, String name, Parameter<?>[] parameters, boolean local, @Nullable ClassInfo<T> returnType, boolean single, @Nullable Contract contract) {
 		this.script = script;
 		this.name = name;
 		this.parameters = initParameters(parameters);
-		this.local = local;
 		if (local)
-			modifiers.add(new Modifier.Local());
+			modifiers.add(new Modifier.Local(script));
 		this.returnType = returnType;
 		this.single = single;
-		if (returnType == null) {
-			this.returns = null;
-		} else {
-			this.returns = getReturns(single, returnType.getC());
-		}
 		this.contract = contract;
 		this.calls = Collections.newSetFromMap(new WeakHashMap<>());
-		this.originClassPath = "";
 	}
 
+	/**
+	 * @deprecated Use {@link Signature#Signature(String, Set, SequencedMap, Contract)} instead.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public Signature(@Nullable String script, String name, Parameter<?>[] parameters, boolean local, @Nullable ClassInfo<T> returnType, boolean single, String stacktrace) {
 		this(script, name, parameters, local, returnType, single, (Contract) null);
-		this.originClassPath = stacktrace;
 	}
 
+	/**
+	 * @deprecated Use {@link Signature#Signature(String, Set, SequencedMap, Contract)} instead.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public Signature(String script, String name, Parameter<?>[] parameters, boolean local, ClassInfo<T> returnType, boolean single, String stacktrace, @Nullable Contract contract) {
 		this(script, name, parameters, local, returnType, single, contract);
-
-		this.originClassPath = stacktrace;
 	}
 
 	public Signature(@Nullable String script, String name, Parameters parameters, Class<T> returnType, boolean local, @Nullable Contract contract) {
 		this.script = script;
 		this.name = name;
 		this.parameters = parameters;
-		this.local = local;
 		if (local)
-			modifiers.add(new Modifier.Local());
-		this.returns = returnType;
+			modifiers.add(new Modifier.Local(script));
 		if (returnType != null) {
 			//noinspection unchecked
 			this.returnType = (ClassInfo<T>) Classes.getExactClassInfo(Utils.getComponentType(returnType));
@@ -139,8 +109,30 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 		this(namespace, name, initParameters(parameters), returnType, false, contract);
 	}
 
-	public Signature(String namespace, String name, org.skriptlang.skript.common.function.Parameter<?>[] parameters, Class<T> returnType, boolean local, boolean single, @Nullable Contract contract) {
-		this(namespace, name, initParameters(parameters), returnType, local, contract);
+	public Signature(String name, Set<Modifier> modifiers, SequencedMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters, @Nullable Contract contract) {
+		this.modifiers.addAll(modifiers);
+
+		this.name = name;
+		this.parameters = new Parameters(parameters);
+
+		if (hasModifier(Modifier.Local.class)) {
+			this.script = getModifier(Modifier.Local.class).namespace();
+		} else {
+			this.script = null;
+		}
+
+		if (hasModifier(Modifier.Returns.class)) {
+			Class<?> type = getModifier(Returns.class).type();
+			//noinspection unchecked
+			this.returnType = (ClassInfo<T>) Classes.getExactClassInfo(Utils.getComponentType(type));
+			this.single = !type.isArray();
+		} else {
+			this.returnType = null;
+			this.single = true;
+		}
+
+		this.contract = contract;
+		this.calls = Collections.newSetFromMap(new WeakHashMap<>());
 	}
 
 	@Override
@@ -191,12 +183,6 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	}
 
 	@Override
-	public @Nullable Class<T> returnType() {
-		//noinspection unchecked
-		return (Class<T>) returns;
-	}
-
-	@Override
 	public @NotNull Parameters parameters() {
 		return parameters;
 	}
@@ -226,7 +212,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	}
 
 	public boolean isLocal() {
-		return local;
+		return hasModifier(Modifier.Local.class);
 	}
 
 	/**
@@ -252,14 +238,6 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	@Override
 	public @Unmodifiable @NotNull Set<Modifier> modifiers() {
 		return Collections.unmodifiableSet(modifiers);
-	}
-
-	/**
-	 * @deprecated Unused.
-	 */
-	@Deprecated(forRemoval = true, since = "2.13")
-	public String getOriginClassPath() {
-		return originClassPath;
 	}
 
 	public @Nullable Contract getContract() {
@@ -308,19 +286,14 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 
 	@Override
 	public String toString() {
-		return toString(true, Skript.debug());
+		return toFormattedString();
 	}
 
 	public String toString(boolean includeReturnType, boolean debug) {
 		StringBuilder signatureBuilder = new StringBuilder();
 
-		for (Modifier modifier : modifiers()) {
-			String string = modifier.toFormattedString();
-			if (string == null || string.isEmpty()) {
-				continue;
-			}
-			signatureBuilder.append(string).append(" ");
-		}
+		if (isLocal())
+			signatureBuilder.append("local ");
 
 		signatureBuilder.append(name);
 
@@ -328,10 +301,10 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 				.append(StringUtils.join(parameters.all(), ", "))
 				.append(')');
 
-		if (includeReturnType && returns != null) {
+		if (includeReturnType && hasModifier(Modifier.Returns.class)) {
 			signatureBuilder.append(" returns ");
 
-			signatureBuilder.append(Utils.toEnglishPlural(returnType.getCodeName(), returns.isArray()));
+			signatureBuilder.append(Utils.toEnglishPlural(returnType.getCodeName(), getModifier(Modifier.Returns.class).type().isArray()));
 		}
 
 		return signatureBuilder.toString();

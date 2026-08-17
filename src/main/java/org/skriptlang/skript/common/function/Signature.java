@@ -1,14 +1,22 @@
 package org.skriptlang.skript.common.function;
 
+import ch.njol.skript.localization.Noun;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Contract;
+import ch.njol.util.StringUtils;
+import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.common.function.Signature.Modifier.Returns;
+import org.skriptlang.skript.util.Priority;
 
+import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.StringJoiner;
 
 /**
  * Represents a function signature.
@@ -27,9 +35,17 @@ public interface Signature<T> {
 	@NotNull String name();
 
 	/**
-	 * @return The type of this parameter.
+	 * @deprecated Use {@link #hasModifier(Class)} and {@link #getModifier(Class)}
+	 * with {@link Returns} instead.
 	 */
-	@Nullable Class<T> returnType();
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	default @Nullable Class<T> returnType() {
+		if (!hasModifier(Modifier.Returns.class))
+			return null;
+
+		//noinspection unchecked
+		return (Class<T>) getModifier(Returns.class).type();
+	}
 
 	/**
 	 * @return An unmodifiable view of all the parameters that this signature has.
@@ -59,11 +75,10 @@ public interface Signature<T> {
 	 * @return Whether this signature returns single values.
 	 */
 	default boolean isSingle() {
-		Class<T> returnType = returnType();
-		if (returnType == null) {
+		if (!hasModifier(Modifier.Returns.class))
 			return false;
-		}
-		return !returnType.isArray();
+
+		return !getModifier(Returns.class).type().isArray();
 	}
 
 	/**
@@ -93,7 +108,41 @@ public interface Signature<T> {
 				.filter(modifierClass::isInstance)
 				.map(modifierClass::cast)
 				.findAny()
-				.orElse(null);
+				.orElseThrow(() -> new NoSuchElementException("No value present for modifier " + modifierClass.getSimpleName()));
+	}
+
+	/**
+	 * @return A human-readable string representing this parameter.
+	 */
+	default @NotNull String toFormattedString() {
+		StringJoiner joiner = new StringJoiner(" ");
+
+		for (Modifier modifier : modifiers()) {
+			if (!modifier.toStringPriority().isBefore(Modifier.FUNCTION_PRIORITY)) {
+				continue;
+			}
+			String string = modifier.toFormattedString();
+			if (string.isEmpty()) {
+				continue;
+			}
+			joiner.add(string);
+		}
+
+		joiner.add(name());
+		joiner.add("(%s)".formatted(StringUtils.join(parameters().all(), ", ")));
+
+		for (Modifier modifier : modifiers()) {
+			if (!modifier.toStringPriority().isAfter(Modifier.FUNCTION_PRIORITY)) {
+				continue;
+			}
+			String string = modifier.toFormattedString();
+			if (string.isEmpty()) {
+				continue;
+			}
+			joiner.add(string);
+		}
+
+		return joiner.toString();
 	}
 
 	/**
@@ -102,15 +151,70 @@ public interface Signature<T> {
 	interface Modifier {
 
 		/**
+		 * The priority used for printing the type in a signature's string representation.
+		 */
+		Priority FUNCTION_PRIORITY = Priority.base();
+
+		/**
 		 * @return The modifier as a human-readable, formatted string.
 		 */
-		String toFormattedString();
+		@NotNull String toFormattedString();
 
-		class Local implements Modifier {
+		/**
+		 * The priority used when converting this modifier to a string representation.
+		 *
+		 * <p>
+		 * Registering after {@link #FUNCTION_PRIORITY} will print after the function,
+		 * e.g. {@code function x() local}.
+		 * Registering before {@link #FUNCTION_PRIORITY} will print before the function,
+		 * e.g. {@code local function x()}.
+		 * </p>
+		 *
+		 * @return The priority used.
+		 */
+		@NotNull Priority toStringPriority();
+
+		record Local(@NotNull String namespace) implements Modifier {
+
+			public Local {
+				Preconditions.checkNotNull(namespace, "namespace cannot be null");
+			}
+
+			private static final Priority PRIORITY = Priority.before(FUNCTION_PRIORITY);
 
 			@Override
-			public String toFormattedString() {
+			public @NotNull String toFormattedString() {
 				return "local";
+			}
+
+			@Override
+			public @NotNull Priority toStringPriority() {
+				return PRIORITY;
+			}
+
+		}
+
+		record Returns<T>(@NotNull Class<T> type) implements Modifier {
+
+			private static final Priority PRIORITY = Priority.after(FUNCTION_PRIORITY);
+
+			public Returns {
+				Preconditions.checkNotNull(type, "type cannot be null");
+			}
+
+			@Override
+			public @NotNull String toFormattedString() {
+				Noun exact = Classes.getSuperClassInfo(type).getName();
+				if (type.isArray()) {
+					return "returns " + exact.getPlural();
+				} else {
+					return "returns " + exact.getSingular();
+				}
+			}
+
+			@Override
+			public @NotNull Priority toStringPriority() {
+				return PRIORITY;
 			}
 
 		}

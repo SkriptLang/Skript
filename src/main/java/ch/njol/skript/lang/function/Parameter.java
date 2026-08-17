@@ -315,7 +315,15 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	@Override
 	public @NotNull Class<T> type() {
 		//noinspection unchecked
-		return (Class<T>) Signature.getReturns(single, type.getC());
+		return (Class<T>) getReturns(single, type.getC());
+	}
+
+	static Class<?> getReturns(boolean single, Class<?> cls) {
+		if (single) {
+			return cls;
+		} else {
+			return cls.arrayType();
+		}
 	}
 
 	@Override

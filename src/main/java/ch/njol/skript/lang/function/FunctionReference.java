@@ -159,8 +159,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		// Validate that return types are what caller expects they are
 		Class<? extends T>[] expectedReturnTypes = this.returnTypes;
 		if (expectedReturnTypes != null) {
-			Class<?> candidateReturnType = sign.returnType();
-			if (candidateReturnType == null) {
+			if (!sign.hasModifier(Signature.Modifier.Returns.class)) {
 				if (first) {
 					Skript.error("The function '" + stringified + "' doesn't return any value.");
 				} else {
@@ -171,6 +170,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 				return false;
 			}
 
+			Class<?> candidateReturnType = sign.getModifier(Signature.Modifier.Returns.class).type();
 			if (!Converters.converterExists(candidateReturnType, expectedReturnTypes)) {
 				if (first) {
 					Skript.error("The returned value of the function '" + stringified + "', " + candidateReturnType + ", is " + SkriptParser.notOfType(expectedReturnTypes) + ".");

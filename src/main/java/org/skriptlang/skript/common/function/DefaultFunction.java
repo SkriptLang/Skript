@@ -39,6 +39,7 @@ public sealed interface DefaultFunction<T>
 	/**
 	 * Creates a new builder for a function.
 	 *
+	 * @param source 	 The addon registering this function.
 	 * @param name       The name of the function.
 	 * @param returnType The type of the function.
 	 * @param <T>        The return type.
@@ -47,6 +48,18 @@ public sealed interface DefaultFunction<T>
 	@Contract("_, _, _ -> new")
 	static <T> @NotNull Builder<T> builder(@NotNull SkriptAddon source, @NotNull String name, @NotNull Class<T> returnType) {
 		return new DefaultFunctionImpl.BuilderImpl<>(source, name, returnType);
+	}
+
+	/**
+	 * Creates a new builder for a function.
+	 *
+	 * @param source 	 The addon registering this function.
+	 * @param name       The name of the function.
+	 * @return The builder for a function.
+	 */
+	@Contract("_, _ -> new")
+	static <T> @NotNull Builder<T> builder(@NotNull SkriptAddon source, @NotNull String name) {
+		return new DefaultFunctionImpl.BuilderImpl<>(source, name);
 	}
 
 	/**
@@ -68,7 +81,7 @@ public sealed interface DefaultFunction<T>
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		Builder<T> local(@NotNull String namespace);
+		Builder<T> modifiers(@NotNull Signature.Modifier @NotNull ... modifiers);
 
 		/**
 		 * Sets this function builder's {@link ch.njol.skript.util.Contract}.

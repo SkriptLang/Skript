@@ -16,6 +16,7 @@ import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.util.Priority;
 
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -72,7 +73,22 @@ public interface Parameter<T> {
 				.filter(modifierClass::isInstance)
 				.map(modifierClass::cast)
 				.findFirst()
-				.orElse(null);
+				.orElseThrow(() -> new NoSuchElementException("No value present for modifier " + modifierClass.getSimpleName()));
+	}
+
+	/**
+	 * @return Whether this parameter is for single values.
+	 */
+	default boolean isSingle() {
+		return !type().isArray();
+	}
+
+	/**
+	 * @deprecated Use {@link #isSingle()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "2.14")
+	default boolean single() {
+		return isSingle();
 	}
 
 	/**
@@ -109,24 +125,9 @@ public interface Parameter<T> {
 	}
 
 	/**
-	 * @return Whether this parameter is for single values.
-	 */
-	default boolean isSingle() {
-		return !type().isArray();
-	}
-
-	/**
-	 * @deprecated Use {@link #isSingle()} instead.
-	 */
-	@Deprecated(forRemoval = true, since = "2.14")
-	default boolean single() {
-		return isSingle();
-	}
-
-	/**
 	 * @return A human-readable string representing this parameter.
 	 */
-	default String toFormattedString() {
+	default @NotNull String toFormattedString() {
 		StringJoiner joiner = new StringJoiner(" ");
 
 		joiner.add("%s:".formatted(name()));
@@ -180,7 +181,7 @@ public interface Parameter<T> {
 		@NotNull String toFormattedString();
 
 		/**
-		 * The priority used when converting this parameter to a string representation.
+		 * The priority used when converting this modifier to a string representation.
 		 *
 		 * <p>
 		 * Registering after {@link #TYPE_PRIORITY} will print after the type,
@@ -271,7 +272,7 @@ public interface Parameter<T> {
 		/**
 		 * A modifier to use for checking if a parameter is ranged.
 		 */
-		record Ranged<T extends Comparable<T>>(T min, T max) implements Modifier {
+		record Ranged<T extends Comparable<T>>(@NotNull T min, @NotNull T max) implements Modifier {
 
 			private static final Priority PRIORITY = Priority.after(TYPE_PRIORITY);
 
@@ -282,6 +283,8 @@ public interface Parameter<T> {
 			 * @param max max value
 			 */
 			public Ranged {
+				Preconditions.checkNotNull(min, "min cannot be null");
+				Preconditions.checkNotNull(max, "max cannot be null");
 				Preconditions.checkState(min.compareTo(max) < 1, "Min value cannot be greater than max value!");
 			}
 
