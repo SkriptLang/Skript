@@ -234,12 +234,12 @@ public class FunctionRegistryTest {
 		registry.remove(TEST_FUNCTION_N.signature());
 	}
 
-	private static final Function<Object> LOCAL_TEST_FUNCTION_B = DefaultFunction.builder(Skript.instance(), FUNCTION_NAME)
+	private static final Function<Void> LOCAL_TEST_FUNCTION_B = DefaultFunction.builder(Skript.instance(), FUNCTION_NAME)
 			.modifiers(new org.skriptlang.skript.common.function.Signature.Modifier.Local(TEST_SCRIPT))
 			.parameter("a", Boolean.class)
 			.build(b -> {});
 
-	private static final Function<Object> LOCAL_TEST_FUNCTION_N = DefaultFunction.builder(Skript.instance(), FUNCTION_NAME)
+	private static final Function<Void> LOCAL_TEST_FUNCTION_N = DefaultFunction.builder(Skript.instance(), FUNCTION_NAME)
 			.modifiers(new org.skriptlang.skript.common.function.Signature.Modifier.Local(TEST_SCRIPT))
 			.parameter("a", Number.class)
 			.build(b -> {});

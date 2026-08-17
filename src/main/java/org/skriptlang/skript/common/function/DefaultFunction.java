@@ -60,8 +60,8 @@ public sealed interface DefaultFunction<T>
 	 * @return The builder for a function.
 	 */
 	@Contract("_, _ -> new")
-	static <T> @NotNull VoidBuilder<T> builder(@NotNull SkriptAddon source, @NotNull String name) {
-		return new DefaultFunctionImpl.VoidBuilderImpl<>(source, name);
+	static @NotNull VoidBuilder builder(@NotNull SkriptAddon source, @NotNull String name) {
+		return new DefaultFunctionImpl.VoidBuilderImpl(source, name);
 	}
 
 	/**
@@ -162,10 +162,8 @@ public sealed interface DefaultFunction<T>
 
 	/**
 	 * Represents a builder for {@link DefaultFunction DefaultFunctions} with no return value.
-	 *
-	 * @param <T> The return type of the function.
 	 */
-	interface VoidBuilder<T> {
+	interface VoidBuilder {
 
 		/**
 		 * Adds modifiers to this builder.
@@ -174,7 +172,7 @@ public sealed interface DefaultFunction<T>
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		VoidBuilder<T> modifiers(@NotNull Signature.Modifier @NotNull ... modifiers);
+		VoidBuilder modifiers(@NotNull Signature.Modifier @NotNull ... modifiers);
 
 		/**
 		 * Sets this function builder's {@link ch.njol.skript.util.Contract}.
@@ -183,7 +181,7 @@ public sealed interface DefaultFunction<T>
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		VoidBuilder<T> contract(@NotNull ch.njol.skript.util.Contract contract);
+		VoidBuilder contract(@NotNull ch.njol.skript.util.Contract contract);
 
 		/**
 		 * Sets this function builder's description.
@@ -192,7 +190,7 @@ public sealed interface DefaultFunction<T>
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		VoidBuilder<T> description(@NotNull String @NotNull ... description);
+		VoidBuilder description(@NotNull String @NotNull ... description);
 
 		/**
 		 * Sets this function builder's version history.
@@ -201,7 +199,7 @@ public sealed interface DefaultFunction<T>
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		VoidBuilder<T> since(@NotNull String @NotNull ... since);
+		VoidBuilder since(@NotNull String @NotNull ... since);
 
 		/**
 		 * Sets this function builder's examples.
@@ -210,7 +208,7 @@ public sealed interface DefaultFunction<T>
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		VoidBuilder<T> examples(@NotNull String @NotNull ... examples);
+		VoidBuilder examples(@NotNull String @NotNull ... examples);
 
 		/**
 		 * Sets this function builder's keywords.
@@ -219,7 +217,7 @@ public sealed interface DefaultFunction<T>
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		VoidBuilder<T> keywords(@NotNull String @NotNull ... keywords);
+		VoidBuilder keywords(@NotNull String @NotNull ... keywords);
 
 		/**
 		 * Sets this function builder's requires.
@@ -228,7 +226,7 @@ public sealed interface DefaultFunction<T>
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		VoidBuilder<T> requires(@NotNull String @NotNull ... requires);
+		VoidBuilder requires(@NotNull String @NotNull ... requires);
 
 		/**
 		 * Adds a parameter to this function builder.
@@ -239,7 +237,7 @@ public sealed interface DefaultFunction<T>
 		 * @return This builder.
 		 */
 		@Contract("_, _, _ -> this")
-		VoidBuilder<T> parameter(@NotNull String name, @NotNull Class<?> type, Modifier @NotNull ... modifiers);
+		VoidBuilder parameter(@NotNull String name, @NotNull Class<?> type, Modifier @NotNull ... modifiers);
 
 		/**
 		 * Completes this builder with the code to execute on call of this function.
@@ -247,7 +245,7 @@ public sealed interface DefaultFunction<T>
 		 * @param execute The code to execute.
 		 * @return The final function.
 		 */
-		DefaultFunction<T> build(@NotNull Consumer<FunctionArguments> execute);
+		DefaultFunction<Void> build(@NotNull Consumer<FunctionArguments> execute);
 
 	}
 

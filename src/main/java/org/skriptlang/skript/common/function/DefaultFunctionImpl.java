@@ -286,7 +286,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 
 	}
 
-	static class VoidBuilderImpl<T> implements DefaultFunctionImpl.VoidBuilder<T> {
+	static class VoidBuilderImpl implements DefaultFunctionImpl.VoidBuilder {
 
 		private final SkriptAddon source;
 		private final String name;
@@ -310,7 +310,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		}
 
 		@Override
-		public VoidBuilder<T> modifiers(Signature.Modifier @NotNull ... modifiers) {
+		public VoidBuilder modifiers(Signature.Modifier @NotNull ... modifiers) {
 			Preconditions.checkNotNull(modifiers, "modifiers cannot be null");
 			checkNotNull(modifiers, "modifiers contents cannot be null");
 
@@ -319,7 +319,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		}
 
 		@Override
-		public VoidBuilder<T> contract(@NotNull ch.njol.skript.util.Contract contract) {
+		public VoidBuilder contract(@NotNull ch.njol.skript.util.Contract contract) {
 			Preconditions.checkNotNull(contract, "contract cannot be null");
 
 			this.contract = contract;
@@ -327,7 +327,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		}
 
 		@Override
-		public VoidBuilder<T> description(@NotNull String @NotNull ... description) {
+		public VoidBuilder description(@NotNull String @NotNull ... description) {
 			Preconditions.checkNotNull(description, "description cannot be null");
 			checkNotNull(description, "description contents cannot be null");
 
@@ -336,7 +336,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		}
 
 		@Override
-		public VoidBuilder<T> since(@NotNull String @NotNull ... since) {
+		public VoidBuilder since(@NotNull String @NotNull ... since) {
 			Preconditions.checkNotNull(since, "since cannot be null");
 			checkNotNull(since, "since contents cannot be null");
 
@@ -345,7 +345,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		}
 
 		@Override
-		public VoidBuilder<T> examples(@NotNull String @NotNull ... examples) {
+		public VoidBuilder examples(@NotNull String @NotNull ... examples) {
 			Preconditions.checkNotNull(examples, "examples cannot be null");
 			checkNotNull(examples, "examples contents cannot be null");
 
@@ -354,7 +354,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		}
 
 		@Override
-		public VoidBuilder<T> keywords(@NotNull String @NotNull ... keywords) {
+		public VoidBuilder keywords(@NotNull String @NotNull ... keywords) {
 			Preconditions.checkNotNull(keywords, "keywords cannot be null");
 			checkNotNull(keywords, "keywords contents cannot be null");
 
@@ -363,7 +363,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		}
 
 		@Override
-		public VoidBuilder<T> requires(@NotNull String @NotNull ... requires) {
+		public VoidBuilder requires(@NotNull String @NotNull ... requires) {
 			Preconditions.checkNotNull(keywords, "requires cannot be null");
 			checkNotNull(keywords, "requires contents cannot be null");
 
@@ -372,7 +372,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		}
 
 		@Override
-		public VoidBuilder<T> parameter(@NotNull String name, @NotNull Class<?> type, Parameter.Modifier @NotNull ... modifiers) {
+		public VoidBuilder parameter(@NotNull String name, @NotNull Class<?> type, Parameter.Modifier @NotNull ... modifiers) {
 			Preconditions.checkNotNull(name, "name cannot be null");
 			Preconditions.checkNotNull(type, "type cannot be null");
 
@@ -381,7 +381,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		}
 
 		@Override
-		public DefaultFunction<T> build(@NotNull Consumer<FunctionArguments> execute) {
+		public DefaultFunction<Void> build(@NotNull Consumer<FunctionArguments> execute) {
 			Preconditions.checkNotNull(execute, "execute cannot be null");
 
 			return new DefaultFunctionImpl<>(source, name, modifiers, parameters, contract,
