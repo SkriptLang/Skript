@@ -18,7 +18,6 @@ import org.skriptlang.skript.util.Priority;
 
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 /**
  * Represents a function parameter.
