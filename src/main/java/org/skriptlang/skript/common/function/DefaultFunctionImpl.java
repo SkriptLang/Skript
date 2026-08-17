@@ -10,6 +10,7 @@ import org.skriptlang.skript.common.function.Parameter.Modifier.RangedModifier;
 
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function<T> implements DefaultFunction<T> {
@@ -203,14 +204,6 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			this.modifiers.add(new Signature.Modifier.Returns<>(returnType));
 		}
 
-		BuilderImpl(@NotNull SkriptAddon source, @NotNull String name) {
-			Preconditions.checkNotNull(source, "source cannot be null");
-			Preconditions.checkNotNull(name, "name cannot be null");
-
-			this.source = source;
-			this.name = name;
-		}
-
 		@Override
 		public Builder<T> modifiers(Signature.Modifier @NotNull ... modifiers) {
 			Preconditions.checkNotNull(modifiers, "modifiers cannot be null");
@@ -291,15 +284,112 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 					description, since, examples, keywords, requires);
 		}
 
-		/**
-		 * Checks whether the elements in an array are null.
-		 *
-		 * @param objects The objects.
-		 */
-		private static void checkNotNull(@NotNull Object[] objects, @NotNull String message) {
-			for (Object object : objects) {
-				Preconditions.checkNotNull(object, message);
-			}
+	}
+
+	static class VoidBuilderImpl<T> implements DefaultFunctionImpl.VoidBuilder<T> {
+
+		private final SkriptAddon source;
+		private final String name;
+		private final SequencedMap<String, Parameter<?>> parameters = new LinkedHashMap<>();
+		private final Set<Signature.Modifier> modifiers = new HashSet<>();
+
+		private ch.njol.skript.util.Contract contract = null;
+
+		private String[] description;
+		private String[] since;
+		private String[] examples;
+		private String[] keywords;
+		private String[] requires;
+
+		VoidBuilderImpl(@NotNull SkriptAddon source, @NotNull String name) {
+			Preconditions.checkNotNull(source, "source cannot be null");
+			Preconditions.checkNotNull(name, "name cannot be null");
+
+			this.source = source;
+			this.name = name;
+		}
+
+		@Override
+		public VoidBuilder<T> modifiers(Signature.Modifier @NotNull ... modifiers) {
+			Preconditions.checkNotNull(modifiers, "modifiers cannot be null");
+			checkNotNull(modifiers, "modifiers contents cannot be null");
+
+			this.modifiers.addAll(Set.of(modifiers));
+			return this;
+		}
+
+		@Override
+		public VoidBuilder<T> contract(@NotNull ch.njol.skript.util.Contract contract) {
+			Preconditions.checkNotNull(contract, "contract cannot be null");
+
+			this.contract = contract;
+			return this;
+		}
+
+		@Override
+		public VoidBuilder<T> description(@NotNull String @NotNull ... description) {
+			Preconditions.checkNotNull(description, "description cannot be null");
+			checkNotNull(description, "description contents cannot be null");
+
+			this.description = description;
+			return this;
+		}
+
+		@Override
+		public VoidBuilder<T> since(@NotNull String @NotNull ... since) {
+			Preconditions.checkNotNull(since, "since cannot be null");
+			checkNotNull(since, "since contents cannot be null");
+
+			this.since = since;
+			return this;
+		}
+
+		@Override
+		public VoidBuilder<T> examples(@NotNull String @NotNull ... examples) {
+			Preconditions.checkNotNull(examples, "examples cannot be null");
+			checkNotNull(examples, "examples contents cannot be null");
+
+			this.examples = examples;
+			return this;
+		}
+
+		@Override
+		public VoidBuilder<T> keywords(@NotNull String @NotNull ... keywords) {
+			Preconditions.checkNotNull(keywords, "keywords cannot be null");
+			checkNotNull(keywords, "keywords contents cannot be null");
+
+			this.keywords = keywords;
+			return this;
+		}
+
+		@Override
+		public VoidBuilder<T> requires(@NotNull String @NotNull ... requires) {
+			Preconditions.checkNotNull(keywords, "requires cannot be null");
+			checkNotNull(keywords, "requires contents cannot be null");
+
+			this.requires = requires;
+			return this;
+		}
+
+		@Override
+		public VoidBuilder<T> parameter(@NotNull String name, @NotNull Class<?> type, Parameter.Modifier @NotNull ... modifiers) {
+			Preconditions.checkNotNull(name, "name cannot be null");
+			Preconditions.checkNotNull(type, "type cannot be null");
+
+			parameters.put(name, new DefaultParameter<>(name, type, modifiers));
+			return this;
+		}
+
+		@Override
+		public DefaultFunction<T> build(@NotNull Consumer<FunctionArguments> execute) {
+			Preconditions.checkNotNull(execute, "execute cannot be null");
+
+			return new DefaultFunctionImpl<>(source, name, modifiers, parameters, contract,
+					(args) -> {
+						execute.accept(args);
+						return null;
+					},
+					description, since, examples, keywords, requires);
 		}
 
 	}
@@ -336,6 +426,17 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 				}
 			}
 			return result;
+		}
+	}
+
+	/**
+	 * Checks whether the elements in an array are null.
+	 *
+	 * @param objects The objects.
+	 */
+	private static void checkNotNull(@NotNull Object[] objects, @NotNull String message) {
+		for (Object object : objects) {
+			Preconditions.checkNotNull(object, message);
 		}
 	}
 

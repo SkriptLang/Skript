@@ -234,15 +234,15 @@ public class FunctionRegistryTest {
 		registry.remove(TEST_FUNCTION_N.signature());
 	}
 
-	private static final Function<Boolean> LOCAL_TEST_FUNCTION_B = DefaultFunction.builder(Skript.instance(), FUNCTION_NAME, Boolean.class)
-			.local(TEST_SCRIPT)
+	private static final Function<Object> LOCAL_TEST_FUNCTION_B = DefaultFunction.builder(Skript.instance(), FUNCTION_NAME)
+			.modifiers(new org.skriptlang.skript.common.function.Signature.Modifier.Local(TEST_SCRIPT))
 			.parameter("a", Boolean.class)
-			.build(b -> true);
+			.build(b -> {});
 
-	private static final Function<Boolean> LOCAL_TEST_FUNCTION_N = DefaultFunction.builder(Skript.instance(), FUNCTION_NAME, Boolean.class)
-			.local(TEST_SCRIPT)
+	private static final Function<Object> LOCAL_TEST_FUNCTION_N = DefaultFunction.builder(Skript.instance(), FUNCTION_NAME)
+			.modifiers(new org.skriptlang.skript.common.function.Signature.Modifier.Local(TEST_SCRIPT))
 			.parameter("a", Number.class)
-			.build(b -> true);
+			.build(b -> {});
 
 	@Test
 	public void testRegisterRemoveRegisterLocal() {
@@ -359,7 +359,7 @@ public class FunctionRegistryTest {
 	}
 
 	private static final Function<Boolean> LOCAL_TEST_FUNCTION = DefaultFunction.builder(Skript.instance(), FUNCTION_NAME, Boolean.class)
-			.local(TEST_SCRIPT)
+			.modifiers(new org.skriptlang.skript.common.function.Signature.Modifier.Local(TEST_SCRIPT))
 			.build(b -> true);
 
 	// see https://github.com/SkriptLang/Skript/pull/8015
