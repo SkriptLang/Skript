@@ -570,12 +570,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 	private @NotNull String addExamples(String desc, String @Nullable ... examples) {
 		if (examples != null) {
-			// sanitize
-			Documentation.escapeHTML(examples);
-			// replace newlines
-			for (int i = 0; i < examples.length; i++) {
-				examples[i] = examples[i].replace("\n", "<br>");
-			}
+			examples = formatExamplesForHTML(examples);
 		}
 
 		String mergedExamples = Joiner.on("<br>").join(getDefaultIfNullOrEmpty(examples, "Missing examples."));
@@ -844,7 +839,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 		// Examples
 		String[] examples = getDefaultIfNullOrEmpty(typeExamples, "Missing examples.");
-		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(Documentation.escapeHTML(examples)));
+		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(formatExamplesForHTML(examples)));
 		desc = desc
 			.replace("${element.examples-safe}", Joiner.on("<br>").join(examples)
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
@@ -902,6 +897,14 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 		assert desc != null;
 		return desc;
+	}
+
+	private static String[] formatExamplesForHTML(String[] examples) {
+		String[] escapedExamples = Documentation.escapeHTML(examples.clone());
+		for (int i = 0; i < escapedExamples.length; i++) {
+			escapedExamples[i] = escapedExamples[i].replace("\n", "<br>");
+		}
+		return escapedExamples;
 	}
 
 	@SuppressWarnings("null")
