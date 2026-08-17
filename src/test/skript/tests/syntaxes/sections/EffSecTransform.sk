@@ -67,6 +67,14 @@ test "transform effect section":
 
 	assert {_a::1} is "Transformed-1" with "failed to transform using change mode set with text"
 
+	set {_a::*} to "a", "b" and "c"
+	assert size of {_a::*} is 3 with "invalid starting size"
+
+	transform {_a::*}:
+		add "-T" to input
+
+	assert {_a::1} is "a-T" with "failed to transform using change mode add with text"
+
 	set {_a::*} to 1, 2 and 3
 	assert size of {_a::*} is 3 with "invalid starting size"
 

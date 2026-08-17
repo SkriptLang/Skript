@@ -1,11 +1,13 @@
-package ch.njol.skript.sections;
+package org.skriptlang.skript.common.elements.sections;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.ExprInput;
+import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.variables.HintManager;
 import ch.njol.skript.variables.Variables;
@@ -14,20 +16,26 @@ import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 
 @Name("Transform List")
-@Description({
-	"Transforms (or 'maps') a list's values using a given expression. This is akin to looping over the list and setting " +
-	"each value to a modified version of itself.",
-	"Evaluates the given expression for each element in the list, replacing the original element with the expression's result.",
-	"If the given expression returns a single value, the indices of the list will not change. If the expression returns " +
-	"multiple values, then then indices will be reset as a single index cannot contain multiple values.",
-	"Only variable lists can be transformed with this effect. For other lists, see the transform expression."
-})
+@Description(
+	"""
+		Transforms (or 'maps') a list's values using a given expression. This is akin to looping over the list and setting
+		each value to a modified version of itself.
+		Evaluates the given expression for each element in the list, replacing the original element with the expression's result.
+		If the given expression returns a single value, the indices of the list will not change. If the expression returns
+		multiple values, then then indices will be reset as a single index cannot contain multiple values.
+		Only variable lists can be transformed with this effect. For other lists, see the transform expression.
+		
+		Transform section supports changes to input using add, remove, set, reset and delete.
+		Reset restores the input to its value before any transformations were applied.
+		""")
 @Example("""
 	set {_a::*} to 1, 2, and 3
 	transform {_a::*} using input * 2
@@ -51,14 +59,20 @@ import java.util.concurrent.atomic.AtomicReference;
 		set input to input * 2
 	# {_a::*} is now 4, 6 and 8
 	""")
-@Since("2.10 with Section since (INSERT VERSION)")
+@Since({"2.10", "INSERT VERSION (transform section)"})
 @Keywords("input")
-public class EffSecTransform extends EffectSection implements InputSource{
+public class EffSecTransform extends EffectSection implements InputSource {
 
-	static {
-		Skript.registerSection(EffSecTransform.class,
-			"(transform|map) %~objects% (using|with) <.+>",
-			"(transform|map) %~objects%");
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(SyntaxRegistry.SECTION,
+			SyntaxInfo.builder(EffSecTransform.class)
+				.priority(PropertyExpression.DEFAULT_PRIORITY)
+				.supplier(EffSecTransform::new)
+				.addPatterns(
+					"(transform|map) %~objects% (using|with) <.+>",
+					"(transform|map) %~objects%")
+				.build()
+			);
 
 		if (!ParserInstance.isRegistered(InputData.class))
 			ParserInstance.registerData(InputData.class, InputData::new);
@@ -77,7 +91,7 @@ public class EffSecTransform extends EffectSection implements InputSource{
 	private @Nullable Trigger trigger;
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult, @Nullable SectionNode sectionNode, @Nullable List<TriggerItem> triggerItems) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult, @Nullable SectionNode sectionNode, @Nullable List<TriggerItem> triggerItems) {
 
 		if (expressions[0].isSingle() || !(expressions[0] instanceof Variable<?> variable)) {
 			Skript.error("You can only transform list variables!");
@@ -86,7 +100,7 @@ public class EffSecTransform extends EffectSection implements InputSource{
 		unmappedObjects = variable;
 
 		if(!parseResult.regexes.isEmpty()) {
-			String unparsedExpression = parseResult.regexes.get(0).group();
+			String unparsedExpression = parseResult.regexes.getFirst().group();
 			mappingExpr = parseExpression(unparsedExpression, getParser(), SkriptParser.ALL_FLAGS);
 
 			// type hints

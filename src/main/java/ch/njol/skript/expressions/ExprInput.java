@@ -1,7 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -21,6 +21,8 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
@@ -123,30 +125,28 @@ public class ExprInput<T> extends SimpleExpression<T> {
 	}
 
 	@Override
-	public void change(Event event, Object[] delta, Changer.ChangeMode mode){
+	public void change(Event event, Object[] delta, ChangeMode mode){
 		Object currentValue = isIndex ? inputSource.getCurrentIndex() : inputSource.getCurrentValue();
 
-		if (mode == Changer.ChangeMode.DELETE) {
+		if (mode == ChangeMode.DELETE) {
 			currentValue = null;
 		}
-		else if (mode == Changer.ChangeMode.RESET ){
+		else if (mode == ChangeMode.RESET ){
 			currentValue = inputSource.getUnchangedValue();
 		}
-		else if (mode == Changer.ChangeMode.ADD || mode == Changer.ChangeMode.REMOVE ) {
-			if(!(currentValue instanceof Number) || delta.length < 1 || !(delta[0] instanceof Number change)) {
-				Skript.error(mode.name() + " mode for input only accepts numbers");
-				return;
+		else if (mode == ChangeMode.ADD || mode == ChangeMode.REMOVE ) {
+
+			if(currentValue == null)
+				currentValue = 0;
+
+			if(delta.length > 0 && delta[0] != null) {
+				Operator operator = mode == ChangeMode.ADD
+					? Operator.ADDITION
+					: Operator.SUBTRACTION;
+
+				currentValue = Arithmetics.calculate(operator, currentValue, delta[0], Object.class);
 			}
-
-			double doubleValue = ((Number) currentValue).doubleValue();
-
-			if(mode == Changer.ChangeMode.ADD)
-				doubleValue += change.doubleValue();
-			else if (mode == Changer.ChangeMode.REMOVE)
-				doubleValue -= change.doubleValue();
-			currentValue = doubleValue;
-
-		} else if (mode == Changer.ChangeMode.SET) {
+		} else if (mode == ChangeMode.SET) {
 			currentValue = delta.length == 1 ? delta[0] : delta;
 		}
 
@@ -154,20 +154,20 @@ public class ExprInput<T> extends SimpleExpression<T> {
 	}
 
 	@Override
-	public Class<?>[] acceptChange(final Changer.ChangeMode mode) {
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		if(!inputSource.allowChange())
 			return null;
 
 		if (
-			mode == Changer.ChangeMode.SET ||
-			mode == Changer.ChangeMode.DELETE ||
-			mode == Changer.ChangeMode.RESET) {
+				mode == ChangeMode.SET ||
+				mode == ChangeMode.DELETE ||
+				mode == ChangeMode.RESET ||
+				mode == ChangeMode.ADD ||
+				mode == ChangeMode.REMOVE
+		) {
 			return CollectionUtils.array(Object.class);
 		}
-		if (mode == Changer.ChangeMode.ADD ||
-			mode == Changer.ChangeMode.REMOVE) {
-			return CollectionUtils.array(Number.class);
-		}
+
 		return null;
 	}
 
