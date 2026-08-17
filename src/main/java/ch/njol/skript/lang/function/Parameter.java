@@ -22,6 +22,7 @@ import org.skriptlang.skript.common.function.ScriptParameter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @deprecated Use {@link ScriptParameter}
@@ -275,12 +276,11 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 
 	@Override
 	public boolean equals(Object o) {
-		if (!(o instanceof Parameter<?> parameter)) {
-
+		if (!(o instanceof Parameter<?> parameter))
 			return false;
-		}
 
-		return modifiers.equals(parameter.modifiers)
+		return modifiers.stream().map(Modifier::getClass).collect(Collectors.toSet())
+				.equals(parameter.modifiers().stream().map(Modifier::getClass).collect(Collectors.toSet()))
 			&& single == parameter.single
 			&& name.equals(parameter.name)
 			&& type.equals(parameter.type)

@@ -2,14 +2,11 @@ package org.skriptlang.skript.common.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.StringUtils;
 import org.junit.Test;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.common.function.DefaultFunction;
-import org.skriptlang.skript.common.function.Parameter;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import static org.junit.Assert.*;
@@ -26,9 +23,9 @@ public class DefaultFunctionTest {
 			.keywords()
 			.parameter("x", String[].class, new Modifier.Optional())
 			.build(args -> {
-				String[] xes = args.getOrDefault("x", new String[]{""});
+				String[] xs = args.getOrDefault("x", new String[]{""});
 
-				return StringUtils.join(xes, ",");
+				return StringUtils.join(xs, ",");
 			});
 
 		Signature<?> signature = (Signature<?>) built.signature();

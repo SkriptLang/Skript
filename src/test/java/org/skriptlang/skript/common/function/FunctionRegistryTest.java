@@ -30,11 +30,11 @@ public class FunctionRegistryTest {
 
 		assertEquals(RetrievalResult.NOT_REGISTERED, registry.getSignature(FUNCTION_NAME).result());
 		assertNull(registry.getSignature(FUNCTION_NAME).retrieved());
-		assertNull(registry.getSignature(FUNCTION_NAME).conflictingArgs());
+		assertTrue(registry.getSignature(FUNCTION_NAME).conflictingArgs().isEmpty());
 
 		assertEquals(RetrievalResult.NOT_REGISTERED, registry.getFunction(FUNCTION_NAME).result());
 		assertNull(registry.getFunction(FUNCTION_NAME).retrieved());
-		assertNull(registry.getFunction(FUNCTION_NAME).conflictingArgs());
+		assertTrue(registry.getFunction(FUNCTION_NAME).conflictingArgs().isEmpty());
 
 		registry.register(TEST_FUNCTION);
 
@@ -42,11 +42,11 @@ public class FunctionRegistryTest {
 
 		assertEquals(RetrievalResult.EXACT, registry.getSignature(FUNCTION_NAME).result());
 		assertEquals(TEST_FUNCTION.signature(), registry.getSignature(FUNCTION_NAME).retrieved());
-		assertNull(registry.getSignature(FUNCTION_NAME).conflictingArgs());
+		assertTrue(registry.getSignature(FUNCTION_NAME).conflictingArgs().isEmpty());
 
 		assertEquals(RetrievalResult.EXACT, registry.getFunction(FUNCTION_NAME).result());
 		assertEquals(TEST_FUNCTION, registry.getFunction(FUNCTION_NAME).retrieved());
-		assertNull(registry.getFunction(FUNCTION_NAME).conflictingArgs());
+		assertTrue(registry.getFunction(FUNCTION_NAME).conflictingArgs().isEmpty());
 
 		registry.remove(TEST_FUNCTION.signature());
 	}
