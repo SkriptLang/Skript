@@ -53,14 +53,14 @@ public sealed interface DefaultFunction<T>
 	}
 
 	/**
-	 * Creates a new builder for a function.
+	 * Creates a new builder for a function that does not return anything.
 	 *
 	 * @param source 	 The addon registering this function.
 	 * @param name       The name of the function.
 	 * @return The builder for a function.
 	 */
 	@Contract("_, _ -> new")
-	static @NotNull VoidBuilder builder(@NotNull SkriptAddon source, @NotNull String name) {
+	static @NotNull VoidBuilder voidBuilder(@NotNull SkriptAddon source, @NotNull String name) {
 		return new DefaultFunctionImpl.VoidBuilderImpl(source, name);
 	}
 
