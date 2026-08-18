@@ -1,0 +1,19 @@
+test "look at vector with different eye heights":
+	spawn an armour stand at test-location:
+		set {_stand} to entity
+	spawn an oak boat at test-location:
+		set {_boat} to entity
+
+	make {_stand} look at vector(1, 0, 0)
+	make {_boat} look at vector(1, 0, 0)
+	assert pitch of {_stand} is 0 with "horizontal vector did not give a level pitch"
+	assert yaw of {_stand} is yaw of {_boat} with "horizontal vector gave different yaws"
+	assert pitch of {_stand} is pitch of {_boat} with "horizontal vector gave different pitches"
+
+	make {_stand} look at vector(1, 1, 0)
+	make {_boat} look at vector(1, 1, 0)
+	assert yaw of {_stand} is yaw of {_boat} with "diagonal vector gave different yaws"
+	assert pitch of {_stand} is pitch of {_boat} with "diagonal vector gave different pitches"
+
+	delete entity within {_stand}
+	delete entity within {_boat}

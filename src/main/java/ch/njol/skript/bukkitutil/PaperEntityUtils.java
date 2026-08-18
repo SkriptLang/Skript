@@ -107,9 +107,8 @@ public class PaperEntityUtils {
 				mobLookAt(target, headRotationSpeed, maxHeadPitch, mob);
 			} else {
 				if (target instanceof Vector vector) {
-					Location base = entity instanceof LivingEntity living ? living.getEyeLocation() : entity.getLocation();
-					Location loc = base.add(vector);
-					entity.lookAt(loc.getX(), loc.getY(), loc.getZ(), entityAnchor);
+					Location loc = entity.getLocation().setDirection(vector);
+					entity.setRotation(loc.getYaw(), loc.getPitch());
 				} else if (target instanceof LivingEntity targetEntity) {
 					Location loc = entityAnchor == LookAnchor.EYES ? targetEntity.getEyeLocation() : targetEntity.getLocation();
 					entity.lookAt(loc.getX(), loc.getY(), loc.getZ(), entityAnchor);
