@@ -95,7 +95,7 @@ public class DefaultFunctions {
 		Functions.register(DefaultFunction.builder(skript, "ceil", Long.class)
 				.aliases("ceiling")
 				.description("Rounds a number up, i.e. returns the closest integer larger than or equal to the argument.")
-				.examples("ceiling(2.34) = 3", "ceiling(2) = 2", "ceiling(2.99) = 3")
+				.examples("ceil(2.34) = 3", "ceil(2) = 2", "ceiling(2.99) = 3")
 				.since("2.2")
 				.parameter("n", Number.class)
 				.build(args -> {
