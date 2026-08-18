@@ -1,4 +1,4 @@
-package ch.njol.skript.effects;
+package org.skriptlang.skript.bukkit.entity.elements.effects;
 
 import ch.njol.skript.bukkitutil.PaperEntityUtils;
 import ch.njol.skript.doc.Description;
