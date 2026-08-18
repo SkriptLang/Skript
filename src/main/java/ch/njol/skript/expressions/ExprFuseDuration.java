@@ -38,10 +38,11 @@ public class ExprFuseDuration extends SimplePropertyExpression<Entity, Timespan>
 
 	@Override
 	public @Nullable Timespan convert(Entity entity) {
-		if (entity instanceof Creeper creeper)
+		if (entity instanceof Creeper creeper) {
 			return new Timespan(Timespan.TimePeriod.TICK, creeper.getMaxFuseTicks());
-		else if (entity instanceof TNTPrimed tnt)
+		} else if (entity instanceof TNTPrimed tnt) {
 			return new Timespan(Timespan.TimePeriod.TICK, tnt.getFuseTicks());
+		}
 		return null;
 	}
 
