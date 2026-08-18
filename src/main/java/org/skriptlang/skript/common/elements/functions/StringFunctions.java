@@ -1,6 +1,5 @@
 package org.skriptlang.skript.common.elements.functions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.registrations.Classes;
@@ -21,10 +20,8 @@ public class StringFunctions {
 	private static final DecimalFormat DEFAULT_INTEGER_FORMAT = new DecimalFormat("###,###");
 	private static final DecimalFormat DEFAULT_DECIMAL_FORMAT = new DecimalFormat("###,###.##");
 
-	static {
-		SkriptAddon skript = Skript.instance();
-
-		Functions.register(DefaultFunction.builder(skript, "formatNumber", String.class)
+	public StringFunctions(SkriptAddon addon) {
+		Functions.register(DefaultFunction.builder(addon, "formatNumber", String.class)
 				.description(
 						"Converts numbers to human-readable format. By default, '###,###' (e.g. '123,456,789') " +
 								"will be used for whole numbers and '###,###.##' (e.g. '123,456,789.00) will be used for decimal numbers. " +
@@ -61,7 +58,7 @@ public class StringFunctions {
 					}
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "uuid", UUID.class)
+		Functions.register(DefaultFunction.builder(addon, "uuid", UUID.class)
 				.description("Returns a UUID from the given string. The string must be in the format of a UUID.")
 				.examples("uuid(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")")
 				.since("2.11")
@@ -73,7 +70,7 @@ public class StringFunctions {
 					return null;
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "concat", String.class)
+		Functions.register(DefaultFunction.builder(addon, "concat", String.class)
 				.description("Joins the provided texts (and other things) into a single text.")
 				.examples("concat(\"hello \", \"there\") # hello there",
 						"concat(\"foo \", 100, \" bar\") # foo 100 bar")
@@ -88,7 +85,7 @@ public class StringFunctions {
 					return builder.toString();
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "toBase", String[].class)
+		Functions.register(DefaultFunction.builder(addon, "toBase", String[].class)
 				.description("""
 						Turns a number in a string using a specific base (decimal, hexadecimal, octal).
 						For example, converting 32 to hexadecimal (base 16) would be 'toBase(32, 16)', which would return "20".
@@ -121,7 +118,7 @@ public class StringFunctions {
 					return results;
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "fromBase", Long[].class)
+		Functions.register(DefaultFunction.builder(addon, "fromBase", Long[].class)
 				.description("""
 						Turns a text version of a number in a specific base (decimal, hexadecimal, octal) into an actual number.
 						For example, converting "20" in hexadecimal (base 16) would be 'fromBase("20", 16)', which would return 32.

@@ -10,7 +10,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.BukkitModule;
 import org.skriptlang.skript.common.function.DefaultFunction;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 
@@ -21,17 +20,15 @@ import java.util.UUID;
  */
 public class BukkitFunctions {
 
-	public BukkitFunctions(BukkitModule module, SkriptAddon addon) {
-		SkriptAddon skript = module.origin(addon).addon();
-
-		Functions.register(DefaultFunction.builder(skript, "world", World.class)
+	public BukkitFunctions(SkriptAddon addon) {
+		Functions.register(DefaultFunction.builder(addon, "world", World.class)
 				.description("Gets a world from its name.")
 				.examples("set {_nether} to world(\"%{_world}%_nether\")")
 				.since("2.2")
 				.parameter("name", String.class)
 				.build(args -> Bukkit.getWorld(args.<String>get("name"))));
 
-		Functions.register(DefaultFunction.builder(skript, "location", Location.class)
+		Functions.register(DefaultFunction.builder(addon, "location", Location.class)
 				.description(
 						"Creates a location from a world and 3 coordinates, with an optional yaw and pitch.",
 						"If for whatever reason the world is not found, it will fallback to the server's main world."
@@ -79,7 +76,7 @@ public class BukkitFunctions {
 							args.getOrDefault("yaw", 0f), args.getOrDefault("pitch", 0f));
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "calcExperience", Long.class)
+		Functions.register(DefaultFunction.builder(addon, "calcExperience", Long.class)
 				.description("Calculates the total amount of experience needed to achieve given level from scratch in Minecraft.")
 				.since("2.2-dev32")
 				.parameter("level", Long.class, Modifier.ranged(0L, Long.MAX_VALUE))
@@ -99,7 +96,7 @@ public class BukkitFunctions {
 					return exp;
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "rgb", Color.class)
+		Functions.register(DefaultFunction.builder(addon, "rgb", Color.class)
 				.description("""
 						Returns a RGB color from the given red, green and blue parameters.
 						Alpha values can be added optionally but these only take affect in certain situations, like text display backgrounds.""")
@@ -119,7 +116,7 @@ public class BukkitFunctions {
 						args.getOrDefault("alpha", 255L).intValue()
 				)));
 
-		Functions.register(DefaultFunction.builder(skript, "player", Player.class)
+		Functions.register(DefaultFunction.builder(addon, "player", Player.class)
 				.description(
 						"Returns an online player from their name or UUID, if player is offline function will return nothing.",
 						"Setting 'getExactPlayer' parameter to true will return the player whose name is exactly equal to the provided name instead of returning a player that their name starts with the provided name."
@@ -149,7 +146,7 @@ public class BukkitFunctions {
 					return Bukkit.getPlayer(name);
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "offlineplayer", OfflinePlayer.class)
+		Functions.register(DefaultFunction.builder(addon, "offlineplayer", OfflinePlayer.class)
 				.description(
 						"Returns a offline player from their name or UUID. This function will still return the player if they're online. " +
 								"If Paper 1.16.5+ is used, the 'allowLookup' parameter can be set to false to prevent this function from doing a " +

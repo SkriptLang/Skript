@@ -1,6 +1,5 @@
 package org.skriptlang.skript.common.elements.functions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.KeyedValue;
 import ch.njol.skript.lang.function.Functions;
@@ -29,17 +28,15 @@ public class MathFunctions {
 		return StringUtils.toString(n, 4);
 	}
 
-	static {
-		SkriptAddon skript = Skript.instance();
-
-		Functions.register(DefaultFunction.builder(skript, "isNaN", Boolean.class)
+	public MathFunctions(SkriptAddon addon) {
+		Functions.register(DefaultFunction.builder(addon, "isNaN", Boolean.class)
 				.description("Returns true if the input is NaN (not a number).")
 				.examples("isNaN(0) # false", "isNaN(0/0) # true", "isNaN(sqrt(-1)) # true")
 				.since("2.8.0")
 				.parameter("n", Number.class)
 				.build(args -> Double.isNaN(args.<Number>get("n").doubleValue())));
 
-		Functions.register(DefaultFunction.builder(skript, "floor", Long.class)
+		Functions.register(DefaultFunction.builder(addon, "floor", Long.class)
 				.description("Rounds a number down, i.e. returns the closest integer smaller than or equal to the argument.")
 				.examples("floor(2.34) = 2", "floor(2) = 2", "floor(2.99) = 2")
 				.since("2.2")
@@ -53,7 +50,7 @@ public class MathFunctions {
 					return Math2.floor(value.doubleValue());
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "round", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "round", Number.class)
 				.description("Rounds a number, i.e. returns the closest integer to the argument. Place a second argument to define the decimal placement.")
 				.examples("round(2.34) = 2", "round(2) = 2", "round(2.99) = 3", "round(2.5) = 3")
 				.since("2.2, 2.7 (decimal placement)")
@@ -81,7 +78,7 @@ public class MathFunctions {
 					return (int) Math2.round(rounded * Math.pow(10.0, placement)) / Math.pow(10.0, placement);
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "ceil", Long.class)
+		Functions.register(DefaultFunction.builder(addon, "ceil", Long.class)
 				.description("Rounds a number up, i.e. returns the closest integer larger than or equal to the argument.")
 				.examples("ceil(2.34) = 3", "ceil(2) = 2", "ceil(2.99) = 3")
 				.since("2.2")
@@ -93,7 +90,7 @@ public class MathFunctions {
 					return Math2.ceil(num.doubleValue());
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "ceiling", Long.class)
+		Functions.register(DefaultFunction.builder(addon, "ceiling", Long.class)
 				.description("Alias of <a href='#ceil'>ceil</a>.")
 				.examples("ceiling(2.34) = 3", "ceiling(2) = 2", "ceiling(2.99) = 3")
 				.since("2.2")
@@ -105,7 +102,7 @@ public class MathFunctions {
 					return Math2.ceil(num.doubleValue());
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "abs", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "abs", Number.class)
 				.description("Returns the absolute value of the argument, i.e. makes the argument positive.")
 				.examples("abs(3) = 3", "abs(-2) = 2")
 				.since("2.2")
@@ -117,7 +114,7 @@ public class MathFunctions {
 					return Math.abs(n.doubleValue());
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "mod", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "mod", Number.class)
 				.description("Returns the modulo of the given arguments, i.e. the remainder of the division <code>d/m</code>, where d and m are the arguments of this function.",
 						"The returned value is always positive. Returns NaN (not a number) if the second argument is zero.")
 				.examples("mod(3, 2) = 1", "mod(256436, 100) = 36", "mod(-1, 10) = 9")
@@ -133,14 +130,14 @@ public class MathFunctions {
 					return Math2.mod(d.doubleValue(), mm);
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "exp", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "exp", Number.class)
 				.description("The exponential function.")
 				.examples("exp(0) = 1", "exp(1) = " + str(Math.exp(1)))
 				.since("2.2")
 				.parameter("n", Number.class)
 				.build(args -> Math.exp(args.<Number>get("n").doubleValue())));
 
-		Functions.register(DefaultFunction.builder(skript, "ln", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "ln", Number.class)
 				.description("The natural logarithm.",
 						"Returns NaN (not a number) if the argument is negative.")
 				.examples("ln(1) = 0", "ln(exp(5)) = 5", "ln(2) = " + StringUtils.toString(Math.log(2), 4))
@@ -148,7 +145,7 @@ public class MathFunctions {
 				.parameter("n", Number.class)
 				.build(args -> Math.log(args.<Number>get("n").doubleValue())));
 
-		Functions.register(DefaultFunction.builder(skript, "log", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "log", Number.class)
 				.description("A logarithm, with base 10 if none is specified. This is the inverse operation to exponentiation (for positive bases only), i.e. <code>log(base ^ exponent, base) = exponent</code> for any positive number 'base' and any number 'exponent'.",
 						"Another useful equation is <code>base ^ log(a, base) = a</code> for any numbers 'base' and 'a'.",
 						"Please note that due to how numbers are represented in computers, these equations do not hold for all numbers, as the computed values may slightly differ from the correct value.",
@@ -163,7 +160,7 @@ public class MathFunctions {
 					return Math.log10(n) / Math.log10(base);
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "sqrt", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "sqrt", Number.class)
 				.description("The square root, which is the inverse operation to squaring a number (for positive numbers only). This is the same as <code>(argument) ^ (1/2)</code> – other roots can be calculated via <code>number ^ (1/root)</code>, e.g. <code>set {_l} to {_volume}^(1/3)</code>.",
 						"Returns NaN (not a number) if the argument is negative.")
 				.examples("sqrt(4) = 2", "sqrt(2) = " + str(Math.sqrt(2)), "sqrt(-1) = " + str(Math.sqrt(-1)))
@@ -173,49 +170,49 @@ public class MathFunctions {
 
 		// trigonometry
 
-		Functions.register(DefaultFunction.builder(skript, "sin", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "sin", Number.class)
 				.description("The sine function. It starts at 0° with a value of 0, goes to 1 at 90°, back to 0 at 180°, to -1 at 270° and then repeats every 360°. Uses degrees, not radians.")
 				.examples("sin(90) = 1", "sin(60) = " + str(Math.sin(Math.toRadians(60))))
 				.since("2.2")
 				.parameter("n", Number.class)
 				.build(args -> Math.sin(Math.toRadians(args.<Number>get("n").doubleValue()))));
 
-		Functions.register(DefaultFunction.builder(skript, "cos", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "cos", Number.class)
 				.description("The cosine function. This is basically the <a href='#sin'>sine</a> shifted by 90°, i.e. <code>cos(a) = sin(a + 90°)</code>, for any number a. Uses degrees, not radians.")
 				.examples("cos(0) = 1", "cos(90) = 0")
 				.since("2.2")
 				.parameter("n", Number.class)
 				.build(args -> Math.cos(Math.toRadians(args.<Number>get("n").doubleValue()))));
 
-		Functions.register(DefaultFunction.builder(skript, "tan", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "tan", Number.class)
 				.description("The tangent function. This is basically <code><a href='#sin'>sin</a>(arg)/<a href='#cos'>cos</a>(arg)</code>. Uses degrees, not radians.")
 				.examples("tan(0) = 0", "tan(45) = 1", "tan(89.99) = " + str(Math.tan(Math.toRadians(89.99))))
 				.since("2.2")
 				.parameter("n", Number.class)
 				.build(args -> Math.tan(Math.toRadians(args.<Number>get("n").doubleValue()))));
 
-		Functions.register(DefaultFunction.builder(skript, "asin", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "asin", Number.class)
 				.description("The inverse of the <a href='#sin'>sine</a>, also called arcsin. Returns result in degrees, not radians. Only returns values from -90 to 90.")
 				.examples("asin(0) = 0", "asin(1) = 90", "asin(0.5) = " + str(Math.toDegrees(Math.asin(0.5))))
 				.since("2.2")
 				.parameter("n", Number.class)
 				.build(args -> Math.toDegrees(Math.asin(args.<Number>get("n").doubleValue()))));
 
-		Functions.register(DefaultFunction.builder(skript, "acos", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "acos", Number.class)
 				.description("The inverse of the <a href='#cos'>cosine</a>, also called arccos. Returns result in degrees, not radians. Only returns values from 0 to 180.")
 				.examples("acos(0) = 90", "acos(1) = 0", "acos(0.5) = " + str(Math.toDegrees(Math.asin(0.5))))
 				.since("2.2")
 				.parameter("n", Number.class)
 				.build(args -> Math.toDegrees(Math.acos(args.<Number>get("n").doubleValue()))));
 
-		Functions.register(DefaultFunction.builder(skript, "atan", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "atan", Number.class)
 				.description("The inverse of the <a href='#tan'>tangent</a>, also called arctan. Returns result in degrees, not radians. Only returns values from -90 to 90.")
 				.examples("atan(0) = 0", "atan(1) = 45", "atan(10000) = " + str(Math.toDegrees(Math.atan(10000))))
 				.since("2.2")
 				.parameter("n", Number.class)
 				.build(args -> Math.toDegrees(Math.atan(args.<Number>get("n").doubleValue()))));
 
-		Functions.register(DefaultFunction.builder(skript, "atan2", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "atan2", Number.class)
 				.description("Similar to <a href='#atan'>atan</a>, but requires two coordinates and returns values from -180 to 180.",
 						"The returned angle is measured counterclockwise in a standard mathematical coordinate system (x to the right, y to the top).")
 				.examples("atan2(0, 1) = 0", "atan2(10, 0) = 90", "atan2(-10, 5) = " + str(Math.toDegrees(Math.atan2(-10, 5))))
@@ -226,7 +223,7 @@ public class MathFunctions {
 
 		// more stuff
 
-		Functions.register(DefaultFunction.builder(skript, "sum", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "sum", Number.class)
 				.description("Sums a list of numbers.")
 				.examples("sum(1) = 1", "sum(2, 3, 4) = 9", "sum({some list variable::*})", "sum(2, {_v::*}, and the player's y-coordinate)")
 				.since("2.2")
@@ -242,7 +239,7 @@ public class MathFunctions {
 					return sum;
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "product", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "product", Number.class)
 				.description("Calculates the product of a list of numbers.")
 				.examples("product(1) = 1", "product(2, 3, 4) = 24", "product({some list variable::*})", "product(2, {_v::*}, and the player's y-coordinate)")
 				.since("2.2")
@@ -258,7 +255,7 @@ public class MathFunctions {
 					return product;
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "max", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "max", Number.class)
 				.description("Returns the maximum number from a list of numbers.")
 				.examples("max(1) = 1", "max(1, 2, 3, 4) = 4", "max({some list variable::*})")
 				.since("2.2")
@@ -277,7 +274,7 @@ public class MathFunctions {
 					return max;
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "min", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "min", Number.class)
 				.description("Returns the minimum number from a list of numbers.")
 				.examples("min(1) = 1", "min(1, 2, 3, 4) = 1", "min({some list variable::*})")
 				.since("2.2")
@@ -296,7 +293,7 @@ public class MathFunctions {
 					return min;
 				}));
 
-		Functions.register(DefaultFunction.keyedBuilder(skript, "clamp", Number[].class)
+		Functions.register(DefaultFunction.keyedBuilder(addon, "clamp", Number[].class)
 				.description("Clamps one or more values between two numbers.", "This function retains indices")
 				.examples(
 						"clamp(5, 0, 10) = 5",
@@ -344,7 +341,7 @@ public class MathFunctions {
 
 		// statistics
 
-		Functions.register(DefaultFunction.builder(skript, "mean", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "mean", Number.class)
 				.description(
 						"Get the mean (average) of a list of numbers.",
 						"You cannot get the mean of a set of numbers that includes infinity or NaN."
@@ -370,7 +367,7 @@ public class MathFunctions {
 					return total;
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "median", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "median", Number.class)
 				.description(
 						"Get the middle value of a sorted list of numbers. "
 								+ "If the list has an even number of values, the median is the average of the two middle numbers.",
@@ -416,7 +413,7 @@ public class MathFunctions {
 					return (first + second) / 2;
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "factorial", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "factorial", Number.class)
 				.description(
 						"Get the factorial of a number.",
 						"Getting the factorial of any number above 21 will return an approximation, not an exact value.",
@@ -449,7 +446,7 @@ public class MathFunctions {
 					return result;
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "root", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "root", Number.class)
 				.description("Calculates the <i>n</i>th root of a number.")
 				.examples(
 						"root(2, 4) = 2 # same as sqrt(4)",
@@ -472,7 +469,7 @@ public class MathFunctions {
 					return Math.pow(number, (1 / n));
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "permutations", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "permutations", Number.class)
 				.description(
 						"Get the number of possible ordered arrangements from 1 to 'options' with each arrangement having a size equal to 'selected'",
 						"For example, permutations with 3 options and an arrangement size of 1, returns 3: (1), (2), (3)",
@@ -514,7 +511,7 @@ public class MathFunctions {
 					return result;
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "combinations", Number.class)
+		Functions.register(DefaultFunction.builder(addon, "combinations", Number.class)
 				.description(
 						"Get the number of possible sets from 1 to 'options' with each set having a size equal to 'selected'",
 						"For example, a combination with 3 options and a set size of 1, returns 3: (1), (2), (3)",

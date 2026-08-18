@@ -76,8 +76,8 @@ public class BukkitModule extends HierarchicalAddonModule {
 		Classes.registerClass(new SlotClassInfo());
 		Classes.registerClass(new VectorClassInfo());
 
-		new BukkitFunctions(this, addon);
-		new VectorFunctions(this, addon);
+		new BukkitFunctions(addon);
+		new VectorFunctions(addon);
 	}
 
 	@Override

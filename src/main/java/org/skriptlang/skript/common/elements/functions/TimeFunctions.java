@@ -1,6 +1,5 @@
 package org.skriptlang.skript.common.elements.functions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.util.Date;
 import ch.njol.util.Math2;
@@ -15,9 +14,7 @@ import java.util.Calendar;
  */
 public class TimeFunctions {
 
-	static {
-		SkriptAddon skript = Skript.instance();
-
+	public TimeFunctions(SkriptAddon addon) {
 		int[] fields = {
 				Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH,
 				Calendar.HOUR_OF_DAY, Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND,
@@ -41,7 +38,7 @@ public class TimeFunctions {
 		};
 		String[] dateParamNames = {"year", "month", "day", "hour", "minute", "second", "millisecond", "zone_offset", "dst_offset"};
 
-		Functions.register(DefaultFunction.builder(skript, "date", Date.class)
+		Functions.register(DefaultFunction.builder(addon, "date", Date.class)
 				.description("Creates a date from a year, month, and day, and optionally also from hour, minute, second and millisecond.",
 						"A time zone and DST offset can be specified as well (in minutes), if they are left out the server's time zone and DST offset are used (the created date will not retain this information).")
 				.examples("date(2014, 10, 1) # 0:00, 1st October 2014",

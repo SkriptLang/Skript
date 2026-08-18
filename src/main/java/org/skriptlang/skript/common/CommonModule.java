@@ -39,9 +39,9 @@ public class CommonModule extends HierarchicalAddonModule {
 			ExprReplace::register
 		);
 
-		new MathFunctions();
-		new StringFunctions();
-		new TimeFunctions();
+		new MathFunctions(addon);
+		new StringFunctions(addon);
+		new TimeFunctions(addon);
 	}
 
 	@Override

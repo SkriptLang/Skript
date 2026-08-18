@@ -7,7 +7,6 @@ import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.BukkitModule;
 import org.skriptlang.skript.common.function.DefaultFunction;
 
 /**
@@ -15,10 +14,8 @@ import org.skriptlang.skript.common.function.DefaultFunction;
  */
 public class VectorFunctions {
 
-	public VectorFunctions(BukkitModule module, SkriptAddon addon) {
-		SkriptAddon skript = module.origin(addon).addon();
-
-		Functions.register(DefaultFunction.builder(skript, "vector", Vector.class)
+	public VectorFunctions(SkriptAddon addon) {
+		Functions.register(DefaultFunction.builder(addon, "vector", Vector.class)
 				.description("Creates a vector from a single argument. Equivalent to vector(n, n, n).")
 				.examples("vector(1) # = vector(1, 1, 1)")
 				.since("2.15")
@@ -28,7 +25,7 @@ public class VectorFunctions {
 					return new Vector(value, value, value);
 				}));
 
-		Functions.register(DefaultFunction.builder(skript, "vector", Vector.class)
+		Functions.register(DefaultFunction.builder(addon, "vector", Vector.class)
 				.description("Creates a new vector, which can be used with various expressions, effects and functions.")
 				.examples("vector(0, 0, 0)")
 				.since("2.2-dev23")
@@ -42,7 +39,7 @@ public class VectorFunctions {
 				)));
 
 		if (Skript.classExists("org.joml.Quaternionf")) {
-			Functions.register(DefaultFunction.builder(skript, "quaternion", Quaternionf.class)
+			Functions.register(DefaultFunction.builder(addon, "quaternion", Quaternionf.class)
 					.description("Returns a quaternion from the given W, X, Y and Z parameters. ")
 					.examples("quaternion(1, 5.6, 45.21, 10)")
 					.since("2.10")
@@ -60,7 +57,7 @@ public class VectorFunctions {
 		}
 
 		if (Skript.classExists("org.joml.AxisAngle4f")) {
-			Functions.register(DefaultFunction.builder(skript, "axisAngle", Quaternionf.class)
+			Functions.register(DefaultFunction.builder(addon, "axisAngle", Quaternionf.class)
 					.description("Returns a quaternion from the given angle (in degrees) and axis (as a vector). This represents a rotation around the given axis by the given angle.")
 					.examples("axisAngle(90, (vector from player's facing))")
 					.since("2.10")
