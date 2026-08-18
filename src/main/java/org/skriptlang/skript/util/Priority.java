@@ -76,4 +76,5 @@ public interface Priority extends Comparable<Priority> {
 	default boolean isAfter(Priority other) {
 		return compareTo(other) > 0;
 	}
+
 }
