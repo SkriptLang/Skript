@@ -29,14 +29,15 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	DefaultFunctionImpl(
 			SkriptAddon source,
 			String name,
+			Set<String> aliases,
 			SequencedMap<String, Parameter<?>> parameters,
-			Class<T> returnType, boolean single,
+			Class<T> returnType,
 			@Nullable ch.njol.skript.util.Contract contract,
 			Function<FunctionArguments, T> execute,
 			String[] description, String[] since, String[] examples,
 			String[] keywords, String[] requires
 	) {
-		super(new Signature<>(null, name, parameters.values().toArray(new Parameter[0]), returnType, single, contract));
+		super(new Signature<>(null, name, aliases, new Parameters(parameters), returnType, contract));
 
 		Preconditions.checkNotNull(source, "source cannot be null");
 		Preconditions.checkNotNull(name, "name cannot be null");
@@ -187,6 +188,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		private final String name;
 		private final Class<T> returnType;
 		private final SequencedMap<String, Parameter<?>> parameters = new LinkedHashMap<>();
+		private final Set<String> aliases = new HashSet<>();
 
 		private ch.njol.skript.util.Contract contract = null;
 
@@ -204,6 +206,15 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			this.source = source;
 			this.name = name;
 			this.returnType = returnType;
+		}
+
+		@Override
+		public Builder<T> aliases(@NotNull String @NotNull ... aliases) {
+			Preconditions.checkNotNull(aliases, "aliases cannot be null");
+			checkNotNull(aliases, "aliases contents cannot be null");
+
+			this.aliases.addAll(Arrays.asList(aliases));
+			return this;
 		}
 
 		@Override
@@ -272,8 +283,8 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		public DefaultFunction<T> build(@NotNull Function<FunctionArguments, T> execute) {
 			Preconditions.checkNotNull(execute, "execute cannot be null");
 
-			return new DefaultFunctionImpl<>(source, name, parameters,
-					returnType, !returnType.isArray(), contract, execute,
+			return new DefaultFunctionImpl<>(source, name, aliases, parameters,
+					returnType, contract, execute,
 					description, since, examples, keywords, requires);
 		}
 

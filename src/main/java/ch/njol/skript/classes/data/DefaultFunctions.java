@@ -92,27 +92,20 @@ public class DefaultFunctions {
 			.examples("round(2.34) = 2", "round(2) = 2", "round(2.99) = 3", "round(2.5) = 3")
 			.since("2.2, 2.7 (decimal placement)"));
 
-		Functions.registerFunction(new SimpleJavaFunction<Long>("ceil", numberParam, DefaultClasses.LONG, true) {
-			@Override
-			public Long[] executeSimple(Object[][] params) {
-				if (params[0][0] instanceof Long)
-					return new Long[] {(Long) params[0][0]};
-				return new Long[] {Math2.ceil(((Number) params[0][0]).doubleValue())};
-			}
-		}.description("Rounds a number up, i.e. returns the closest integer larger than or equal to the argument.")
-			.examples("ceil(2.34) = 3", "ceil(2) = 2", "ceil(2.99) = 3")
-			.since("2.2"));
+		Functions.register(DefaultFunction.builder(skript, "ceil", Long.class)
+				.aliases("ceiling")
+				.description("Rounds a number up, i.e. returns the closest integer larger than or equal to the argument.")
+				.examples("ceiling(2.34) = 3", "ceiling(2) = 2", "ceiling(2.99) = 3")
+				.since("2.2")
+				.parameter("n", Number.class)
+				.build(args -> {
+					Number value = args.get("n");
 
-		Functions.registerFunction(new SimpleJavaFunction<Long>("ceiling", numberParam, DefaultClasses.LONG, true) {
-			@Override
-			public Long[] executeSimple(Object[][] params) {
-				if (params[0][0] instanceof Long)
-					return new Long[] {(Long) params[0][0]};
-				return new Long[] {Math2.ceil(((Number) params[0][0]).doubleValue())};
-			}
-		}.description("Alias of <a href='#ceil'>ceil</a>.")
-			.examples("ceiling(2.34) = 3", "ceiling(2) = 2", "ceiling(2.99) = 3")
-			.since("2.2"));
+					if (value instanceof Long l)
+						return l;
+
+					return Math2.ceil(value.doubleValue());
+				}));
 
 		Functions.registerFunction(new SimpleJavaFunction<Number>("abs", numberParam, DefaultClasses.NUMBER, true) {
 			@Override

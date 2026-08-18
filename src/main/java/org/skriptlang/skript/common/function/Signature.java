@@ -6,7 +6,10 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
+
+import java.util.Set;
 
 /**
  * Represents a function signature.
@@ -20,6 +23,11 @@ import org.jetbrains.annotations.UnmodifiableView;
 public interface Signature<T> {
 
 	/**
+	 * @return All aliases for this implementation.
+	 */
+	@Unmodifiable @NotNull Set<String> aliases();
+
+	/**
 	 * @return The type of this parameter.
 	 */
 	@Nullable Class<T> returnType();
@@ -27,7 +35,7 @@ public interface Signature<T> {
 	/**
 	 * @return An unmodifiable view of all the parameters that this signature has.
 	 */
-	@UnmodifiableView @NotNull Parameters parameters();
+	@Unmodifiable @NotNull Parameters parameters();
 
 	/**
 	 * @return The contract of this signature.
