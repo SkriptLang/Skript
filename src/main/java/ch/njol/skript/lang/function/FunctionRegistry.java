@@ -103,21 +103,21 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 		}
 		Namespace ns = namespaces.computeIfAbsent(namespaceId, n -> new Namespace());
 
-		for (FunctionIdentifier identifier : FunctionIdentifier.of(signature)) {
-			// register
-			// since we are getting a set and then updating it,
-			// avoid race conditions by ensuring only one thread can access this namespace for this operation
-			synchronized (ns) {
+		// register
+		// since we are getting a set and then updating it,
+		// avoid race conditions by ensuring only one thread can access this namespace for this operation
+		synchronized (ns) {
+			for (FunctionIdentifier identifier : FunctionIdentifier.of(signature)) {
 				Set<FunctionIdentifier> identifiersWithName = ns.identifiers.computeIfAbsent(identifier.name, s -> new HashSet<>());
 				boolean exists = identifiersWithName.add(identifier);
 				if (!exists) {
 					alreadyRegisteredError(identifier.name, identifier, namespaceId);
 				}
-			}
 
-			Signature<?> existing = ns.signatures.putIfAbsent(identifier, signature);
-			if (existing != null) {
-				alreadyRegisteredError(identifier.name, identifier, namespaceId);
+				Signature<?> existing = ns.signatures.putIfAbsent(identifier, signature);
+				if (existing != null) {
+					alreadyRegisteredError(identifier.name, identifier, namespaceId);
+				}
 			}
 		}
 	}
@@ -584,18 +584,18 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	public void remove(@NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature cannot be null");
 
+		Namespace namespace;
+		if (signature.isLocal()) {
+			namespace = namespaces.get(new NamespaceIdentifier(signature.namespace()));
+		} else {
+			namespace = namespaces.get(GLOBAL_NAMESPACE);
+		}
+
+		if (namespace == null) {
+			return;
+		}
+
 		for (FunctionIdentifier identifier : FunctionIdentifier.of(signature)) {
-			Namespace namespace;
-			if (signature.isLocal()) {
-				namespace = namespaces.get(new NamespaceIdentifier(signature.namespace()));
-			} else {
-				namespace = namespaces.get(GLOBAL_NAMESPACE);
-			}
-
-			if (namespace == null) {
-				return;
-			}
-
 			for (FunctionIdentifier other : namespace.identifiers.getOrDefault(identifier.name, Set.of())) {
 				if (!identifier.equals(other)) {
 					continue;

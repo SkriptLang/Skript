@@ -33,7 +33,7 @@ public interface Signature<T> {
 	@Nullable Class<T> returnType();
 
 	/**
-	 * @return An unmodifiable view of all the parameters that this signature has.
+	 * @return An unmodifiable copy of all the parameters that this signature has.
 	 */
 	@Unmodifiable @NotNull Parameters parameters();
 
