@@ -24,7 +24,7 @@ public class DefaultFunctionTest {
 			.description()
 			.since()
 			.keywords()
-			.parameter("x", String[].class, new Modifier.Optional())
+			.parameter("x", String[].class, Modifier.OPTIONAL)
 			.build(args -> {
 				String[] xes = args.getOrDefault("x", new String[]{""});
 
@@ -51,7 +51,7 @@ public class DefaultFunctionTest {
 			.description("x", "y")
 			.since("1", "2")
 			.keywords("x", "y")
-			.parameter("x", Object[].class, new Modifier.Optional())
+			.parameter("x", Object[].class, Modifier.OPTIONAL)
 			.parameter("y", Boolean.class)
 			.build(args -> new Object[]{true, 1});
 

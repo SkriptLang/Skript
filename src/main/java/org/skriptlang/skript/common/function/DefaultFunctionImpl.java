@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.common.function.Parameter.Modifier.Constraint;
 import org.skriptlang.skript.common.function.Parameter.Modifier.RangedModifier;
 
 import java.lang.reflect.Array;
@@ -69,10 +70,16 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 				}
 			}
 
-			if (parameter.hasModifier(Parameter.Modifier.Ranged.class)) {
-				Parameter.Modifier.Ranged<?> range = parameter.getModifier(Parameter.Modifier.Ranged.class);
-				if (!range.inRange(arg)) {
-					return null;
+			{
+				for (Object object : arg) {
+					boolean valid = parameter.modifiers().stream()
+							.filter(it -> it instanceof Constraint)
+							.map(Constraint.class::cast)
+							.allMatch(it -> it.isValid(object));
+
+					if (!valid) {
+						return null;
+					}
 				}
 			}
 
@@ -118,15 +125,13 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			Parameter<?> parameter = parameters.get(name);
 			Object value = arguments.get(name);
 
-			if (value == null && !parameter.hasModifier(Parameter.Modifier.Optional.class)) {
-				return null;
-			}
+			boolean valid = parameter.modifiers().stream()
+					.filter(it -> it instanceof Constraint)
+					.map(Constraint.class::cast)
+					.allMatch(it -> it.isValid(value));
 
-			if (parameter.hasModifier(Parameter.Modifier.Ranged.class)) {
-				Parameter.Modifier.Ranged<?> range = parameter.getModifier(Parameter.Modifier.Ranged.class);
-				if (!range.inRange(value)) {
-					return null;
-				}
+			if (!valid) {
+				return null;
 			}
 		}
 

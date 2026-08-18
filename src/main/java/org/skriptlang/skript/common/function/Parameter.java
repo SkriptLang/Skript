@@ -220,7 +220,7 @@ public interface Parameter<T> {
 		/**
 		 * The modifier for parameters that are optional.
 		 */
-		class Optional implements Modifier {
+		record Optional() implements Constraint {
 
 			private static final Priority PRIORITY = Priority.before(TYPE_PRIORITY);
 
@@ -232,6 +232,11 @@ public interface Parameter<T> {
 			@Override
 			public @NotNull Priority toStringPriority() {
 				return PRIORITY;
+			}
+
+			@Override
+			public boolean isValid(Object input) {
+				return input != null;
 			}
 
 		}
@@ -248,7 +253,7 @@ public interface Parameter<T> {
 		 * @see ch.njol.skript.lang.KeyProviderExpression
 		 * @see ch.njol.skript.lang.KeyReceiverExpression
 		 */
-		class Keyed implements Modifier {
+		record Keyed() implements Modifier {
 
 			private static final Priority PRIORITY = Priority.before(TYPE_PRIORITY);
 
@@ -273,7 +278,7 @@ public interface Parameter<T> {
 		/**
 		 * A modifier to use for checking if a parameter is ranged.
 		 */
-		record Ranged<T extends Comparable<T>>(@NotNull T min, @NotNull T max) implements Modifier {
+		record Ranged<T extends Comparable<T>>(@NotNull T min, @NotNull T max) implements Constraint {
 
 			private static final Priority PRIORITY = Priority.after(TYPE_PRIORITY);
 
@@ -289,12 +294,19 @@ public interface Parameter<T> {
 				Preconditions.checkState(min.compareTo(max) < 1, "Min value cannot be greater than max value!");
 			}
 
-			/**
-			 * @param input The value to test.
-			 * @return Whether input is between min and max.
-			 */
+			@Override
+			public @NotNull String toFormattedString() {
+				return "between %s and %s".formatted(min, max);
+			}
+
+			@Override
+			public @NotNull Priority toStringPriority() {
+				return PRIORITY;
+			}
+
+			@Override
 			@SuppressWarnings("unchecked")
-			public boolean inRange(Object input) {
+			public boolean isValid(Object input) {
 				// convert to right type
 				if (!min.getClass().isInstance(input)) {
 					Converter<Object, ?> converter = (Converter<Object, ?>) Converters.getConverter(input.getClass(), min.getClass());
@@ -307,31 +319,6 @@ public interface Parameter<T> {
 				// compare
 				return ((T) input).compareTo(min) > -1 && ((T) input).compareTo(max) < 1;
 			}
-
-			/**
-			 * @param inputs The values to test.
-			 * @return Whether all the inputs are between min and max.
-			 */
-			public boolean inRange(Object @NotNull [] inputs) {
-				if (inputs.length == 0)
-					return false;
-				for (Object input : inputs) {
-					if (!inRange(input))
-						return false;
-				}
-				return true;
-			}
-
-			@Override
-			public @NotNull String toFormattedString() {
-				return "between %s and %s".formatted(min, max);
-			}
-
-			@Override
-			public @NotNull Priority toStringPriority() {
-				return PRIORITY;
-			}
-
 		}
 
 		/**
@@ -443,6 +430,19 @@ public interface Parameter<T> {
 			public @NotNull Priority toStringPriority() {
 				return PRIORITY;
 			}
+
+		}
+
+		/**
+		 * A constraint is a modifier which validates the input of a parameter.
+		 */
+		interface Constraint extends Modifier {
+
+			/**
+			 * @param input The input.
+			 * @return True if this input is valid, false if not.
+			 */
+			boolean isValid(Object input);
 
 		}
 

@@ -267,10 +267,20 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 				// check ranged parameters
 				if (signatureParam.hasModifier(Modifier.Ranged.class) && exprParam instanceof Literal<?> literalParam) {
 					Modifier.Ranged<?> range = signatureParam.getModifier(Modifier.Ranged.class);
-					if (!range.inRange(literalParam.getArray())) {
+
+					Object[] array = literalParam.getArray();
+					if (array.length == 0) {
+						return false;
+					}
+
+					for (Object object : array) {
+						if (range.isValid(object)) {
+							continue;
+						}
+
 						Skript.error("The argument '" + signatureParam.name() +"' only accepts values between "
-							+ Classes.toString(range.min()) + " and " + Classes.toString(range.max()) + ". "
-							+ "Provided: " + literalParam.toString(null, Skript.debug()));
+								+ Classes.toString(range.min()) + " and " + Classes.toString(range.max()) + ". "
+								+ "Provided: " + literalParam.toString(null, Skript.debug()));
 						return false;
 					}
 				}
