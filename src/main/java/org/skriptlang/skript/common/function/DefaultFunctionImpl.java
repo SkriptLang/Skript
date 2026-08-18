@@ -1,13 +1,11 @@
 package org.skriptlang.skript.common.function;
 
 import ch.njol.skript.lang.function.FunctionEvent;
-import ch.njol.skript.lang.function.Signature;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.common.function.Parameter.Modifier;
 import org.skriptlang.skript.common.function.Parameter.Modifier.RangedModifier;
 
 import java.lang.reflect.Array;
@@ -29,19 +27,18 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	DefaultFunctionImpl(
 			SkriptAddon source,
 			String name,
+			Set<Signature.Modifier> modifiers,
 			SequencedMap<String, Parameter<?>> parameters,
-			Class<T> returnType, boolean single,
 			@Nullable ch.njol.skript.util.Contract contract,
 			Function<FunctionArguments, T> execute,
 			String[] description, String[] since, String[] examples,
 			String[] keywords, String[] requires
 	) {
-		super(new Signature<>(null, name, parameters.values().toArray(new Parameter[0]), returnType, single, contract));
+		super(new ch.njol.skript.lang.function.Signature<>(name, modifiers, parameters, contract));
 
 		Preconditions.checkNotNull(source, "source cannot be null");
 		Preconditions.checkNotNull(name, "name cannot be null");
 		Preconditions.checkNotNull(parameters, "parameters cannot be null");
-		Preconditions.checkNotNull(returnType, "return type cannot be null");
 		Preconditions.checkNotNull(execute, "execute cannot be null");
 
 		this.source = source;
@@ -65,15 +62,15 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			Parameter<?> parameter = arrayParams[i];
 
 			if (arg == null || arg.length == 0) {
-				if (parameter.hasModifier(Modifier.OPTIONAL)) {
+				if (parameter.hasModifier(Parameter.Modifier.Optional.class)) {
 					continue;
 				} else {
 					return null;
 				}
 			}
 
-			if (parameter.hasModifier(Modifier.RANGED)) {
-				RangedModifier<?> range = parameter.getModifier(RangedModifier.class);
+			if (parameter.hasModifier(Parameter.Modifier.Ranged.class)) {
+				Parameter.Modifier.Ranged<?> range = parameter.getModifier(Parameter.Modifier.Ranged.class);
 				if (!range.inRange(arg)) {
 					return null;
 				}
@@ -121,12 +118,12 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			Parameter<?> parameter = parameters.get(name);
 			Object value = arguments.get(name);
 
-			if (value == null && !parameter.hasModifier(Modifier.OPTIONAL)) {
+			if (value == null && !parameter.hasModifier(Parameter.Modifier.Optional.class)) {
 				return null;
 			}
 
-			if (parameter.hasModifier(Modifier.RANGED)) {
-				RangedModifier<?> range = parameter.getModifier(RangedModifier.class);
+			if (parameter.hasModifier(Parameter.Modifier.Ranged.class)) {
+				Parameter.Modifier.Ranged<?> range = parameter.getModifier(Parameter.Modifier.Ranged.class);
 				if (!range.inRange(value)) {
 					return null;
 				}
@@ -177,7 +174,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	}
 
 	@Override
-	public org.skriptlang.skript.common.function.@NotNull Signature<T> signature() {
+	public @NotNull Signature<T> signature() {
 		return getSignature();
 	}
 
@@ -185,8 +182,8 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 
 		private final SkriptAddon source;
 		private final String name;
-		private final Class<T> returnType;
 		private final SequencedMap<String, Parameter<?>> parameters = new LinkedHashMap<>();
+		private final Set<Signature.Modifier> modifiers = new HashSet<>();
 
 		private ch.njol.skript.util.Contract contract = null;
 
@@ -203,7 +200,16 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 
 			this.source = source;
 			this.name = name;
-			this.returnType = returnType;
+			this.modifiers.add(new Signature.Modifier.Returns<>(returnType));
+		}
+
+		@Override
+		public Builder<T> modifiers(Signature.Modifier @NotNull ... modifiers) {
+			Preconditions.checkNotNull(modifiers, "modifiers cannot be null");
+			checkNotNull(modifiers, "modifiers contents cannot be null");
+
+			this.modifiers.addAll(Set.of(modifiers));
+			return this;
 		}
 
 		@Override
@@ -260,7 +266,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		}
 
 		@Override
-		public Builder<T> parameter(@NotNull String name, @NotNull Class<?> type, Modifier @NotNull ... modifiers) {
+		public Builder<T> parameter(@NotNull String name, @NotNull Class<?> type, Parameter.Modifier @NotNull ... modifiers) {
 			Preconditions.checkNotNull(name, "name cannot be null");
 			Preconditions.checkNotNull(type, "type cannot be null");
 
@@ -272,20 +278,9 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		public DefaultFunction<T> build(@NotNull Function<FunctionArguments, T> execute) {
 			Preconditions.checkNotNull(execute, "execute cannot be null");
 
-			return new DefaultFunctionImpl<>(source, name, parameters,
-					returnType, !returnType.isArray(), contract, execute,
+			return new DefaultFunctionImpl<>(source, name, modifiers, parameters,
+					contract, execute,
 					description, since, examples, keywords, requires);
-		}
-
-		/**
-		 * Checks whether the elements in a {@link String} array are null.
-		 *
-		 * @param strings The strings.
-		 */
-		private static void checkNotNull(@NotNull String[] strings, @NotNull String message) {
-			for (String string : strings) {
-				Preconditions.checkNotNull(string, message);
-			}
 		}
 
 	}
@@ -293,21 +288,46 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	/**
 	 * A parameter for a {@link DefaultFunction}.
 	 *
-	 * @param name The name.
-	 * @param type The type's class.
+	 * @param name      The name.
+	 * @param type      The type's class.
 	 * @param modifiers The modifiers.
-	 * @param <T> The type.
+	 * @param <T>       The type.
 	 */
 	record DefaultParameter<T>(String name, Class<T> type, Set<Modifier> modifiers)
 			implements Parameter<T> {
 
 		DefaultParameter(String name, Class<T> type, Modifier... modifiers) {
-			this(name, type, Set.of(modifiers));
+			this(name, type, modernizeModifiers(modifiers));
 		}
 
 		@Override
 		public @NotNull String toString() {
 			return toFormattedString();
+		}
+
+		@SuppressWarnings("removal")
+		private static Set<Modifier> modernizeModifiers(Modifier[] modifiers) {
+			Set<Modifier> result = new LinkedHashSet<>();
+			for (Modifier modifier : modifiers) {
+				if (modifier instanceof RangedModifier<?> rangedModifier) {
+					//noinspection rawtypes,unchecked
+					result.add(new Modifier.Ranged(rangedModifier.getMin(), rangedModifier.getMax()));
+				} else {
+					result.add(modifier);
+				}
+			}
+			return result;
+		}
+	}
+
+	/**
+	 * Checks whether the elements in an array are null.
+	 *
+	 * @param objects The objects.
+	 */
+	private static void checkNotNull(@NotNull Object[] objects, @NotNull String message) {
+		for (Object object : objects) {
+			Preconditions.checkNotNull(object, message);
 		}
 	}
 

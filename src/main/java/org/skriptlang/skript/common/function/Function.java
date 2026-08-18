@@ -30,7 +30,7 @@ public interface Function<T> {
 	/**
 	 * @return The signature belonging to this function.
 	 */
-	@NotNull Signature<T> signature();
+	@NotNull Signature signature();
 
 	/**
 	 * Resets the return value.

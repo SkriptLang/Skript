@@ -24,8 +24,8 @@ public class PriorityTest {
 
 		assertTrue(before.before().contains(base));
 		assertTrue(before.after().isEmpty());
-		assertTrue(before.compareTo(base) < 0);
-		assertTrue(base.compareTo(before) > 0);
+		assertTrue(before.isBefore(base));
+		assertTrue(base.isAfter(before));
 
 		// Different instances, but functionally equal
 		assertEquals(before, Priority.before(base));
@@ -38,8 +38,8 @@ public class PriorityTest {
 
 		assertTrue(after.before().isEmpty());
 		assertTrue(after.after().contains(base));
-		assertTrue(after.compareTo(base) > 0);
-		assertTrue(base.compareTo(after) < 0);
+		assertTrue(after.isAfter(base));
+		assertTrue(base.isBefore(after));
 
 		// Different instances, but functionally equal
 		assertEquals(after, Priority.after(base));
@@ -51,10 +51,8 @@ public class PriorityTest {
 		Priority before = Priority.before(base);
 		Priority after = Priority.after(base);
 
-		// 'before' should be before 'after'
-		assertTrue(before.compareTo(after) < 0);
-		// 'after' should be after 'before'
-		assertTrue(after.compareTo(before) > 0);
+		assertTrue(before.isBefore(after));
+		assertTrue(after.isAfter(before));
 	}
 
 	@Test
@@ -63,17 +61,15 @@ public class PriorityTest {
 
 		Priority before = Priority.before(base);
 		Priority afterBefore = Priority.after(before);
-		// 'afterBefore' should be before 'base'
-		assertTrue(afterBefore.compareTo(base) < 0);
-		// 'base' should be after 'afterBefore'
-		assertTrue(base.compareTo(afterBefore) > 0);
+
+		assertTrue(afterBefore.isBefore(base));
+		assertTrue(base.isAfter(afterBefore));
 
 		Priority after = Priority.after(base);
 		Priority beforeAfter = Priority.before(after);
-		// 'beforeAfter' should be after 'base'
-		assertTrue(beforeAfter.compareTo(base) > 0);
-		// 'base' should be before 'beforeAfter'
-		assertTrue(base.compareTo(beforeAfter) < 0);
+
+		assertTrue(beforeAfter.isAfter(base));
+		assertTrue(base.isBefore(beforeAfter));
 	}
 
 }

@@ -67,10 +67,10 @@ public record ScriptParameter<T>(String name, Class<T> type, Set<Modifier> modif
 
 		Set<Modifier> modifiers = new HashSet<>();
 		if (defaultValue != null) {
-			modifiers.add(Modifier.OPTIONAL);
+			modifiers.add(new Modifier.Optional());
 		}
 		if (type.isArray()) {
-			modifiers.add(Modifier.KEYED);
+			modifiers.add(new Modifier.Keyed());
 		}
 
 		return new ScriptParameter<>(name, type, defaultValue, modifiers.toArray(new Modifier[0]));
@@ -94,7 +94,7 @@ public record ScriptParameter<T>(String name, Class<T> type, Set<Modifier> modif
 	 */
 	public Object[] evaluate(@Nullable Expression<? extends T> argument, Event event) {
 		if (argument == null) {
-			if (!hasModifier(Modifier.OPTIONAL)) {
+			if (!hasModifier(Modifier.Optional.class)) {
 				throw new IllegalStateException("This parameter is required, but no argument was provided");
 			} else if (defaultValue == null) {
 				throw new IllegalStateException("This parameter does not have a default value");

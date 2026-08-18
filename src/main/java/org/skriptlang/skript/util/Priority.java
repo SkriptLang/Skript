@@ -50,4 +50,30 @@ public interface Priority extends Comparable<Priority> {
 	 */
 	@Unmodifiable Collection<Priority> before();
 
+	/**
+	 * Checks whether this priority is before another priority.
+	 * @param other A priority.
+	 * @return True if the priority provided is before this priority, false if not.
+	 */
+	default boolean isBefore(Priority other) {
+		return compareTo(other) < 0;
+	}
+
+	/**
+	 * Checks whether this priority is equal to another priority.
+	 * @param other A priority.
+	 * @return True if the priority provided is equal to this priority, false if not.
+	 */
+	default boolean isEqual(Priority other) {
+		return compareTo(other) == 0;
+	}
+
+	/**
+	 * Checks whether this priority is after another priority.
+	 * @param other A priority.
+	 * @return True if the priority provided is after this priority, false if not.
+	 */
+	default boolean isAfter(Priority other) {
+		return compareTo(other) > 0;
+	}
 }
