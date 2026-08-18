@@ -66,7 +66,8 @@ public interface Parameter<T> {
 	 * Gets a modifier of the specified type if present.
 	 *
 	 * @param modifierClass The class of the modifier to retrieve
-	 * @return The modifier instance, or null if not present
+	 * @return The modifier instance.
+	 * @throws NoSuchElementException If no value is found for the modifier.
 	 */
 	default <M extends Modifier> M getModifier(Class<M> modifierClass) {
 		return modifiers().stream()

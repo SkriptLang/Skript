@@ -34,7 +34,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			String[] description, String[] since, String[] examples,
 			String[] keywords, String[] requires
 	) {
-		super(new ch.njol.skript.lang.function.Signature<>(name, modifiers, parameters, contract));
+		super(new ch.njol.skript.lang.function.Signature<>(name, modifiers, new Parameters(parameters), contract));
 
 		Preconditions.checkNotNull(source, "source cannot be null");
 		Preconditions.checkNotNull(name, "name cannot be null");

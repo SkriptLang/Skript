@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @NonExtendable
 @Internal
 @Experimental
-public interface Signature {
+public interface Signature<T> {
 
 	/**
 	 * @return The name of the function.
@@ -36,11 +36,12 @@ public interface Signature {
 	 * with {@link Modifier.Returns} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	default @Nullable Class<?> returnType() {
+	default @Nullable Class<T> returnType() {
 		if (!hasModifier(Modifier.Returns.class))
 			return null;
 
-		return (Class<?>) getModifier(Modifier.Returns.class).type();
+		//noinspection unchecked
+		return (Class<T>) getModifier(Modifier.Returns.class).type();
 	}
 
 	/**
@@ -91,7 +92,8 @@ public interface Signature {
 	 * Gets a modifier of the specified type if present.
 	 *
 	 * @param modifierClass The class of the modifier to retrieve
-	 * @return The modifier instance, or null if not present
+	 * @return The modifier instance.
+	 * @throws NoSuchElementException If no value is found for the modifier.
 	 */
 	default <M extends Modifier> M getModifier(Class<M> modifierClass) {
 		return modifiers().stream()
@@ -118,8 +120,8 @@ public interface Signature {
 			joiner.add(string);
 		}
 
-		joiner.add(name());
-		joiner.add("(%s)".formatted(Arrays.stream(parameters().all())
+		joiner.add("function");
+		joiner.add("%s(%s)".formatted(name(), Arrays.stream(parameters().all())
 				.map(Objects::toString).collect(Collectors.joining(", "))));
 
 		for (Modifier modifier : modifiers()) {

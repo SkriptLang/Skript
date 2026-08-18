@@ -19,9 +19,8 @@ import java.util.*;
 /**
  * Function signature: name, parameter types and a return type.
  */
-public class Signature<T> implements org.skriptlang.skript.common.function.Signature {
+public class Signature<T> implements org.skriptlang.skript.common.function.Signature<T> {
 
-	private final @Nullable String namespace;
 	private final String name;
 	private final Parameters parameters;
 	private final Set<Modifier> modifiers = new HashSet<>();
@@ -52,7 +51,6 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public Signature(@Nullable String namespace, String name, Parameter<?>[] parameters, boolean local, @Nullable ClassInfo<T> returnType, boolean single, @Nullable Contract contract) {
-		this.namespace = namespace;
 		this.name = name;
 		this.parameters = initParameters(parameters);
 		if (local)
@@ -82,7 +80,6 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	}
 
 	public Signature(@Nullable String namespace, String name, Parameters parameters, Class<T> returnType, boolean local, @Nullable Contract contract) {
-		this.namespace = namespace;
 		this.name = name;
 		this.parameters = parameters;
 		if (local)
@@ -91,6 +88,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 			//noinspection unchecked
 			this.returnType = (ClassInfo<T>) Classes.getExactClassInfo(Utils.getComponentType(returnType));
 			this.single = !returnType.isArray();
+			modifiers.add(new Modifier.Returns<>(returnType));
 		} else {
 			this.returnType = null;
 			this.single = true;
@@ -107,17 +105,11 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 		this(namespace, name, initParameters(parameters), returnType, false, contract);
 	}
 
-	public Signature(String name, Set<Modifier> modifiers, SequencedMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters, @Nullable Contract contract) {
+	public Signature(String name, Set<Modifier> modifiers, Parameters parameters, @Nullable Contract contract) {
 		this.modifiers.addAll(modifiers);
 
 		this.name = name;
-		this.parameters = new Parameters(parameters);
-
-		if (hasModifier(Modifier.Local.class)) {
-			this.namespace = getModifier(Modifier.Local.class).namespace();
-		} else {
-			this.namespace = null;
-		}
+		this.parameters = parameters;
 
 		if (hasModifier(Modifier.Returns.class)) {
 			Class<?> type = getModifier(Returns.class).type();
