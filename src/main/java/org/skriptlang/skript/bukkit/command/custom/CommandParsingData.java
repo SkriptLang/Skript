@@ -18,10 +18,14 @@ import java.util.function.Function;
 public final class CommandParsingData extends Data {
 
 	/**
+	 * @param isSubcommandGroup Whether this data is coming from a group of subcommands (for defining shared data among them).
+	 * @param permission String representing the permission the {@link CommandSender} must have to execute the command.
 	 * @param executableBy Set describing what kinds of {@link CommandSender} can execute the command.
 	 * @param cooldownManager Handles cooldown management for cooldown command entries.
 	 */
 	public record ExecutorData(
+		boolean isSubcommandGroup,
+		@Nullable String permission,
 		@Nullable Set<ExecutableBy> executableBy,
 		@Nullable CooldownManager cooldownManager
 	) { }

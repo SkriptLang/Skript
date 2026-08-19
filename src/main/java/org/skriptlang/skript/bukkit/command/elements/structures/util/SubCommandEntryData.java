@@ -53,10 +53,12 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class SubCommandEntryData extends EntryData<Result> {
 
@@ -127,6 +129,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 		.addEntryData(new VariableStringEntryData("cooldown storage", null, true, StringMode.VARIABLE_NAME))
 		.addEntryData(new TriggerEntryData("trigger", null, true))
 		.addEntryData(new SubCommandEntryData("subcommand", true, true))
+		.addEntryData(new SubCommandEntryData("subcommands", true, true, true))
 		// deprecated entries
 		.addEntry("permission message", null, true)
 		.build();
@@ -136,25 +139,36 @@ public class SubCommandEntryData extends EntryData<Result> {
 		ParserInstance.registerData(SuggestingArgumentData.class, SuggestingArgumentData::new);
 	}
 
+	private final boolean isSubcommandGroupEntry;
+
 	public SubCommandEntryData(String key, boolean optional, boolean multiple) {
+		this(key, optional, multiple, false);
+	}
+
+	public SubCommandEntryData(String key, boolean optional, boolean multiple, boolean isSubcommandGroupEntry) {
 		super(key, null, optional, multiple);
+		this.isSubcommandGroupEntry = isSubcommandGroupEntry;
 	}
 
 	@Override
 	public @Nullable Result getValue(Node node) {
 		assert node instanceof SectionNode;
 
-		// validate section node structure
-		String key = node.getKey();
-		if (key == null)
-			throw new IllegalArgumentException("EntryData#getValue() called with invalid node.");
-		String input = ScriptLoader.replaceOptions(key)
-			.substring(getKey().length() + 1);
-		Matcher commandMatcher = COMMAND_PATTERN.matcher(input);
-		boolean matches = commandMatcher.matches();
-		if (!matches) {
-			Skript.error("Invalid command structure pattern");
-			return null;
+		String input = "";
+		if (!isSubcommandGroupEntry) {
+			// validate section node structure
+			String key = node.getKey();
+			if (key == null)
+				throw new IllegalArgumentException("EntryData#getValue() called with invalid node.");
+			input = ScriptLoader.replaceOptions(key)
+				.substring(getKey().length() + 1);
+			Matcher commandMatcher = COMMAND_PATTERN.matcher(input);
+			boolean matches = commandMatcher.matches();
+			if (!matches) {
+				Skript.error("Invalid command structure pattern");
+				return null;
+			}
+			input = commandMatcher.group(1);
 		}
 
 		// validate entries
@@ -171,12 +185,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 		CommandParsingData parsingData = parser.getData(CommandParsingData.class);
 		boolean isRoot = parsingData.isEmpty();
 
-		String rawCommand = commandMatcher.group(1);
-		if (rawCommand == null) {
-			Skript.error("A command cannot be blank.");
-			return null;
-		}
-		CompilationResult compilationResult = CommandCompiler.compile(rawCommand, parsingData.getArguments());
+		CompilationResult compilationResult = CommandCompiler.compile(input, parsingData.getArguments());
 		if (compilationResult == null) { // failed for a reason reported by the compiler
 			return null;
 		} else if (isRoot && compilationResult.root().isLeaf()) {
@@ -236,15 +245,24 @@ public class SubCommandEntryData extends EntryData<Result> {
 
 		// command requirements
 		Predicate<CommandSender> requires = TRUE_PREDICATE;
+		//noinspection ConstantConditions - isSubcommandGroup can never be null, it is always present
+		boolean isParentSubcommandGroup = !parsingData.isEmpty() && parsingData.getExecutorData(ExecutorData::isSubcommandGroup);
 
 		// permission requirement
 		String permission = entryContainer.getOptional("permission", String.class, false);
+		if (isParentSubcommandGroup && permission == null) { // inherit from parent
+			permission = parsingData.getExecutorData(ExecutorData::permission);
+		}
 		if (permission != null) {
-			requires = requires.and(sender -> sender.hasPermission(permission));
+			String finalPermission = permission;
+			requires = requires.and(sender -> sender.hasPermission(finalPermission));
 		}
 
 		// executable by requirement
 		Set<ExecutableBy> executableBy = entryContainer.getOptional("executable by", Set.class, false);
+		if (isParentSubcommandGroup && executableBy == null) { // inherit from parent
+			executableBy = parsingData.getExecutorData(ExecutorData::executableBy);
+		}
 		if (executableBy != null) {
 			if (executableBy.isEmpty()) { // parsing failed
 				return null;
@@ -308,7 +326,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 		// prepare arguments
 		parsingData.pushArguments(compilationResult.arguments());
 		List<ArgumentData<?>> allArguments = parsingData.getArguments();
-		parsingData.pushExecutorData(new ExecutorData(executableBy, cooldownManager));
+		parsingData.pushExecutorData(new ExecutorData(isSubcommandGroupEntry, permission, executableBy, cooldownManager));
 
 		// parse execution trigger
 		HintManager hintManager = parser.getHintManager();
@@ -334,6 +352,10 @@ public class SubCommandEntryData extends EntryData<Result> {
 			hintManager.exitScope();
 		}
 		boolean hasExecute = execute != null;
+		if (isSubcommandGroupEntry && hasExecute) {
+			Skript.error("A subcommand group cannot have a trigger!");
+			return null;
+		}
 
 		// parse suggestions trigger
 		parser.setCurrentEvent("command suggestions", CommandSuggestionEvent.class);
@@ -361,8 +383,14 @@ public class SubCommandEntryData extends EntryData<Result> {
 
 		// attach subcommand pieces
 		List<Result> subcommands = entryContainer.getAll("subcommand", Result.class, false);
+		List<Result> groupedSubcommands = entryContainer.getAll("subcommands", Result.class, false);
+		subcommands = Stream.concat(subcommands.stream(), groupedSubcommands.stream()).toList();
 		if (subcommands.stream().allMatch(result -> result.arguments().isEmpty()) && !hasExecute) {
-			Skript.error("You must have a 'trigger' entry if there are no subcommands!");
+			if (isSubcommandGroupEntry) {
+				Skript.error("A subcommand group must have at least one 'subcommand' entry!");
+			} else {
+				Skript.error("You must have a 'trigger' entry if there are no subcommands!");
+			}
 			return null;
 		}
 
@@ -380,15 +408,30 @@ public class SubCommandEntryData extends EntryData<Result> {
 		}
 
 		ScriptCommandExecutor rootExecutor = null;
-		if (compilationResult.root().isLeaf()) { // this subcommand is optional
+		if (isSubcommandGroupEntry) { // pass up the root executor if one of the subcommands is optional
+			rootExecutor = subcommands.stream()
+				.map(Result::rootExecutor)
+				.filter(Objects::nonNull)
+				.findFirst()
+				.orElse(null);
+		} else if (compilationResult.root().isLeaf()) { // this subcommand is optional
 			// meaning its executor should be the executor for the parent at attachment points
 			rootExecutor = executor;
 			compilationResult.root().children().remove(null);
 		}
-		var result = compilationResult.root().children().stream()
-			.map(child -> parse(child, executor, commandRequires, suggestionProvider,
-				suggestingArguments, subcommands))
-			.toList();
+
+		List<ScriptArgumentBuilder> result;
+		if (isSubcommandGroupEntry) { // we simply pass up the subcommands, flattened
+			result = subcommands.stream()
+				.flatMap(subcommand -> subcommand.arguments().stream())
+				.toList();
+		} else {
+			List<Result> finalSubcommands = subcommands;
+			result = compilationResult.root().children().stream()
+				.map(child -> parse(child, executor, commandRequires, suggestionProvider,
+					suggestingArguments, finalSubcommands))
+				.toList();
+		}
 
 		parsingData.popExecutorData();
 		parsingData.popArguments();
@@ -405,6 +448,9 @@ public class SubCommandEntryData extends EntryData<Result> {
 		if (key == null)
 			return false;
 		key = ScriptLoader.replaceOptions(key);
+		if (isSubcommandGroupEntry) {
+			return key.equalsIgnoreCase(getKey());
+		}
 		String prefix = getKey() + " ";
 		return key.regionMatches(true, 0, prefix, 0, prefix.length());
 	}

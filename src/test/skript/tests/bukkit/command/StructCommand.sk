@@ -43,6 +43,34 @@ parse:
 				trigger:
 					stop
 
+# expect trigger combined with optional subcommand
+parse:
+	results: {-StructCommand::entries::5::*}
+	code:
+		command /entries_test_6:
+			subcommand [help]:
+				trigger:
+					stop
+			trigger:
+				stop
+
+# expect too many optionals
+parse:
+	results: {-StructCommand::entries::6::*}
+	code:
+		command /entries_test_6:
+			subcommand [help]:
+				trigger:
+					stop
+			subcommands:
+				subcommand help2:
+					trigger:
+						stop
+				subcommands:
+					subcommand [help3]:
+						trigger:
+							stop
+
 # expect error for duplicate argument names
 parse:
 	results: {-StructCommand::args::1::*}
@@ -106,6 +134,24 @@ command /test-args-ranged <x: number above 5 and below 10>:
 	trigger:
 		set {-test-args-ranged::*} to {_x}
 
+command /test-optional-subcommand:
+	subcommand [subcommand]:
+		trigger:
+			add 1 to {-test-optional-subcommand}
+
+command /test-optional-subcommand-in-group:
+	subcommands:
+		subcommand [subcommand]:
+			trigger:
+				add 1 to {-test-optional-subcommand-in-group}
+
+command /test-player-restriction-in-group:
+	subcommands:
+		executable by: players
+		subcommand subcommand:
+			trigger:
+				add 1 to {-test-player-restriction-in-group}
+
 command {@command} <text> [<text>] [<itemtype = %dirt named "steve"%>]:
 	trigger:
 		set {-test-{@command}::arg1} to arg-1
@@ -128,6 +174,8 @@ test "StructCommand":
 	assert {-StructCommand::entries::2::*} is "It is not possible to restrict execution to the console as the parent command is only executable by players."
 	assert {-StructCommand::entries::3::*} is {_error_missing_trigger} and {_error_missing_trigger}
 	assert {-StructCommand::entries::4::*} is not set
+	assert {-StructCommand::entries::5::*} is "It is not possible to have a 'trigger' entry if an optional subcommand is present!"
+	assert {-StructCommand::entries::6::*} is "It is not possible to have more than one optional subcommand at the same level."
 	assert {-StructCommand::args::1::*} is "The argument name 'x' was already used."
 	assert {-StructCommand::args::2::*} is "text arguments do not support minimum or maximum values."
 	assert {-StructCommand::args::3::*} is not set
@@ -159,6 +207,22 @@ test "StructCommand":
 	if running minecraft "1.21.6":
 		assert last caught runtime errors start with "Failed to execute command: "
 	assert {-test-args-ranged::*} is 6 with "argument above range was accepted"
+
+	execute command "test-optional-subcommand subcommand"
+	assert {-test-optional-subcommand} is 1 with "executing with subcommand should have added 1 (total 1)"
+	execute command "test-optional-subcommand"
+	assert {-test-optional-subcommand} is 2 with "executing as base should have added 1 (total 2)"
+
+	execute command "test-optional-subcommand-in-group subcommand"
+	assert {-test-optional-subcommand-in-group} is 1 with "executing with subcommand should have added 1 (total 1)"
+	execute command "test-optional-subcommand-in-group"
+	assert {-test-optional-subcommand-in-group} is 2 with "executing as base should have added 1 (total 2)"
+
+	catch runtime errors:
+		execute command "test-player-restriction-in-group subcommand"
+	assert {-test-player-restriction-in-group} is not set
+	if running minecraft "1.21.6":
+		assert last caught runtime errors start with "Failed to execute command: "
 
 	execute command "{@command} taco"
 	assert {-test-{@command}::arg1} is "taco" with "arg-1 test failed"
