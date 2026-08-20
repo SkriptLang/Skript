@@ -223,8 +223,10 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 
 	/**
 	 * A custom argument type for OfflinePlayer that also supports selectors.
+	 * May return an {@link OfflinePlayer} or
+	 *  {@link io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver}.
 	 */
-	public static final class OfflinePlayerArgument implements CustomArgumentType<Object, String> {
+	public static final class OfflinePlayerArgument implements CustomArgumentType<Object, Object> {
 
 		private final ArgumentData<OfflinePlayer> argument;
 		private final StringArgumentType nativeType;
@@ -257,13 +259,9 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 		}
 
 		@Override
-		public <S> @NotNull CompletableFuture<Suggestions> listSuggestions(@NotNull CommandContext<S> context, @NotNull SuggestionsBuilder builder) {
-			return playerType.listSuggestions(context, builder);
-		}
-
-		@Override
-		public @NotNull ArgumentType<String> getNativeType() {
-			return nativeType;
+		public @NotNull ArgumentType<Object> getNativeType() {
+			//noinspection unchecked
+			return (ArgumentType<Object>) playerType;
 		}
 
 	}
