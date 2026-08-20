@@ -365,6 +365,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 		List<ArgumentData<?>> suggestingArguments;
 		if (suggestionsTrigger != null) {
 			SuggestingArgumentData suggestingArgumentData = parser.getData(SuggestingArgumentData.class);
+			suggestingArgumentData.usingCustomSuggestions = true;
 			suggestionProvider = new ScriptSuggestionProvider(allArguments, suggestionsTrigger);
 			suggestingArguments = List.copyOf(suggestingArgumentData.arguments);
 			suggestingArgumentData.arguments.clear();
@@ -435,6 +436,15 @@ public class SubCommandEntryData extends EntryData<Result> {
 
 		parsingData.popExecutorData();
 		parsingData.popArguments();
+
+		if (isRoot) { // compatibility measure: insert legacy tab completion providers
+			SuggestingArgumentData suggestingArgumentData = parser.getData(SuggestingArgumentData.class);
+			if (suggestingArgumentData.usingCustomSuggestions) {
+				suggestingArgumentData.usingCustomSuggestions = false;
+			} else {
+				result = LegacyTabCompleteEventSuggestionProvider.addMissingSuggestionProviders(result);
+			}
+		}
 
 		return new Result(rootExecutor, result, aliases, description, usage, prefix, permission);
 	}

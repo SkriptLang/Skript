@@ -16,6 +16,11 @@ public class SuggestingArgumentData extends ParserInstance.Data {
 	 */
 	public List<ArgumentData<?>> arguments = new ArrayList<>();
 
+	/**
+	 * Whether this data has been used to track arguments providing custom suggestions.
+	 */
+	public boolean usingCustomSuggestions = false;
+
 	public SuggestingArgumentData(ParserInstance parserInstance) {
 		super(parserInstance);
 	}
