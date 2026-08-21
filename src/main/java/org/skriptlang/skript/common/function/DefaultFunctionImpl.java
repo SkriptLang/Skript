@@ -252,8 +252,8 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 
 		@Override
 		public Builder<T> requires(@NotNull String @NotNull ... requires) {
-			Preconditions.checkNotNull(keywords, "requires cannot be null");
-			checkNotNull(keywords, "requires contents cannot be null");
+			Preconditions.checkNotNull(requires, "requires cannot be null");
+			checkNotNull(requires, "requires contents cannot be null");
 
 			this.requires = requires;
 			return this;
@@ -347,8 +347,8 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 
 		@Override
 		public VoidBuilder requires(@NotNull String @NotNull ... requires) {
-			Preconditions.checkNotNull(keywords, "requires cannot be null");
-			checkNotNull(keywords, "requires contents cannot be null");
+			Preconditions.checkNotNull(requires, "requires cannot be null");
+			checkNotNull(requires, "requires contents cannot be null");
 
 			this.requires = requires;
 			return this;
@@ -381,10 +381,10 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	/**
 	 * A parameter for a {@link DefaultFunction}.
 	 *
-	 * @param name The name.
-	 * @param type The type's class.
+	 * @param name      The name.
+	 * @param type      The type's class.
 	 * @param modifiers The modifiers.
-	 * @param <T> The type.
+	 * @param <T>       The type.
 	 */
 	record DefaultParameter<T>(String name, Class<T> type, Set<Modifier> modifiers)
 			implements Parameter<T> {
@@ -400,15 +400,15 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	}
 
 
-		/**
-		 * Checks whether the elements in a {@link String} array are null.
-		 *
-		 * @param strings The strings.
-		 */
-		private static void checkNotNull(@NotNull String[] strings, @NotNull String message) {
-			for (String string : strings) {
-				Preconditions.checkNotNull(string, message);
-			}
+	/**
+	 * Checks whether the elements in a {@link String} array are null.
+	 *
+	 * @param strings The strings.
+	 */
+	private static void checkNotNull(@NotNull String[] strings, @NotNull String message) {
+		for (String string : strings) {
+			Preconditions.checkNotNull(string, message);
 		}
+	}
 
 }
