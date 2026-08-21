@@ -29,7 +29,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	DefaultFunctionImpl(
 			SkriptAddon source,
 			String name,
-			Set<String> aliases,
+			Collection<String> aliases,
 			SequencedMap<String, Parameter<?>> parameters,
 			Class<T> returnType,
 			@Nullable ch.njol.skript.util.Contract contract,
@@ -188,7 +188,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		private final String name;
 		private final Class<T> returnType;
 		private final SequencedMap<String, Parameter<?>> parameters = new LinkedHashMap<>();
-		private final Set<String> aliases = new HashSet<>();
+		private final Collection<String> aliases = new HashSet<>();
 
 		private ch.njol.skript.util.Contract contract = null;
 

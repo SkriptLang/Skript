@@ -133,7 +133,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 		this(namespace, name, initParameters(parameters), returnType, false, contract);
 	}
 
-	public Signature(String namespace, String name, Set<String> aliases, Parameters parameters, Class<T> returnType, @Nullable Contract contract) {
+	public Signature(String namespace, String name, Collection<String> aliases, Parameters parameters, Class<T> returnType, @Nullable Contract contract) {
 		this(namespace, name, parameters, returnType, false, contract);
 
 		this.aliases.addAll(aliases);
@@ -181,7 +181,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Set<String> aliases() {
+	public @Unmodifiable @NotNull Collection<String> aliases() {
 		return Collections.unmodifiableSet(aliases);
 	}
 

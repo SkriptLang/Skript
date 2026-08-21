@@ -7,9 +7,8 @@ import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
-import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * Represents a function signature.
@@ -25,7 +24,7 @@ public interface Signature<T> {
 	/**
 	 * @return All aliases for this implementation.
 	 */
-	@Unmodifiable @NotNull Set<String> aliases();
+	@Unmodifiable @NotNull Collection<String> aliases();
 
 	/**
 	 * @return The type of this parameter.
