@@ -273,7 +273,7 @@ public interface Parameter<T> {
 		/**
 		 * A modifier to use for checking if a parameter is ranged.
 		 */
-		record Ranged<T extends Comparable<T>>(@NotNull T min, @NotNull T max) implements Constraint {
+		record Ranged<T extends Comparable<T>>(@NotNull T min, @NotNull T max) implements Modifier, Constraint {
 
 			private static final Priority PRIORITY = Priority.after(TYPE_PRIORITY);
 
@@ -431,7 +431,7 @@ public interface Parameter<T> {
 		/**
 		 * A constraint is a modifier which validates the input of a parameter.
 		 */
-		interface Constraint extends Modifier {
+		interface Constraint {
 
 			/**
 			 * @param input The input.
