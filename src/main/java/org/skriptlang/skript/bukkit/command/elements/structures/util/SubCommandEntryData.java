@@ -5,17 +5,24 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.HintManager;
 import ch.njol.util.coll.CollectionUtils;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.Component;
@@ -37,6 +44,7 @@ import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandComp
 import org.skriptlang.skript.bukkit.command.custom.ScriptArgumentType;
 import org.skriptlang.skript.bukkit.command.custom.ScriptCommandExecutor;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.SubCommandEntryData.Result;
+import org.skriptlang.skript.bukkit.text.TextComponentUtils;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
@@ -135,6 +143,28 @@ public class SubCommandEntryData extends EntryData<Result> {
 		.addEntry("permission message", null, true)
 		.build();
 
+	/**
+	 * A command executor for displaying a correct usage message for invalid command executions.
+	 * @param usage Expression representing the usage message.
+	 */
+	private record UsageExecutor(Expression<? extends Component> usage) implements Command<CommandSourceStack> {
+
+		private static final SimpleCommandExceptionType NULL_USAGE_ERROR =
+			new SimpleCommandExceptionType(new LiteralMessage("Incorrect command usage."));
+
+		@Override
+		public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+			Component usage = usage().getSingle(ContextlessEvent.get());
+			if (usage == null) {
+				throw NULL_USAGE_ERROR.create();
+			}
+			// prefer just sending a message for more formatting options
+			context.getSource().getSender().sendMessage(usage);
+			return Command.SINGLE_SUCCESS;
+		}
+
+	}
+
 	static {
 		ParserInstance.registerData(CommandParsingData.class, CommandParsingData::new);
 		ParserInstance.registerData(SuggestingArgumentData.class, SuggestingArgumentData::new);
@@ -211,19 +241,6 @@ public class SubCommandEntryData extends EntryData<Result> {
 		if (!isRoot && description != null) {
 			Skript.error("Only the root of a command may have a description.");
 			return null;
-		}
-
-		// command usage
-		String usage = null;
-		VariableString variableUsage = entryContainer.getOptional("usage", VariableString.class, false);
-		if (variableUsage != null) {
-			if (!isRoot) {
-				Skript.error("Only the root of a command may have a usage.");
-				return null;
-			}
-			if (variableUsage.isSimple()) {
-				usage = variableUsage.toString(null);
-			}
 		}
 
 		// command prefix (custom namespace)
@@ -358,6 +375,19 @@ public class SubCommandEntryData extends EntryData<Result> {
 			return null;
 		}
 
+		// command usage
+		String usage = null;
+		VariableString variableUsage = entryContainer.getOptional("usage", VariableString.class, false);
+		UsageExecutor usageExecutor;
+		if (variableUsage != null) {
+			usageExecutor = new UsageExecutor(TextComponentUtils.asComponentExpression(variableUsage));
+			if (variableUsage.isSimple()) {
+				usage = variableUsage.toString(null);
+			}
+		} else {
+			usageExecutor = null;
+		}
+
 		// parse suggestions trigger
 		parser.setCurrentEvent("command suggestions", CommandSuggestionEvent.class);
 		Trigger suggestionsTrigger = entryContainer.getOptional("suggestions", Trigger.class, false);
@@ -431,7 +461,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 			List<Result> finalSubcommands = subcommands;
 			result = compilationResult.root().children().stream()
 				.map(child -> parse(child, executor, commandRequires, suggestionProvider,
-					suggestingArguments, finalSubcommands))
+					suggestingArguments, finalSubcommands, usageExecutor))
 				.toList();
 		}
 
@@ -474,6 +504,8 @@ public class SubCommandEntryData extends EntryData<Result> {
 	 * @param suggestionProvider Provider for custom suggestions.
 	 * @param suggestingArguments Arguments to suggest for using {@code suggestionProvider}.
 	 * @param subcommands Subcommands to attach to any leaf elements.
+	 * @param usageExecutor An executor for displaying a correct usage message at nodes where
+	 *  the command would not be executable.
 	 * @return Builder representing the completed command tree from the root.
 	 */
 	private static ScriptArgumentBuilder parse(
@@ -482,7 +514,8 @@ public class SubCommandEntryData extends EntryData<Result> {
 		@Nullable Predicate<CommandSourceStack> requires,
 		@Nullable ScriptSuggestionProvider suggestionProvider,
 		List<ArgumentData<?>> suggestingArguments,
-		List<Result> subcommands
+		List<Result> subcommands,
+		@Nullable UsageExecutor usageExecutor
 	) {
 		Collection<CommandElement> children = commandElement.children();
 
@@ -549,6 +582,9 @@ public class SubCommandEntryData extends EntryData<Result> {
 				}
 			}
 		}
+		if (usageExecutor != null && argument.builder().getCommand() == null) {
+			argument.builder().executes(usageExecutor);
+		}
 
 		// we parse the children to append to this element
 		for (CommandElement element : children) {
@@ -557,7 +593,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 			}
 			// we don't need to pass requirements down to children. just on the root is good enough.
 			possibleArguments.add(parse(element, executor, null, suggestionProvider,
-				suggestingArguments, subcommands));
+				suggestingArguments, subcommands, usageExecutor));
 		}
 
 		// sort and append all children to this element
