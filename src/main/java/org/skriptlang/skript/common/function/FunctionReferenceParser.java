@@ -137,11 +137,11 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 
 		// all signatures that have no single list param
 		// example: function add(x: int, y: int)
-		Collection<Signature<?>> exacts = new HashSet<>();
+		Set<Signature<?>> exacts = new HashSet<>();
 		// all signatures with only single list params
 		// these are functions that accept any number of arguments given a specific type
 		// example: function sum(ns: numbers)
-		Collection<Signature<?>> lists = new HashSet<>();
+		Set<Signature<?>> lists = new HashSet<>();
 
 		// first, sort into types
 		for (Signature<?> option : options) {
