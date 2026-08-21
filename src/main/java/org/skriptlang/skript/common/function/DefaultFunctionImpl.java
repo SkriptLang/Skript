@@ -190,7 +190,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		private final SkriptAddon source;
 		private final String name;
 		private final SequencedMap<String, Parameter<?>> parameters = new LinkedHashMap<>();
-		private final Set<Signature.Modifier> modifiers = new HashSet<>();
+		private final Collection<Signature.Modifier> modifiers = new HashSet<>();
 
 		private ch.njol.skript.util.Contract contract = null;
 

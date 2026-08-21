@@ -225,7 +225,7 @@ public final class FunctionReference<T> implements Debuggable {
 
 	private KeyedValue<?>[] evaluateSingleListParameter(Expression<?>[] arguments, Event event) {
 		List<Object> values = new ArrayList<>();
-		Set<String> keys = new LinkedHashSet<>();
+		Collection<String> keys = new LinkedHashSet<>();
 		int keyIndex = 1;
 		for (Expression<?> argument : arguments) {
 			Object[] valuesArray = argument.getArray(event);

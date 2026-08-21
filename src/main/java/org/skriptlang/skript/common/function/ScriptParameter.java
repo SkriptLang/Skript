@@ -66,7 +66,7 @@ public record ScriptParameter<T>(String name, Class<T> type, Collection<Modifier
 			}
 		}
 
-		Set<Modifier> modifiers = new HashSet<>();
+		Collection<Modifier> modifiers = new HashSet<>();
 		if (defaultValue != null) {
 			modifiers.add(new Modifier.Optional());
 		}
