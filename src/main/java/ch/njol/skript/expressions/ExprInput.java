@@ -129,28 +129,21 @@ public class ExprInput<T> extends SimpleExpression<T> {
 		Object currentValue = isIndex ? inputSource.getCurrentIndex() : inputSource.getCurrentValue();
 
 		switch (mode) {
-			case DELETE:
-				currentValue = null;
-				break;
-			case RESET:
-				currentValue = inputSource.getUnchangedValue();
-				break;
-			case ADD:
-			case REMOVE:
-				if (currentValue == null)
+			case DELETE -> currentValue = null;
+			case RESET -> currentValue = inputSource.getUnchangedValue();
+			case ADD, REMOVE -> {
+				if(currentValue == null)
 					currentValue = 0;
 
-				if (delta.length > 0 && delta[0] != null) {
+				if(delta.length > 0 && delta[0] != null) {
 					Operator operator = mode == ChangeMode.ADD
 						? Operator.ADDITION
 						: Operator.SUBTRACTION;
 
 					currentValue = Arithmetics.calculate(operator, currentValue, delta[0], Object.class);
 				}
-				break;
-			case SET:
-				currentValue = delta.length == 1 ? delta[0] : delta;
-				break;
+			}
+			case SET -> currentValue = delta.length == 1 ? delta[0] : delta;
 		}
 
 		inputSource.updateCurrentValue(currentValue);
