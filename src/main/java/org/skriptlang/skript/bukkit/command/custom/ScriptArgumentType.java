@@ -165,7 +165,6 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 	@Override
 	public @NotNull Object convert(@NotNull String input) throws CommandSyntaxException {
 		assert argument.type().getParser() != null;
-		input = input.replace('_', ' ');
 
 		Literal<T> result;
 		try (ParseLogHandler logHandler = new ParseLogHandler().start()) {
@@ -201,6 +200,12 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 
 		public Suggesting(@NotNull ArgumentData<T> argument, @NotNull StringArgumentType nativeType) {
 			super(argument, nativeType);
+		}
+
+		@Override
+		public @NotNull Object convert(@NotNull String input) throws CommandSyntaxException {
+			input = input.replace('_', ' ');
+			return super.convert(input);
 		}
 
 		@Override
