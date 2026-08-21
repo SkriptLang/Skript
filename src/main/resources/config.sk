@@ -160,11 +160,6 @@ case-insensitive variables: true
 # Whether Skript's variables should be case sensitive or not.
 # When set to true, all variable names and indices case will be ignored.
 
-case-insensitive commands: false
-# Whether Skript should accept custom commands regardless of case.
-# When set to true, /test, /Test, and /TEST will all be equivalent.
-# This does not affect non-Skript commands.
-
 disable variable will not be saved warnings: false
 # Disables the "... i.e contents cannot be saved ..." warning when reloading and something in your scripts sets a variable(non local) to a value that is not serializable.
 
@@ -214,11 +209,6 @@ enable legacy tab completion event compatibility: true
 # By default, Skript provides compatibility for retaining the functionality of these systems,
 #  but it breaks support for real-time command validation messages.
 # If you want real-time command validation messages, set this option to 'false'.
-
-keep command last usage dates: false
-# When a cooldown is set on a command, the last usage date is kept in memory (or in a variable if cooldown storage is specified),
-# but when the player uses the command again after the cooldown period is over, the last usage will be deleted as it's no longer needed,
-# If you need to use the expression 'last usage date', then you'll want to enable this.
 
 script loader thread size: 0
 # Enables asynchronous script loading, which will load scripts in the background instead of blocking the server to load scripts.
