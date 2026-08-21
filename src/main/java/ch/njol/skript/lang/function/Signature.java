@@ -109,7 +109,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 		this(namespace, name, initParameters(parameters), returnType, false, contract);
 	}
 
-	public Signature(String name, Set<Modifier> modifiers, Parameters parameters, @Nullable Contract contract) {
+	public Signature(String name, Collection<Modifier> modifiers, Parameters parameters, @Nullable Contract contract) {
 		this.modifiers.addAll(modifiers);
 
 		this.name = name;

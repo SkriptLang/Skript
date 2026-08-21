@@ -16,8 +16,8 @@ import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.util.Priority;
 
+import java.util.Collection;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.StringJoiner;
 
 /**
@@ -42,7 +42,7 @@ public interface Parameter<T> {
 	 * @return All modifiers belonging to this parameter.
 	 */
 	@Unmodifiable
-	@NotNull Set<Modifier> modifiers();
+	@NotNull Collection<Modifier> modifiers();
 
 	/**
 	 * @deprecated Use {@link #hasModifier(Class)} instead.
@@ -133,16 +133,11 @@ public interface Parameter<T> {
 
 		joiner.add("%s:".formatted(name()));
 
-		for (Modifier modifier : modifiers()) {
-			if (!modifier.toStringPriority().isBefore(Modifier.TYPE_PRIORITY)) {
-				continue;
-			}
-			String string = modifier.toFormattedString();
-			if (string.isEmpty()) {
-				continue;
-			}
-			joiner.add(string);
-		}
+		modifiers().stream()
+				.filter(it -> it.toStringPriority().isBefore(Modifier.TYPE_PRIORITY))
+				.map(Modifier::toFormattedString)
+				.filter(it -> !it.isEmpty())
+				.forEach(joiner::add);
 
 		Noun exact = Classes.getSuperClassInfo(type()).getName();
 		if (type().isArray()) {
@@ -151,16 +146,11 @@ public interface Parameter<T> {
 			joiner.add(exact.getSingular());
 		}
 
-		for (Modifier modifier : modifiers()) {
-			if (!modifier.toStringPriority().isAfter(Modifier.TYPE_PRIORITY)) {
-				continue;
-			}
-			String string = modifier.toFormattedString();
-			if (string.isEmpty()) {
-				continue;
-			}
-			joiner.add(string);
-		}
+		modifiers().stream()
+				.filter(it -> it.toStringPriority().isAfter(Modifier.TYPE_PRIORITY))
+				.map(Modifier::toFormattedString)
+				.filter(it -> !it.isEmpty())
+				.forEach(joiner::add);
 
 		return joiner.toString();
 	}

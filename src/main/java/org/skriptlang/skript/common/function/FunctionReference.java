@@ -38,7 +38,7 @@ public final class FunctionReference<T> implements Debuggable {
 	private Function<T> cachedFunction;
 	private LinkedHashMap<String, ArgInfo> cachedArguments;
 
-	private record ArgInfo(Expression<?> expression, Class<?> type, Set<Modifier> modifiers) {
+	private record ArgInfo(Expression<?> expression, Class<?> type, Collection<Modifier> modifiers) {
 
 		/**
 		 * Returns whether this parameter has the specified modifier.

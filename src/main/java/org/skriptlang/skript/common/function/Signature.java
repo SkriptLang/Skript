@@ -47,7 +47,8 @@ public interface Signature<T> {
 	/**
 	 * @return An unmodifiable view of all the parameters that this signature has.
 	 */
-	@Unmodifiable @NotNull Parameters parameters();
+	@Unmodifiable
+	@NotNull Parameters parameters();
 
 	/**
 	 * @return The contract of this signature.
@@ -57,6 +58,7 @@ public interface Signature<T> {
 
 	/**
 	 * Adds a reference to the clearing list.
+	 *
 	 * @param reference The reference.
 	 */
 	@Experimental
@@ -76,7 +78,7 @@ public interface Signature<T> {
 	 * @return All modifiers belonging to this signature.
 	 */
 	@Unmodifiable
-	@NotNull Set<Modifier> modifiers();
+	@NotNull Collection<Modifier> modifiers();
 
 	/**
 	 * Returns whether this signature has the specified modifier.
@@ -109,31 +111,21 @@ public interface Signature<T> {
 	default @NotNull String toFormattedString() {
 		StringJoiner joiner = new StringJoiner(" ");
 
-		for (Modifier modifier : modifiers()) {
-			if (!modifier.toStringPriority().isBefore(Modifier.FUNCTION_PRIORITY)) {
-				continue;
-			}
-			String string = modifier.toFormattedString();
-			if (string.isEmpty()) {
-				continue;
-			}
-			joiner.add(string);
-		}
+		modifiers().stream()
+				.filter(it -> it.toStringPriority().isBefore(Modifier.FUNCTION_PRIORITY))
+				.map(Modifier::toFormattedString)
+				.filter(it -> !it.isEmpty())
+				.forEach(joiner::add);
 
 		joiner.add("function");
 		joiner.add("%s(%s)".formatted(name(), Arrays.stream(parameters().all())
 				.map(Objects::toString).collect(Collectors.joining(", "))));
 
-		for (Modifier modifier : modifiers()) {
-			if (!modifier.toStringPriority().isAfter(Modifier.FUNCTION_PRIORITY)) {
-				continue;
-			}
-			String string = modifier.toFormattedString();
-			if (string.isEmpty()) {
-				continue;
-			}
-			joiner.add(string);
-		}
+		modifiers().stream()
+				.filter(it -> it.toStringPriority().isAfter(Modifier.FUNCTION_PRIORITY))
+				.map(Modifier::toFormattedString)
+				.filter(it -> !it.isEmpty())
+				.forEach(joiner::add);
 
 		return joiner.toString();
 	}
@@ -169,6 +161,7 @@ public interface Signature<T> {
 
 		/**
 		 * Indicates this function is only visible in a specific namespace.
+		 *
 		 * @param namespace The namespace.
 		 */
 		record Local(@NotNull String namespace) implements Modifier {
@@ -193,8 +186,9 @@ public interface Signature<T> {
 
 		/**
 		 * Indicates this function returns a value.
+		 *
 		 * @param type The class of the type that is returned.
-		 * @param <T> The type to return.
+		 * @param <T>  The type to return.
 		 */
 		record Returns<T>(@NotNull Class<T> type) implements Modifier {
 

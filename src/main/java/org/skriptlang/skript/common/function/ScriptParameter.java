@@ -14,6 +14,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,7 +27,7 @@ import java.util.Set;
  * @param defaultValue The default value, or null if there is no default value.
  * @param <T>          The type.
  */
-public record ScriptParameter<T>(String name, Class<T> type, Set<Modifier> modifiers,
+public record ScriptParameter<T>(String name, Class<T> type, Collection<Modifier> modifiers,
 								 @Nullable Expression<?> defaultValue)
 		implements Parameter<T> {
 

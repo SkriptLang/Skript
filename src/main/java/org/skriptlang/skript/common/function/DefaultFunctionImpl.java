@@ -26,7 +26,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	DefaultFunctionImpl(
 			SkriptAddon source,
 			String name,
-			Set<Signature.Modifier> modifiers,
+			Collection<Signature.Modifier> modifiers,
 			SequencedMap<String, Parameter<?>> parameters,
 			@Nullable ch.njol.skript.util.Contract contract,
 			Function<FunctionArguments, T> execute,
@@ -300,7 +300,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	 * @param modifiers The modifiers.
 	 * @param <T>       The type.
 	 */
-	record DefaultParameter<T>(String name, Class<T> type, Set<Modifier> modifiers)
+	record DefaultParameter<T>(String name, Class<T> type, Collection<Modifier> modifiers)
 			implements Parameter<T> {
 
 		DefaultParameter(String name, Class<T> type, Modifier... modifiers) {
@@ -313,8 +313,8 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		}
 
 		@SuppressWarnings("removal")
-		private static Set<Modifier> modernizeModifiers(Modifier[] modifiers) {
-			Set<Modifier> result = new LinkedHashSet<>();
+		private static Collection<Modifier> modernizeModifiers(Modifier[] modifiers) {
+			Collection<Modifier> result = new LinkedHashSet<>();
 			for (Modifier modifier : modifiers) {
 				if (modifier instanceof Parameter.Modifier.RangedModifier<?> rangedModifier) {
 					//noinspection rawtypes,unchecked

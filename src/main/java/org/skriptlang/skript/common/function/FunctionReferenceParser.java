@@ -456,7 +456,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 	 * @param references The possible references.
 	 * @param <T>        The return types of the references.
 	 */
-	private <T> void ambiguousError(String name, Set<FunctionReference<T>> references) {
+	private <T> void ambiguousError(String name, Collection<FunctionReference<T>> references) {
 		List<String> parts = new ArrayList<>();
 
 		for (FunctionReference<T> reference : references) {
@@ -487,7 +487,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 	 * @param arguments The passed arguments to the function call.
 	 * @param possibleSignatures A set of signatures that may contain what the user intended to match.
 	 */
-	private void doesNotExist(String name, FunctionReference.Argument<String>[] arguments, Set<Signature<?>> possibleSignatures) {
+	private void doesNotExist(String name, FunctionReference.Argument<String>[] arguments, Collection<Signature<?>> possibleSignatures) {
 		StringJoiner joiner = new StringJoiner(", ");
 
 		List<Class<?>> argumentTypes = new ArrayList<>();
