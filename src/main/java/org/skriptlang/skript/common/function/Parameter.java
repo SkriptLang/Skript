@@ -220,7 +220,7 @@ public interface Parameter<T> {
 		/**
 		 * The modifier for parameters that are optional.
 		 */
-		record Optional() implements Constraint {
+		record Optional() implements Modifier {
 
 			private static final Priority PRIORITY = Priority.before(TYPE_PRIORITY);
 
@@ -232,11 +232,6 @@ public interface Parameter<T> {
 			@Override
 			public @NotNull Priority toStringPriority() {
 				return PRIORITY;
-			}
-
-			@Override
-			public boolean isValid(Object input) {
-				return input != null;
 			}
 
 		}

@@ -6,8 +6,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.common.function.Parameter.Modifier.Constraint;
-import org.skriptlang.skript.common.function.Parameter.Modifier.RangedModifier;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -73,8 +71,8 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			{
 				for (Object object : arg) {
 					boolean valid = parameter.modifiers().stream()
-							.filter(it -> it instanceof Constraint)
-							.map(Constraint.class::cast)
+							.filter(it -> it instanceof Parameter.Modifier.Constraint)
+							.map(Parameter.Modifier.Constraint.class::cast)
 							.allMatch(it -> it.isValid(object));
 
 					if (!valid) {
@@ -125,9 +123,13 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			Parameter<?> parameter = parameters.get(name);
 			Object value = arguments.get(name);
 
+			if (!parameter.hasModifier(Parameter.Modifier.Optional.class) && value == null) {
+				return null;
+			}
+
 			boolean valid = parameter.modifiers().stream()
-					.filter(it -> it instanceof Constraint)
-					.map(Constraint.class::cast)
+					.filter(it -> it instanceof Parameter.Modifier.Constraint)
+					.map(Parameter.Modifier.Constraint.class::cast)
 					.allMatch(it -> it.isValid(value));
 
 			if (!valid) {
@@ -314,7 +316,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		private static Set<Modifier> modernizeModifiers(Modifier[] modifiers) {
 			Set<Modifier> result = new LinkedHashSet<>();
 			for (Modifier modifier : modifiers) {
-				if (modifier instanceof RangedModifier<?> rangedModifier) {
+				if (modifier instanceof Parameter.Modifier.RangedModifier<?> rangedModifier) {
 					//noinspection rawtypes,unchecked
 					result.add(new Modifier.Ranged(rangedModifier.getMin(), rangedModifier.getMax()));
 				} else {

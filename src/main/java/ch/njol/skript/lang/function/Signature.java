@@ -25,6 +25,8 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	private final Parameters parameters;
 	private final Set<Modifier> modifiers = new HashSet<>();
 
+	final String namespace;
+
 	/**
 	 * The return type.
 	 */
@@ -53,7 +55,8 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	public Signature(@Nullable String namespace, String name, Parameter<?>[] parameters, boolean local, @Nullable ClassInfo<T> returnType, boolean single, @Nullable Contract contract) {
 		this.name = name;
 		this.parameters = initParameters(parameters);
-		if (local)
+		this.namespace = namespace;
+		if (local && namespace != null)
 			modifiers.add(new Modifier.Local(namespace));
 		if (returnType != null)
 			modifiers.add(new Modifier.Returns<>(returnType.getC()));
@@ -82,7 +85,8 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	public Signature(@Nullable String namespace, String name, Parameters parameters, Class<T> returnType, boolean local, @Nullable Contract contract) {
 		this.name = name;
 		this.parameters = parameters;
-		if (local)
+		this.namespace = namespace;
+		if (local && namespace != null)
 			modifiers.add(new Modifier.Local(namespace));
 		if (returnType != null) {
 			//noinspection unchecked
@@ -121,6 +125,11 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 			this.single = true;
 		}
 
+		if (hasModifier(Modifier.Local.class)) {
+			this.namespace = getModifier(Modifier.Local.class).namespace();
+		} else {
+			this.namespace = null;
+		}
 		this.contract = contract;
 		this.calls = Collections.newSetFromMap(new WeakHashMap<>());
 	}
@@ -206,10 +215,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	}
 
 	public String namespace() {
-		if (!hasModifier(Modifier.Local.class)) {
-			return null;
-		}
-		return getModifier(Modifier.Local.class).namespace();
+		return namespace;
 	}
 
 	public @Nullable ClassInfo<T> getReturnType() {
