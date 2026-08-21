@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.command.custom;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.lang.Literal;
@@ -8,6 +9,7 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Utils;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
@@ -228,12 +230,10 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 	 */
 	public static final class OfflinePlayerArgument implements CustomArgumentType<Object, Object> {
 
-		private final ArgumentData<OfflinePlayer> argument;
 		private final StringArgumentType nativeType;
 		private final ArgumentType<?> playerType;
 
 		public OfflinePlayerArgument(@NotNull ArgumentData<OfflinePlayer> argument, @NotNull StringArgumentType nativeType) {
-			this.argument = argument;
 			this.nativeType = nativeType;
 			playerType = argument.isSingle() ? ArgumentTypes.player() : ArgumentTypes.players();
 		}
@@ -248,10 +248,9 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 			int cursor = reader.getCursor();
 			try {
 				String input = nativeType.parse(reader, source);
-				//noinspection ConstantConditions - OfflinePlayer always has a parser
-				OfflinePlayer offlinePlayer = argument.type().getParser().parse(input, ParseContext.COMMAND);
-				if (offlinePlayer != null) {
-					return offlinePlayer;
+				// taken from OfflinePlayerClassInfo
+				if (Utils.isValidUUID(input) || SkriptConfig.playerNameRegexPattern.value().matcher(input).matches()) {
+					return input;
 				}
 			} catch (CommandSyntaxException ignored) { }
 			reader.setCursor(cursor);
