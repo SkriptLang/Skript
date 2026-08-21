@@ -207,7 +207,7 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 			if (event instanceof ScriptCommandExecutionEvent scriptCommandExecutionEvent) {
 				value = scriptCommandExecutionEvent.getArgument(argument.name());
 			} else {
-				value = ((CommandSuggestionEvent) event).getPreviousArguments().get(argument);
+				value = ((CommandSuggestionEvent) event).getPreviousArgument(argument);
 				if (value == null) {
 					return (Object[]) Array.newInstance(argument.type().getC(), 0);
 				}

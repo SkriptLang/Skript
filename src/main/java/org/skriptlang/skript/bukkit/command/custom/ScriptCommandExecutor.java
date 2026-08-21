@@ -29,6 +29,18 @@ import java.util.stream.Collectors;
 public class ScriptCommandExecutor {
 
 	/**
+	 * Obtains all arguments with available values in the provided context.
+	 * @param context Command context for obtaining provided arguments.
+	 * @return A set of the names of arguments that have available values.
+	 */
+	public static Set<String> getProvidedArguments(CommandContext<CommandSourceStack> context) {
+		return context.getNodes().stream()
+			.filter(node -> node.getNode() instanceof ArgumentCommandNode<?,?>)
+			.map(node -> node.getNode().getName())
+			.collect(Collectors.toSet());
+	}
+
+	/**
 	 * Utility method for mapping a list of {@link ArgumentData}s to their real values given context.
 	 * @param arguments Arguments to map to values.
 	 * @param context Command context for obtaining argument values.
@@ -40,41 +52,53 @@ public class ScriptCommandExecutor {
 	public static Map<ArgumentData<?>, Object> getArguments(List<ArgumentData<?>> arguments, CommandContext<CommandSourceStack> context,
 	                                                        ScriptCommandExecutionEvent commandEvent) throws CommandSyntaxException {
 		Map<ArgumentData<?>, Object> argumentMap = new HashMap<>();
-		// argument assembly
-		Set<String> providedArgs = context.getNodes().stream()
-			.filter(node -> node.getNode() instanceof ArgumentCommandNode<?,?>)
-			.map(node -> node.getNode().getName())
-			.collect(Collectors.toSet());
+		Set<String> providedArguments = getProvidedArguments(context);
 		for (ArgumentData<?> argument : arguments) {
-			Object value = null;
-			if (providedArgs.contains(argument.name())) {
-				value = context.getArgument(argument.name(), Object.class); // we manually handle type validation
-				if (value instanceof ArgumentResolver<?> argumentResolver) { // native type needs resolved
-					value = argumentResolver.resolve(context.getSource());
-					if (value instanceof SequencedCollection<?> collection) {
-						if (argument.isSingle()) { // many single arguments are still provided as lists
-							value = collection.getFirst();
-						} else {
-							value = collection.toArray((Object[]) Array.newInstance(argument.type().getC(), collection.size()));
-						}
-					}
-				} else if (argument.type().getC() == OfflinePlayer.class) {
-					// This should always succeed as the input is validated during parsing
-					//noinspection ConstantConditions - OfflinePlayer always has a parser
-					value = argument.type().getParser().parse((String) value, ParseContext.COMMAND);
-				}
-			} else if (argument.defaultValue() != null) { // fallback to default value
-				if (argument.isSingle()) {
-					value = argument.defaultValue().getSingle(commandEvent);
-				} else {
-					value = argument.defaultValue().getArray(commandEvent);
-				}
-			}
+			Object value = getArgument(argument, providedArguments, context, commandEvent);
 			if (value != null) {
 				argumentMap.put(argument, value);
 			}
 		}
 		return argumentMap;
+	}
+
+	/**
+	 * Utility method for mapping a {@link ArgumentData} to its real value given context.
+	 * @param argument The argument to map to a value.
+	 * @param providedArguments A set of arguments known to be provided in the {@code context}.
+	 * @param context Command context for obtaining argument values.
+	 * @param commandEvent Event context for resolving default values.
+	 * @return The real value of {@code argument} given {@code context}.
+	 * @throws CommandSyntaxException If an error occurs while resolving this argument.
+	 */
+	public static Object getArgument(ArgumentData<?> argument, Set<String> providedArguments,
+									 CommandContext<CommandSourceStack> context, ScriptCommandExecutionEvent commandEvent)
+		throws CommandSyntaxException {
+		Object value = null;
+		if (providedArguments.contains(argument.name())) {
+			value = context.getArgument(argument.name(), Object.class); // we manually handle type validation
+			if (value instanceof ArgumentResolver<?> argumentResolver) { // native type needs resolved
+				value = argumentResolver.resolve(context.getSource());
+				if (value instanceof SequencedCollection<?> collection) {
+					if (argument.isSingle()) { // many single arguments are still provided as lists
+						value = collection.getFirst();
+					} else {
+						value = collection.toArray((Object[]) Array.newInstance(argument.type().getC(), collection.size()));
+					}
+				}
+			} else if (argument.type().getC() == OfflinePlayer.class) {
+				// This should always succeed as the input is validated during parsing
+				//noinspection ConstantConditions - OfflinePlayer always has a parser
+				value = argument.type().getParser().parse((String) value, ParseContext.COMMAND);
+			}
+		} else if (argument.defaultValue() != null) { // fallback to default value
+			if (argument.isSingle()) {
+				value = argument.defaultValue().getSingle(commandEvent);
+			} else {
+				value = argument.defaultValue().getArray(commandEvent);
+			}
+		}
+		return value;
 	}
 
 	private static void setVariable(String name, Object value, boolean isSingle, Event context) {
