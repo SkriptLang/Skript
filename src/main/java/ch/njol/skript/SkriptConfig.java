@@ -308,6 +308,9 @@ public class SkriptConfig {
 	public static final Option<Boolean> allowUnsafePlatforms = new Option<>("allow unsafe platforms", false)
 			.optional(true);
 
+	public static final Option<Boolean> enableLegacyTabCompletion = new Option<>("enable legacy tab completion event compatibility", true)
+			.optional(true);
+
 	public static final Option<Boolean> keepLastUsageDates = new Option<>("keep command last usage dates", false)
 			.optional(true);
 

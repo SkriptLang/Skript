@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.command.elements.structures.util;
 
+import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -8,6 +9,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.CommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
 import org.bukkit.event.server.TabCompleteEvent;
 
 import java.util.ArrayList;
@@ -18,8 +20,6 @@ import java.util.concurrent.CompletableFuture;
  * Internal suggestion provider for preserving support for suggestions provided through the {@link TabCompleteEvent}.
  */
 final class LegacyTabCompleteEventSuggestionProvider {
-
-	private LegacyTabCompleteEventSuggestionProvider() { }
 
 	/**
 	 * @param arguments Arguments to modify.
@@ -70,11 +70,12 @@ final class LegacyTabCompleteEventSuggestionProvider {
 			ArgumentBuilder<CommandSourceStack, ?> builder = node.createBuilder();
 			if (firstArgumentIndex >= 0) {
 				CommandNode<CommandSourceStack> existingChild = newChildren.get(firstArgumentIndex);
-				ArgumentBuilder<CommandSourceStack, ?> childBuilder = existingChild.createBuilder();
-				existingChild.getChildren().forEach(childBuilder::then);
 				//noinspection unchecked
-				((RequiredArgumentBuilder<CommandSourceStack, ?>) childBuilder)
-					.suggests(LegacyTabCompleteEventSuggestionProvider::getSuggestions);
+				RequiredArgumentBuilder<CommandSourceStack, ?> childBuilder =
+					(RequiredArgumentBuilder<CommandSourceStack, ?>) existingChild.createBuilder();
+				existingChild.getChildren().forEach(childBuilder::then);
+				var suggestionProvider = new LegacyTabCompleteEventSuggestionProvider(childBuilder.getType());
+				childBuilder.suggests(suggestionProvider::getSuggestions);
 				newChildren.set(firstArgumentIndex, childBuilder.build());
 			}
 			newChildren.forEach(builder::then);
@@ -84,12 +85,30 @@ final class LegacyTabCompleteEventSuggestionProvider {
 		return node;
 	}
 
-	private static CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> context,
+	private static final Suggestions EMPTY = Suggestions.empty().join();
+
+	private final ArgumentType<?> nativeType;
+
+	private LegacyTabCompleteEventSuggestionProvider(ArgumentType<?> nativeType) {
+		this.nativeType = nativeType;
+	}
+
+	private CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> context,
 	                                                             SuggestionsBuilder builder) {
 		TabCompleteEvent tabCompleteEvent = new TabCompleteEvent(context.getSource().getSender(),
 			builder.getInput(), new ArrayList<>(), true, context.getSource().getLocation());
 		if (tabCompleteEvent.callEvent()) {
-			tabCompleteEvent.getCompletions().forEach(builder::suggest);
+			if (tabCompleteEvent.getCompletions().isEmpty()) {
+				CompletableFuture<Suggestions> nativeSuggestions = nativeType.listSuggestions(context, builder);
+				if (nativeType instanceof CustomArgumentType<?, ?> customType && nativeSuggestions.isDone() &&
+					nativeSuggestions.join() == EMPTY) {
+					// fallback to native type for custom arguments without explicit suggestions
+					return customType.getNativeType().listSuggestions(context, builder);
+				}
+				return nativeSuggestions;
+			} else {
+				tabCompleteEvent.getCompletions().forEach(builder::suggest);
+			}
 		}
 		return builder.buildFuture();
 	}

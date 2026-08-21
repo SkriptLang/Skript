@@ -208,6 +208,13 @@ color codes reset formatting: true
 # With JSON-based new chat protocol, this is not necessary, but can be done
 # manually for compatibility. This is done by default for compatibility.
 
+enable legacy tab completion event compatibility: true
+# This version of Skript includes support for registering commands using Minecraft's native Brigadier command system.
+# However, this system is not compatible by default with custom tab completion systems provided by addons.
+# By default, Skript provides compatibility for retaining the functionality of these systems,
+#  but it breaks support for real-time command validation messages.
+# If you want real-time command validation messages, set this option to 'false'.
+
 keep command last usage dates: false
 # When a cooldown is set on a command, the last usage date is kept in memory (or in a variable if cooldown storage is specified),
 # but when the player uses the command again after the cooldown period is over, the last usage will be deleted as it's no longer needed,

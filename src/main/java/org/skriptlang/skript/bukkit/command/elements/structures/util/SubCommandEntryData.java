@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.command.elements.structures.util;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Trigger;
@@ -437,7 +438,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 		parsingData.popExecutorData();
 		parsingData.popArguments();
 
-		if (isRoot) { // compatibility measure: insert legacy tab completion providers
+		if (isRoot && SkriptConfig.enableLegacyTabCompletion.value()) { // compatibility measure: insert legacy tab completion providers
 			SuggestingArgumentData suggestingArgumentData = parser.getData(SuggestingArgumentData.class);
 			if (suggestingArgumentData.usingCustomSuggestions) {
 				suggestingArgumentData.usingCustomSuggestions = false;
