@@ -117,10 +117,6 @@ public abstract class Functions {
 				return null; // Probably duplicate signature; reported before
 		}
 
-		if (Skript.debug() || node.debug()) {
-			Skript.debug(signature.toString());
-		}
-
 		Function<?> function;
 		try {
 			function = new ScriptFunction<>(signature, node);
@@ -133,6 +129,7 @@ public abstract class Functions {
 			return null;
 		}
 
+		System.out.printf("loading %s in %s%n", signature.toFormattedString(), script.name());
 		if (namespace.getFunction(signature.getName()) == null) {
 			namespace.addFunction(function);
 		}
@@ -201,7 +198,9 @@ public abstract class Functions {
 		Namespace namespace = namespaces.computeIfAbsent(namespaceKey, k -> new Namespace());
 		if (namespace.getSignature(signature.getName()) == null) {
 			namespace.addSignature(signature);
+			System.out.printf("added %s to %s%n", signature.toFormattedString(), namespaceKey.getScriptName());
 		}
+
 		if (!signature.isLocal())
 			globalFunctions.put(signature.getName(), namespace);
 
