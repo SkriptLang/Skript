@@ -144,7 +144,7 @@ public class PotionModule extends HierarchicalAddonModule {
 				"The color of the particles a potion effect type produces. Cannot be changed.",
 				Skript.instance(),
 				ExpressionPropertyHandler.of(
-					type -> type.getColor() == null ? null : ColorRGB.fromBukkitColor(type.getColor()),
+					type -> ColorRGB.fromBukkitColor(type.getColor())
 					Color.class)));
 
 		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "potioncause", "potion causes")
