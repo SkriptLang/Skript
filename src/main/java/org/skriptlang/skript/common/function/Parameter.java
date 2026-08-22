@@ -134,7 +134,7 @@ public interface Parameter<T> {
 		joiner.add("%s:".formatted(name()));
 
 		modifiers().stream()
-				.filter(it -> it.toStringPriority().isBefore(Modifier.TYPE_PRIORITY))
+				.filter(it -> it.priority().isBefore(Modifier.TYPE_PRIORITY))
 				.map(Modifier::toFormattedString)
 				.filter(it -> !it.isEmpty())
 				.forEach(joiner::add);
@@ -147,7 +147,7 @@ public interface Parameter<T> {
 		}
 
 		modifiers().stream()
-				.filter(it -> it.toStringPriority().isAfter(Modifier.TYPE_PRIORITY))
+				.filter(it -> it.priority().isAfter(Modifier.TYPE_PRIORITY))
 				.map(Modifier::toFormattedString)
 				.filter(it -> !it.isEmpty())
 				.forEach(joiner::add);
@@ -156,8 +156,7 @@ public interface Parameter<T> {
 	}
 
 	/**
-	 * Represents a modifier that can be applied to a parameter
-	 * when constructing one using {@link Builder#parameter(String, Class, Modifier[])}.
+	 * Represents a modifier that can be applied to a parameter.
 	 */
 	interface Modifier {
 
@@ -167,12 +166,7 @@ public interface Parameter<T> {
 		Priority TYPE_PRIORITY = Priority.base();
 
 		/**
-		 * @return The modifier as a human-readable, formatted string.
-		 */
-		@NotNull String toFormattedString();
-
-		/**
-		 * The priority used when converting this modifier to a string representation.
+		 * The priority used when using this modifier in a string representation.
 		 *
 		 * <p>
 		 * Registering after {@link #TYPE_PRIORITY} will print after the type,
@@ -181,9 +175,14 @@ public interface Parameter<T> {
 		 * e.g. {@code x: optional number}.
 		 * </p>
 		 *
-		 * @return The priority used.
+		 * @return The priority.
 		 */
-		@NotNull Priority toStringPriority();
+		@NotNull Priority priority();
+
+		/**
+		 * @return The modifier as a human-readable, formatted string.
+		 */
+		@NotNull String toFormattedString();
 
 		/**
 		 * @deprecated Create a new class implementing {@link Modifier} instead.
@@ -195,13 +194,13 @@ public interface Parameter<T> {
 				private static final Priority PRIORITY = Priority.after(TYPE_PRIORITY);
 
 				@Override
-				public @NotNull String toFormattedString() {
-					return "";
+				public @NotNull Priority priority() {
+					return PRIORITY;
 				}
 
 				@Override
-				public @NotNull Priority toStringPriority() {
-					return PRIORITY;
+				public @NotNull String toFormattedString() {
+					return "";
 				}
 
 			};
@@ -215,22 +214,16 @@ public interface Parameter<T> {
 			private static final Priority PRIORITY = Priority.before(TYPE_PRIORITY);
 
 			@Override
+			public @NotNull Priority priority() {
+				return PRIORITY;
+			}
+
+			@Override
 			public @NotNull String toFormattedString() {
 				return "optional";
 			}
 
-			@Override
-			public @NotNull Priority toStringPriority() {
-				return PRIORITY;
-			}
-
 		}
-
-		/**
-		 * @deprecated Use {@link Optional} instead.
-		 */
-		@Deprecated(forRemoval = true, since = "INSERT VERSION")
-		Modifier OPTIONAL = new Modifier.Optional();
 
 		/**
 		 * The modifier for parameters that support optional keyed expressions.
@@ -243,22 +236,16 @@ public interface Parameter<T> {
 			private static final Priority PRIORITY = Priority.before(TYPE_PRIORITY);
 
 			@Override
+			public @NotNull Priority priority() {
+				return PRIORITY;
+			}
+
+			@Override
 			public @NotNull String toFormattedString() {
 				return "keyed";
 			}
 
-			@Override
-			public @NotNull Priority toStringPriority() {
-				return PRIORITY;
-			}
-
 		}
-
-		/**
-		 * @deprecated Use {@link Keyed} instead.
-		 */
-		@Deprecated(forRemoval = true, since = "INSERT VERSION")
-		Modifier KEYED = new Modifier.Keyed();
 
 		/**
 		 * A modifier to use for checking if a parameter is ranged.
@@ -280,13 +267,13 @@ public interface Parameter<T> {
 			}
 
 			@Override
-			public @NotNull String toFormattedString() {
-				return "between %s and %s".formatted(min, max);
+			public @NotNull Priority priority() {
+				return PRIORITY;
 			}
 
 			@Override
-			public @NotNull Priority toStringPriority() {
-				return PRIORITY;
+			public @NotNull String toFormattedString() {
+				return "between %s and %s".formatted(min, max);
 			}
 
 			@Override
@@ -305,6 +292,18 @@ public interface Parameter<T> {
 				return ((T) input).compareTo(min) > -1 && ((T) input).compareTo(max) < 1;
 			}
 		}
+
+		/**
+		 * @deprecated Use {@link Optional} instead.
+		 */
+		@Deprecated(forRemoval = true, since = "INSERT VERSION")
+		Modifier OPTIONAL = new Modifier.Optional();
+
+		/**
+		 * @deprecated Use {@link Keyed} instead.
+		 */
+		@Deprecated(forRemoval = true, since = "INSERT VERSION")
+		Modifier KEYED = new Modifier.Keyed();
 
 		/**
 		 * @deprecated Use {@link Ranged} instead.
@@ -412,7 +411,7 @@ public interface Parameter<T> {
 			}
 
 			@Override
-			public @NotNull Priority toStringPriority() {
+			public @NotNull Priority priority() {
 				return PRIORITY;
 			}
 
@@ -421,6 +420,7 @@ public interface Parameter<T> {
 		/**
 		 * A constraint is a modifier which validates the input of a parameter.
 		 */
+		@FunctionalInterface
 		interface Constraint {
 
 			/**
