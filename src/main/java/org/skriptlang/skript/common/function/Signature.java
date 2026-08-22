@@ -112,7 +112,7 @@ public interface Signature<T> {
 		StringJoiner joiner = new StringJoiner(" ");
 
 		modifiers().stream()
-				.filter(it -> it.toStringPriority().isBefore(Modifier.FUNCTION_PRIORITY))
+				.filter(it -> it.priority().isBefore(Modifier.FUNCTION_PRIORITY))
 				.map(Modifier::toFormattedString)
 				.filter(it -> !it.isEmpty())
 				.forEach(joiner::add);
@@ -122,7 +122,7 @@ public interface Signature<T> {
 				.map(Objects::toString).collect(Collectors.joining(", "))));
 
 		modifiers().stream()
-				.filter(it -> it.toStringPriority().isAfter(Modifier.FUNCTION_PRIORITY))
+				.filter(it -> it.priority().isAfter(Modifier.FUNCTION_PRIORITY))
 				.map(Modifier::toFormattedString)
 				.filter(it -> !it.isEmpty())
 				.forEach(joiner::add);
@@ -141,12 +141,7 @@ public interface Signature<T> {
 		Priority FUNCTION_PRIORITY = Priority.base();
 
 		/**
-		 * @return The modifier as a human-readable, formatted string.
-		 */
-		@NotNull String toFormattedString();
-
-		/**
-		 * The priority used when converting this modifier to a string representation.
+		 * The priority used when using this modifier in a string representation.
 		 *
 		 * <p>
 		 * Registering after {@link #FUNCTION_PRIORITY} will print after the function,
@@ -157,7 +152,12 @@ public interface Signature<T> {
 		 *
 		 * @return The priority used.
 		 */
-		@NotNull Priority toStringPriority();
+		@NotNull Priority priority();
+
+		/**
+		 * @return The modifier as a human-readable, formatted string.
+		 */
+		@NotNull String toFormattedString();
 
 		/**
 		 * Indicates this function is only visible in a specific namespace.
@@ -173,13 +173,13 @@ public interface Signature<T> {
 			private static final Priority PRIORITY = Priority.before(FUNCTION_PRIORITY);
 
 			@Override
-			public @NotNull String toFormattedString() {
-				return "local";
+			public @NotNull Priority priority() {
+				return PRIORITY;
 			}
 
 			@Override
-			public @NotNull Priority toStringPriority() {
-				return PRIORITY;
+			public @NotNull String toFormattedString() {
+				return "local";
 			}
 
 		}
@@ -199,6 +199,11 @@ public interface Signature<T> {
 			}
 
 			@Override
+			public @NotNull Priority priority() {
+				return PRIORITY;
+			}
+
+			@Override
 			public @NotNull String toFormattedString() {
 				Noun exact = Classes.getSuperClassInfo(type).getName();
 				if (type.isArray()) {
@@ -206,11 +211,6 @@ public interface Signature<T> {
 				} else {
 					return "returns " + exact.getSingular();
 				}
-			}
-
-			@Override
-			public @NotNull Priority toStringPriority() {
-				return PRIORITY;
 			}
 
 		}
