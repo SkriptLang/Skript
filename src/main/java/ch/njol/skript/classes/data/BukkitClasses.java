@@ -3,6 +3,7 @@ package ch.njol.skript.classes.data;
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.classes.*;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -10,6 +11,9 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
+import ch.njol.skript.util.Color;
+import ch.njol.skript.util.ColorRGB;
+import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
 import net.kyori.adventure.text.Component;
@@ -44,6 +48,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.metadata.Metadatable;
 import org.bukkit.util.CachedServerIcon;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.types.EntityClassInfo.EntityChanger;
 import org.skriptlang.skript.lang.properties.Property;
@@ -51,6 +56,7 @@ import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHan
 
 import java.io.StreamCorruptedException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -532,7 +538,11 @@ public class BukkitClasses {
 					public String toVariableNameString(FireworkEffect effect) {
 						return "firework effect " + effect.toString();
 					}
-				}));
+				})
+				.property(Property.COLOR,
+					"The colors of a firework effect. Can be set, added to, removed from, reset and deleted.",
+					Skript.instance(),
+					new FireworkEffectColorHandler()));
 
 		Classes.registerClass(new EnumClassInfo<>(Difficulty.class, "difficulty", "difficulties")
 				.user("difficult(y|ies)")
@@ -750,4 +760,58 @@ public class BukkitClasses {
 				.description("Represents a reason why a villager changed its career.")
 				.since("2.12"));
 	}
+
+	private static class FireworkEffectColorHandler implements ExpressionPropertyHandler<FireworkEffect, Object> {
+		//<editor-fold desc="color property for firework effects" defaultstate="collapsed">
+		@Override
+		public Color[] convert(FireworkEffect effect) {
+			return effect.getColors().stream()
+				.map(ColorRGB::fromBukkitColor)
+				.toArray(Color[]::new);
+		}
+
+		@Override
+		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+			return switch (mode) {
+				case SET, ADD, REMOVE, REMOVE_ALL, DELETE, RESET -> CollectionUtils.array(Color[].class);
+				default -> null;
+			};
+		}
+
+		@Override
+		public void change(FireworkEffect effect, Object @Nullable [] delta, ChangeMode mode) {
+			List<org.bukkit.Color> colors = effect.getColors();
+			switch (mode) {
+				case DELETE, RESET -> colors.clear();
+				case SET -> {
+					colors.clear();
+					addAll(colors, delta);
+				}
+				case ADD -> addAll(colors, delta);
+				case REMOVE, REMOVE_ALL -> {
+					if (delta == null)
+						return;
+					for (Object object : delta)
+						colors.remove(((Color) object).asBukkitColor());
+				}
+				default -> {
+				}
+			}
+		}
+
+		private static void addAll(List<org.bukkit.Color> colors, Object @Nullable [] delta) {
+			if (delta == null)
+				return;
+			for (Object object : delta)
+				colors.add(((Color) object).asBukkitColor());
+		}
+
+		@Override
+		public @NotNull Class<Object> returnType() {
+			//noinspection rawtypes, unchecked
+			return (Class<Object>) (Class) Color.class;
+		}
+		//</editor-fold>
+	}
+
 }

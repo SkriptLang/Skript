@@ -4,7 +4,11 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Color;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -16,6 +20,8 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.PropertyHandler;
+import org.skriptlang.skript.log.runtime.RuntimeErrorProducer;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 
@@ -60,7 +66,66 @@ public class BossBarClassInfo extends ClassInfo<BossBar> {
 				If you remove a player from viewers of a boss bar they will no longer see the bossbar or be affected by its flags.
 				""",
 				addon,
-				new BossBarViewersHandler());
+				new BossBarViewersHandler())
+			.property(Property.COLOR,
+				"The color of a boss bar. Only the few colors a boss bar supports can be used; any other color is " +
+					"rounded to the closest supported one. Can be set or reset.",
+				addon,
+				new BossBarColorHandler());
+	}
+
+	private static class BossBarColorHandler implements ExpressionPropertyHandler<BossBar, Color> {
+		//<editor-fold desc="boss bar color handler" defaultstate="collapsed">
+		private @Nullable RuntimeErrorProducer errorProducer;
+
+		@Override
+		public PropertyHandler<BossBar> newInstance() {
+			return new BossBarColorHandler();
+		}
+
+		@Override
+		public boolean init(Expression<?> parentExpression, ParserInstance parser) {
+			if (parentExpression instanceof RuntimeErrorProducer producer)
+				errorProducer = producer;
+			return true;
+		}
+
+		@Override
+		public @Nullable Color convert(BossBar bar) {
+			return BossBarUtils.rgbFromBarColor(bar.getColor());
+		}
+
+		@Override
+		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+			return switch (mode) {
+				case SET, RESET -> CollectionUtils.array(Color.class);
+				default -> null;
+			};
+		}
+
+		@Override
+		public void change(BossBar bar, Object @Nullable [] delta, ChangeMode mode) {
+			if (mode == ChangeMode.RESET) {
+				bar.setColor(BarColor.WHITE);
+				return;
+			}
+			if (delta == null || delta.length == 0)
+				return;
+			Color color = (Color) delta[0];
+			BarColor barColor = BossBarUtils.nearest(color);
+			if (barColor == null) {
+				if (errorProducer != null)
+					errorProducer.error("Could not round to a color that is similar to " + Classes.toString(color));
+			} else {
+				bar.setColor(barColor);
+			}
+		}
+
+		@Override
+		public @NotNull Class<Color> returnType() {
+			return Color.class;
+		}
+		//</editor-fold>
 	}
 
 	private static class BossBarParser extends Parser<BossBar> {

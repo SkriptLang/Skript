@@ -9,14 +9,20 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.YggdrasilSerializer;
 import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.util.Color;
 import ch.njol.skript.util.EnchantmentType;
+import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
+import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.Colorable;
+import org.bukkit.material.MaterialData;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -65,7 +71,51 @@ public class ItemTypeClassInfo extends ClassInfo<ItemType> {
 			.property(Property.AMOUNT,
 				"The amount of items in the stack this type represents. E.g. 5 for '5 stone swords'. Can be set.",
 				Skript.instance(),
-				new ItemTypeAmountHandler());
+				new ItemTypeAmountHandler())
+			.property(Property.COLOR,
+				"The color of the item, if it has one. Only a few items, such as banners, are colorable. Can be set.",
+				Skript.instance(),
+				new ItemTypeColorHandler());
+	}
+
+	@SuppressWarnings("removal")
+	private static class ItemTypeColorHandler implements ExpressionPropertyHandler<ItemType, Color> {
+		//<editor-fold desc="color property for item types" defaultstate="collapsed">
+		@Override
+		public @Nullable Color convert(ItemType itemType) {
+			ItemStack stack = itemType.getRandom();
+			if (stack == null || !(stack.getData() instanceof Colorable colorable))
+				return null;
+			DyeColor dyeColor = colorable.getColor();
+			return dyeColor == null ? null : SkriptColor.fromDyeColor(dyeColor);
+		}
+
+		@Override
+		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+			if (mode == ChangeMode.SET)
+				return CollectionUtils.array(Color.class);
+			return null;
+		}
+
+		@Override
+		public void change(ItemType itemType, Object @Nullable [] delta, ChangeMode mode) {
+			if (delta == null || delta.length == 0)
+				return;
+			ItemStack stack = itemType.getRandom();
+			if (stack == null)
+				return;
+			MaterialData data = stack.getData();
+			if (!(data instanceof Colorable colorable))
+				return;
+			colorable.setColor(((Color) delta[0]).asDyeColor());
+			stack.setData(data);
+		}
+
+		@Override
+		public @NotNull Class<Color> returnType() {
+			return Color.class;
+		}
+		//</editor-fold>
 	}
 
 	private static class ItemTypeParser extends Parser<ItemType> {

@@ -10,21 +10,29 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.util.Color;
 import ch.njol.skript.util.Experience;
+import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.DyeColor;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.material.Colorable;
+import org.bukkit.material.MaterialData;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.entity.displays.DisplayColorHandler;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
@@ -59,7 +67,75 @@ public class EntityClassInfo extends ClassInfo<Entity> {
 			.property(Property.DISPLAY_NAME,
 				"The entity's custom name, if it has one, as text. Can be set or reset.",
 				Skript.instance(),
-				EntityNameHandler.displayName());
+				EntityNameHandler.displayName())
+			.property(Property.COLOR,
+				"The color of the entity, if it has one, such as a sheep's wool color or a text display's " +
+					"background color. Can be set.",
+				Skript.instance(),
+				new EntityColorHandler());
+	}
+
+	@SuppressWarnings("removal")
+	private static class EntityColorHandler implements ExpressionPropertyHandler<Entity, Color> {
+		//<editor-fold desc="color property for entities" defaultstate="collapsed">
+		// Display entities are entities too, and the property handler is resolved from the declared types of an
+		// expression, so `color of event-entity` would silently lose display support without this delegation.
+		private final DisplayColorHandler displayHandler = new DisplayColorHandler();
+
+		@Override
+		public @Nullable Color convert(Entity entity) {
+			if (entity instanceof Display display)
+				return displayHandler.convert(display);
+			Colorable colorable = getColorable(entity);
+			if (colorable == null)
+				return null;
+			DyeColor dyeColor = colorable.getColor();
+			return dyeColor == null ? null : SkriptColor.fromDyeColor(dyeColor);
+		}
+
+		@Override
+		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+			return switch (mode) {
+				case SET, RESET -> CollectionUtils.array(Color.class);
+				default -> null;
+			};
+		}
+
+		@Override
+		public void change(Entity entity, Object @Nullable [] delta, ChangeMode mode) {
+			if (entity instanceof Display display) {
+				displayHandler.change(display, delta, mode);
+				return;
+			}
+			if (mode != ChangeMode.SET || delta == null || delta.length == 0)
+				return;
+			DyeColor dyeColor = ((Color) delta[0]).asDyeColor();
+			if (entity instanceof Item item) {
+				ItemStack stack = item.getItemStack();
+				MaterialData data = stack.getData();
+				if (!(data instanceof Colorable colorable))
+					return;
+				colorable.setColor(dyeColor);
+				stack.setData(data);
+				item.setItemStack(stack);
+			} else if (entity instanceof Colorable colorable) {
+				colorable.setColor(dyeColor);
+			}
+		}
+
+		private static @Nullable Colorable getColorable(Entity entity) {
+			if (entity instanceof Item item) {
+				ItemStack stack = item.getItemStack();
+				return stack.getData() instanceof Colorable colorable ? colorable : null;
+			}
+			return entity instanceof Colorable colorable ? colorable : null;
+		}
+
+		@Override
+		public @NotNull Class<Color> returnType() {
+			return Color.class;
+		}
+		//</editor-fold>
 	}
 
 	private static class EntityParser extends Parser<Entity> {

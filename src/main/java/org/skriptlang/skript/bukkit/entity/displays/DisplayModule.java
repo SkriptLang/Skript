@@ -94,7 +94,12 @@ public class DisplayModule extends HierarchicalAddonModule {
 					}
 				}
 				//</editor-fold>
-			));
+			)
+
+			.property(Property.COLOR,
+				"The background color of a text display. Other display types do not have a color. Can be set or reset.",
+				Skript.instance(),
+				new DisplayColorHandler()));
 
 		Classes.registerClass(new EnumClassInfo<>(Display.Billboard.class, "billboard", "billboards")
 			.user("billboards?")

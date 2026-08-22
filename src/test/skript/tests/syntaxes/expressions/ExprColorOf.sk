@@ -1,12 +1,28 @@
-# TODO: write tests for non-display colors
+# TODO: write tests for block and item colors
 
 # test "color of blocks":
 
 # test "color of items":
 
-# test "color of entities":
+test "color of entities":
+	spawn a sheep at spawn of world "world":
+		set {_e} to entity
 
-# test "color of fireworks":
+	assert color of {_e} is set with "sheep should have a colour"
+
+	set colour of {_e} to red
+	assert color of {_e} is red with "failed to set sheep colour"
+
+	delete entity within {_e}
+
+test "color of firework effects":
+	set {_effect} to ball firework effect coloured red and blue
+	set {_colors::*} to colours of {_effect}
+	# firework colours are reported as raw rgb, which does not match the dye colour they were built from
+	assert amount of {_colors::*} is 2 with "firework effect should have 2 colours"
+	assert {_colors::1} is set with "first firework effect colour failed"
+	assert {_colors::2} is set with "second firework effect colour failed"
+	assert {_colors::1} is not {_colors::2} with "firework effect colours should differ"
 
 test "color of displays":
 	spawn a text display at spawn of world "world":
@@ -32,3 +48,12 @@ test "color of displays":
 
 	delete entity within {_e}
 
+test "color of displays through an entity expression":
+	spawn a text display at spawn of world "world":
+		# 'entity' is typed as an entity here, so this only works if the entity property handles displays
+		set colour of entity to green
+		set {_e} to entity
+
+	assert color of {_e} is green with "failed to set background colour through an entity expression"
+
+	delete entity within {_e}

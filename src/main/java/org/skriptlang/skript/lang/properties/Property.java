@@ -318,10 +318,21 @@ public record Property<Handler extends PropertyHandler<?>>(
 		ExpressionPropertyHandler.class);
 
 	/**
+	 * A property for getting the color of something
+	 */
+	public static final Property<ExpressionPropertyHandler<?,?>> COLOR = Property.of(
+		"color",
+		"The color of something, such as a sheep, a firework effect, a text display or a boss bar.",
+		new String[]{"1.2", "2.10 (displays)", "2.16 (boss bars)"},
+		Skript.instance(),
+		ExpressionPropertyHandler.class);
+
+	/**
 	 * Register all Skript's default properties. Should be done prior to loading classinfos.
 	 */
 	public static void registerDefaultProperties() {
 		AMOUNT.register();
+		COLOR.register();
 		CONTAINS.register();
 		DISPLAY_NAME.register();
 		IS_EMPTY.register();

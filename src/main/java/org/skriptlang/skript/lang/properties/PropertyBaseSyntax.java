@@ -98,6 +98,26 @@ public interface PropertyBaseSyntax<Handler extends PropertyHandler<?>> {
 		Property<Handler> property,
 		Expression<?> expr
 	) {
+		return getPossiblePropertyInfos(property, expr, expr);
+	}
+
+	/**
+	 * Gets a map of all possible property infos for the given expression's return types.
+	 * This is useful for determining which property handlers can be used with an expression.
+	 *
+	 * @param property the property to check for
+	 * @param expr the expression to check
+	 * @param parentExpression the expression the handlers will be used by, handed to
+	 *                         {@link PropertyHandler#init(Expression, ch.njol.skript.lang.parser.ParserInstance)}.
+	 *                         Handlers that emit runtime errors need this to be the owning syntax, not the source.
+	 * @param <Handler> the type of the property handler
+	 * @return a map of classes to property infos for the given expression's return types
+	 */
+	static <Handler extends PropertyHandler<?>> PropertyMap<Handler> getPossiblePropertyInfos(
+		Property<Handler> property,
+		Expression<?> expr,
+		Expression<?> parentExpression
+	) {
 		PropertyMap<Handler> propertyInfos = new PropertyMap<>();
 
 		// get all types with a name property
@@ -127,7 +147,7 @@ public interface PropertyBaseSyntax<Handler extends PropertyHandler<?>> {
 			var propertyInfo = closestInfo.getPropertyInfo(property);
 			if (propertyInfo != null) {
 				var clonedHandler = propertyInfo.handler().newInstance();
-				if (clonedHandler.init(expr, expr.getParser())) {
+				if (clonedHandler.init(parentExpression, expr.getParser())) {
 					// overwrite with cloned handler
 					//noinspection unchecked
 					propertyInfo = new Property.PropertyInfo<>(propertyInfo.property(), (Handler) clonedHandler);
