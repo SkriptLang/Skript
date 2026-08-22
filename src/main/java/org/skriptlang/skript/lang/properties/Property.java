@@ -323,7 +323,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	public static final Property<ExpressionPropertyHandler<?,?>> COLOR = Property.of(
 		"color",
 		"The color of something, such as a sheep, a firework effect, a text display or a boss bar.",
-		new String[]{"1.2", "2.10 (displays)", "2.16 (boss bars)"},
+		new String[]{"INSERT VERSION"},
 		Skript.instance(),
 		ExpressionPropertyHandler.class);
 
