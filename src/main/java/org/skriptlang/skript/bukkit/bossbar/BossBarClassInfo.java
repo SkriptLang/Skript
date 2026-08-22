@@ -306,7 +306,7 @@ public class BossBarClassInfo extends ClassInfo<BossBar> {
 		@Override
 		public @NotNull Class<Object> returnType() {
 			//noinspection rawtypes, unchecked
-			return (Class<Object>) (Class) Player.class;
+			return (Class) Player.class;
 		}
 		//</editor-fold>
 	}

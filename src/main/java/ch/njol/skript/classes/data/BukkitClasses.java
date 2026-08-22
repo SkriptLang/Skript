@@ -809,7 +809,7 @@ public class BukkitClasses {
 		@Override
 		public @NotNull Class<Object> returnType() {
 			//noinspection rawtypes, unchecked
-			return (Class<Object>) (Class) Color.class;
+			return (Class) Color.class;
 		}
 		//</editor-fold>
 	}
