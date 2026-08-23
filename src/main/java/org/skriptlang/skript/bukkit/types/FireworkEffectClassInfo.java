@@ -97,8 +97,6 @@ public class FireworkEffectClassInfo extends ClassInfo<FireworkEffect> {
 					for (Object object : delta)
 						colors.remove(((Color) object).asBukkitColor());
 				}
-				default -> {
-				}
 			}
 		}
 
