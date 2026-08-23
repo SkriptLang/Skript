@@ -32,7 +32,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.entity.displays.DisplayColorHandler;
+import org.skriptlang.skript.bukkit.entity.displays.DisplayClassInfo.DisplayColorHandler;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
