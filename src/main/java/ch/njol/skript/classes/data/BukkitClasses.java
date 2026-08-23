@@ -47,7 +47,6 @@ import org.bukkit.metadata.Metadatable;
 import org.bukkit.util.CachedServerIcon;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.types.EntityClassInfo.EntityChanger;
-import org.skriptlang.skript.bukkit.types.FireworkEffectClassInfo;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
@@ -497,15 +496,6 @@ public class BukkitClasses {
 						}
 					}));
 		}
-
-		Classes.registerClass(new EnumClassInfo<>(FireworkEffect.Type.class, "fireworktype", "firework types")
-				.user("firework ?types?")
-				.name("Firework Type")
-				.description("The type of a <a href='#fireworkeffect'>fireworkeffect</a>.")
-				.since("2.4")
-				.documentationId("FireworkType"));
-
-		Classes.registerClass(new FireworkEffectClassInfo());
 
 		Classes.registerClass(new EnumClassInfo<>(Difficulty.class, "difficulty", "difficulties")
 				.user("difficult(y|ies)")
