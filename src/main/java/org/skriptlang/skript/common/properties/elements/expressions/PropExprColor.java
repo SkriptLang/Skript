@@ -24,7 +24,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 			message "This wool block is <%color of block%>%color of block%<reset>!"
 			set the color of the block to black
 	""")
-@Since("1.2, 2.10 (displays), 2.16 (boss bars)")
+@Since({"1.2", "2.10 (displays)", "2.16 (boss bars)"})
 @RelatedProperty("color")
 public class PropExprColor extends PropertyBaseExpression<ExpressionPropertyHandler<?, ?>> {
 
