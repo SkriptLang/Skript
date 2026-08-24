@@ -135,7 +135,7 @@ public class ExprInput<T> extends SimpleExpression<T> {
 				if(currentValue == null)
 					currentValue = 0;
 
-				if(delta.length > 0 && delta[0] != null) {
+				if (delta.length > 0 && delta[0] != null) {
 					Operator operator = mode == ChangeMode.ADD
 						? Operator.ADDITION
 						: Operator.SUBTRACTION;
