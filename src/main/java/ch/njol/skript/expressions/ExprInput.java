@@ -132,7 +132,7 @@ public class ExprInput<T> extends SimpleExpression<T> {
 			case DELETE -> currentValue = null;
 			case RESET -> currentValue = inputSource.getUnchangedValue();
 			case ADD, REMOVE -> {
-				if(currentValue == null)
+				if (currentValue == null)
 					currentValue = 0;
 
 				if (delta.length > 0 && delta[0] != null) {
