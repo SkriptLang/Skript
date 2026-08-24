@@ -206,7 +206,7 @@ public class EffSecTransform extends EffectSection implements InputSource {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if(mappingExpr == null || unmappedObjects == null)
+		if (mappingExpr == null || unmappedObjects == null)
 			return "transform section";
 		return "transform " + unmappedObjects.toString(event, debug) + " using " + mappingExpr.toString(event, debug);
 	}
