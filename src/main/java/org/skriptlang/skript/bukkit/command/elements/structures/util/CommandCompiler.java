@@ -376,7 +376,7 @@ final class CommandCompiler {
 		Pattern.compile("^\\s*(?:([^>]+?)\\s*:\\s*)?(.+?)\\s*(?:=\\s*(" + SkriptParser.WILDCARD + "))?\\s*$");
 
 	private static final Pattern TYPE_PATTERN =
-		Pattern.compile("^(.+?)\\s*(?: (?:from|above|between) (.+?))?(?:(?: (?:to|(?:and )?below|and) (.+?))?)?$");
+		Pattern.compile("^(.+?)\\s*(?: (?:from|above|greater than|>|between) (.+?))?(?:(?: (?:to|(?:and )?(?:below|less than|<)|and) (.+?))?)?$");
 
 	private static @Nullable ArgumentData<?> parseArgument(String argument, List<ArgumentData<?>> arguments) {
 		Matcher argumentMatcher = ARGUMENT_PATTERN.matcher(argument);

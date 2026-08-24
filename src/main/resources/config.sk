@@ -209,6 +209,7 @@ enable legacy tab completion event compatibility: true
 # By default, Skript provides compatibility for retaining the functionality of these systems,
 #  but it breaks support for real-time command validation messages.
 # If you want real-time command validation messages, set this option to 'false'.
+# Note that even after changing this option, you must also reload any scripts containing commands for it to take effect.
 
 script loader thread size: 0
 # Enables asynchronous script loading, which will load scripts in the background instead of blocking the server to load scripts.
