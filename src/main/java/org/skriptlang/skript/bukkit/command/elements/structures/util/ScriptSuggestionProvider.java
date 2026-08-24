@@ -3,23 +3,20 @@ package org.skriptlang.skript.bukkit.command.elements.structures.util;
 import ch.njol.skript.lang.Trigger;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.MessageComponentSerializer;
+import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.bukkit.command.custom.ArgumentData;
 import org.skriptlang.skript.bukkit.command.custom.ScriptArgumentType;
-import org.skriptlang.skript.bukkit.command.custom.ScriptCommandExecutionEvent;
-import org.skriptlang.skript.bukkit.command.custom.ScriptCommandExecutor;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandSuggestionEvent.CommandSuggestion;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -85,6 +82,9 @@ public class ScriptSuggestionProvider {
 		if (suggestions == null) { // nothing explicitly set, rely on argument's default suggestions
 			if (argument instanceof ScriptArgumentType.Suggesting<?> scriptArgument) {
 				return scriptArgument.listSuggestions(context, builder, suggestionEvent.filteringMode);
+			} else if (argument instanceof CustomArgumentType<?, ?> customArgument) {
+				// for other custom arguments, fallback to the native type
+				return customArgument.getNativeType().listSuggestions(context, builder);
 			}
 			return argument.listSuggestions(context, builder);
 		}

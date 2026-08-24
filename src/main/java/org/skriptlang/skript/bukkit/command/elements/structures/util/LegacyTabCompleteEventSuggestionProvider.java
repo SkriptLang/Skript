@@ -11,6 +11,7 @@ import com.mojang.brigadier.tree.CommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
 import org.bukkit.event.server.TabCompleteEvent;
+import org.skriptlang.skript.bukkit.command.custom.ScriptArgumentType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,12 +86,10 @@ final class LegacyTabCompleteEventSuggestionProvider {
 		return node;
 	}
 
-	private static final Suggestions EMPTY = Suggestions.empty().join();
+	private final ArgumentType<?> argument;
 
-	private final ArgumentType<?> nativeType;
-
-	private LegacyTabCompleteEventSuggestionProvider(ArgumentType<?> nativeType) {
-		this.nativeType = nativeType;
+	private LegacyTabCompleteEventSuggestionProvider(ArgumentType<?> argument) {
+		this.argument = argument;
 	}
 
 	private CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> context,
@@ -99,13 +98,12 @@ final class LegacyTabCompleteEventSuggestionProvider {
 			builder.getInput(), new ArrayList<>(), true, context.getSource().getLocation());
 		if (tabCompleteEvent.callEvent()) {
 			if (tabCompleteEvent.getCompletions().isEmpty()) {
-				CompletableFuture<Suggestions> nativeSuggestions = nativeType.listSuggestions(context, builder);
-				if (nativeType instanceof CustomArgumentType<?, ?> customType && nativeSuggestions.isDone() &&
-					nativeSuggestions.join() == EMPTY) {
-					// fallback to native type for custom arguments without explicit suggestions
-					return customType.getNativeType().listSuggestions(context, builder);
+				if (argument instanceof CustomArgumentType<?, ?> customArgument &&
+					!(argument instanceof ScriptArgumentType.Suggesting<?>)) {
+					// for custom arguments that aren't our suggesting arguments, fallback to the native type
+					return customArgument.getNativeType().listSuggestions(context, builder);
 				}
-				return nativeSuggestions;
+				return argument.listSuggestions(context, builder);
 			} else {
 				tabCompleteEvent.getCompletions().forEach(builder::suggest);
 			}
