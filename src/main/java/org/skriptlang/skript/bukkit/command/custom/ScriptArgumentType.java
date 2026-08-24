@@ -229,11 +229,36 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 	}
 
 	/**
+	 * By returning an argument resolver, full resolution of a value can be delayed until it is actually needed.
+	 * This is valuable for arguments that involve complex lookups (or whose values may not be known until execution actually occurs).
+	 * @param <T> Result type of value being resolved.
+	 */
+	public interface ScriptArgumentResolver<T> {
+
+		/**
+		 * Resolves the input this resolver represents.
+		 * @return One or more resolved values.
+		 */
+		T[] resolve();
+
+	}
+
+	/**
 	 * A custom argument type for OfflinePlayer that also supports selectors.
 	 * May return an {@link OfflinePlayer} or
 	 *  {@link io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver}.
 	 */
 	public static final class OfflinePlayerArgument implements CustomArgumentType<Object, Object> {
+
+		private record OfflinePlayerResolver(String input) implements ScriptArgumentResolver<OfflinePlayer> {
+
+			@Override
+			public OfflinePlayer[] resolve() {
+				OfflinePlayer offlinePlayer = Classes.getExactClassInfo(OfflinePlayer.class).getParser().parse(input, ParseContext.COMMAND);
+				return new OfflinePlayer[]{offlinePlayer};
+			}
+
+		}
 
 		private final StringArgumentType nativeType;
 		private final ArgumentType<?> playerType;
@@ -254,8 +279,9 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 			try {
 				String input = nativeType.parse(reader, source);
 				// taken from OfflinePlayerClassInfo
+				// TODO plural support
 				if (Utils.isValidUUID(input) || SkriptConfig.playerNameRegexPattern.value().matcher(input).matches()) {
-					return input;
+					return new OfflinePlayerResolver(input);
 				}
 			} catch (CommandSyntaxException ignored) { }
 			reader.setCursor(cursor);

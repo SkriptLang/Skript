@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.command.custom;
 
-import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.variables.Variables;
 import com.mojang.brigadier.Command;
@@ -9,7 +8,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.resolvers.ArgumentResolver;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -86,10 +84,9 @@ public class ScriptCommandExecutor {
 						value = collection.toArray((Object[]) Array.newInstance(argument.type().getC(), collection.size()));
 					}
 				}
-			} else if (argument.type().getC() == OfflinePlayer.class) {
-				// This should always succeed as the input is validated during parsing
-				//noinspection ConstantConditions - OfflinePlayer always has a parser
-				value = argument.type().getParser().parse((String) value, ParseContext.COMMAND);
+			} else if (value instanceof ScriptArgumentType.ScriptArgumentResolver<?> argumentResolver) {
+				value = argumentResolver.resolve();
+				return argument.isSingle() ? ((Object[]) value)[0] : value;
 			}
 		} else if (argument.defaultValue() != null) { // fallback to default value
 			if (argument.isSingle()) {
