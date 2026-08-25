@@ -542,7 +542,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 				// we only want to override the suggestions method if we will actually provide them
 				if (data.type().getC() == OfflinePlayer.class) {
 					//noinspection unchecked - verified by type check
-					nativeType = new ScriptArgumentType.OfflinePlayerArgument((ArgumentData<OfflinePlayer>) data,
+					nativeType = ScriptArgumentType.OfflinePlayerArgument.create((ArgumentData<OfflinePlayer>) data,
 						(StringArgumentType) nativeType);
 				} else if (data.type().getSupplier() == null) {
 					nativeType = new ScriptArgumentType<>(data, (StringArgumentType) nativeType);

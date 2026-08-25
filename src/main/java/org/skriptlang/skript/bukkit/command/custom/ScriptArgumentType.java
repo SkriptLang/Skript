@@ -24,7 +24,6 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
 import io.papermc.paper.registry.RegistryKey;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -249,32 +248,17 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 	 * May return an {@link OfflinePlayer} or
 	 *  {@link io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver}.
 	 */
-	public static final class OfflinePlayerArgument implements CustomArgumentType<Object, Object> {
+	public static abstract sealed class OfflinePlayerArgument implements CustomArgumentType<Object, Object>
+		permits OfflinePlayerArgument.Single, OfflinePlayerArgument.Plural {
 
-		private record OfflinePlayerResolver(String[] inputs) implements ScriptArgumentResolver<OfflinePlayer> {
-
-			@Override
-			public OfflinePlayer[] resolve() {
-				return Arrays.stream(inputs)
-					.map(OfflinePlayerClassInfo::parseValidated)
-					.toArray(OfflinePlayer[]::new);
-			}
-
+		public static OfflinePlayerArgument create(ArgumentData<OfflinePlayer> argument, StringArgumentType nativeType) {
+			return argument.isSingle() ? new Single(nativeType) : new Plural(nativeType);
 		}
 
-		private final StringArgumentType nativeType;
-		private final ArgumentType<?> playerType;
-		private final boolean isSingle;
+		protected final StringArgumentType nativeType;
 
-		public OfflinePlayerArgument(@NotNull ArgumentData<OfflinePlayer> argument, @NotNull StringArgumentType nativeType) {
+		private OfflinePlayerArgument(StringArgumentType nativeType) {
 			this.nativeType = nativeType;
-			if (argument.isSingle()) {
-				playerType = ArgumentTypes.player();
-				isSingle = true;
-			} else {
-				playerType = ArgumentTypes.players();
-				isSingle = false;
-			}
 		}
 
 		@Override
@@ -286,40 +270,91 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 		public <S> @NotNull Object parse(StringReader reader, @NotNull S source) throws CommandSyntaxException {
 			int cursor = reader.getCursor();
 			try {
-				String fullInput = nativeType.parse(reader, source);
-				String[] inputs = null;
-				if (isSingle) {
-					inputs = new String[]{fullInput};
-				} else {
-					try (ParseLogHandler logHandler = new ParseLogHandler().start()) {
-						//noinspection unchecked
-						Literal<String> literal = (Literal<String>) new SkriptParser(fullInput, SkriptParser.PARSE_LITERALS, ParseContext.COMMAND)
-							.parseExpressionList(logHandler, String.class);
-						if (literal != null) {
-							inputs = literal.getArray();
-						}
-					}
-				}
-				if (inputs != null) {
-					for (String input : inputs) {
-						if (!OfflinePlayerClassInfo.isValidInput(input)) {
-							inputs = null;
-							break;
-						}
-					}
-					if (inputs != null) {
-						return new OfflinePlayerResolver(inputs);
-					}
+				var resolver = parseOfflinePlayer(nativeType.parse(reader, source));
+				if (resolver != null) {
+					return resolver;
 				}
 			} catch (CommandSyntaxException ignored) { }
 			reader.setCursor(cursor);
-			return playerType.parse(reader, source);
+			return getPlayerType().parse(reader, source);
 		}
 
-		@Override
-		public @NotNull ArgumentType<Object> getNativeType() {
-			//noinspection unchecked
-			return (ArgumentType<Object>) (isSingle ? playerType : nativeType);
+		protected abstract @Nullable ScriptArgumentResolver<OfflinePlayer> parseOfflinePlayer(String input);
+
+		protected abstract ArgumentType<?> getPlayerType();
+
+		private static final class Single extends OfflinePlayerArgument {
+
+			private Single(StringArgumentType nativeType) {
+				super(nativeType);
+			}
+
+			@Override
+			protected @Nullable ScriptArgumentResolver<OfflinePlayer> parseOfflinePlayer(String input) {
+				if (OfflinePlayerClassInfo.isValidInput(input)) {
+					return () -> new OfflinePlayer[]{OfflinePlayerClassInfo.parseValidated(input)};
+				}
+				return null;
+			}
+
+			@Override
+			protected ArgumentType<?> getPlayerType() {
+				return ArgumentTypes.player();
+			}
+
+			@Override
+			public @NotNull ArgumentType<Object> getNativeType() {
+				//noinspection unchecked
+				return (ArgumentType<Object>) getPlayerType();
+			}
+
+		}
+
+		private static final class Plural extends OfflinePlayerArgument {
+
+			Plural(StringArgumentType nativeType) {
+				super(nativeType);
+			}
+
+			@Override
+			protected @Nullable ScriptArgumentResolver<OfflinePlayer> parseOfflinePlayer(String fullInput) {
+				String[] inputs;
+				try (ParseLogHandler logHandler = new ParseLogHandler().start()) {
+					//noinspection unchecked
+					Literal<String> literal = (Literal<String>) new SkriptParser(fullInput, SkriptParser.PARSE_LITERALS, ParseContext.COMMAND)
+						.parseExpressionList(logHandler, String.class);
+					if (literal == null) {
+						return null;
+					}
+					inputs = literal.getArray();
+				}
+				for (String input : inputs) {
+					if (!OfflinePlayerClassInfo.isValidInput(input)) {
+						return null;
+					}
+				}
+				return () -> Arrays.stream(inputs)
+					.map(OfflinePlayerClassInfo::parseValidated)
+					.toArray(OfflinePlayer[]::new);
+			}
+
+			@Override
+			protected ArgumentType<?> getPlayerType() {
+				return ArgumentTypes.players();
+			}
+
+			@Override
+			public <S> @NotNull CompletableFuture<Suggestions> listSuggestions(@NotNull CommandContext<S> context,
+																			   @NotNull SuggestionsBuilder builder) {
+				return getPlayerType().listSuggestions(context, builder);
+			}
+
+			@Override
+			public @NotNull ArgumentType<Object> getNativeType() {
+				//noinspection rawtypes, unchecked
+				return (ArgumentType) nativeType;
+			}
+
 		}
 
 	}
