@@ -99,10 +99,14 @@ public class BlockClassInfo extends ClassInfo<Block> {
 					Skript.error("Tried setting the color of a bed, but this isn't possible in your Minecraft version, " +
 						"since different colored beds are different materials. " +
 						"Instead, set the block to right material, such as a blue bed.");
+					return;
 				}
 			} else if (state instanceof Banner banner) {
 				banner.setBaseColor(dyeColor);
+			} else {
+				return;
 			}
+			state.update(true, false);
 		}
 
 		@Override

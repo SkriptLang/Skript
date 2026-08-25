@@ -1,8 +1,17 @@
-# TODO: write tests for block and item colors
-
-# test "color of blocks":
+# TODO: write tests for item colors, once they work again on modern versions
 
 # test "color of items":
+
+test "color of blocks":
+	set {_loc} to spawn of world "world"
+	set block at {_loc} to oak sign
+
+	assert color of block at {_loc} is black with "default sign colour failed"
+
+	set colour of block at {_loc} to red
+	assert color of block at {_loc} is red with "failed to set sign colour"
+
+	set block at {_loc} to air
 
 test "color of entities":
 	spawn a sheep at spawn of world "world":
