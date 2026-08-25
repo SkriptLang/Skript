@@ -112,7 +112,6 @@ public interface PropertyBaseSyntax<Handler extends PropertyHandler<?>> {
 	 * @param expr the expression to check
 	 * @param parentExpression the expression the handlers will be used by, handed to
 	 *                         {@link PropertyHandler#init(Expression, ch.njol.skript.lang.parser.ParserInstance)}.
-	 *                         Handlers that emit runtime errors need this to be the owning syntax, not the source.
 	 * @param <Handler> the type of the property handler
 	 * @return a map of classes to property infos for the given expression's return types
 	 */
