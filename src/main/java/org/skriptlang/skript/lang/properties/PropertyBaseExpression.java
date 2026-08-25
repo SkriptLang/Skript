@@ -137,7 +137,7 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 		}
 
 		Set<Class<?>> allowedChangeTypes = new HashSet<>();
-		boolean acceptsAnyType = false;
+		boolean allowsChangeWithNoTypes = false;
 		for (var entry : properties.entrySet()) {
 			Class<?> propertyType = entry.getKey();
 			var propertyInfo = entry.getValue();
@@ -150,15 +150,13 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 			changeDetails.storeTypes(mode, propertyInfo, types);
 			if (types != null) {
 				if (mode == ChangeMode.DELETE || mode == ChangeMode.RESET) {
-					// if we are deleting or resetting, we can accept any type.
-					// keep iterating so that every handler gets its types stored for change().
-					acceptsAnyType = true;
+					allowsChangeWithNoTypes = true;
 				} else {
 					allowedChangeTypes.addAll(Arrays.asList(types));
 				}
 			}
 		}
-		if (acceptsAnyType) {
+		if (allowsChangeWithNoTypes) {
 			return new Class[0];
 		}
 		if (allowedChangeTypes.isEmpty()) {
