@@ -93,7 +93,10 @@ public interface PropertyBaseSyntax<Handler extends PropertyHandler<?>> {
 	 * @param expr the expression to check
 	 * @param <Handler> the type of the property handler
 	 * @return a map of classes to property infos for the given expression's return types
+	 * @deprecated use {@link #getPossiblePropertyInfos(Property, Expression, Expression)}, which lets the calling
+	 *             syntax pass itself as the parent expression.
 	 */
+	@Deprecated(forRemoval = true)
 	static <Handler extends PropertyHandler<?>> PropertyMap<Handler> getPossiblePropertyInfos(
 		Property<Handler> property,
 		Expression<?> expr
