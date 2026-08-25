@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.item.book.elements.expressions;
 
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -13,13 +14,12 @@ import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.BookMeta;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.bukkit.item.book.BookUtils;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -42,34 +42,27 @@ import java.util.List;
 @Since("2.2-dev31, 2.7 (changers)")
 public class ExprBookPages extends SimpleExpression<Component> {
 
-	@SuppressWarnings("ConstantValue") // true on 26.1 and older
-	private static final boolean EXTENDS_ADVENTURE_BOOK = Book.class.isAssignableFrom(BookMeta.class);
-
-	public static @Unmodifiable List<Component> getPages(BookMeta bookMeta) {
-		if (EXTENDS_ADVENTURE_BOOK) {
-			//noinspection ConstantConditions
-			return ((Book) (Object) bookMeta).pages();
-		}
-		return bookMeta.pages();
-	}
-
-	public static void setPages(BookMeta bookMeta, List<Component> pages) {
-		if (EXTENDS_ADVENTURE_BOOK) {
-			//noinspection ConstantConditions, ResultOfMethodCallIgnored - modifies in place despite contract
-			((Book) (Object) bookMeta).pages(pages);
-		} else {
-			bookMeta.pages(pages);
-		}
-	}
+	/**
+	 * The two "all pages" patterns are only registered when type properties are off, so the "page %integer%"
+	 * patterns shift down by two. This offset maps a matched pattern back to its index in the full list.
+	 */
+	private static int patternOffset = 0;
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
+		List<String> patterns = new ArrayList<>();
+		if (SkriptConfig.useTypeProperties.value()) {
+			patternOffset = 2;
+		} else {
+			patterns.add("[all [[of] the]|the] [book] (pages|content) of %itemtypes%");
+			patterns.add("%itemtypes%'[s] [book] (pages|content)");
+		}
+		patterns.add("[book] page %integer% of %itemtypes%");
+		patterns.add("%itemtypes%'[s] [book] page %integer%");
+
 		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprBookPages.class, Component.class)
 			.supplier(ExprBookPages::new)
 			.priority(PropertyExpression.DEFAULT_PRIORITY)
-			.addPatterns("[all [[of] the]|the] [book] (pages|content) of %itemtypes%",
-				"%itemtypes%'[s] [book] (pages|content)",
-				"[book] page %integer% of %itemtypes%",
-				"%itemtypes%'[s] [book] page %integer%")
+			.addPatterns(patterns)
 			.build());
 	}
 
@@ -79,6 +72,7 @@ public class ExprBookPages extends SimpleExpression<Component> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		matchedPattern += patternOffset;
 		if (matchedPattern == 0 || matchedPattern == 1) {
 			books = (Expression<ItemType>) expressions[0];
 		} else if (matchedPattern == 2) {
@@ -99,7 +93,7 @@ public class ExprBookPages extends SimpleExpression<Component> {
 				return new Component[0];
 			}
 			if (isAllPages()) {
-				pages.addAll(getPages(bookMeta));
+				pages.addAll(BookUtils.getPages(bookMeta));
 			} else {
 				Integer pageNumber = this.pageNumber.getSingle(event);
 				if (pageNumber == null) {
@@ -147,7 +141,7 @@ public class ExprBookPages extends SimpleExpression<Component> {
 
 			if (isAllPages()) {
 				switch (mode) {
-					case SET, DELETE, RESET -> setPages(bookMeta, newPages);
+					case SET, DELETE, RESET -> BookUtils.setPages(bookMeta, newPages);
 					case ADD -> bookMeta.addPages(newPages.toArray(new Component[0]));
 					default -> throw new IllegalStateException();
 				}
@@ -165,9 +159,9 @@ public class ExprBookPages extends SimpleExpression<Component> {
 						if (pageNumber > bookMeta.getPageCount()) {
 							break;
 						}
-						List<Component> pages = new ArrayList<>(getPages(bookMeta));
+						List<Component> pages = new ArrayList<>(BookUtils.getPages(bookMeta));
 						pages.remove(pageNumber - 1);
-						setPages(bookMeta, pages);
+						BookUtils.setPages(bookMeta, pages);
 					}
 					case RESET -> {
 						if (pageNumber > bookMeta.getPageCount()) {
@@ -179,14 +173,7 @@ public class ExprBookPages extends SimpleExpression<Component> {
 				}
 			}
 
-			// if the title and author of the bookMeta are not set, Minecraft will not update the BookMeta, as it deems the book "not signed".
-			if (!bookMeta.hasTitle()) {
-				Component title = bookMeta.hasDisplayName() ? bookMeta.displayName() : Component.text("Written Book");
-				bookMeta.title(title);
-			}
-			if (!bookMeta.hasAuthor()) {
-				bookMeta.author(Component.text("Unknown"));
-			}
+			BookUtils.signIfNeeded(bookMeta);
 
 			// update book
 			book.setItemMeta(bookMeta);

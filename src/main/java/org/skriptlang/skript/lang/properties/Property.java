@@ -328,16 +328,60 @@ public record Property<Handler extends PropertyHandler<?>>(
 		ExpressionPropertyHandler.class);
 
 	/**
+	 * A property for getting the author of something
+	 */
+	public static final Property<ExpressionPropertyHandler<?,?>> AUTHOR = Property.of(
+		"author",
+		"The author of something, such as the writer of a book.",
+		"2.2-dev31",
+		Skript.instance(),
+		ExpressionPropertyHandler.class);
+
+	/**
+	 * A property for getting the content of something
+	 */
+	public static final Property<ExpressionPropertyHandler<?,?>> CONTENT = Property.of(
+		"content",
+		"The content of something, such as the pages of a book.",
+		new String[]{"2.2-dev31", "2.7 (changers)"},
+		Skript.instance(),
+		ExpressionPropertyHandler.class);
+
+	/**
+	 * A property for getting the location of something
+	 */
+	public static final Property<ExpressionPropertyHandler<?,?>> LOCATION = Property.of(
+		"location",
+		"The location of something, such as an entity or a block.",
+		"1.0",
+		Skript.instance(),
+		ExpressionPropertyHandler.class);
+
+	/**
+	 * A property for getting the owner of something
+	 */
+	public static final Property<ExpressionPropertyHandler<?,?>> OWNER = Property.of(
+		"owner",
+		"The owner of something, such as the tamer of a tameable entity.",
+		"2.5",
+		Skript.instance(),
+		ExpressionPropertyHandler.class);
+
+	/**
 	 * Register all Skript's default properties. Should be done prior to loading classinfos.
 	 */
 	public static void registerDefaultProperties() {
 		AMOUNT.register();
+		AUTHOR.register();
 		COLOR.register();
 		CONTAINS.register();
+		CONTENT.register();
 		DISPLAY_NAME.register();
 		IS_EMPTY.register();
+		LOCATION.register();
 		NAME.register();
 		NUMBER.register();
+		OWNER.register();
 		PROGRESS.register();
 		SCALE.register();
 		SIZE.register();

@@ -23,13 +23,16 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Colorable;
 import org.bukkit.material.MaterialData;
+import org.skriptlang.skript.bukkit.item.book.BookUtils;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @ApiStatus.Internal
 public class ItemTypeClassInfo extends ClassInfo<ItemType> {
@@ -75,7 +78,94 @@ public class ItemTypeClassInfo extends ClassInfo<ItemType> {
 			.property(Property.COLOR,
 				"The color of the item, if it has one. Only a few items, such as banners, are colorable. Can be set.",
 				Skript.instance(),
-				new ItemTypeColorHandler());
+				new ItemTypeColorHandler())
+			.property(Property.AUTHOR,
+				"The author of a book. Can be set, reset or deleted.",
+				Skript.instance(),
+				new ItemTypeAuthorHandler())
+			.property(Property.CONTENT,
+				"The pages of a written book. Can be set, added to, reset or deleted.",
+				Skript.instance(),
+				new ItemTypeContentHandler());
+	}
+
+	private static class ItemTypeAuthorHandler implements ExpressionPropertyHandler<ItemType, Component> {
+		//<editor-fold desc="author property for item types" defaultstate="collapsed">
+		@Override
+		public @Nullable Component convert(ItemType item) {
+			if (item.getItemMeta() instanceof BookMeta bookMeta && bookMeta.hasAuthor())
+				return bookMeta.author();
+			return null;
+		}
+
+		@Override
+		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+			return switch (mode) {
+				case SET, RESET, DELETE -> CollectionUtils.array(Component.class);
+				default -> null;
+			};
+		}
+
+		@Override
+		public void change(ItemType item, Object @Nullable [] delta, ChangeMode mode) {
+			Component author = (delta == null || delta.length == 0) ? null : (Component) delta[0];
+			if (item.getItemMeta() instanceof BookMeta bookMeta) {
+				bookMeta.author(author);
+				item.setItemMeta(bookMeta);
+			}
+		}
+
+		@Override
+		public @NotNull Class<Component> returnType() {
+			return Component.class;
+		}
+		//</editor-fold>
+	}
+
+	private static class ItemTypeContentHandler implements ExpressionPropertyHandler<ItemType, Object> {
+		//<editor-fold desc="content property for item types" defaultstate="collapsed">
+		@Override
+		public Component @Nullable [] convert(ItemType item) {
+			if (item.getMaterial() != Material.WRITTEN_BOOK || !(item.getItemMeta() instanceof BookMeta bookMeta))
+				return null;
+			return BookUtils.getPages(bookMeta).toArray(new Component[0]);
+		}
+
+		@Override
+		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+			return switch (mode) {
+				case SET, ADD -> CollectionUtils.array(Component[].class);
+				case DELETE, RESET -> CollectionUtils.array();
+				default -> null;
+			};
+		}
+
+		@Override
+		public void change(ItemType item, Object @Nullable [] delta, ChangeMode mode) {
+			if (item.getMaterial() != Material.WRITTEN_BOOK || !(item.getItemMeta() instanceof BookMeta bookMeta))
+				return;
+			List<Component> pages = new ArrayList<>();
+			if (delta != null) {
+				for (Object page : delta)
+					pages.add((Component) page);
+			}
+			switch (mode) {
+				case SET, DELETE, RESET -> BookUtils.setPages(bookMeta, pages);
+				case ADD -> bookMeta.addPages(pages.toArray(new Component[0]));
+				default -> {
+					return;
+				}
+			}
+			BookUtils.signIfNeeded(bookMeta);
+			item.setItemMeta(bookMeta);
+		}
+
+		@Override
+		public @NotNull Class<Object> returnType() {
+			//noinspection rawtypes, unchecked
+			return (Class) Component.class;
+		}
+		//</editor-fold>
 	}
 
 	@SuppressWarnings("removal")
