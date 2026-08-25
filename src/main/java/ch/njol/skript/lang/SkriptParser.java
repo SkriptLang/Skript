@@ -957,7 +957,7 @@ public final class SkriptParser {
 	private record OrderedExprInfo(ExprInfo[] infos) { }
 
 	@SafeVarargs
-	private <T> @Nullable Expression<? extends T> parseExpressionList(ParseLogHandler log, Class<? extends T>... types) {
+	public final <T> @Nullable Expression<? extends T> parseExpressionList(ParseLogHandler log, Class<? extends T>... types) {
 		//noinspection unchecked
 		return (Expression<? extends T>) parseExpressionList_i(log, types);
 	}

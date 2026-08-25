@@ -1,7 +1,6 @@
 package org.skriptlang.skript.bukkit.command.custom;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.lang.Literal;
@@ -9,7 +8,6 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.Utils;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
@@ -26,6 +24,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
 import io.papermc.paper.registry.RegistryKey;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -40,7 +39,9 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandSuggestionEvent.CommandSuggestion;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.ScriptSuggestionProvider;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.ScriptSuggestionProvider.FilteringMode;
+import org.skriptlang.skript.bukkit.types.OfflinePlayerClassInfo;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
@@ -250,22 +251,30 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 	 */
 	public static final class OfflinePlayerArgument implements CustomArgumentType<Object, Object> {
 
-		private record OfflinePlayerResolver(String input) implements ScriptArgumentResolver<OfflinePlayer> {
+		private record OfflinePlayerResolver(String[] inputs) implements ScriptArgumentResolver<OfflinePlayer> {
 
 			@Override
 			public OfflinePlayer[] resolve() {
-				OfflinePlayer offlinePlayer = Classes.getExactClassInfo(OfflinePlayer.class).getParser().parse(input, ParseContext.COMMAND);
-				return new OfflinePlayer[]{offlinePlayer};
+				return Arrays.stream(inputs)
+					.map(OfflinePlayerClassInfo::parseValidated)
+					.toArray(OfflinePlayer[]::new);
 			}
 
 		}
 
 		private final StringArgumentType nativeType;
 		private final ArgumentType<?> playerType;
+		private final boolean isSingle;
 
 		public OfflinePlayerArgument(@NotNull ArgumentData<OfflinePlayer> argument, @NotNull StringArgumentType nativeType) {
 			this.nativeType = nativeType;
-			playerType = argument.isSingle() ? ArgumentTypes.player() : ArgumentTypes.players();
+			if (argument.isSingle()) {
+				playerType = ArgumentTypes.player();
+				isSingle = true;
+			} else {
+				playerType = ArgumentTypes.players();
+				isSingle = false;
+			}
 		}
 
 		@Override
@@ -277,11 +286,30 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 		public <S> @NotNull Object parse(StringReader reader, @NotNull S source) throws CommandSyntaxException {
 			int cursor = reader.getCursor();
 			try {
-				String input = nativeType.parse(reader, source);
-				// taken from OfflinePlayerClassInfo
-				// TODO plural support
-				if (Utils.isValidUUID(input) || SkriptConfig.playerNameRegexPattern.value().matcher(input).matches()) {
-					return new OfflinePlayerResolver(input);
+				String fullInput = nativeType.parse(reader, source);
+				String[] inputs = null;
+				if (isSingle) {
+					inputs = new String[]{fullInput};
+				} else {
+					try (ParseLogHandler logHandler = new ParseLogHandler().start()) {
+						//noinspection unchecked
+						Literal<String> literal = (Literal<String>) new SkriptParser(fullInput, SkriptParser.PARSE_LITERALS, ParseContext.COMMAND)
+							.parseExpressionList(logHandler, String.class);
+						if (literal != null) {
+							inputs = literal.getArray();
+						}
+					}
+				}
+				if (inputs != null) {
+					for (String input : inputs) {
+						if (!OfflinePlayerClassInfo.isValidInput(input)) {
+							inputs = null;
+							break;
+						}
+					}
+					if (inputs != null) {
+						return new OfflinePlayerResolver(inputs);
+					}
 				}
 			} catch (CommandSyntaxException ignored) { }
 			reader.setCursor(cursor);
@@ -291,7 +319,7 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 		@Override
 		public @NotNull ArgumentType<Object> getNativeType() {
 			//noinspection unchecked
-			return (ArgumentType<Object>) playerType;
+			return (ArgumentType<Object>) (isSingle ? playerType : nativeType);
 		}
 
 	}

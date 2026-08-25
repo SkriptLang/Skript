@@ -23,6 +23,26 @@ import java.util.UUID;
 @ApiStatus.Internal
 public class OfflinePlayerClassInfo extends ClassInfo<OfflinePlayer> {
 
+	/**
+	 * @param input Input to validate.
+	 * @return Whether Skript can attempt to interpret {@code input} as an {@link OfflinePlayer}.
+	 */
+	public static boolean isValidInput(String input) {
+		return Utils.isValidUUID(input) ||
+			SkriptConfig.playerNameRegexPattern.value().matcher(input).matches();
+	}
+
+	/**
+	 * Parses an input that has already been validated through {@link #isValidInput(String)}.
+	 * This method will always return a result.
+	 * @param input Input to parse.
+	 * @return An OfflinePlayer.
+	 */
+	public static OfflinePlayer parseValidated(String input) {
+		return Utils.isValidUUID(input) ? Bukkit.getOfflinePlayer(UUID.fromString(input)) :
+			Bukkit.getOfflinePlayer(input);
+	}
+
 	public OfflinePlayerClassInfo() {
 		super(OfflinePlayer.class, "offlineplayer");
 		this.user("offline ?players?")
