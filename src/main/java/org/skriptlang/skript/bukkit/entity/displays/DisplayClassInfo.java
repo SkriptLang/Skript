@@ -80,7 +80,7 @@ public class DisplayClassInfo extends ClassInfo<Display> {
 		//</editor-fold>
 	}
 
-	public static class DisplayColorHandler implements ExpressionPropertyHandler<Display, Color> {
+	private static class DisplayColorHandler implements ExpressionPropertyHandler<Display, Color> {
 		//<editor-fold desc="color property for displays" defaultstate="collapsed">
 		@Override
 		public @Nullable Color convert(Display display) {

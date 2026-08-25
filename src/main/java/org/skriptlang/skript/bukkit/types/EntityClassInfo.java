@@ -18,7 +18,6 @@ import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
-import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -32,7 +31,6 @@ import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.entity.displays.DisplayClassInfo.DisplayColorHandler;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
@@ -78,14 +76,8 @@ public class EntityClassInfo extends ClassInfo<Entity> {
 	@SuppressWarnings("removal")
 	private static class EntityColorHandler implements ExpressionPropertyHandler<Entity, Color> {
 		//<editor-fold desc="color property for entities" defaultstate="collapsed">
-		// Display entities are entities too, and the property handler is resolved from the declared types of an
-		// expression, so `color of event-entity` would silently lose display support without this delegation.
-		private final DisplayColorHandler displayHandler = new DisplayColorHandler();
-
 		@Override
 		public @Nullable Color convert(Entity entity) {
-			if (entity instanceof Display display)
-				return displayHandler.convert(display);
 			Colorable colorable = getColorable(entity);
 			if (colorable == null)
 				return null;
@@ -95,19 +87,14 @@ public class EntityClassInfo extends ClassInfo<Entity> {
 
 		@Override
 		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-			return switch (mode) {
-				case SET, RESET -> CollectionUtils.array(Color.class);
-				default -> null;
-			};
+			if (mode == ChangeMode.SET)
+				return CollectionUtils.array(Color.class);
+			return null;
 		}
 
 		@Override
 		public void change(Entity entity, Object @Nullable [] delta, ChangeMode mode) {
-			if (entity instanceof Display display) {
-				displayHandler.change(display, delta, mode);
-				return;
-			}
-			if (mode != ChangeMode.SET || delta == null || delta.length == 0)
+			if (delta == null || delta.length == 0)
 				return;
 			DyeColor dyeColor = ((Color) delta[0]).asDyeColor();
 			if (entity instanceof Item item) {
