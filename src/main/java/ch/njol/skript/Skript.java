@@ -474,10 +474,10 @@ public final class Skript extends JavaPlugin implements Listener {
 		skript.storeRegistry(ExperimentRegistry.class, new ExperimentRegistry(skript));
 		Feature.registerAll(skript, skript.registry(ExperimentRegistry.class));
 
-		skript.storeRegistry(PropertyRegistry.class, new PropertyRegistry(this));
+		skript.storeRegistry(PropertyRegistry.class, new PropertyRegistry(skript));
 		Property.registerDefaultProperties();
 
-		EventValueRegistry eventValueRegistry = EventValueRegistry.empty(this);
+		EventValueRegistry eventValueRegistry = EventValueRegistry.empty(skript);
 		skript.storeRegistry(EventValueRegistry.class, eventValueRegistry);
 		//noinspection removal
 		EventValues.setEventValueRegistry(eventValueRegistry);

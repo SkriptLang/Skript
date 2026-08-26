@@ -1,10 +1,10 @@
 package org.skriptlang.skript.bukkit.lang.eventvalue;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import com.google.common.base.Preconditions;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.util.ClassUtils;
@@ -32,7 +32,7 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 		if (eventValue instanceof ConvertedEventValue)
 			throw new SkriptAPIException("Cannot register a converted event value: " + eventValue);
 		if (isRegistered(eventValue)) {
-			Skript.warning(eventValue + " is already registered.");
+			ch.njol.skript.Skript.warning(eventValue + " is already registered.");
 			return;
 		}
 		List<EventValue<?, ?>> eventValues = eventValues(eventValue.time());

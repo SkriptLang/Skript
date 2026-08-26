@@ -1,0 +1,29 @@
+test "EffSuppressWarnings":
+
+	parse:
+		stop
+		stop
+	assert last parse logs is "Unreachable code. The previous statement stops further execution."
+
+	suppress unreachable code warnings
+	parse:
+		stop
+		stop
+	assert last parse logs is not set
+	unsuppress unreachable code warnings
+
+	parse:
+		stop
+		stop
+	assert last parse logs is "Unreachable code. The previous statement stops further execution."
+
+	suppress unreachable code warnings:
+		parse:
+			stop
+			stop
+	assert last parse logs is not set
+
+	parse:
+		stop
+		stop
+	assert last parse logs is "Unreachable code. The previous statement stops further execution."
