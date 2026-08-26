@@ -2,6 +2,7 @@ package org.skriptlang.skript.registration;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.registration.DefaultSyntaxInfosImpl.ExpressionImpl;
 import org.skriptlang.skript.registration.DefaultSyntaxInfosImpl.StructureImpl;
@@ -64,6 +65,12 @@ public sealed interface DefaultSyntaxInfos permits SyntaxInfo {
 		 * @return The class representing the supertype of all values the Expression may return.
 		 */
 		Class<R> returnType();
+
+		@Override
+		default void write(DocumentationAdapter adapter) {
+			SyntaxInfo.super.write(adapter);
+			adapter.write("returnType", returnType());
+		}
 
 		/**
 		 * An Expression-specific builder is used for constructing a new Expression syntax info.
@@ -174,6 +181,16 @@ public sealed interface DefaultSyntaxInfos permits SyntaxInfo {
 		 * @return The type of {@link ch.njol.skript.config.Node}s that can represent the Structure.
 		 */
 		NodeType nodeType();
+
+		@Override
+		default void write(DocumentationAdapter adapter) {
+			SyntaxInfo.super.write(adapter);
+			EntryValidator entryValidator = entryValidator();
+			if (entryValidator != null) {
+				adapter.write(entryValidator);
+			}
+			adapter.write("nodeType", nodeType().name());
+		}
 
 		/**
 		 * A Structure-specific builder is used for constructing a new Structure syntax info.

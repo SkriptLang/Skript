@@ -1,0 +1,238 @@
+package org.skriptlang.skript.docs;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.lang.function.FunctionRegistry;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Utils;
+import com.google.common.collect.ImmutableMap;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.lang.properties.PropertyRegistry;
+
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
+
+class DocumentationAdapterImpl implements DocumentationAdapter {
+
+	private record Scope(String name, Map<String, Object> values) { }
+
+	private final Deque<Scope> scopes = new ArrayDeque<>();
+	private final Map<Documentable, String> idMap = new HashMap<>();
+
+	private final SkriptAddon addon;
+	private final BiConsumer<DocumentationAdapter, Documentable> writeHandler;
+
+	DocumentationAdapterImpl(SkriptAddon addon, boolean generate) {
+		this(addon, (a, b) -> { }, generate);
+	}
+
+	DocumentationAdapterImpl(SkriptAddon addon, BiConsumer<DocumentationAdapter, Documentable> writeHandler, boolean generate) {
+		this.addon = addon;
+		this.writeHandler = writeHandler;
+		scopes.push(new Scope("root", new LinkedHashMap<>()));
+		if (generate) {
+			write(addon.syntaxRegistry());
+			Classes.write(this);
+			write(Skript.experiments());
+			write(FunctionRegistry.getRegistry());
+			write(addon.registry(PropertyRegistry.class));
+			EntityData.write(this);
+		}
+	}
+
+	@Override
+	public SkriptAddon addon() {
+		return addon;
+	}
+
+	@Override
+	public void write(Documentable documentable) {
+		if (documentable.canWrite(this)) {
+			documentable.preWrite(this);
+			documentable.write(this);
+			writeHandler.accept(this, documentable);
+			idMap.put(documentable, currentScope());
+			documentable.postWrite(this);
+		}
+	}
+
+	@Override
+	public void write(String key, Object value) {
+		if (value instanceof Documentable documentable) {
+			enterScope(key);
+			write(documentable);
+			exitScope();
+			return;
+		}
+
+		value = adapt(value);
+		scopes.getFirst().values().put(key, value);
+	}
+
+	@Override
+	public void enterScope(String key) {
+		Map<String, Object> newScopes = new LinkedHashMap<>();
+		Scope scope = scopes.getFirst();
+
+		// scope conflict resolution
+		// append number to end of key
+		if (scope.values().containsKey(key)) {
+			int id = 2;
+			while (scope.values().containsKey(key + "-" + id)) {
+				id++;
+			}
+			key = key + "-" + id;
+		}
+
+		scope.values().put(key, newScopes);
+		scopes.push(new Scope(key, newScopes));
+	}
+
+	@Override
+	public void exitScope() {
+		var scope = scopes.pop();
+		if (scope.values().isEmpty()) {
+			scopes.getFirst().values().remove(scope.name);
+		}
+	}
+
+	@Override
+	public String currentScope() {
+		return scopes.getFirst().name();
+	}
+
+	@Override
+	public Map<String, Object> dataMap() {
+		if (scopes.size() != 1) {
+			throw new SkriptAPIException("Attempted to access data map before all scopes have been exited");
+		}
+		//noinspection unchecked
+		return (Map<String, Object>) filter(resolveReferences(scopes.peek().values()));
+	}
+
+	private record ReferenceImpl(Documentable referenced) implements Reference { }
+
+	@Override
+	public Reference reference(Documentable documentable) {
+		return new ReferenceImpl(documentable);
+	}
+
+	private Object resolveReferences(Object value) {
+		/*
+		 * The goal of this method is to resolve any references within the data map.
+		 * We have to do this at the end, once everything has been written, as a reference to an object may have been
+		 *  created before that object was written.
+		 * This method approaches this problem by recursively walking the entire data map and its data structures.
+		 * When it encounters a reference, it simply replaces it with the relevant ID from the ID map.
+		 */
+		return switch (value) {
+			case Reference reference -> {
+				var builder = ImmutableMap.builder();
+				String id = idMap.get(reference.referenced());
+				if (id == null) {
+					throw new SkriptAPIException("Failed to resolve reference (was it documented?) for " + reference.referenced());
+				}
+				builder.put("id", id);
+				if (reference.referenced() instanceof DocumentationDocumentable documentationDocumentable) {
+					Documentation documentation = documentationDocumentable.documentation();
+					builder.put("name", documentation.name());
+				}
+				yield builder.build();
+			}
+			case Collection<?> collection -> collection.stream()
+				.map(this::resolveReferences)
+				.toList();
+			case Map<?, ?> map -> map.entrySet()
+				.stream()
+				.collect(Collectors.toMap(Map.Entry::getKey,
+					entry -> resolveReferences(entry.getValue()),
+					(ignored, newValue) -> newValue,
+					LinkedHashMap::new));
+			case null, default -> value;
+		};
+	}
+
+	private Object adapt(Object value) {
+		/*
+		 * The goal of this method is to convert certain types of Objects before they are written.
+		 * For example, Class objects are converted into ClassInfo references
+		 */
+		return switch (value) {
+			case Documentable documentable -> { // we break down Documentable objects into data maps
+				var adapter = new DocumentationAdapterImpl(addon, false);
+				adapter.write(documentable);
+				// may be relevant to copy over
+				this.idMap.putAll(adapter.idMap);
+				//noinspection DataFlowIssue - don't calling dataMap to avoid reference resolution
+				yield adapter.scopes.peek().values();
+			}
+			case Class<?> clazz -> { // we convert Class objects into ClassInfo references
+				ClassInfo<?> classInfo = Classes.getSuperClassInfo(Utils.getComponentType(clazz));
+				classInfo = Classes.getDocumentableClassInfo(classInfo);
+				yield reference(classInfo);
+			}
+			case Collection<?> collection -> collection.stream()
+				.map(this::adapt)
+				.toList();
+			case Map<?, ?> map -> map.entrySet()
+				.stream()
+				.collect(Collectors.toMap(Map.Entry::getKey,
+					entry -> adapt(entry.getValue()),
+					(ignored, newValue) -> newValue,
+					LinkedHashMap::new));
+			case null, default -> value;
+		};
+	}
+
+	private Object filter(Object value) {
+		/*
+		 * The goal of this method is to remove any documentation that is not part of the addon this adapter is extracting for.
+		 * We save this step for last so that references can be resolved.
+		 * For example, if we are generating for an addon, we still want references to Skript types to work.
+		 * This method approaches this problem by recursively walking the entire data map and its data structures.
+		 * When it encounters a scope containing an origin entry, if that origin does not align with the addon for this adapter,
+		 *  the scope is removed.
+		 * TODO an alternative approach is likely ideal.
+		 */
+		return switch (value) {
+			case Collection<?> collection -> collection.stream()
+				.map(this::filter)
+				.filter(Objects::nonNull)
+				.toList();
+			case Map<?, ?> map -> {
+				if (map.containsKey("origin")) {
+					//noinspection unchecked
+					if (!((Map<String, Object>) (map.get("origin"))).get("name").equals(addon().name())) {
+						yield null;
+					}
+				}
+				// rebuild the map
+				yield map.entrySet()
+					.stream()
+					.map(entry -> {
+						Object filteredValue = filter(entry.getValue());
+						if (filteredValue == null) {
+							return null;
+						}
+						return Map.entry(entry.getKey(), filteredValue);
+					})
+					.filter(Objects::nonNull)
+					.collect(Collectors.toMap(Map.Entry::getKey,
+						Map.Entry::getValue,
+						(ignored, newValue) -> newValue,
+						LinkedHashMap::new));
+			}
+			case null, default -> value;
+		};
+	}
+
+}

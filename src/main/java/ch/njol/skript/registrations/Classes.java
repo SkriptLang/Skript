@@ -31,6 +31,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.jetbrains.annotations.*;
+import org.skriptlang.skript.docs.Documentation;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
 import org.skriptlang.skript.lang.converter.Converters;
@@ -868,6 +870,46 @@ public abstract class Classes {
 		if (s == null)
 			return null;
 		return s.deserialize(value);
+	}
+
+	/**
+	 * Writes all {@link ClassInfo}s to {@code adapter}.
+	 * @param adapter The adapter to write to.
+	 */
+	public static void write(DocumentationAdapter adapter) {
+		adapter.enterScope("types");
+		Classes.getClassInfos().forEach(adapter::write);
+		adapter.exitScope();
+	}
+
+	/**
+	 * Utility method for obtaining a documentable class info from {@code classInfo}.
+	 * If {@code classInfo} is already documentable, this method simply returns it.
+	 * @param classInfo The class info to start from.
+	 * @return A class info that is documentable.
+	 * @see Documentation#isNoDocs(Documentation) 
+	 */
+	public static <T> ClassInfo<? super T> getDocumentableClassInfo(ClassInfo<T> classInfo) {
+		if (!Documentation.isNoDocs(classInfo.documentation())) {
+			return classInfo;
+		}
+		// try to use docs for superclass
+		Class<?> superClass = classInfo.getC().getSuperclass();
+		if (superClass != null) {
+			ClassInfo<? super T> superClassInfo = getDocumentableClassInfo(Classes.getSuperClassInfo(superClass));
+			if (superClassInfo.getC() != Object.class) {
+				return superClassInfo;
+			}
+		}
+		// if it doesn't have a superclass, check interfaces
+		for (Class<?> clazzInterface : classInfo.getC().getInterfaces()) {
+			ClassInfo<? super T> interfaceClassInfo = getDocumentableClassInfo(Classes.getSuperClassInfo(clazzInterface));
+			if (classInfo.getC() != Object.class) {
+				return interfaceClassInfo;
+			}
+		}
+		// otherwise, fallback to Object
+		return Classes.getExactClassInfo(Object.class);
 	}
 
 }

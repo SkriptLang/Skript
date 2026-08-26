@@ -5,7 +5,6 @@ import ch.njol.skript.bukkitutil.BurgerHelper;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.data.*;
 import ch.njol.skript.command.Commands;
-import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.events.EvtSkript;
 import ch.njol.skript.expressions.arithmetic.ExprArithmetic;
 import ch.njol.skript.hooks.Hook;
@@ -469,8 +468,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		// initialize the old Skript SkriptAddon instance
 		getAddonInstance();
 
-		experimentRegistry = new ExperimentRegistry(this);
-		Feature.registerAll(getAddonInstance(), experimentRegistry);
+		experimentRegistry = new ExperimentRegistry(skript);
+		Feature.registerAll(skript, experimentRegistry);
 
 		skript.storeRegistry(PropertyRegistry.class, new PropertyRegistry(this));
 		Property.registerDefaultProperties();
@@ -636,8 +635,6 @@ public final class Skript extends JavaPlugin implements Listener {
 				}
 
 				stopAcceptingRegistrations();
-
-				Documentation.generate(); // TODO move to test classes?
 
 				// Variable loading
 				if (logNormal())
@@ -1484,7 +1481,10 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 		SkriptAddon addon = getAddon(plugin);
 		if (addon != null) {
-			return Origin.of(addon);
+			if (source == ch.njol.skript.lang.util.SimpleEvent.class) {
+				source = ch.njol.skript.events.SimpleEvents.class;
+			}
+			return Origin.of(addon, source);
 		}
 		return Origin.UNKNOWN;
 	}

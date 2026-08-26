@@ -3,6 +3,8 @@ package org.skriptlang.skript.lang.experiment;
 import ch.njol.skript.Skript;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.docs.Documentable;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * Container for holding {@link Experiment}s that must be enabled or disabled to use.
  */
-public class ExperimentData {
+public class ExperimentData implements Documentable {
 
 	/**
 	 * Create and return a new {@link Builder}.
@@ -135,6 +137,28 @@ public class ExperimentData {
 		builder.disallowed = new HashSet<>(disallowed);
 		builder.errorMessage = errorMessage;
 		return builder;
+	}
+
+	@Override
+	public void preWrite(DocumentationAdapter adapter) {
+		adapter.enterScope("experimentData");
+	}
+
+	@Override
+	public void write(DocumentationAdapter adapter) {
+		adapter.write("required", required.stream()
+			.filter(experiment -> experiment instanceof Documentable)
+			.map(experiment -> adapter.reference((Documentable) experiment))
+			.toList());
+		adapter.write("disallowed", disallowed.stream()
+			.filter(experiment -> experiment instanceof Documentable)
+			.map(experiment -> adapter.reference((Documentable) experiment))
+			.toList());
+	}
+
+	@Override
+	public void postWrite(DocumentationAdapter adapter) {
+		adapter.exitScope();
 	}
 
 	public static class Builder {

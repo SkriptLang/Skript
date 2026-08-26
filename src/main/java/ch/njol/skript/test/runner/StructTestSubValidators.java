@@ -3,6 +3,7 @@ package ch.njol.skript.test.runner;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
@@ -17,6 +18,7 @@ import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.List;
 
+@NoDoc
 public class StructTestSubValidators extends Structure {
 
 	static {

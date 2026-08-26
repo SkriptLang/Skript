@@ -131,4 +131,10 @@ public abstract class HierarchicalAddonModule implements AddonModule {
 		return AddonModule.origin(addon, modules);
 	}
 
+	@Override
+	public final ModuleOrigin origin(SkriptAddon addon, Class<?> originClass) {
+		AddonModule[] modules = moduleChain().toArray(new AddonModule[0]);
+		return AddonModule.origin(addon, originClass, modules);
+	}
+
 }
