@@ -151,7 +151,7 @@ public abstract class SkriptLogger {
 	public static void log(@Nullable LogEntry entry) {
 		if (entry == null)
 			return;
-		if (Skript.testing() && getNode() != null && getNode().debug())
+		if (Skript.debug() && getNode() != null && getNode().debug())
 			System.out.print("---> " + entry.level + "/" + ErrorQuality.get(entry.quality) + ": " + entry + " ::" + LogEntry.findCaller());
 		for (LogHandler h : getHandlers()) {
 			LogResult r = h.log(entry);
@@ -166,6 +166,9 @@ public abstract class SkriptLogger {
 			}
 		}
 		entry.logged();
+		if (Skript.testing() && entry.getLevel() == DEBUG) {
+			return;
+		}
 		sendFormatted(Bukkit.getConsoleSender(), Skript.getSkriptPrefix() + entry.toFormattedString());
 	}
 	
