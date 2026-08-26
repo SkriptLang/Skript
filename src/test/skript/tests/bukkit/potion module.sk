@@ -50,6 +50,13 @@ test "potion effect creation":
 	assert amplifier of {_potion} is 5 with "amplifier is not 5"
 	assert {_potion} is infinite with "potion is infinite"
 
+	# test cloning
+	set {_potion} to a potion effect of speed of tier 1
+	set {_potion2} to {_potion}
+	set potion tier of {_potion} to 2
+	assert potion tier of {_potion} is 2 with "changing amplifier of original did not work"
+	assert potion tier of {_potion2} is 1 with "potion2 does not reflect the original potion1"
+
 # ExprPotionEffects
 test "potion effects of entities/items":
 	# setup

@@ -26,8 +26,8 @@
 *.sh text
 *.java text
 
-# These files are Windows-specific and should retain crlf
-*.bat text eol=crlf
+# These files are Windows-specific and should retain crlf, even in the Git index.
+*.bat -text
 
 # These files are binary and should be left untouched
 # (binary is a macro for -text -diff)
