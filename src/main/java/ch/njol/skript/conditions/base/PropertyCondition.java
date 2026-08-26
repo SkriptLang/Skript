@@ -2,6 +2,7 @@ package ch.njol.skript.conditions.base;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -179,6 +180,22 @@ public abstract class PropertyCondition<T> extends Condition implements Predicat
 	public final boolean test(T value) {
 		return check(value);
 	}
+
+	@Override
+	public void change(Event event, boolean deltaValue, ChangeMode mode) {
+		for (T what : expr.getArray(event)) {
+			change(what, deltaValue, mode);
+		}
+	}
+
+	/**
+	 * Changes the value of the property this condition represents for a property holder.
+	 * @param what The property holder.
+	 * @param deltaValue The new value.
+	 *              This is always false for {@link ChangeMode#DELETE} and {@link ChangeMode#RESET}.
+	 * @param mode The type of change to perform.
+	 */
+	protected void change(T what, boolean deltaValue, ChangeMode mode) { }
 
 	protected abstract String getPropertyName();
 

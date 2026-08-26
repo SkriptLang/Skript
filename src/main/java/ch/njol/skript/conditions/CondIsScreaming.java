@@ -1,6 +1,6 @@
 package ch.njol.skript.conditions;
 
-import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.*;
 import org.bukkit.entity.Enderman;
@@ -22,8 +22,6 @@ import org.bukkit.entity.LivingEntity;
 @Since("2.11")
 public class CondIsScreaming extends PropertyCondition<LivingEntity> {
 
-	private static final boolean SUPPORTS_ENDERMAN = Skript.methodExists(Enderman.class, "isScreaming");
-
 	static {
 		register(CondIsScreaming.class, "screaming", "livingentities");
 	}
@@ -32,10 +30,24 @@ public class CondIsScreaming extends PropertyCondition<LivingEntity> {
 	public boolean check(LivingEntity entity) {
 		if (entity instanceof Goat goat) {
 			return goat.isScreaming();
-		} else if (SUPPORTS_ENDERMAN && entity instanceof Enderman enderman) {
+		} else if (entity instanceof Enderman enderman) {
 			return enderman.isScreaming();
 		}
 		return false;
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(LivingEntity entity, boolean screaming, ChangeMode mode) {
+		if (entity instanceof Goat goat) {
+			goat.setScreaming(screaming);
+		} else if (entity instanceof Enderman enderman) {
+			enderman.setScreaming(screaming);
+		}
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.brewing.elements.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.EventRestrictedSyntax;
@@ -41,11 +42,9 @@ public class CondBrewingConsume extends Condition implements EventRestrictedSynt
 		);
 	}
 
-	private boolean willConsume;
-
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		willConsume = matchedPattern == 0;
+		setNegated(matchedPattern == 1);
 		return true;
 	}
 
@@ -58,12 +57,24 @@ public class CondBrewingConsume extends Condition implements EventRestrictedSynt
 	public boolean check(Event event) {
 		if (!(event instanceof BrewingStandFuelEvent brewingStandFuelEvent))
 			return false;
-		return brewingStandFuelEvent.isConsuming() == willConsume;
+		return brewingStandFuelEvent.isConsuming();
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	public void change(Event event, boolean consume, ChangeMode mode) {
+		if (event instanceof BrewingStandFuelEvent brewingStandFuelEvent) {
+			brewingStandFuelEvent.setConsuming(consume);
+		}
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the brewing stand will" + (willConsume ? "" : " not") + " consume the fuel";
+		return "the brewing stand will" + (isNegated() ? " not" : "") + " consume the fuel";
 	}
 
 }

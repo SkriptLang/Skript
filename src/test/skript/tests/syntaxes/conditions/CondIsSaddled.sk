@@ -13,3 +13,18 @@ test "is saddled":
 
 	delete entity within {_horse}
 	delete entity within {_pig}
+
+test "CondIsSaddled":
+	spawn a pig at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} is saddled to true
+	assert {_entity} is saddled with "setting to true failed"
+	set whether {_entity} is saddled to false
+	assert {_entity} is not saddled with "setting to false failed"
+	set whether {_entity} is not saddled to false
+	assert {_entity} is saddled with "(negated) setting to true failed"
+	set whether {_entity} is not saddled to true
+	assert {_entity} is not saddled with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

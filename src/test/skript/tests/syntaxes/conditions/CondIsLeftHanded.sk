@@ -1,0 +1,18 @@
+test "CondIsLeftHanded":
+	spawn a zombie at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} is left handed to true
+	assert {_entity} is left handed with "setting to true failed"
+	assert {_entity} is not right handed with "(right) setting to true failed"
+	set whether {_entity} is left handed to false
+	assert {_entity} is not left handed with "setting to false failed"
+	assert {_entity} is right handed with "(right) setting to false failed"
+	set whether {_entity} is not left handed to false
+	assert {_entity} is left handed with "(negated) setting to true failed"
+	set whether {_entity} is not left handed to true
+	assert {_entity} is not left handed with "(negated) setting to false failed"
+	set whether {_entity} is not right handed to true
+	assert {_entity} is left handed with "(right) (negated) setting to true failed"
+
+	delete the entity within {_entity}

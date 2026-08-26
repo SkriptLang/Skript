@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -33,6 +34,20 @@ public class CondIsCharged extends PropertyCondition<Entity> {
 			return wither.isCharged();
 		}
 		return false;
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(Entity entity, boolean charged, ChangeMode mode) {
+		if (entity instanceof Creeper creeper) {
+			creeper.setPowered(charged);
+		} else if (entity instanceof WitherSkull witherSkull) {
+			witherSkull.setCharged(charged);
+		}
 	}
 
 	@Override
