@@ -57,7 +57,8 @@ public class PotionModule extends HierarchicalAddonModule {
 					return "potion_effect:" + potionEffect.potionEffectType().getKey().getKey();
 				}
 			})
-			.serializer(new YggdrasilSerializer<>()));
+			.serializer(new YggdrasilSerializer<>())
+			.cloner(SkriptPotionEffect::clone));
 
 		Classes.registerClass(new ClassInfo<>(PotionEffect.class, "potioneffect")
 			.user("potion ?effects?")
