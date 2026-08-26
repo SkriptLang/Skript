@@ -1,6 +1,5 @@
 package org.skriptlang.skript.util;
 
-import ch.njol.skript.Skript;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -9,8 +8,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 public class Scheduler {
@@ -159,7 +156,7 @@ public class Scheduler {
 	}
 
 	public void callSyncGlobal(Runnable runnable) {
-		if (Bukkit.isGlobalTickThread() || Bukkit.isPrimaryThread()) {
+		if (Bukkit.isGlobalTickThread()) {
 			runnable.run();
 		} else {
 			Bukkit.getGlobalRegionScheduler().execute(plugin, runnable);

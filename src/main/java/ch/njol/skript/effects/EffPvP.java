@@ -1,5 +1,6 @@
 package ch.njol.skript.effects;
 
+import ch.njol.skript.ServerPlatform;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -42,11 +43,21 @@ public class EffPvP extends Effect {
 	@Override
 	protected void execute(Event event) {
 		if (PVP_GAME_RULE_EXISTS) {
-			for (World world : worlds.getArray(event))
-				Skript.getScheduler().runGlobalTask(() -> world.setGameRule(GameRule.PVP, enable));
+			for (World world : worlds.getArray(event)) {
+				if (Skript.getServerPlatform() == ServerPlatform.BUKKIT_FOLIA) {
+					Skript.getScheduler().runGlobalTask(() -> world.setGameRule(GameRule.PVP, enable));
+					return;
+				}
+				world.setGameRule(GameRule.PVP, enable);
+			}
 		} else {
-			for (World world : worlds.getArray(event))
-				Skript.getScheduler().runGlobalTask(() -> world.setPVP(enable));
+			for (World world : worlds.getArray(event)) {
+				if (Skript.getServerPlatform() == ServerPlatform.BUKKIT_FOLIA) {
+					Skript.getScheduler().runGlobalTask(() -> world.setPVP(enable));
+					return;
+				}
+				world.setPVP(enable);
+			}
 		}
 	}
 

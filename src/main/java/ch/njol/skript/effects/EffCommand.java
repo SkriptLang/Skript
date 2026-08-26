@@ -1,5 +1,6 @@
 package ch.njol.skript.effects;
 
+import ch.njol.skript.ServerPlatform;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -89,6 +90,11 @@ public class EffCommand extends Effect {
 	}
 
 	private void dispatchCommand(CommandSender sender, String command) {
+		if (Skript.getServerPlatform() != ServerPlatform.BUKKIT_FOLIA) {
+			Skript.dispatchCommand(sender, command);
+			return;
+		}
+
 		if (sender instanceof Entity entity) {
 			if (Bukkit.isOwnedByCurrentRegion(entity)) {
 				Skript.dispatchCommand(sender, command);

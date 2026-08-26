@@ -153,7 +153,8 @@ public class BlockStateBlock implements Block {
 	public void setType(Material type) {
 		if (delayChanges) {
 			Skript.getScheduler().runRegionTask(
-				getLocation(), () -> state.getBlock().setType(type)
+				getLocation(),
+				() -> state.getBlock().setType(type)
 			);
 		} else {
 			state.setType(type);

@@ -77,8 +77,7 @@ public class StructParse extends Structure {
 
 	@Override
 	public boolean postLoad() {
-		Skript.getScheduler().callSyncGlobal(() ->
-			resultsExpression.change(ContextlessEvent.get(), logs, ChangeMode.SET));
+		Skript.getScheduler().callSyncGlobal(() -> resultsExpression.change(ContextlessEvent.get(), logs, ChangeMode.SET));
 		return true;
 	}
 
