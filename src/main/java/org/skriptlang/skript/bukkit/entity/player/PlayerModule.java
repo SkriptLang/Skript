@@ -3,12 +3,15 @@ package org.skriptlang.skript.bukkit.entity.player;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.util.SimpleEvent;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.entity.player.elements.effects.*;
 import org.skriptlang.skript.bukkit.entity.player.elements.events.*;
 import org.skriptlang.skript.bukkit.entity.player.elements.expressions.*;
+import org.skriptlang.skript.bukkit.entity.player.elements.conditions.*;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -37,7 +40,9 @@ public class PlayerModule extends HierarchicalAddonModule {
 			ExprPlayerListHeaderFooter::register,
 			ExprPlayerListName::register,
 			ExprPlayerListPriority::register,
-			ExprQuitMessage::register
+			ExprQuitMessage::register,
+			ExprRespawnLocation::register,
+			CondRespawnLocation::register
 		);
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerPickBlockEvent")) {
 			register(addon,
@@ -64,6 +69,32 @@ public class PlayerModule extends HierarchicalAddonModule {
 			.addSince("1.4.1")
 			.addPattern("chat")
 			.addEvent(AsyncChatEvent.class)
+			.build());
+
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Respawn")
+			.addDescription("Called when a player respawns via death or entering the end portal in the end. You should prefer this event over the <a href='#death'>death event</a> as the player is technically alive when this event is called.")
+			.addExample("on respawn:")
+			.addSince("1.0")
+			.addPattern("[player] respawn[ing]")
+			.addEvent(PlayerRespawnEvent.class)
+			.supplier(() -> new SimpleEvent("player respawn"))
+			.build());
+
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "After Respawn")
+			.addDescription("Called after a player respawns via death or entering the end portal in the end. You should prefer this event over the <a href='#respawn'>respawn event</a> if you need to ensure your changes to the player stick after they respawn.")
+			.addExample("""
+				after respawn:
+					if respawn location is a bed:
+						broadcast "%player% respawned at their bed at %respawn location%"
+					else if respawn location is a respawn anchor:
+						broadcast "%player% respawned at their anchor at %respawn location%"
+					else:
+						broadcast "%player% respawned at %respawn location%"
+				""")
+			.addSince("INSERT VERSION")
+			.addPattern("after [player] respawn[ing]")
+			.addEvent(PlayerPostRespawnEvent.class)
+			.supplier(() -> new SimpleEvent("after player respawn"))
 			.build());
 	}
 
