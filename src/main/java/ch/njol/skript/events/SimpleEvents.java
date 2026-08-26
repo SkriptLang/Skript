@@ -1,19 +1,13 @@
 package ch.njol.skript.events;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
 import ch.njol.skript.lang.util.SimpleEvent;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
-import com.destroystokyo.paper.event.entity.EntityJumpEvent;
-import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import io.papermc.paper.event.player.*;
-import io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent;
-import io.papermc.paper.event.world.border.WorldBorderBoundsChangeFinishEvent;
-import io.papermc.paper.event.world.border.WorldBorderCenterChangeEvent;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.*;
 import org.bukkit.event.enchantment.EnchantItemEvent;
@@ -23,7 +17,6 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.server.BroadcastMessageEvent;
 import org.bukkit.event.server.ServerListPingEvent;
-import org.bukkit.event.vehicle.*;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.*;
 
@@ -99,40 +92,7 @@ public class SimpleEvents {
 				.description("Called when a chunk is unloaded due to not being near any player.")
 				.examples("on chunk unload:")
 				.since("1.0");
-		Skript.registerEvent("Creeper Power", SimpleEvent.class, CreeperPowerEvent.class, "creeper power")
-				.description("Called when a creeper is struck by lighting and gets powered. Cancel the event to prevent the creeper from being powered.")
-				.examples("on creeper power:")
-				.since("1.0");
-		Skript.registerEvent("Zombie Break Door", SimpleEvent.class, EntityBreakDoorEvent.class, "zombie break[ing] [a] [wood[en]] door")
-				.description("Called when a zombie is done breaking a wooden door. Can be cancelled to prevent the zombie from breaking the door.")
-				.examples("on zombie breaking a wood door:")
-				.since("1.0");
-		Skript.registerEvent("Combust", SimpleEvent.class, EntityCombustEvent.class, "combust[ing]")
-				.description("Called when an entity is set on fire, e.g. by fire or lava, a fireball, or by standing in direct sunlight (zombies, skeletons).")
-				.examples("on combust:")
-				.since("1.0");
-		Skript.registerEvent("Explode", SimpleEvent.class, EntityExplodeEvent.class, "explo(d(e|ing)|sion)")
-				.description("Called when an entity (a primed TNT or a creeper) explodes. When the mob griefing gamerule is false, this is not called for entities.")
-				.examples("on explosion:")
-				.since("1.0");
 //		Skript.registerEvent(SimpleEvent.class, EntityInteractEvent.class, "interact");// = entity interacts with block, e.g. endermen?; player -> PlayerInteractEvent // likely tripwires, pressure plates, etc.
-		Skript.registerEvent("Portal Enter", SimpleEvent.class, EntityPortalEnterEvent.class, "portal enter[ing]", "entering [a] portal")
-				.description("Called when an entity enters a nether portal or an end portal. Please note that this event will be fired many times for a nether portal.")
-				.examples("on portal enter:")
-				.since("1.0");
-		Skript.registerEvent("Tame", SimpleEvent.class, EntityTameEvent.class, "[entity] tam(e|ing)")
-				.description("Called when a player tames a wolf or ocelot. Can be cancelled to prevent the entity from being tamed.")
-				.examples("on tame:")
-				.since("1.0");
-		Skript.registerEvent("Explosion Prime", SimpleEvent.class, ExplosionPrimeEvent.class, "explosion prime")
-				.description("Called when an explosive is primed, i.e. an entity will explode shortly. Creepers can abort the explosion if the player gets too far away, " +
-						"while TNT will explode for sure after a short time.")
-				.examples("on explosion prime:")
-				.since("1.0");
-		Skript.registerEvent("Hunger Meter Change", SimpleEvent.class, FoodLevelChangeEvent.class, "(food|hunger) (level|met(er|re)|bar) chang(e|ing)")
-				.description("Called when the hunger bar of a player changes, i.e. either increases by eating or decreases over time.")
-				.examples("on food bar change:")
-				.since("1.4.4");
 		Skript.registerEvent("Leaves Decay", SimpleEvent.class, LeavesDecayEvent.class, "leaves decay[ing]")
 				.description("Called when a leaf block decays due to not being connected to a tree.")
 				.examples("on leaves decay:")
@@ -140,10 +100,6 @@ public class SimpleEvents {
 		Skript.registerEvent("Lightning Strike", SimpleEvent.class, LightningStrikeEvent.class, "lightning [strike]")
 				.description("Called when lightning strikes.")
 				.examples("on lightning:", "\tspawn a zombie at location of event-entity")
-				.since("1.0");
-		Skript.registerEvent("Pig Zap", SimpleEvent.class, PigZapEvent.class, "pig[ ]zap")
-				.description("Called when a pig is stroke by lightning and transformed into a zombie pigman. Cancel the event to prevent the transformation.")
-				.examples("on pig zap:")
 				.since("1.0");
 		Skript.registerEvent("Bed Enter", SimpleEvent.class, PlayerBedEnterEvent.class, "bed enter[ing]", "[player] enter[ing] [a] bed")
 				.description("Called when a player starts sleeping.")
@@ -227,24 +183,6 @@ public class SimpleEvents {
 				.examples("on portal create:")
 				.requiredPlugins("Minecraft 1.14+ (event-entity support)")
 				.since("1.0, 2.5.3 (event-entity support)");
-		Skript.registerEvent("Projectile Hit", SimpleEvent.class, ProjectileHitEvent.class, "projectile hit")
-				.description("Called when a projectile hits an entity or a block.")
-				.examples("on projectile hit:",
-						"\tif victim's health <= 3:",
-						"\t\tdelete event-projectile")
-				.since("1.0");
-		if (Skript.classExists("com.destroystokyo.paper.event.entity.ProjectileCollideEvent"))
-			Skript.registerEvent("Projectile Collide", SimpleEvent.class, ProjectileCollideEvent.class, "projectile collide")
-			.description("Called when a projectile collides with an entity.")
-			.examples("on projectile collide:",
-				"\tteleport shooter of event-projectile to event-entity")
-			.since("2.5");
-		Skript.registerEvent("Shoot", SimpleEvent.class, ProjectileLaunchEvent.class, "[projectile] (shoot|launch)")
-				.description("Called whenever a <a href='#projectile'>projectile</a> is shot. Use the <a href='#ExprShooter'>shooter expression</a> to get who shot the projectile.")
-				.examples("on shoot:",
-						"\tif projectile is an arrow:",
-						"\t\tsend \"you shot an arrow!\" to shooter")
-				.since("1.0");
 		Skript.registerEvent("Sign Change", SimpleEvent.class, SignChangeEvent.class, "sign (chang[e]|edit)[ing]", "[player] (chang[e]|edit)[ing] [a] sign")
 				.description("As signs are placed empty, this event is called when a player is done editing a sign.")
 				.examples("on sign change:",
@@ -256,74 +194,11 @@ public class SimpleEvents {
 				.examples("on spawn change:",
 						"\tbroadcast \"someone changed the spawn!\"")
 				.since("1.0");
-		Skript.registerEvent("Vehicle Create", SimpleEvent.class, VehicleCreateEvent.class, "vehicle create", "creat(e|ing|ion of) [a] vehicle")
-				.description("Called when a new vehicle is created, e.g. when a player places a boat or minecart.")
-				.examples("on vehicle create:")
-				.since("1.0");
-		Skript.registerEvent("Vehicle Damage", SimpleEvent.class, VehicleDamageEvent.class, "vehicle damage", "damag(e|ing) [a] vehicle")
-				.description("Called when a vehicle gets damage. Too much damage will <a href='#vehicle_destroy'>destroy</a> the vehicle.")
-				.examples("on vehicle damage:")
-				.since("1.0");
-		Skript.registerEvent("Vehicle Destroy", SimpleEvent.class, VehicleDestroyEvent.class, "vehicle destroy", "destr(oy[ing]|uction of) [a] vehicle")
-				.description("Called when a vehicle is destroyed. Any <a href='#ExprPassenger'>passenger</a> will be ejected and the vehicle might drop some item(s).")
-				.examples("on vehicle destroy:",
-						"\tcancel event")
-				.since("1.0");
-		Skript.registerEvent("Vehicle Enter", SimpleEvent.class, VehicleEnterEvent.class, "vehicle enter", "enter[ing] [a] vehicle")
-				.description("Called when an <a href='#entity'>entity</a> enters a vehicle, either deliberately (players) or by falling into them (mobs).")
-				.examples("on vehicle enter:",
-						"\tentity is a player",
-						"\tcancel event")
-				.since("1.0");
-		Skript.registerEvent("Vehicle Exit", SimpleEvent.class, VehicleExitEvent.class, "vehicle exit", "exit[ing] [a] vehicle")
-				.description("Called when an entity exits a vehicle.")
-				.examples("on vehicle exit:",
-						"\tif event-entity is a spider:",
-						"\t\tkill event-entity")
-				.since("1.0");
-		if (Skript.classExists("org.bukkit.event.entity.EntityMountEvent") || Skript.classExists("org.spigotmc.event.entity.EntityMountEvent")) {
-			Class<? extends Event> mountEventClass = null;
-			Class<? extends Event> dismountEventClass = null;
-			if (Skript.classExists("org.bukkit.event.entity.EntityMountEvent")) {
-				mountEventClass = EntityMountEvent.class;
-				dismountEventClass = EntityDismountEvent.class;
-			} else {
-				try {
-					mountEventClass = (Class<? extends Event>) Class.forName("org.spigotmc.event.entity.EntityMountEvent");
-					dismountEventClass = (Class<? extends Event>) Class.forName("org.spigotmc.event.entity.EntityDismountEvent");
-				} catch (ClassNotFoundException e) {
-					Skript.exception(e, "Failed to load legacy mount/dismount event classes. These events may not work.");
-				}
-			}
-			if (mountEventClass != null) {
-				Skript.registerEvent("Entity Mount", SimpleEvent.class, mountEventClass, "mount[ing]")
-					.description("Called when entity starts riding another.")
-					.examples("on mount:",
-							"\tcancel event")
-					.since("2.2-dev13b");
-			}
-			if (dismountEventClass != null) {
-				Skript.registerEvent("Entity Dismount", SimpleEvent.class, dismountEventClass, "dismount[ing]")
-					.description("Called when an entity dismounts.")
-					.examples("on dismount:",
-							"\tkill event-entity")
-					.since("2.2-dev13b");
-			}
-		}
 
 		Skript.registerEvent("Gliding State Change", SimpleEvent.class, EntityToggleGlideEvent.class, "(gliding state change|toggl(e|ing) gliding)")
 				.description("Called when an entity toggles glider on or off, or when server toggles gliding state of an entity forcibly.")
 				.examples("on toggling gliding:",
 					"	cancel the event # bad idea, but you CAN do it!")
-				.since("2.2-dev21");
-		Skript.registerEvent("AoE Cloud Effect", SimpleEvent.class, AreaEffectCloudApplyEvent.class, "(area|AoE) [cloud] effect")
-				.description("Called when area effect cloud applies its potion effect. This happens every 5 ticks by default.")
-				.examples("on area cloud effect:")
-				.since("2.2-dev21");
-		Skript.registerEvent("Sheep Regrow Wool", SimpleEvent.class, SheepRegrowWoolEvent.class, "sheep [re]grow[ing] wool")
-				.description("Called when sheep regrows its sheared wool back.")
-				.examples("on sheep grow wool:",
-						"\tcancel event")
 				.since("2.2-dev21");
 		Skript.registerEvent("Inventory Open", SimpleEvent.class, InventoryOpenEvent.class, "inventory open[ed]")
 				.description("Called when an inventory is opened for player.")
@@ -336,20 +211,6 @@ public class SimpleEvents {
 						"\tif player's location is {location}:",
 						"\t\tsend \"You exited the shop!\"")
 				.since("2.2-dev21");
-		Skript.registerEvent("Slime Split", SimpleEvent.class, SlimeSplitEvent.class, "slime split[ting]")
-				.description("Called when a slime splits. Usually this happens when a big slime dies.")
-				.examples("on slime split:")
-				.since("2.2-dev26");
-		Skript.registerEvent("Resurrect Attempt", SimpleEvent.class, EntityResurrectEvent.class, "[entity] resurrect[ion] [attempt]")
-				.description("Called when an entity dies, always. If they are not holding a totem, this is cancelled - you can, however, uncancel it.")
-				.examples(
-					"on resurrect attempt:",
-						"\tentity is player",
-						"\tentity has permission \"admin.undying\"",
-						"\tuncancel the event"
-				)
-				.since("2.2-dev28")
-				.listeningBehavior(ListeningBehavior.ANY);
 		Skript.registerEvent("Player World Change", SimpleEvent.class, PlayerChangedWorldEvent.class, "[player] world chang(ing|e[d])")
 				.description("Called when a player enters a world. Does not work with other entities!")
 				.examples("on player world change:",
@@ -406,14 +267,6 @@ public class SimpleEvents {
 						"	set the fake max players count to (online players count + 1)",
 						"	set the shown icon to a random server icon out of {server-icons::*}")
 				.since("2.3");
-		Skript.registerEvent("Swim Toggle", SimpleEvent.class, EntityToggleSwimEvent.class, "[entity] toggl(e|ing) swim",
-				"[entity] swim toggl(e|ing)")
-				.description("Called when an entity swims or stops swimming.")
-				.requiredPlugins("1.13 or newer")
-				.examples("on swim toggle:",
-					"	event-entity does not have permission \"swim\"",
-					"	cancel event")
-				.since("2.3");
 		Skript.registerEvent("Riptide", SimpleEvent.class, PlayerRiptideEvent.class, "[use of] riptide [enchant[ment]]")
 				.description("Called when the player activates the riptide enchantment, using their trident to propel them through the air.",
 					"Note: the riptide action is performed client side, so manipulating the player in this event may have undesired effects.")
@@ -445,10 +298,6 @@ public class SimpleEvents {
 				.description("Called when an inventory (a hopper, a hopper minecart, etc.) picks up an item")
 				.examples("on inventory pickup:")
 				.since("2.5.1");
-		Skript.registerEvent("Horse Jump", SimpleEvent.class, HorseJumpEvent.class, "horse jump")
-			.description("Called when a horse jumps.")
-			.examples("on horse jump:", "\tpush event-entity upwards at speed 2")
-			.since("2.5.1");
 		Skript.registerEvent("Block Fertilize", SimpleEvent.class, BlockFertilizeEvent.class, "[block] fertilize")
 			.description("Called when a player fertilizes blocks.")
 			.requiredPlugins("Minecraft 1.13 or newer")
@@ -484,14 +333,6 @@ public class SimpleEvents {
 					"\tchance of 50%:",
 					"\t\tcancel event",
 					"\t\tsend \"The trade was somehow denied!\" to player")
-				.since("2.7");
-		}
-		if (Skript.classExists("com.destroystokyo.paper.event.entity.EntityJumpEvent")) {
-			Skript.registerEvent("Entity Jump", SimpleEvent.class, EntityJumpEvent.class, "entity jump[ing]")
-				.description("Called when an entity jumps.")
-				.examples("on entity jump:",
-					"\tif entity is a wither skeleton:",
-					"\t\tcancel event")
 				.since("2.7");
 		}
 		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
@@ -571,17 +412,6 @@ public class SimpleEvents {
 						"\t\tcancel event"
 				)
 				.since("2.7");
-		Skript.registerEvent("Piglin Barter", SimpleEvent.class, PiglinBarterEvent.class, "piglin (barter[ing]|trad(e|ing))")
-				.description(
-					"Called when a piglin finishes bartering. A piglin may start bartering after picking up an item on its bartering list.",
-					"Cancelling will prevent piglins from dropping items, but will still make them pick up the input.")
-				.examples(
-					"on piglin barter:",
-					"\tif barter drops contain diamond:",
-					"\t\tsend \"Diamonds belong in the money pit!\" to player",
-					"\t\tcancel event"
-				)
-				.since("2.10");
 		Skript.registerEvent("Bell Ring", SimpleEvent.class, BellRingEvent.class, "bell ring[ing]")
 			.description("Called when a bell is rung.")
 			.examples(
@@ -597,21 +427,6 @@ public class SimpleEvents {
 					"\tsend \"<red>Raiders are nearby!\" to all players in radius 32 around event-block"
 			)
 			.since("2.9.0");
-
-		if (Skript.classExists("com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent")) {
-			Skript.registerEvent("Enderman Enrage", SimpleEvent.class, com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent.class, "enderman (enrage|anger)")
-					.description(
-						"Called when an enderman gets mad because a player looked at them.",
-						"Note: This does not stop enderman from targeting the player as a result of getting damaged."
-					)
-					.examples(
-						"# Stops endermen from getting angry players with the permission \"safeFrom.enderman\"",
-						"on enderman enrage:",
-							"\tif player has permission \"safeFrom.enderman\":",
-								"\t\tcancel event"
-					)
-					.since("2.9.0");
-		}
 
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerChangeBeaconEffectEvent")) {
 			Skript.registerEvent("Beacon Change Effect", SimpleEvent.class, PlayerChangeBeaconEffectEvent.class,
@@ -651,17 +466,6 @@ public class SimpleEvents {
 			)
 			.since("2.10");
 
-		Skript.registerEvent("Vehicle Move", SimpleEvent.class, VehicleMoveEvent.class, "vehicle move")
-			.description(
-				"Called when a vehicle moves.",
-				"Please note that using this event can cause lag if there are multiple vehicle entities, i.e. Horse, Pig, Boat, Minecart")
-			.examples(
-				"on vehicle move:",
-					"\tbroadcast past event-location",
-					"\tbroadcast event-location"
-			)
-			.since("2.10");
-
 		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerElytraBoostEvent")) {
 			Skript.registerEvent("Elytra Boost", SimpleEvent.class, PlayerElytraBoostEvent.class, "elytra boost")
 				.description("Called when a player uses a firework to boost their fly speed when flying with an elytra.")
@@ -673,11 +477,6 @@ public class SimpleEvents {
 				.since("2.10");
 		}
 
-		Skript.registerEvent("Bat Toggle Sleep", SimpleEvent.class, BatToggleSleepEvent.class, "bat toggle sleep")
-			.description("Called when a bat attempts to go to sleep or wakes up.")
-			.examples("on bat toggle sleep:")
-			.since("2.11");
-
 		if (Skript.classExists("org.bukkit.event.block.VaultDisplayItemEvent")) {
 			Skript.registerEvent("Vault Display Item", SimpleEvent.class, VaultDisplayItemEvent.class,
 					"vault display[ing] item")
@@ -685,25 +484,12 @@ public class SimpleEvents {
 				.examples(
 					"""
 					on vault display item:
-						set event-item to a netherite ingot	
+						set event-item to a netherite ingot
 					"""
 				)
 				.since("2.12")
 				.requiredPlugins("Minecraft 1.21.1+");
 		}
-
-		Skript.registerEvent("Villager Career Change", SimpleEvent.class, VillagerCareerChangeEvent.class,
-				"villager career chang(e[d]|ing)")
-			.description("Called when a villager changes its career. Can be caused by being employed or losing their job.")
-			.examples("""
-				on villager career change:
-					if all:
-						event-career change reason is employment
-						event-villager profession is armorer profession
-					then:
-						cancel event
-				""")
-			.since("2.12");
 
 	}
 
