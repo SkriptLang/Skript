@@ -166,9 +166,14 @@ public abstract class SkriptLogger {
 			}
 		}
 		entry.logged();
+
+		// In a testing environment, we do not want to pollute console with these debug messages.
+		// It is desirable that the logging process still runs to near completion, as it provides additional testing
+		//  for syntax implementations (e.g. toString functionality).
 		if (Skript.testing() && entry.getLevel() == DEBUG) {
 			return;
 		}
+
 		sendFormatted(Bukkit.getConsoleSender(), Skript.getSkriptPrefix() + entry.toFormattedString());
 	}
 	
