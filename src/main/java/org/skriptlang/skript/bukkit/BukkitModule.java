@@ -63,6 +63,7 @@ public class BukkitModule extends HierarchicalAddonModule {
 	@Override
 	protected void initSelf(SkriptAddon addon) {
 		Classes.registerClass(new BlockClassInfo());
+		Classes.registerClass(new ChunkClassInfo());
 		Classes.registerClass(new EntityClassInfo());
 		Classes.registerClass(new InventoryClassInfo());
 		Classes.registerClass(new ItemStackClassInfo());
