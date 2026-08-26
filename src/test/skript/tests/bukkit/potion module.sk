@@ -50,7 +50,7 @@ test "potion effect creation":
 	assert amplifier of {_potion} is 5 with "amplifier is not 5"
 	assert {_potion} is infinite with "potion is infinite"
 
-  # test type comparison
+	# test type comparison
 	assert {_potion} is a potion effect with "potion effect is not a potion effect"
 
 	# test cloning
