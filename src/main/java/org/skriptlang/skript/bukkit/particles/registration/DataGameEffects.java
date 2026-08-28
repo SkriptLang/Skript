@@ -123,7 +123,8 @@ public class DataGameEffects {
 
 		registerEffect(Effect.BONE_MEAL_USE, "[fake] bone meal effect [(with|using) %-number% particles]",
 			DataSupplier::getNumberDefault10,
-			(exprs, parseResult, builder) -> builder.append("bone meal effect with", exprs[0], "particles"));
+			(exprs, parseResult, builder) -> builder.append("bone meal effect")
+													.appendIf(exprs[0] != null, "with", exprs[0], "particles"));
 
 		registerEffect(Effect.ELECTRIC_SPARK, "(electric|lightning[ rod]|copper) spark effect [(in|using|along) the (1:x|2:y|3:z) axis]",
 			(event, expressions, parseResult) -> (parseResult.mark == 0 ? null : Axis.values()[parseResult.mark - 1]),
@@ -167,7 +168,8 @@ public class DataGameEffects {
 
 		registerEffect(Effect.BEE_GROWTH, "bee growth effect [(with|using) %-number% particles]",
 			DataSupplier::getNumberDefault10,
-			(exprs, parseResult, builder) -> builder.append("bee [plant] grow[th] effect with", exprs[0], "particles"));
+			(exprs, parseResult, builder) -> builder.append("bee [plant] grow[th] effect")
+													.appendIf(exprs[0] != null, "with", exprs[0], "particles"));
 
 		registerEffect(Effect.VAULT_ACTIVATE, "[:ominous] [trial] vault activate effect",
 			DataSupplier::isOminous,
@@ -192,11 +194,13 @@ public class DataGameEffects {
 
 		registerEffect(Effect.TURTLE_EGG_PLACEMENT, "place turtle egg effect [(with|using) %-number% particles]",
 			DataSupplier::getNumberDefault10,
-			(exprs, parseResult, builder) -> builder.append("place turtle egg effect with", exprs[0], "particles"));
+			(exprs, parseResult, builder) -> builder.append("place turtle egg effect")
+													.appendIf(exprs[0] != null, "with", exprs[0], "particles"));
 
 		registerEffect(Effect.SMASH_ATTACK, "[mace] smash attack effect [(with|using) %-number% particles]",
 			DataSupplier::getNumberDefault10,
-			(exprs, parseResult, builder) -> builder.append("smash attack effect with", exprs[0], "particles"));
+			(exprs, parseResult, builder) -> builder.append("smash attack effect")
+													.appendIf(exprs[0] != null, "with", exprs[0], "particles"));
 	}
 
 }
