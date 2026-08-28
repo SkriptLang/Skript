@@ -42,14 +42,14 @@ public class EvtPlayerGameModeChange extends SkriptEvent {
 			.build());
 	}
 
-	private Literal<GameMode> gamemode;
+	private Literal<GameMode> gamemodes;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		if (args[0] != null) {
-			gamemode = (Literal<GameMode>) args[0];
-			if (gamemode.getAnd() && gamemode instanceof LiteralList<GameMode> list)
+			gamemodes = (Literal<GameMode>) args[0];
+			if (gamemodes.getAnd() && gamemodes instanceof LiteralList<GameMode> list)
 				list.invertAnd();
 		}
 		return true;
@@ -57,18 +57,18 @@ public class EvtPlayerGameModeChange extends SkriptEvent {
 
 	@Override
 	public boolean check(Event event) {
-		if (gamemode == null)
+		if (gamemodes == null)
 			return true;
 
 		PlayerGameModeChangeEvent playerEvent = (PlayerGameModeChangeEvent) event;
-		return this.gamemode.check(event, gamemode -> gamemode.equals(playerEvent.getNewGameMode()));
+		return this.gamemodes.check(event, gamemode -> gamemode.equals(playerEvent.getNewGameMode()));
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return new SyntaxStringBuilder(event, debug)
 			.append("player gamemode change")
-			.appendIf(gamemode != null, "to", gamemode)
+			.appendIf(gamemodes != null, "to", gamemodes)
 			.toString();
 	}
 
