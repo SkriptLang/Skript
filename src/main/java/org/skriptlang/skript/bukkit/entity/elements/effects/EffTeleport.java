@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.entity.elements.effects;
 
+import ch.njol.skript.ServerPlatform;
 import ch.njol.skript.Skript;
 import org.skriptlang.skript.bukkit.entity.types.TeleportFlagClassInfo.SkriptTeleportFlag;
 import ch.njol.skript.doc.*;
@@ -21,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 @Name("Teleport")
@@ -126,7 +128,7 @@ public class EffTeleport extends Effect {
 				.toArray(TeleportFlag[]::new);
 		}
 
-		if (!async) {
+		if (Skript.getServerPlatform() != ServerPlatform.BUKKIT_FOLIA && !async) { // Folia doesn't support #teleport, can use #teleportAsync only
 			for (Entity entity : entityArray) {
 				entity.teleport(location, teleportFlags);
 			}
@@ -135,12 +137,13 @@ public class EffTeleport extends Effect {
 
 		final Location fixed = location;
 		Object localVars = Variables.removeLocals(event);
-		fixed.getWorld().getChunkAtAsync(fixed).thenAccept(ignored -> {
-			Delay.addDelayedEvent(event);
-			for (Entity entity : entityArray) {
-				entity.teleport(fixed, teleportFlags);
-			}
+		CompletableFuture<?>[] teleports = new CompletableFuture<?>[entityArray.length];
+		Delay.addDelayedEvent(event);
+		for (int i = 0; i < entityArray.length; i++) {
+			teleports[i] = entityArray[i].teleportAsync(fixed, teleportFlags);
+		}
 
+		CompletableFuture.allOf(teleports).thenRun(() -> {
 			// Re-set local variables
 			if (localVars != null)
 				Variables.setLocalVariables(event, localVars);

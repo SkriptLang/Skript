@@ -3,7 +3,6 @@ package ch.njol.skript;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.timings.SkriptTimings;
-import ch.njol.skript.util.Task;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import org.bukkit.Bukkit;
@@ -175,10 +174,9 @@ public final class SkriptEventHandler {
 			if (trigger.getEvent().check(event))
 				execute.run();
 		} else { // Ensure main thread
-			Task.callSync(() -> {
+			Skript.getScheduler().callSyncGlobal(() -> {
 				if (trigger.getEvent().check(event))
 					execute.run();
-				return null; // we don't care about a return value
 			});
 		}
 	}

@@ -7,10 +7,9 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
-import ch.njol.skript.util.Task;
-import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Version;
 import ch.njol.util.NotifyingReference;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -26,6 +25,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -95,7 +95,7 @@ public class FlatFileStorage extends VariablesStorage {
 	 * @see #SAVE_TASK_PERIOD
 	 */
 	@Nullable
-	private Task saveTask;
+	private ScheduledTask saveTask;
 
 	/**
 	 * Whether there was an error while loading variables.
@@ -245,17 +245,14 @@ public class FlatFileStorage extends VariablesStorage {
 		connect();
 
 		// Start the save task
-		saveTask = new Task(Skript.getInstance(), SAVE_TASK_DELAY, SAVE_TASK_PERIOD, true) {
-			@Override
-			public void run() {
-				// Due to concurrency, the amount of changes may change between the get and set call
-				//  but that's not a big issue
+		saveTask = Skript.getScheduler().runAsyncRepeatingTask(
+			() -> {
 				if (changes.get() >= REQUIRED_CHANGES_FOR_RESAVE) {
 					saveVariables(false);
 					changes.set(0);
 				}
-			}
-		};
+			}, SAVE_TASK_DELAY * 50, SAVE_TASK_PERIOD * 50, TimeUnit.MILLISECONDS
+		);
 
 		return ioException == null;
 	}

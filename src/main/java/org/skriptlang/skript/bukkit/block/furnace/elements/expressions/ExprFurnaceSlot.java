@@ -16,7 +16,7 @@ import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
-import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -226,7 +226,15 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 				furnaceSmeltEvent.setResult(item != null ? item : new ItemStack(Material.AIR));
 			} else {
 				if (getTime() == EventValues.TIME_FUTURE) { // Since this is a future expression, run it AFTER the event
-					Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> FurnaceEventSlot.super.setItem(item));
+					Location location = FurnaceEventSlot.super.getInventory().getLocation();
+					if (location != null) {
+						Skript.getScheduler().runRegionTask(
+							location,
+							() -> FurnaceEventSlot.super.setItem(item)
+						);
+					} else {
+						Skript.getScheduler().runGlobalTask(() -> FurnaceEventSlot.super.setItem(item));
+					}
 				} else {
 					super.setItem(item);
 				}

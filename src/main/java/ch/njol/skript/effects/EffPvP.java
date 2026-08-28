@@ -1,5 +1,6 @@
 package ch.njol.skript.effects;
 
+import ch.njol.skript.ServerPlatform;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -26,11 +27,11 @@ public class EffPvP extends Effect {
 	static {
 		Skript.registerEffect(EffPvP.class, "enable PvP [in %worlds%]", "disable PVP [in %worlds%]");
 	}
-	
+
 	@SuppressWarnings("null")
 	private Expression<World> worlds;
 	private boolean enable;
-	
+
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
@@ -38,21 +39,31 @@ public class EffPvP extends Effect {
 		enable = matchedPattern == 0;
 		return true;
 	}
-	
+
 	@Override
 	protected void execute(Event event) {
 		if (PVP_GAME_RULE_EXISTS) {
-			for (World world : worlds.getArray(event))
+			for (World world : worlds.getArray(event)) {
+				if (Skript.getServerPlatform() == ServerPlatform.BUKKIT_FOLIA) {
+					Skript.getScheduler().runGlobalTask(() -> world.setGameRule(GameRule.PVP, enable));
+					return;
+				}
 				world.setGameRule(GameRule.PVP, enable);
+			}
 		} else {
-			for (World world : worlds.getArray(event))
+			for (World world : worlds.getArray(event)) {
+				if (Skript.getServerPlatform() == ServerPlatform.BUKKIT_FOLIA) {
+					Skript.getScheduler().runGlobalTask(() -> world.setPVP(enable));
+					return;
+				}
 				world.setPVP(enable);
+			}
 		}
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return (enable ? "enable" : "disable") + " PvP in " + worlds.toString(event, debug);
 	}
-	
+
 }

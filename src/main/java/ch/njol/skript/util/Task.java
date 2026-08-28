@@ -15,7 +15,9 @@ import ch.njol.util.Closeable;
 
 /**
  * @author Peter Güttinger
+ * @deprecated use {@link Skript#getScheduler()}
  */
+@Deprecated(forRemoval = true)
 @SuppressWarnings("removal")
 public abstract class Task implements Runnable, Closeable {
 

@@ -2,13 +2,14 @@ package ch.njol.skript.variables;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -18,7 +19,6 @@ import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.FileUtils;
-import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.SerializedVariable.Value;
 import ch.njol.util.Closeable;
@@ -338,7 +338,7 @@ public abstract class VariablesStorage implements Closeable {
 	 * The backup task, or {@code null} if automatic backups are disabled.
 	 */
 	@Nullable
-	protected Task backupTask = null;
+	protected ScheduledTask backupTask = null;
 
 	/**
 	 * Starts the backup task, with the given backup interval.
@@ -349,9 +349,9 @@ public abstract class VariablesStorage implements Closeable {
 		// File is null or backup interval is invalid
 		if (file == null || backupInterval.getAs(Timespan.TimePeriod.TICK) == 0)
 			return;
-		backupTask = new Task(Skript.getInstance(), backupInterval.getAs(Timespan.TimePeriod.TICK), backupInterval.getAs(Timespan.TimePeriod.TICK), true) {
-			@Override
-			public void run() {
+
+		backupTask = Skript.getScheduler().runAsyncRepeatingTask(
+			() -> {
 				synchronized (connectionLock) {
 					// Disconnect,
 					disconnect();
@@ -372,8 +372,8 @@ public abstract class VariablesStorage implements Closeable {
 						connect();
 					}
 				}
-			}
-		};
+			}, backupInterval.getAs(Timespan.TimePeriod.TICK) * 50, backupInterval.getAs(Timespan.TimePeriod.TICK) * 50, TimeUnit.MILLISECONDS
+		);
 	}
 
 	/**

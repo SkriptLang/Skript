@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.ServerPlatform;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -81,7 +82,7 @@ public class ExprTime extends PropertyExpression<World, Time> {
 
 		World[] worlds = getExpr().getArray(event);
 
-		long ticks = 0;
+		long ticks;
 		if (time instanceof Time) {
 			if (mode != ChangeMode.SET) {
 				ticks = ((Time) time).getTicks() - TIME_TO_TIMESPAN_OFFSET;
@@ -92,8 +93,18 @@ public class ExprTime extends PropertyExpression<World, Time> {
 			ticks = ((Timespan) time).getAs(Timespan.TimePeriod.TICK);
 		} else if (time instanceof Timeperiod) {
 			ticks = ((Timeperiod) time).start;
+		} else {
+			ticks = 0;
 		}
 
+		if (Skript.getServerPlatform() == ServerPlatform.BUKKIT_FOLIA) {
+			Skript.getScheduler().runGlobalTask(() -> changeWorldTime(worlds, mode, ticks));
+			return;
+		}
+		changeWorldTime(worlds, mode, ticks);
+	}
+
+	private void changeWorldTime(World[] worlds, ChangeMode mode, long ticks) {
 		for (World world : worlds) {
 			switch (mode) {
 				case ADD:
