@@ -33,6 +33,7 @@ public class ExprUnloadingScripts extends SimpleExpression<Script> implements Ev
 			SyntaxInfo.Expression.simple(ExprUnloadingScripts.class, ExprUnloadingScripts::new, Script.class,
 				"[all [[of] the]|the] (unloading|stopping|disabling) scripts"));
 	}
+
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		return true;

@@ -33,6 +33,7 @@ public class ExprLoadingScripts extends SimpleExpression<Script> implements Even
 			SyntaxInfo.Expression.simple(ExprLoadingScripts.class, ExprLoadingScripts::new, Script.class,
 				"[all [[of] the]|the] (loading|initializing|enabling) scripts"));
 	}
+
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		return true;

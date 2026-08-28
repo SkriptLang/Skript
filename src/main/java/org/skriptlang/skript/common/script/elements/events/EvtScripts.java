@@ -60,8 +60,14 @@ public class EvtScripts extends SkriptEvent {
 			.supplier(() -> new EvtScripts(true))
 			.addEvent(ScriptsLoadEvent.class)
 			.addPattern("scripts (loading|initializing|enabling)")
-			.addDescription("Called directly after a batch of scripts is loaded.")
+			.addDescription("""
+				Called directly after a batch of scripts is loaded. \
+				This is called immediately after individual script load events for the loading scripts.
+				""")
 			.addExample("""
+				on scripts loading:
+					if all of the loaded scripts are the same as the loading scripts:
+						send "<lime>All scripts have finished loading!" to all operators
 				""")
 			.addSince("INSERT VERSION")
 			.build());
@@ -69,8 +75,14 @@ public class EvtScripts extends SkriptEvent {
 			.supplier(() -> new EvtScripts(false))
 			.addEvent(ScriptsUnloadEvent.class)
 			.addPattern("scripts (unloading|stopping|disabling)")
-			.addDescription("Called directly before a batch of scripts is unloaded.")
+			.addDescription("""
+				Called directly before a batch of scripts is unloaded.
+				This is called immediately after individual script unload events for the unloading scripts.
+				""")
 			.addExample("""
+				on scripts unloading:
+					if any of the names of the unloading scripts contain "important":
+						send "<red>[!] An important script is unloading!" to all operators
 				""")
 			.addSince("INSERT VERSION")
 			.build());

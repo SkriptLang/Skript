@@ -636,11 +636,6 @@ public class ScriptLoader {
 					parser.setInactive();
 
 					// trigger events
-					List<Script> eventScripts = scripts.stream()
-						.map(LoadingScriptInfo::script)
-						.toList();
-					ScriptLoader.eventRegistry().events(ScriptsLoadEvent.class)
-							.forEach(event -> event.onLoad(parser, eventScripts));
 					scripts.forEach(loadingInfo -> {
 						Script script = loadingInfo.script;
 
@@ -652,6 +647,12 @@ public class ScriptLoader {
 						script.eventRegistry().events(ScriptLoadEvent.class)
 							.forEach(event -> event.onLoad(parser, script));
 					});
+					List<Script> eventScripts = scripts.stream()
+						.map(LoadingScriptInfo::script)
+						.toList();
+					ScriptLoader.eventRegistry().events(ScriptsLoadEvent.class)
+						.forEach(event -> event.onLoad(parser, eventScripts));
+
 					parser.setInactive();
 
 					return scriptInfo;
@@ -906,15 +907,15 @@ public class ScriptLoader {
 			.collect(Collectors.toCollection(ArrayList::new));
 
 		// trigger unload event before unloading scripts
-		Set<Script> finalScripts = scripts;
-		eventRegistry().events(ScriptsUnloadEvent.class)
-			.forEach(event -> event.onUnload(parser, Collections.unmodifiableSet(finalScripts)));
 		for (Script script : scripts) {
 			eventRegistry().events(ScriptUnloadEvent.class)
 				.forEach(event -> event.onUnload(parser, script));
 			script.eventRegistry().events(ScriptUnloadEvent.class)
 				.forEach(event -> event.onUnload(parser, script));
 		}
+		Set<Script> finalScripts = scripts;
+		eventRegistry().events(ScriptsUnloadEvent.class)
+			.forEach(event -> event.onUnload(parser, Collections.unmodifiableSet(finalScripts)));
 
 		// initial unload stage
 		for (UnloadingStructure unloadingStructure : unloadingStructures) {
