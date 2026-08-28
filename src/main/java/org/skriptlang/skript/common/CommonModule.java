@@ -4,6 +4,7 @@ import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.common.elements.effects.*;
 import org.skriptlang.skript.common.elements.expressions.*;
 import org.skriptlang.skript.common.properties.PropertiesModule;
 import org.skriptlang.skript.common.script.ScriptModule;
@@ -32,6 +33,8 @@ public class CommonModule extends HierarchicalAddonModule {
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
 		register(addon,
+			EffSecSuppressTypeHints::register,
+			EffSecSuppressWarnings::register,
 			ExprColorFromHexCode::register,
 			ExprHexCode::register,
 			ExprRecursiveSize::register,
