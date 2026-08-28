@@ -37,6 +37,12 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		if line 2 of the clicked block is "[Heal]":
 			heal the player
 	""")
+@Example("""
+	on sign change:
+		any of the lines contain "bad word"
+		cancel the event
+		send "<red>You may not write profanity on signs!" to the player
+	""")
 @Since({"1.3", "INSERT VERSION (sign side support)"})
 public class ExprSignText extends SimpleExpression<Component> {
 
