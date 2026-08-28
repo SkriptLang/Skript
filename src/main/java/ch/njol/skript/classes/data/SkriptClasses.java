@@ -1,5 +1,10 @@
 package ch.njol.skript.classes.data;
 
+import java.io.StreamCorruptedException;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.regex.Pattern;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -29,10 +34,6 @@ import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHan
 import org.skriptlang.skript.util.Executable;
 
 import java.io.File;
-import java.io.StreamCorruptedException;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.regex.Pattern;
 
 @SuppressWarnings("rawtypes")
 public class SkriptClasses {
