@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.entity;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.entity.SimpleEntityData;
+import ch.njol.skript.expressions.ExprLungePower;
 import ch.njol.skript.lang.util.SimpleEvent;
 import com.destroystokyo.paper.event.entity.EntityPathfindEvent;
 import io.papermc.paper.event.player.AsyncChatEvent;
@@ -84,6 +85,7 @@ public class EntityModule extends HierarchicalAddonModule {
 
 		register(addon,
 			ExprDeathMessage::register,
+			ExprLungePower::register,
 			ExprPathfindingLocation::register,
 			ExprPathfindingTarget::register,
 			EffTeleport::register,
