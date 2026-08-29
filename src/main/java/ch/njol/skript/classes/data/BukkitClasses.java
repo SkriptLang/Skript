@@ -423,44 +423,6 @@ public class BukkitClasses {
 					}));
 		}
 
-		Classes.registerClass(new EnumClassInfo<>(FireworkEffect.Type.class, "fireworktype", "firework types")
-				.user("firework ?types?")
-				.name("Firework Type")
-				.description("The type of a <a href='#fireworkeffect'>fireworkeffect</a>.")
-				.since("2.4")
-				.documentationId("FireworkType"));
-
-		Classes.registerClass(new ClassInfo<>(FireworkEffect.class, "fireworkeffect")
-				.user("firework ?effects?")
-				.name("Firework Effect")
-				.usage("See <a href='/#FireworkType'>Firework Types</a>")
-				.description(
-					"A configuration of effects that defines the firework when exploded",
-					"which can be used in the <a href='#EffFireworkLaunch'>launch firework</a> effect.",
-					"See the <a href='#ExprFireworkEffect'>firework effect</a> expression for detailed patterns."
-				).defaultExpression(new EventValueExpression<>(FireworkEffect.class))
-				.examples(
-					"launch flickering trailing burst firework colored blue and green at player",
-					"launch trailing flickering star colored purple, yellow, blue, green and red fading to pink at target entity",
-					"launch ball large colored red, purple and white fading to light green and black at player's location with duration 1"
-				).since("2.4")
-				.parser(new Parser<>() {
-					@Override
-					public boolean canParse(ParseContext context) {
-						return false;
-					}
-
-					@Override
-					public String toString(FireworkEffect effect, int flags) {
-						return "Firework effect " + effect.toString();
-					}
-
-					@Override
-					public String toVariableNameString(FireworkEffect effect) {
-						return "firework effect " + effect.toString();
-					}
-				}));
-
 		Classes.registerClass(new EnumClassInfo<>(Difficulty.class, "difficulty", "difficulties")
 				.user("difficult(y|ies)")
 				.name("Difficulty")

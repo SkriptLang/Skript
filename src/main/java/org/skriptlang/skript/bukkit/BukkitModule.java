@@ -1,7 +1,9 @@
 package org.skriptlang.skript.bukkit;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.registrations.Classes;
+import org.bukkit.FireworkEffect;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
@@ -65,6 +67,13 @@ public class BukkitModule extends HierarchicalAddonModule {
 		Classes.registerClass(new BlockClassInfo());
 		Classes.registerClass(new ChunkClassInfo());
 		Classes.registerClass(new EntityClassInfo());
+		Classes.registerClass(new FireworkEffectClassInfo());
+		Classes.registerClass(new EnumClassInfo<>(FireworkEffect.Type.class, "fireworktype", "firework types")
+			.user("firework ?types?")
+			.name("Firework Type")
+			.description("The type of a <a href='#fireworkeffect'>fireworkeffect</a>.")
+			.since("2.4")
+			.documentationId("FireworkType"));
 		Classes.registerClass(new InventoryClassInfo());
 		Classes.registerClass(new ItemStackClassInfo());
 		Classes.registerClass(new ItemTypeClassInfo());

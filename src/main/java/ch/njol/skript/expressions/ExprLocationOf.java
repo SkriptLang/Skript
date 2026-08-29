@@ -5,6 +5,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
@@ -18,6 +19,9 @@ import ch.njol.util.Kleenean;
 /**
  * @author Peter Güttinger
  */
+/**
+ * @deprecated This is being removed in favor of {@link org.skriptlang.skript.common.properties.elements.expressions.PropExprLocation}
+ */
 @Name("Location")
 @Description({"The location of a block or entity. This not only represents the x, y and z coordinates of the location but also includes the world and the direction an entity is looking " +
 		"(e.g. teleporting to a saved location will make the teleported entity face the same saved direction every time).",
@@ -25,9 +29,12 @@ import ch.njol.util.Kleenean;
 @Example("set {home::%uuid of player%} to the location of the player")
 @Example("message \"You home was set to %player's location% in %player's world%.\"")
 @Since("")
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class ExprLocationOf extends WrapperExpression<Location> {
 	static {
-		Skript.registerExpression(ExprLocationOf.class, Location.class, ExpressionType.PROPERTY, "(location|position) of %location%", "%location%'[s] (location|position)");
+		if (!SkriptConfig.useTypeProperties.value()) {
+			Skript.registerExpression(ExprLocationOf.class, Location.class, ExpressionType.PROPERTY, "(location|position) of %location%", "%location%'[s] (location|position)");
+		}
 	}
 	
 	@SuppressWarnings({"unchecked", "null"})
