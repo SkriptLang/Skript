@@ -9,7 +9,6 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.BlockUtils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.world.MoonPhase;
@@ -21,7 +20,6 @@ import org.bukkit.block.Biome;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.banner.PatternType;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
@@ -84,67 +82,6 @@ public class BukkitClasses {
 				.since("1.0")
 				.defaultExpression(new EventValueExpression<>(Projectile.class))
 				.changer(DefaultChangers.nonLivingEntityChanger));
-
-		Classes.registerClass(new ClassInfo<>(BlockData.class, "blockdata")
-				.user("block ?datas?")
-				.name("Block Data")
-				.description("Block data is the detailed information about a block, referred to in Minecraft as BlockStates, " +
-						"allowing for the manipulation of different aspects of the block, including shape, waterlogging, direction the block is facing, " +
-						"and so much more. Information regarding each block's optional data can be found on Minecraft's Wiki. Find the block you're " +
-						"looking for and scroll down to 'Block States'. Different states must be separated by a semicolon (see examples). " +
-						"The 'minecraft:' namespace is optional, as well as are underscores.")
-				.examples("set block at player to campfire[lit=false]",
-						"set target block of player to oak stairs[facing=north;waterlogged=true]",
-						"set block at player to grass_block[snowy=true]",
-						"set loop-block to minecraft:chest[facing=north]",
-						"set block above player to oak_log[axis=y]",
-						"set target block of player to minecraft:oak_leaves[distance=2;persistent=false]")
-				.after("itemtype")
-				.since("2.5")
-				.parser(new Parser<>() {
-					@Nullable
-					@Override
-					public BlockData parse(String input, ParseContext context) {
-						return BlockUtils.createBlockData(input);
-					}
-
-					@Override
-					public String toString(BlockData o, int flags) {
-						return o.getAsString().replace(",", ";");
-					}
-
-					@Override
-					public String toVariableNameString(BlockData o) {
-						return "blockdata:" + o.getAsString();
-					}
-				})
-				.serializer(new Serializer<>() {
-					@Override
-					public Fields serialize(BlockData blockData) {
-						return Fields.singletonObject("blockdata", blockData.getAsString());
-					}
-
-					@Override
-					protected BlockData deserialize(Fields fields) throws StreamCorruptedException {
-						String data = fields.getObject("blockdata", String.class);
-						assert data != null;
-						try {
-							return Bukkit.createBlockData(data);
-						} catch (IllegalArgumentException ex) {
-							throw new StreamCorruptedException("Invalid block data: " + data);
-						}
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return true;
-					}
-
-					@Override
-					protected boolean canBeInstantiated() {
-						return false;
-					}
-				}).cloner(BlockData::clone));
 
 		Classes.registerClass(new ClassInfo<>(World.class, "world")
 				.user("worlds?")
