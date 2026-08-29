@@ -13,6 +13,14 @@ import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.entity.displays.DisplayModule;
+import org.skriptlang.skript.bukkit.entity.elements.conditions.CondAI;
+import org.skriptlang.skript.bukkit.entity.elements.conditions.CondGravity;
+import org.skriptlang.skript.bukkit.entity.elements.conditions.CondIsGlowing;
+import org.skriptlang.skript.bukkit.entity.elements.conditions.CondProjectileIsCritical;
+import org.skriptlang.skript.bukkit.entity.elements.effects.EffAI;
+import org.skriptlang.skript.bukkit.entity.elements.effects.EffGlowing;
+import org.skriptlang.skript.bukkit.entity.elements.effects.EffGravity;
+import org.skriptlang.skript.bukkit.entity.elements.effects.EffProjectileCriticalState;
 import org.skriptlang.skript.bukkit.entity.elements.expressions.ExprPathfindingLocation;
 import org.skriptlang.skript.bukkit.entity.elements.expressions.ExprPathfindingTarget;
 import org.skriptlang.skript.bukkit.entity.elements.effects.EffTeleport;
@@ -83,11 +91,20 @@ public class EntityModule extends HierarchicalAddonModule {
 			.build());
 
 		register(addon,
+			CondAI::register,
+			CondGravity::register,
+			CondIsGlowing::register,
+			CondProjectileIsCritical::register,
+
+			EffAI::register,
+			EffGlowing::register,
+			EffGravity::register,
+			EffProjectileCriticalState::register,
+			EffTeleport::register,
+
 			ExprDeathMessage::register,
 			ExprPathfindingLocation::register,
-			ExprPathfindingTarget::register,
-			EffTeleport::register,
-			ExprDeathMessage::register
+			ExprPathfindingTarget::register
 		);
 	}
 

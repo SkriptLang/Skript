@@ -1,0 +1,45 @@
+using error catching
+
+test "Projectile Critical State Effect":
+	shoot arrow from test-location:
+		assert event-projectile won't crit with "A normally shot arrow shouldn't crit"
+		make event-projectile crit
+		assert event-projectile will crit with "Failed to make arrow crit"
+		make event-projectile not crit
+		assert event-projectile won't crit with "Failed to make the arrow not crit"
+		delete event-projectile
+
+	shoot trident from test-location:
+		assert event-projectile won't crit with "A normally shot trident shouldn't crit"
+		make event-projectile crit
+		assert event-projectile will crit with "Failed to make the trident crit"
+		make event-projectile not crit
+		assert event-projectile won't crit with "Failed to make the trident not crit"
+		delete event-projectile
+
+	shoot snowball from test-location:
+		catch runtime errors:
+			make event-projectile crit
+		set {_error} to "This projectile (snowball) is not supported. This only applies to arrows and tridents."
+		assert last caught runtime errors contains {_error} with "Making a snowball crit did not trigger the runtime error"
+
+test "Projectile Critical State Effect with multiple projectiles":
+	shoot arrow and arrow from test-location:
+		add event-projectile to {_arrows::*}
+
+	assert {_arrows::*} won't crit with "Normally shot arrows shouldn't crit"
+	make {_arrows::*} crit
+	assert {_arrows::*} will crit with "Failed to make the 2 arrows crit"
+	make {_arrows::*} not crit
+	assert {_arrows::*} won't crit with "Failed to make the 2 arrows not crit"
+	delete {_arrows::*}
+
+	shoot trident and trident from test-location:
+		add event-projectile to {_tridents::*}
+
+	assert {_tridents::*} won't crit with "Normally shot tridents shouldn't crit"
+	make {_tridents::*} crit
+	assert {_tridents::*} will crit with "Failed to make the 2 tridents crit"
+	make {_tridents::*} not crit
+	assert {_tridents::*} won't crit with "Failed to make the 2 tridents not crit"
+	delete {_tridents::*}

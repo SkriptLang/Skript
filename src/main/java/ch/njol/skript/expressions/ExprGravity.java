@@ -1,25 +1,35 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Gravity")
-@Description("If entity is affected by gravity or not, i.e. if it has Minecraft 1.10+ NoGravity flag.")
-@Example("set gravity of player off")
+@Description("If entity is affected by gravity or not, i.e. if it has Minecraft 1.10+ NoGravity flag. This expression is deprecated and will be removed in a future version. Use the <a href='#EffGravity'>Entity Gravity</a> effect instead.")
+@Example("set gravity of player to off")
 @Since("2.2-dev21")
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class ExprGravity extends SimplePropertyExpression<Entity, Boolean> {
 	
 	static {
 		register(ExprGravity.class, Boolean.class, "gravity", "entities");
+	}
+
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		ScriptWarning.printDeprecationWarning("This expression is deprecated and will be removed in a future version. Use the gravity effect instead: 'enable gravity of " + expressions[0].toString(null, false) + "'.");
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 	
 	@Override
