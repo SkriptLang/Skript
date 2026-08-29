@@ -65,6 +65,7 @@ public class BukkitModule extends HierarchicalAddonModule {
 	@Override
 	protected void initSelf(SkriptAddon addon) {
 		Classes.registerClass(new BlockClassInfo());
+		Classes.registerClass(new ChunkClassInfo());
 		Classes.registerClass(new EntityClassInfo());
 		Classes.registerClass(new FireworkEffectClassInfo());
 		Classes.registerClass(new EnumClassInfo<>(FireworkEffect.Type.class, "fireworktype", "firework types")

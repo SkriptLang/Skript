@@ -379,10 +379,7 @@ public abstract class Aliases {
 	/**
 	 * Loads aliases from Skript's standard locations.
 	 * Exceptions will be logged, but not thrown.
-	 *
-	 * @deprecated Freezes server on call. Use {@link #loadAsync()} instead.
 	 */
-	@Deprecated(since = "2.10.0", forRemoval = true)
 	public static void load() {
 		try {
 			long start = System.currentTimeMillis();
