@@ -430,14 +430,6 @@ public final class BukkitEventValues {
 		registry.register(EventValue.simple(CommandEvent.class, World.class, e -> e.getSender() instanceof Player ? ((Player) e.getSender()).getWorld() : null));
 		registry.register(EventValue.simple(CommandEvent.class, Block.class, event -> event.getSender() instanceof BlockCommandSender sender ? sender.getBlock() : null));
 
-		// === ServerEvents ===
-		// Script load/unload event
-		registry.register(EventValue.simple(ScriptEvent.class, CommandSender.class, event -> Bukkit.getConsoleSender()));
-		// Server load event
-		registry.register(EventValue.simple(SkriptStartEvent.class, CommandSender.class, event -> Bukkit.getConsoleSender()));
-		// Server stop event
-		registry.register(EventValue.simple(SkriptStopEvent.class, CommandSender.class, event -> Bukkit.getConsoleSender()));
-
 		// === InventoryEvents ===
 		// InventoryClickEvent
 		registry.register(EventValue.simple(InventoryClickEvent.class, Player.class, event -> event.getWhoClicked() instanceof Player player ? player : null));
@@ -496,9 +488,6 @@ public final class BukkitEventValues {
 			}
 			return inventories.toArray(new Inventory[0]);
 		}));
-		// PrepareAnvilEvent
-		if (Skript.classExists("com.destroystokyo.paper.event.inventory.PrepareResultEvent"))
-			registry.register(EventValue.simple(PrepareAnvilEvent.class, ItemStack.class, PrepareResultEvent::getResult));
 		//BlockFertilizeEvent
 		registry.register(EventValue.simple(BlockFertilizeEvent.class, Player.class, BlockFertilizeEvent::getPlayer));
 		registry.register(EventValue.simple(BlockFertilizeEvent.class, Block[].class, event -> event.getBlocks().stream()
@@ -661,17 +650,6 @@ public final class BukkitEventValues {
 				}
 			}));
 		}
-		//PrepareItemEnchantEvent
-		registry.register(EventValue.simple(PrepareItemEnchantEvent.class, Player.class, PrepareItemEnchantEvent::getEnchanter));
-		registry.register(EventValue.simple(PrepareItemEnchantEvent.class, ItemStack.class, PrepareItemEnchantEvent::getItem));
-		registry.register(EventValue.simple(PrepareItemEnchantEvent.class, Block.class, PrepareItemEnchantEvent::getEnchantBlock));
-		//EnchantItemEvent
-		registry.register(EventValue.simple(EnchantItemEvent.class, Player.class, EnchantItemEvent::getEnchanter));
-		registry.register(EventValue.simple(EnchantItemEvent.class, ItemStack.class, EnchantItemEvent::getItem));
-		registry.register(EventValue.simple(EnchantItemEvent.class, EnchantmentType[].class, event -> event.getEnchantsToAdd().entrySet().stream()
-			.map(entry -> new EnchantmentType(entry.getKey(), entry.getValue()))
-			.toArray(EnchantmentType[]::new)));
-		registry.register(EventValue.simple(EnchantItemEvent.class, Block.class, EnchantItemEvent::getEnchantBlock));
 		registry.register(EventValue.simple(HorseJumpEvent.class, Entity.class, HorseJumpEvent::getEntity));
 		// PlayerTradeEvent
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerTradeEvent")) {

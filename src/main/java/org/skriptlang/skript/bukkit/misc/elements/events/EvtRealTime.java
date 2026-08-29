@@ -1,4 +1,4 @@
-package ch.njol.skript.events;
+package org.skriptlang.skript.bukkit.misc.elements.events;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptEventHandler;
@@ -11,35 +11,51 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.*;
 
 public class EvtRealTime extends SkriptEvent {
 
-	public static class RealTimeEvent extends Event {
-		@Override
-		public @NotNull HandlerList getHandlers() {
-			throw new IllegalStateException();
-		}
-	}
-
 	private static final long HOUR_24_MILLISECONDS = 1000 * 60 * 60 * 24;
-	private static final Timer TIMER;
+	private static Timer TIMER;
 
-	static {
-		Skript.registerEvent("System Time", EvtRealTime.class, RealTimeEvent.class,
-			"at %times% [in] real time")
-				.description("Called when the local time of the system the server is running on reaches the provided real-life time.")
-				.examples(
-					"at 14:20 in real time:",
-					"at 2:30am real time:",
-					"at 6:10 pm in real time:",
-					"at 5:00 am and 5:00 pm in real time:",
-					"at 5:00 and 17:00 in real time:"
-				)
-				.since("2.11");
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtRealTime.class, "System Time")
+			.supplier(EvtRealTime::new)
+			.addEvent(RealTimeEvent.class)
+			.addPatterns("at %times% [in] real time")
+			.addDescription("Called when the local time of the system the server is running on reaches the provided real-life time.")
+			.addExample("""
+				at 2:30am in real time:
+					broadcast "Time to get some sleep.."
+				""")
+			.addExample("""
+				at 12am real time:
+					resetDailyQuests()
+					broadcast "All daily quests have reset!"
+				""")
+			.addExample("""
+				at 3am or 5am in real time:
+					loop all players:
+						send "Your bed is at %the bed of loop-player%. Please go to sleep."
+				""")
+			.addExample("""
+				at 04:00 in real time:
+					broadcast "Time to wake up!"
+				""")
+			.addExample("""
+				at 07:00 in real time:
+					loop all players:
+						loop-player is sleeping
+						send "You overslept!" to loop-player
+						make loop-player wake up
+				""")
+			.addSince("2.11")
+			.build());
 
-		TIMER = new Timer("EvtSystemTime-Tasks");
+		TIMER = new Timer("EvtRealTime-Tasks");
 	}
 
 	private Literal<Time> times;
@@ -47,8 +63,8 @@ public class EvtRealTime extends SkriptEvent {
 	private final List<TimerTask> timerTasks = new ArrayList<>();
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		//noinspection unchecked
 		times = (Literal<Time>) args[0];
 		return true;
 	}
@@ -77,15 +93,16 @@ public class EvtRealTime extends SkriptEvent {
 			timerTasks.add(task);
 			TIMER.scheduleAtFixedRate(task, new Date(expectedCalendar.getTimeInMillis()), HOUR_24_MILLISECONDS);
 		}
+
 		return true;
 	}
 
 	@Override
 	public void unload() {
 		unloaded = true;
-		for (TimerTask task : timerTasks) {
+		for (TimerTask task : timerTasks)
 			task.cancel();
-		}
+
 		TIMER.purge();
 	}
 
@@ -96,9 +113,8 @@ public class EvtRealTime extends SkriptEvent {
 
 	private void execute() {
 		// Ensure this element wasn't unloaded
-		if (unloaded) {
+		if (unloaded)
 			return;
-		}
 
 		Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
 			RealTimeEvent event = new RealTimeEvent();
@@ -118,6 +134,14 @@ public class EvtRealTime extends SkriptEvent {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "at " + times.toString(event, debug) + " in real time";
+	}
+
+	public static class RealTimeEvent extends Event {
+
+		@Override
+		public @NotNull HandlerList getHandlers() {
+			throw new IllegalStateException();
+		}
 	}
 
 }
