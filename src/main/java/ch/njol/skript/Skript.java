@@ -1293,7 +1293,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	public static void outdatedError(final Exception e) {
 		outdatedError();
-		if (testing())
+		if (debug())
 			e.printStackTrace();
 	}
 
@@ -1841,11 +1841,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	public static boolean debug() {
-		return SkriptLogger.debug();
+		return SkriptLogger.debug() || Skript.testing();
 	}
 
 	public static boolean testing() {
-		return debug() || Skript.class.desiredAssertionStatus();
+		return TestMode.ENABLED || TestMode.DEV_MODE;
 	}
 
 	public static boolean log(final Verbosity minVerb) {

@@ -160,7 +160,7 @@ public class DroppedItemData extends EntityData<Item> {
 				//noinspection removal
 				item = (Item) BUKKIT_CONSUMER_DROP.invoke(world, location, stack, (org.bukkit.util.Consumer<Item>) consumer::accept);
 			} catch (InvocationTargetException | IllegalAccessException e) {
-				if (Skript.testing())
+				if (Skript.debug())
 					Skript.exception(e, "Can't spawn " + this.getName());
 				return null;
 			}
