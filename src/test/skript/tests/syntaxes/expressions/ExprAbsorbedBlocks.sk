@@ -1,0 +1,20 @@
+on sponge absorb:
+	assert size of absorbed blocks is 1 with "Sponge should have absorbed 1 block"
+	assert location of first element of absorbed blocks is {-water.loc} with "Absorbed block has an incorrect location"
+	set {-absorb_test_success} to true
+	cancel event
+
+test "Absorbed Blocks Expression":
+	set {-loc} to test-location
+	set {-water.loc} to location of the block 1 meter west of {-loc}
+
+	set {-original_center_block} to block at {-loc}
+	set {-original_water_block} to block at {-water.loc}
+
+	set block at {-water.loc} to water
+	set block at {-loc} to sponge
+
+	assert {-absorb_test_success} is true with "The sponge absorb event did not fire or its assertions failed"
+
+	set block at {-loc} to {-original_center_block}
+	set block at {-water.loc} to {-original_water_block}
