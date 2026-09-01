@@ -4,6 +4,14 @@ using error catching
 options:
 	command: skriptcommand
 
+# expect to parse without errors
+parse:
+	results: {-StructCommand::compilation::1::*}
+	code:
+		command /compilation_test_1 (a|b) c (d|e):
+			trigger:
+				stop
+
 # expect error for missing trigger given no subcommands
 parse:
 	results: {-StructCommand::entries::1::*}
@@ -169,6 +177,7 @@ command /commandtest <string="player">:
 
 test "StructCommand":
 	# parsing
+	assert {-StructCommand::compilation::1::*} is not set
 	set {_error_missing_trigger} to "You must have a 'trigger' entry if there are no subcommands!"
 	assert {-StructCommand::entries::1::*} is {_error_missing_trigger}
 	assert {-StructCommand::entries::2::*} is "It is not possible to restrict execution to the console as the parent command is only executable by players."

@@ -16,6 +16,7 @@ import org.skriptlang.skript.bukkit.command.custom.ScriptArgumentType.NativeArgu
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -73,7 +74,12 @@ final class CommandCompiler {
 		 * @param elements Elements to append.
 		 */
 		public void append(Collection<? extends CommandElement> elements) {
-			boolean addToElement = children.isEmpty();
+			// check whether elements have already been appended to this element (likely resulting from a shared choice)
+			// if one of elements has been appended, then all have been appended, so we only need to check for one
+			if (!Collections.disjoint(children, elements)) {
+				return;
+			}
+			boolean addToElement = false;
 			for (CommandElement child : children) {
 				if (child == null) { // null child indicates that this element is a command edge
 					addToElement = true;
@@ -81,23 +87,9 @@ final class CommandCompiler {
 					child.append(elements);
 				}
 			}
-			if (addToElement) {
+			if (addToElement || children.isEmpty()) {
 				children.remove(null);
-				for (CommandElement element : elements) {
-					// for certain nested commands, an element could potentially be appended to itself
-					// consider:
-					// A
-					// |- B
-					//    |- D
-					// |- C
-					//    |- D
-					// when appending "E", it will append to the first "D" under "B".
-					// this "D" is the same instance as the one under "C", so when this method moves
-					// to next append "E" to "C", it will have already been handled.
-					if (element != this) {
-						children.add(element);
-					}
-				}
+				children.addAll(elements);
 			}
 		}
 
