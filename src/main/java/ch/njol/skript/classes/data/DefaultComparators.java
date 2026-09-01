@@ -453,6 +453,7 @@ public class DefaultComparators {
 				return Relation.EQUAL;
 			}
 			Class<?> objectClass;
+			// TODO this behavior should be provided via a dedicated API (for handling wrapper classes)
 			if (object instanceof ClassInfo<?> objectClassInfo) {
 				objectClass = objectClassInfo.getC();
 			} else if (object instanceof SkriptPotionEffect) { // compatibility: treat SkriptPotionEffect the same as PotionEffect
