@@ -18,29 +18,48 @@ public class FlatFileStorageTest {
 
 	@Test
 	public void testSplitCSV() {
-		String[][] vs = {
-				{"", ""},
-				{",", "", ""},
-				{",,", "", "", ""},
-				{"a", "a"},
-				{"a,", "a", ""},
-				{",a", "", "a"},
-				{",a,", "", "a", ""},
-				{" , a , ", "", "a", ""},
-				{"a,b,c", "a", "b", "c"},
-				{" a , b , c ", "a", "b", "c"},
-				
-				{"\"\"", ""},
-				{"\",\"", ","},
-				{"\"\"\"\"", "\""},
-				{"\" \"", " "},
-				{"a, \"\"\"\", b, \", c\", d", "a", "\"", "b", ", c", "d"},
-				{"a, \"\"\", b, \", c", "a", "\", b, ", "c"},
-				
-				{"\"\t\0\"", "\t\0"},
+		// [0] = input
+		// [1..] = expected
+		String[][] variables = {
+			{"", ""},
+			{",", "", ""},
+			{",,", "", "", ""},
+			{"a", "a"},
+			{"a,", "a", ""},
+			{",a", "", "a"},
+			{",a,", "", "a", ""},
+			{" , a , ", "", "a", ""},
+			{"a,b,c", "a", "b", "c"},
+			{" a , b , c ", "a", "b", "c"},
+
+			{"\"\"", ""},
+			{"\",\"", ","},
+			{"\"\"\"\"", "\""},
+			{"\" \"", " "},
+			{"a, \"\"\"\", b, \", c\", d", "a", "\"", "b", ", c", "d"},
+			{"a, \"\"\", b, \", c", "a", "\", b, ", "c"},
+
+			{"\"\t\0\"", "\t\0"},
+			{"\"a\"", "a"},
 		};
-		for (String[] v : vs) {
-			assert Arrays.equals(Arrays.copyOfRange(v, 1, v.length), FlatFileStorage.splitCSV(v[0])) : v[0] + ": " + Arrays.toString(Arrays.copyOfRange(v, 1, v.length)) + " != " + Arrays.toString(FlatFileStorage.splitCSV(v[0]));
+		for (String[] variable : variables) {
+			assert Arrays.equals(Arrays.copyOfRange(variable, 1, variable.length), FlatFileStorage.splitCSV(variable[0])) : variable[0] + ": " + Arrays.toString(Arrays.copyOfRange(variable, 1, variable.length)) + " != " + Arrays.toString(FlatFileStorage.splitCSV(variable[0]));
+		}
+	}
+
+	@Test
+	public void testSplitCSVInvalidInputs() {
+		String[] invalidInputs = {
+			"a\"b,c",          // random quote inside an unquoted value
+			"\"abc",           // unterminated quoted value
+			"\"abc\"def,ghi",  // random string after a closing quote
+			"a,\"b\"\"c",      // unterminated quote in the last string
+			"\"a\" \"b\"",     // two quoted strings with no comma between
+		};
+
+		for (String input : invalidInputs) {
+			String[] result = FlatFileStorage.splitCSV(input);
+			assert result == null : input + ": expected null but got " + Arrays.toString(result);
 		}
 	}
 

@@ -127,23 +127,17 @@ public abstract class YggdrasilInputStream implements Closeable {
 		}
 		Object object;
 		switch (tag) {
-			case T_ARRAY: {
+			case T_ARRAY -> {
 				Class<?> type = readArrayComponentType();
 				object = Array.newInstance(type, readArrayLength());
 				readObjects.add(object);
 				readArrayContents(object);
 				return object;
 			}
-			case T_CLASS:
-				object = readClass();
-				break;
-			case T_ENUM:
-				object = readEnum();
-				break;
-			case T_STRING:
-				object = readString();
-				break;
-			case T_OBJECT: {
+			case T_CLASS -> object = readClass();
+			case T_ENUM -> object = readEnum();
+			case T_STRING -> object = readString();
+			case T_OBJECT -> {
 				Class<?> c = readObjectType();
 				YggdrasilSerializer s = yggdrasil.getSerializer(c);
 				if (s != null && !s.canBeInstantiated(c)) {
@@ -170,30 +164,18 @@ public abstract class YggdrasilInputStream implements Closeable {
 				}
 				return object;
 			}
-			case T_BOOLEAN_OBJ:
-			case T_BYTE_OBJ:
-			case T_CHAR_OBJ:
-			case T_DOUBLE_OBJ:
-			case T_FLOAT_OBJ:
-			case T_INT_OBJ:
-			case T_LONG_OBJ:
-			case T_SHORT_OBJ:
+			case T_BOOLEAN_OBJ, T_BYTE_OBJ, T_CHAR_OBJ, T_DOUBLE_OBJ, T_FLOAT_OBJ, T_INT_OBJ, T_LONG_OBJ,
+			     T_SHORT_OBJ -> {
 				Tag primitive = tag.getPrimitive();
 				assert primitive != null;
 				object = readPrimitive(primitive);
-				break;
-			case T_BYTE:
-			case T_BOOLEAN:
-			case T_CHAR:
-			case T_DOUBLE:
-			case T_FLOAT:
-			case T_INT:
-			case T_LONG:
-			case T_SHORT:
+			}
+			case T_BYTE, T_BOOLEAN, T_CHAR, T_DOUBLE, T_FLOAT, T_INT, T_LONG, T_SHORT ->
 				throw new StreamCorruptedException();
-			default:
+			default -> {
 				assert false;
 				throw new StreamCorruptedException();
+			}
 		}
 		readObjects.add(object);
 		return object;

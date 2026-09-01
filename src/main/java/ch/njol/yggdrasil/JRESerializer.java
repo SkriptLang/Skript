@@ -42,16 +42,18 @@ public class JRESerializer extends YggdrasilSerializer<Object> {
 		if (!SUPPORTED_CLASSES.contains(object.getClass()))
 			throw new IllegalArgumentException();
 		Fields fields = new Fields();
-		if (object instanceof Collection) {
-			Collection<?> collection = ((Collection<?>) object);
-			fields.putObject("values", collection.toArray());
-		} else if (object instanceof Map) {
-			Map<?, ?> map = ((Map<?, ?>) object);
-			fields.putObject("keys", map.keySet().toArray());
-			fields.putObject("values", map.values().toArray());
-		} else if (object instanceof UUID) {
-			fields.putPrimitive("mostSigBits", ((UUID) object).getMostSignificantBits());
-			fields.putPrimitive("leastSigBits", ((UUID) object).getLeastSignificantBits());
+		switch (object) {
+			case Collection<?> collection -> fields.putObject("values", collection.toArray());
+			case Map<?, ?> map -> {
+				fields.putObject("keys", map.keySet().toArray());
+				fields.putObject("values", map.values().toArray());
+			}
+			case UUID uuid -> {
+				fields.putPrimitive("mostSigBits", uuid.getMostSignificantBits());
+				fields.putPrimitive("leastSigBits", uuid.getLeastSignificantBits());
+			}
+			default -> {
+			}
 		}
 		assert fields.size() > 0 : object;
 		return fields;
@@ -83,15 +85,13 @@ public class JRESerializer extends YggdrasilSerializer<Object> {
 	@Override
 	public void deserialize(Object object, Fields fields) throws StreamCorruptedException {
 		try {
-			if (object instanceof Collection) {
-				Collection<?> collection = ((Collection<?>) object);
+			if (object instanceof Collection<?> collection) {
 				Object[] values = fields.getObject("values", Object[].class);
 				if (values == null)
 					throw new StreamCorruptedException();
 				collection.addAll((Collection) Arrays.asList(values));
 				return;
-			} else if (object instanceof Map) {
-				Map<?, ?> map = ((Map<?, ?>) object);
+			} else if (object instanceof Map<?, ?> map) {
 				Object[] keys = fields.getObject("keys", Object[].class), values = fields.getObject("values", Object[].class);
 				if (keys == null || values == null || keys.length != values.length)
 					throw new StreamCorruptedException();
