@@ -18,6 +18,7 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Midpoint")
@@ -42,6 +43,7 @@ public class ExprMidpoint extends SimpleExpression<Object> implements SyntaxRunt
 	private Node node;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		object1 = exprs[0];
 		object2 = exprs[1];
@@ -57,6 +59,12 @@ public class ExprMidpoint extends SimpleExpression<Object> implements SyntaxRunt
 		} else {
 			classTypes = type1.length > type2.length ? type1 : type2;
 			superType = Classes.getSuperClassInfo(classTypes).getC();
+		}
+		object1 = object1.getConvertedExpression((Class<Object>[]) classTypes);
+		object2 = object2.getConvertedExpression((Class<Object>[]) classTypes);
+		if (object1 == null || object2 == null) {
+			Skript.error("You can only get the midpoint between two locations or two vectors.");
+			return false;
 		}
 		node = getParser().getNode();
 		return true;
@@ -85,10 +93,20 @@ public class ExprMidpoint extends SimpleExpression<Object> implements SyntaxRunt
 	}
 
 	private Class<?>[] checkExpressionType(Expression<?> expr) {
-		if (expr.canReturn(Location.class)) {
-			if (!expr.canReturn(Vector.class))
+		boolean canReturnLocation = false;
+		boolean canReturnVector = false;
+		for (Class<?> type : expr.possibleReturnTypes()) {
+			if (type == Object.class)
+				return new Class<?>[] {Location.class, Vector.class};
+			if (Converters.converterExists(type, Location.class))
+				canReturnLocation = true;
+			if (Converters.converterExists(type, Vector.class))
+				canReturnVector = true;
+		}
+		if (canReturnLocation) {
+			if (!canReturnVector)
 				return new Class<?>[] {Location.class};
-		} else if (expr.canReturn(Vector.class)) {
+		} else if (canReturnVector) {
 			return new Class<?>[] {Vector.class};
 		}
 		return new Class<?>[] {Location.class, Vector.class};
