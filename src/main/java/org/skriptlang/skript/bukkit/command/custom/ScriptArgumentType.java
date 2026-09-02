@@ -1,11 +1,11 @@
 package org.skriptlang.skript.bukkit.command.custom;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.registrations.Classes;
 import com.mojang.brigadier.LiteralMessage;
@@ -58,7 +58,11 @@ import java.util.function.Supplier;
  * @param <T> The real type of the argument.
  */
 @ApiStatus.Internal
-public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Object, String> {
+public class ScriptArgumentType<T> implements CustomArgumentType<Object, String> {
+
+	/*
+	 * Native Argument Handling
+	 */
 
 	/**
 	 * Data about an available native argument type.
@@ -166,11 +170,25 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 		return null;
 	}
 
+	/*
+	 * Generic Argument Handling
+	 */
+
+	private static final ArgsMessage M_INVALID_INPUT = new ArgsMessage("custom commands.invalid input for type");
+	private static final ArgsMessage M_TOO_MANY_VALUES = new ArgsMessage("custom commands.too many values");
+	private static final ArgsMessage M_ARGUMENT_TOO_SMALL = new ArgsMessage("custom commands.argument too small");
+	private static final ArgsMessage M_ARGUMENT_TOO_LARGE = new ArgsMessage("custom commands.argument too large");
+
 	private static final DynamicCommandExceptionType ERROR_PARSER_ERROR = new DynamicCommandExceptionType(
 		input -> new LiteralMessage((String) input));
-
 	private static final Dynamic2CommandExceptionType ERROR_INVALID_INPUT = new Dynamic2CommandExceptionType(
-		(input, type) -> new LiteralMessage("'%s' is not a valid %s.".formatted(input, type)));
+		(input, type) -> new LiteralMessage(M_INVALID_INPUT.toString(input, type)));
+	private static final DynamicCommandExceptionType ERROR_TOO_MANY_VALUES = new DynamicCommandExceptionType(
+		type -> new LiteralMessage(M_TOO_MANY_VALUES.toString(type)));
+	private static final Dynamic2CommandExceptionType ERROR_ARGUMENT_TOO_SMALL = new Dynamic2CommandExceptionType(
+		(expected, provided) -> new LiteralMessage(M_ARGUMENT_TOO_SMALL.toString(expected, provided)));
+	private static final Dynamic2CommandExceptionType ERROR_ARGUMENT_TOO_LARGE = new Dynamic2CommandExceptionType(
+		(expected, provided) -> new LiteralMessage(M_ARGUMENT_TOO_LARGE.toString(expected, provided)));
 
 	protected final ArgumentData<T> argument;
 	protected final StringArgumentType nativeType;
@@ -181,7 +199,9 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 	}
 
 	@Override
-	public @NotNull Object convert(@NotNull String input) throws CommandSyntaxException {
+	public @NotNull Object parse(@NotNull StringReader reader) throws CommandSyntaxException {
+		int prevCursor = reader.getCursor();
+		String input = parseWithNativeType(reader);
 		assert argument.type().getParser() != null;
 
 		Literal<T> result;
@@ -190,15 +210,16 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 			result = (Literal<T>) new SkriptParser(input, SkriptParser.PARSE_LITERALS, ParseContext.COMMAND)
 				.parseExpression(argument.type().getC());
 			if (result != null && argument.isSingle() && !result.canBeSingle()) { // provided many values but expected one
-				result = null;
-				Skript.error("Expected one " + argument.type().getName().getSingular() + " but got many.");
+				reader.setCursor(prevCursor);
+				throw ERROR_TOO_MANY_VALUES.createWithContext(reader, argument.type().getName().getSingular());
 			}
 			if (result == null) {
+				reader.setCursor(prevCursor);
 				if (logHandler.hasError()) {
 					//noinspection ConstantConditions - getError is NotNull by hasError check
-					throw ERROR_PARSER_ERROR.create(logHandler.getError().getMessage());
+					throw ERROR_PARSER_ERROR.createWithContext(reader, logHandler.getError().getMessage());
 				} else {
-					throw ERROR_INVALID_INPUT.create(input, argument.type().getName().getSingular());
+					throw ERROR_INVALID_INPUT.createWithContext(reader, input, argument.type().getName().getSingular());
 				}
 			}
 		}
@@ -212,18 +233,22 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 			for (T element : result.getAll()) {
 				//noinspection unchecked
 				if (hasMax && comparator.compare(element, argument.min()) == Relation.SMALLER) {
-					throw ERROR_PARSER_ERROR.create("Expected a value greater than or equal to " +
-						Classes.toString(argument.min()) + ", but got " + Classes.toString(element) + ".");
+					reader.setCursor(prevCursor);
+					throw ERROR_ARGUMENT_TOO_SMALL.createWithContext(reader, argument.min(), element);
 				}
 				//noinspection unchecked
 				if (hasMax && comparator.compare(element, argument.max()) == Relation.GREATER) {
-					throw ERROR_PARSER_ERROR.create("Expected a value less than or equal to " +
-						Classes.toString(argument.max()) + ", but got " + Classes.toString(element) + ".");
+					reader.setCursor(prevCursor);
+					throw ERROR_ARGUMENT_TOO_LARGE.createWithContext(reader, argument.min(), element);
 				}
 			}
 		}
 
 		return argument.isSingle() ? result.getSingle() : result.getArray();
+	}
+
+	protected String parseWithNativeType(StringReader reader) throws CommandSyntaxException {
+		return nativeType.parse(reader);
 	}
 
 	@Override
@@ -241,9 +266,8 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 		}
 
 		@Override
-		public @NotNull Object convert(@NotNull String input) throws CommandSyntaxException {
-			input = input.replace('_', ' ');
-			return super.convert(input);
+		protected String parseWithNativeType(StringReader reader) throws CommandSyntaxException {
+			return super.parseWithNativeType(reader).replace('_', ' ');
 		}
 
 		@Override
