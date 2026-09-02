@@ -204,8 +204,6 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	@Nullable
 	private static Version version = null;
-	@Deprecated(since = "2.9.0", forRemoval = true) // TODO this field will be replaced by a proper registry later
-	private static @UnknownNullability ExperimentRegistry experimentRegistry;
 
 	public static Version getVersion() {
 		final Version v = version;
@@ -340,9 +338,13 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	/**
 	 * @return The manager for experimental, optional features.
+	 * @deprecated {@link ExperimentRegistry} is now a regular registry, and should be accessed as such.
+	 * See {@link org.skriptlang.skript.addon.SkriptAddon#registry(Class)}.
 	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static ExperimentRegistry experiments() {
-		return experimentRegistry;
+		// intentionally returning the modifiable view
+		return skript.registry(ExperimentRegistry.class);
 	}
 
 	/**
@@ -470,13 +472,13 @@ public final class Skript extends JavaPlugin implements Listener {
 		// initialize the old Skript SkriptAddon instance
 		getAddonInstance();
 
-		experimentRegistry = new ExperimentRegistry(this);
-		Feature.registerAll(getAddonInstance(), experimentRegistry);
+		skript.storeRegistry(ExperimentRegistry.class, new ExperimentRegistry(skript));
+		Feature.registerAll(skript, skript.registry(ExperimentRegistry.class));
 
-		skript.storeRegistry(PropertyRegistry.class, new PropertyRegistry(this));
+		skript.storeRegistry(PropertyRegistry.class, new PropertyRegistry(skript));
 		Property.registerDefaultProperties();
 
-		EventValueRegistry eventValueRegistry = EventValueRegistry.empty(this);
+		EventValueRegistry eventValueRegistry = EventValueRegistry.empty(skript);
 		skript.storeRegistry(EventValueRegistry.class, eventValueRegistry);
 		//noinspection removal
 		EventValues.setEventValueRegistry(eventValueRegistry);
@@ -574,8 +576,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			return;
 		}
 
-		// todo: remove completely 2.11 or 2.12
-		CompletableFuture<Boolean> aliases = Aliases.loadAsync();
+		Aliases.load();
 
 		if (logNormal())
 			info(" " + Language.get("skript.copyright"));
@@ -614,12 +615,6 @@ public final class Skript extends JavaPlugin implements Listener {
 					Skript.exception(e);
 				}
 				finishedLoadingHooks = true;
-
-				try {
-					aliases.get(); // wait for aliases to load
-				} catch (InterruptedException | ExecutionException e) {
-					exception(e, "Could not load aliases concurrently");
-				}
 
 				if (TestMode.ENABLED) {
 					info("Preparing Skript for testing...");
@@ -1285,8 +1280,6 @@ public final class Skript extends JavaPlugin implements Listener {
 				Skript.exception(e, "An error occurred while shutting down.", "This might or might not cause any issues.");
 			}
 		}
-
-		this.experimentRegistry = null;
 	}
 
 	// ================ CONSTANTS, OPTIONS & OTHER ================
@@ -1299,7 +1292,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	public static void outdatedError(final Exception e) {
 		outdatedError();
-		if (testing())
+		if (debug())
 			e.printStackTrace();
 	}
 
@@ -1845,11 +1838,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	public static boolean debug() {
-		return SkriptLogger.debug();
+		return SkriptLogger.debug() || Skript.testing();
 	}
 
 	public static boolean testing() {
-		return debug() || Skript.class.desiredAssertionStatus();
+		return TestMode.ENABLED || TestMode.DEV_MODE;
 	}
 
 	public static boolean log(final Verbosity minVerb) {
