@@ -3,8 +3,11 @@ package org.skriptlang.skript.common.function;
 import ch.njol.skript.doc.Documentable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
+
+import java.util.Set;
 
 /**
  * A function that has been implemented in Java, instead of in Skript.
@@ -60,6 +63,13 @@ public sealed interface DefaultFunction<T>
 	 * @param <T> The return type of the function.
 	 */
 	interface Builder<T> {
+
+		/**
+		 * Sets this function builder's aliases.
+		 * @param aliases The aliases.
+		 * @return This builder.
+		 */
+		Builder<T> aliases(@NotNull String @NotNull ... aliases);
 
 		/**
 		 * Sets this function builder's {@link ch.njol.skript.util.Contract}.
