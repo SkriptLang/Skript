@@ -138,14 +138,8 @@ updater:
 
 # -- Commands --
 commands:
-	no permission message: <red>이 명령어를 사용할 권한이 없습니다.
 	cooldown message: 이 명령어를 너무 자주 사용하고 있습니다. 나중에 다시 시도하십시오.
-	executable by players: <red>이 명령어는 플레이어만 사용할 수 있습니다.
-	executable by console: <red>이 명령어은 콘솔에서만 사용할 수 있습니다.
-	correct usage: 올바른 사용법:
 	invalid argument: <gray>'%s <gray>'<reset> 인수가 잘못되었습니다. 허용되는 항목은 다음과 같습니다:
-	too many arguments: 이 명령어는 단일 %2$s만 허용합니다.
-	internal error: <red>이 명령어를 수행하는 중 내부 오류가 발생했습니다.
 	no player starts with: 이름이 '%s'(으)로 시작하는 온라인 플레이어가 없습니다.
 	multiple players start with: 이름이 '%s'(으)로 시작하는 여러 온라인 플레이어가 있습니다.
 

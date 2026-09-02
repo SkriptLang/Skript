@@ -174,10 +174,10 @@ public class ScriptArgumentType<T> implements CustomArgumentType<Object, String>
 	 * Generic Argument Handling
 	 */
 
-	private static final ArgsMessage M_INVALID_INPUT = new ArgsMessage("custom commands.invalid input for type");
-	private static final ArgsMessage M_TOO_MANY_VALUES = new ArgsMessage("custom commands.too many values");
-	private static final ArgsMessage M_ARGUMENT_TOO_SMALL = new ArgsMessage("custom commands.argument too small");
-	private static final ArgsMessage M_ARGUMENT_TOO_LARGE = new ArgsMessage("custom commands.argument too large");
+	private static final ArgsMessage M_INVALID_INPUT = new ArgsMessage("commands.invalid input for type");
+	private static final ArgsMessage M_TOO_MANY_VALUES = new ArgsMessage("commands.too many values");
+	private static final ArgsMessage M_ARGUMENT_TOO_SMALL = new ArgsMessage("commands.argument too small");
+	private static final ArgsMessage M_ARGUMENT_TOO_LARGE = new ArgsMessage("commands.argument too large");
 
 	private static final DynamicCommandExceptionType ERROR_PARSER_ERROR = new DynamicCommandExceptionType(
 		input -> new LiteralMessage((String) input));

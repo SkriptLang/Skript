@@ -121,7 +121,7 @@ public class CooldownManager {
 		}
 		if (component == null) {
 			component = TextComponentParser.instance()
-				.parse(M_COOLDOWN_MESSAGE.getValueOrDefault("<red>This command is on cooldown!"));
+				.parse(M_COOLDOWN_MESSAGE.getValue());
 		}
 		player.sendMessage(component);
 

@@ -70,8 +70,6 @@ import java.util.UUID;
 @Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class ScriptCommand implements TabExecutor {
 
-	public final static Message m_executable_by_players = new Message("commands.executable by players");
-	public final static Message m_executable_by_console = new Message("commands.executable by console");
 	private static final String DEFAULT_PREFIX = "skript";
 
 	final String name;
@@ -163,7 +161,7 @@ public class ScriptCommand implements TabExecutor {
 		label = "" + name.toLowerCase(Locale.ENGLISH);
 		this.permission = permission;
 		if (permissionMessage == null) {
-			VariableString defaultMsg = VariableString.newInstance(Language.get("commands.no permission message"));
+			VariableString defaultMsg = VariableString.newInstance("You don't have the required permission to use this command");
 			assert defaultMsg != null;
 			permissionMessage = defaultMsg;
 		}
@@ -265,12 +263,12 @@ public class ScriptCommand implements TabExecutor {
 	public boolean execute(final CommandSender sender, final String commandLabel, final String rest) {
 		if (sender instanceof Player) {
 			if ((executableBy & PLAYERS) == 0) {
-				sender.sendMessage("" + m_executable_by_console);
+				sender.sendMessage("This command can only be used by the console");
 				return false;
 			}
 		} else {
 			if ((executableBy & CONSOLE) == 0) {
-				sender.sendMessage("" + m_executable_by_players);
+				sender.sendMessage("This command can only be used by players");
 				return false;
 			}
 		}
@@ -354,7 +352,7 @@ public class ScriptCommand implements TabExecutor {
 		final long startTrigger = System.nanoTime();
 
 		if (!trigger.execute(event))
-			sender.sendMessage(Commands.m_internal_error.toString());
+			sender.sendMessage("An internal error occurred while attempting to perform this command.");
 
 		if (Skript.log(Verbosity.VERY_HIGH))
 			Skript.info("# " + name + " took " + 1. * (System.nanoTime() - startTrigger) / 1000000. + " milliseconds");
