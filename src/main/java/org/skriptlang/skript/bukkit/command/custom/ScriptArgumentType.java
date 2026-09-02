@@ -39,6 +39,9 @@ import org.skriptlang.skript.bukkit.command.elements.structures.util.CommandSugg
 import org.skriptlang.skript.bukkit.command.elements.structures.util.ScriptSuggestionProvider;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.ScriptSuggestionProvider.FilteringMode;
 import org.skriptlang.skript.bukkit.types.OfflinePlayerClassInfo;
+import org.skriptlang.skript.lang.comparator.Comparator;
+import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.comparator.Relation;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -86,9 +89,9 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 	/**
 	 * Pre-defined mappings of types that are acceptable to map to other native argument types.
 	 */
-	private static final Map<Class<?>, NativeArgumentData> ARGUMENT_TYPE_MAPPINGS = Map.of(
-		Boolean.class, new NativeArgumentData(ignored -> BoolArgumentType.bool()),
-		Long.class, new NativeArgumentData(false, true, data -> {
+	private static final Map<Class<?>, NativeArgumentData> ARGUMENT_TYPE_MAPPINGS = Map.ofEntries(
+		Map.entry(Boolean.class, new NativeArgumentData(ignored -> BoolArgumentType.bool())),
+		Map.entry(Long.class, new NativeArgumentData(false, true, data -> {
 			Long min = (Long) data.min();
 			Long max = (Long) data.max();
 			if (min == null) {
@@ -100,8 +103,8 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 				return LongArgumentType.longArg(min);
 			}
 			return LongArgumentType.longArg(min, max);
-		}),
-		Number.class, new NativeArgumentData(false, true, data -> {
+		})),
+		Map.entry(Number.class, new NativeArgumentData(false, true, data -> {
 			Number min = (Number) data.min();
 			Number max = (Number) data.max();
 			if (min == null) {
@@ -113,15 +116,15 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 				return DoubleArgumentType.doubleArg(min.doubleValue());
 			}
 			return DoubleArgumentType.doubleArg(min.doubleValue(), max.doubleValue());
-		}),
-		Player.class, new NativeArgumentData(true, false, data ->
-			data.isSingle() ? ArgumentTypes.player() : ArgumentTypes.players()),
-		Entity.class, new NativeArgumentData(true, false, data ->
-			data.isSingle() ? ArgumentTypes.entity() : ArgumentTypes.entities()),
-		GameMode.class, new NativeArgumentData(ignored -> ArgumentTypes.gameMode()),
-		World.class, new NativeArgumentData(ignored -> ArgumentTypes.world()),
-		UUID.class, new NativeArgumentData(ignored -> ArgumentTypes.uuid()),
-		BlockData.class, new NativeArgumentData(ignored -> new Converted<BlockData, BlockState>() {
+		})),
+		Map.entry(Player.class, new NativeArgumentData(true, false, data ->
+			data.isSingle() ? ArgumentTypes.player() : ArgumentTypes.players())),
+		Map.entry(Entity.class, new NativeArgumentData(true, false, data ->
+			data.isSingle() ? ArgumentTypes.entity() : ArgumentTypes.entities())),
+		Map.entry(GameMode.class, new NativeArgumentData(ignored -> ArgumentTypes.gameMode())),
+		Map.entry(World.class, new NativeArgumentData(ignored -> ArgumentTypes.world())),
+		Map.entry(UUID.class, new NativeArgumentData(ignored -> ArgumentTypes.uuid())),
+		Map.entry(BlockData.class, new NativeArgumentData(ignored -> new Converted<BlockData, BlockState>() {
 			@Override
 			public @NotNull ArgumentType<BlockState> getNativeType() {
 				return ArgumentTypes.blockState();
@@ -130,8 +133,23 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 			public @NotNull BlockData convert(@NotNull BlockState blockState) {
 				return blockState.getBlockData();
 			}
-		}),
-		ItemStack.class, new NativeArgumentData(ignored -> ArgumentTypes.itemStack())
+		})),
+		Map.entry(ItemStack.class, new NativeArgumentData(ignored -> ArgumentTypes.itemStack()))
+		/* Disabled because it only covers a subset of available EntityData
+		Map.entry(EntityData.class, new NativeArgumentData(ignored -> new Converted<EntityData<?>, EntityType>() {
+			@Override
+			public @NotNull ArgumentType<EntityType> getNativeType() {
+				return ArgumentTypes.resource(RegistryKey.ENTITY_TYPE);
+			}
+			@Override
+			public @NotNull EntityData<?> convert(@NotNull EntityType entityType) throws CommandSyntaxException {
+				EntityData<?> entityData = EntityUtils.toSkriptEntityData(entityType);
+				if (entityData == null) {
+					throw ERROR_INVALID_INPUT.create(entityType.getKey().toString(), "entity type");
+				}
+				return entityData;
+			}
+		}))*/
 	);
 
 	public static @Nullable NativeArgumentData getNativeData(ClassInfo<?> classInfo) {
@@ -181,6 +199,26 @@ public class ScriptArgumentType<T> implements CustomArgumentType.Converted<Objec
 					throw ERROR_PARSER_ERROR.create(logHandler.getError().getMessage());
 				} else {
 					throw ERROR_INVALID_INPUT.create(input, argument.type().getName().getSingular());
+				}
+			}
+		}
+
+		boolean hasMin = argument.min() != null;
+		boolean hasMax = argument.max() != null;
+		if (hasMin || hasMax) {
+			//noinspection rawtypes
+			Comparator comparator = Comparators.getComparator(argument.type().getC(), argument.type().getC());
+			assert comparator != null;
+			for (T element : result.getAll()) {
+				//noinspection unchecked
+				if (hasMax && comparator.compare(element, argument.min()) == Relation.SMALLER) {
+					throw ERROR_PARSER_ERROR.create("Expected a value greater than or equal to " +
+						Classes.toString(argument.min()) + ", but got " + Classes.toString(element) + ".");
+				}
+				//noinspection unchecked
+				if (hasMax && comparator.compare(element, argument.max()) == Relation.GREATER) {
+					throw ERROR_PARSER_ERROR.create("Expected a value less than or equal to " +
+						Classes.toString(argument.max()) + ", but got " + Classes.toString(element) + ".");
 				}
 			}
 		}

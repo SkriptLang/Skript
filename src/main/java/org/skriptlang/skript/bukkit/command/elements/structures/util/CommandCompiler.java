@@ -13,6 +13,9 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.command.custom.ArgumentData;
 import org.skriptlang.skript.bukkit.command.custom.ScriptArgumentType;
 import org.skriptlang.skript.bukkit.command.custom.ScriptArgumentType.NativeArgumentData;
+import org.skriptlang.skript.lang.comparator.Comparator;
+import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.comparator.Relation;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -409,15 +412,24 @@ final class CommandCompiler {
 				return null;
 			}
 		}
-		// type validation
+		// range validation
 		NativeArgumentData nativeMapping = ScriptArgumentType.getNativeData(type);
 		if (min != null || max != null) {
-			if (nativeMapping == null || !nativeMapping.supportsRange()) {
+			//noinspection rawtypes
+			Comparator comparator = Comparators.getComparator(type.getC(), type.getC());
+			if (comparator == null ||
+				(nativeMapping != null && !nativeMapping.supportsRange()) ||
+				(nativeMapping == null && !comparator.supportsOrdering())) {
 				String typeName = plural.plural() ? type.getName().getPlural() : type.getName().getSingular();
 				Skript.error(typeName + " arguments do not support minimum or maximum values.");
 				return null;
 			}
-			if (!nativeMapping.supportsPlural() && plural.plural()) {
+			//noinspection unchecked
+			if (min != null && max != null && comparator.compare(min, max) == Relation.GREATER) {
+				Skript.error("The minimum value must be less than or equal to the maximum value.");
+				return null;
+			}
+			if (nativeMapping != null && !nativeMapping.supportsPlural() && plural.plural()) {
 				Skript.error("Only single " + type.getName().getSingular() + " arguments support minimum or maximum values.");
 				return null;
 			}

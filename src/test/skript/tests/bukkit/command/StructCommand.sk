@@ -111,6 +111,14 @@ parse:
 			trigger:
 				stop
 
+# expect error that min must be less than max
+parse:
+	results: {-StructCommand::args::5::*}
+	code:
+		command /args_test_4 <x: number greater than 10 and less than 5>:
+			trigger:
+				stop
+
 # expect error that {_x} is not a text
 parse:
 	results: {-StructCommand::hints::1::*}
@@ -189,6 +197,7 @@ test "StructCommand":
 	assert {-StructCommand::args::2::*} is "text arguments do not support minimum or maximum values."
 	assert {-StructCommand::args::3::*} is not set
 	assert {-StructCommand::args::4::*} is "Only single number arguments support minimum or maximum values."
+	assert {-StructCommand::args::5::*} is "The minimum value must be less than or equal to the maximum value."
 	# parsing type hints
 	assert {-StructCommand::hints::1::*} is "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::1::*}%)"
 	assert {-StructCommand::hints::2::*} is "Expected variable '{_x::*}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::2::*}%)"
