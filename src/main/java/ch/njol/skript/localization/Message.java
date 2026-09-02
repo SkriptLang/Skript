@@ -24,7 +24,7 @@ public class Message {
 				synchronized (m) {
 					m.revalidate = true;
 				}
-				if (firstChange && Skript.testing() && !Language.keyExists(m.key)) {
+				if (firstChange && Skript.debug() && !Language.keyExists(m.key)) {
 					Language.missingEntryError(m.key);
 				}
 			}
@@ -41,7 +41,7 @@ public class Message {
 		this.key = "" + key.toLowerCase(Locale.ENGLISH);
 		messages.add(this);
 
-		if (Skript.testing() && Language.isInitialized() && !Language.keyExists(this.key))
+		if (Skript.debug() && Language.isInitialized() && !Language.keyExists(this.key))
 			Language.missingEntryError(this.key);
 	}
 

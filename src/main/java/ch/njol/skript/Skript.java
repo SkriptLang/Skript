@@ -573,8 +573,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			return;
 		}
 
-		// todo: remove completely 2.11 or 2.12
-		CompletableFuture<Boolean> aliases = Aliases.loadAsync();
+		Aliases.load();
 
 		Commands.registerListeners();
 
@@ -615,12 +614,6 @@ public final class Skript extends JavaPlugin implements Listener {
 					Skript.exception(e);
 				}
 				finishedLoadingHooks = true;
-
-				try {
-					aliases.get(); // wait for aliases to load
-				} catch (InterruptedException | ExecutionException e) {
-					exception(e, "Could not load aliases concurrently");
-				}
 
 				if (TestMode.ENABLED) {
 					info("Preparing Skript for testing...");
@@ -1300,7 +1293,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	public static void outdatedError(final Exception e) {
 		outdatedError();
-		if (testing())
+		if (debug())
 			e.printStackTrace();
 	}
 
@@ -1848,11 +1841,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	public static boolean debug() {
-		return SkriptLogger.debug();
+		return SkriptLogger.debug() || Skript.testing();
 	}
 
 	public static boolean testing() {
-		return debug() || Skript.class.desiredAssertionStatus();
+		return TestMode.ENABLED || TestMode.DEV_MODE;
 	}
 
 	public static boolean log(final Verbosity minVerb) {

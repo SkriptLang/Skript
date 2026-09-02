@@ -7,6 +7,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.util.SimpleEvent;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
@@ -48,7 +49,7 @@ public class StructTestEntryContainer extends Structure {
 		SectionNode section = entryContainer.get("has entry", SectionNode.class, false);
 		List<TriggerItem> triggerItems = ScriptLoader.loadItems(section);
 		Script script = getParser().getCurrentScript();
-		Trigger trigger = new Trigger(script, "entry container test", null, triggerItems);
+		Trigger trigger = new Trigger(script, "entry container test", new SimpleEvent(), triggerItems);
 		trigger.execute(new SkriptTestEvent());
 
 		List<SectionNode> multipleSections = entryContainer.getAll(
@@ -56,7 +57,7 @@ public class StructTestEntryContainer extends Structure {
 		);
 		for (SectionNode multipleSection : multipleSections) {
 			triggerItems = ScriptLoader.loadItems(multipleSection);
-			trigger = new Trigger(script, "entry container test", null, triggerItems);
+			trigger = new Trigger(script, "entry container test", new SimpleEvent(), triggerItems);
 			trigger.execute(new SkriptTestEvent());
 		}
 
