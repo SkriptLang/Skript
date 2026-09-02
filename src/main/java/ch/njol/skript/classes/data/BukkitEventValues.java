@@ -347,10 +347,12 @@ public final class BukkitEventValues {
 		registry.register(EventValue.simple(PlayerPickupItemEvent.class, Item.class, PlayerPickupItemEvent::getItem));
 		registry.register(EventValue.simple(PlayerPickupItemEvent.class, ItemStack.class, event -> event.getItem().getItemStack()));
 		registry.register(EventValue.simple(PlayerPickupItemEvent.class, Entity.class, PlayerEvent::getPlayer));
+		registry.register(EventValue.simple(PlayerPickupItemEvent.class, Location.class, event -> event.getItem().getLocation()));
 		// EntityPickupItemEvent
 		registry.register(EventValue.simple(EntityPickupItemEvent.class, Entity.class, EntityPickupItemEvent::getEntity));
 		registry.register(EventValue.simple(EntityPickupItemEvent.class, Item.class, EntityPickupItemEvent::getItem));
 		registry.register(EventValue.simple(EntityPickupItemEvent.class, ItemType.class, event -> new ItemType(event.getItem().getItemStack())));
+		registry.register(EventValue.simple(EntityPickupItemEvent.class, Location.class, event -> event.getItem().getLocation()));
 		// PlayerItemConsumeEvent
 		registry.register(EventValue.builder(PlayerItemConsumeEvent.class, ItemStack.class)
 			.getter(PlayerItemConsumeEvent::getItem)
