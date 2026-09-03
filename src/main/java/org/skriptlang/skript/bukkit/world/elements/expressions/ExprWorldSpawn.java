@@ -70,8 +70,9 @@ public class ExprWorldSpawn extends PropertyExpression<World, Location> {
 		if (originalLocation == null)
 			return;
 
+		Location location = originalLocation.clone();
+
 		for (World world : getExpr().getArray(event)) {
-			Location location = originalLocation.clone();
 			World locationWorld = location.getWorld();
 
 			if (locationWorld != null && !locationWorld.equals(world))

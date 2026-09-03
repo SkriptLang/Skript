@@ -30,7 +30,7 @@ public class EvtWorldInit extends SkriptEvent {
 					broadcast "The world '%event-world%' is being initialized!"
 				""")
 			.addExample("""
-				on world init of "new_world:
+				on world init of "new_world":
 					broadcast "World 'new world' was just initialized!"
 				""")
 			.addSince("1.0")

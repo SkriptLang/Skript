@@ -115,8 +115,8 @@ public class WorldEvents {
 				.addEvent(PortalCreateEvent.class)
 				.addPattern("portal creat(e|ion)")
 				.addDescription("""
-					Called when a portal is created,\s
-					either by a player or mob lighting an obsidian frame on fire,\s
+					Called when a portal is created, \
+					either by a player or mob lighting an obsidian frame on fire, \
 					or by a nether portal creating its teleportation target in the nether/overworld.
 					See <a href='#ExprEntity'>the player</a> for how to get the player in this event.
 					Note that there may not always be a player (or other entity) in this event.

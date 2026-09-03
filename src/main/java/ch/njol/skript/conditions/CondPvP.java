@@ -14,8 +14,6 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import static org.skriptlang.skript.lang.script.ScriptWarning.printDeprecationWarning;
-
 @Name("PvP")
 @Description("Checks the PvP state of a world.")
 @Example("PvP is enabled")

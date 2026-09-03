@@ -56,7 +56,7 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 
 	@Override
 	protected World[] get(Event event, Object[] source) {
-		return get(source, object -> {
+		return get(source, objectInWorld -> {
 			// if getTime is not 0, we know:
 			// - Not delayed
 			// - In a PlayerTeleportEvent
@@ -69,11 +69,14 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 					return playerEvent.getFrom().getWorld();
 				}
 			}
-			return switch (object) {
+			return switch (objectInWorld) {
 				case Entity entity -> entity.getWorld();
 				case Location location -> location.getWorld();
 				case Chunk chunk -> chunk.getWorld();
-				default -> Bukkit.getWorld("world");
+				default -> {
+					error("You can only get the world of a entity/location/chunk");
+					yield null;
+				}
 			};
 		});
 	}
@@ -111,7 +114,7 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the world of" + getExpr().toString(event, debug);
+		return "the world" + (getExpr().isDefault() ? "" : " of " + getExpr().toString(event, debug));
 	}
 
 }

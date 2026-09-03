@@ -26,7 +26,7 @@ public class ExprWorldFromName extends SimpleExpression<World> {
 		syntaxRegistry.register(
 			SyntaxRegistry.EXPRESSION,
 			SyntaxInfo.Expression.builder(ExprWorldFromName.class, World.class)
-				.addPatterns("world [(named|with name)] %string%")
+				.addPatterns("[the] world [(named|with name)] %string%")
 				.supplier(ExprWorldFromName::new)
 				.build()
 		);

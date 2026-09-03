@@ -65,7 +65,7 @@ public class ExprDifficulty extends SimplePropertyExpression<World, Difficulty> 
 				if (HAS_NEW_METHOD) {
 					world.setAllowMonsterSpawning(true);
 				} else {
-					// seems that on 26.2 setAllowMonsterSpawning doesn't exist
+					// before 26.2 setAllowMonsterSpawning doesn't exist
 					world.setSpawnFlags(true, world.getAllowAnimals());
 				}
 			}
