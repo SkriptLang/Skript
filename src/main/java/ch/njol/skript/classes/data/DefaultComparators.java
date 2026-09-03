@@ -30,6 +30,8 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
@@ -433,16 +435,21 @@ public class DefaultComparators {
 		});
 		
 		// Object - ClassInfo
-		Comparators.registerComparator(Object.class, ClassInfo.class, new Comparator<Object, ClassInfo>() {
-			@Override
-			public Relation compare(Object o, ClassInfo c) {
-				return Relation.get(c.getC().isInstance(o) || o instanceof ClassInfo && c.getC().isAssignableFrom(((ClassInfo<?>) o).getC()));
+		Comparators.registerComparator(Object.class, ClassInfo.class, (object, classInfo) -> {
+			if (classInfo.getC().isInstance(object)) {
+				return Relation.EQUAL;
 			}
-
-			@Override
-			public boolean supportsOrdering() {
-				return false;
+			Class<?> objectClass;
+			// TODO this behavior should be provided via a dedicated API (for handling wrapper classes)
+			if (object instanceof ClassInfo<?> objectClassInfo) {
+				objectClass = objectClassInfo.getC();
+			} else if (object instanceof SkriptPotionEffect) { // compatibility: treat SkriptPotionEffect the same as PotionEffect
+				objectClass = PotionEffect.class;
+			} else {
+				return Relation.NOT_EQUAL;
 			}
+			//noinspection unchecked
+			return Relation.get(classInfo.getC().isAssignableFrom(objectClass));
 		});
 		
 		// DamageCause - ItemType
