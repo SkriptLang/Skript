@@ -21,7 +21,7 @@ public class EvtWorldInit extends SkriptEvent {
 			.addPatterns("world init[ialization] [of %-worlds%]")
 			.addDescription("""
 				Called when a world is initialized.
-				As all default worlds are initialized before any scripts are loaded,\s
+				As all default worlds are initialized before any scripts are loaded, \
 				this event is only called for newly created worlds.
 				Note that world management plugins might change the behavior of this event.
 				""")
