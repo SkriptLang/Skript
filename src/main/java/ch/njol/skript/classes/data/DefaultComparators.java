@@ -369,19 +369,6 @@ public class DefaultComparators {
 		// OfflinePlayer - UUID
 		Comparators.registerComparator(OfflinePlayer.class, UUID.class, (player, uuid) -> Relation.get(player.getUniqueId().equals(uuid)));
 		
-		// World - String
-		Comparators.registerComparator(World.class, String.class, new Comparator<World, String>() {
-			@Override
-			public Relation compare(World w, String name) {
-				return Relation.get(w.getName().equalsIgnoreCase(name));
-			}
-
-			@Override
-			public boolean supportsOrdering() {
-				return false;
-			}
-		});
-		
 		// String - String
 		Comparators.registerComparator(String.class, String.class, new Comparator<String, String>() {
 			@Override

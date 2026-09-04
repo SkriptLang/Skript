@@ -146,80 +146,6 @@ public class BukkitClasses {
 					}
 				}).cloner(BlockData::clone));
 
-		Classes.registerClass(new ClassInfo<>(World.class, "world")
-				.user("worlds?")
-				.name("World")
-				.description("One of the server's worlds. Worlds can be put into scripts by surrounding their name with double quotes, e.g. \"world_nether\", " +
-						"but this might not work reliably as <a href='#string'>text</a> uses the same syntax.")
-				.usage("<code>\"world_name\"</code>, e.g. \"world\"")
-				.examples("broadcast \"Hello!\" to the world \"world_nether\"")
-				.since("1.0, 2.2 (alternate syntax)")
-				.after("string")
-				.defaultExpression(new EventValueExpression<>(World.class))
-				.parser(new Parser<World>() {
-					@SuppressWarnings("null")
-					private final Pattern parsePattern = Pattern.compile("(?:(?:the )?world )?\"(.+)\"", Pattern.CASE_INSENSITIVE);
-
-					@Override
-					@Nullable
-					public World parse(final String s, final ParseContext context) {
-						// REMIND allow shortcuts '[over]world', 'nether' and '[the_]end' (server.properties: 'level-name=world') // inconsistent with 'world is "..."'
-						if (context == ParseContext.COMMAND || context == ParseContext.PARSE || context == ParseContext.CONFIG)
-							return Bukkit.getWorld(s);
-						final Matcher m = parsePattern.matcher(s);
-						if (m.matches())
-							return Bukkit.getWorld(m.group(1));
-						return null;
-					}
-
-					@Override
-					public String toString(World world, int flags) {
-						return world.getName();
-					}
-
-					@Override
-					public String toVariableNameString(World world) {
-						return world.getName();
-					}
-				}).serializer(new Serializer<>() {
-					@Override
-					public Fields serialize(World world) {
-						return Fields.singletonObject("name", world.getName());
-					}
-
-					@Override
-					public boolean canBeInstantiated() {
-						return false;
-					}
-
-					@Override
-					protected World deserialize(Fields fields) throws StreamCorruptedException {
-						String name = fields.getObject("name", String.class);
-						assert name != null;
-						World world = Bukkit.getWorld(name);
-						if (world == null)
-							throw new StreamCorruptedException("Missing world " + name);
-						return world;
-					}
-
-					// return w.getName();
-					@Override
-					@Nullable
-					public World deserialize(final String s) {
-						return Bukkit.getWorld(s);
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return true;
-					}
-				})
-				.property(Property.NAME,
-					"A world's name, as text. Cannot be changed.",
-					Skript.instance(),
-					ExpressionPropertyHandler.of(World::getName, String.class)
-				));
-
 		Classes.registerClass(new EnumClassInfo<>(InventoryAction.class, "inventoryaction", "inventory actions")
 				.user("inventory ?actions?")
 				.name("Inventory Action")
@@ -461,12 +387,6 @@ public class BukkitClasses {
 					}
 				}));
 
-		Classes.registerClass(new EnumClassInfo<>(Difficulty.class, "difficulty", "difficulties")
-				.user("difficult(y|ies)")
-				.name("Difficulty")
-				.description("The difficulty of a <a href='#world'>world</a>.")
-				.since("2.3"));
-
 		Classes.registerClass(new EnumClassInfo<>(Status.class, "resourcepackstate", "resource pack states")
 				.user("resource ?pack ?states?")
 				.name("Resource Pack State")
@@ -534,19 +454,6 @@ public class BukkitClasses {
 						"See <a href='https://minecraft.wiki/w/Attribute#Attributes'>attribute types</a> for more info.",
 					"NOTE: Minecraft namespaces are supported, ex: 'minecraft:generic.attack_damage'.")
 				.since("2.5"));
-
-		Classes.registerClass(new EnumClassInfo<>(Environment.class, "environment", "environments")
-				.user("(world ?)?environments?")
-				.name("World Environment")
-				.description("Represents the environment of a world.")
-				.since("2.7"));
-
-		if (Skript.classExists("io.papermc.paper.world.MoonPhase"))
-			Classes.registerClass(new EnumClassInfo<>(MoonPhase.class, "moonphase", "moon phases")
-					.user("(lunar|moon) ?phases?")
-					.name("Moon Phase")
-					.description("Represents the phase of a moon.")
-					.since("2.7"));
 
 		if (Skript.classExists("org.bukkit.event.player.PlayerQuitEvent$QuitReason"))
 			Classes.registerClass(new EnumClassInfo<>(QuitReason.class, "quitreason", "quit reasons")
