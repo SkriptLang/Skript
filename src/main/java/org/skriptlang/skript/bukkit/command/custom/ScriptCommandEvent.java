@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.command.custom;
 
+import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -15,14 +16,17 @@ import org.jetbrains.annotations.Nullable;
  */
 public class ScriptCommandEvent extends Event {
 
-	private final CommandSender sender;
-	private final @Nullable Entity executor;
-	private final Location location;
+	private final CommandContext<CommandSourceStack> context;
 
-	public ScriptCommandEvent(CommandSourceStack source) {
-		this.sender = source.getSender();
-		this.executor = source.getExecutor();
-		this.location = source.getLocation();
+	public ScriptCommandEvent(CommandContext<CommandSourceStack> context) {
+		this.context = context;
+	}
+
+	/**
+	 * @return All context surrounding the command execution.
+	 */
+	public CommandContext<CommandSourceStack> getContext() {
+		return context;
 	}
 
 	/**
@@ -30,7 +34,7 @@ public class ScriptCommandEvent extends Event {
 	 * It differs to {@link #getExecutor()} in that the executor can be changed by a command, e.g. {@code /execute}.
 	 */
 	public CommandSender getSender() {
-		return sender;
+		return context.getSource().getSender();
 	}
 
 	/**
@@ -38,14 +42,14 @@ public class ScriptCommandEvent extends Event {
 	 * May not always be {@link #getSender()} as the executor of a command can be changed to a different entity than the one that triggered the command.
 	 */
 	public @Nullable Entity getExecutor() {
-		return executor;
+		return context.getSource().getExecutor();
 	}
 
 	/**
 	 * @return The location that the command is being executed at.
 	 */
 	public Location getLocation() {
-		return location;
+		return context.getSource().getLocation();
 	}
 
 	@Override

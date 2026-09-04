@@ -35,6 +35,7 @@ public class CommandModule extends HierarchicalAddonModule {
 			EffSuggestionFilteringMode::register,
 			ExprAllCommands::register,
 			ExprArgument::register,
+			ExprChoiceArgument::register,
 			ExprCmdCooldownInfo::register,
 			ExprCommand::register,
 			ExprCommandExecutor::register,

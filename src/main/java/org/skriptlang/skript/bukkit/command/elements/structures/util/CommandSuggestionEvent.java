@@ -53,11 +53,11 @@ public class CommandSuggestionEvent extends ScriptCommandEvent {
 
 	public CommandSuggestionEvent(CommandContext<CommandSourceStack> context, List<ArgumentData<?>> previousArguments,
 								  ArgumentData<?> currentArgument, String fullInput, String input, int inputStartIndex) {
-		super(context.getSource());
+		super(context);
 		this.context = context;
 		// IMPORTANT: null executor is questionable, but currently only used by cooldowns which would not be available here
 		this.argumentEventContext = new ScriptCommandExecutionEvent(context.getNodes().getFirst().getNode().getName(),
-			'/' + fullInput, null, context.getSource());
+			'/' + fullInput, null, context);
 		this.providedArguments = ScriptCommandExecutor.getProvidedArguments(context);
 		this.previousArguments = previousArguments;
 		this.currentArgument = currentArgument;

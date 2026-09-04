@@ -344,6 +344,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 		// prepare arguments
 		parsingData.pushArguments(compilationResult.arguments());
 		List<ArgumentData<?>> allArguments = parsingData.getArguments();
+		parsingData.pushChoices(compilationResult.choices());
 		parsingData.pushExecutorData(new ExecutorData(isSubcommandGroupEntry, permission, executableBy, cooldownManager));
 
 		// parse execution trigger
@@ -466,6 +467,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 		}
 
 		parsingData.popExecutorData();
+		parsingData.popChoices();
 		parsingData.popArguments();
 
 		if (isRoot && SkriptConfig.enableLegacyTabCompletion.value()) { // compatibility measure: insert legacy tab completion providers

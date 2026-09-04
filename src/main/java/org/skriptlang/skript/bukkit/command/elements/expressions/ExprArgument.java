@@ -12,7 +12,6 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
@@ -48,7 +47,7 @@ import java.util.regex.MatchResult;
 @Example("give a diamond pickaxe to the argument")
 @Example("add argument 1 to argument 2")
 @Example("heal the last argument")
-@Since("1.0, 2.7 (support for command events)")
+@Since({"1.0", "2.7 (support for command events)"})
 public class ExprArgument extends SimpleExpression<Object> implements EventRestrictedSyntax {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
@@ -57,13 +56,13 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 			"[the] last arg[ument]", // LAST
 			"[the] arg[ument](-| )<(\\d+)>", // ORDINAL
 			"[the] <(\\d*1)st|(\\d*2)nd|(\\d*3)rd|(\\d*[4-90])th> arg[ument][s]", // ORDINAL
-			"[(all [[of] the]|the)] arg[ument][all:s]", // SINGLE OR ALL
+			"[all [[of] the]|the] arg[ument][all:s]", // SINGLE OR ALL
 			"[the] %*classinfo%( |-)arg[ument][( |-)<\\d+>]", // CLASSINFO
 			"[the] arg[ument]( |-)%*classinfo%[( |-)<\\d+>]" // CLASSINFO
 		));
 	}
 
-	private enum ArgumentType {
+	enum ArgumentType {
 
 		LAST, ORDINAL, SINGLE, ALL, CLASSINFO
 
@@ -125,7 +124,7 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 			assert argMatch != null;
 			ordinal = Utils.parseInt(argMatch);
 			if (scriptCommand && ordinal > currentArguments.size()) { // Only check if it's a script command as we know nothing of command event arguments
-				Skript.error("This command doesn't have a " + StringUtils.fancyOrderNumber(ordinal) + " argument", ErrorQuality.SEMANTIC_ERROR);
+				Skript.error("This command doesn't have a " + StringUtils.fancyOrderNumber(ordinal) + " argument");
 				return false;
 			}
 		}
@@ -161,7 +160,7 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 							continue;
 
 						if (ordinal == -1 && argAmount == 2) { // The user said '<type> argument' without specifying which, and multiple arguments for the type exist
-							Skript.error("There are multiple " + type + " arguments in this command", ErrorQuality.SEMANTIC_ERROR);
+							Skript.error("There are multiple " + type + " arguments in this command");
 							return false;
 						}
 

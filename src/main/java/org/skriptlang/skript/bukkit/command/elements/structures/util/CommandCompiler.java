@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -201,7 +202,7 @@ final class CommandCompiler {
 	 *  For a regular input, such as {@code "heal <number>"}, this element contains a single {@link LiteralCommandElement}.
 	 * @param arguments Data of all arguments contained within the element tree.
 	 */
-	public record CompilationResult(CommandElement root, List<ArgumentData<?>> arguments) { }
+	public record CompilationResult(CommandElement root, List<ArgumentData<?>> arguments, List<Set<String>> choices) { }
 
 	/**
 	 * Compiles a string command definition into an element tree.
@@ -211,12 +212,15 @@ final class CommandCompiler {
 	 */
 	public static @Nullable CompilationResult compile(final String pattern, List<ArgumentData<?>> existingArguments) {
 		List<ArgumentData<?>> arguments = new ArrayList<>();
-		CommandElement compiled = compile(pattern, existingArguments, arguments);
-		return compiled == null ? null :  new CompilationResult(compiled, arguments);
+		List<Set<String>> choices = new ArrayList<>();
+		CommandElement compiled = compile(pattern, existingArguments, arguments, choices);
+		return compiled == null ? null :  new CompilationResult(compiled, arguments, choices);
 	}
 
 	private static @Nullable CommandElement compile(final String pattern,
-		List<ArgumentData<?>> existingArguments, List<ArgumentData<?>> arguments) {
+		List<ArgumentData<?>> existingArguments, List<ArgumentData<?>> arguments, List<Set<String>> choices) {
+		int startingChoicesSize = choices.size();
+
 		List<LiteralCommandElement> pendingLiterals = new ArrayList<>();
 		CommandElement first = new CommandElement();
 
@@ -233,7 +237,8 @@ final class CommandCompiler {
 						pattern.substring(i));
 					return null;
 				}
-				CommandElement commandElement = compile(pattern.substring(i + 1, end), existingArguments, arguments);
+				int groupChoicesSize = choices.size();
+				CommandElement commandElement = compile(pattern.substring(i + 1, end), existingArguments, arguments, choices);
 				if (commandElement == null) {
 					return null;
 				}
@@ -242,6 +247,10 @@ final class CommandCompiler {
 				Collection<CommandElement> toAppend;
 				if (isOptional) {
 					toAppend = new ArrayList<>(commandElement.children());
+					// edge case: we want to consider inputs like [x] as choices too, even though they are a single element
+					if (toAppend.size() == 1 && ((List<CommandElement>) toAppend).getFirst() instanceof LiteralCommandElement literalElement) {
+						choices.add(groupChoicesSize, Set.of(literalElement.literal()));
+					}
 					toAppend.add(null);
 				} else {
 					toAppend = commandElement.children();
@@ -316,6 +325,13 @@ final class CommandCompiler {
 
 		if (!pendingLiterals.isEmpty()) { // append any outstanding literal(s)
 			first.append(pendingLiterals);
+		}
+
+		if (first.children().size() > 1) { // multiple literal elements indicates possible choices, push them
+			choices.add(startingChoicesSize, first.children().stream()
+				.filter(element -> element instanceof LiteralCommandElement)
+				.map(element -> ((LiteralCommandElement) element).literal())
+				.collect(Collectors.toUnmodifiableSet()));
 		}
 
 		return first;

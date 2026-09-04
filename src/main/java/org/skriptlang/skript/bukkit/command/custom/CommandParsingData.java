@@ -31,7 +31,10 @@ public final class CommandParsingData extends Data {
 	) { }
 
 	private final LinkedList<ArgumentData<?>> arguments = new LinkedList<>();
-	private final Deque<Integer> indices = new ArrayDeque<>(4);
+	private final Deque<Integer> argumentsIndices = new ArrayDeque<>(4);
+
+	private final LinkedList<Set<String>> choices = new LinkedList<>();
+	private final Deque<Integer> choicesIndices = new ArrayDeque<>(2);
 
 	private final Deque<ExecutorData> executorDatas = new ArrayDeque<>(4);
 
@@ -45,7 +48,7 @@ public final class CommandParsingData extends Data {
 	 * @return Whether this parsing data contains any data.
 	 */
 	public boolean isEmpty() {
-		return indices.isEmpty();
+		return argumentsIndices.isEmpty();
 	}
 
 	/**
@@ -61,7 +64,7 @@ public final class CommandParsingData extends Data {
 	 * @see #popArguments()
 	 */
 	public void pushArguments(List<ArgumentData<?>> arguments) {
-		indices.push(this.arguments.size());
+		argumentsIndices.push(this.arguments.size());
 		this.arguments.addAll(arguments);
 	}
 
@@ -70,7 +73,32 @@ public final class CommandParsingData extends Data {
 	 * @see #pushArguments(List)
 	 */
 	public void popArguments() {
-		arguments.subList(indices.pop(), arguments.size()).clear();
+		arguments.subList(argumentsIndices.pop(), arguments.size()).clear();
+	}
+
+	/**
+	 * @return All choice groups currently stored on this data, in declaration order.
+	 */
+	public List<Set<String>> getChoices() {
+		return List.copyOf(choices);
+	}
+
+	/**
+	 * Pushes choices to this data.
+	 * @param choices The choices to push.
+	 * @see #popChoices()
+	 */
+	public void pushChoices(List<Set<String>> choices) {
+		choicesIndices.push(this.choices.size());
+		this.choices.addAll(choices);
+	}
+
+	/**
+	 * Removes the last pushed choices from this data.
+	 * @see #pushChoices(List)
+	 */
+	public void popChoices() {
+		choices.subList(choicesIndices.pop(), choices.size()).clear();
 	}
 
 	/**

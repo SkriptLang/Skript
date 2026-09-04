@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.command.custom;
 
+import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 
 import java.util.Collections;
@@ -17,8 +18,9 @@ public class ScriptCommandExecutionEvent extends ScriptCommandEvent {
 
 	final Map<String, Object> arguments = new HashMap<>();
 
-	public ScriptCommandExecutionEvent(String label, String rawInput, ScriptCommandExecutor commandExecutor, CommandSourceStack source) {
-		super(source);
+	public ScriptCommandExecutionEvent(String label, String rawInput, ScriptCommandExecutor commandExecutor,
+		CommandContext<CommandSourceStack> context) {
+		super(context);
 		this.label = label;
 		this.rawInput = rawInput;
 		this.commandExecutor = commandExecutor;

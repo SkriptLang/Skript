@@ -67,9 +67,10 @@ public class ScriptCommandExecutor {
 	 * @param context Command context for obtaining argument values.
 	 * @param commandEvent Event context for resolving default values.
 	 * @return The real value of {@code argument} given {@code context}.
+	 *  Null if {@code argument} was not provided, and it does not have a default value.
 	 * @throws CommandSyntaxException If an error occurs while resolving this argument.
 	 */
-	public static Object getArgument(ArgumentData<?> argument, Set<String> providedArguments,
+	public static @Nullable Object getArgument(ArgumentData<?> argument, Set<String> providedArguments,
 									 CommandContext<CommandSourceStack> context, ScriptCommandExecutionEvent commandEvent)
 		throws CommandSyntaxException {
 		Object value = null;
@@ -126,12 +127,11 @@ public class ScriptCommandExecutor {
 	}
 
 	public int execute(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-		CommandSourceStack source = context.getSource();
 		ScriptCommandExecutionEvent commandEvent =
-			new ScriptCommandExecutionEvent(context.getNodes().getFirst().getNode().getName(), context.getInput(), this, source);
+			new ScriptCommandExecutionEvent(context.getNodes().getFirst().getNode().getName(), context.getInput(), this, context);
 
 		// final validations
-		if (cooldownManager != null && !cooldownManager.checkExecution(commandEvent, source.getSender())) {
+		if (cooldownManager != null && !cooldownManager.checkExecution(commandEvent, context.getSource().getSender())) {
 			return Command.SINGLE_SUCCESS;
 		}
 
