@@ -5,9 +5,9 @@ import ch.njol.skript.config.Config;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.Version;
-import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.localization.Localizer;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -76,8 +76,8 @@ public class Language {
 	 * @return The requested message if it exists or the key otherwise
 	 */
 	public static String get(String key) {
-		String s = get_i("" + key.toLowerCase(Locale.ENGLISH));
-		return s == null ? "" + key.toLowerCase(Locale.ENGLISH) : s;
+		String s = get_i(key.toLowerCase(Locale.ENGLISH));
+		return s == null ? key.toLowerCase(Locale.ENGLISH) : s;
 	}
 
 	/**
@@ -88,7 +88,7 @@ public class Language {
 	 */
 	@Nullable
 	public static String get_(String key) {
-		return get_i("" + key.toLowerCase(Locale.ENGLISH));
+		return get_i(key.toLowerCase(Locale.ENGLISH));
 	}
 
 	public static void missingEntryError(String key) {
@@ -102,12 +102,12 @@ public class Language {
 	 * @return The formatted string
 	 */
 	public static String format(String key, Object... args) {
-		key = "" + key.toLowerCase(Locale.ENGLISH);
+		key = key.toLowerCase(Locale.ENGLISH);
 		String value = get_i(key);
 		if (value == null)
 			return key;
 		try {
-			return "" + String.format(value, args);
+			return String.format(value, args);
 		} catch (Exception e) {
 			Skript.error("Invalid format string at '" + key + "' in the " + getName() + " language file: " + value);
 			return key;
@@ -135,7 +135,7 @@ public class Language {
 	 * @return a non-null String array with at least one element
 	 */
 	public static String[] getList(String key) {
-		String s = get_i("" + key.toLowerCase(Locale.ENGLISH));
+		String s = get_i(key.toLowerCase(Locale.ENGLISH));
 		if (s == null)
 			return new String[] {key.toLowerCase(Locale.ENGLISH)};
 		String[] r = listSplitPattern.split(s);
@@ -193,7 +193,7 @@ public class Language {
 		}
 
 		Class<?> source = addon.source();
-		assert source != null; // getSanitizedLanguageDirectory call means source should not be null
+		assert source != null; // getSanitizedLanguageDirectory call means the source should not be null
 		try (
 			InputStream defaultIs = source.getResourceAsStream("/" + languageFileDirectory + "/default.lang");
 			InputStream englishIs = source.getResourceAsStream("/" + languageFileDirectory + "/english.lang")
@@ -301,7 +301,7 @@ public class Language {
 			Skript.error(addon + "'s language file " + name + ".lang does not provide a version number!");
 		} else {
 			try {
-				Version v = new Version("" + l.get("version"));
+				Version v = new Version(l.get("version"));
 				Version lv = langVersion.get(addon.name());
 				assert lv != null; // set in loadDefault()
 				if (v.isSmallerThan(lv))
@@ -332,7 +332,7 @@ public class Language {
 		if (in == null)
 			return new HashMap<>();
 
-		try {
+		try (in) {
 			Config langConfig = new Config(in, name + ".lang", false, false, ":");
 
 			String langVersion = langConfig.getValue("version");
@@ -365,10 +365,6 @@ public class Language {
 			//noinspection ThrowableNotThrown
 			Skript.exception(e, "Could not load the language file '" + name + ".lang': " + ExceptionUtils.toString(e));
 			return new HashMap<>();
-		} finally {
-			try {
-				in.close();
-			} catch (IOException ignored) { }
 		}
 	}
 
