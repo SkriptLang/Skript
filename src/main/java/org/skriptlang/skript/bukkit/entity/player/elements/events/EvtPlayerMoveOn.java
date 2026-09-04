@@ -1,59 +1,84 @@
-package ch.njol.skript.events;
+package org.skriptlang.skript.bukkit.entity.player.elements.events;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.SkriptEventHandler;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemData;
-import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.registrations.Classes;
-import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.EventExecutor;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue.Time;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.SkriptEventHandler;
+import ch.njol.skript.aliases.ItemData;
+import ch.njol.skript.aliases.ItemType;
+import org.bukkit.Bukkit;
+import org.bukkit.event.Listener;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class EvtMoveOn extends SkriptEvent {
-	
-	static {
-		// Register EvtPressurePlate before EvtMoveOn, https://github.com/SkriptLang/Skript/issues/2555
-		new EvtPressurePlate();
+public class EvtPlayerMoveOn extends SkriptEvent {
 
-		Skript.registerEvent("Move On", EvtMoveOn.class, PlayerMoveEvent.class, "(step|walk)[ing] (on|over) %*itemtypes%")
-			.description(
-				"Called when a player moves onto a certain type of block.",
-				"Please note that using this event can cause lag if there are many players online."
-			).examples(
-				"on walking on dirt or grass:",
-				"on stepping on stone:"
-			).since("2.0");
+	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry) {
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtPlayerMoveOn.class, "Player Move On")
+			.supplier(EvtPlayerMoveOn::new)
+			.addEvent(PlayerMoveEvent.class)
+			.addPatterns("(step|walk)[ing] (on|over) %*itemtypes%")
+			.addDescription("""
+				Called when a player moves onto a certain type of block.
+				Please note that this event is called extremely often internally and may cause performance issues.
+				""")
+			.addExample("""
+				on walking on stone:
+					send "Well these don't feel like stepping stones.."
+				""")
+			.addSince("2.0")
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(PlayerMoveEvent.class, Block.class)
+			.getter(event -> event.getTo().clone().subtract(0, 0.5, 0).getBlock())
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(PlayerMoveEvent.class, Location.class)
+			.getter(PlayerMoveEvent::getFrom)
+			.time(Time.PAST)
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(PlayerMoveEvent.class, Location.class)
+			.getter(PlayerMoveEvent::getTo)
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(PlayerMoveEvent.class, Chunk.class)
+			.getter(event -> event.getFrom().getChunk())
+			.time(Time.PAST)
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(PlayerMoveEvent.class, Chunk.class)
+			.getter(event -> event.getTo().getChunk())
+			.build());
 	}
-	
+
 	private static final Map<Material, List<Trigger>> ITEM_TYPE_TRIGGERS = new ConcurrentHashMap<>();
-	
+
 	private static final AtomicBoolean REGISTERED_EXECUTOR = new AtomicBoolean();
 
-	private static final EventExecutor EXECUTOR = (listener, e) -> {
+	private static final EventExecutor EXECUTOR = (executor, e) -> {
 		PlayerMoveEvent event = (PlayerMoveEvent) e;
 		Location from = event.getFrom(), to = event.getTo();
 
@@ -76,7 +101,7 @@ public class EvtMoveOn extends SkriptEvent {
 
 			SkriptEventHandler.logEventStart(event);
 			for (Trigger trigger : triggers) {
-				for (ItemType type : ((EvtMoveOn) trigger.getEvent()).types) {
+				for (ItemType type : ((EvtPlayerMoveOn) trigger.getEvent()).types) {
 					if (type.isOfType(block)) {
 						SkriptEventHandler.logTriggerStart(trigger);
 						trigger.execute(event);
@@ -92,23 +117,22 @@ public class EvtMoveOn extends SkriptEvent {
 	@Nullable
 	private static Block getOnBlock(Location location) {
 		Block block = location.getWorld().getBlockAt(location.getBlockX(), (int) (Math.ceil(location.getY()) - 1), location.getBlockZ());
-		if (block.getType() == Material.AIR && Math.abs((location.getY() - location.getBlockY()) - 0.5) < Skript.EPSILON) { // Fences
+		if (block.getType() == Material.AIR && Math.abs((location.getY() - location.getBlockY()) - 0.5) < Skript.EPSILON) {
 			block = location.getWorld().getBlockAt(location.getBlockX(), location.getBlockY() - 1, location.getBlockZ());
 			if (!ItemUtils.isFence(block))
 				return null;
 		}
 		return block;
 	}
-	
+
 	private static int getBlockY(double y, Block block) {
 		if (ItemUtils.isFence(block) && Math.abs((y - Math.floor(y)) - 0.5) < Skript.EPSILON)
 			return (int) Math.floor(y) - 1;
 		return (int) Math.ceil(y) - 1;
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private ItemType[] types;
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
@@ -122,34 +146,33 @@ public class EvtMoveOn extends SkriptEvent {
 				Skript.error("Can't use an 'on walk' event with an alias that matches all blocks");
 				return false;
 			}
-			for (ItemData data : type) { // Check for illegal types
+			for (ItemData data : type) {
 				if (!data.getType().isBlock() || ItemUtils.isAir(data.getType())) {
 					Skript.error(type + " is not a block and can thus not be walked on");
 					return false;
 				}
 			}
 		}
-
 		return true;
 	}
 
 	@Override
 	public boolean postLoad() {
 		Set<Material> materialSet = new HashSet<>();
-		for (ItemType type : types) { // Get unique materials
+		for (ItemType type : types) {
 			for (ItemData data : type)
 				materialSet.add(data.getType());
 		}
 
 		for (Material material : materialSet)
-			ITEM_TYPE_TRIGGERS.computeIfAbsent(material, k -> new ArrayList<>()).add(trigger);
+			ITEM_TYPE_TRIGGERS.computeIfAbsent(material, material1 -> new ArrayList<>()).add(trigger);
 
 		if (REGISTERED_EXECUTOR.compareAndSet(false, true)) {
 			Bukkit.getPluginManager().registerEvent(
-				PlayerMoveEvent.class, new Listener(){}, SkriptConfig.defaultEventPriority.value(), EXECUTOR, Skript.getInstance(), true
+				PlayerMoveEvent.class, new Listener() {}, 
+				SkriptConfig.defaultEventPriority.value(), EXECUTOR, Skript.getInstance(), true
 			);
 		}
-
 		return true;
 	}
 
