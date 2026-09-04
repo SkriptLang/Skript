@@ -1,0 +1,12 @@
+test "raw name - entity":
+  assert vanilla name of cow is "minecraft:cow"
+  assert vanilla name of cave spider is "minecraft:cave_spider"
+  assert vanilla names of cow and pig are "minecraft:cow" and "minecraft:pig"
+
+test "raw name - item":
+  assert vanilla name of stone is "minecraft:stone"
+  assert vanilla name of oak planks is "minecraft:oak_planks"
+  assert vanilla names of grass block and dirt are "minecraft:grass_block" and "minecraft:dirt"
+
+test "raw name - mixed":
+  assert vanilla names of stone, pig, grass block, cow are "minecraft:stone", "minecraft:pig", "minecraft:grass_block", "minecraft:cow"
