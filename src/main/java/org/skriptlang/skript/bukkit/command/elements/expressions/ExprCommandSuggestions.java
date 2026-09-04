@@ -46,7 +46,7 @@ import java.util.List;
 			send "Yum!"
 	""")
 @Example("""
-	command /home2:
+	command /home:
 		subcommand set <name: text>:
 			trigger:
 				set {homes::%player%::%{_name}%} to the player's location

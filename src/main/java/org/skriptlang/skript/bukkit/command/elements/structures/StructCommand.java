@@ -2,6 +2,10 @@ package org.skriptlang.skript.bukkit.command.elements.structures;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
@@ -29,6 +33,34 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@Name("Command")
+@Description("Used for registering custom commands.")
+@Example("""
+	command /broadcast <string>:
+		aliases: /bc
+		executable by: players and console
+		usage: A command for broadcasting a message to all players.
+		permission: skript.command.broadcast
+		cooldown: 15 seconds
+		cooldown message: You last broadcast a message %elapsed time% ago. You can broadcast another message in %remaining time%.
+		cooldown bypass: skript.command.broadcast.admin
+		cooldown storage: {cooldown::%player%}
+		trigger:
+			broadcast the argument
+	""")
+@Example("""
+	command /home:
+		subcommand set <name: text>:
+			trigger:
+				set {homes::%player%::%{_name}%} to the player's location
+		subcommand <name: text>:
+			suggestions:
+				loop {homes::%player%::*}:
+					add formatted "<ttp:'Location: %loop-value%'>%loop-index%" to the suggestions for the text argument
+			trigger:
+				teleport the player to {homes::%player%::%{_name}%}
+	""")
+@Since({"1.0", "INSERT VERSION (subcommands, suggestions, etc.)"})
 public class StructCommand extends Structure {
 
 	public static void register(SkriptAddon addon, SyntaxRegistry syntaxRegistry) {
