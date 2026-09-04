@@ -3,6 +3,7 @@ package ch.njol.skript.lang.function;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
+import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
 import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Contract;
@@ -11,6 +12,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.Parameter;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.util.Executable;
@@ -19,19 +21,17 @@ import org.skriptlang.skript.util.Validated;
 import java.io.File;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * A partial reference to a Skript function.
  * This reference knows some of its information in advance (such as the function's name)
  * but will not be resolved until it receives inputs for the first time.
+ *
  * @param <Result> The return type of this function, if known.
  */
 public class DynamicFunctionReference<Result>
-	implements Contract, Executable<Event, Result[]>, Validated, AnyNamed {
+		implements Contract, Executable<Event, Result[]>, Validated, AnyNamed {
 
 	private final @NotNull String name;
 	private final @Nullable Script source;
@@ -46,8 +46,12 @@ public class DynamicFunctionReference<Result>
 		this.function = new WeakReference<>(function);
 		this.name = function.getName();
 		this.signature = function.getSignature();
-		@Nullable File file = ScriptLoader.getScriptFromName(signature.namespace());
-		this.source = file != null ? ScriptLoader.getScript(file) : null;
+		if (signature.namespace() != null) {
+			@Nullable File file = ScriptLoader.getScriptFromName(signature.namespace());
+			this.source = file != null ? ScriptLoader.getScript(file) : null;
+		} else {
+			this.source = null;
+		}
 	}
 
 	public DynamicFunctionReference(@NotNull String name) {
@@ -57,22 +61,47 @@ public class DynamicFunctionReference<Result>
 	public DynamicFunctionReference(@NotNull String name, @Nullable Script source) {
 		this.name = name;
 		Function<? extends Result> function;
+		Set<Signature<?>> candidates;
+		// TODO: add a way to specify param types
+
 		if (source != null) {
-			// will return the first function found that matches name.
-			// TODO: add a way to specify param types
-			//noinspection unchecked
-			function = (Function<? extends Result>) Functions.getFunction(name, source.getConfig().getFileName());
+			candidates = FunctionRegistry.getRegistry().getSignatures(source.getConfig().getFileName(), name);
 		} else {
-			//noinspection unchecked
-			function = (Function<? extends Result>) Functions.getFunction(name, null);
+			candidates = FunctionRegistry.getRegistry().getSignatures(null, name);
+		}
+		if (candidates.size() == 1) {
+			Signature<?> candidate = candidates.iterator().next();
+			Parameter<?>[] parameters = candidate.parameters().all();
+			Class<?>[] types = Arrays.stream(parameters).map(Parameter::type).toArray(Class<?>[]::new);
+
+			FunctionRegistry.Retrieval<Function<?>> retrieval;
+			if (source != null) {
+				retrieval = FunctionRegistry.getRegistry().getFunction(candidate.namespace(), candidate.name(), types);
+			} else {
+				retrieval = FunctionRegistry.getRegistry().getFunction(null, candidate.name(), types);
+			}
+
+			function = switch (retrieval.result()) {
+				case NOT_REGISTERED, AMBIGUOUS -> null;
+				case EXACT ->
+					//noinspection unchecked
+						(Function<? extends Result>) retrieval.retrieved();
+			};
+		} else {
+			function = null;
 		}
 
 		this.resolved = function != null;
 		this.function = new WeakReference<>(function);
 		if (resolved) {
 			this.signature = function.getSignature();
-			@Nullable File file = ScriptLoader.getScriptFromName(signature.namespace());
-			this.source = file != null ? ScriptLoader.getScript(file) : null;
+
+			if (signature.namespace() != null) {
+				@Nullable File file = ScriptLoader.getScriptFromName(signature.namespace());
+				this.source = file != null ? ScriptLoader.getScript(file) : null;
+			} else {
+				this.source = null;
+			}
 		} else {
 			this.signature = null;
 			this.source = null;
@@ -133,8 +162,8 @@ public class DynamicFunctionReference<Result>
 	@Override
 	public boolean valid() {
 		return resolved && validator.valid()
-			&& function.get() != null // function was garbage-collected
-			&& (source == null || source.valid());
+				&& function.get() != null // function was garbage-collected
+				&& (source == null || source.valid());
 		// if our source script has been reloaded our reference was invalidated
 	}
 
@@ -169,7 +198,7 @@ public class DynamicFunctionReference<Result>
 		// Too many parameters
 		if (inputParameters.length > signature.getMaxParameters() && !varArgs)
 			return null;
-		// Not enough parameters
+			// Not enough parameters
 		else if (inputParameters.length < signature.getMinParameters())
 			return null;
 		Expression<?>[] checkedInputParameters = new Expression[inputParameters.length];
@@ -198,6 +227,7 @@ public class DynamicFunctionReference<Result>
 	/**
 	 * Attempts to parse a function reference from the format it would be stringified in.
 	 * The name can include the source script name for the case of parsing local functions.
+	 *
 	 * @param name The function name, possibly including its script name
 	 * @return A reference, if one is available
 	 */
@@ -215,7 +245,8 @@ public class DynamicFunctionReference<Result>
 
 	/**
 	 * Used to resolve a function from its name.
-	 * @param name The function name
+	 *
+	 * @param name   The function name
 	 * @param script Potentially, the script it is from, if one is known
 	 * @return A function reference, if one is available.
 	 */

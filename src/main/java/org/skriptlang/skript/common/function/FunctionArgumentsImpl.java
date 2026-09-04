@@ -4,9 +4,9 @@ import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Supplier;
 
 record FunctionArgumentsImpl(@Unmodifiable @NotNull Map<String, Object> arguments) implements FunctionArguments {
@@ -45,7 +45,7 @@ record FunctionArgumentsImpl(@Unmodifiable @NotNull Map<String, Object> argument
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Set<String> names() {
+	public @Unmodifiable @NotNull Collection<String> names() {
 		return Collections.unmodifiableSet(arguments.keySet());
 	}
 

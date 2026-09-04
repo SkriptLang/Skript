@@ -12,11 +12,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.DefaultFunction.Builder;
-import org.skriptlang.skript.common.function.Parameter.Modifier.RangedModifier;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.util.Priority;
 
-import java.util.Set;
+import java.util.Collection;
+import java.util.NoSuchElementException;
 import java.util.StringJoiner;
 
 /**
@@ -40,61 +41,40 @@ public interface Parameter<T> {
 	/**
 	 * @return All modifiers belonging to this parameter.
 	 */
-	@Unmodifiable @NotNull Set<Modifier> modifiers();
+	@Unmodifiable
+	@NotNull Collection<Modifier> modifiers();
 
 	/**
-	 * Returns whether this parameter has the specified modifier.
-	 * @param modifier The modifier.
-	 * @return True when {@link #modifiers()} contains the specified modifier, false if not.
+	 * @deprecated Use {@link #hasModifier(Class)} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	default boolean hasModifier(Modifier modifier) {
 		return modifiers().contains(modifier);
 	}
 
 	/**
-	 * Gets a modifier of the specified type if present.
-	 * @param modifierClass The class of the modifier to retrieve
-	 * @return The modifier instance, or null if not present
+	 * Returns whether this parameter has the specified modifier.
+	 *
+	 * @param modifier The modifier.
+	 * @return True when {@link #modifiers()} contains the specified modifier, false if not.
 	 */
-	default <M extends Modifier> M getModifier(Class<M> modifierClass) {
-		return modifiers().stream()
-			.filter(modifierClass::isInstance)
-			.map(modifierClass::cast)
-			.findFirst()
-			.orElse(null);
+	default boolean hasModifier(Class<? extends Modifier> modifier) {
+		return modifiers().stream().anyMatch(modifier::isInstance);
 	}
 
 	/**
-	 * Evaluates the provided argument expression and returns the resulting values, taking into account this parameter's modifiers.
+	 * Gets a modifier of the specified type if present.
 	 *
-	 * <p>If this parameter has the {@link org.skriptlang.skript.common.function.Parameter.Modifier#KEYED} modifier,
-	 * the returned array will contain {@link ch.njol.skript.lang.KeyedValue} objects, pairing each value with its corresponding key.
-	 * If the argument expression does not provide keys, numerical indices (1, 2, 3, ...) will be used as keys;
-	 * otherwise, the returned array will contain only the values.</p>
-	 *
-	 * @param argument the argument passed to this parameter; or {@code null} to use the default value if present
-	 * @param event the event in which to evaluate the expression
-	 * @return an object array containing either value-only elements or {@code KeyedValue[]} when keyed
-	 * @throws IllegalStateException if the argument is {@code null} and this parameter does not have a default value
+	 * @param modifierClass The class of the modifier to retrieve
+	 * @return The modifier instance.
+	 * @throws NoSuchElementException If no value is found for the modifier.
 	 */
-	default Object[] evaluate(@Nullable Expression<? extends T> argument, Event event) {
-		if (argument == null) {
-			return null;
-		}
-
-		Object[] values = argument.getArray(event);
-
-		// Don't allow mutating across function boundary; same hack is applied to variables
-		for (int i = 0; i < values.length; i++)
-			values[i] = Classes.clone(values[i]);
-
-		if (!hasModifier(Modifier.KEYED))
-			return values;
-
-		String[] keys = KeyProviderExpression.areKeysRecommended(argument)
-				? ((KeyProviderExpression<?>) argument).getArrayKeys(event)
-				: null;
-		return KeyedValue.zip(values, keys);
+	default <M extends Modifier> M getModifier(Class<M> modifierClass) {
+		return modifiers().stream()
+				.filter(modifierClass::isInstance)
+				.map(modifierClass::cast)
+				.findFirst()
+				.orElseThrow(() -> new NoSuchElementException("No value present for modifier " + modifierClass.getSimpleName()));
 	}
 
 	/**
@@ -113,16 +93,51 @@ public interface Parameter<T> {
 	}
 
 	/**
+	 * Evaluates the provided argument expression and returns the resulting values, taking into account this parameter's modifiers.
+	 *
+	 * <p>If this parameter has the {@link org.skriptlang.skript.common.function.Parameter.Modifier#KEYED} modifier,
+	 * the returned array will contain {@link ch.njol.skript.lang.KeyedValue} objects, pairing each value with its corresponding key.
+	 * If the argument expression does not provide keys, numerical indices (1, 2, 3, ...) will be used as keys;
+	 * otherwise, the returned array will contain only the values.</p>
+	 *
+	 * @param argument the argument passed to this parameter; or {@code null} to use the default value if present
+	 * @param event    the event in which to evaluate the expression
+	 * @return an object array containing either value-only elements or {@code KeyedValue[]} when keyed
+	 * @throws IllegalStateException if the argument is {@code null} and this parameter does not have a default value
+	 */
+	default Object[] evaluate(@Nullable Expression<? extends T> argument, Event event) {
+		if (argument == null) {
+			return null;
+		}
+
+		Object[] values = argument.getArray(event);
+
+		// Don't allow mutating across function boundary; same hack is applied to variables
+		for (int i = 0; i < values.length; i++)
+			values[i] = Classes.clone(values[i]);
+
+		if (!hasModifier(Modifier.Keyed.class))
+			return values;
+
+		String[] keys = KeyProviderExpression.areKeysRecommended(argument)
+				? ((KeyProviderExpression<?>) argument).getArrayKeys(event)
+				: null;
+		return KeyedValue.zip(values, keys);
+	}
+
+	/**
 	 * @return A human-readable string representing this parameter.
 	 */
-	default String toFormattedString() {
+	default @NotNull String toFormattedString() {
 		StringJoiner joiner = new StringJoiner(" ");
 
 		joiner.add("%s:".formatted(name()));
 
-		if (hasModifier(Modifier.OPTIONAL)) {
-			joiner.add("optional");
-		}
+		modifiers().stream()
+				.filter(it -> it.priority().isBefore(Modifier.TYPE_PRIORITY))
+				.map(Modifier::toFormattedString)
+				.filter(it -> !it.isEmpty())
+				.forEach(joiner::add);
 
 		Noun exact = Classes.getSuperClassInfo(type()).getName();
 		if (type().isArray()) {
@@ -131,34 +146,84 @@ public interface Parameter<T> {
 			joiner.add(exact.getSingular());
 		}
 
-		if (hasModifier(Modifier.RANGED)) {
-			RangedModifier<?> range = getModifier(RangedModifier.class);
-			joiner.add("between")
-				.add(range.getMin().toString())
-				.add("and")
-				.add(range.getMax().toString());
-		}
+		modifiers().stream()
+				.filter(it -> it.priority().isAfter(Modifier.TYPE_PRIORITY))
+				.map(Modifier::toFormattedString)
+				.filter(it -> !it.isEmpty())
+				.forEach(joiner::add);
 
 		return joiner.toString();
 	}
 
 	/**
-	 * Represents a modifier that can be applied to a parameter
-	 * when constructing one using {@link Builder#parameter(String, Class, Modifier[])}.
+	 * Represents a modifier that can be applied to a parameter.
 	 */
 	interface Modifier {
 
 		/**
-		 * @return A new Modifier instance to be used as a custom flag.
+		 * The priority used for printing the type in a parameter's string representation.
 		 */
+		Priority TYPE_PRIORITY = Priority.base();
+
+		/**
+		 * The priority used when using this modifier in a string representation.
+		 *
+		 * <p>
+		 * Registering after {@link #TYPE_PRIORITY} will print after the type,
+		 * e.g. {@code x: number optional}.
+		 * Registering before {@link #TYPE_PRIORITY} will print before the type,
+		 * e.g. {@code x: optional number}.
+		 * </p>
+		 *
+		 * @return The priority.
+		 */
+		@NotNull Priority priority();
+
+		/**
+		 * @return The modifier as a human-readable, formatted string.
+		 */
+		@NotNull String toFormattedString();
+
+		/**
+		 * @deprecated Create a new class implementing {@link Modifier} instead.
+		 */
+		@Deprecated(forRemoval = true, since = "INSERT VERSION")
 		static Modifier of() {
-			return new Modifier() { };
+			return new Modifier() {
+
+				private static final Priority PRIORITY = Priority.after(TYPE_PRIORITY);
+
+				@Override
+				public @NotNull Priority priority() {
+					return PRIORITY;
+				}
+
+				@Override
+				public @NotNull String toFormattedString() {
+					return "";
+				}
+
+			};
 		}
 
 		/**
 		 * The modifier for parameters that are optional.
 		 */
-		Modifier OPTIONAL = of();
+		record Optional() implements Modifier {
+
+			private static final Priority PRIORITY = Priority.before(TYPE_PRIORITY);
+
+			@Override
+			public @NotNull Priority priority() {
+				return PRIORITY;
+			}
+
+			@Override
+			public @NotNull String toFormattedString() {
+				return "optional";
+			}
+
+		}
 
 		/**
 		 * The modifier for parameters that support optional keyed expressions.
@@ -166,33 +231,108 @@ public interface Parameter<T> {
 		 * @see ch.njol.skript.lang.KeyProviderExpression
 		 * @see ch.njol.skript.lang.KeyReceiverExpression
 		 */
-		Modifier KEYED = of();
+		record Keyed() implements Modifier {
+
+			private static final Priority PRIORITY = Priority.before(TYPE_PRIORITY);
+
+			@Override
+			public @NotNull Priority priority() {
+				return PRIORITY;
+			}
+
+			@Override
+			public @NotNull String toFormattedString() {
+				return "keyed";
+			}
+
+		}
 
 		/**
 		 * A modifier to use for checking if a parameter is ranged.
-		 * Do NOT use for declaring a parameter to be ranged, use {@link Modifier#ranged(Comparable, Comparable)}
-		 * Accessing the min and the max values can be done via {@link Parameter#getModifier(Class)}.
 		 */
-		Modifier RANGED = new RangedModifier<>(0,0); // 0 and 0 are just dummy values.
+		record Ranged<T extends Comparable<T>>(@NotNull T min, @NotNull T max) implements Modifier, Constraint {
+
+			private static final Priority PRIORITY = Priority.after(TYPE_PRIORITY);
+
+			/**
+			 * Inclusive range between min and max
+			 *
+			 * @param min min value
+			 * @param max max value
+			 */
+			public Ranged {
+				Preconditions.checkNotNull(min, "min cannot be null");
+				Preconditions.checkNotNull(max, "max cannot be null");
+				Preconditions.checkState(min.compareTo(max) < 1, "Min value cannot be greater than max value!");
+			}
+
+			@Override
+			public @NotNull Priority priority() {
+				return PRIORITY;
+			}
+
+			@Override
+			public @NotNull String toFormattedString() {
+				return "between %s and %s".formatted(min, max);
+			}
+
+			@Override
+			@SuppressWarnings("unchecked")
+			public boolean isValid(Object input) {
+				// convert to right type
+				if (!min.getClass().isInstance(input)) {
+					Converter<Object, ?> converter = (Converter<Object, ?>) Converters.getConverter(input.getClass(), min.getClass());
+					if (converter == null)
+						return false;
+					input = converter.convert(input);
+					if (input == null)
+						return false;
+				}
+				// compare
+				return ((T) input).compareTo(min) > -1 && ((T) input).compareTo(max) < 1;
+			}
+		}
 
 		/**
-		 * Creates a range modifier with inclusive min and max bounds.
+		 * @deprecated Use {@link Optional} instead.
 		 */
+		@Deprecated(forRemoval = true, since = "INSERT VERSION")
+		Modifier OPTIONAL = new Modifier.Optional();
+
+		/**
+		 * @deprecated Use {@link Keyed} instead.
+		 */
+		@Deprecated(forRemoval = true, since = "INSERT VERSION")
+		Modifier KEYED = new Modifier.Keyed();
+
+		/**
+		 * @deprecated Use {@link Ranged} instead.
+		 */
+		@Deprecated(forRemoval = true, since = "INSERT VERSION")
+		Modifier RANGED = new RangedModifier<>(0, 0); // 0 and 0 are just dummy values.
+
+		/**
+		 * @deprecated Use {@link Ranged} instead.
+		 */
+		@Deprecated(forRemoval = true, since = "INSERT VERSION")
 		static <T extends Comparable<T>> RangedModifier<T> ranged(T min, T max) {
 			return new RangedModifier<>(min, max);
 		}
 
 		/**
-		 * Modifier specifying valid range bounds for numeric parameters.
-		 * Note that ALL instances will have the same hashCode and will be equal to {@link Modifier#RANGED}.
-		 * Avoid comparing these objects or putting multiple into a HashSet or HashMap!
+		 * @deprecated Use {@link Ranged} instead.
 		 */
+		@Deprecated(forRemoval = true, since = "INSERT VERSION")
 		class RangedModifier<T extends Comparable<T>> implements Modifier {
+
+			private static final Priority PRIORITY = Priority.before(TYPE_PRIORITY);
+
 			private final T min;
 			private final T max;
 
 			/**
 			 * Inclusive range between min and max
+			 *
 			 * @param min min value
 			 * @param max max value
 			 */
@@ -252,7 +392,7 @@ public interface Parameter<T> {
 			@Override
 			public boolean equals(Object obj) {
 				// equal to the RANGED singleton for hasModifier checks
-				return obj == Modifier.RANGED || ((obj instanceof RangedModifier<?> range) && (this == Modifier.RANGED || range.max == this.max && range.min  == this.min));
+				return obj == Modifier.RANGED || ((obj instanceof RangedModifier<?> range) && (this == Modifier.RANGED || range.max == this.max && range.min == this.min));
 			}
 
 			@Override
@@ -265,7 +405,32 @@ public interface Parameter<T> {
 				return "RangedModifier(min=" + min + ", max=" + max + ")";
 			}
 
+			@Override
+			public @NotNull String toFormattedString() {
+				return "between %s and %s".formatted(min, max);
+			}
+
+			@Override
+			public @NotNull Priority priority() {
+				return PRIORITY;
+			}
+
 		}
+
+		/**
+		 * A constraint is a modifier which validates the input of a parameter.
+		 */
+		@FunctionalInterface
+		interface Constraint {
+
+			/**
+			 * @param input The input.
+			 * @return True if this input is valid, false if not.
+			 */
+			boolean isValid(Object input);
+
+		}
+
 	}
 
 }
