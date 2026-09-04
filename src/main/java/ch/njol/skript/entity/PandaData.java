@@ -117,7 +117,7 @@ public class PandaData extends EntityData<Panda> {
 			builder.append(Language.getList("genes." + mainGene.name())[0]).append(" ");
 		if (hiddenGene != null && hiddenGene != mainGene)
 			builder.append(Language.getList("genes." + hiddenGene.name())[0]).append(" ");
-		builder.append(Language.get("panda"));
+		builder.append("panda");
 		return builder.toString();
 	}
 	

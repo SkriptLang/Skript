@@ -1,10 +1,13 @@
 package org.skriptlang.skript.lang.experiment;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptAddon;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.Skript;
+import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.util.Registry;
+import org.skriptlang.skript.util.ViewProvider;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -12,21 +15,41 @@ import java.util.Set;
 /**
  * A manager for registering (and identifying) experimental feature flags.
  */
-/*
-* TODO
-* 	This is designed to be (replaced by|refactored into) a proper registry when the registries rework PR
-* 	is completed. The overall skeleton is designed to remain, so that there should be no breaking changes
-* 	for anything using it. I.e. you will still be able to use Skript#experiments() and obtain 'this' class
-* 	although these will just become helper methods for the proper registry behaviour.
-* */
-public class ExperimentRegistry implements Experimented {
+public class ExperimentRegistry implements Registry<Experiment>, ViewProvider<ExperimentRegistry>, Experimented {
 
 	private final Skript skript;
 	private final Set<Experiment> experiments;
+	private final @Nullable ExperimentRegistry source;
 
 	public ExperimentRegistry(Skript skript) {
 		this.skript = skript;
 		this.experiments = new LinkedHashSet<>();
+		this.source = null;
+	}
+
+	/**
+	 * Internal constructor for creating an unmodifiable view of an experiment registry.
+	 */
+	private ExperimentRegistry(ExperimentRegistry source) {
+		this.skript = source.skript;
+		this.experiments = source.experiments;
+		this.source = source;
+	}
+
+	/**
+	 * @deprecated Use {@link #ExperimentRegistry(Skript)}.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public ExperimentRegistry(ch.njol.skript.Skript ignored) {
+		this(ch.njol.skript.Skript.instance());
+	}
+
+	/**
+	 * @return An unmodifiable view of this experiment registry.
+	 */
+	@Override
+	public ExperimentRegistry unmodifiableView() {
+		return new ExperimentRegistry(this);
 	}
 
 	/**
@@ -53,6 +76,14 @@ public class ExperimentRegistry implements Experimented {
 	}
 
 	/**
+	 * @return An unmodifiable set containing all currently-registered experiments.
+	 */
+	@Override
+	public @Unmodifiable Set<Experiment> elements() {
+		return Set.copyOf(experiments);
+	}
+
+	/**
 	 * Registers a new experimental feature flag, which will be available to scripts
 	 * with the {@code using %name%} structure.
 	 *
@@ -60,6 +91,9 @@ public class ExperimentRegistry implements Experimented {
 	 * @param experiment The experimental feature flag.
 	 */
 	public void register(SkriptAddon addon, Experiment experiment) {
+		if (source != null) {
+			throw new UnsupportedOperationException("Cannot register experiments using an unmodifiable registry.");
+		}
 		// the addon instance is requested for now in case we need it in future (for error triage)
 		this.experiments.add(experiment);
 	}
@@ -81,6 +115,9 @@ public class ExperimentRegistry implements Experimented {
 	 * @param experiment The experimental feature flag.
 	 */
 	public void unregister(SkriptAddon addon, Experiment experiment) {
+		if (source != null) {
+			throw new UnsupportedOperationException("Cannot unregister experiments using an unmodifiable registry.");
+		}
 		// the addon instance is requested for now in case we need it in future (for error triage)
 		this.experiments.remove(experiment);
 	}
