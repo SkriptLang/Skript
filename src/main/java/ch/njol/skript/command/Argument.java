@@ -22,7 +22,10 @@ import ch.njol.skript.variables.Variables;
  * Represents an argument of a command
  * 
  * @author Peter Güttinger
+ * @deprecated There is no direct replacement for this class.
+ * The closest alternative is {@link org.skriptlang.skript.bukkit.command.custom.ArgumentData}.
  */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class Argument<T> {
 	
 	@Nullable

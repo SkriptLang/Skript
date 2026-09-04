@@ -1,0 +1,154 @@
+package org.skriptlang.skript.bukkit.command.elements.structures;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.registrations.Classes;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.command.BlockCommandSender;
+import org.bukkit.command.CommandSender;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandEvent;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandRegistrar;
+import org.skriptlang.skript.bukkit.command.custom.ScriptBrigadierCommand;
+import org.skriptlang.skript.bukkit.command.custom.ScriptCommandExecutionEvent;
+import org.skriptlang.skript.bukkit.command.elements.structures.util.SubCommandEntryData;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
+import org.skriptlang.skript.lang.entry.EntryContainer;
+import org.skriptlang.skript.lang.structure.Structure;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+
+@Name("Command")
+@Description("Used for registering custom commands.")
+@Example("""
+	command /broadcast <string>:
+		aliases: /bc
+		executable by: players and console
+		usage: A command for broadcasting a message to all players.
+		permission: skript.command.broadcast
+		cooldown: 15 seconds
+		cooldown message: You last broadcast a message %elapsed time% ago. You can broadcast another message in %remaining time%.
+		cooldown bypass: skript.command.broadcast.admin
+		cooldown storage: {cooldown::%player%}
+		trigger:
+			broadcast the argument
+	""")
+@Example("""
+	command /home:
+		subcommand set <name: text>:
+			trigger:
+				set {homes::%player%::%{_name}%} to the player's location
+		subcommand <name: text>:
+			suggestions:
+				loop {homes::%player%::*}:
+					add formatted "<ttp:'Location: %loop-value%'>%loop-index%" to the suggestions for the text argument
+			trigger:
+				teleport the player to {homes::%player%::%{_name}%}
+	""")
+@Since({"1.0", "INSERT VERSION (subcommands, suggestions, etc.)"})
+public class StructCommand extends Structure {
+
+	public static void register(SkriptAddon addon, SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(SyntaxRegistry.STRUCTURE,SyntaxInfo.Structure.builder(StructCommand.class)
+			.supplier(StructCommand::new)
+			.addPattern("command <.+>")
+			.build());
+
+		EventValueRegistry evRegistry = addon.registry(EventValueRegistry.class);
+		evRegistry.register(EventValue.simple(ScriptCommandEvent.class, CommandSender.class, ScriptCommandEvent::getSender));
+		evRegistry.register(EventValue.simple(ScriptCommandEvent.class, Block.class,
+			event -> event.getSender() instanceof BlockCommandSender sender ? sender.getBlock() : null));
+		evRegistry.register(EventValue.simple(ScriptCommandEvent.class, Location.class, ScriptCommandEvent::getLocation));
+		evRegistry.register(EventValue.simple(ScriptCommandEvent.class, World.class, event -> event.getLocation().getWorld()));
+
+		evRegistry.register(EventValue.simple(ScriptCommandExecutionEvent.class, String[].class,
+			event -> event.getArguments().values().stream()
+				.map(Classes::toString)
+				.toArray(String[]::new)));
+	}
+
+	private static final SubCommandEntryData ROOT_ENTRY_DATA =
+		new SubCommandEntryData("command", false, false);
+
+	private static final AtomicBoolean SYNC_COMMANDS = new AtomicBoolean();
+
+	private SectionNode rootNode;
+	private ScriptBrigadierCommand command;
+
+	@Override
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+		rootNode = entryContainer.getSource();
+		return true;
+	}
+
+	@Override
+	public boolean load() {
+		// parsing
+		var result = ROOT_ENTRY_DATA.getValue(rootNode);
+		if (result == null) { // parsing failed, entry will have emitted a specific error message
+			return false;
+		}
+		if (result.arguments().size() != 1 || !(result.arguments().getFirst().builder().build() instanceof LiteralCommandNode<CommandSourceStack> node)) {
+			Skript.error("A command must have a name.");
+			return false;
+		}
+
+		// validation
+		ScriptBrigadierCommand existing = ScriptCommandRegistrar.getCommand(node.getLiteral());
+		if (existing != null) {
+			Skript.error("A command with the name /" + node.getLiteral() + " is already defined in the script '" +
+				existing.script().nameAndPath() + ".sk'");
+			return false;
+		}
+
+		// registration
+		command = new ScriptBrigadierCommand(getParser().getCurrentScript(), node, result.aliases(),
+			result.description(), result.usage(), result.prefix(), result.permission());
+		ScriptCommandRegistrar.register(command);
+		SYNC_COMMANDS.set(true);
+
+		return true;
+	}
+
+	@Override
+	public boolean postLoad() {
+		if (SYNC_COMMANDS.compareAndSet(true, false)) {
+			ScriptCommandRegistrar.processRegistrations();
+		}
+		return true;
+	}
+
+	@Override
+	public void unload() {
+		ScriptCommandRegistrar.unregister(command);
+		SYNC_COMMANDS.set(true);
+	}
+
+	@Override
+	public void postUnload() {
+		if (SYNC_COMMANDS.compareAndSet(true, false)) {
+			ScriptCommandRegistrar.processUnregistrations();
+		}
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "command";
+	}
+
+}

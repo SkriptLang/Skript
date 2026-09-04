@@ -1,0 +1,253 @@
+using local variable type hints
+using error catching
+
+options:
+	command: skriptcommand
+
+# expect to parse without errors
+parse:
+	results: {-StructCommand::compilation::1::*}
+	code:
+		command /compilation_test_1 (a|b) c (d|e):
+			trigger:
+				stop
+
+# expect error for missing trigger given no subcommands
+parse:
+	results: {-StructCommand::entries::1::*}
+	code:
+		command /entries_test_1:
+
+# expect error for invalid executable by for subcommand
+parse:
+	results: {-StructCommand::entries::2::*}
+	code:
+		command /entries_test_2:
+			executable by: players
+			trigger:
+				stop
+			subcommand test:
+				executable by: console
+				trigger:
+					stop
+
+# expect error for invalid subcommand and subsequently missing trigger (given no valid subcommands)
+parse:
+	results: {-StructCommand::entries::3::*}
+	code:
+		command /entries_test_3:
+			subcommand test:
+
+# expect operators to be allowed below players (or other kinds)
+parse:
+	results: {-StructCommand::entries::4::*}
+	code:
+		command /entries_test_4:
+			executable by: players
+			trigger:
+				stop
+			subcommand test:
+				executable by: operators
+				trigger:
+					stop
+
+# expect trigger combined with optional subcommand
+parse:
+	results: {-StructCommand::entries::5::*}
+	code:
+		command /entries_test_6:
+			subcommand [help]:
+				trigger:
+					stop
+			trigger:
+				stop
+
+# expect too many optionals
+parse:
+	results: {-StructCommand::entries::6::*}
+	code:
+		command /entries_test_6:
+			subcommand [help]:
+				trigger:
+					stop
+			subcommands:
+				subcommand help2:
+					trigger:
+						stop
+				subcommands:
+					subcommand [help3]:
+						trigger:
+							stop
+
+# expect error for duplicate argument names
+parse:
+	results: {-StructCommand::args::1::*}
+	code:
+		command /args_test_1 <x:number> <x:number>:
+			trigger:
+				stop
+
+# expect error for type not supporting range
+parse:
+	results: {-StructCommand::args::2::*}
+	code:
+		command /args_test_2 <x: text between "hello" and "world">:
+			trigger:
+				stop
+
+# expect no errors
+parse:
+	results: {-StructCommand::args::3::*}
+	code:
+		command /args_test_3 <x: number above 5> <y: number below 5> <z: number between 5 and 5>:
+			trigger:
+				stop
+
+# expect error that only single number arguments support ranged
+parse:
+	results: {-StructCommand::args::4::*}
+	code:
+		command /args_test_4 <x: numbers above 5>:
+			trigger:
+				stop
+
+# expect error that min must be less than max
+parse:
+	results: {-StructCommand::args::5::*}
+	code:
+		command /args_test_4 <x: number greater than 10 and less than 5>:
+			trigger:
+				stop
+
+# expect error that {_x} is not a text
+parse:
+	results: {-StructCommand::hints::1::*}
+	code:
+		command /hint_test_1 <x:number>:
+			trigger:
+				set {_a} to {_x} in lowercase
+
+# expect error that {_x::*} is not a text
+parse:
+	results: {-StructCommand::hints::2::*}
+	code:
+		command /hint_test_2 <x:numbers>:
+			trigger:
+				set {_a::*} to {_x::*} in lowercase
+
+command /test-subcommand <number>:
+	subcommand <number>:
+		trigger:
+			set {-test-subcommand} to argument 1 - argument 2
+	trigger:
+		set {-test-subcommand} to arg-1
+
+command /test-args-plural <x: numbers>:
+	trigger:
+		set {-test-args-plural::*} to {_x::*}
+
+command /test-args-ranged <x: number above 5 and below 10>:
+	trigger:
+		set {-test-args-ranged::*} to {_x}
+
+command /test-optional-subcommand:
+	subcommand [subcommand]:
+		trigger:
+			add 1 to {-test-optional-subcommand}
+
+command /test-optional-subcommand-in-group:
+	subcommands:
+		subcommand [subcommand]:
+			trigger:
+				add 1 to {-test-optional-subcommand-in-group}
+
+command /test-player-restriction-in-group:
+	subcommands:
+		executable by: players
+		subcommand subcommand:
+			trigger:
+				add 1 to {-test-player-restriction-in-group}
+
+command {@command} <text> [<text>] [<itemtype = %dirt named "steve"%>]:
+	trigger:
+		set {-test-{@command}::arg1} to arg-1
+		set {-test-{@command}::arg2} to arg-2
+		set {-test-{@command}::arg3} to arg-3
+
+command //somecommand [<text>]:
+	trigger:
+		set {-test-somecommand::arg1} to arg-1
+
+# see https://github.com/SkriptLang/Skript/pull/6286
+command /commandtest <string="player">:
+	trigger:
+		stop
+
+test "StructCommand":
+	# parsing
+	assert {-StructCommand::compilation::1::*} is not set
+	set {_error_missing_trigger} to "You must have a 'trigger' entry if there are no subcommands!"
+	assert {-StructCommand::entries::1::*} is {_error_missing_trigger}
+	assert {-StructCommand::entries::2::*} is "It is not possible to restrict execution to the console as the parent command is only executable by players."
+	assert {-StructCommand::entries::3::*} is {_error_missing_trigger} and {_error_missing_trigger}
+	assert {-StructCommand::entries::4::*} is not set
+	assert {-StructCommand::entries::5::*} is "It is not possible to have a 'trigger' entry if an optional subcommand is present!"
+	assert {-StructCommand::entries::6::*} is "It is not possible to have more than one optional subcommand at the same level."
+	assert {-StructCommand::args::1::*} is "The argument name 'x' was already used."
+	assert {-StructCommand::args::2::*} is "text arguments do not support minimum or maximum values."
+	assert {-StructCommand::args::3::*} is not set
+	assert {-StructCommand::args::4::*} is "Only single number arguments support minimum or maximum values."
+	assert {-StructCommand::args::5::*} is "The minimum value must be less than or equal to the maximum value."
+	# parsing type hints
+	assert {-StructCommand::hints::1::*} is "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::1::*}%)"
+	assert {-StructCommand::hints::2::*} is "Expected variable '{_x::*}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::2::*}%)"
+
+	# execution
+	execute command "test-subcommand 10"
+	assert {-test-subcommand} is 10 with "root command execution failed"
+	execute command "test-subcommand 10 5"
+	assert {-test-subcommand} is 5 with "subcommand command execution failed"
+
+	execute command "test-args-plural 10"
+	assert {-test-args-plural::*} is 10 with "single input to plural args did not work"
+	execute command "test-args-plural 10 and 2"
+	assert {-test-args-plural::*} is 10 and 2 with "plural input to plural args did not work"
+
+	execute command "test-args-ranged 6"
+	assert {-test-args-ranged::*} is 6 with "argument in range was not accepted"
+	catch runtime errors:
+		execute command "test-args-ranged 4"
+	if running minecraft "1.21.6":
+		assert last caught runtime errors start with "Failed to execute command: "
+	assert {-test-args-ranged::*} is 6 with "argument below range was accepted"
+	catch runtime errors:
+		execute command "test-args-ranged 11"
+	if running minecraft "1.21.6":
+		assert last caught runtime errors start with "Failed to execute command: "
+	assert {-test-args-ranged::*} is 6 with "argument above range was accepted"
+
+	execute command "test-optional-subcommand subcommand"
+	assert {-test-optional-subcommand} is 1 with "executing with subcommand should have added 1 (total 1)"
+	execute command "test-optional-subcommand"
+	assert {-test-optional-subcommand} is 2 with "executing as base should have added 1 (total 2)"
+
+	execute command "test-optional-subcommand-in-group subcommand"
+	assert {-test-optional-subcommand-in-group} is 1 with "executing with subcommand should have added 1 (total 1)"
+	execute command "test-optional-subcommand-in-group"
+	assert {-test-optional-subcommand-in-group} is 2 with "executing as base should have added 1 (total 2)"
+
+	catch runtime errors:
+		execute command "test-player-restriction-in-group subcommand"
+	assert {-test-player-restriction-in-group} is not set
+	if running minecraft "1.21.6":
+		assert last caught runtime errors start with "Failed to execute command: "
+
+	execute command "{@command} taco"
+	assert {-test-{@command}::arg1} is "taco" with "arg-1 test failed"
+	assert {-test-{@command}::arg2} is not set with "arg-2 test failed"
+	assert {-test-{@command}::arg3} is dirt named "steve" with "arg-3 test failed"
+
+	# On some older versions (1.21.4, TBD), '//somecommand' does not work through console.
+	# This appears to be some sort of server issue.
+	execute command "skript:/somecommand burrito is tasty"
+	assert {-test-somecommand::arg1} is "burrito is tasty" with "arg-1 is 'burrito is tasty' test failed"
