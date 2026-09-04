@@ -1,6 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -17,8 +18,11 @@ import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.ClassInfoReference;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
@@ -118,6 +122,42 @@ public class ExprInput<T> extends SimpleExpression<T> {
 		} catch (ClassCastException exception) {
 			return (T[]) Array.newInstance(superType, 0);
 		}
+	}
+
+	@Override
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		Object currentValue = isIndex ? inputSource.getCurrentIndex() : inputSource.getCurrentValue();
+
+		switch (mode) {
+			case DELETE -> currentValue = null;
+			case RESET -> currentValue = inputSource.getUnchangedValue();
+			case ADD, REMOVE -> {
+				if (currentValue == null)
+					currentValue = 0;
+
+				if (delta.length > 0 && delta[0] != null) {
+					Operator operator = mode == ChangeMode.ADD
+						? Operator.ADDITION
+						: Operator.SUBTRACTION;
+
+					currentValue = Arithmetics.calculate(operator, currentValue, delta[0], Object.class);
+				}
+			}
+			case SET -> currentValue = delta.length == 1 ? delta[0] : delta;
+		}
+
+		inputSource.updateCurrentValue(currentValue);
+	}
+
+	@Override
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		if (!inputSource.allowChange())
+			return null;
+
+		return switch (mode) {
+			case SET, DELETE, RESET, ADD, REMOVE -> CollectionUtils.array(Object.class);
+			default -> null;
+		};
 	}
 
 	@Override
