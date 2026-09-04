@@ -99,12 +99,28 @@ public class ExperimentRegistry implements Registry<Experiment>, ViewProvider<Ex
 	}
 
 	/**
+	 * @deprecated Use {@link #register(SkriptAddon, Experiment)}.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public void register(ch.njol.skript.SkriptAddon addon, Experiment experiment) {
+		register((SkriptAddon) addon, experiment);
+	}
+
+	/**
 	 * @see #register(SkriptAddon, Experiment)
 	 */
 	public void registerAll(SkriptAddon addon, Experiment... experiments) {
 		for (Experiment experiment : experiments) {
 			this.register(addon, experiment);
 		}
+	}
+
+	/**
+	 * @deprecated Use {@link #registerAll(SkriptAddon, Experiment...)}.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public void registerAll(ch.njol.skript.SkriptAddon addon, Experiment... experiments) {
+		registerAll((SkriptAddon) addon, experiments);
 	}
 
 	/**
@@ -123,6 +139,14 @@ public class ExperimentRegistry implements Registry<Experiment>, ViewProvider<Ex
 	}
 
 	/**
+	 * @deprecated Use {@link #unregister(SkriptAddon, Experiment)}.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public void unregister(ch.njol.skript.SkriptAddon addon, Experiment experiment) {
+		unregister((SkriptAddon) addon, experiment);
+	}
+
+	/**
 	 * Creates (and registers) a new experimental feature flag, which will be available to scripts
 	 * with the {@code using %name%} structure.
 	 *
@@ -136,6 +160,14 @@ public class ExperimentRegistry implements Registry<Experiment>, ViewProvider<Ex
 		Experiment experiment = Experiment.constant(codeName, phase, patterns);
 		this.register(addon, experiment);
 		return experiment;
+	}
+
+	/**
+	 * @deprecated Use {@link #register(SkriptAddon, String, LifeCycle, String...)}.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public Experiment register(ch.njol.skript.SkriptAddon addon, String codeName, LifeCycle phase, String... patterns) {
+		return register((SkriptAddon) addon, codeName, phase, patterns);
 	}
 
 	@Override
