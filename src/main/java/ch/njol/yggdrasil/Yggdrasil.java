@@ -83,6 +83,14 @@ public final class Yggdrasil {
 		classResolvers.add(simpleClassResolver);
 	}
 	
+	/** Creates an independent resolver registry using the currently registered serializers. */
+	public Yggdrasil fork() {
+		Yggdrasil copy = new Yggdrasil(version);
+		copy.classResolvers.addAll(classResolvers);
+		copy.fieldHandlers.addAll(fieldHandlers);
+		return copy;
+	}
+
 	public YggdrasilOutputStream newOutputStream(OutputStream out) throws IOException {
 		return new DefaultYggdrasilOutputStream(this, out);
 	}

@@ -38,23 +38,16 @@ public class PooledMySQLStorageTest {
 	}
 
 	@Test
-	public void validatesPortsAndRejectsSqlIdentifiers() {
+	public void validatesPortsAndRejectsSqlIdentifiers() throws Exception {
 		assertEquals(3306, PooledMySQLStorage.port("3306"));
 		for (String port : new String[]{"", "abc", "0", "-1", "65536", "999999999999"})
 			assertThrows(IllegalArgumentException.class, () -> PooledMySQLStorage.port(port));
-		assertEquals("skript_variables_v1", PooledMySQLStorage.identifier("skript_variables_v1"));
+		Config config = new Config(getClass().getResourceAsStream("/config.sk"), "config.sk", false, true, ":");
+		SectionNode mysql = (SectionNode) config.getMainNode().get("mysql");
+		String configuredTable = PooledMySQLStorage.required(mysql, "table");
+		assertEquals(configuredTable, PooledMySQLStorage.identifier(configuredTable));
 		for (String table : new String[]{"", "x; DROP TABLE users", "`variables`", "a.b", "x".repeat(65)})
 			assertThrows(IllegalArgumentException.class, () -> PooledMySQLStorage.identifier(table));
-	}
-
-	@Test
-	public void compactScalarsRetainTheirExactSerialization() {
-		for (String type : new String[]{"boolean", "number", "uuid"}) {
-			assertTrue(PooledMySQLStorage.small(new SerializedVariable.Value(type, new byte[8])));
-			assertFalse(PooledMySQLStorage.small(new SerializedVariable.Value(type, new byte[33])));
-		}
-		for (String type : new String[]{"item", "location", "string", "addon-type"})
-			assertFalse(PooledMySQLStorage.small(new SerializedVariable.Value(type, new byte[8])));
 	}
 
 	@Test

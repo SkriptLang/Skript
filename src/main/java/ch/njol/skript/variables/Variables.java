@@ -126,6 +126,7 @@ public class Variables {
 	 */
 	static final List<VariablesStorage> STORAGES = new ArrayList<>();
 	private static boolean optionalMySQLActive;
+	private static PooledMySQLStorage optionalMySQLStorage;
 
 	/**
 	 * @return a copy of the list of variable storage handlers
@@ -209,6 +210,7 @@ public class Variables {
 					if (storage.load(mysqlConfig)) {
 						STORAGES.add(storage);
 						optionalMySQLActive = true;
+						optionalMySQLStorage = storage;
 						Skript.info("MySQL enabled, loading variables from database; Other databases are left untouched.");
 						return true;
 					}
@@ -924,6 +926,12 @@ public class Variables {
 	private static void saveVariableChange(String name, @Nullable Object value) {
 		if (name.startsWith(Variable.EPHEMERAL_VARIABLE_TOKEN))
 			return;
+		if (optionalMySQLActive) {
+			SerializedVariable serialized = optionalMySQLStorage.serializeChange(name, value);
+			if (serialized != null)
+				saveQueue.add(serialized);
+			return;
+		}
 		saveQueue.add(serialize(name, value));
 	}
 

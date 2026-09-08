@@ -1,9 +1,7 @@
 package ch.njol.skript.variables;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Task;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,6 +21,8 @@ final class PooledMySQLStorage extends VariablesStorage {
 	private final Map<String, SerializedVariable> pending = new LinkedHashMap<>();
 	private MySQLConnectionPool pool;
 	private MySQLJournal journal;
+	private MySQLValueCodec codec;
+	private final Set<String> serializationFailures = new HashSet<>();
 	private String table;
 	private Thread worker;
 	private volatile boolean stopping;
@@ -36,6 +36,11 @@ final class PooledMySQLStorage extends VariablesStorage {
 		this();
 		this.pool = pool;
 		this.table = identifier(table);
+	}
+
+	PooledMySQLStorage(MySQLValueCodec codec) {
+		this();
+		this.codec = codec;
 	}
 
 	@Override
@@ -63,29 +68,29 @@ final class PooledMySQLStorage extends VariablesStorage {
 					host + ":" + port + "/" + database + "/" + table);
 			pending.putAll(journal.read());
 			pool = new MySQLConnectionPool(host, port, database, user, password, sslMode);
-			Map<String, SerializedVariable> loaded = new LinkedHashMap<>();
+			codec = new MySQLValueCodec(Variables.yggdrasil);
+			Map<String, SerializedVariable> loaded = new TreeMap<>();
 			try (Connection connection = pool.acquire()) {
-				executeUpdate(connection, "CREATE TABLE IF NOT EXISTS `" + table + "` ("
-						+ "name_hash BINARY(32) PRIMARY KEY, name LONGBLOB NOT NULL, "
-						+ "type VARCHAR(255) NOT NULL, small_value VARBINARY(32), value LONGBLOB) "
-						+ "ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin");
-				verifySchema(connection);
+				MySQLSchema.initialize(connection, table);
 				try (PreparedStatement statement = connection.prepareStatement(
-						"SELECT name_hash, name, type, small_value, value FROM `" + table + "`")) {
+						"SELECT name_hash, name, type, value FROM `" + table + "` ORDER BY name")) {
 					statement.setQueryTimeout(10);
 					try (ResultSet rows = statement.executeQuery()) {
 						while (rows.next()) {
-							byte[] nameBytes = rows.getBytes(2);
-							if (nameBytes == null || !Arrays.equals(hash(nameBytes), rows.getBytes(1)))
-								throw new SQLException("Invalid variable key in MySQL table");
-							String name = new String(nameBytes, StandardCharsets.UTF_8);
+							String name = rows.getString(2);
+							byte[] nameBytes = name == null ? null : name.getBytes(StandardCharsets.UTF_8);
+							if (nameBytes == null || !Arrays.equals(hash(nameBytes), rows.getBytes(1))) {
+								Skript.error("Invalid MySQL variable key; row retained for recovery.");
+								continue;
+							}
 							String type = rows.getString(3);
-							byte[] small = rows.getBytes(4);
-							byte[] large = rows.getBytes(5);
-							if (type == null || (small == null) == (large == null))
-								throw new SQLException("Invalid variable value in MySQL table");
+							byte[] data = rows.getBytes(4);
+							if (type == null || data == null) {
+								Skript.error("Invalid MySQL value for {" + name + "}; row retained for recovery.");
+								continue;
+							}
 							loaded.put(name, new SerializedVariable(name,
-									new SerializedVariable.Value(type, small != null ? small : large)));
+									new SerializedVariable.Value(type, data)));
 						}
 					}
 				}
@@ -98,25 +103,9 @@ final class PooledMySQLStorage extends VariablesStorage {
 				else
 					loaded.put(variable.name, variable);
 			}
-			Map<String, Object> values = Task.callSync(() -> {
-				Map<String, Object> result = new LinkedHashMap<>();
-				for (SerializedVariable variable : loaded.values()) {
-					ClassInfo<?> info = Classes.getClassInfoNoError(variable.value.type);
-					Object value;
-					try {
-						value = info == null || info.getSerializer() == null ? null
-								: Classes.deserialize(info, variable.value.data);
-					} catch (RuntimeException e) {
-						return null;
-					}
-					if (value == null)
-						return null;
-					result.put(variable.name, value);
-				}
-				return result;
-			});
+			Map<String, Object> values = Task.callSync(() -> decodeValues(loaded));
 			if (values == null)
-				throw new IllegalArgumentException("Unrecognized or malformed MySQL variable value");
+				throw new IllegalStateException("MySQL deserialization task did not complete");
 			// Verify write permission and transaction support before publishing any variables.
 			verifyWritable();
 			journal.write(pending);
@@ -135,33 +124,23 @@ final class PooledMySQLStorage extends VariablesStorage {
 		}
 	}
 
-	private void verifySchema(Connection connection) throws SQLException {
-		try (PreparedStatement statement = connection.prepareStatement(
-				"SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=?")) {
-			statement.setString(1, table);
-			try (ResultSet result = statement.executeQuery()) {
-				if (!result.next() || !"InnoDB".equalsIgnoreCase(result.getString(1)))
-					throw new SQLException("MySQL variable table must use InnoDB");
-			}
-		}
-		Map<String, String> expected = Map.of("name_hash", "binary(32)", "name", "longblob",
-				"type", "varchar(255)", "small_value", "varbinary(32)", "value", "longblob");
-		Map<String, String> actual = new HashMap<>();
-		try (PreparedStatement statement = connection.prepareStatement(
-				"SELECT COLUMN_NAME,COLUMN_TYPE,COLUMN_KEY FROM information_schema.COLUMNS "
-						+ "WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=?")) {
-			statement.setString(1, table);
-			try (ResultSet result = statement.executeQuery()) {
-				while (result.next()) {
-					String column = result.getString(1);
-					actual.put(column, result.getString(2).toLowerCase(Locale.ROOT));
-					if (!("name_hash".equals(column) ? "PRI" : "").equals(result.getString(3)))
-						throw new SQLException("Unsupported MySQL variable indexes");
+	Map<String, Object> decodeValues(Map<String, SerializedVariable> loaded) {
+		Map<String, Object> result = new LinkedHashMap<>();
+		for (SerializedVariable variable : loaded.values()) {
+			try {
+				Object decoded = codec.decode(variable.value);
+				result.put(variable.name, decoded);
+				if (MySQLValueCodec.FORMAT.equals(variable.value.type)) {
+					// Rewrite readable old envelopes through the normal durable writer.
+					pending.put(variable.name, new SerializedVariable(variable.name, codec.encode(decoded)));
 				}
+			} catch (Exception | LinkageError e) {
+				Skript.error("Cannot restore MySQL variable {" + variable.name + "} (type "
+						+ variable.value.type + ", " + e.getClass().getSimpleName()
+						+ "). Its raw data is retained; other variables will still load.");
 			}
 		}
-		if (!expected.equals(actual))
-			throw new SQLException("Unsupported MySQL variable table schema");
+		return result;
 	}
 
 	private void verifyWritable() throws SQLException {
@@ -208,9 +187,21 @@ final class PooledMySQLStorage extends VariablesStorage {
 		}
 	}
 
-	// Scalar serialized payloads fit inline; all other values use the unchanged generic serialization.
-	static boolean small(SerializedVariable.Value value) {
-		return value.data.length <= 32 && Set.of("boolean", "number", "uuid").contains(value.type);
+	/** A failed non-null value is not a deletion. Called only on the main thread. */
+	@Nullable
+	SerializedVariable serializeChange(String name, @Nullable Object value) {
+		try {
+			SerializedVariable result = new SerializedVariable(name, value == null ? null : codec.encode(value));
+			serializationFailures.remove(name);
+			return result;
+		} catch (Exception | LinkageError e) {
+			if (serializationFailures.add(name)) {
+				Skript.error("Cannot persist MySQL variable {" + name + "} (class " + value.getClass().getName()
+						+ ", " + e.getClass().getSimpleName() + "). It remains in memory; its last saved value is unchanged. "
+						+ "This type or a nested value needs a registered serializer.");
+			}
+			return null;
+		}
 	}
 
 	@Override
@@ -284,8 +275,8 @@ final class PooledMySQLStorage extends VariablesStorage {
 					PreparedStatement delete = connection.prepareStatement(
 							"DELETE FROM `" + table + "` WHERE name_hash=?");
 					PreparedStatement write = connection.prepareStatement("INSERT INTO `" + table
-							+ "` (name_hash,name,type,small_value,value) VALUES (?,?,?,?,?) "
-							+ "ON DUPLICATE KEY UPDATE type=VALUES(type),small_value=VALUES(small_value),value=VALUES(value)")) {
+							+ "` (name_hash,name,type,value) VALUES (?,?,?,?) "
+							+ "ON DUPLICATE KEY UPDATE type=VALUES(type),value=VALUES(value)")) {
 				lookup.setQueryTimeout(5);
 				delete.setQueryTimeout(5);
 				write.setQueryTimeout(5);
@@ -294,7 +285,7 @@ final class PooledMySQLStorage extends VariablesStorage {
 					byte[] hash = hash(name);
 					lookup.setBytes(1, hash);
 					try (ResultSet row = lookup.executeQuery()) {
-						if (row.next() && !Arrays.equals(name, row.getBytes(1)))
+						if (row.next() && !variable.name.equals(row.getString(1)))
 							throw new SQLException("Variable name hash collision; refusing to overwrite");
 					}
 					if (variable.value == null) {
@@ -302,11 +293,9 @@ final class PooledMySQLStorage extends VariablesStorage {
 						delete.addBatch();
 					} else {
 						write.setBytes(1, hash);
-						write.setBytes(2, name);
+						write.setString(2, variable.name);
 						write.setString(3, variable.value.type);
-						boolean small = small(variable.value);
-						write.setBytes(4, small ? variable.value.data : null);
-						write.setBytes(5, small ? null : variable.value.data);
+						write.setBytes(4, variable.value.data);
 						write.addBatch();
 					}
 				}

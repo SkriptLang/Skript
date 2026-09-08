@@ -88,7 +88,7 @@ public class MySQLTransactionTest {
 		expect(connection.isValid(5)).andReturn(true);
 		connection.setAutoCommit(false);
 		expect(connection.prepareStatement(startsWith("SELECT"))).andReturn(lookup);
-		expect(connection.prepareStatement(startsWith("INSERT"))).andReturn(write);
+		expect(connection.prepareStatement("INSERT INTO `variables_test` (name_hash,name,type,value) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE type=VALUES(type),value=VALUES(value)")).andReturn(write);
 		expect(connection.prepareStatement(startsWith("DELETE"))).andReturn(delete);
 		lookup.setQueryTimeout(5);
 		write.setQueryTimeout(5);
@@ -100,10 +100,9 @@ public class MySQLTransactionTest {
 		result.close();
 		expectLastCall().times(2);
 		write.setBytes(eq(1), anyObject(byte[].class));
-		write.setBytes(eq(2), aryEq("list::1".getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+		write.setString(2, "list::1");
 		write.setString(3, "number");
 		write.setBytes(eq(4), aryEq(new byte[]{1, 2, 3}));
-		write.setBytes(5, null);
 		write.addBatch();
 		delete.setBytes(eq(1), anyObject(byte[].class));
 		delete.addBatch();
