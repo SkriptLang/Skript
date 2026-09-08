@@ -125,6 +125,7 @@ public class Variables {
 	 * The variable storages configured.
 	 */
 	static final List<VariablesStorage> STORAGES = new ArrayList<>();
+	private static boolean optionalMySQLActive;
 
 	/**
 	 * @return a copy of the list of variable storage handlers
@@ -197,6 +198,26 @@ public class Variables {
 
 		try {
 			boolean successful = true;
+
+			// Select the optional backend before opening any legacy storage. Loading both
+			// would trigger the existing automatic redistribution (including source deletion).
+			Node mysql = config.getMainNode().get("mysql");
+			if (mysql instanceof SectionNode mysqlConfig) {
+				String enabled = mysqlConfig.getValue("enabled");
+				if ("true".equalsIgnoreCase(enabled)) {
+					PooledMySQLStorage storage = new PooledMySQLStorage();
+					if (storage.load(mysqlConfig)) {
+						STORAGES.add(storage);
+						optionalMySQLActive = true;
+						Skript.info("MySQL enabled, loading variables from database; Other databases are left untouched.");
+						return true;
+					}
+					Skript.error("MySQL initialization failed. Falling back to the default database. "
+							+ "MySQL data and pending recovery data have been left intact.");
+				} else if (enabled != null && !"false".equalsIgnoreCase(enabled)) {
+					Skript.error("mysql.enabled must be true or false. Using the configured databases.");
+				}
+			}
 
 			for (Node node : (SectionNode) databases) {
 				if (node instanceof SectionNode) {
@@ -962,6 +983,19 @@ public class Variables {
 		// Then we can safely interrupt and stop the thread
 		closed = true;
 		saveThread.interrupt();
+		// The optional writer must receive the last dequeued change before flushing.
+		if (optionalMySQLActive) {
+			boolean interrupted = false;
+			while (saveThread.isAlive()) {
+				try {
+					saveThread.join();
+				} catch (InterruptedException e) {
+					interrupted = true;
+				}
+			}
+			if (interrupted)
+				Thread.currentThread().interrupt();
+		}
 	}
 
 	/**

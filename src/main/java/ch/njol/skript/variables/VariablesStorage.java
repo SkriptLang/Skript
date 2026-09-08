@@ -426,7 +426,7 @@ public abstract class VariablesStorage implements Closeable {
 	 *
 	 * @param var the serialized variable.
 	 */
-	final void save(SerializedVariable var) {
+	void save(SerializedVariable var) {
 		if (changesQueue.size() > FIRST_WARNING && lastWarning < System.currentTimeMillis() - WARNING_INTERVAL * 1000) {
 			// Too many variables queued up to save, warn the server
 			Skript.warning("Cannot write variables to the database '" + databaseName + "' at sufficient speed; " +

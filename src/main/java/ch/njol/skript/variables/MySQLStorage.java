@@ -1,9 +1,6 @@
 package ch.njol.skript.variables;
 
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.log.SkriptLogger;
-import lib.PatPeter.SQLibrary.Database;
-import lib.PatPeter.SQLibrary.MySQL;
 
 public class MySQLStorage extends SQLStorage {
 
@@ -18,7 +15,7 @@ public class MySQLStorage extends SQLStorage {
 	}
 
 	@Override
-	public Database initialize(SectionNode config) {
+	public JdbcDatabase initialize(SectionNode config) throws java.sql.SQLException {
 		String host = getValue(config, "host");
 		Integer port = getValue(config, "port", Integer.class);
 		String user = getValue(config, "user");
@@ -27,7 +24,8 @@ public class MySQLStorage extends SQLStorage {
 		setTableName(config.get("table", "variables21"));
 		if (host == null || port == null || user == null || password == null || database == null)
 			return null;
-		return new MySQL(SkriptLogger.LOGGER, "[Skript]", host, port, database, user, password);
+		return new JdbcDatabase(MySQLConnectionPool.dataSource(host, port, database, user, password,
+				config.get("ssl mode", "REQUIRED"))::getConnection);
 	}
 
 	@Override

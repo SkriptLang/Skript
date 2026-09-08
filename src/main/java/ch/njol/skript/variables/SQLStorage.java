@@ -7,8 +7,6 @@ import java.sql.SQLException;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -20,13 +18,9 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.SynchronizedReference;
-import lib.PatPeter.SQLibrary.Database;
-import lib.PatPeter.SQLibrary.DatabaseException;
-import lib.PatPeter.SQLibrary.SQLibrary;
 
 /**
  * TODO create a metadata table to store some properties (e.g. Skript version, Yggdrasil version) -- but what if some variables cannot be converted? move them to a different table?
- * TODO create my own database connector or find a better one
  *
  * @author Peter Güttinger
  */
@@ -45,7 +39,7 @@ public abstract class SQLStorage extends VariablesStorage {
 	private final String createTableQuery;
 	private String tableName;
 
-	final SynchronizedReference<Database> db = new SynchronizedReference<>(null);
+	final SynchronizedReference<JdbcDatabase> db = new SynchronizedReference<>(null);
 
 	private boolean monitor = false;
 	long monitor_interval;
@@ -74,17 +68,18 @@ public abstract class SQLStorage extends VariablesStorage {
 	}
 
 	public void setTableName(String tableName) {
-		this.tableName = tableName;
+		this.tableName = PooledMySQLStorage.identifier(tableName);
+		formattedCreateQuery = null;
 	}
 
 	/**
 	 * Initializes an SQL database with the user provided configuration section for loading the database.
 	 * 
 	 * @param config The configuration from the config.sk that defines this database.
-	 * @return A Database implementation from SQLibrary.
+	 * @return An internal JDBC connection owner.
 	 */
 	@Nullable
-	public abstract Database initialize(SectionNode config);
+	public abstract JdbcDatabase initialize(SectionNode config) throws SQLException;
 
 	/**
 	 * Retrieve the create query with the tableName in it
@@ -104,12 +99,6 @@ public abstract class SQLStorage extends VariablesStorage {
 	@Override
 	protected boolean load_i(SectionNode n) {
 		synchronized (db) {
-			Plugin plugin = Bukkit.getPluginManager().getPlugin("SQLibrary");
-			if (plugin == null || !(plugin instanceof SQLibrary)) {
-				Skript.error("You need the plugin SQLibrary in order to use a database with Skript. You can download the latest version from https://dev.bukkit.org/projects/sqlibrary/files/");
-				return false;
-			}
-
 			final Boolean monitor_changes = getValue(n, "monitor changes", Boolean.class);
 			final Timespan monitor_interval = getValue(n, "monitor interval", Timespan.class);
 			if (monitor_changes == null || monitor_interval == null)
@@ -117,18 +106,15 @@ public abstract class SQLStorage extends VariablesStorage {
 			monitor = monitor_changes;
 			this.monitor_interval = monitor_interval.getAs(Timespan.TimePeriod.MILLISECOND);
 
-			final Database db;
+			final JdbcDatabase db;
 			try {
-				Database database = initialize(n);
+				JdbcDatabase database = initialize(n);
 				if (database == null)
 					return false;
 				this.db.set(db = database);
-			} catch (final RuntimeException e) {
-				if (e instanceof DatabaseException) {// not in a catch clause to not produce a ClassNotFoundException when this class is loaded and SQLibrary is not present
-					Skript.error(e.getLocalizedMessage());
-					return false;
-				}
-				throw e;
+			} catch (final SQLException | IllegalArgumentException e) {
+				Skript.error("Cannot initialize database: " + e.getClass().getSimpleName());
+				return false;
 			}
 
 			SkriptLogger.setNode(null);
@@ -138,7 +124,6 @@ public abstract class SQLStorage extends VariablesStorage {
 
 			try {
 				final boolean hasOldTable = false;
-				final boolean hadNewTable = db.isTable(getTableName());
 
 				if (getFormattedCreateQuery() == null){
 					Skript.error("Could not create the variables table in the database. The query to create the variables table '" + tableName + "' in the database '" + getUserConfigurationName() + "' is null.");
@@ -182,9 +167,9 @@ public abstract class SQLStorage extends VariablesStorage {
 					while (!closed) {
 						synchronized (SQLStorage.this.db) {
 							try {
-								final Database db = SQLStorage.this.db.get();
+								final JdbcDatabase db = SQLStorage.this.db.get();
 								if (db != null)
-									db.query("SELECT * FROM " + getTableName() + " LIMIT 1");
+									try (ResultSet ignored = db.query("SELECT * FROM " + getTableName() + " LIMIT 1")) {}
 							} catch (final SQLException e) {}
 						}
 						try {
@@ -209,7 +194,7 @@ public abstract class SQLStorage extends VariablesStorage {
 				long lastCommit;
 				while (!closed) {
 					synchronized (db) {
-						final Database db = SQLStorage.this.db.get();
+						final JdbcDatabase db = SQLStorage.this.db.get();
 						try {
 							if (db != null)
 								db.getConnection().commit();
@@ -262,7 +247,7 @@ public abstract class SQLStorage extends VariablesStorage {
 	@Override
 	protected File getFile(String file) {
 		if (!file.endsWith(".db"))
-			file = file + ".db"; // required by SQLibrary
+			file = file + ".db";
 		return new File(file);
 	}
 
@@ -276,7 +261,7 @@ public abstract class SQLStorage extends VariablesStorage {
 			// isConnected doesn't work in SQLite
 //			if (db.isConnected())
 //				return;
-			final Database db = this.db.get();
+			final JdbcDatabase db = this.db.get();
 			if (db == null || !db.open()) {
 				if (first)
 					Skript.error("Cannot connect to the database '" + getUserConfigurationName() + "'! Please make sure that all settings are correct");// + (type == Type.MYSQL ? " and that the database software is running" : "") + ".");
@@ -301,7 +286,7 @@ public abstract class SQLStorage extends VariablesStorage {
 	 */
 	private boolean prepareQueries() {
 		synchronized (db) {
-			final Database db = this.db.get();
+			final JdbcDatabase db = this.db.get();
 			assert db != null;
 			try {
 				try {
@@ -337,7 +322,7 @@ public abstract class SQLStorage extends VariablesStorage {
 	@Override
 	protected void disconnect() {
 		synchronized (db) {
-			final Database db = this.db.get();
+			final JdbcDatabase db = this.db.get();
 //			if (!db.isConnected())
 //				return;
 			if (db != null)
@@ -411,7 +396,7 @@ public abstract class SQLStorage extends VariablesStorage {
 	public void close() {
 		synchronized (db) {
 			super.close();
-			final Database db = this.db.get();
+			final JdbcDatabase db = this.db.get();
 			if (db != null) {
 				try {
 					db.getConnection().commit();
