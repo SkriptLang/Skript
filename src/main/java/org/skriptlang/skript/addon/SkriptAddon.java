@@ -6,7 +6,6 @@ import org.jetbrains.annotations.Contract;
 import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.docs.Documentable;
 import org.skriptlang.skript.docs.DocumentationAdapter;
-import org.skriptlang.skript.lang.properties.PropertyRegistry;
 import org.skriptlang.skript.localization.Localizer;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.Registry;
@@ -131,10 +130,14 @@ public interface SkriptAddon extends ViewProvider<SkriptAddon>, Documentable {
 		adapter.write("name", name());
 		adapter.exitScope();
 
-		adapter.write(syntaxRegistry());
-		adapter.write(registry(PropertyRegistry.class));
+		for (var registry : registries()) {
+			if (registry instanceof Documentable documentable) {
+				adapter.write(documentable);
+			}
+		}
+
+		// TODO remove once these are both registries
 		Classes.write(adapter);
-		adapter.write(ch.njol.skript.Skript.experiments());
 		adapter.write(FunctionRegistry.getRegistry());
 	}
 
