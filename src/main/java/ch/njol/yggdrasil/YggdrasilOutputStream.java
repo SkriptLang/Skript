@@ -131,7 +131,6 @@ public abstract class YggdrasilOutputStream implements Flushable, Closeable {
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	private void writeGenericObject(Object object, int ref) throws IOException {
 		Class<?> type = object.getClass();
-		assert type != null;
 		if (!yggdrasil.isSerializable(type))
 			throw new NotSerializableException(type.getName());
 		Fields fields;
@@ -190,26 +189,17 @@ public abstract class YggdrasilOutputStream implements Flushable, Closeable {
 			return;
 		}
 		switch (type) {
-			case T_ARRAY:
-				writeArray(object);
-				return;
-			case T_STRING:
-				writeString((String) object);
-				return;
-			case T_ENUM:
+			case T_ARRAY -> writeArray(object);
+			case T_STRING -> writeString((String) object);
+			case T_ENUM -> {
 				if (object instanceof Enum)
 					writeEnum((Enum<?>) object);
 				else
 					writeEnum((PseudoEnum<?>) object);
-				return;
-			case T_CLASS:
-				writeClass((Class<?>) object);
-				return;
-			case T_OBJECT:
-				writeGenericObject(object, ref);
-				return;
-			default:
-				throw new YggdrasilException("unhandled type " + type);
+			}
+			case T_CLASS -> writeClass((Class<?>) object);
+			case T_OBJECT -> writeGenericObject(object, ref);
+			default -> throw new YggdrasilException("unhandled type " + type);
 		}
 	}
 	
