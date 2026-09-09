@@ -67,7 +67,7 @@ public class TestMode {
 	 * Documentation Generation Utilities
 	 */
 
-	private static final File DOCS_OUTPUT_DIRECTORY = new File(Skript.getInstance().getDataFolder(), "docs");
+	private static File DOCS_OUTPUT_DIRECTORY = null;
 
 	private static final boolean FORCE_HOOKS_SYSTEM_PROPERTY = "true".equals(System.getProperty("skript.forceregisterhooks"));
 
@@ -90,7 +90,13 @@ public class TestMode {
 	 */
 	public static File getDocsOutputDirectory() {
 		String environmentOutputDir = System.getenv("SKRIPT_DOCS_OUTPUT_DIR");
-		return environmentOutputDir == null ? DOCS_OUTPUT_DIRECTORY : new File(environmentOutputDir);
+		if (environmentOutputDir != null) {
+			return new File(environmentOutputDir);
+		}
+		if (DOCS_OUTPUT_DIRECTORY == null) {
+			DOCS_OUTPUT_DIRECTORY = new File(Skript.getInstance().getDataFolder(), "docs");
+		}
+		return DOCS_OUTPUT_DIRECTORY;
 	}
 
 }
