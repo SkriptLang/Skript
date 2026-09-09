@@ -143,8 +143,7 @@ public final class Yggdrasil {
 			Class<?> type = resolver.getClass(id);
 			if (type != null) { // TODO error if not serializable?
 				assert Tag.byName(id) == null && (Tag.getType(type) == Tag.T_OBJECT || Tag.getType(type) == Tag.T_ENUM) : "Tag IDs should not be matched: " + id + " (class resolver: " + resolver + ")";
-				// A resolver may accept a legacy read alias; its canonical ID must still round-trip.
-				assert type == resolver.getClass(resolver.getID(type)) : resolver + " returned " + type + " for id " + id + ", but returns id " + resolver.getID(type) + " for that class";
+				assert id.equals(resolver.getID(type)) : resolver + " returned " + type + " for id " + id + ", but returns id " + resolver.getID(type) + " for that class";
 				return type;
 			}
 		}

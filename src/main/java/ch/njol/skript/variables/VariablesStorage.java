@@ -24,22 +24,27 @@ import ch.njol.skript.variables.SerializedVariable.Value;
 import ch.njol.util.Closeable;
 
 /**
- * Backend lifecycle and routing abstraction for persistent Skript variables.
- * Values are serialized on the server thread by {@link Classes#serialize(Object)};
- * writers receive only {@link SerializedVariable} records. A backend must treat
- * their type identifiers and payloads as opaque data, and null values as deletions.
- * <p>
- * Loading resolves stored data through the shared serializer registry before
- * publishing it with {@link Variables#variableLoaded(String, Object, VariablesStorage)}.
- * Runtime changes pass through the global dispatcher and backend queues so live
- * Bukkit objects never cross into database writer threads. Subclasses own their
- * connection resources and must drain or durably retain accepted writes at close.
- * <p>
- * See {@code docs/variable-storage.md} for selection, threading and recovery rules.
- *
- * @see FlatFileStorage
- * @see DatabaseStorage
- */
+	- Handles common storage settings, variable routing, and the queue used to
+	send changes to the backend.
+
+	- {@link Variables} sends {@link SerializedVariable} records here. A null
+	value means the variable should be deleted.
+
+	- Handles name filters and the basic save queue. {@link SQLStorage} uses this
+	queue directly, while {@link PooledMySQLStorage} has its own worker for
+	grouping database changes into transactions.
+
+	- Loading is handled by each storage backend. Values are deserialized using
+	the shared registry and then passed back to {@link Variables}.
+
+	- Each backend is responsible for its own database or file resources and for
+	finishing its pending work when it closes.
+
+	- @see FlatFileStorage
+	- @see SQLStorage
+	- @see PooledMySQLStorage
+*/
+
 // FIXME ! large databases (>25 MB) cause the server to be unresponsive instead of loading slowly
 @SuppressWarnings({"SuspiciousIndentAfterControlStatement", "removal"})
 public abstract class VariablesStorage implements Closeable {

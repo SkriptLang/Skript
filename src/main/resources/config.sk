@@ -306,7 +306,7 @@ mysql:
 	# Uses the same ClassInfo serializers and serialized values as normal Skript storage.
 	# List variables are saved as individual leaves. Unsupported values are not written.
 	# Unreadable rows are retained for recovery; other variables still load.
-	# Previously stored MySQL envelopes remain readable through the shared serializer registry.
+	# Existing tables must match the current schema; no automatic schema migrations are performed.
 	enabled: false
 	pattern: .*
 	host: localhost

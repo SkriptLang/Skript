@@ -5,7 +5,23 @@ import javax.sql.PooledConnection;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-/** A single physical connection, leased sequentially by the sole database writer. */
+/**
+	- Manages the connection used by {@link PooledMySQLStorage}.
+	
+	- The pool gives us a connection we can reuse and replaces it if it breaks,
+	which can happen pretty often with MySQL.
+	
+	- Everything is done one at a time. The backend only has one database worker,
+	so we don't need multiple connections handling transactions at the same time.
+	
+	- The pool is initialized before the worker starts using it. Callers close their
+	connection handles after they're done, and the backend closes the pool when
+	it shuts down. This class does not handle concurrent access itself.
+	
+	- {@link MySQLStorage} uses the same database settings, such as the driver,
+	encoding, timeouts, and TLS settings. It does not use this pool, though.
+*/
+
 final class MySQLConnectionPool implements AutoCloseable {
 
 	private final ConnectionPoolDataSource source;

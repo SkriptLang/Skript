@@ -384,12 +384,6 @@ public class SkriptClasses {
 				.name(ClassInfo.NO_DOC)
 				.serializer(new YggdrasilSerializer<ColorRGB>() {
 					@Override
-					public Class<? extends ColorRGB> getClass(String id) {
-						// Read the previously shipped MySQL representation; never write this alias.
-						return "mysql:rgb-color:1".equals(id) ? ColorRGB.class : super.getClass(id);
-					}
-
-					@Override
 					public boolean canBeInstantiated() {
 						return false;
 					}

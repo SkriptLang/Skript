@@ -10,7 +10,6 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
 
@@ -47,8 +46,8 @@ public class MySQLRegisteredValueTest {
 				assertArrayEquals(standard.data, changes.get("list::1").value.data);
 				new MySQLJournal(path, "test").write(changes);
 				var loaded = new MySQLJournal(path, "test").read();
-				assertEquals(large, LegacyMySQLValueReader.decode(loaded.get("list::1").value));
-				assertEquals(42L, LegacyMySQLValueReader.decode(loaded.get("list::2").value));
+				assertEquals(large, Classes.deserialize(loaded.get("list::1").value.type, loaded.get("list::1").value.data));
+				assertEquals(42L, Classes.deserialize(loaded.get("list::2").value.type, loaded.get("list::2").value.data));
 				assertNull(loaded.get("list::3").value);
 				assertNull(Variables.serializeChange("unsupported-test", new Object()));
 				assertNull(Variables.serializeChange("unsupported-test", null).value);
@@ -69,7 +68,7 @@ public class MySQLRegisteredValueTest {
 				var serialized = Classes.serialize(color);
 				assertNotNull(serialized);
 				assertEquals(color, Classes.deserialize(serialized.type, serialized.data));
-				assertEquals(argb, ((ColorRGB) LegacyMySQLValueReader.decode(serialized)).asARGB());
+				assertEquals(argb, ((ColorRGB) Classes.deserialize(serialized.type, serialized.data)).asARGB());
 			}
 			var named = Classes.serialize(SkriptColor.DARK_RED);
 			assertNotNull(named);
@@ -91,26 +90,9 @@ public class MySQLRegisteredValueTest {
 	}
 
 	@Test
-	public void actualOldMysqlEnvelopesRemainReadableWithoutAnOldWriter() {
+	public void unreadableRowsDoNotPreventOtherValuesFromLoading() {
 		Assume.assumeNotNull(Bukkit.getServer());
 		assertEquals(Boolean.TRUE, Task.callSync(() -> {
-			Properties fixtures = new Properties();
-			try (var in = getClass().getResourceAsStream("legacy-mysql.properties")) {
-				assertNotNull(in);
-				fixtures.load(in);
-			}
-			Map<String, Object> expected = Map.of("text", "legacy 玩家😀", "rgb", ColorRGB.fromHexString("12345678"),
-					"named", SkriptColor.DARK_RED, "nested", List.of("玩家😀", 42L, ColorRGB.fromHexString("12345678")));
-			for (var entry : expected.entrySet()) {
-				byte[] data = Base64.getDecoder().decode(fixtures.getProperty(entry.getKey() + ".data"));
-				var value = new SerializedVariable.Value(fixtures.getProperty(entry.getKey() + ".type"), data);
-				assertEquals(entry.getValue(), LegacyMySQLValueReader.decode(value));
-				assertEquals(entry.getValue(), LegacyMySQLValueReader.decode(new SerializedVariable.Value(
-						"mysql:yggdrasil:1", Arrays.copyOfRange(data, 8, data.length))));
-				byte[] broken = data.clone();
-				broken[broken.length - 1] ^= 1;
-				assertThrows(IOException.class, () -> LegacyMySQLValueReader.decode(new SerializedVariable.Value(value.type, broken)));
-			}
 			var bad = new SerializedVariable("bad", new SerializedVariable.Value("missing-addon-type", new byte[0]));
 			var good = Variables.serializeChange("good", "still readable");
 			var rows = Map.of("bad", bad, "good", good);

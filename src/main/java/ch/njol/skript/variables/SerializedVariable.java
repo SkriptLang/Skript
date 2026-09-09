@@ -3,11 +3,26 @@ package ch.njol.skript.variables;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * An instance of a serialized variable, contains the variable name
- * and the serialized value. This is the handoff boundary between server-thread
- * serialization and asynchronous storage. Backends must not mutate the payload
- * array or infer Bukkit types from its contents.
- */
+	- Holds a variable change that needs to be sent to storage.
+
+	- {@link Variables} creates these on the server thread and puts them in a
+	queue for {@link VariablesStorage}. Database workers use the variable name
+	and serialized data instead of keeping the actual Bukkit objects around.
+
+	- A non-null {@link #value} means the variable has a serialized value. A null
+	value means the variable should be deleted. This makes sure a failed
+	serialization is not accidentally treated as a deletion.
+
+	- The fields cannot be changed, but the byte array is not copied. Producers
+	and consumers should treat it as read-only after it has been handed over.
+
+	- The optional MySQL backend uses this same object for its queue, pending
+	changes, and recovery journal.
+
+	- @see ch.njol.skript.registrations.Classes#serialize(Object)
+	- @see MySQLJournal
+*/
+
 public class SerializedVariable {
 
 	/**

@@ -2,6 +2,23 @@ package ch.njol.skript.variables;
 
 import ch.njol.skript.config.SectionNode;
 
+/**
+	- MySQL adapter used by the normal database configuration and {@link SQLStorage}.
+
+	- It provides the MySQL table setup and JDBC connection factory. The parent class
+	handles loading, queued changes, commits, and watching for changes.
+
+	- The stored types and values use Skript's normal serializers.
+
+	- {@link JdbcDatabase} handles the connection. The MySQL settings are shared with
+	{@link MySQLConnectionPool}, but this adapter does not use the pool or its recovery
+	system.
+
+	- The main MySQL configuration uses {@link PooledMySQLStorage} instead. They use
+	different tables and work differently, so this adapter is not a wrapper or migration
+	path for the optional backend.
+*/
+
 public class MySQLStorage extends SQLStorage {
 
 	MySQLStorage(String type) {

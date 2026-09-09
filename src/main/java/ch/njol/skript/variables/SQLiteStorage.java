@@ -4,6 +4,22 @@ import java.io.File;
 
 import ch.njol.skript.config.SectionNode;
 
+/**
+	- SQLite adapter for {@link SQLStorage} that stores data in a file.
+
+	- It provides the SQLite table setup and opens the configured database file
+	using the bundled JDBC driver. The parent class handles loading, queued SQL
+	changes, commits, and optional monitoring. {@link JdbcDatabase} handles the
+	connection.
+
+	- SQLite is selected normally through {@link Variables}. It uses the same
+	serialized types and values as the other storage options.
+
+	- File and backup handling is done through {@link VariablesStorage}.
+
+	- It does not use the optional MySQL backend's journal or connection pool.
+*/
+
 public class SQLiteStorage extends SQLStorage {
 
 	SQLiteStorage(String type) {

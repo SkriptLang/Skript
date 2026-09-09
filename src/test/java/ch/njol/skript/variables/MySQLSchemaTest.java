@@ -2,115 +2,69 @@ package ch.njol.skript.variables;
 
 import org.junit.Test;
 
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
 
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
 public class MySQLSchemaTest {
 
-	private static final Map<String, String> OLD_SCHEMA = Map.of("name_hash", "binary(32)",
-			"name", "longblob", "type", "varchar(255)", "small_value", "varbinary(32)", "value", "longblob");
-
 	@Test
-	public void migrationCopiesCompactValuesBeforeDroppingColumn() throws Exception {
-		var control = createStrictControl();
-		Connection connection = control.createMock(Connection.class);
-		PreparedStatement names = control.createMock(PreparedStatement.class);
-		PreparedStatement conflicts = control.createMock(PreparedStatement.class);
-		PreparedStatement copy = control.createMock(PreparedStatement.class);
-		PreparedStatement alter = control.createMock(PreparedStatement.class);
-		ResultSet rows = control.createMock(ResultSet.class);
-		expect(connection.prepareStatement("SELECT name FROM `custom_variables`")).andReturn(names);
-		names.setQueryTimeout(10);
-		expect(names.executeQuery()).andReturn(rows);
-		expect(rows.next()).andReturn(true);
-		expect(rows.getBytes(1)).andReturn("玩家::😀::VariableName".getBytes(StandardCharsets.UTF_8));
-		expect(rows.next()).andReturn(false);
-		rows.close();
-		names.close();
-		expect(connection.prepareStatement("SELECT 1 FROM `custom_variables` WHERE small_value IS NOT NULL AND value IS NOT NULL AND small_value <> value LIMIT 1")).andReturn(conflicts);
-		conflicts.setQueryTimeout(10);
-		expect(conflicts.executeQuery()).andReturn(rows);
-		expect(rows.next()).andReturn(false);
-		rows.close();
-		conflicts.close();
-		expect(connection.prepareStatement("UPDATE `custom_variables` SET value=small_value WHERE value IS NULL AND small_value IS NOT NULL")).andReturn(copy);
-		copy.setQueryTimeout(30);
-		expect(copy.executeUpdate()).andReturn(1);
-		copy.close();
-		expect(connection.prepareStatement("ALTER TABLE `custom_variables` MODIFY COLUMN name LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL FIRST, MODIFY COLUMN type VARCHAR(255) NOT NULL AFTER name, CHANGE COLUMN name_hash hash BINARY(32) NOT NULL AFTER type, MODIFY COLUMN value LONGBLOB AFTER hash, DROP COLUMN small_value")).andReturn(alter);
-		alter.setQueryTimeout(30);
-		expect(alter.executeUpdate()).andReturn(0);
-		alter.close();
-		control.replay();
-		MySQLSchema.migrate(connection, "custom_variables", OLD_SCHEMA);
-		control.verify();
+	public void initializesCurrentSchema() throws Exception {
+		checkSchema(false);
 	}
 
 	@Test
-	public void invalidNamesPreventAnySchemaMutation() throws Exception {
-		Connection connection = createMock(Connection.class);
-		PreparedStatement names = createMock(PreparedStatement.class);
-		ResultSet rows = createMock(ResultSet.class);
-		expect(connection.prepareStatement("SELECT name FROM `variables`")).andReturn(names);
-		names.setQueryTimeout(10);
-		expect(names.executeQuery()).andReturn(rows);
-		expect(rows.next()).andReturn(true);
-		expect(rows.getBytes(1)).andReturn(new byte[]{(byte) 0xff});
-		rows.close();
-		names.close();
-		replay(connection, names, rows);
-		assertThrows(SQLException.class, () -> MySQLSchema.migrate(connection, "variables", OLD_SCHEMA));
-		verify(connection, names, rows);
+	public void rejectsIncompatibleTableWithoutAlteringIt() throws Exception {
+		checkSchema(true);
 	}
 
-	@Test
-	public void conflictingPayloadColumnsAreNeverDropped() throws Exception {
+	private void checkSchema(boolean incompatible) throws Exception {
 		Connection connection = createMock(Connection.class);
-		PreparedStatement conflicts = createMock(PreparedStatement.class);
-		ResultSet rows = createMock(ResultSet.class);
-		expect(connection.prepareStatement("SELECT 1 FROM `variables` WHERE small_value IS NOT NULL AND value IS NOT NULL AND small_value <> value LIMIT 1")).andReturn(conflicts);
-		conflicts.setQueryTimeout(10);
-		expect(conflicts.executeQuery()).andReturn(rows);
-		expect(rows.next()).andReturn(true);
-		rows.close();
-		conflicts.close();
-		replay(connection, conflicts, rows);
-		Map<String, String> columns = new java.util.HashMap<>(OLD_SCHEMA);
-		columns.put("name", "longtext");
-		assertThrows(SQLException.class, () -> MySQLSchema.migrate(connection, "variables", columns));
-		verify(connection, conflicts, rows);
-	}
-
-	@Test
-	public void existingTextTableGetsRequestedColumnNamesAndOrder() throws Exception {
-		Connection connection = createMock(Connection.class);
-		PreparedStatement alter = createMock(PreparedStatement.class);
-		expect(connection.prepareStatement("ALTER TABLE `variables` MODIFY COLUMN name LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL FIRST, MODIFY COLUMN type VARCHAR(255) NOT NULL AFTER name, CHANGE COLUMN name_hash hash BINARY(32) NOT NULL AFTER type, MODIFY COLUMN value LONGBLOB AFTER hash")).andReturn(alter);
-		alter.setQueryTimeout(30);
-		expect(alter.executeUpdate()).andReturn(0);
-		alter.close();
-		replay(connection, alter);
-		MySQLSchema.migrate(connection, "variables", Map.of("name_hash", "binary(32)",
-				"name", "longtext", "type", "varchar(255)", "value", "longblob"));
-		verify(connection, alter);
-	}
-
-	@Test
-	public void currentSchemaNeedsNoMigrationAndUnknownSchemaIsRejected() throws Exception {
-		Connection connection = createMock(Connection.class);
-		replay(connection);
-		MySQLSchema.migrate(connection, "variables", Map.of("hash", "binary(32)",
-				"name", "longtext", "type", "varchar(255)", "value", "longblob"));
-		assertThrows(SQLException.class, () -> MySQLSchema.migrate(connection, "variables", Map.of()));
-		verify(connection);
-		String name = "VariableName::玩家::😀".repeat(1000);
-		assertEquals(name, MySQLSchema.decodeName(name.getBytes(StandardCharsets.UTF_8)));
+		PreparedStatement create = createMock(PreparedStatement.class);
+		PreparedStatement engine = createMock(PreparedStatement.class);
+		PreparedStatement columns = createMock(PreparedStatement.class);
+		ResultSet engineRows = createMock(ResultSet.class);
+		ResultSet columnRows = createMock(ResultSet.class);
+		expect(connection.prepareStatement("CREATE TABLE IF NOT EXISTS `variables_test` (name LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL, type VARCHAR(255) NOT NULL, hash BINARY(32) PRIMARY KEY, value LONGBLOB) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin")).andReturn(create);
+		create.setQueryTimeout(30);
+		expect(create.executeUpdate()).andReturn(0);
+		create.close();
+		expect(connection.prepareStatement("SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=?")).andReturn(engine);
+		engine.setQueryTimeout(10);
+		engine.setString(1, "variables_test");
+		expect(engine.executeQuery()).andReturn(engineRows);
+		expect(engineRows.next()).andReturn(true);
+		expect(engineRows.getString(1)).andReturn("InnoDB");
+		engineRows.close();
+		engine.close();
+		expect(connection.prepareStatement("SELECT COLUMN_NAME,COLUMN_TYPE,COLUMN_KEY,CHARACTER_SET_NAME,COLLATION_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=?")).andReturn(columns);
+		columns.setQueryTimeout(10);
+		columns.setString(1, "variables_test");
+		expect(columns.executeQuery()).andReturn(columnRows);
+		String[][] definitions = {{"name", "longtext", ""}, {"type", "varchar(255)", ""},
+				{"hash", "binary(32)", "PRI"}, {"value", incompatible ? "varchar(255)" : "longblob", ""}};
+		for (String[] definition : definitions) {
+			expect(columnRows.next()).andReturn(true);
+			expect(columnRows.getString(1)).andReturn(definition[0]);
+			expect(columnRows.getString(2)).andReturn(definition[1]);
+			expect(columnRows.getString(3)).andReturn(definition[2]);
+			if (definition[0].equals("name")) {
+				expect(columnRows.getString(4)).andReturn("utf8mb4");
+				expect(columnRows.getString(5)).andReturn("utf8mb4_bin");
+			}
+		}
+		expect(columnRows.next()).andReturn(false);
+		columnRows.close();
+		columns.close();
+		replay(connection, create, engine, columns, engineRows, columnRows);
+		if (incompatible)
+			assertThrows(SQLException.class, () -> MySQLSchema.initialize(connection, "variables_test"));
+		else
+			MySQLSchema.initialize(connection, "variables_test");
+		verify(connection, create, engine, columns, engineRows, columnRows);
 	}
 }

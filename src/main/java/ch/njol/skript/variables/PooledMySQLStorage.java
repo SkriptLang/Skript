@@ -2,6 +2,7 @@ package ch.njol.skript.variables;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Task;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,18 +16,42 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Optional single-server backend for opaque {@link SerializedVariable} records.
- * Initialization reads and validates rows before publishing any values; the server
- * thread performs deserialization through the shared registry. After loading, one
- * worker owns the pool and pending batch. Producers only append to {@code incoming}.
- * <p>
- * The worker coalesces changes by name, journals the batch before a transaction,
- * and acknowledges the journal only after commit. Failed batches remain pending
- * for retry. Closing joins the worker after its final drain; an unavailable database
- * leaves a recovery journal instead of discarding accepted changes. Startup failure
- * returns control to the normal configured backends without publishing partial data.
- * No serializer or Bukkit-specific type support belongs in this backend.
- */
+	- Optional MySQL backend selected by the main MySQL configuration.
+	It implements {@link VariablesStorage} directly instead of using the older
+	{@link SQLStorage} adapters.
+
+	- Every change comes in as a {@link SerializedVariable}. Skript's shared
+	serializers decide how the data is stored, not this backend.
+
+	- On startup, {@link MySQLSchema} makes sure the table is set up correctly.
+	The backend then loads the database rows and applies any changes saved in
+	{@link MySQLJournal}. Values are decoded on the server thread before they
+	are passed to {@link Variables}. If a row cannot be read, it is kept and
+	reported instead of being silently lost.
+
+	- If initialization fails, the normal configured storage can be used instead.
+	This also prevents partially loaded data from being published.
+
+	- After startup, one worker handles {@link MySQLConnectionPool}, the journal,
+	and the pending changes. Other threads add changes to a queue. The worker
+	combines changes for the same variable, saves them to the journal, and then
+	writes them to MySQL using a transaction.
+
+	- The journal is only cleared after the database transaction succeeds. This
+	means failed or uncertain changes can be tried again.
+
+	- When shutting down, the backend finishes accepted changes and waits for the
+	worker to finish its final database attempt or recovery write. If MySQL fails,
+	the pending changes are kept. If even the recovery write fails, the error is
+	reported.
+
+	- Writes happen in the background, so changes that were still only in memory
+	when the server suddenly crashes can be lost.
+
+	- This backend does not support multiple servers sharing data or automatically
+	syncing with another storage system.
+*/
+
 final class PooledMySQLStorage extends VariablesStorage {
 
 	private final Queue<SerializedVariable> incoming = new ConcurrentLinkedQueue<>();
@@ -132,7 +157,12 @@ final class PooledMySQLStorage extends VariablesStorage {
 		Map<String, Object> result = new LinkedHashMap<>();
 		for (SerializedVariable variable : loaded.values()) {
 			try {
-				Object decoded = LegacyMySQLValueReader.decode(variable.value);
+				var info = Classes.getClassInfoNoError(variable.value.type);
+				if (info == null || info.getSerializer() == null)
+					throw new IOException("Unknown persisted type");
+				Object decoded = Classes.deserialize(info, variable.value.data);
+				if (decoded == null)
+					throw new IOException("Unreadable persisted value");
 				result.put(variable.name, decoded);
 			} catch (Exception | LinkageError e) {
 				Skript.error("Cannot restore MySQL variable {" + variable.name + "} (type "

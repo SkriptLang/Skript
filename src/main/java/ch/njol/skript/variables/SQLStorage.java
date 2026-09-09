@@ -20,10 +20,25 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.util.SynchronizedReference;
 
 /**
- * TODO create a metadata table to store some properties (e.g. Skript version, Yggdrasil version) -- but what if some variables cannot be converted? move them to a different table?
- *
- * @author Peter Güttinger
- */
+	- {@link MySQLStorage} and {@link SQLiteStorage} provide the database-specific
+	table setup and connection code. This class handles loading variables, writing
+	changes, committing them, and checking for changes made by another writer.
+
+	- Changes are passed in as serialized types and bytes through
+	{@link VariablesStorage}. When loading data, {@link Classes} turns them back
+	into normal values and {@link Variables} handles the loaded variables.
+
+	- {@link JdbcDatabase} owns the database connection. This class uses a lock
+	to make sure the storage, commit, and monitoring tasks do not use the connection
+	at the same time.
+
+	- Closing the storage finishes its remaining database work and cleans up its
+	resources.
+
+	- {@link PooledMySQLStorage} is separate from this system. It has its own
+	database table, worker, and recovery journal, so its recovery behavior does
+	not apply here.
+*/
 public abstract class SQLStorage extends VariablesStorage {
 
 	public final static int MAX_VARIABLE_NAME_LENGTH = 380, // MySQL: 767 bytes max; cannot set max bytes, only max characters
@@ -31,8 +46,6 @@ public abstract class SQLStorage extends VariablesStorage {
 			MAX_VALUE_SIZE = 10000;
 
 	private final static String SELECT_ORDER = "name, type, value, rowid";
-
-	private final static String OLD_TABLE_NAME = "variables";
 
 	@Nullable
 	private String formattedCreateQuery;

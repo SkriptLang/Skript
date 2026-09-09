@@ -7,7 +7,25 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/** Connection owner for the existing SQL storage schema. Access is serialized by SQLStorage. */
+/**
+	- Handles the JDBC connection used by {@link SQLStorage} and its adapters.
+	
+	- {@link ConnectionFactory} handles the database-specific connection setup,
+	so {@link MySQLStorage} and {@link SQLiteStorage} can use the same connection
+	and statement code without needing another database plugin.
+	
+	- This class opens connections, prepares statements, and cleans up resources.
+	- It does not handle serializers, variable routing, commits, or retries.
+	- Those are handled by the storage class using it.
+	
+	- Statements and results returned by this class must be closed by the caller.
+	
+	- This class does not handle synchronization itself. {@link SQLStorage} handles
+	access using its database lock. {@link PooledMySQLStorage} works differently
+	and uses {@link MySQLConnectionPool} because its worker has its own connection
+	and recovery setup.
+*/
+
 public final class JdbcDatabase implements AutoCloseable {
 
 	@FunctionalInterface

@@ -55,10 +55,29 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Handles all things related to variables.
- *
- * @see #setVariable(String, Object, Event, boolean)
- * @see #getVariable(String, Event, boolean)
+    - Handles variables, storage, and choosing which storage backend to use.
+
+	- Local variables belong to an event. Global variables are serialized on the
+	server thread and then sent to the selected {@link VariablesStorage}.
+
+	- {@link #yggdrasil} and {@link Classes} decide which values can be saved.
+	This means the database code only deals with serialized data and does not
+	have to work with live Bukkit objects.
+
+	- At startup, optional MySQL is only selected if it starts successfully.
+	Otherwise, the normal configured databases are used.
+
+	- Loaded values go through {@link #variableLoaded(String, Object, VariablesStorage)}
+	so they are handled the same way as other stored variables.
+
+	- The save queue keeps serialization separate from database work. Shutdown
+	empties the queue and waits for optional MySQL to finish before closing it,
+	so accepted changes are not left behind.
+
+	- @see VariablesStorage
+	- @see SerializedVariable
+	- @see #setVariable(String, Object, Event, boolean)
+	- @see #getVariable(String, Event, boolean)
  */
 public class Variables {
 

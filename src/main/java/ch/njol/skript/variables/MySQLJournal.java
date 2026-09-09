@@ -10,7 +10,28 @@ import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
 import java.util.zip.CheckedOutputStream;
 
-/** Atomic recovery snapshot. Only the MySQL writer accesses this file. */
+/**
+	- Stores a copy of changes that still need to be saved to MySQL.
+
+	- Before sending changes to MySQL, {@link PooledMySQLStorage} saves them here.
+	The copy is removed only after the database transaction succeeds, so the changes
+	can be tried again if the connection fails or something goes wrong after the commit.
+
+	- The snapshot contains the changes, which database they belong to, and a checksum
+	to make sure the data is not corrupted. The database identity also stops us from
+	replaying the changes into the wrong database.
+
+	- This is only for recovering changes that haven't been fully saved yet. It is not
+	a database backup, migration tool, or another way of serializing values.
+
+	- On startup, the snapshot is loaded and applied on top of the data read from MySQL.
+	After that, the backend worker handles the journal. If MySQL is still unavailable
+	when the server shuts down normally, the pending changes are kept for later.
+
+	- The journal is not thread-safe. Changes that only existed in memory when the
+	server suddenly crashed cannot be recovered.
+*/
+
 final class MySQLJournal {
 
 	private static final int MAGIC = 0x534B4D31;

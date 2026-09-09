@@ -1,8 +1,5 @@
 package ch.njol.skript.variables;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.CharacterCodingException;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,7 +8,29 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-/** Initializes and upgrades only the recognized optional MySQL variable schemas. */
+/**
+	- Defines and checks the table used by {@link PooledMySQLStorage}.
+
+	- On startup, the current table is created if it does not exist. If it already
+	exists, it is checked before variables are loaded or written to make sure the
+	table is set up the way the backend expects.
+
+	- The name is stored as normal Unicode text, while the type and value contain
+	Skript's serialized data. A fixed-size hash is also stored and indexed so long
+	names do not have to be used as the database key.
+
+	- When changing a variable, the backend checks the full name as well as the hash
+	so a hash collision does not cause the wrong variable to be changed. This class
+	does not care what the serialized value actually contains.
+
+	- The caller owns the database connection. This class only handles its own
+	temporary statements and results. If the table is incompatible, startup fails
+	instead of changing or migrating the table. {@link Variables} then handles the
+	configured fallback.
+
+	- The regular {@link SQLStorage} adapters do not use this table definition.
+*/
+
 final class MySQLSchema {
 
 	private MySQLSchema() {}
@@ -42,7 +61,7 @@ final class MySQLSchema {
 					String column = result.getString(1);
 					String type = result.getString(2).toLowerCase(Locale.ROOT);
 					columns.put(column, type);
-					if (!(("name_hash".equals(column) || "hash".equals(column)) ? "PRI" : "").equals(result.getString(3)))
+					if (!("hash".equals(column) ? "PRI" : "").equals(result.getString(3)))
 						throw new SQLException("Unsupported MySQL variable indexes");
 					if ("name".equals(column) && "longtext".equals(type)
 							&& !("utf8mb4".equals(result.getString(4)) && "utf8mb4_bin".equals(result.getString(5))))
@@ -50,68 +69,9 @@ final class MySQLSchema {
 				}
 			}
 		}
-		migrate(connection, table, columns);
-	}
-
-	static void migrate(Connection connection, String table, Map<String, String> columns) throws SQLException {
-		table = PooledMySQLStorage.identifier(table);
-		Map<String, String> expected = new HashMap<>(Map.of("hash", "binary(32)", "name", "longtext",
-				"type", "varchar(255)", "value", "longblob"));
-		boolean legacyHash = columns.containsKey("name_hash");
-		if (legacyHash) {
-			expected.remove("hash");
-			expected.put("name_hash", "binary(32)");
-		}
-		boolean binaryNames = "longblob".equals(columns.get("name"));
-		boolean compactValues = columns.containsKey("small_value");
-		if (binaryNames)
-			expected.put("name", "longblob");
-		if (compactValues)
-			expected.put("small_value", "varbinary(32)");
-		if (!expected.equals(columns))
+		if (!Map.of("hash", "binary(32)", "name", "longtext",
+				"type", "varchar(255)", "value", "longblob").equals(columns))
 			throw new SQLException("Unsupported MySQL variable table schema");
-		if (!binaryNames && !compactValues && !legacyHash)
-			return;
-
-		if (binaryNames) {
-			// Reject invalid encodings before ALTER TABLE could replace bytes in permissive SQL mode.
-			try (PreparedStatement statement = connection.prepareStatement("SELECT name FROM `" + table + "`")) {
-				statement.setQueryTimeout(10);
-				try (ResultSet result = statement.executeQuery()) {
-					while (result.next())
-						decodeName(result.getBytes(1));
-				}
-			}
-		}
-		if (compactValues) {
-			try (PreparedStatement statement = connection.prepareStatement("SELECT 1 FROM `" + table
-					+ "` WHERE small_value IS NOT NULL AND value IS NOT NULL AND small_value <> value LIMIT 1")) {
-				statement.setQueryTimeout(10);
-				try (ResultSet result = statement.executeQuery()) {
-					if (result.next())
-						throw new SQLException("Conflicting MySQL payload columns; refusing to discard data");
-				}
-			}
-			// Idempotent if shutdown interrupts migration before the subsequent atomic DDL.
-			execute(connection, "UPDATE `" + table + "` SET value=small_value WHERE value IS NULL AND small_value IS NOT NULL");
-		}
-		String alteration = "MODIFY COLUMN name LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL FIRST, "
-				+ "MODIFY COLUMN type VARCHAR(255) NOT NULL AFTER name, "
-				+ (legacyHash ? "CHANGE COLUMN name_hash hash" : "MODIFY COLUMN hash")
-				+ " BINARY(32) NOT NULL AFTER type, MODIFY COLUMN value LONGBLOB AFTER hash";
-		if (compactValues)
-			alteration += ", DROP COLUMN small_value";
-		execute(connection, "ALTER TABLE `" + table + "` " + alteration);
-	}
-
-	static String decodeName(byte[] bytes) throws SQLException {
-		if (bytes == null)
-			throw new SQLException("Null MySQL variable name");
-		try {
-			return StandardCharsets.UTF_8.newDecoder().decode(ByteBuffer.wrap(bytes)).toString();
-		} catch (CharacterCodingException e) {
-			throw new SQLException("Invalid UTF-8 MySQL variable name; migration stopped without altering names", e);
-		}
 	}
 
 	private static void execute(Connection connection, String sql) throws SQLException {
