@@ -107,17 +107,18 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 		// since we are getting a set and then updating it,
 		// avoid race conditions by ensuring only one thread can access this namespace for this operation
 		synchronized (ns) {
-			for (FunctionIdentifier identifier : FunctionIdentifier.of(signature)) {
-				Set<FunctionIdentifier> identifiersWithName = ns.identifiers.computeIfAbsent(identifier.name, s -> new HashSet<>());
-				boolean exists = identifiersWithName.add(identifier);
-				if (!exists) {
-					alreadyRegisteredError(identifier.name, identifier, namespaceId);
-				}
+			Set<FunctionIdentifier> identifiers = FunctionIdentifier.of(signature);
 
-				Signature<?> existing = ns.signatures.putIfAbsent(identifier, signature);
-				if (existing != null) {
+			for (FunctionIdentifier identifier : identifiers) {
+				Set<FunctionIdentifier> identifiersWithName = ns.identifiers.computeIfAbsent(identifier.name, s -> new HashSet<>());
+				boolean existsInIdentifiers = identifiersWithName.add(identifier);
+				if (!existsInIdentifiers || ns.signatures.containsKey(identifier)) {
 					alreadyRegisteredError(identifier.name, identifier, namespaceId);
 				}
+			}
+
+			for (FunctionIdentifier identifier : identifiers) {
+				ns.signatures.put(identifier, signature);
 			}
 		}
 	}
@@ -162,18 +163,22 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 		} else {
 			namespaceId = GLOBAL_NAMESPACE;
 		}
+		Namespace ns = namespaces.computeIfAbsent(namespaceId, n -> new Namespace());
 
-		for (FunctionIdentifier identifier : FunctionIdentifier.of(function.getSignature())) {
+		Set<FunctionIdentifier> identifiers = FunctionIdentifier.of(function.getSignature());
+
+		for (FunctionIdentifier identifier : identifiers) {
+			if (ns.functions.containsKey(identifier)) {
+				alreadyRegisteredError(identifier.name, identifier, namespaceId);
+			}
+		}
+
+		for (FunctionIdentifier identifier : identifiers) {
 			if (!signatureExists(namespaceId, identifier)) {
 				register(namespace, function.getSignature());
 			}
 
-			Namespace ns = namespaces.computeIfAbsent(namespaceId, n -> new Namespace());
-
-			Function<?> existing = ns.functions.putIfAbsent(identifier, function);
-			if (existing != null) {
-				alreadyRegisteredError(identifier.name, identifier, namespaceId);
-			}
+			ns.functions.put(identifier, function);
 		}
 	}
 
@@ -602,7 +607,6 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 				}
 
 				removeUpdateMaps(namespace, other, identifier.name);
-				return;
 			}
 		}
 	}
