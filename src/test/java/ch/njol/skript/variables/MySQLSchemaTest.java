@@ -44,7 +44,7 @@ public class MySQLSchemaTest {
 		copy.setQueryTimeout(30);
 		expect(copy.executeUpdate()).andReturn(1);
 		copy.close();
-		expect(connection.prepareStatement("ALTER TABLE `custom_variables` MODIFY COLUMN name LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL, DROP COLUMN small_value")).andReturn(alter);
+		expect(connection.prepareStatement("ALTER TABLE `custom_variables` MODIFY COLUMN name LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL FIRST, MODIFY COLUMN type VARCHAR(255) NOT NULL AFTER name, CHANGE COLUMN name_hash hash BINARY(32) NOT NULL AFTER type, MODIFY COLUMN value LONGBLOB AFTER hash, DROP COLUMN small_value")).andReturn(alter);
 		alter.setQueryTimeout(30);
 		expect(alter.executeUpdate()).andReturn(0);
 		alter.close();
@@ -89,10 +89,24 @@ public class MySQLSchemaTest {
 	}
 
 	@Test
+	public void existingTextTableGetsRequestedColumnNamesAndOrder() throws Exception {
+		Connection connection = createMock(Connection.class);
+		PreparedStatement alter = createMock(PreparedStatement.class);
+		expect(connection.prepareStatement("ALTER TABLE `variables` MODIFY COLUMN name LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL FIRST, MODIFY COLUMN type VARCHAR(255) NOT NULL AFTER name, CHANGE COLUMN name_hash hash BINARY(32) NOT NULL AFTER type, MODIFY COLUMN value LONGBLOB AFTER hash")).andReturn(alter);
+		alter.setQueryTimeout(30);
+		expect(alter.executeUpdate()).andReturn(0);
+		alter.close();
+		replay(connection, alter);
+		MySQLSchema.migrate(connection, "variables", Map.of("name_hash", "binary(32)",
+				"name", "longtext", "type", "varchar(255)", "value", "longblob"));
+		verify(connection, alter);
+	}
+
+	@Test
 	public void currentSchemaNeedsNoMigrationAndUnknownSchemaIsRejected() throws Exception {
 		Connection connection = createMock(Connection.class);
 		replay(connection);
-		MySQLSchema.migrate(connection, "variables", Map.of("name_hash", "binary(32)",
+		MySQLSchema.migrate(connection, "variables", Map.of("hash", "binary(32)",
 				"name", "longtext", "type", "varchar(255)", "value", "longblob"));
 		assertThrows(SQLException.class, () -> MySQLSchema.migrate(connection, "variables", Map.of()));
 		verify(connection);

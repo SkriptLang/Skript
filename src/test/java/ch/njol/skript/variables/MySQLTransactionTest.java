@@ -88,7 +88,7 @@ public class MySQLTransactionTest {
 		expect(connection.isValid(5)).andReturn(true);
 		connection.setAutoCommit(false);
 		expect(connection.prepareStatement(startsWith("SELECT"))).andReturn(lookup);
-		expect(connection.prepareStatement("INSERT INTO `variables_test` (name_hash,name,type,value) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE type=VALUES(type),value=VALUES(value)")).andReturn(write);
+		expect(connection.prepareStatement("INSERT INTO `variables_test` (hash,name,type,value) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE type=VALUES(type),value=VALUES(value)")).andReturn(write);
 		expect(connection.prepareStatement(startsWith("DELETE"))).andReturn(delete);
 		lookup.setQueryTimeout(5);
 		write.setQueryTimeout(5);

@@ -2943,6 +2943,8 @@ types:
 	direction: direction¦s @a
 	slot: slot¦s @a
 	color: color¦s @a
+	skriptcolor: named color¦s @a
+	rgbcolor: RGB color¦s @an
 	treetype: tree type¦s @a
 	enchantmenttype: enchantment type¦s @an
 	experience: experience point¦s @an

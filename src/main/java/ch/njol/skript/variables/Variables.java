@@ -35,6 +35,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -126,7 +128,6 @@ public class Variables {
 	 */
 	static final List<VariablesStorage> STORAGES = new ArrayList<>();
 	private static boolean optionalMySQLActive;
-	private static PooledMySQLStorage optionalMySQLStorage;
 
 	/**
 	 * @return a copy of the list of variable storage handlers
@@ -210,7 +211,6 @@ public class Variables {
 					if (storage.load(mysqlConfig)) {
 						STORAGES.add(storage);
 						optionalMySQLActive = true;
-						optionalMySQLStorage = storage;
 						Skript.info("MySQL enabled, loading variables from database; Other databases are left untouched.");
 						return true;
 					}
@@ -926,13 +926,32 @@ public class Variables {
 	private static void saveVariableChange(String name, @Nullable Object value) {
 		if (name.startsWith(Variable.EPHEMERAL_VARIABLE_TOKEN))
 			return;
-		if (optionalMySQLActive) {
-			SerializedVariable serialized = optionalMySQLStorage.serializeChange(name, value);
-			if (serialized != null)
-				saveQueue.add(serialized);
-			return;
+		SerializedVariable change = serializeChange(name, value);
+		if (change != null)
+			saveQueue.add(change);
+	}
+
+	private static final Set<String> serializationFailures = new HashSet<>();
+
+	/**
+	 * Converts a main-thread mutation to storage data using the shared type registry.
+	 * A failed non-null value is skipped, never confused with an explicit deletion.
+	 * No backend sees live Bukkit objects or decides which types are persistable.
+	 */
+	static @Nullable SerializedVariable serializeChange(String name, @Nullable Object value) {
+		try {
+			SerializedVariable.Value serialized = serialize(value);
+			if (value == null || serialized != null) {
+				serializationFailures.remove(name);
+				return new SerializedVariable(name, serialized);
+			}
+		} catch (Exception | LinkageError e) {
+			// Report once per variable below; keep the previous persisted value intact.
 		}
-		saveQueue.add(serialize(name, value));
+		if (serializationFailures.add(name))
+			Skript.error("Cannot persist variable {" + name + "}; its type or a nested value has no usable serializer. "
+					+ "It remains in memory and its last saved value is unchanged.");
+		return null;
 	}
 
 	/**

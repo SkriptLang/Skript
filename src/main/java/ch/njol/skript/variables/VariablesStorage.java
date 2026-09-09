@@ -24,9 +24,18 @@ import ch.njol.skript.variables.SerializedVariable.Value;
 import ch.njol.util.Closeable;
 
 /**
- * A variable storage is holds the means and methods of storing variables.
+ * Backend lifecycle and routing abstraction for persistent Skript variables.
+ * Values are serialized on the server thread by {@link Classes#serialize(Object)};
+ * writers receive only {@link SerializedVariable} records. A backend must treat
+ * their type identifiers and payloads as opaque data, and null values as deletions.
  * <p>
- * This is usually some sort of database, and could be as simply as a text file.
+ * Loading resolves stored data through the shared serializer registry before
+ * publishing it with {@link Variables#variableLoaded(String, Object, VariablesStorage)}.
+ * Runtime changes pass through the global dispatcher and backend queues so live
+ * Bukkit objects never cross into database writer threads. Subclasses own their
+ * connection resources and must drain or durably retain accepted writes at close.
+ * <p>
+ * See {@code docs/variable-storage.md} for selection, threading and recovery rules.
  *
  * @see FlatFileStorage
  * @see DatabaseStorage

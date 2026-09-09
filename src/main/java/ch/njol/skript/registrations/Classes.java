@@ -730,6 +730,25 @@ public abstract class Classes {
 	}
 
 	/**
+	 * Whether a declared expression type can have a persistable runtime value.
+	 * Used for parse-time warnings: an interface may have no serializer of its own
+	 * while registered implementations do. This is not a promise that every value
+	 * or nested field can be saved; {@link #serialize(Object)} remains authoritative.
+	 * Must be called after type registration has finished.
+	 */
+	public static boolean mayBeSerializable(Class<?> declaredType) {
+		ClassInfo<?> selected = getSuperClassInfo(declaredType);
+		if (selected.getSerializer() != null || selected.getSerializeAs() != null)
+			return true;
+		for (ClassInfo<?> candidate : getClassInfos()) {
+			if (declaredType.isAssignableFrom(candidate.getC())
+					&& (candidate.getSerializer() != null || candidate.getSerializeAs() != null))
+				return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Must be called on the appropriate thread for the given value (i.e. the main thread currently)
 	 */
 	public static SerializedVariable.@Nullable Value serialize(@Nullable Object object) {

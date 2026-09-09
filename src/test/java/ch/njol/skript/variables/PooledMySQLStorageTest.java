@@ -38,6 +38,29 @@ public class PooledMySQLStorageTest {
 	}
 
 	@Test
+	public void invalidInitializationReturnsFailureWithoutPublishingVariables() {
+		var settings = java.util.Map.of("enabled", "true", "pattern", ".*", "host", "localhost",
+				"database", "skript", "user", "test", "port", "0");
+		SectionNode config = new SectionNode("mysql", "", new Config("test", null).getMainNode(), 1) {
+			@Override
+			public String getValue(String key) {
+				return settings.get(key);
+			}
+		};
+		PooledMySQLStorage storage = new PooledMySQLStorage();
+		try (var handler = new ch.njol.skript.log.LogHandler() {
+			@Override
+			public LogResult log(ch.njol.skript.log.LogEntry entry) {
+				assertTrue(entry.getMessage().startsWith("Cannot initialize optional MySQL:"));
+				return LogResult.DO_NOT_LOG;
+			}
+		}.start()) {
+			assertFalse(storage.load_i(config));
+		}
+		storage.close();
+	}
+
+	@Test
 	public void validatesPortsAndRejectsSqlIdentifiers() throws Exception {
 		assertEquals(3306, PooledMySQLStorage.port("3306"));
 		for (String port : new String[]{"", "abc", "0", "-1", "65536", "999999999999"})

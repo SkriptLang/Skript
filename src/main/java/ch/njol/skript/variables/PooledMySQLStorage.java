@@ -14,15 +14,25 @@ import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-/** Optional, single-server MySQL storage; does not participate in legacy file migration. */
+/**
+ * Optional single-server backend for opaque {@link SerializedVariable} records.
+ * Initialization reads and validates rows before publishing any values; the server
+ * thread performs deserialization through the shared registry. After loading, one
+ * worker owns the pool and pending batch. Producers only append to {@code incoming}.
+ * <p>
+ * The worker coalesces changes by name, journals the batch before a transaction,
+ * and acknowledges the journal only after commit. Failed batches remain pending
+ * for retry. Closing joins the worker after its final drain; an unavailable database
+ * leaves a recovery journal instead of discarding accepted changes. Startup failure
+ * returns control to the normal configured backends without publishing partial data.
+ * No serializer or Bukkit-specific type support belongs in this backend.
+ */
 final class PooledMySQLStorage extends VariablesStorage {
 
 	private final Queue<SerializedVariable> incoming = new ConcurrentLinkedQueue<>();
 	private final Map<String, SerializedVariable> pending = new LinkedHashMap<>();
 	private MySQLConnectionPool pool;
 	private MySQLJournal journal;
-	private MySQLValueCodec codec;
-	private final Set<String> serializationFailures = new HashSet<>();
 	private String table;
 	private Thread worker;
 	private volatile boolean stopping;
@@ -36,11 +46,6 @@ final class PooledMySQLStorage extends VariablesStorage {
 		this();
 		this.pool = pool;
 		this.table = identifier(table);
-	}
-
-	PooledMySQLStorage(MySQLValueCodec codec) {
-		this();
-		this.codec = codec;
 	}
 
 	@Override
@@ -68,22 +73,21 @@ final class PooledMySQLStorage extends VariablesStorage {
 					host + ":" + port + "/" + database + "/" + table);
 			pending.putAll(journal.read());
 			pool = new MySQLConnectionPool(host, port, database, user, password, sslMode);
-			codec = new MySQLValueCodec(Variables.yggdrasil);
 			Map<String, SerializedVariable> loaded = new TreeMap<>();
 			try (Connection connection = pool.acquire()) {
 				MySQLSchema.initialize(connection, table);
 				try (PreparedStatement statement = connection.prepareStatement(
-						"SELECT name_hash, name, type, value FROM `" + table + "` ORDER BY name")) {
+						"SELECT name, type, hash, value FROM `" + table + "` ORDER BY name")) {
 					statement.setQueryTimeout(10);
 					try (ResultSet rows = statement.executeQuery()) {
 						while (rows.next()) {
-							String name = rows.getString(2);
+							String name = rows.getString(1);
 							byte[] nameBytes = name == null ? null : name.getBytes(StandardCharsets.UTF_8);
-							if (nameBytes == null || !Arrays.equals(hash(nameBytes), rows.getBytes(1))) {
+							if (nameBytes == null || !Arrays.equals(hash(nameBytes), rows.getBytes(3))) {
 								Skript.error("Invalid MySQL variable key; row retained for recovery.");
 								continue;
 							}
-							String type = rows.getString(3);
+							String type = rows.getString(2);
 							byte[] data = rows.getBytes(4);
 							if (type == null || data == null) {
 								Skript.error("Invalid MySQL value for {" + name + "}; row retained for recovery.");
@@ -128,12 +132,8 @@ final class PooledMySQLStorage extends VariablesStorage {
 		Map<String, Object> result = new LinkedHashMap<>();
 		for (SerializedVariable variable : loaded.values()) {
 			try {
-				Object decoded = codec.decode(variable.value);
+				Object decoded = LegacyMySQLValueReader.decode(variable.value);
 				result.put(variable.name, decoded);
-				if (MySQLValueCodec.FORMAT.equals(variable.value.type)) {
-					// Rewrite readable old envelopes through the normal durable writer.
-					pending.put(variable.name, new SerializedVariable(variable.name, codec.encode(decoded)));
-				}
 			} catch (Exception | LinkageError e) {
 				Skript.error("Cannot restore MySQL variable {" + variable.name + "} (type "
 						+ variable.value.type + ", " + e.getClass().getSimpleName()
@@ -148,7 +148,7 @@ final class PooledMySQLStorage extends VariablesStorage {
 			connection.setAutoCommit(false);
 			try {
 				executeUpdate(connection, "INSERT INTO `" + table
-						+ "` (name_hash,name,type,value) SELECT NULL,NULL,NULL,NULL WHERE FALSE");
+						+ "` (hash,name,type,value) SELECT NULL,NULL,NULL,NULL WHERE FALSE");
 				executeUpdate(connection, "UPDATE `" + table + "` SET type=type WHERE FALSE");
 				executeUpdate(connection, "DELETE FROM `" + table + "` WHERE FALSE");
 			} finally {
@@ -184,23 +184,6 @@ final class PooledMySQLStorage extends VariablesStorage {
 			return MessageDigest.getInstance("SHA-256").digest(name);
 		} catch (NoSuchAlgorithmException e) {
 			throw new AssertionError(e);
-		}
-	}
-
-	/** A failed non-null value is not a deletion. Called only on the main thread. */
-	@Nullable
-	SerializedVariable serializeChange(String name, @Nullable Object value) {
-		try {
-			SerializedVariable result = new SerializedVariable(name, value == null ? null : codec.encode(value));
-			serializationFailures.remove(name);
-			return result;
-		} catch (Exception | LinkageError e) {
-			if (serializationFailures.add(name)) {
-				Skript.error("Cannot persist MySQL variable {" + name + "} (class " + value.getClass().getName()
-						+ ", " + e.getClass().getSimpleName() + "). It remains in memory; its last saved value is unchanged. "
-						+ "This type or a nested value needs a registered serializer.");
-			}
-			return null;
 		}
 	}
 
@@ -271,11 +254,11 @@ final class PooledMySQLStorage extends VariablesStorage {
 		try (Connection connection = pool.acquire()) {
 			connection.setAutoCommit(false);
 			try (PreparedStatement lookup = connection.prepareStatement(
-					"SELECT name FROM `" + table + "` WHERE name_hash=? FOR UPDATE");
+					"SELECT name FROM `" + table + "` WHERE hash=? FOR UPDATE");
 					PreparedStatement delete = connection.prepareStatement(
-							"DELETE FROM `" + table + "` WHERE name_hash=?");
+							"DELETE FROM `" + table + "` WHERE hash=?");
 					PreparedStatement write = connection.prepareStatement("INSERT INTO `" + table
-							+ "` (name_hash,name,type,value) VALUES (?,?,?,?) "
+							+ "` (hash,name,type,value) VALUES (?,?,?,?) "
 							+ "ON DUPLICATE KEY UPDATE type=VALUES(type),value=VALUES(value)")) {
 				lookup.setQueryTimeout(5);
 				delete.setQueryTimeout(5);
@@ -313,6 +296,10 @@ final class PooledMySQLStorage extends VariablesStorage {
 		}
 	}
 
+	/**
+	 * Called after the global dispatcher has drained. Waits for the final database
+	 * attempt or durable recovery write, then releases the worker-owned connection.
+	 */
 	@Override
 	public void close() {
 		super.close();

@@ -30,7 +30,7 @@ public class SimpleClassResolver implements ClassResolver {
 		Class<?> closestClass = null;
 		String closestId = null;
 		for (Entry<Class<?>, String> entry : classes.entrySet()) {
-			Class<?> current = entry.getClass();
+			Class<?> current = entry.getKey();
 			if (current.isAssignableFrom(type) && (closestClass == null || closestClass.isAssignableFrom(current))) {
 				closestClass = current;
 				closestId = entry.getValue();

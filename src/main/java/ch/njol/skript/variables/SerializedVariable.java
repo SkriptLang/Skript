@@ -4,7 +4,9 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * An instance of a serialized variable, contains the variable name
- * and the serialized value.
+ * and the serialized value. This is the handoff boundary between server-thread
+ * serialization and asynchronous storage. Backends must not mutate the payload
+ * array or infer Bukkit types from its contents.
  */
 public class SerializedVariable {
 
@@ -38,7 +40,7 @@ public class SerializedVariable {
 	public static final class Value {
 
 		/**
-		 * The type of this value.
+		 * The registered ClassInfo code name used by Classes.deserialize.
 		 */
 		public final String type;
 

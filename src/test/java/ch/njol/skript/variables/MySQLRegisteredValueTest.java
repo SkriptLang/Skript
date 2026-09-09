@@ -2,70 +2,120 @@ package ch.njol.skript.variables;
 
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.ColorRGB;
+import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.util.Task;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.junit.Assume;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
+import java.nio.file.Files;
+import java.util.*;
 
-import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
-/** Runs with JUnitQuick, after real Skript and Bukkit type registration. */
+/** Tests the production type registry, rather than a backend-specific supported-class list. */
 public class MySQLRegisteredValueTest {
 
 	@Test
-	public void legacyRowsAndRegisteredBukkitTypesRemainReadable() {
+	public void declaredTypeWarningsRecognizeRegisteredImplementations() {
+		Assume.assumeNotNull(Bukkit.getServer());
+		assertTrue(Classes.mayBeSerializable(ch.njol.skript.util.Color.class));
+		assertTrue(Classes.mayBeSerializable(ColorRGB.class));
+		assertTrue(Classes.mayBeSerializable(SkriptColor.class));
+		assertTrue(Classes.mayBeSerializable(String.class));
+		assertFalse(Classes.mayBeSerializable(org.bukkit.inventory.Inventory.class));
+		assertFalse(Classes.mayBeSerializable(Thread.class));
+	}
+
+	@Test
+	public void sharedSerializationAndJournalReload() {
 		Assume.assumeNotNull(Bukkit.getServer());
 		assertEquals(Boolean.TRUE, Task.callSync(() -> {
-			MySQLValueCodec codec = new MySQLValueCodec(Variables.yggdrasil);
-									 // unicode + emojis 
-			for (Object value : List.of("legacy 玩家😀", 42L, true, new org.bukkit.util.Vector(1, 2, 3))) {
-				var legacy = Classes.serialize(value);
-				assertNotNull(legacy);
-				assertEquals(value, codec.decode(legacy));
-				assertEquals(value, codec.decode(codec.encode(value)));
+			var path = Files.createTempDirectory("shared-variable-test").resolve("journal.bin");
+			try {
+				Map<String, SerializedVariable> changes = new LinkedHashMap<>();
+				String large = "玩家😀".repeat(100_000);
+				changes.put("list::1", Variables.serializeChange("list::1", large));
+				changes.put("list::2", Variables.serializeChange("list::2", 42L));
+				changes.put("list::3", Variables.serializeChange("list::3", null));
+				var standard = Classes.serialize(large);
+				assertNotNull(standard);
+				assertEquals(standard.type, changes.get("list::1").value.type);
+				assertArrayEquals(standard.data, changes.get("list::1").value.data);
+				new MySQLJournal(path, "test").write(changes);
+				var loaded = new MySQLJournal(path, "test").read();
+				assertEquals(large, LegacyMySQLValueReader.decode(loaded.get("list::1").value));
+				assertEquals(42L, LegacyMySQLValueReader.decode(loaded.get("list::2").value));
+				assertNull(loaded.get("list::3").value);
+				assertNull(Variables.serializeChange("unsupported-test", new Object()));
+				assertNull(Variables.serializeChange("unsupported-test", null).value);
+			} finally {
+				Files.deleteIfExists(path);
+				Files.delete(path.getParent());
 			}
-			var mixed = List.of(ColorRGB.fromRGB(1, 2, 3),
-					new org.bukkit.Location(Bukkit.getWorlds().getFirst(), 1.5, -2, 3, 45, 90),
-					new org.bukkit.inventory.ItemStack(org.bukkit.Material.STONE, 3));
-			assertEquals("color", codec.encode(mixed.get(0)).type);
-			assertEquals("location", codec.encode(mixed.get(1)).type);
-			var particle = org.skriptlang.skript.bukkit.particles.particleeffects.ParticleEffect.of(org.bukkit.Particle.FLAME);
-			var persistedParticle = codec.encode(particle);
-			assertEquals("directionalparticle", persistedParticle.type);
-			var restoredParticle = (org.skriptlang.skript.bukkit.particles.particleeffects.ParticleEffect) codec.decode(persistedParticle);
-			assertEquals(particle.getClass(), restoredParticle.getClass());
-			assertEquals(particle.particle(), restoredParticle.particle());
-			assertEquals(particle.count(), restoredParticle.count());
-			assertEquals(particle.offset(), restoredParticle.offset());
-			assertEquals("vector", codec.encode(new org.bukkit.util.Vector(1, 2, 3)).type);
-			List<?> restored = (List<?>) codec.decode(codec.encode(mixed));
-			assertEquals(0xFF010203, ((ColorRGB) restored.getFirst()).asARGB());
-			assertEquals(mixed.get(1), restored.get(1));
-			assertEquals(mixed.get(2), restored.get(2));
-			assertNull(Classes.serialize(ColorRGB.fromRGB(1, 2, 3)));
-			assertEquals(org.bukkit.Color.BLUE, codec.decode(codec.encode(org.bukkit.Color.BLUE)));
 			return true;
 		}));
 	}
 
 	@Test
-	public void missingWorldIsRejectedWithoutChangingPersistedBytes() {
+	public void colorsUseTheNormalSerializerAndNestedYggdrasilCollections() {
 		Assume.assumeNotNull(Bukkit.getServer());
 		assertEquals(Boolean.TRUE, Task.callSync(() -> {
-			MySQLValueCodec codec = new MySQLValueCodec(Variables.yggdrasil);
-			World world = createMock(World.class);
-			expect(world.getName()).andReturn("mysql-test-missing-world-7d835492").anyTimes();
-			replay(world);
-			var stored = codec.encode(world);
-			byte[] original = stored.data.clone();
-			assertThrows(IOException.class, () -> codec.decode(stored));
-			assertArrayEquals(original, stored.data);
-			assertEquals("still readable", codec.decode(codec.encode("still readable")));
+			for (int argb : new int[]{0, -1, 0x12345678, 0xff010203}) {
+				ColorRGB color = ColorRGB.fromBukkitColor(org.bukkit.Color.fromARGB(argb));
+				var serialized = Classes.serialize(color);
+				assertNotNull(serialized);
+				assertEquals(color, Classes.deserialize(serialized.type, serialized.data));
+				assertEquals(argb, ((ColorRGB) LegacyMySQLValueReader.decode(serialized)).asARGB());
+			}
+			var named = Classes.serialize(SkriptColor.DARK_RED);
+			assertNotNull(named);
+			assertSame(SkriptColor.DARK_RED, Classes.deserialize(named.type, named.data));
+			// Existing Yggdrasil collection serializers remain usable inside registered values.
+			var nested = new ArrayList<>(Arrays.asList("玩家😀", null, ColorRGB.fromRGB(1, 2, 3),
+					new HashMap<>(Map.of("named", SkriptColor.DARK_RED))));
+			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+			try (var out = Variables.yggdrasil.newOutputStream(bytes)) {
+				out.writeObject(nested);
+			}
+			try (var in = Variables.yggdrasil.newInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
+				assertEquals(nested, in.readObject());
+			}
+			// Yggdrasil collection support alone does not register a top-level Skript variable type.
+			assertNull(Classes.serialize(nested));
+			return true;
+		}));
+	}
+
+	@Test
+	public void actualOldMysqlEnvelopesRemainReadableWithoutAnOldWriter() {
+		Assume.assumeNotNull(Bukkit.getServer());
+		assertEquals(Boolean.TRUE, Task.callSync(() -> {
+			Properties fixtures = new Properties();
+			try (var in = getClass().getResourceAsStream("legacy-mysql.properties")) {
+				assertNotNull(in);
+				fixtures.load(in);
+			}
+			Map<String, Object> expected = Map.of("text", "legacy 玩家😀", "rgb", ColorRGB.fromHexString("12345678"),
+					"named", SkriptColor.DARK_RED, "nested", List.of("玩家😀", 42L, ColorRGB.fromHexString("12345678")));
+			for (var entry : expected.entrySet()) {
+				byte[] data = Base64.getDecoder().decode(fixtures.getProperty(entry.getKey() + ".data"));
+				var value = new SerializedVariable.Value(fixtures.getProperty(entry.getKey() + ".type"), data);
+				assertEquals(entry.getValue(), LegacyMySQLValueReader.decode(value));
+				assertEquals(entry.getValue(), LegacyMySQLValueReader.decode(new SerializedVariable.Value(
+						"mysql:yggdrasil:1", Arrays.copyOfRange(data, 8, data.length))));
+				byte[] broken = data.clone();
+				broken[broken.length - 1] ^= 1;
+				assertThrows(IOException.class, () -> LegacyMySQLValueReader.decode(new SerializedVariable.Value(value.type, broken)));
+			}
+			var bad = new SerializedVariable("bad", new SerializedVariable.Value("missing-addon-type", new byte[0]));
+			var good = Variables.serializeChange("good", "still readable");
+			var rows = Map.of("bad", bad, "good", good);
+			assertEquals(Map.of("good", "still readable"), new PooledMySQLStorage().decodeValues(rows));
+			assertSame(bad, rows.get("bad"));
 			return true;
 		}));
 	}
