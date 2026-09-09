@@ -82,6 +82,12 @@ public interface DocumentationAdapter {
 	void enterScope(String key);
 
 	/**
+	 * Enters an existing scope.
+	 * @param key The name of the scope to edit.
+	 */
+	void editScope(String key);
+
+	/**
 	 * Exits the last entered scope.
 	 * Must follow a {@link #enterScope(String)} call.
 	 */

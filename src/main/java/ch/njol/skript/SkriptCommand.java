@@ -2,6 +2,7 @@ package ch.njol.skript;
 
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.command.CommandHelp;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
@@ -33,7 +34,6 @@ import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.docs.Events;
 import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.docs.DocumentationGenerator;
-import org.skriptlang.skript.docs.DocumentationGenerator.AddonInfo;
 import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.registration.SyntaxInfo;
@@ -416,11 +416,16 @@ public class SkriptCommand implements CommandExecutor {
 							info.documentation().additionalData(Events.class) == null) {
 							adapter.write(Events.of(ers.supportedEvents()));
 						}
+					} else if (documentable == addon) {
+						adapter.editScope("source");
+						adapter.write("version", JavaPlugin.getProvidingPlugin(addon.source()).getPluginMeta().getVersion());
+						adapter.exitScope();
 					}
 				});
+				// write Bukkit-specific registries
+				EntityData.write(documentationAdapter);
 
-				String version = JavaPlugin.getProvidingPlugin(addon.source()).getPluginMeta().getVersion();
-				DocumentationGenerator.json(addon, new AddonInfo(version), documentationAdapter)
+				DocumentationGenerator.json(documentationAdapter)
 					.generate(outputDir.toPath().resolve(addon.name() + "-docs.json"));
 
 				Skript.info(sender, "All documentation generated!");

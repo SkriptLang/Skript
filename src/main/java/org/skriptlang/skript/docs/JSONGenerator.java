@@ -4,7 +4,6 @@ import ch.njol.skript.util.Version;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import org.skriptlang.skript.addon.SkriptAddon;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,13 +22,9 @@ class JSONGenerator implements DocumentationGenerator {
 		.serializeNulls()
 		.create();
 
-	private final SkriptAddon addon;
-	private final AddonInfo info;
 	private final DocumentationAdapter adapter;
 
-	JSONGenerator(SkriptAddon addon, AddonInfo info, DocumentationAdapter adapter) {
-		this.addon = addon;
-		this.info = info;
+	JSONGenerator(DocumentationAdapter adapter) {
 		this.adapter = adapter;
 	}
 
@@ -38,16 +33,12 @@ class JSONGenerator implements DocumentationGenerator {
 		JsonObject docs = new JsonObject();
 
 		// Version
+		JsonObject generator = new JsonObject();
 		JsonObject version = new JsonObject();
 		version.addProperty("major", JSON_VERSION.getMajor());
 		version.addProperty("minor", JSON_VERSION.getMinor());
-		docs.add("version", version);
-
-		// Source
-		JsonObject source = new JsonObject();
-		source.addProperty("name", addon.name());
-		source.addProperty("version", info.version());
-		docs.add("source", source);
+		generator.add("version", version);
+		docs.add("generator", generator);
 
 		// Add in adapter properties
 		// We do it this way so that the properties added above appear first

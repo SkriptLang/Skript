@@ -1,15 +1,11 @@
 package org.skriptlang.skript.docs;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import com.google.common.collect.ImmutableMap;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.lang.properties.PropertyRegistry;
 
 import java.util.ArrayDeque;
 import java.util.Collection;
@@ -40,12 +36,7 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 		this.writeHandler = writeHandler;
 		scopes.push(new Scope("root", new LinkedHashMap<>()));
 		if (generate) {
-			write(addon.syntaxRegistry());
-			Classes.write(this);
-			write(Skript.experiments());
-			write(FunctionRegistry.getRegistry());
-			write(addon.registry(PropertyRegistry.class));
-			EntityData.write(this);
+			write(addon);
 		}
 	}
 
@@ -95,6 +86,16 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 
 		scope.values().put(key, newScopes);
 		scopes.push(new Scope(key, newScopes));
+	}
+
+	@Override
+	public void editScope(String key) {
+		//noinspection unchecked
+		Map<String, Object> existingScopes = (Map<String, Object>) scopes.getFirst().values().get(key);
+		if (existingScopes == null) {
+			throw new IllegalArgumentException("No scope with key '" + key + "' exists!");
+		}
+		scopes.push((new Scope(key, existingScopes)));
 	}
 
 	@Override
