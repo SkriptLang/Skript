@@ -121,9 +121,6 @@ public abstract class Classes {
 	private static void sortClassInfos() {
 		assert classInfos == null;
 
-		if (!Skript.testing() && SkriptConfig.addonSafetyChecks.value())
-			removeNullElements();
-
 		// merge before, after & sub/supertypes in after
 		for (final ClassInfo<?> ci : tempClassInfos) {
 			final Set<String> before = ci.before();
@@ -165,7 +162,7 @@ public abstract class Classes {
 				}
 			}
 			ci.after().removeAll(s);
-			if (!s.isEmpty() && Skript.testing())
+			if (!s.isEmpty() && Skript.debug())
 				Skript.warning(s.size() + " dependency/ies could not be resolved for " + ci + ": " + StringUtils.join(s, ", "));
 		}
 
@@ -211,16 +208,6 @@ public abstract class Classes {
 			Skript.info("All registered classes in order: " + b.toString());
 		}
 
-	}
-
-	@SuppressWarnings({"null", "unused"})
-	private static void removeNullElements() {
-		Iterator<ClassInfo<?>> it = tempClassInfos.iterator();
-		while (it.hasNext()) {
-			ClassInfo<?> ci = it.next();
-			if (ci.getC() == null)
-				it.remove();
-		}
 	}
 
 	private static void checkAllowClassInfoInteraction() {
@@ -835,7 +822,7 @@ public abstract class Classes {
 			in = Variables.yggdrasil.newInputStream(value);
 			return in.readObject();
 		} catch (final IOException e) { // i.e. invalid save
-			if (Skript.testing())
+			if (Skript.debug())
 				e.printStackTrace();
 			return null;
 		} finally {

@@ -45,7 +45,7 @@ public class EvtBucketEntity extends SkriptEvent {
 		EventValues.registerEventValue(PlayerBucketEntityEvent.class, Entity.class, PlayerBucketEntityEvent::getEntity);
 	}
 
-	private EntityData<?>[] entities;
+	private EntityData<?> @Nullable [] entities;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
@@ -68,7 +68,7 @@ public class EvtBucketEntity extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "bucket catch" + (entities.length == 0 ? "" :
+		return "bucket catch" + (entities == null ? "" :
 				" of " + StringUtils.join(List.of(entities), ", ", " and "));
 	}
 

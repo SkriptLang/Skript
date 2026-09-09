@@ -35,7 +35,7 @@ import java.util.UUID;
 		clear the hover list
 		add "&aWelcome to the &6Minecraft &aserver!" to the hover list
 		add "" to the hover list # A blank line
-		add "&cThere are &6%online players count% &conline players!" to the hover list
+		add "&cThere are &6%online player count% &conline players!" to the hover list
 	""")
 @Since("2.3")
 @Events("server list ping")

@@ -13,6 +13,7 @@ import org.skriptlang.skript.util.Registry;
 import org.skriptlang.skript.util.ViewProvider;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -76,6 +77,11 @@ public interface SkriptAddon extends ViewProvider<SkriptAddon>, Documentable {
 	 * @param <R> The type of registry.
 	 */
 	<R extends Registry<?>> R registry(Class<R> registryClass, Supplier<R> putIfAbsent);
+
+	/**
+	 * @return A collection of all registries accessible through this addon.
+	 */
+	Collection<Registry<?>> registries();
 
 	/**
 	 * @return A syntax registry for this addon's syntax.
