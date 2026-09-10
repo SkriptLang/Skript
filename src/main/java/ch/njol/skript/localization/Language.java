@@ -63,7 +63,7 @@ public class Language {
 			return value;
 		}
 
-		if (Skript.testing())
+		if (Skript.debug())
 			missingEntryError(key);
 		return null;
 	}

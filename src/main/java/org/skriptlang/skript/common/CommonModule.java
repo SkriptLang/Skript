@@ -9,6 +9,8 @@ import org.skriptlang.skript.common.elements.expressions.ExprHexCode;
 import org.skriptlang.skript.common.elements.expressions.ExprRecursiveSize;
 import org.skriptlang.skript.common.elements.expressions.ExprReplace;
 import org.skriptlang.skript.common.elements.sections.ExprSecFunction;
+import org.skriptlang.skript.common.elements.effects.*;
+import org.skriptlang.skript.common.elements.expressions.*;
 import org.skriptlang.skript.common.properties.PropertiesModule;
 import org.skriptlang.skript.common.types.QuaternionClassInfo;
 import org.skriptlang.skript.common.types.QueueClassInfo;
@@ -36,6 +38,8 @@ public class CommonModule extends HierarchicalAddonModule {
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
 		register(addon,
+			EffSecSuppressTypeHints::register,
+			EffSecSuppressWarnings::register,
 			ExprColorFromHexCode::register,
 			ExprHexCode::register,
 			ExprRecursiveSize::register,

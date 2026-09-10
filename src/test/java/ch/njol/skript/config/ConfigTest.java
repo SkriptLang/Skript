@@ -1,14 +1,48 @@
 package ch.njol.skript.config;
 
+import ch.njol.skript.log.RetainingLogHandler;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 import static org.junit.Assert.*;
 
 public class ConfigTest {
+
+	private static Config createConfig(String script) {
+		try {
+			return new Config(new ByteArrayInputStream(script.getBytes(StandardCharsets.UTF_8)), "test", null,
+				true, false, ":");
+		} catch (IOException e) { // should not be possible given null file
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Test
+	public void testEmptySectionWarning() {
+		try (var handler = new RetainingLogHandler().start()) {
+			// test with one structure missing a section
+			createConfig("""
+				on load:
+				
+				on load:
+					stop
+				""");
+			assertEquals(1, handler.size());
+			assertEquals(SectionNode.M_EMPTY_SECTION, handler.getLog().iterator().next().getMessage());
+			handler.clear();
+
+			// test with single structure
+			createConfig("on load:");
+			assertEquals(1, handler.size());
+			assertEquals(SectionNode.M_EMPTY_SECTION, handler.getLog().iterator().next().getMessage());
+			handler.clear();
+		}
+	}
 
 	@Test
 	public void testUpdateNodes() {
