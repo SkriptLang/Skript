@@ -12,7 +12,8 @@ public interface ChangeDelayRestrictedSyntax {
 	/**
 	 * The supported delays at which changes may be made.
 	 * <p>
-	 * This method is called before {@link Changer#acceptChange(Changer.ChangeMode)} in {@link EffChange}.
+	 * This method is called after {@link Changer#acceptChange(Changer.ChangeMode)} in {@link EffChange},
+	 * but before {@link Changer#change(Object[], Object[], Changer.ChangeMode)}.
 	 * An error is printed if the current delay is unsupported.
 	 * </p>
 	 *
