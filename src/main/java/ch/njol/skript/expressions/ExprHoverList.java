@@ -3,6 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.ChangeDelayRestrictedSyntax;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -39,33 +40,27 @@ import java.util.UUID;
 	""")
 @Since("2.3")
 @Events("server list ping")
-public class ExprHoverList extends SimpleExpression<String> implements EventRestrictedSyntax
-{
+public class ExprHoverList extends SimpleExpression<String> implements EventRestrictedSyntax, ChangeDelayRestrictedSyntax {
 
-	static
-	{
+	static {
 		Skript.registerExpression(ExprHoverList.class, String.class, ExpressionType.SIMPLE,
 			"[the] [custom] [player|server] (hover|sample) ([message] list|message)",
 			"[the] [custom] player [hover|sample] list");
 	}
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult)
-	{
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		return true;
 	}
 
 	@Override
-	public Class<? extends Event>[] supportedEvents()
-	{
+	public Class<? extends Event>[] supportedEvents() {
 		return CollectionUtils.array(PaperServerListPingEvent.class);
 	}
 
 	@Override
-	public String @Nullable [] get(Event event)
-	{
-		if (!(event instanceof PaperServerListPingEvent pingEvent))
-		{
+	public String @Nullable [] get(Event event) {
+		if (!(event instanceof PaperServerListPingEvent pingEvent)) {
 			return null;
 		}
 
@@ -76,62 +71,41 @@ public class ExprHoverList extends SimpleExpression<String> implements EventRest
 
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode)
-	{
-		if (getParser().getHasDelayBefore().isTrue())
-		{
-			Skript.error("Can't change the hover list anymore after the server list ping event has already passed");
-			return null;
-		}
-		switch (mode)
-		{
-			case SET:
-			case ADD:
-			case REMOVE:
-			case DELETE:
-			case RESET:
-				return CollectionUtils.array(Component[].class, Player[].class);
-		}
-		return null;
+	public Class<?>[] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case SET, ADD, REMOVE, DELETE, RESET -> CollectionUtils.array(Component[].class, Player[].class);
+			default -> null;
+		};
 	}
 
 	@Override
-	@SuppressWarnings({"null", "removal"})
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode)
-	{
-		if (!(event instanceof PaperServerListPingEvent pingEvent))
-		{
+	@SuppressWarnings({"null"})
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(event instanceof PaperServerListPingEvent pingEvent)) {
 			return;
 		}
 
 		// convert components to legacy strings
-		if (delta != null)
-		{
+		if (delta != null) {
 			delta = Arrays.stream(delta)
 				.map(obj -> obj instanceof Component component ? TextComponentParser.instance().toLegacyString(component) : obj)
 				.toArray();
 		}
 
 		List<PaperServerListPingEvent.ListedPlayerInfo> values = new ArrayList<>();
-		if (mode != ChangeMode.DELETE && mode != ChangeMode.RESET && mode != ChangeMode.REMOVE)
-		{
-			for (Object object : delta)
-			{
-				if (object instanceof Player)
-				{
+		if (mode != ChangeMode.DELETE && mode != ChangeMode.RESET && mode != ChangeMode.REMOVE) {
+			for (Object object : delta) {
+				if (object instanceof Player) {
 					Player player = (Player) object;
 					values.add(new PaperServerListPingEvent.ListedPlayerInfo(player.getName(), player.getUniqueId()));
-				}
-				else
-				{
+				} else {
 					values.add(new PaperServerListPingEvent.ListedPlayerInfo((String) object, UUID.randomUUID()));
 				}
 			}
 		}
 
 		List<PaperServerListPingEvent.ListedPlayerInfo> sample = pingEvent.getListedPlayers();
-		switch (mode)
-		{
+		switch (mode) {
 			case SET:
 				sample.clear();
 				// $FALL-THROUGH$
@@ -139,8 +113,7 @@ public class ExprHoverList extends SimpleExpression<String> implements EventRest
 				sample.addAll(values);
 				break;
 			case REMOVE:
-				for (Object value : delta)
-				{
+				for (Object value : delta) {
 					sample.removeIf(profile -> profile.name().equals(value));
 				}
 				break;
@@ -152,20 +125,17 @@ public class ExprHoverList extends SimpleExpression<String> implements EventRest
 	}
 
 	@Override
-	public boolean isSingle()
-	{
+	public boolean isSingle() {
 		return false;
 	}
 
 	@Override
-	public Class<? extends String> getReturnType()
-	{
+	public Class<? extends String> getReturnType() {
 		return String.class;
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug)
-	{
+	public String toString(@Nullable Event e, boolean debug) {
 		return "the hover list";
 	}
 

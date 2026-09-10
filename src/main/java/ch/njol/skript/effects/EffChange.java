@@ -135,6 +135,10 @@ public class EffChange extends Effect {
 			}
 		}
 
+		if (!checkRestrictedChangeDelays(what)) {
+			return false;
+		}
+
 		if (acceptedTypes == null) { // Changing is forbidden
 			if (changeLog.getCount() > 0) { // 'changed' produced its own error message, default to that
 				return false;
@@ -296,6 +300,46 @@ public class EffChange extends Effect {
 			}
 		}
 
+		return true;
+	}
+
+	/**
+	 * Checks whether the syntax being changed has restricted change delays.
+	 * Prints an error if the current change delay is not supported.
+	 * @param what The syntax being changed.
+	 * @return True if this syntax is valid, false if not.
+	 */
+	private boolean checkRestrictedChangeDelays(String what) {
+		if (!(changed instanceof ChangeDelayRestrictedSyntax syntax)) {
+			return true;
+		}
+
+		Kleenean hasDelayBefore = getParser().getHasDelayBefore();
+		boolean supported = false;
+		for (ChangeDelayRestrictedSyntax.Delay delay : syntax.supportedChangeDelays()) {
+			Kleenean kleenean = switch (delay) {
+				case YES -> Kleenean.TRUE;
+				case NO -> Kleenean.FALSE;
+				case MAYBE -> Kleenean.UNKNOWN;
+			};
+
+			if (hasDelayBefore == kleenean) {
+				supported = true;
+				break;
+			}
+		}
+
+		String time;
+		switch (hasDelayBefore) {
+			case TRUE ->  time = "after the event has passed";
+			case FALSE -> time = "before the event has appeared";
+			default -> time = "when it is unknown whether this syntax will be changed before or after the event has occurred";
+		}
+
+		if (!supported) {
+			Skript.error("'%s' cannot be changed %s".formatted(what, time));
+			return false;
+		}
 		return true;
 	}
 

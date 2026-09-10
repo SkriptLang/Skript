@@ -2,30 +2,24 @@ package org.skriptlang.skript.bukkit.entity.player.elements.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Events;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.effects.EffChange;
+import ch.njol.skript.lang.ChangeDelayRestrictedSyntax;
 import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.util.Kleenean;
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.util.Kleenean;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Name("Chat Format")
 @Description("""
@@ -36,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Example("set the chat format to \"<yellow>%player%<light gray>: <green>%message%\"")
 @Since("2.2-dev31")
 @Events("chat")
-public class ExprChatFormat extends SimpleExpression<Component> implements EventRestrictedSyntax {
+public class ExprChatFormat extends SimpleExpression<Component> implements EventRestrictedSyntax, ChangeDelayRestrictedSyntax {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprChatFormat.class, Component.class)
@@ -69,10 +63,6 @@ public class ExprChatFormat extends SimpleExpression<Component> implements Event
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		if (getParser().getHasDelayBefore().isTrue()) {
-			Skript.error("'" + toString(null, false) + "' can't be changed after the event has passed");
-			return null;
-		}
 		return switch (mode) {
 			case SET, RESET -> new Class[]{Component.class};
 			default -> null;
