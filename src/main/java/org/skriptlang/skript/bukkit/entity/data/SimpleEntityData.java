@@ -69,7 +69,15 @@ public class SimpleEntityData extends EntityData<Entity> implements EntityItemTy
 		simpleEntity(EnderSignal.class, "ender eye:s @an", "ender eye[plural:s]", "eye[plural:s] of ender")
 			.itemTypeComparator(Material.ENDER_EYE).build();
 		buildSimple(MagmaCube.class, "magma cube:s @a", "magma (cube|slime)[plural:s]");
-		buildSimple(Slime.class, "slime:s", "slime[plural:s]");
+
+		Class<?> slimeClass;
+		try {
+			slimeClass = Class.forName("org.bukkit.entity.Slime");
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+		//noinspection unchecked
+		buildSimple((Class<? extends Entity>) slimeClass, "slime:s @a", "slime[plural:s]");
 		simpleEntity(Snowball.class, "snowball:s @a", "snowball[plural:s]")
 			.itemTypeComparator(Material.SNOWBALL).build();
 		buildSimple(Snowman.class, "snow golem:s @a", "snow[ ](golem[plural:s]|m(an|plural:en))");
@@ -302,6 +310,10 @@ public class SimpleEntityData extends EntityData<Entity> implements EntityItemTy
 		if (Skript.isRunningMinecraft(1, 21, 11)) {
 			buildSimple(CamelHusk.class, "camel husk:s @a", "camel husk[plural:s]");
 			buildSimple(Parched.class, "parched:s @a", "parched[plural:s]");
+		}
+
+		if (Skript.isRunningMinecraft(26, 2)) {
+			buildSimple(SulfurCube.class, "sulfur cube:s @a", "sulfur (cube|slime)[plural:s]");
 		}
 
 		//<editor-fold desc="Super Types" defaultstate="collapsed">

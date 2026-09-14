@@ -35,7 +35,7 @@ public class ZombieVillagerData extends EntityData<ZombieVillager> {
 		new PatternGroup<>(10, "zombie librarian:s @a", Profession.LIBRARIAN, getPatterns("zombie librarian")),
 		new PatternGroup<>(11, "zombie mason:s @a", Profession.MASON, getPatterns("zombie mason")),
 		new PatternGroup<>(12, "zombie nitwit:s @a", Profession.NITWIT, getPatterns("zombie nitwit")),
-		new PatternGroup<>(12, "zombie shepherd:s @a", Profession.SHEPHERD, getPatterns("zombie shepherd")),
+		new PatternGroup<>(13, "zombie shepherd:s @a", Profession.SHEPHERD, getPatterns("zombie shepherd")),
 		new PatternGroup<>(14, "zombie toolsmith:s @a", Profession.TOOLSMITH, getPatterns("zombie tool[ ](smith|maker)")),
 		new PatternGroup<>(15, "zombie weaponsmith:s @a", Profession.WEAPONSMITH, getPatterns("zombie weapon[ ]smith"))
 	);

@@ -14,6 +14,7 @@ import ch.njol.yggdrasil.FieldHandler;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.Fields.FieldContext;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import com.google.common.base.Preconditions;
 import io.papermc.paper.world.flag.FeatureDependant;
 import io.papermc.paper.world.flag.FeatureFlagSetHolder;
 import org.bukkit.Bukkit;
@@ -884,13 +885,22 @@ public abstract class EntityData<E extends Entity>
 		@SafeVarargs
 		public EntityDataPatterns(PatternGroup<Data>... patternGroups) {
 			this.patternGroups = List.of(patternGroups);
+			PatternGroup<Data> nullGroup = null;
 			for (PatternGroup<Data> group : patternGroups) {
+				Preconditions.checkArgument(!groupMap.containsKey(group.index()), "Cannot provide 2 or more groups with the same index.");
+				Preconditions.checkArgument(!dataMap.containsKey(group.data()), "Cannot provide 2 or more groups with the same data.");
 				groupMap.put(group.index(), group);
 				dataMap.put(group.data(), group);
 				names.add(group.name());
-				if (group.data() == null)
+				if (group.isDefault()) {
+					Preconditions.checkArgument(genericGroup == null, "Cannot provide 2 or more groups marked as default.");
 					genericGroup = group;
+				}
+				if (group.data() == null)
+					nullGroup = group;
 			}
+			if (nullGroup != null && genericGroup == null)
+				genericGroup = nullGroup;
 		}
 
 		/**
@@ -995,16 +1005,25 @@ public abstract class EntityData<E extends Entity>
 
 	/**
 	 * Grouping of data for an entity that is to be parsed and retrieved.
+	 * @param isDefault Whether this group should be the default group.
 	 * @param index The index of the entity/this {@link PatternGroup}.
 	 * @param name The name of the entity.
-	 * @param data The object representing a state of the entity.
+	 * @param data The object representing a state of the entity. If {@code null}, will be marked as default group if no other group is marked with default.
 	 * @param patterns The patterns that could be used to refer to the entity/this {@link PatternGroup}.
 	 * @param <Data> The object for representing a state of the entity.
 	 */
-	public record PatternGroup<Data>(int index, GeneralNoun name, @Nullable Data data, String... patterns) {
+	public record PatternGroup<Data>(boolean isDefault, int index, GeneralNoun name, @Nullable Data data, String... patterns) {
+
+		public PatternGroup(int index, GeneralNoun name, @Nullable Data data, String... patterns) {
+			this(false, index, name, data, patterns);
+		}
 
 		public PatternGroup(int index, GeneralNoun name, String... patterns) {
 			this(index, name, null, patterns);
+		}
+
+		public PatternGroup(boolean isDefault, int index, String name, @Nullable Data data, String... patterns) {
+			this(isDefault, index, new GeneralNoun(name), data, patterns);
 		}
 
 		public PatternGroup(int index, String name, @Nullable Data data, String... patterns) {

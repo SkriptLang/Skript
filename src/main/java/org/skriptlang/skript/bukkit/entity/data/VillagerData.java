@@ -41,7 +41,7 @@ public class VillagerData extends EntityData<Villager> {
 		new PatternGroup<>(10, "librarian:s @a", Profession.LIBRARIAN, getPatterns("librarian")),
 		new PatternGroup<>(11, "mason:s @a", Profession.MASON, getPatterns("mason")),
 		new PatternGroup<>(12, "nitwit:s @a", Profession.NITWIT, getPatterns("nitwit")),
-		new PatternGroup<>(12, "shepherd:s @a", Profession.SHEPHERD, getPatterns("shepherd")),
+		new PatternGroup<>(13, "shepherd:s @a", Profession.SHEPHERD, getPatterns("shepherd")),
 		new PatternGroup<>(14, "toolsmith:s @a", Profession.TOOLSMITH, getPatterns("tool[ ](smith|maker)")),
 		new PatternGroup<>(15, "weaponsmith:s @a", Profession.WEAPONSMITH, getPatterns("weapon[ ]smith"))
 	);

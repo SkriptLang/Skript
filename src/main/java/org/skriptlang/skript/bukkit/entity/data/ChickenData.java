@@ -74,13 +74,11 @@ public class ChickenData extends EntityData<Chicken> {
 
 	@Override
 	public void set(Chicken chicken) {
-		if (VARIANTS_ENABLED) {
-			Variant variant = this.variant;
-			if (variant == null)
-				variant = CollectionUtils.getRandom(VARIANTS);
-			assert variant != null;
-			chicken.setVariant(variant);
-		}
+		Variant variant = this.variant;
+		if (variant == null)
+			variant = CollectionUtils.getRandom(VARIANTS);
+		assert variant != null;
+		chicken.setVariant(variant);
 	}
 
 	@Override
