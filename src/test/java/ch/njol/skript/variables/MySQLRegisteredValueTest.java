@@ -19,17 +19,6 @@ import static org.junit.Assert.*;
 public class MySQLRegisteredValueTest {
 
 	@Test
-	public void declaredTypeWarningsRecognizeRegisteredImplementations() {
-		Assume.assumeNotNull(Bukkit.getServer());
-		assertTrue(Classes.mayBeSerializable(ch.njol.skript.util.Color.class));
-		assertTrue(Classes.mayBeSerializable(ColorRGB.class));
-		assertTrue(Classes.mayBeSerializable(SkriptColor.class));
-		assertTrue(Classes.mayBeSerializable(String.class));
-		assertFalse(Classes.mayBeSerializable(org.bukkit.inventory.Inventory.class));
-		assertFalse(Classes.mayBeSerializable(Thread.class));
-	}
-
-	@Test
 	public void sharedSerializationAndJournalReload() {
 		Assume.assumeNotNull(Bukkit.getServer());
 		assertEquals(Boolean.TRUE, Task.callSync(() -> {

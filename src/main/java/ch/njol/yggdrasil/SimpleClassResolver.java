@@ -5,7 +5,6 @@ import com.google.common.collect.HashBiMap;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import java.util.Map.Entry;
 
 @NotThreadSafe
 public class SimpleClassResolver implements ClassResolver {
@@ -25,18 +24,9 @@ public class SimpleClassResolver implements ClassResolver {
 
 	@Override
 	public @Nullable String getID(Class<?> type) {
-		if (classes.containsKey(type))
-			return classes.get(type);
-		Class<?> closestClass = null;
-		String closestId = null;
-		for (Entry<Class<?>, String> entry : classes.entrySet()) {
-			Class<?> current = entry.getKey();
-			if (current.isAssignableFrom(type) && (closestClass == null || closestClass.isAssignableFrom(current))) {
-				closestClass = current;
-				closestId = entry.getValue();
-			}
-		}
-		return closestId;
+		// A simple mapping must resolve back to the exact class. Serializers handle
+		// implementation classes that need to be restored through a parent type.
+		return classes.get(type);
 	}
-	
+
 }

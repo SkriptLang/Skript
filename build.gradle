@@ -11,7 +11,9 @@ plugins {
 }
 
 configurations {
-    testImplementation.extendsFrom testShadow, shadow
+	jdbcDrivers
+	compileOnly.extendsFrom jdbcDrivers
+	testImplementation.extendsFrom testShadow, shadow, jdbcDrivers
 }
 
 allprojects {
@@ -31,11 +33,11 @@ allprojects {
 
 dependencies {
 	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.2.1'
-	// Owned JDBC drivers, included in every distributable ShadowJar.
-	shadow('com.mysql:mysql-connector-j:9.6.0') {
+	// Provided by Paper. Compile and test against the versions in Paper 1.21.4.
+	jdbcDrivers('com.mysql:mysql-connector-j:9.1.0') {
 		exclude group: 'com.google.protobuf', module: 'protobuf-java' // X DevAPI is unused
 	}
-	shadow 'org.xerial:sqlite-jdbc:3.53.0.0'
+	jdbcDrivers 'org.xerial:sqlite-jdbc:3.47.0.0'
 
 	implementation group: 'io.papermc.paper', name: 'paper-api', version: '26.2.build.+'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
@@ -111,7 +113,7 @@ tasks.register('variableStorageTest', Test) {
 // Run separately from quickTest: release resource tasks share the main output directory.
 tasks.register('jdbcPackagingCheck', JavaExec) {
 	dependsOn jar, compileTestJava
-	classpath = sourceSets.test.output
+	classpath = sourceSets.test.output + configurations.jdbcDrivers
 	mainClass = 'ch.njol.skript.variables.JdbcPackagingCheck'
 	args tasks.jar.archiveFile.get().asFile.absolutePath
 }
@@ -128,12 +130,8 @@ tasks.withType(ShadowJar).configureEach {
 	dependencies {
 		include(dependency('org.bstats:bstats-bukkit'))
 		include(dependency('org.bstats:bstats-base'))
-		include(dependency('com.mysql:mysql-connector-j'))
-		include(dependency('org.xerial:sqlite-jdbc'))
 	}
 	relocate 'org.bstats', 'ch.njol.skript.bstats'
-	relocate 'com.mysql', 'ch.njol.skript.dependencies.mysql'
-	// Drivers are instantiated explicitly, never discovered through DriverManager.
 	exclude 'META-INF/services/java.sql.Driver'
 	exclude 'META-INF/*.SF', 'META-INF/*.RSA', 'META-INF/*.DSA'
 	exclude 'module-info.class', 'META-INF/versions/**/module-info.class'

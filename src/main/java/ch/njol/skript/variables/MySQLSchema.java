@@ -35,6 +35,13 @@ final class MySQLSchema {
 
 	private MySQLSchema() {}
 
+	/** Schema validation failure with a message safe to display without connection details. */
+	static final class ValidationException extends SQLException {
+		ValidationException(String message) {
+			super(message);
+		}
+	}
+
 	static void initialize(Connection connection, String table) throws SQLException {
 		table = PooledMySQLStorage.identifier(table);
 		execute(connection, "CREATE TABLE IF NOT EXISTS `" + table + "` ("
@@ -46,8 +53,10 @@ final class MySQLSchema {
 			statement.setQueryTimeout(10);
 			statement.setString(1, table);
 			try (ResultSet result = statement.executeQuery()) {
-				if (!result.next() || !"InnoDB".equalsIgnoreCase(result.getString(1)))
-					throw new SQLException("MySQL variable table must use InnoDB");
+				if (!result.next())
+					throw new ValidationException("Configured table is not visible in information_schema.TABLES");
+				if (!"InnoDB".equalsIgnoreCase(result.getString(1)))
+					throw new ValidationException("MySQL variable table must use InnoDB");
 			}
 		}
 		Map<String, String> columns = new HashMap<>();
@@ -62,16 +71,16 @@ final class MySQLSchema {
 					String type = result.getString(2).toLowerCase(Locale.ROOT);
 					columns.put(column, type);
 					if (!("hash".equals(column) ? "PRI" : "").equals(result.getString(3)))
-						throw new SQLException("Unsupported MySQL variable indexes");
+						throw new ValidationException("MySQL variable table must have hash as its only primary-key column and no other indexed columns");
 					if ("name".equals(column) && "longtext".equals(type)
 							&& !("utf8mb4".equals(result.getString(4)) && "utf8mb4_bin".equals(result.getString(5))))
-						throw new SQLException("MySQL variable names must use utf8mb4_bin");
+						throw new ValidationException("MySQL variable names must use utf8mb4 character set and utf8mb4_bin collation");
 				}
 			}
 		}
 		if (!Map.of("hash", "binary(32)", "name", "longtext",
 				"type", "varchar(255)", "value", "longblob").equals(columns))
-			throw new SQLException("Unsupported MySQL variable table schema");
+			throw new ValidationException("MySQL variable table must contain exactly: name LONGTEXT, type VARCHAR(255), hash BINARY(32), value LONGBLOB");
 	}
 
 	private static void execute(Connection connection, String sql) throws SQLException {

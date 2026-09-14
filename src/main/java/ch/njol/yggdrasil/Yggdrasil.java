@@ -115,6 +115,20 @@ public final class Yggdrasil {
 			fieldHandlers.add(handler);
 	}
 	
+	/**
+	 * Returns the value's wire tag, honoring explicit enum serializer precedence.
+	 * Callers reconstructing stream headers must use the same policy as the writer.
+	 */
+	public Tag getSerializationTag(Class<?> type) {
+		Tag tag = Tag.getType(type);
+		if (tag == Tag.T_ENUM) {
+			YggdrasilSerializer<?> serializer = getSerializer(type);
+			if (serializer != null && serializer.serializeEnumsAsObjects())
+				return Tag.T_OBJECT;
+		}
+		return tag;
+	}
+
 	public boolean isSerializable(Class<?> type) {
 		try {
 			return type.isPrimitive() || type == Object.class || (Enum.class.isAssignableFrom(type) ||

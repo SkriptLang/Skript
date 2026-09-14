@@ -184,7 +184,7 @@ public abstract class YggdrasilOutputStream implements Flushable, Closeable {
 		int ref = nextObjectID;
 		nextObjectID++;
 		writtenObjects.put(object, ref);
-		Tag type = getType(object.getClass());
+		Tag type = yggdrasil.getSerializationTag(object.getClass());
 		if (type.isWrapper()) {
 			writeWrappedPrimitive(object);
 			return;

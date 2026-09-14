@@ -75,6 +75,7 @@ final class PooledMySQLStorage extends VariablesStorage {
 
 	@Override
 	protected boolean load_i(SectionNode config) {
+		String phase = "reading configuration";
 		try {
 			if (!"true".equalsIgnoreCase(config.getValue("enabled")))
 				return false;
@@ -96,11 +97,15 @@ final class PooledMySQLStorage extends VariablesStorage {
 			File folder = Skript.getInstance().getDataFolder();
 			journal = new MySQLJournal(new File(folder, "mysql-pending.bin").toPath(),
 					host + ":" + port + "/" + database + "/" + table);
+			phase = "reading mysql-pending.bin (pending changes must belong to the configured database and table)";
 			pending.putAll(journal.read());
+			phase = "connecting to MySQL";
 			pool = new MySQLConnectionPool(host, port, database, user, password, sslMode);
 			Map<String, SerializedVariable> loaded = new TreeMap<>();
 			try (Connection connection = pool.acquire()) {
+				phase = "creating or validating table " + table;
 				MySQLSchema.initialize(connection, table);
+				phase = "reading table " + table;
 				try (PreparedStatement statement = connection.prepareStatement(
 						"SELECT name, type, hash, value FROM `" + table + "` ORDER BY name")) {
 					statement.setQueryTimeout(10);
@@ -136,7 +141,9 @@ final class PooledMySQLStorage extends VariablesStorage {
 			if (values == null)
 				throw new IllegalStateException("MySQL deserialization task did not complete");
 			// Verify write permission and transaction support before publishing any variables.
+			phase = "checking write permissions for table " + table;
 			verifyWritable();
+			phase = "writing mysql-pending.bin";
 			journal.write(pending);
 			Task.callSync(() -> {
 				values.forEach((name, value) -> Variables.variableLoaded(name, value, this));
@@ -145,8 +152,11 @@ final class PooledMySQLStorage extends VariablesStorage {
 			return true;
 		} catch (Exception | LinkageError e) {
 			// JDBC exceptions may contain connection details; report only safe diagnostics.
-			String reason = e instanceof IllegalArgumentException ? e.getMessage() : e.getClass().getSimpleName();
-			Skript.error("Cannot initialize optional MySQL: " + reason
+			String reason = (e instanceof IllegalArgumentException || e instanceof MySQLSchema.ValidationException)
+					? e.getMessage() : e.getClass().getSimpleName();
+			if (e instanceof SQLException sql && !(e instanceof MySQLSchema.ValidationException))
+				reason += " (SQLState " + sql.getSQLState() + ", error code " + sql.getErrorCode() + ")";
+			Skript.error("Cannot initialize optional MySQL: " + reason + " while " + phase
 					+ ". Check the driver, settings, TLS certificates, table schema and database permissions.");
 			disconnect();
 			return false;

@@ -29,7 +29,6 @@ import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHan
 import org.skriptlang.skript.util.Executable;
 
 import java.io.File;
-import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.util.Iterator;
 import java.util.Locale;
@@ -373,28 +372,8 @@ public class SkriptClasses {
 					public String toVariableNameString(Color color) {
 						return "" + color.getName().toLowerCase(Locale.ENGLISH).replace('_', ' ');
 					}
-				}));
-
-		// Color is polymorphic: named colors are enums, RGB colors are field-based objects.
-		// Register concrete representations so Classes can select the correct Yggdrasil tag.
-		Classes.registerClass(new ClassInfo<>(SkriptColor.class, "skriptcolor")
-				.name(ClassInfo.NO_DOC)
-				.serializer(new EnumSerializer<>(SkriptColor.class)));
-		Classes.registerClass(new ClassInfo<>(ColorRGB.class, "rgbcolor")
-				.name(ClassInfo.NO_DOC)
-				.serializer(new YggdrasilSerializer<ColorRGB>() {
-					@Override
-					public boolean canBeInstantiated() {
-						return false;
-					}
-
-					@Override
-					public ColorRGB deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
-						ColorRGB color = ColorRGB.fromRGB(0, 0, 0);
-						color.deserialize(fields);
-						return color;
-					}
-				}));
+				})
+				.serializer(new ColorSerializer()));
 
 		Classes.registerClass(new EnumClassInfo<>(TreeSpecies.class, "treetype", "tree types")
 				.user("tree ?types?", "trees?")

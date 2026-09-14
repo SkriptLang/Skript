@@ -11,12 +11,14 @@ public class YggdrasilResolverTest {
 	private static class Leaf extends Child {}
 
 	@Test
-	public void choosesTheMostSpecificRegisteredSuperclass() {
+	public void onlyResolvesExactlyRegisteredClasses() {
 		SimpleClassResolver resolver = new SimpleClassResolver();
 		resolver.registerClass(Parent.class, "parent");
-		assertEquals("parent", resolver.getID(Leaf.class));
+		assertEquals("parent", resolver.getID(Parent.class));
+		assertSame(Parent.class, resolver.getClass("parent"));
+		assertNull(resolver.getID(Leaf.class));
 		resolver.registerClass(Child.class, "child");
-		assertEquals("child", resolver.getID(Leaf.class));
+		assertNull(resolver.getID(Leaf.class));
 		assertEquals("child", resolver.getID(Child.class));
 		assertSame(Child.class, resolver.getClass("child"));
 		assertNull(resolver.getID(String.class));

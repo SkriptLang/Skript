@@ -48,9 +48,7 @@ final class MySQLConnectionPool implements AutoCloseable {
 		source.setSocketTimeout(5000);
 		source.setSslMode(sslMode);
 		source.setCharacterEncoding("UTF-8");
-		// Skript closes every connection explicitly. Stop the private, relocated driver's
-		// cleanup executor without changing JVM properties used by other plugins.
-		com.mysql.cj.jdbc.AbandonedConnectionCleanupThread.uncheckedShutdown();
+		// Paper owns the shared driver; Skript only closes its own connections.
 		return source;
 	}
 

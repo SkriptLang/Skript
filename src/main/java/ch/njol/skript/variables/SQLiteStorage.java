@@ -8,7 +8,7 @@ import ch.njol.skript.config.SectionNode;
 	- SQLite adapter for {@link SQLStorage} that stores data in a file.
 
 	- It provides the SQLite table setup and opens the configured database file
-	using the bundled JDBC driver. The parent class handles loading, queued SQL
+	using Paper's JDBC driver. The parent class handles loading, queued SQL
 	changes, commits, and optional monitoring. {@link JdbcDatabase} handles the
 	connection.
 

@@ -286,7 +286,7 @@ public class EffChange extends Effect {
 				}
 				if (!variable.isLocal() && !variable.isEphemeral()) {
 					ClassInfo<?> changerInfo = Classes.getSuperClassInfo(changer.getReturnType());
-					if (changerInfo.getC() != Object.class && !Classes.mayBeSerializable(changer.getReturnType())
+					if (changerInfo.getC() != Object.class && changerInfo.getSerializer() == null && changerInfo.getSerializeAs() == null
 						&& !SkriptConfig.disableObjectCannotBeSavedWarnings.value()
 						&& getParser().isActive() && !getParser().getCurrentScript().suppressesWarning(ScriptWarning.VARIABLE_SAVE)) {
 						Skript.warning(changerInfo.getName().withIndefiniteArticle() + " cannot be saved. That is, the contents of the variable "
