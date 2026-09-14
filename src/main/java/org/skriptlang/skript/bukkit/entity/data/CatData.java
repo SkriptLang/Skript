@@ -6,7 +6,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterators;
-import org.bukkit.Registry;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.entity.Cat;
 import org.bukkit.entity.Cat.Type;
 import org.bukkit.entity.EntityType;
@@ -24,7 +24,8 @@ public class CatData extends EntityData<Cat> {
 		"<age> [%-cattype%] cat[plural:s]", "tamed <age> ocelot[plural:s]", "baby:[%-cattype%] kitten[plural:s]");
 
 	public static void register() {
-		Classes.registerClass(new RegistryClassInfo<>(Cat.Type.class, Registry.CAT_VARIANT, "cattype", "cat types")
+		var catTypeClassInfo = new RegistryClassInfo<>(Cat.Type.class, RegistryKey.CAT_VARIANT, "cattype", "cat types");
+		Classes.registerClass(catTypeClassInfo
 			.user("cat ?(type|race)s?")
 			.name("Cat Type")
 			.description("Represents the race/type of a cat entity.",
@@ -42,7 +43,7 @@ public class CatData extends EntityData<Cat> {
 				.build()
 		);
 
-		TYPES = Iterators.toArray(Classes.getExactClassInfo(Type.class).getSupplier().get(), Type.class);
+		TYPES = Iterators.toArray(catTypeClassInfo.getSupplier().get(), Type.class);
 	}
 
 	private @Nullable Type type = null;

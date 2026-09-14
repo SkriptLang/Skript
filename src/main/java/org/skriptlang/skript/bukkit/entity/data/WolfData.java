@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.entity.data;
 
 import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
@@ -9,6 +10,7 @@ import ch.njol.skript.util.Color;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterators;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.DyeColor;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Wolf;
@@ -41,13 +43,8 @@ public class WolfData extends EntityData<Wolf> {
 	private static Variant[] VARIANTS;
 
 	public static void register() {
-		ClassInfo<?> wolfVariantClassInfo = BukkitUtils.getRegistryClassInfo(
-			"org.bukkit.entity.Wolf$Variant",
-			"WOLF_VARIANT",
-			"wolfvariant",
-			"wolf variants"
-		);
-		Classes.registerClass(wolfVariantClassInfo
+		var wolfVariantInfo = new RegistryClassInfo<>(Variant.class, RegistryKey.WOLF_VARIANT, "wolfvariant", "wolf variants");
+		Classes.registerClass(wolfVariantInfo
 			.user("wolf ?variants?")
 			.name("Wolf Variant")
 			.description("Represents the variant of a wolf entity.",
@@ -56,7 +53,7 @@ public class WolfData extends EntityData<Wolf> {
 			.requiredPlugins("Minecraft 1.21+")
 			.documentationId("WolfVariant"));
 
-		VARIANTS = Iterators.toArray(Classes.getExactClassInfo(Variant.class).getSupplier().get(), Variant.class);
+		VARIANTS = Iterators.toArray(wolfVariantInfo.getSupplier().get(), Variant.class);
 
 		registerInfo(
 			infoBuilder(WolfData.class, "wolf")
@@ -68,7 +65,7 @@ public class WolfData extends EntityData<Wolf> {
 		);
 	}
 
-	private @Nullable Object variant = null;
+	private @Nullable Variant variant = null;
 	private @Nullable DyeColor collarColor = null;
 	private Kleenean isAngry = Kleenean.UNKNOWN;
 	private Kleenean isTamed = Kleenean.UNKNOWN;
@@ -101,7 +98,7 @@ public class WolfData extends EntityData<Wolf> {
 		isTamed = state.tamed;
 		if (exprs[0] != null) {
 			//noinspection unchecked
-			variant = ((Literal<Wolf.Variant>) exprs[0]).getSingle();
+			variant = ((Literal<Variant>) exprs[0]).getSingle();
 		}
 		if (exprs[1] != null) {
 			//noinspection unchecked
@@ -128,9 +125,9 @@ public class WolfData extends EntityData<Wolf> {
 		wolf.setTamed(isTamed.isTrue());
 		if (collarColor != null)
 			wolf.setCollarColor(collarColor);
-		Object variantSet = variant != null ? variant : CollectionUtils.getRandom(VARIANTS);
+		Variant variantSet = variant != null ? variant : CollectionUtils.getRandom(VARIANTS);
 		assert variantSet != null;
-		wolf.setVariant((Wolf.Variant) variantSet);
+		wolf.setVariant(variantSet);
 	}
 
 	@Override

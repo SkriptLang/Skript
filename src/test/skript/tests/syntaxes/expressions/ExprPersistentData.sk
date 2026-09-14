@@ -241,7 +241,7 @@ test "persistent data add to singular value of differing type":
 	assert date data tag "date" of {_item} is {_now} + 1 day with "adding to date should work"
 	parse:
 		add "hello" to date data tag "date" of {_item}
-	assert last parse logs contains """hello"" can't be added to date data tag ""date"" of {_item} because the former is not a time span" with "adding incompatible type should error"
+	assert last parse logs contains """hello"" can't be added to date data tag ""date"" of {_item} (as java.lang.Object) because the former is not a time span" with "adding incompatible type should error"
 
 test "persistent data add to list":
 	set {_item} to a diamond sword

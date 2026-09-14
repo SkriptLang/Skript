@@ -13,9 +13,9 @@ jobs:
         if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
         uses: ./.github/workflows/parallelize-tests.yml
         with:
-            environments: 26.1.2
+            environments: 26.1.2,26.2
             java_version: 25
-            parallel_jobs: 3
+            parallel_jobs: 1
 
     build:
         name: ${{ matrix.display }}
@@ -28,7 +28,7 @@ jobs:
               with:
                   submodules: recursive
             - name: validate gradle wrapper
-              uses: gradle/actions/wrapper-validation@v6
+              uses: gradle/actions/wrapper-validation@v6.2.0
             - name: Set up JDK 25
               uses: actions/setup-java@v5
               with:

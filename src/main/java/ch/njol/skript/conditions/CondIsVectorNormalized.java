@@ -13,11 +13,12 @@ import org.bukkit.util.Vector;
 @Name("Is Normalized")
 @Description("Checks whether a vector is normalized i.e. length of 1")
 @Example("vector of player's location is normalized")
+@Example("vector in direction of player is normalised")
 @Since("2.5.1")
 public class CondIsVectorNormalized extends PropertyCondition<Vector> {
 	
 	static {
-		register(CondIsVectorNormalized.class, "normalized", "vectors");
+		register(CondIsVectorNormalized.class, "normali(s|z)ed", "vectors");
 	}
 	
 	@Override

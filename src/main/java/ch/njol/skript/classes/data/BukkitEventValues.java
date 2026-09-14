@@ -62,6 +62,7 @@ import org.bukkit.event.world.WorldEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import org.skriptlang.skript.bukkit.item.book.elements.expressions.ExprBookPages;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue.Time;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
@@ -188,9 +189,6 @@ public final class BukkitEventValues {
 		if (Skript.methodExists(BlockCanBuildEvent.class, "getPlayer")) {
 			registry.register(EventValue.simple(BlockCanBuildEvent.class, Player.class, BlockCanBuildEvent::getPlayer));
 		}
-		// SignChangeEvent
-		registry.register(EventValue.simple(SignChangeEvent.class, Player.class, SignChangeEvent::getPlayer));
-		registry.register(EventValue.simple(SignChangeEvent.class, Component[].class, event -> event.lines().toArray(new Component[0])));
 
 		// === EntityEvents ===
 		registry.register(EventValue.builder(EntityEvent.class, Entity.class)
@@ -346,10 +344,12 @@ public final class BukkitEventValues {
 		registry.register(EventValue.simple(PlayerPickupItemEvent.class, Item.class, PlayerPickupItemEvent::getItem));
 		registry.register(EventValue.simple(PlayerPickupItemEvent.class, ItemStack.class, event -> event.getItem().getItemStack()));
 		registry.register(EventValue.simple(PlayerPickupItemEvent.class, Entity.class, PlayerEvent::getPlayer));
+		registry.register(EventValue.simple(PlayerPickupItemEvent.class, Location.class, event -> event.getItem().getLocation()));
 		// EntityPickupItemEvent
 		registry.register(EventValue.simple(EntityPickupItemEvent.class, Entity.class, EntityPickupItemEvent::getEntity));
 		registry.register(EventValue.simple(EntityPickupItemEvent.class, Item.class, EntityPickupItemEvent::getItem));
 		registry.register(EventValue.simple(EntityPickupItemEvent.class, ItemType.class, event -> new ItemType(event.getItem().getItemStack())));
+		registry.register(EventValue.simple(EntityPickupItemEvent.class, Location.class, event -> event.getItem().getLocation()));
 		// PlayerItemConsumeEvent
 		registry.register(EventValue.builder(PlayerItemConsumeEvent.class, ItemStack.class)
 			.getter(PlayerItemConsumeEvent::getItem)
@@ -576,11 +576,11 @@ public final class BukkitEventValues {
 			return book;
 		}));
 		registry.register(EventValue.builder(PlayerEditBookEvent.class, Component[].class)
-			.getter(event -> event.getPreviousBookMeta().pages().toArray(new Component[0]))
+			.getter(event -> ExprBookPages.getPages(event.getPreviousBookMeta()).toArray(new Component[0]))
 			.time(Time.PAST)
 			.build());
 		registry.register(EventValue.simple(PlayerEditBookEvent.class, Component[].class, event ->
-			event.getNewBookMeta().pages().toArray(new Component[0])));
+			ExprBookPages.getPages(event.getNewBookMeta()).toArray(new Component[0])));
 		//ItemDespawnEvent
 		registry.register(EventValue.simple(ItemDespawnEvent.class, Item.class, ItemDespawnEvent::getEntity));
 		registry.register(EventValue.simple(ItemDespawnEvent.class, ItemStack.class, event -> event.getEntity().getItemStack()));

@@ -1,0 +1,2 @@
+test "5923 inventory name array store exception":
+    set {_inv} to shulker box inventory named {_}

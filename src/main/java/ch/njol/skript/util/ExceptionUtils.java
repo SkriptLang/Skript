@@ -17,7 +17,7 @@ public abstract class ExceptionUtils {
 		if (Language.keyExists(IO_NODE + "." + e.getClass().getSimpleName())) {
 			return Language.format(IO_NODE + "." + e.getClass().getSimpleName(), e.getLocalizedMessage());
 		}
-		if (Skript.testing())
+		if (Skript.debug())
 			e.printStackTrace();
 		return e.getLocalizedMessage();
 	}
