@@ -520,25 +520,24 @@ public class ScriptLoader {
 
 		ScriptInfo scriptInfo = new ScriptInfo();
 
-		List<LoadingScriptInfo> scripts = new ArrayList<>();
-
-		List<CompletableFuture<Void>> scriptInfoFutures = new ArrayList<>();
+		List<CompletableFuture<LoadingScriptInfo>> scriptInfoFutures = new ArrayList<>();
 		for (Config config : configs) {
 			if (config == null)
 				throw new NullPointerException();
 
-			CompletableFuture<Void> future = makeFuture(() -> {
-				LoadingScriptInfo info = loadScript(config);
-				scripts.add(info);
-				scriptInfo.add(new ScriptInfo(1, info.structures.size()));
-				return null;
-			}, openCloseable);
+			CompletableFuture<LoadingScriptInfo> future = makeFuture(() -> loadScript(config), openCloseable);
 
 			scriptInfoFutures.add(future);
 		}
 
 		return CompletableFuture.allOf(scriptInfoFutures.toArray(new CompletableFuture[0]))
 			.thenApply(ignored -> {
+				List<LoadingScriptInfo> scripts = scriptInfoFutures.stream()
+						.map(CompletableFuture::join)
+						.toList();
+				for (LoadingScriptInfo info : scripts)
+					scriptInfo.add(new ScriptInfo(1, info.structures.size()));
+
 				// TODO in the future this won't work when parallel loading is fixed
 				// It does now though so let's avoid calling getParser() a bunch.
 				ParserInstance parser = getParser();
