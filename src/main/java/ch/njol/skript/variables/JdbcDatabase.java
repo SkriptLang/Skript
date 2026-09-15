@@ -11,7 +11,7 @@ import java.sql.SQLException;
 	- Handles the JDBC connection used by {@link SQLStorage} and its adapters.
 	
 	- {@link ConnectionFactory} handles the database-specific connection setup,
-	so {@link MySQLStorage} and {@link SQLiteStorage} can use the same connection
+	so {@link SQLiteStorage} can use the connection
 	and statement code without needing another database plugin.
 	
 	- This class opens connections, prepares statements, and cleans up resources.

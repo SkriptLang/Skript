@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 	- The fields cannot be changed, but the byte array is not copied. Producers
 	and consumers should treat it as read-only after it has been handed over.
 
-	- The optional MySQL backend uses this same object for its queue, pending
+	- The MySQL backend uses this same object for its queue, pending
 	changes, and recovery journal.
 
 	- @see ch.njol.skript.registrations.Classes#serialize(Object)

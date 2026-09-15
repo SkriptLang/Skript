@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
-	- Optional MySQL backend selected by the main MySQL configuration.
+	- MySQL backend selected through the databases configuration.
 	It implements {@link VariablesStorage} directly instead of using the older
 	{@link SQLStorage} adapters.
 
@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 	are passed to {@link Variables}. If a row cannot be read, it is kept and
 	reported instead of being silently lost.
 
-	- If initialization fails, the normal configured storage can be used instead.
+	- If initialization fails, it is excluded from the configured storage list.
 	This also prevents partially loaded data from being published.
 
 	- After startup, one worker handles {@link MySQLConnectionPool}, the journal,
@@ -52,19 +52,25 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 	syncing with another storage system.
 */
 
-final class PooledMySQLStorage extends VariablesStorage {
+class PooledMySQLStorage extends VariablesStorage {
 
 	private final Queue<SerializedVariable> incoming = new ConcurrentLinkedQueue<>();
 	private final Map<String, SerializedVariable> pending = new LinkedHashMap<>();
 	private MySQLConnectionPool pool;
 	private MySQLJournal journal;
+	private File journalFile;
+	private static final Set<File> JOURNAL_FILES = new HashSet<>();
 	private String table;
 	private Thread worker;
 	private volatile boolean stopping;
 	private long lastError;
 
 	PooledMySQLStorage() {
-		super("optional MySQL");
+		this("MySQL");
+	}
+
+	PooledMySQLStorage(String type) {
+		super(type);
 	}
 
 	PooledMySQLStorage(MySQLConnectionPool pool, String table) {
@@ -77,12 +83,8 @@ final class PooledMySQLStorage extends VariablesStorage {
 	protected boolean load_i(SectionNode config) {
 		String phase = "reading configuration";
 		try {
-			if (!"true".equalsIgnoreCase(config.getValue("enabled")))
-				return false;
-			if (!".*".equals(config.getValue("pattern")))
-				throw new IllegalArgumentException("Optional MySQL requires pattern: .* (it replaces all databases)");
 			if ("true".equalsIgnoreCase(config.getValue("monitor changes")))
-				throw new IllegalArgumentException("Optional MySQL does not support monitoring or multiple servers");
+				throw new IllegalArgumentException("MySQL storage does not support monitoring or multiple servers");
 			String host = required(config, "host");
 			String database = required(config, "database");
 			String user = required(config, "user");
@@ -95,9 +97,15 @@ final class PooledMySQLStorage extends VariablesStorage {
 			if (password == null)
 				throw new IllegalArgumentException("Missing MySQL password entry (an empty value is allowed)");
 			File folder = Skript.getInstance().getDataFolder();
-			journal = new MySQLJournal(new File(folder, "mysql-pending.bin").toPath(),
+			File recovery = new File(folder, recoveryFileName(config)).getCanonicalFile();
+			synchronized (JOURNAL_FILES) {
+				if (!JOURNAL_FILES.add(recovery))
+					throw new IllegalArgumentException("Each MySQL database needs a different recovery file");
+				journalFile = recovery;
+			}
+			journal = new MySQLJournal(journalFile.toPath(),
 					host + ":" + port + "/" + database + "/" + table);
-			phase = "reading mysql-pending.bin (pending changes must belong to the configured database and table)";
+			phase = "reading recovery file " + journalFile.getName() + " (pending changes must belong to the configured database and table)";
 			pending.putAll(journal.read());
 			phase = "connecting to MySQL";
 			pool = new MySQLConnectionPool(host, port, database, user, password, sslMode);
@@ -143,7 +151,7 @@ final class PooledMySQLStorage extends VariablesStorage {
 			// Verify write permission and transaction support before publishing any variables.
 			phase = "checking write permissions for table " + table;
 			verifyWritable();
-			phase = "writing mysql-pending.bin";
+			phase = "writing recovery file " + journalFile.getName();
 			journal.write(pending);
 			Task.callSync(() -> {
 				values.forEach((name, value) -> Variables.variableLoaded(name, value, this));
@@ -156,7 +164,7 @@ final class PooledMySQLStorage extends VariablesStorage {
 					? e.getMessage() : e.getClass().getSimpleName();
 			if (e instanceof SQLException sql && !(e instanceof MySQLSchema.ValidationException))
 				reason += " (SQLState " + sql.getSQLState() + ", error code " + sql.getErrorCode() + ")";
-			Skript.error("Cannot initialize optional MySQL: " + reason + " while " + phase
+			Skript.error("Cannot initialize MySQL: " + reason + " while " + phase
 					+ ". Check the driver, settings, TLS certificates, table schema and database permissions.");
 			disconnect();
 			return false;
@@ -211,6 +219,15 @@ final class PooledMySQLStorage extends VariablesStorage {
 				return port;
 		} catch (NumberFormatException ignored) {}
 		throw new IllegalArgumentException("MySQL port must be between 1 and 65535");
+	}
+
+	static String recoveryFileName(SectionNode config) {
+		String name = config.getValue("recovery file");
+		if (name == null)
+			return "mysql-" + HexFormat.of().formatHex(hash(config.getKey().getBytes(StandardCharsets.UTF_8))) + ".bin";
+		if (!name.matches("[A-Za-z0-9_][A-Za-z0-9_.-]*"))
+			throw new IllegalArgumentException("MySQL recovery file must be a file name inside the Skript folder");
+		return name;
 	}
 
 	static String identifier(String value) {
@@ -269,7 +286,7 @@ final class PooledMySQLStorage extends VariablesStorage {
 					try {
 						journal.write(pending);
 						Skript.error("MySQL stopped with " + pending.size()
-								+ " pending variables saved in mysql-pending.bin for recovery.");
+								+ " pending variables saved in " + journalFile + " for recovery.");
 					} catch (IOException e) {
 						Skript.error("CRITICAL: Could not preserve " + pending.size()
 								+ " pending MySQL variables on disk. These changes may be lost on shutdown.");
@@ -277,7 +294,7 @@ final class PooledMySQLStorage extends VariablesStorage {
 				}
 				disconnect();
 			}
-		}, "Skript optional MySQL writer");
+		}, "Skript MySQL writer");
 		worker.start();
 	}
 
@@ -285,7 +302,7 @@ final class PooledMySQLStorage extends VariablesStorage {
 		long now = System.currentTimeMillis();
 		if (now - lastError >= 30000) {
 			Skript.error("MySQL persistence failed. " + pending.size() + " changes remain pending; retrying. "
-					+ "Check database availability and free disk space for mysql-pending.bin.");
+					+ "Check database availability and free disk space for the recovery file.");
 			lastError = now;
 		}
 	}
@@ -376,6 +393,12 @@ final class PooledMySQLStorage extends VariablesStorage {
 
 	@Override
 	protected void disconnect() {
+		synchronized (JOURNAL_FILES) {
+			if (journalFile != null) {
+				JOURNAL_FILES.remove(journalFile);
+				journalFile = null;
+			}
+		}
 		if (pool != null)
 			pool.close();
 	}

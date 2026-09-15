@@ -17,7 +17,7 @@ import ch.njol.skript.config.SectionNode;
 
 	- File and backup handling is done through {@link VariablesStorage}.
 
-	- It does not use the optional MySQL backend's journal or connection pool.
+	- It does not use the MySQL backend's journal or connection pool.
 */
 
 public class SQLiteStorage extends SQLStorage {

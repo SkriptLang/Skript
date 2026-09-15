@@ -35,8 +35,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -64,14 +62,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 	This means the database code only deals with serialized data and does not
 	have to work with live Bukkit objects.
 
-	- At startup, optional MySQL is only selected if it starts successfully.
-	Otherwise, the normal configured databases are used.
+	- Databases are loaded from the databases section and matched in configuration
+	order using their variable-name patterns.
 
 	- Loaded values go through {@link #variableLoaded(String, Object, VariablesStorage)}
 	so they are handled the same way as other stored variables.
 
 	- The save queue keeps serialization separate from database work. Shutdown
-	empties the queue and waits for optional MySQL to finish before closing it,
+	empties the queue and waits for the dispatcher to finish before closing storages,
 	so accepted changes are not left behind.
 
 	- @see VariablesStorage
@@ -106,9 +104,7 @@ public class Variables {
 
 	// Register some things with Yggdrasil
 	static {
-		registerStorage(FlatFileStorage.class, "csv", "file", "flatfile");
-		registerStorage(SQLiteStorage.class, "sqlite");
-		registerStorage(MySQLStorage.class, "mysql");
+		VariablesStorage.registerBuiltInTypes();
 		yggdrasil.registerSingleClass(Kleenean.class, "Kleenean");
 		// Register ConfigurationSerializable, Bukkit's serialization system
 		yggdrasil.registerClassResolver(new ConfigurationSerializer<ConfigurationSerializable>() {
@@ -146,7 +142,6 @@ public class Variables {
 	 * The variable storages configured.
 	 */
 	static final List<VariablesStorage> STORAGES = new ArrayList<>();
-	private static boolean optionalMySQLActive;
 
 	/**
 	 * @return a copy of the list of variable storage handlers
@@ -219,26 +214,6 @@ public class Variables {
 
 		try {
 			boolean successful = true;
-
-			// Select the optional backend before opening any legacy storage. Loading both
-			// would trigger the existing automatic redistribution (including source deletion).
-			Node mysql = config.getMainNode().get("mysql");
-			if (mysql instanceof SectionNode mysqlConfig) {
-				String enabled = mysqlConfig.getValue("enabled");
-				if ("true".equalsIgnoreCase(enabled)) {
-					PooledMySQLStorage storage = new PooledMySQLStorage();
-					if (storage.load(mysqlConfig)) {
-						STORAGES.add(storage);
-						optionalMySQLActive = true;
-						Skript.info("MySQL enabled, loading variables from database; Other databases are left untouched.");
-						return true;
-					}
-					Skript.error("MySQL initialization failed. Falling back to the default database. "
-							+ "MySQL data and pending recovery data have been left intact.");
-				} else if (enabled != null && !"false".equalsIgnoreCase(enabled)) {
-					Skript.error("mysql.enabled must be true or false. Using the configured databases.");
-				}
-			}
 
 			for (Node node : (SectionNode) databases) {
 				if (node instanceof SectionNode) {
@@ -330,8 +305,7 @@ public class Variables {
 			int notStoredVariablesCount = onStoragesLoaded();
 			if (notStoredVariablesCount != 0) {
 				Skript.warning(notStoredVariablesCount + " variables were possibly discarded due to not belonging to any database " +
-						"(SQL databases keep such variables and will continue to generate this warning, " +
-						"while CSV discards them).");
+						"(whether unmatched values are retained depends on the storage backend).");
 			}
 
 			// Interrupt the loading logger thread to make it exit earlier
@@ -950,26 +924,15 @@ public class Variables {
 			saveQueue.add(change);
 	}
 
-	private static final Set<String> serializationFailures = new HashSet<>();
-
 	/**
 	 * Converts a main-thread mutation to storage data using the shared type registry.
 	 * A failed non-null value is skipped, never confused with an explicit deletion.
 	 * No backend sees live Bukkit objects or decides which types are persistable.
 	 */
 	static @Nullable SerializedVariable serializeChange(String name, @Nullable Object value) {
-		try {
-			SerializedVariable.Value serialized = serialize(value);
-			if (value == null || serialized != null) {
-				serializationFailures.remove(name);
-				return new SerializedVariable(name, serialized);
-			}
-		} catch (Exception | LinkageError e) {
-			// Report once per variable below; keep the previous persisted value intact.
-		}
-		if (serializationFailures.add(name))
-			Skript.error("Cannot persist variable {" + name + "}; its type or a nested value has no usable serializer. "
-					+ "It remains in memory and its last saved value is unchanged.");
+		SerializedVariable.Value serialized = serialize(value);
+		if (value == null || serialized != null)
+			return new SerializedVariable(name, serialized);
 		return null;
 	}
 
@@ -1029,19 +992,18 @@ public class Variables {
 		// Then we can safely interrupt and stop the thread
 		closed = true;
 		saveThread.interrupt();
-		// The optional writer must receive the last dequeued change before flushing.
-		if (optionalMySQLActive) {
-			boolean interrupted = false;
-			while (saveThread.isAlive()) {
-				try {
-					saveThread.join();
-				} catch (InterruptedException e) {
-					interrupted = true;
-				}
+		// An empty queue may still have a change being dispatched. Wait until every
+		// accepted change has reached its storage before the storages are closed.
+		boolean interrupted = false;
+		while (saveThread.isAlive()) {
+			try {
+				saveThread.join();
+			} catch (InterruptedException e) {
+				interrupted = true;
 			}
-			if (interrupted)
-				Thread.currentThread().interrupt();
 		}
+		if (interrupted)
+			Thread.currentThread().interrupt();
 	}
 
 	/**

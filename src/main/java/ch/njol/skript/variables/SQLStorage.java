@@ -20,7 +20,7 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.util.SynchronizedReference;
 
 /**
-	- {@link MySQLStorage} and {@link SQLiteStorage} provide the database-specific
+	- {@link SQLiteStorage} provides the database-specific
 	table setup and connection code. This class handles loading variables, writing
 	changes, committing them, and checking for changes made by another writer.
 

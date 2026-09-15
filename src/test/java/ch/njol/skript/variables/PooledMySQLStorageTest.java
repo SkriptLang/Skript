@@ -14,32 +14,55 @@ public class PooledMySQLStorageTest {
 	@Test
 	public void shippedConfigKeepsCsvAsDefault() throws Exception {
 		Config config = new Config(getClass().getResourceAsStream("/config.sk"), "config.sk", false, true, ":");
-		SectionNode mysql = (SectionNode) config.getMainNode().get("mysql");
-		assertEquals("false", mysql.getValue("enabled"));
-		assertNotNull(mysql.getValue("password"));
 		SectionNode databases = (SectionNode) config.getMainNode().get("databases");
+		SectionNode mysql = (SectionNode) databases.get("mysql variables");
+		assertNull(config.getMainNode().get("mysql"));
+		assertEquals("disabled", mysql.getValue("type"));
+		assertNotNull(mysql.getValue("password"));
 		SectionNode defaults = (SectionNode) databases.get("default");
 		assertEquals("CSV", defaults.getValue("type"));
 		assertEquals("./plugins/Skript/variables.csv", defaults.getValue("file"));
 	}
 
 	@Test
-	public void disabledOrAbsentFlagDoesNotReadConnectionSettings() {
-		for (String enabled : new String[]{null, "false", "invalid"}) {
-			SectionNode config = new SectionNode("mysql", "", new Config("test", null).getMainNode(), 1) {
-				@Override
-				public String getValue(String key) {
-					assertEquals("Disabled backend must not read connection settings", "enabled", key);
-					return enabled;
-				}
-			};
-			assertFalse(new PooledMySQLStorage().load_i(config));
-		}
+	public void databasePatternsApplyToMySQL() {
+		org.junit.Assume.assumeNotNull(org.bukkit.Bukkit.getServer());
+		SectionNode config = config("players", java.util.Map.of("pattern", "player::.*"));
+		PooledMySQLStorage storage = new MySQLStorage("MySQL") {
+			@Override
+			protected boolean load_i(SectionNode section) {
+				return false; // Only test the shared configuration, without opening JDBC.
+			}
+		};
+		assertFalse(storage.load(config));
+		assertTrue(storage.accept("player::name"));
+		assertFalse(storage.accept("global::name"));
+	}
+
+	@Test
+	public void journalsAreStableAndSeparateForEachDatabase() {
+		SectionNode first = config("first", java.util.Map.of());
+		SectionNode second = config("second", java.util.Map.of());
+		assertEquals(PooledMySQLStorage.recoveryFileName(first), PooledMySQLStorage.recoveryFileName(first));
+		assertNotEquals(PooledMySQLStorage.recoveryFileName(first), PooledMySQLStorage.recoveryFileName(second));
+		assertEquals("mysql-pending.bin", PooledMySQLStorage.recoveryFileName(
+				config("first", java.util.Map.of("recovery file", "mysql-pending.bin"))));
+		assertThrows(IllegalArgumentException.class, () -> PooledMySQLStorage.recoveryFileName(
+				config("first", java.util.Map.of("recovery file", "../pending.bin"))));
+	}
+
+	private static SectionNode config(String name, java.util.Map<String, String> settings) {
+		return new SectionNode(name, "", new Config("test", null).getMainNode(), 1) {
+			@Override
+			public String getValue(String key) {
+				return settings.get(key);
+			}
+		};
 	}
 
 	@Test
 	public void invalidInitializationReturnsFailureWithoutPublishingVariables() {
-		var settings = java.util.Map.of("enabled", "true", "pattern", ".*", "host", "localhost",
+		var settings = java.util.Map.of("pattern", ".*", "host", "localhost",
 				"database", "skript", "user", "test", "port", "0");
 		SectionNode config = new SectionNode("mysql", "", new Config("test", null).getMainNode(), 1) {
 			@Override
@@ -51,7 +74,7 @@ public class PooledMySQLStorageTest {
 		try (var handler = new ch.njol.skript.log.LogHandler() {
 			@Override
 			public LogResult log(ch.njol.skript.log.LogEntry entry) {
-				assertTrue(entry.getMessage().startsWith("Cannot initialize optional MySQL:"));
+				assertTrue(entry.getMessage().startsWith("Cannot initialize MySQL:"));
 				return LogResult.DO_NOT_LOG;
 			}
 		}.start()) {
@@ -66,7 +89,8 @@ public class PooledMySQLStorageTest {
 		for (String port : new String[]{"", "abc", "0", "-1", "65536", "999999999999"})
 			assertThrows(IllegalArgumentException.class, () -> PooledMySQLStorage.port(port));
 		Config config = new Config(getClass().getResourceAsStream("/config.sk"), "config.sk", false, true, ":");
-		SectionNode mysql = (SectionNode) config.getMainNode().get("mysql");
+		SectionNode databases = (SectionNode) config.getMainNode().get("databases");
+		SectionNode mysql = (SectionNode) databases.get("mysql variables");
 		String configuredTable = PooledMySQLStorage.required(mysql, "table");
 		assertEquals(configuredTable, PooledMySQLStorage.identifier(configuredTable));
 		for (String table : new String[]{"", "x; DROP TABLE users", "`variables`", "a.b", "x".repeat(65)})

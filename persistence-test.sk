@@ -4,7 +4,7 @@
 # Nothing is seeded or reset automatically on script/server load.
 #
 # BASIC RESTART TEST (repeat independently for MySQL, SQLite and CSV):
-#   1. Configure ONE backend to handle persistprobe::* and start the server.
+#   1. Configure databases: entries to route persistprobe::* to ONE backend and start the server.
 #      For MySQL, select a fresh custom table; verify its name in the database.
 #   2. /persistprobe seed
 #   3. /persistprobe check 1
@@ -14,7 +14,7 @@
 #   7. /persistprobe delete
 #   8. Fully stop/start; /persistprobe empty
 #
-# MYSQL OUTAGE / JOURNAL TEST (optional pooled MySQL backend):
+# MYSQL OUTAGE / JOURNAL TEST (type: MySQL under databases:):
 #   1. /persistprobe seed, then stop/start and /persistprobe check 1.
 #   2. Stop MySQL externally; /persistprobe update.
 #   3a. Restore MySQL, allow retries to finish, stop/start Minecraft, check 2.

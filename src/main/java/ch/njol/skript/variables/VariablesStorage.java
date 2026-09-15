@@ -49,6 +49,13 @@ import ch.njol.util.Closeable;
 @SuppressWarnings({"SuspiciousIndentAfterControlStatement", "removal"})
 public abstract class VariablesStorage implements Closeable {
 
+	/** Registers the built-in backends without exposing their implementations to the dispatcher. */
+	static void registerBuiltInTypes() {
+		Variables.registerStorage(FlatFileStorage.class, "csv", "file", "flatfile");
+		Variables.registerStorage(SQLiteStorage.class, "sqlite");
+		Variables.registerStorage(MySQLStorage.class, "mysql");
+	}
+
 	/**
 	 * The size of the variable changes queue.
 	 */

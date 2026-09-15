@@ -18,8 +18,8 @@ import java.sql.SQLException;
 	connection handles after they're done, and the backend closes the pool when
 	it shuts down. This class does not handle concurrent access itself.
 	
-	- {@link MySQLStorage} uses the same database settings, such as the driver,
-	encoding, timeouts, and TLS settings. It does not use this pool, though.
+	- {@link MySQLStorage} exposes this backend through the databases configuration.
+	The pool applies the driver, encoding, timeouts and TLS settings.
 */
 
 final class MySQLConnectionPool implements AutoCloseable {

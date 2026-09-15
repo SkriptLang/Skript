@@ -38,7 +38,17 @@ public class MySQLRegisteredValueTest {
 				assertEquals(large, Classes.deserialize(loaded.get("list::1").value.type, loaded.get("list::1").value.data));
 				assertEquals(42L, Classes.deserialize(loaded.get("list::2").value.type, loaded.get("list::2").value.data));
 				assertNull(loaded.get("list::3").value);
-				assertNull(Variables.serializeChange("unsupported-test", new Object()));
+				var inventory = Bukkit.createInventory(null, 27);
+				try (var handler = new ch.njol.skript.log.LogHandler() {
+					@Override
+					public LogResult log(ch.njol.skript.log.LogEntry entry) {
+						fail("Unsupported values should be skipped silently: " + entry.getMessage());
+						return LogResult.DO_NOT_LOG;
+					}
+				}.start()) {
+					assertNull(Variables.serializeChange("unsupported-test", new Object()));
+					assertNull(Variables.serializeChange("temporary-inventory", inventory));
+				}
 				assertNull(Variables.serializeChange("unsupported-test", null).value);
 			} finally {
 				Files.deleteIfExists(path);
