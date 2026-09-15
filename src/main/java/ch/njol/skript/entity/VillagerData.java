@@ -40,10 +40,7 @@ public class VillagerData extends EntityData<Villager> {
 	});
 
 	static {
-		// Keep the legacy ID only while Bukkit represents professions as enums.
-		// Registry implementations must use the same ID as their ClassInfo header.
-		if (Profession.class.isEnum())
-			Variables.yggdrasil.registerSingleClass(Profession.class, "Villager.Profession");
+		Variables.yggdrasil.registerSingleClass(Profession.class, "Villager.Profession");
 
 		EntityData.register(VillagerData.class, "villager", Villager.class, 0, PATTERNS.getPatterns());
 		PROFESSIONS = new Profession[] {Profession.NONE, Profession.ARMORER, Profession.BUTCHER, Profession.CARTOGRAPHER,

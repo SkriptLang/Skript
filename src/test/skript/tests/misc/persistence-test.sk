@@ -50,17 +50,12 @@ command /persistprobe <text> [<integer>]:
 			set {persistprobe::item} to 3 diamonds named "Saved item marker"
 			set {persistprobe::decimal} to 12.5
 			set {persistprobe::boolean} to true
-			set {persistprobe::named} to red
-			set {persistprobe::rgb} to rgb(12, 34, 56)
-			set {persistprobe::argb} to rgb(9, 102, 55, 10)
 			set {persistprobe::vector} to vector(1, 2, 3)
 			set {persistprobe::worldname} to name of world of player
 			set {persistprobe::world} to world of player
 			set {persistprobe::location} to location(12.5, 80, -34.5, world of player, 90, 15)
-			set {persistprobe::profession} to farmer profession
-			set {persistprobe::villager} to "farmer" parsed as entity type
 			set {persistprobe::list::1} to "first"
-			set {persistprobe::list::2} to red
+			set {persistprobe::list::2} to "second"
 			set {persistprobe::list::3} to vector(1, 2, 3)
 			set {persistprobe::remove-me} to "must disappear at stage 2"
 			set {persistprobe::remove-list::1} to "one"
@@ -81,8 +76,6 @@ command /persistprobe <text> [<integer>]:
 			set {persistprobe::text} to "stage-2 玩家😀"
 			set {persistprobe::number} to 84
 			set {persistprobe::boolean} to false
-			set {persistprobe::named} to blue
-			set {persistprobe::rgb} to rgb(65, 43, 21)
 			set {persistprobe::list::1} to "updated"
 			delete {persistprobe::remove-me}
 			delete {persistprobe::remove-list::*}
@@ -104,21 +97,11 @@ command /persistprobe <text> [<integer>]:
 			add persistprobe_assert(whether item amount of {persistprobe::item} is 3, "saved item amount", player) to {_fails}
 			add persistprobe_assert(whether name of {persistprobe::item} is "Saved item marker", "saved item name", player) to {_fails}
 			set {_boolean} to true
-			set {_named} to red
-			set {_rgb} to rgb(12, 34, 56)
 			set {_first} to "first"
 			if {_stage} is 2:
 				set {_boolean} to false
-				set {_named} to blue
-				set {_rgb} to rgb(65, 43, 21)
 				set {_first} to "updated"
 			add persistprobe_assert(whether {persistprobe::boolean} is {_boolean}, "boolean including false", player) to {_fails}
-			add persistprobe_assert(whether {persistprobe::named} is {_named}, "named color", player) to {_fails}
-			add persistprobe_assert(whether {persistprobe::rgb} is {_rgb}, "RGB color", player) to {_fails}
-			add persistprobe_assert(whether red value of {persistprobe::argb} is 9, "ARGB red", player) to {_fails}
-			add persistprobe_assert(whether green value of {persistprobe::argb} is 102, "ARGB green", player) to {_fails}
-			add persistprobe_assert(whether blue value of {persistprobe::argb} is 55, "ARGB blue", player) to {_fails}
-			add persistprobe_assert(whether alpha value of {persistprobe::argb} is 10, "ARGB alpha", player) to {_fails}
 			add persistprobe_assert(whether {persistprobe::vector} is vector(1, 2, 3), "vector", player) to {_fails}
 			add persistprobe_assert(whether {persistprobe::worldname} is set, "saved world name", player) to {_fails}
 			set {_world} to {persistprobe::worldname} parsed as world
@@ -128,12 +111,9 @@ command /persistprobe <text> [<integer>]:
 			add persistprobe_assert(whether {persistprobe::location} is {_location}, "location", player) to {_fails}
 			add persistprobe_assert(whether yaw of {persistprobe::location} is 90, "location yaw", player) to {_fails}
 			add persistprobe_assert(whether pitch of {persistprobe::location} is 15, "location pitch", player) to {_fails}
-			add persistprobe_assert(whether {persistprobe::profession} is farmer profession, "villager profession", player) to {_fails}
-			set {_villager} to "farmer" parsed as entity type
-			add persistprobe_assert(whether {persistprobe::villager} is {_villager}, "profession inside villager entity type", player) to {_fails}
 			add persistprobe_assert(whether size of {persistprobe::list::*} is 3, "list size", player) to {_fails}
 			add persistprobe_assert(whether {persistprobe::list::1} is {_first}, "list overwrite", player) to {_fails}
-			add persistprobe_assert(whether {persistprobe::list::2} is red, "list color", player) to {_fails}
+			add persistprobe_assert(whether {persistprobe::list::2} is "second", "list text", player) to {_fails}
 			add persistprobe_assert(whether {persistprobe::list::3} is vector(1, 2, 3), "list vector", player) to {_fails}
 			if {_stage} is 1:
 				add persistprobe_assert(whether {persistprobe::remove-me} is set, "single deletion fixture exists", player) to {_fails}

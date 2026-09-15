@@ -372,8 +372,7 @@ public class SkriptClasses {
 					public String toVariableNameString(Color color) {
 						return "" + color.getName().toLowerCase(Locale.ENGLISH).replace('_', ' ');
 					}
-				})
-				.serializer(new ColorSerializer()));
+				}));
 
 		Classes.registerClass(new EnumClassInfo<>(TreeSpecies.class, "treetype", "tree types")
 				.user("tree ?types?", "trees?")

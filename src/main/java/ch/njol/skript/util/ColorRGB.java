@@ -1,5 +1,6 @@
 package ch.njol.skript.util;
 
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.Math2;
 import ch.njol.yggdrasil.Fields;
 import org.apache.commons.lang.math.NumberUtils;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -150,27 +152,21 @@ public class ColorRGB implements Color {
 	}
 
 	@Override
-	public Fields serialize() {
-		Fields fields = new Fields();
-		fields.putPrimitive("argb", asARGB());
-		return fields;
+	public Fields serialize() throws NotSerializableException {
+		return new Fields(this, Variables.yggdrasil);
 	}
 
 	@Override
-	public void deserialize(Fields fields) throws StreamCorruptedException {
-		org.bukkit.Color restored = org.bukkit.Color.fromARGB(fields.getPrimitive("argb", int.class));
-		bukkit = restored;
-		dye = DyeColor.getByColor(restored);
-	}
-
-	@Override
-	public boolean equals(Object other) {
-		return other instanceof ColorRGB color && bukkit.equals(color.bukkit);
-	}
-
-	@Override
-	public int hashCode() {
-		return bukkit.hashCode();
+	public void deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
+		org.bukkit.Color b = fields.getObject("bukkit", org.bukkit.Color.class);
+		DyeColor d = fields.getObject("dye", DyeColor.class);
+		if (b == null)
+			return;
+		if (d == null)
+			dye = DyeColor.getByColor(b);
+		else
+			dye = d;
+		bukkit = b;
 	}
 
 }

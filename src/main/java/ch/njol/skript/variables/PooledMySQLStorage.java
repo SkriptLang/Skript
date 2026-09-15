@@ -173,6 +173,7 @@ class PooledMySQLStorage extends VariablesStorage {
 
 	Map<String, Object> decodeValues(Map<String, SerializedVariable> loaded) {
 		Map<String, Object> result = new LinkedHashMap<>();
+		Set<String> failed = new TreeSet<>();
 		for (SerializedVariable variable : loaded.values()) {
 			try {
 				var info = Classes.getClassInfoNoError(variable.value.type);
@@ -183,10 +184,13 @@ class PooledMySQLStorage extends VariablesStorage {
 					throw new IOException("Unreadable persisted value");
 				result.put(variable.name, decoded);
 			} catch (Exception | LinkageError e) {
-				Skript.error("Cannot restore MySQL variable {" + variable.name + "} (type "
-						+ variable.value.type + ", " + e.getClass().getSimpleName()
-						+ "). Its raw data is retained; other variables will still load.");
+				failed.add(variable.name);
 			}
+		}
+		if (!failed.isEmpty()) {
+			Skript.error("SKRIPT WAS UNABLE TO LOAD THE FOLLOWING VARIABLES:");
+			for (String name : failed)
+				Skript.error("- " + name);
 		}
 		return result;
 	}

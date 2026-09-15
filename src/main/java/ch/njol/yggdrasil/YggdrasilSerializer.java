@@ -16,17 +16,6 @@ public abstract class YggdrasilSerializer<T> implements ClassResolver {
 	public abstract Class<? extends T> getClass(String id);
 	
 	/**
-	 * Whether enum values handled by this serializer use its object representation.
-	 * Enums normally use Yggdrasil's built-in enum encoding even when a serializer
-	 * is registered. A polymorphic serializer may opt in when its registered type
-	 * and field representation must also apply to enum implementations.
-	 * Changing this policy changes the serialized representation of those values.
-	 */
-	public boolean serializeEnumsAsObjects() {
-		return false;
-	}
-
-	/**
 	 * Serialises the given object.
 	 * <p>
 	 * Use <tt>return new {@link Fields#Fields(Object) Fields}(this);</tt> to emulate the default behaviour.

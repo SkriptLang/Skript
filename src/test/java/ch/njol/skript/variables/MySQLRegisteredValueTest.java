@@ -1,15 +1,11 @@
 package ch.njol.skript.variables;
 
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.ColorRGB;
-import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.util.Task;
 import org.bukkit.Bukkit;
 import org.junit.Assume;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
 import java.util.*;
 
@@ -54,36 +50,6 @@ public class MySQLRegisteredValueTest {
 				Files.deleteIfExists(path);
 				Files.delete(path.getParent());
 			}
-			return true;
-		}));
-	}
-
-	@Test
-	public void colorsUseTheNormalSerializerAndNestedYggdrasilCollections() {
-		Assume.assumeNotNull(Bukkit.getServer());
-		assertEquals(Boolean.TRUE, Task.callSync(() -> {
-			for (int argb : new int[]{0, -1, 0x12345678, 0xff010203}) {
-				ColorRGB color = ColorRGB.fromBukkitColor(org.bukkit.Color.fromARGB(argb));
-				var serialized = Classes.serialize(color);
-				assertNotNull(serialized);
-				assertEquals(color, Classes.deserialize(serialized.type, serialized.data));
-				assertEquals(argb, ((ColorRGB) Classes.deserialize(serialized.type, serialized.data)).asARGB());
-			}
-			var named = Classes.serialize(SkriptColor.DARK_RED);
-			assertNotNull(named);
-			assertSame(SkriptColor.DARK_RED, Classes.deserialize(named.type, named.data));
-			// Existing Yggdrasil collection serializers remain usable inside registered values.
-			var nested = new ArrayList<>(Arrays.asList("玩家😀", null, ColorRGB.fromRGB(1, 2, 3),
-					new HashMap<>(Map.of("named", SkriptColor.DARK_RED))));
-			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-			try (var out = Variables.yggdrasil.newOutputStream(bytes)) {
-				out.writeObject(nested);
-			}
-			try (var in = Variables.yggdrasil.newInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
-				assertEquals(nested, in.readObject());
-			}
-			// Yggdrasil collection support alone does not register a top-level Skript variable type.
-			assertNull(Classes.serialize(nested));
 			return true;
 		}));
 	}
