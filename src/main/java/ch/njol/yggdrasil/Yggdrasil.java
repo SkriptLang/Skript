@@ -175,12 +175,14 @@ public final class Yggdrasil {
 		return null;
 	}
 	
+	/**
+	 * Resolves a registered class ID, including abstract types used as array
+	 * components or class values. Object writers check instantiability separately.
+	 */
 	public String getID(Class<?> type) throws NotSerializableException {
 		String id = getIDNoError(type);
 		if (id == null)
 			throw new NotSerializableException("No ID found for " + type);
-		if (!isSerializable(type))
-			throw new NotSerializableException(type.getCanonicalName());
 		return id;
 	}
 	

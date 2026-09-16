@@ -11,6 +11,29 @@ import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
  * Serializer that allows Yggdrasil to automatically serialize classes that extend YggdrasilSerializable.
  */
 public class YggdrasilSerializer<T extends YggdrasilSerializable> extends Serializer<T> {
+
+	/**
+	 * Uses native Yggdrasil serialization with the concrete class's registered ID.
+	 * Unlike the default serializer, this does not map subclasses to the parent
+	 * ClassInfo ID. Each implementation must have a stable Yggdrasil registration
+	 * and satisfy its normal enum, constructor, or custom serializer requirements.
+	 * Variable storage retains the complete stream so enum tags and implementation
+	 * IDs survive loading through an interface or superclass ClassInfo.
+	 */
+	public static <T extends YggdrasilSerializable> YggdrasilSerializer<T> forRegisteredTypes() {
+		return new YggdrasilSerializer<>() {
+			@Override
+			public String getID(Class<?> type) {
+				assert info != null;
+				return type == info.getC() ? info.getCodeName() : null;
+			}
+
+			@Override
+			public boolean usesClassInfoHeader() {
+				return false;
+			}
+		};
+	}
 	
 	@Override
 	public final Fields serialize(final T o) throws NotSerializableException {

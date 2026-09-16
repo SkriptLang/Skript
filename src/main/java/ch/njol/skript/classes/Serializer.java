@@ -26,6 +26,18 @@ public abstract class Serializer<T> extends YggdrasilSerializer<T> {
 		this.info = info;
 	}
 	
+	/**
+	 * Whether variable storage can omit the Yggdrasil header and reconstruct it from
+	 * this serializer's ClassInfo. Return false when concrete implementations have
+	 * their own registered IDs or wire tags; their complete streams must be retained.
+	 * The default preserves the existing variable format. Changing this policy for
+	 * an already persisted type changes its payload format; existing values need
+	 * a compatible reader or must be saved again.
+	 */
+	public boolean usesClassInfoHeader() {
+		return true;
+	}
+
 	@Override
 	@Nullable
 	public Class<? extends T> getClass(final String id) {
