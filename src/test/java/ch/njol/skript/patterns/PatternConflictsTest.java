@@ -4,7 +4,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.conditions.*;
 import ch.njol.skript.effects.EffScriptFile;
-import ch.njol.skript.effects.EffWorldLoad;
 import ch.njol.skript.expressions.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Section;
@@ -16,6 +15,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.skriptlang.skript.bukkit.text.elements.expressions.ExprColored;
 import org.skriptlang.skript.bukkit.potion.elements.conditions.CondHasPotion;
+import org.skriptlang.skript.bukkit.world.elements.effects.EffLoadWorld;
 import org.skriptlang.skript.common.properties.elements.conditions.PropCondContains;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.registration.SyntaxInfo;
@@ -417,7 +417,7 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 		// Exclusions by amount of conflicts
 		// 1 conflict
 		EXCLUSIONS.add(new Exclusion("formatted %*%", ExprFormatDate.class, ExprColored.class));
-		EXCLUSIONS.add(new Exclusion("unload %*%", EffScriptFile.class, EffWorldLoad.class));
+		EXCLUSIONS.add(new Exclusion("unload %*%", EffScriptFile.class, EffLoadWorld.class));
 		EXCLUSIONS.add(new Exclusion("the %*% of %*%", ExprArmorSlot.class, ExprEntities.class));
 		EXCLUSIONS.add(new Exclusion("%*% of %*%", ExprArmorSlot.class, ExprEntities.class, ExprXOf.class));
 

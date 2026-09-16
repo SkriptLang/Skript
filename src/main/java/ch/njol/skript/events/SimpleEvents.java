@@ -87,18 +87,6 @@ public class SimpleEvents {
 				.description("Called when a new block <a href='#form'>forms</a> as a result of a block that can spread, e.g. water or mushrooms.")
 				.examples("on spread:")
 				.since("1.0");
-		Skript.registerEvent("Chunk Load", SimpleEvent.class, ChunkLoadEvent.class, "chunk load[ing]")
-				.description("Called when a chunk loads. The chunk might or might not contain mobs when it's loaded.")
-				.examples("on chunk load:")
-				.since("1.0");
-		Skript.registerEvent("Chunk Generate", SimpleEvent.class, ChunkPopulateEvent.class, "chunk (generat|populat)(e|ing)")
-				.description("Called after a new chunk was generated.")
-				.examples("on chunk generate:")
-				.since("1.0");
-		Skript.registerEvent("Chunk Unload", SimpleEvent.class, ChunkUnloadEvent.class, "chunk unload[ing]")
-				.description("Called when a chunk is unloaded due to not being near any player.")
-				.examples("on chunk unload:")
-				.since("1.0");
 		Skript.registerEvent("Creeper Power", SimpleEvent.class, CreeperPowerEvent.class, "creeper power")
 				.description("Called when a creeper is struck by lighting and gets powered. Cancel the event to prevent the creeper from being powered.")
 				.examples("on creeper power:")
@@ -136,10 +124,6 @@ public class SimpleEvents {
 		Skript.registerEvent("Leaves Decay", SimpleEvent.class, LeavesDecayEvent.class, "leaves decay[ing]")
 				.description("Called when a leaf block decays due to not being connected to a tree.")
 				.examples("on leaves decay:")
-				.since("1.0");
-		Skript.registerEvent("Lightning Strike", SimpleEvent.class, LightningStrikeEvent.class, "lightning [strike]")
-				.description("Called when lightning strikes.")
-				.examples("on lightning:", "\tspawn a zombie at location of event-entity")
 				.since("1.0");
 		Skript.registerEvent("Pig Zap", SimpleEvent.class, PigZapEvent.class, "pig[ ]zap")
 				.description("Called when a pig is stroke by lightning and transformed into a zombie pigman. Cancel the event to prevent the transformation.")
@@ -221,12 +205,6 @@ public class SimpleEvents {
 						"	player is not sprinting",
 						"	send \"Run!\"")
 				.since("1.0");
-		Skript.registerEvent("Portal Create", SimpleEvent.class, PortalCreateEvent.class, "portal creat(e|ion)")
-				.description("Called when a portal is created, either by a player or mob lighting an obsidian frame on fire, or by a nether portal creating its teleportation target in the nether/overworld.",
-						"In Minecraft 1.14+, you can use <a href='#ExprEntity'>the player</a> in this event.", "Please note that there may not always be a player (or other entity) in this event.")
-				.examples("on portal create:")
-				.requiredPlugins("Minecraft 1.14+ (event-entity support)")
-				.since("1.0, 2.5.3 (event-entity support)");
 		Skript.registerEvent("Projectile Hit", SimpleEvent.class, ProjectileHitEvent.class, "projectile hit")
 				.description("Called when a projectile hits an entity or a block.")
 				.examples("on projectile hit:",
@@ -245,6 +223,11 @@ public class SimpleEvents {
 						"\tif projectile is an arrow:",
 						"\t\tsend \"you shot an arrow!\" to shooter")
 				.since("1.0");
+		Skript.registerEvent("Sign Change", SimpleEvent.class, SignChangeEvent.class, "sign (chang[e]|edit)[ing]", "[player] (chang[e]|edit)[ing] [a] sign")
+				.description("As signs are placed empty, this event is called when a player is done editing a sign.")
+				.examples("on sign change:",
+						"	line 2 is empty",
+						"	set line 1 to \"&lt;red&gt;%line 1%\"");
 		Skript.registerEvent("Spawn Change", SimpleEvent.class, SpawnChangeEvent.class, "[world] spawn change")
 				.description("Called when the spawn point of a world changes.")
 				.examples("on spawn change:",
