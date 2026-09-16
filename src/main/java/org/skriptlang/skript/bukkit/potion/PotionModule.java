@@ -6,6 +6,8 @@ import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Color;
+import ch.njol.skript.util.ColorRGB;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
@@ -24,6 +26,8 @@ import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
 import java.io.StreamCorruptedException;
 
@@ -135,7 +139,13 @@ public class PotionModule extends HierarchicalAddonModule {
 			.examples("apply swiftness 5 to the player",
 				"apply potion of speed 2 to the player for 60 seconds",
 				"remove invisibility from the victim")
-			.since("2.0 beta 3"));
+			.since("2.0 beta 3")
+			.property(Property.COLOR,
+				"The color of the particles a potion effect type produces. Cannot be changed.",
+				Skript.instance(),
+				ExpressionPropertyHandler.of(
+					type -> ColorRGB.fromBukkitColor(type.getColor()),
+					Color.class)));
 
 		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "potioncause", "potion causes")
 			.user("(entity ?)?potion ?effect ?causes?")

@@ -60,7 +60,7 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 		}
 
 		// get all possible property infos for the expression's return types
-		properties = PropertyBaseSyntax.getPossiblePropertyInfos(property, expr);
+		properties = PropertyBaseSyntax.getPossiblePropertyInfos(property, expr, this);
 		if (properties.isEmpty()) {
 			Skript.error(getBadTypesErrorMessage(expr));
 			return false; // no name property found
@@ -137,6 +137,7 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 		}
 
 		Set<Class<?>> allowedChangeTypes = new HashSet<>();
+		boolean allowsChangeWithNoTypes = false;
 		for (var entry : properties.entrySet()) {
 			Class<?> propertyType = entry.getKey();
 			var propertyInfo = entry.getValue();
@@ -149,12 +150,14 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 			changeDetails.storeTypes(mode, propertyInfo, types);
 			if (types != null) {
 				if (mode == ChangeMode.DELETE || mode == ChangeMode.RESET) {
-					// if we are deleting or resetting, we can accept any type
-					return new Class[0];
+					allowsChangeWithNoTypes = true;
 				} else {
 					allowedChangeTypes.addAll(Arrays.asList(types));
 				}
 			}
+		}
+		if (allowsChangeWithNoTypes) {
+			return new Class[0];
 		}
 		if (allowedChangeTypes.isEmpty()) {
 			return null; // no types accepted

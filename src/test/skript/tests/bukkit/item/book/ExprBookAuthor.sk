@@ -1,0 +1,12 @@
+test "book author":
+	set {_i} to a written book
+
+	assert author of {_i} is not set with "non-existent book author failed"
+
+	set author of {_i} to "Notch"
+	assert author of {_i} is "Notch" with "failed to set book author"
+	assert writer of {_i} is "Notch" with "failed to read book author as writer"
+	assert {_i}'s book publisher is "Notch" with "failed to read book author as publisher"
+
+	delete author of {_i}
+	assert author of {_i} is not set with "failed to delete book author"

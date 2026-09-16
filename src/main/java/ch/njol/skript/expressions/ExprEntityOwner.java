@@ -1,6 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -15,6 +16,9 @@ import org.bukkit.entity.Tameable;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * @deprecated This is being removed in favor of {@link org.skriptlang.skript.common.properties.elements.expressions.PropExprOwner}
+ */
 @Name("Entity Owner")
 @Description("The owner of a tameable entity (i.e. horse or wolf).")
 @Example("""
@@ -22,12 +26,15 @@ import org.jetbrains.annotations.Nullable;
 		if the owner of last spawned wolf is player:
 	""")
 @Since("2.5")
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class ExprEntityOwner extends SimplePropertyExpression<Entity, OfflinePlayer> {
 
 	static {
-		Skript.registerExpression(ExprEntityOwner.class, OfflinePlayer.class, ExpressionType.PROPERTY,
-			"[the] (owner|tamer) of %livingentities%",
-			"%livingentities%'[s] (owner|tamer)");
+		if (!SkriptConfig.useTypeProperties.value()) {
+			Skript.registerExpression(ExprEntityOwner.class, OfflinePlayer.class, ExpressionType.PROPERTY,
+				"[the] (owner|tamer) of %livingentities%",
+				"%livingentities%'[s] (owner|tamer)");
+		}
 	}
 
 	@Override

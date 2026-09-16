@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.WXYZHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 import org.skriptlang.skript.lang.properties.handlers.base.PropertyHandler;
 
 import java.io.StreamCorruptedException;
@@ -49,7 +50,12 @@ public class LocationClassInfo extends ClassInfo<Location> {
 			.property(Property.WXYZ,
 				"The X, Y, or Z coordinate of the location.",
 				Skript.instance(),
-				new LocationWXYZHandler());
+				new LocationWXYZHandler())
+			.property(Property.LOCATION,
+				"A location is its own location. Anything convertible to a location, such as an entity or a block, "
+					+ "therefore also has this property. Cannot be changed.",
+				Skript.instance(),
+				ExpressionPropertyHandler.of(location -> location, Location.class));
 
 		Converters.registerConverter(OfflinePlayer.class, Location.class, OfflinePlayer::getLocation);
 		Converters.registerConverter(Block.class, Location.class, BlockUtils::getLocation, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
