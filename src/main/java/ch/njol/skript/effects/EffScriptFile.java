@@ -4,7 +4,6 @@ import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.ScriptLoader.ScriptInfo;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptCommand;
-import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
