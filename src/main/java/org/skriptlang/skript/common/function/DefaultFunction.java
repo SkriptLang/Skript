@@ -6,6 +6,8 @@ import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 
+import java.util.function.Consumer;
+
 /**
  * A function that has been implemented in Java, instead of in Skript.
  * <p>
@@ -39,6 +41,7 @@ public sealed interface DefaultFunction<T>
 	/**
 	 * Creates a new builder for a function.
 	 *
+	 * @param source 	 The addon registering this function.
 	 * @param name       The name of the function.
 	 * @param returnType The type of the function.
 	 * @param <T>        The return type.
@@ -47,6 +50,18 @@ public sealed interface DefaultFunction<T>
 	@Contract("_, _, _ -> new")
 	static <T> @NotNull Builder<T> builder(@NotNull SkriptAddon source, @NotNull String name, @NotNull Class<T> returnType) {
 		return new DefaultFunctionImpl.BuilderImpl<>(source, name, returnType);
+	}
+
+	/**
+	 * Creates a new builder for a function which does not return anything.
+	 *
+	 * @param source 	 The addon registering this function.
+	 * @param name       The name of the function.
+	 * @return The builder for a function.
+	 */
+	@Contract("_, _ -> new")
+	static @NotNull VoidBuilder voidBuilder(@NotNull SkriptAddon source, @NotNull String name) {
+		return new DefaultFunctionImpl.VoidBuilderImpl(source, name);
 	}
 
 	/**
@@ -133,6 +148,86 @@ public sealed interface DefaultFunction<T>
 		 * @return The final function.
 		 */
 		DefaultFunction<T> build(@NotNull java.util.function.Function<FunctionArguments, T> execute);
+
+	}
+
+	/**
+	 * Represents a builder for {@link DefaultFunction DefaultFunctions} with no return value.
+	 */
+	interface VoidBuilder {
+
+		/**
+		 * Sets this function builder's {@link ch.njol.skript.util.Contract}.
+		 *
+		 * @param contract The contract.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		VoidBuilder contract(@NotNull ch.njol.skript.util.Contract contract);
+
+		/**
+		 * Sets this function builder's description.
+		 *
+		 * @param description The description.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		VoidBuilder description(@NotNull String @NotNull ... description);
+
+		/**
+		 * Sets this function builder's version history.
+		 *
+		 * @param since The version information.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		VoidBuilder since(@NotNull String @NotNull ... since);
+
+		/**
+		 * Sets this function builder's examples.
+		 *
+		 * @param examples The examples.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		VoidBuilder examples(@NotNull String @NotNull ... examples);
+
+		/**
+		 * Sets this function builder's keywords.
+		 *
+		 * @param keywords The keywords.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		VoidBuilder keywords(@NotNull String @NotNull ... keywords);
+
+		/**
+		 * Sets this function builder's requires.
+		 *
+		 * @param requires The requirements.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		VoidBuilder requires(@NotNull String @NotNull ... requires);
+
+		/**
+		 * Adds a parameter to this function builder.
+		 *
+		 * @param name      The parameter name.
+		 * @param type      The type of the parameter.
+		 * @param modifiers The {@link Modifier}s to apply to this parameter.
+		 * @return This builder.
+		 */
+		@Contract("_, _, _ -> this")
+		VoidBuilder parameter(@NotNull String name, @NotNull Class<?> type, Modifier @NotNull ... modifiers);
+
+		/**
+		 * Completes this builder with the code to execute on call of this function.
+		 *
+		 * @param execute The code to execute.
+		 * @return The final function.
+		 */
+		DefaultFunction<Void> build(@NotNull Consumer<FunctionArguments> execute);
 
 	}
 

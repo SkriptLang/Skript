@@ -1,5 +1,6 @@
 package ch.njol.skript.lang.function;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.lang.function.FunctionRegistry.FunctionIdentifier;
 import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
@@ -9,6 +10,8 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
+import org.skriptlang.skript.common.function.DefaultFunction;
+import org.skriptlang.skript.common.function.DefaultFunctionTest;
 
 import static org.junit.Assert.*;
 
@@ -146,25 +149,15 @@ public class FunctionRegistryTest {
 		registry.remove(TEST_FUNCTION.getSignature());
 	}
 
-	private static final Function<Boolean> TEST_FUNCTION_B = new SimpleJavaFunction<>(FUNCTION_NAME,
-		new Parameter[]{
-			new Parameter<>("a", DefaultClasses.BOOLEAN, true, null)
-		}, DefaultClasses.BOOLEAN, true) {
-		@Override
-		public Boolean @Nullable [] executeSimple(Object[][] params) {
-			return new Boolean[]{true};
-		}
-	};
+	@SuppressWarnings("unchecked")
+	private static final Function<Void> TEST_FUNCTION_B = (Function<Void>) DefaultFunction.voidBuilder(Skript.instance(), FUNCTION_NAME)
+			.parameter("a", Boolean.class)
+			.build(args -> {});
 
-	private static final Function<Boolean> TEST_FUNCTION_N = new SimpleJavaFunction<>(FUNCTION_NAME,
-		new Parameter[]{
-			new Parameter<>("a", DefaultClasses.NUMBER, true, null)
-		}, DefaultClasses.BOOLEAN, true) {
-		@Override
-		public Boolean @Nullable [] executeSimple(Object[][] params) {
-			return new Boolean[]{true};
-		}
-	};
+	@SuppressWarnings("unchecked")
+	private static final Function<Void> TEST_FUNCTION_N = (Function<Void>) DefaultFunction.voidBuilder(Skript.instance(), FUNCTION_NAME)
+			.parameter("a", Number.class)
+			.build(args -> {});
 
 	@Test
 	public void testMultipleRegistrations() {
@@ -421,25 +414,15 @@ public class FunctionRegistryTest {
 		assertEquals(RetrievalResult.NOT_REGISTERED, registry.getSignature(null, FUNCTION_NAME).result());
 	}
 
-	private static final Function<Boolean> TEST_FUNCTION_P = new SimpleJavaFunction<>(FUNCTION_NAME,
-		new Parameter[]{
-			new Parameter<>("a", DefaultClasses.PLAYER, true, null)
-		}, DefaultClasses.BOOLEAN, true) {
-		@Override
-		public Boolean @Nullable [] executeSimple(Object[][] params) {
-			return new Boolean[]{true};
-		}
-	};
+	@SuppressWarnings("unchecked")
+	private static final Function<Void> TEST_FUNCTION_P = (Function<Void>) DefaultFunction.voidBuilder(Skript.instance(), FUNCTION_NAME)
+			.parameter("a", Player.class)
+			.build(args -> {});
 
-	private static final Function<Boolean> TEST_FUNCTION_OP = new SimpleJavaFunction<>(FUNCTION_NAME,
-			new Parameter[]{
-					new Parameter<>("a", DefaultClasses.OFFLINE_PLAYER, true, null)
-			}, DefaultClasses.BOOLEAN, true) {
-		@Override
-		public Boolean @Nullable [] executeSimple(Object[][] params) {
-			return new Boolean[]{true};
-		}
-	};
+	@SuppressWarnings("unchecked")
+	private static final Function<Void> TEST_FUNCTION_OP = (Function<Void>) DefaultFunction.voidBuilder(Skript.instance(), FUNCTION_NAME)
+			.parameter("a", OfflinePlayer.class)
+			.build(args -> {});
 
 	@Test
 	public void testGetExactSignature() {
