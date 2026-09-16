@@ -80,6 +80,10 @@ public abstract class BaseSkriptAddonTests {
 		assertEquals(registry, unmodifiable.registry(MockRegistry.class));
 		assertTrue(addon.hasRegistry(MockRegistry.class));
 		assertTrue(unmodifiable.hasRegistry(MockRegistry.class));
+
+		// access all registries
+		assertTrue(addon.registries().contains(registry));
+		assertTrue(unmodifiable.registries().contains(registry));
 	}
 
 	@Test
@@ -91,6 +95,10 @@ public abstract class BaseSkriptAddonTests {
 		assertNotNull(unmodifiable.syntaxRegistry());
 		// unmodifiable's syntax registry should be unmodifiable (different)
 		assertNotEquals(addon.syntaxRegistry(), unmodifiable.syntaxRegistry());
+		assertNotEquals(addon.syntaxRegistry(), unmodifiable.registries().stream()
+			.filter(registry -> registry instanceof SyntaxRegistry)
+			.findFirst()
+			.orElseThrow());
 	}
 
 	@Test

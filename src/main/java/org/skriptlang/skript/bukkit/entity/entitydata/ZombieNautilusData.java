@@ -8,6 +8,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import com.google.common.collect.Iterators;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Registry;
@@ -26,14 +27,14 @@ public class ZombieNautilusData extends EntityData<ZombieNautilus> {
 		EntityData.register(ZombieNautilusData.class, "zombie nautilus", ZombieNautilus.class, 0, "zombie nautilus");
 		Variables.yggdrasil.registerSingleClass(Variant.class,  "ZombieNautilus.Variant");
 
-		Registry<@NotNull Variant> variantRegistry = RegistryAccess.registryAccess().getRegistry(RegistryKey.ZOMBIE_NAUTILUS_VARIANT);
-		VARIANTS = variantRegistry.stream().toArray(Variant[]::new);
-		Classes.registerClass(new RegistryClassInfo<>(Variant.class, variantRegistry, "zombienautilusvariant", "zombie nautilus variants")
+		var zombieNautilusVariantInfo = new RegistryClassInfo<>(Variant.class, RegistryKey.ZOMBIE_NAUTILUS_VARIANT, "zombienautilusvariant", "zombie nautilus variants");
+		Classes.registerClass(zombieNautilusVariantInfo
 			.user("zombie ?nautilus ?variants?")
 			.name("Zombie Nautilus Variant")
 			.description("Represents the variant of a zombie nautilus.")
 			.since("2.14")
 			.documentationId("ZombieNautilusVariant"));
+		VARIANTS = Iterators.toArray(zombieNautilusVariantInfo.getSupplier().get(), Variant.class);
 	}
 
 	private Kleenean isTamed = Kleenean.UNKNOWN;
