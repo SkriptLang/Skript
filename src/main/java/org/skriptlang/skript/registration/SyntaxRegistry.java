@@ -5,19 +5,24 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.Statement;
+import ch.njol.skript.util.Utils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.docs.Documentable;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.util.Registry;
 import org.skriptlang.skript.util.ViewProvider;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * A syntax registry is a central container for all {@link SyntaxInfo}s.
  */
-public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<SyntaxInfo<?>> {
+public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<SyntaxInfo<?>>, Documentable {
 
 	/**
 	 * A key representing the built-in {@link Structure} syntax element.
@@ -72,6 +77,17 @@ public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<S
 	}
 
 	/**
+	 * Constructs a syntax registry that applies an origin to all syntax infos registered through it
+	 *  with the {@link Origin#UNKNOWN} origin.
+	 * @param syntaxRegistry The syntax registry providing the implementation.
+	 * @param originFactory A function to produce an origin with the context of the syntax info for which the origin is being produced.
+	 * @return A syntax registry that applies an origin.
+	 */
+	static SyntaxRegistry withOrigin(SyntaxRegistry syntaxRegistry, Function<SyntaxInfo<?>, Origin> originFactory) {
+		return new SyntaxRegistryImpl.OriginApplyingRegistry(syntaxRegistry, originFactory);
+	}
+
+	/**
 	 * A method to obtain all syntaxes registered under a certain key.
 	 * @param key The key to obtain syntaxes from.
 	 * @return An unmodifiable snapshot of all syntaxes registered under <code>key</code>.
@@ -121,6 +137,24 @@ public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<S
 	 */
 	@Override
 	@Unmodifiable Collection<SyntaxInfo<?>> elements();
+
+	@Override
+	default void write(DocumentationAdapter adapter) {
+		write(adapter, List.of(STRUCTURE, SECTION, EFFECT, CONDITION, EXPRESSION));
+	}
+
+	/**
+	 * Like {@link #write(DocumentationAdapter)}, but only writes specific keys.
+	 * @param adapter The adapter to write to.
+	 * @param keys The specific keys to write
+	 */
+	default void write(DocumentationAdapter adapter, Iterable<Key<?>> keys) {
+		for (var key : keys) {
+			adapter.enterScope(Utils.toEnglishPlural(key.name()));
+			syntaxes(key).forEach(adapter::write);
+			adapter.exitScope();
+		}
+	}
 
 	/**
 	 * Represents a syntax element type.

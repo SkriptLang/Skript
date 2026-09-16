@@ -2,6 +2,7 @@ package org.skriptlang.skript.docs;
 
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.docs.Origin.AddonOrigin;
+import org.skriptlang.skript.docs.Origin.ClassOrigin;
 
 final class OriginImpl {
 
@@ -20,6 +21,15 @@ final class OriginImpl {
 
 		public AddonOriginImpl(SkriptAddon addon) {
 			this.addon = addon.unmodifiableView();
+		}
+
+	}
+
+	public record ClassOriginImpl(SkriptAddon addon, Class<?> originClass) implements ClassOrigin {
+
+		public ClassOriginImpl(SkriptAddon addon, Class<?> originClass) {
+			this.addon = addon.unmodifiableView();
+			this.originClass = originClass;
 		}
 
 	}

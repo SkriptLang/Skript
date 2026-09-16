@@ -4,6 +4,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import com.google.common.collect.ImmutableList;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -188,6 +189,12 @@ public class SkriptPattern {
 		boolean excludeTypeFlags();
 
 		/**
+		 * @return Whether usages of {@link ch.njol.skript.classes.ClassInfo}s marked as non-documentable should be
+		 * instead displayed as a documentable parent class (if applicable).
+		 */
+		boolean mapUndocumentableTypes();
+
+		/**
 		 * Builder for constructing stringification properties.
 		 */
 		interface Builder {
@@ -196,18 +203,29 @@ public class SkriptPattern {
 			 * Excludes parse tags from stringified patterns.
 			 * @return This builder.
 			 */
+			@Contract("-> this")
 			Builder excludeParseTags();
 
 			/**
 			 * Excludes type flags from stringified patterns.
 			 * @return This builder.
 			 */
+			@Contract("-> this")
 			Builder excludeTypeFlags();
+
+			/**
+			 * Outputs usages of {@link ch.njol.skript.classes.ClassInfo}s marked as non-documentable as their
+			 *  documentable parent type (if applicable).
+			 * @return This builder.
+			 */
+			@Contract("-> this")
+			Builder mapUndocumentableTypes();
 
 			/**
 			 *
 			 * @return A StringificationProperties representing the properties set in this builder.
 			 */
+			@Contract("-> new")
 			StringificationProperties build();
 
 		}
@@ -215,12 +233,16 @@ public class SkriptPattern {
 	}
 
 	private record StringificationPropertiesImpl(
-		boolean excludeParseTags, boolean excludeTypeFlags) implements StringificationProperties {
+		boolean excludeParseTags,
+		boolean excludeTypeFlags,
+		boolean mapUndocumentableTypes
+	) implements StringificationProperties {
 
 		private static class BuilderImpl implements StringificationProperties.Builder {
 
 			private boolean excludeParseTags = false;
 			private boolean excludeTypeFlags = false;
+			private boolean mapUndocumentableTypes = false;
 
 			@Override
 			public Builder excludeParseTags() {
@@ -235,8 +257,14 @@ public class SkriptPattern {
 			}
 
 			@Override
+			public Builder mapUndocumentableTypes() {
+				mapUndocumentableTypes = true;
+				return this;
+			}
+
+			@Override
 			public StringificationProperties build() {
-				return new StringificationPropertiesImpl(excludeParseTags, excludeTypeFlags);
+				return new StringificationPropertiesImpl(excludeParseTags, excludeTypeFlags, mapUndocumentableTypes);
 			}
 
 		}

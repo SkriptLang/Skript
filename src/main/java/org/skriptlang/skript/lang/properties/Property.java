@@ -1,10 +1,10 @@
 package org.skriptlang.skript.lang.properties;
 
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.registrations.Classes;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -16,6 +16,11 @@ import org.skriptlang.skript.common.properties.elements.conditions.PropCondConta
 import org.skriptlang.skript.common.properties.elements.expressions.PropExprName;
 import org.skriptlang.skript.common.types.QueueClassInfo;
 import org.skriptlang.skript.common.types.ScriptClassInfo;
+import org.skriptlang.skript.docs.Documentable;
+import org.skriptlang.skript.docs.Documentation;
+import org.skriptlang.skript.docs.DocumentationAdapter;
+import org.skriptlang.skript.docs.DocumentationDocumentable;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.properties.handlers.ContainsHandler;
 import org.skriptlang.skript.lang.properties.handlers.TypedValueHandler;
 import org.skriptlang.skript.lang.properties.handlers.WXYZHandler;
@@ -59,45 +64,86 @@ import java.util.Locale;
 @ApiStatus.Experimental
 public record Property<Handler extends PropertyHandler<?>>(
 		String name,
-		String description,
-		String[] since,
 		SkriptAddon provider,
-		@NotNull Class<? extends Handler> handler
-) {
-
-	private static final PropertyRegistry PROPERTY_REGISTRY = Skript.getAddonInstance().registry(PropertyRegistry.class);
+		@NotNull Class<? extends Handler> handler,
+		Documentation documentation
+) implements DocumentationDocumentable {
 
 	/**
-	 * Creates a new property. Prefer {@link #of(String, String, String, SkriptAddon, Class)}.
+	 * A pair of a property and a handler.
+	 *
+	 * @param property the property
+	 * @param handler a handler for the property
+	 * @param <Handler> the type of the handler
+	 */
+	public record PropertyInfo<Handler extends PropertyHandler<?>>(Property<Handler> property, Handler handler) { }
+
+	/**
+	 * Describes the related property of a {@link ch.njol.skript.lang.SyntaxElement}.
+	 */
+	public record RelatedProperty(Property<?> property) implements Documentable {
+
+		/**
+		 * @param property The related property.
+		 * @return A new RelatedProperty from {@code property}.
+		 */
+		@Contract("_ -> new")
+		public static RelatedProperty of(Property<?> property) {
+			return new RelatedProperty(property);
+		}
+
+		@ApiStatus.Internal
+		public RelatedProperty { }
+
+		@Override
+		public void write(DocumentationAdapter adapter) {
+			adapter.write("relatedProperty", adapter.reference(property()));
+		}
+
+	}
+
+	/**
+	 * Creates a new property.
 	 *
 	 * @param name the name of the property
 	 * @param provider the addon that provides this property
 	 * @param handler the handler class for this property
-	 * @see #of(String, String, String, SkriptAddon, Class)
+	 * @param <HandlerClass> the type of the handler class
+	 * @param <Handler> the type of the handler
+	 * @return a new property
 	 */
-	public Property(String name, String description, String[] since, SkriptAddon provider, @NotNull Class<? extends Handler> handler) {
-		this.name = name.toLowerCase(Locale.ENGLISH);
-		this.description = description;
-		this.since = since;
-		this.provider = provider;
-		this.handler = handler;
+	@Contract("_, _, _ -> new")
+	public static <HandlerClass extends PropertyHandler<?>, Handler extends HandlerClass> @NotNull Property<Handler> of(
+		@NotNull String name,
+		@NotNull SkriptAddon provider,
+		@NotNull Class<HandlerClass> handler) {
+		Documentation documentation = Documentation.builder()
+			.name(name)
+			.origin(Origin.of(provider))
+			.build();
+		//noinspection unchecked
+		return (Property<Handler>) new Property<>(name, provider, handler, documentation);
 	}
 
 	/**
-	 * Gets a documentation-friendly ID for this property, based on its name.
-	 * May be overridden to provide a custom ID.
+	 * Creates a new property.
 	 *
-	 * @return a documentation-friendly ID for this property
+	 * @param name the name of the property
+	 * @param provider the addon that provides this property
+	 * @param handler the handler class for this property
+	 * @param documentation documentation describing this property
+	 * @param <HandlerClass> the type of the handler class
+	 * @param <Handler> the type of the handler
+	 * @return a new property
 	 */
-	public String getDocumentationID() {
-		return name.replace(' ', '-').toLowerCase(Locale.ENGLISH);
-	}
-
-	/**
-	 * Helpful registration shortcut.
-	 */
-	private void register() {
-		PROPERTY_REGISTRY.register(this);
+	@Contract("_, _, _, _ -> new")
+	public static <HandlerClass extends PropertyHandler<?>, Handler extends HandlerClass> @NotNull Property<Handler> of(
+		@NotNull String name,
+		@NotNull SkriptAddon provider,
+		@NotNull Class<HandlerClass> handler,
+		@NotNull Documentation documentation) {
+		//noinspection unchecked
+		return (Property<Handler>) new Property<>(name, provider, handler, documentation);
 	}
 
 	/**
@@ -110,8 +156,10 @@ public record Property<Handler extends PropertyHandler<?>>(
 	 * @param <HandlerClass> the type of the handler class
 	 * @param <Handler> the type of the handler
 	 * @return a new property
+	 * @deprecated Use {@link #of(String, SkriptAddon, Class, Documentation)}.
 	 */
 	@Contract("_, _, _, _, _ -> new")
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static <HandlerClass extends PropertyHandler<?>, Handler extends HandlerClass> @NotNull Property<Handler> of(
 			@NotNull String name,
 			@NotNull String description,
@@ -133,8 +181,10 @@ public record Property<Handler extends PropertyHandler<?>>(
 	 * @param <HandlerClass> the type of the handler class
 	 * @param <Handler> the type of the handler
 	 * @return a new property
+	 * @deprecated Use {@link #of(String, SkriptAddon, Class, Documentation)}.
 	 */
 	@Contract("_, _, _, _, _ -> new")
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static <HandlerClass extends PropertyHandler<?>, Handler extends HandlerClass> @NotNull Property<Handler> of(
 		@NotNull String name,
 		@NotNull String description,
@@ -144,16 +194,6 @@ public record Property<Handler extends PropertyHandler<?>>(
 		//noinspection unchecked
 		return (Property<Handler>) new Property<>(name, description, since, provider, handler);
 	}
-
-	/**
-	 * A pair of a property and a handler.
-	 *
-	 * @param property the property
-	 * @param handler a handler for the property
-	 * @param <Handler> the type of the handler
-	 */
-	public record PropertyInfo<Handler extends PropertyHandler<?>>(Property<Handler> property, Handler handler) { }
-
 
 	/* ****************************************************
 	 * DEFAULT PROPERTIES
@@ -165,10 +205,14 @@ public record Property<Handler extends PropertyHandler<?>>(
 	 */
 	public static final Property<ExpressionPropertyHandler<?, ?>> NAME = Property.of(
 			"name",
-			"A name, such as a script's name or a player's account name.",
-			"2.13",
 			Skript.instance(),
-			ExpressionPropertyHandler.class);
+			ExpressionPropertyHandler.class,
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("Name")
+					.description("A name, such as a script's name or a player's account name.")
+					.addSince("2.13")
+					.build());
 
 	/**
 	 * A property for things that have a display name.
@@ -176,10 +220,17 @@ public record Property<Handler extends PropertyHandler<?>>(
 	 */
 	public static final Property<ExpressionPropertyHandler<?, ?>> DISPLAY_NAME = Property.of(
 			"display name",
-			"A more prominently displayed name, such as a player's display name or an entity's custom name. Often more easily changed than the regular name.",
-			"2.13",
 			Skript.instance(),
-			ExpressionPropertyHandler.class);
+			ExpressionPropertyHandler.class,
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("Display Name")
+					.description("""
+						A more prominently displayed name, such as a player's display name or an entity's custom name.
+						Often more easily changed than the regular name.
+						""")
+					.addSince("2.13")
+					.build());
 
 	/**
 	 * A property for checking if something contains an element.
@@ -187,10 +238,14 @@ public record Property<Handler extends PropertyHandler<?>>(
 	 */
 	public static final Property<ContainsHandler<?, ?>> CONTAINS = Property.of(
 			"contains",
-			"Something that can contain other things, such as an inventory or a string.",
-			"2.13",
 			Skript.instance(),
-			ContainsHandler.class);
+			ContainsHandler.class,
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("Contains")
+					.description("Something that can contain other things, such as an inventory or a string.")
+					.addSince("2.13")
+					.build());
 
 	/**
 	 * A property for getting the amount of something.
@@ -198,10 +253,14 @@ public record Property<Handler extends PropertyHandler<?>>(
 	 */
 	public static final Property<ExpressionPropertyHandler<?, ?>> AMOUNT = Property.of(
 			"amount",
-			"The amount of something, say the number of items in a stack or in a queue.",
-			"2.13",
 			Skript.instance(),
-			ExpressionPropertyHandler.class);
+			ExpressionPropertyHandler.class,
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("Amount")
+					.description("The amount of something, say the number of items in a stack or in a queue.")
+					.addSince("2.13")
+					.build());
 
 	/**
 	 * A property for getting the size of something.
@@ -209,31 +268,28 @@ public record Property<Handler extends PropertyHandler<?>>(
 	 */
 	public static final Property<ExpressionPropertyHandler<?, ?>> SIZE = Property.of(
 			"size",
-			"The size of something, say the number of elements in a queue.",
-			"2.13",
 			Skript.instance(),
-			ExpressionPropertyHandler.class);
-
-	/**
-	 * A property for getting the scale of something.
-	 */
-	public static final Property<ExpressionPropertyHandler<?,?>> SCALE = Property.of(
-			"scale",
-			"The scale of something, say the x/y/z scales of a display entity.",
-			"2.14",
-			Skript.instance(),
-			ExpressionPropertyHandler.class);
+			ExpressionPropertyHandler.class,
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("Size")
+					.description("The size of something, say the number of elements in a queue.")
+					.addSince("2.13")
+					.build());
 
 	/**
 	 * A property for getting the number of something.
 	 */
 	public static final Property<ExpressionPropertyHandler<?, ?>> NUMBER = Property.of(
 			"number",
-			"The number of something, say the number of elements in a queue.",
-			"2.13",
 			Skript.instance(),
-			ExpressionPropertyHandler.class);
-
+			ExpressionPropertyHandler.class,
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("Number")
+					.description("The number of something, say the number of elements in a queue.")
+					.addSince("2.13")
+					.build());
 
 	/**
 	 * A property for checking whether something is empty.
@@ -241,81 +297,126 @@ public record Property<Handler extends PropertyHandler<?>>(
 	 */
 	public static final Property<ConditionPropertyHandler<?>> IS_EMPTY = Property.of(
 			"empty",
-			"Whether something is empty or not.",
-			"2.13",
 			Skript.instance(),
-			ConditionPropertyHandler.class);
+			ConditionPropertyHandler.class,
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("Is Empty")
+					.description("Whether something is empty or not.")
+					.addSince("2.13")
+					.build());
 
 	/**
 	 * A property for getting a specific value of something.
 	 */
 	public static final Property<TypedValueHandler<?, ?>> TYPED_VALUE = Property.of(
 			"typed value",
-			"A value of a specific type, e.g. 'string value of x'.",
-			"2.13",
 			Skript.instance(),
-			TypedValueHandler.class);
+			TypedValueHandler.class,
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("Typed Value")
+					.description("A value of a specific type, e.g. 'string value of x'.")
+					.addSince("2.13")
+					.build());
 
 	/**
 	 * A property for getting the x, y, or z coordinates/components of something.
 	 */
 	public static final Property<WXYZHandler<?, ?>> WXYZ = Property.of(
 			"wxyz component",
-			"The W, X, Y, or Z components of something, e.g. the x coordinate of a location or vector.",
-			"2.14",
 			Skript.instance(),
-			WXYZHandler.class);
+			WXYZHandler.class,
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("W/X/Y/Z Components")
+					.description("The W, X, Y, or Z components of something, say the x coordinate of a location or vector.")
+					.addSince("2.14")
+					.build());
 
 	/**
 	 * A property for getting the speed of something
 	 */
 	public static final Property<ExpressionPropertyHandler<?,?>> SPEED = Property.of(
 			"speed",
-			"The speed at which something is moving.",
-			"2.14",
 			Skript.instance(),
-			ExpressionPropertyHandler.class);
+			ExpressionPropertyHandler.class,
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("Speed")
+					.description("The speed at which something is moving.")
+					.addSince("2.14")
+					.build());
 
+	/**
+	 * A property for getting the scale of something.
+	 */
+	public static final Property<ExpressionPropertyHandler<?,?>> SCALE = Property.of(
+			"scale",
+			Skript.instance(),
+			ExpressionPropertyHandler.class,
+			Documentation.builder()
+					.origin(Origin.of(Skript.instance(), Property.class))
+					.name("Scale")
+					.description("The scale of something, say the x/y/z scales of a display entity.")
+					.addSince("2.14")
+					.build());
 
 	/**
 	 * A property for getting the title of something
 	 */
 	public static final Property<ExpressionPropertyHandler<?,?>> TITLE = Property.of(
 		"title",
-		"The title of something.",
-		"2.16",
 		Skript.instance(),
-		ExpressionPropertyHandler.class);
+		ExpressionPropertyHandler.class,
+		Documentation.builder()
+			.origin(Origin.of(Skript.instance(), Property.class))
+			.name("Title")
+			.description("The title of something.")
+			.addSince("2.16")
+			.build());
 
 	/**
 	 * A property for getting the progress of something
 	 */
 	public static final Property<ExpressionPropertyHandler<?,?>> PROGRESS = Property.of(
 		"progress",
-		"The progress of something.",
-		"2.16",
 		Skript.instance(),
-		ExpressionPropertyHandler.class);
+		ExpressionPropertyHandler.class,
+		Documentation.builder()
+			.origin(Origin.of(Skript.instance(), Property.class))
+			.name("Progress")
+			.description("The progress of something.")
+			.addSince("2.16")
+			.build());
 
 	/**
 	 * A property for getting the style of something
 	 */
 	public static final Property<ExpressionPropertyHandler<?,?>> STYLE = Property.of(
 		"style",
-		"The style of something.",
-		"2.16",
 		Skript.instance(),
-		ExpressionPropertyHandler.class);
+		ExpressionPropertyHandler.class,
+		Documentation.builder()
+			.origin(Origin.of(Skript.instance(), Property.class))
+			.name("Style")
+			.description("The style of something.")
+			.addSince("2.16")
+			.build());
 
 	/**
 	 * A property for getting the viewers of something
 	 */
 	public static final Property<ExpressionPropertyHandler<?,?>> VIEWERS = Property.of(
 		"viewers",
-		"The viewers of something.",
-		"2.16",
 		Skript.instance(),
-		ExpressionPropertyHandler.class);
+		ExpressionPropertyHandler.class,
+		Documentation.builder()
+			.origin(Origin.of(Skript.instance(), Property.class))
+			.name("Viewers")
+			.description("The viewers of something.")
+			.addSince("2.16")
+			.build());
 
 	/**
 	 * Register all Skript's default properties. Should be done prior to loading classinfos.
@@ -335,6 +436,115 @@ public record Property<Handler extends PropertyHandler<?>>(
 		TITLE.register();
 		TYPED_VALUE.register();
 		VIEWERS.register();
+		WXYZ.register();
+	}
+
+	/**
+	 * Creates a new property.
+	 * Prefer {@link #of(String, SkriptAddon, Class, Documentation)}.
+	 *
+	 * @param name the name of the property
+	 * @param provider the addon that provides this property
+	 * @param handler the handler class for this property
+	 * @param documentation documentation describing this property
+	 * @see #of(String, SkriptAddon, Class, Documentation)
+	 */
+	public Property(String name, SkriptAddon provider, @NotNull Class<? extends Handler> handler, Documentation documentation) {
+		this.name = name.toLowerCase(Locale.ENGLISH);
+		this.provider = provider;
+		this.handler = handler;
+
+		// adjust documentation
+		if (documentation.name().isEmpty()) {
+			documentation = documentation.toBuilder()
+				.name(name)
+				.build();
+		}
+		if (documentation.origin() == Origin.UNKNOWN) {
+			documentation = documentation.toBuilder()
+				.origin(Origin.of(provider))
+				.build();
+		}
+		this.documentation = documentation;
+	}
+
+	/**
+	 * @deprecated Use {@link #Property(String, SkriptAddon, Class, Documentation)}.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public Property(String name, String description, String[] since, SkriptAddon provider, @NotNull Class<? extends Handler> handler) {
+		this(name, provider, handler, Documentation.builder()
+			.name(name)
+			.description(description)
+			.addSince(since)
+			.origin(Origin.of(provider))
+			.build());
+	}
+
+	/**
+	 * Helpful registration shortcut.
+	 */
+	private void register() {
+		this.provider.registry(PropertyRegistry.class).register(this);
+	}
+
+	@Override
+	public void write(DocumentationAdapter adapter) {
+		DocumentationDocumentable.super.write(adapter);
+
+		// implementing types
+		adapter.write("types", Classes.getClassInfosByProperty(this).stream()
+			.map(adapter::reference)
+			.toList());
+
+		// implementing syntaxes
+		adapter.write("syntaxes", adapter.addon().syntaxRegistry().elements().stream()
+			.filter(info -> {
+				RelatedProperty related = info.documentation().additionalData(RelatedProperty.class);
+				if (related == null) {
+					return false;
+				}
+				return related.property() == this;
+			})
+			.map(adapter::reference)
+			.toList());
+	}
+
+	@Override
+	public String documentationIdPrefix() {
+		return "Prop";
+	}
+
+	/**
+	 * Gets a documentation-friendly ID for this property, based on its name.
+	 * May be overridden to provide a custom ID.
+	 *
+	 * @return a documentation-friendly ID for this property
+	 * @deprecated Use {@link Documentation#id()} with {@link #documentation()}.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public String getDocumentationID() {
+		String id = documentation().id();
+		if (id == null) {
+			id = documentation().autoId();
+		}
+		return id;
+	}
+
+	/**
+	 * @deprecated Use {@link Documentation#description()} with {@link #documentation()}.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public String description() {
+		return documentation().description();
+	}
+
+	/**
+	 * @deprecated Use {@link Documentation#since()} with {@link #documentation()}.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public String[] since() {
+		return documentation().since().toArray(new String[0]);
 	}
 
 }

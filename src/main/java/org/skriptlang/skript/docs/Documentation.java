@@ -1,0 +1,506 @@
+package org.skriptlang.skript.docs;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.doc.*;
+import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang.WordUtils;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.bukkit.docs.Events;
+import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.PropertyRegistry;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.SequencedCollection;
+
+/**
+ * Describes an object holding documentation.
+ */
+public interface Documentation extends Documentable {
+
+	/**
+	 * Documentation to use when intentionally representing a {@link Documentable} object as having no documentation.
+	 */
+	Documentation NONE = Documentation.builder()
+		.name("unknown")
+		.addData(DocumentationImpl.SKIP_WRITE)
+		.build();
+
+	/**
+	 * Used for determining whether a documentation is not intended to be written.
+	 * @param documentation The documentation to check.
+	 * @return Whether {@code documentation} represents an intentionally
+	 * @see #NONE
+	 */
+	static boolean isNoDocs(Documentation documentation) {
+		return documentation.additionalData().contains(DocumentationImpl.SKIP_WRITE);
+	}
+
+	/**
+	 * @return A builder for creating documentation.
+	 */
+	@Contract("-> new")
+	static Builder<?> builder() {
+		return new DocumentationImpl.BuilderImpl<>();
+	}
+
+	/**
+	 * Creates documentation consisting of the four standard properties.
+	 * @param name The name to use.
+	 * @param description The description to use.
+	 * @param since The since entry to use.
+	 * @param examples The examples to use.
+	 * @return Documentation built from the provided standard properties.
+	 */
+	@Contract("_, _, _, _ -> new")
+	static Documentation of(String name, String description, String since, String... examples) {
+		return builder()
+			.name(name)
+			.description(description)
+			.addSince(since)
+			.addExamples(examples)
+			.build();
+	}
+
+	/**
+	 * Creates documentation from the documentation annotations of a class.
+	 * @param clazz The class to read annotations from.
+	 * @return Documentation created from any documentation annotations present on {@code clazz}.
+	 *  If {@code clazz} has no documentation annotations, the result of building an empty builder is returned.
+	 */
+	@Contract("_ -> new")
+	static Documentation of(Class<?> clazz) {
+		NoDoc noDoc = clazz.getAnnotation(NoDoc.class);
+		if (noDoc != null) {
+			return NONE;
+		}
+
+		var builder = builder();
+
+		DocumentationId id = clazz.getAnnotation(DocumentationId.class);
+		if (id != null) {
+			builder.id(id.value());
+		}
+
+		Name name = clazz.getAnnotation(Name.class);
+		if (name != null) {
+			builder.name(name.value());
+		}
+
+		Description description = clazz.getAnnotation(Description.class);
+		if (description != null) {
+			builder.description(String.join("\n", description.value()));
+		}
+
+		if (clazz.isAnnotationPresent(Examples.class)) {
+			Examples examples = clazz.getAnnotation(Examples.class);
+			builder.addExamples(examples.value());
+		} else if (clazz.isAnnotationPresent(Example.Examples.class)) {
+			// If there are multiple examples, they get containerized
+			Example.Examples examples = clazz.getAnnotation(Example.Examples.class);
+			builder.addExamples(Arrays.stream(examples.value())
+				.map(Example::value)
+				.toList());
+		} else if (clazz.isAnnotationPresent(Example.class)) {
+			// If the user adds just one example, it isn't containerized
+			Example example = clazz.getAnnotation(Example.class);
+			builder.addExamples(example.value());
+		}
+
+		Since since = clazz.getAnnotation(Since.class);
+		if (since != null) {
+			builder.addSince(since.value());
+		}
+
+		RequiredPlugins requiredPlugins = clazz.getAnnotation(RequiredPlugins.class);
+		if (requiredPlugins != null) {
+			builder.addRequirements(requiredPlugins.value());
+		}
+
+		Keywords keywords = clazz.getAnnotation(Keywords.class);
+		if (keywords != null) {
+			builder.addKeywords(keywords.value());
+		}
+
+		Deprecated deprecated = clazz.getAnnotation(Deprecated.class);
+		if (deprecated != null) {
+			builder.deprecated();
+		}
+
+		ch.njol.skript.doc.Events events = clazz.getAnnotation(ch.njol.skript.doc.Events.class);
+		if (events != null) {
+			builder.addData(new Events.LegacyEvents(events.value()));
+		}
+
+		ch.njol.skript.doc.RelatedProperty relatedProperty = clazz.getAnnotation(RelatedProperty.class);
+		if (relatedProperty != null) {
+			PropertyRegistry registry = Skript.instance().registry(PropertyRegistry.class);
+			String property = relatedProperty.value();
+			if (registry.isRegistered(property)) {
+				builder.addData(Property.RelatedProperty.of(registry.get(property)));
+			} else {
+				Skript.warning(String.format("Could not resolve related property '%s' for class: %s", property, clazz.getName()));
+			}
+		}
+
+		return builder.build();
+	}
+
+	/**
+	 * @return An origin identifying the provider of the thing represented by this documentation.
+	 */
+	Origin origin();
+
+	/**
+	 * @return An identifier for referencing the thing represented by this documentation.
+	 */
+	@Nullable String id();
+
+	/**
+	 * @return A transformed version of {@link #name()} that can be used in cases where {@link #id()} is not explicitly set.
+	 */
+	default String autoId() {
+		return WordUtils.capitalizeFully(name()
+				.toLowerCase(Locale.ENGLISH)
+				.replaceAll("[^a-zA-Z0-9 ]", " "))
+			.replace(" ", "");
+	}
+
+	/**
+	 * @return A name for the thing represented by this documentation.
+	 */
+	String name();
+
+	/**
+	 * @return A description for the thing represented by this documentation.
+	 */
+	@Unmodifiable String description();
+
+	/**
+	 * @return Examples for using the thing represented by this documentation.
+	 */
+	@Unmodifiable Collection<String> examples();
+
+	/**
+	 * @return Versions when the thing represented by this documentation was added or changed.
+	 */
+	@Unmodifiable SequencedCollection<String> since();
+
+	/**
+	 * @return Requirements for using the thing represented by this documentation.
+	 */
+	@Unmodifiable Collection<String> requirements();
+
+	/**
+	 * @return Keywords for referencing the thing represented by this documentation.
+	 */
+	@Unmodifiable Collection<String> keywords();
+
+	/**
+	 * @return Whether the thing represented by this documentation is considered deprecated.
+	 */
+	boolean deprecated();
+
+	/**
+	 * @return A collection of additional data related to the thing represented by this documentation.
+	 * @see #additionalData(Class)
+	 */
+	@Unmodifiable Collection<Documentable> additionalData();
+
+	/**
+	 * Obtains a specific additional data related to the thing represented by this documentation.
+	 * @param clazz The class of the additional data to obtain.
+	 * @return Additional data of type {@code T}, or null if no such data is present.
+	 * @param <T> The type of the additional data.
+	 * @see #additionalData()
+	 */
+	default <T extends Documentable> @Nullable T additionalData(Class<? extends T> clazz) {
+		// noinspection unchecked
+		return (T) additionalData().stream()
+			.filter(c -> c.getClass() == clazz)
+			.findFirst()
+			.orElse(null);
+	}
+
+	/**
+	 * Converts this documentation back into a builder.
+	 * @return A builder capable of building this documentation.
+	 */
+	@Contract("-> new")
+	Builder<?> toBuilder();
+
+	@Override
+	default void write(DocumentationAdapter adapter) {
+		adapter.write("origin", origin());
+		adapter.write("id", id() == null ? adapter.currentScope() : id());
+		adapter.write("name", name());
+		adapter.write("description", description());
+		adapter.write("examples", examples());
+		adapter.write("since", since());
+		adapter.write("requirements", requirements());
+		adapter.write("keywords", keywords());
+		adapter.write("deprecated", deprecated());
+		additionalData().forEach(adapter::write);
+	}
+
+	/**
+	 * Describes a builder for creating a {@link Documentation} object.
+	 */
+	interface Builder<B extends Builder<B>> {
+
+		/**
+		 * Sets the origin to use for the documentation.
+		 * @param origin The origin to use.
+		 * @return This builder.
+		 * @see Documentation#origin()
+		 */
+		@Contract(value = "_ -> this", mutates = "this")
+		B origin(Origin origin);
+
+		/**
+		 * Sets the identifier to use for the documentation.
+		 * @param id The identifier to use. Use {@code null} to unset it.
+		 * @return This builder.
+		 * @see Documentation#id()
+		 */
+		@Contract(value = "_ -> this", mutates = "this")
+		B id(@Nullable String id);
+
+		/**
+		 * Sets the name to use for the documentation.
+		 * @param name The name to use.
+		 * @return This builder.
+		 * @see Documentation#name()
+		 */
+		@Contract(value = "_ -> this", mutates = "this")
+		B name(String name);
+
+		/**
+		 * Sets the description to use for the documentation.
+		 * @param description The description to use.
+		 * @return This builder.
+		 * @see Documentation#description()
+		 */
+		@Contract(value = "_ -> this", mutates = "this")
+		B description(String description);
+
+		/**
+		 * Adds an example to the documentation.
+		 * @param example The example to add.
+		 * @return This builder.
+		 * @see Documentation#examples()
+		 */
+		@Contract(value = "_ -> this", mutates = "this")
+		B addExample(String example);
+
+		/**
+		 * Adds one or more examples to the documentation.
+		 * @param examples The examples to add.
+		 * @return This builder.
+		 * @see Documentation#examples()
+		 */
+		@Contract(value = "_ -> this", mutates = "this")
+		B addExamples(String... examples);
+
+		/**
+		 * Adds one or more examples to the documentation.
+		 * @param examples The examples to add.
+		 * @return This builder.
+		 * @see Documentation#examples()
+		 */
+		@Contract(value = "_ -> this", mutates = "this")
+		B addExamples(Collection<String> examples);
+
+		/**
+		 * Clears all added examples.
+		 * @return This builder.
+		 * @see Documentation#examples()
+		 */
+		@Contract(value = "-> this", mutates = "this")
+		B clearExamples();
+
+		/**
+		 * Adds an entry describing a version when the thing represented
+		 *  by the documentation was added or changed.
+		 * @param since The entry to add.
+		 * @return This builder.
+		 * @see Documentation#since()
+		 */
+		@Contract(value = "_ -> this", mutates = "this")
+		B addSince(String since);
+
+		/**
+		 * Adds one or more entries describing a version when the thing represented
+		 *  by the documentation was added or changed.
+		 * @param since The entries to add.
+		 * @return This builder.
+		 * @see Documentation#since()
+		 */
+		@Contract(value = "_ -> this", mutates = "this")
+		B addSince(String... since);
+
+		/**
+		 * Adds one or more entries describing a version when the thing represented
+		 *  by the documentation was added or changed.
+		 * @param since The entries to add.
+		 * @return This builder.
+		 * @see Documentation#since()
+		 */
+		@Contract(value = "_ -> this", mutates = "this")
+		B addSince(Collection<String> since);
+
+		/**
+		 * Clears all added since entries.
+		 * @return This builder.
+		 * @see Documentation#since()
+		 */
+		@Contract(value = "-> this", mutates = "this")
+		B clearSince();
+
+		/**
+		 * Adds a requirement to the documentation.
+		 * @param requirement The requirement to add.
+		 * @return This builder.
+		 * @see Documentation#requirements()
+		 */
+		@Contract(value = "_ -> this", mutates = "this")
+		B addRequirement(String requirement);
+
+		/**
+		 * Adds one or more requirements to the documentation.
+		 * @param requirements The requirements to add.
+		 * @return This builder.
+		 * @see Documentation#requirements()
+		 */
+		@Contract(value = "_ -> this", mutates = "this")
+		B addRequirements(String... requirements);
+
+		/**
+		 * Adds one or more requirements to the documentation.
+		 * @param requirements The requirements to add.
+		 * @return This builder.
+		 * @see Documentation#requirements()
+		 */
+		@Contract(value = "_ -> this", mutates = "this")
+		B addRequirements(Collection<String> requirements);
+
+		/**
+		 * Clears all added requirements.
+		 * @return This builder.
+		 * @see Documentation#requirements()
+		 */
+		@Contract(value = "-> this", mutates = "this")
+		B clearRequirements();
+
+		/**
+		 * Adds a keyword to the documentation.
+		 * @param keyword The keyword to add.
+		 * @return This builder.
+		 * @see Documentation#keywords()
+		 */
+		@Contract(value = "_ -> this", mutates = "this")
+		B addKeyword(String keyword);
+
+		/**
+		 * Adds one or more keywords to the documentation.
+		 * @param keywords The keywords to add.
+		 * @return This builder.
+		 * @see Documentation#keywords()
+		 */
+		@Contract(value = "_ -> this", mutates = "this")
+		B addKeywords(String... keywords);
+
+		/**
+		 * Adds one or more keywords to the documentation.
+		 * @param keywords The keywords to add.
+		 * @return This builder.
+		 * @see Documentation#keywords()
+		 */
+		@Contract(value = "_ -> this", mutates = "this")
+		B addKeywords(Collection<String> keywords);
+
+		/**
+		 * Clears all added keywords.
+		 * @return This builder.
+		 * @see Documentation#keywords()
+		 */
+		@Contract(value = "-> this", mutates = "this")
+		B clearKeywords();
+
+		/**
+		 * Marks that the thing being represented by the documentation is considered deprecated.
+		 * @return This builder.
+		 * @see Documentation#deprecated()
+		 */
+		@Contract(value = "-> this", mutates = "this")
+		B deprecated();
+
+		/**
+		 * Adds additional data related to the thing represented by the documentation.
+		 * @param documentable The additional data to add.
+		 * @return This builder.
+		 * @see Documentation#additionalData()
+		 */
+		@Contract(value = "_ -> this", mutates = "this")
+		B addData(Documentable documentable);
+
+		/**
+		 * Clears all added additional data.
+		 * @return This builder.
+		 * @see Documentation#additionalData()
+		 */
+		@Contract(value = "-> this", mutates = "this")
+		B clearData();
+
+		/**
+		 * @return A {@link Documentation} object representing the values set on this builder.
+		 */
+		@Contract("-> new")
+		Documentation build();
+
+		/**
+		 * Applies the values of this builder onto <code>builder</code>.
+		 * @param builder The builder to apply values onto.
+		 */
+		void applyTo(Builder<?> builder);
+
+	}
+
+	/**
+	 * @deprecated Only used for compatibility.
+	 */
+	@ApiStatus.Internal
+	@Contract("_ -> new")
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	static @Unmodifiable Collection<String> reformatExamples(String[] examples) {
+		ImmutableList.Builder<String> listBuilder = ImmutableList.builder();
+		StringBuilder builder = new StringBuilder();
+		for (String example : examples) {
+			if (!example.startsWith("\t") && !builder.isEmpty()) { // indicates new example, push current
+				listBuilder.add(builder.toString());
+				builder = new StringBuilder();
+			}
+			if (example.contains("\n")) { // multiline indicates a single example in one string
+				if (!builder.isEmpty()) { // need to dump whatever is ongoing
+					listBuilder.add(builder.toString());
+					builder = new StringBuilder();
+				}
+				listBuilder.add(example);
+				continue;
+			}
+			if (!builder.isEmpty()) {
+				builder.append("\n");
+			}
+			builder.append(example);
+		}
+		if (!builder.isEmpty()) {
+			listBuilder.add(builder.toString());
+		}
+		return listBuilder.build();
+	}
+
+}

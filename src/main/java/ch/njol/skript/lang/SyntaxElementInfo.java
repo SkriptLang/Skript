@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
-import org.skriptlang.skript.docs.Origin;
+import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.lang.structure.StructureInfo;
 
@@ -56,7 +56,7 @@ public class SyntaxElementInfo<E extends SyntaxElement> implements SyntaxInfo<E>
 		this.source = source;
 		this.patterns = source.patterns().toArray(new String[0]);
 		this.elementClass = source.type();
-		this.originClassPath = source.origin().name();
+		this.originClassPath = source.documentation().origin().name();
 	}
 
 	/**
@@ -111,14 +111,6 @@ public class SyntaxElementInfo<E extends SyntaxElement> implements SyntaxInfo<E>
 
 	@Override
 	@ApiStatus.Internal
-	public Origin origin() {
-		if (source != null)
-			return source.origin();
-		return Origin.UNKNOWN;
-	}
-
-	@Override
-	@ApiStatus.Internal
 	public Class<E> type() {
 		return getElementClass();
 	}
@@ -149,8 +141,15 @@ public class SyntaxElementInfo<E extends SyntaxElement> implements SyntaxInfo<E>
 	@ApiStatus.Internal
 	public Priority priority() {
 		if (source != null)
-			source.priority();
+			return source.priority();
 		return SyntaxInfo.COMBINED;
+	}
+
+	@Override
+	public Documentation documentation() {
+		if (source != null)
+			return source.documentation();
+		return Documentation.builder().build();
 	}
 
 }
