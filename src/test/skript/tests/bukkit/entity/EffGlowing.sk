@@ -1,0 +1,53 @@
+test "Entity Glowing":
+	spawn pig at test location:
+		assert entity isn't glowing with "Spawned pig is already glowing"
+		make entity start glowing
+		assert entity is glowing with "Failed to make pig start glowing"
+		stop entity from glowing
+		assert entity is not glowing with "Failed to stop pig from glowing"
+		make entity glow
+		assert entity is glowing with "Failed to make pig glow"
+		make entity not glow
+		assert entity is not glowing with "Failed to make pig not glow"
+		delete entity
+
+	spawn dropped apple at test-location:
+		assert entity isn't glowing with "Spawned dropped item is already glowing"
+		make entity start glowing
+		assert entity is glowing with "Failed to make dropped item start glowing"
+		stop entity from glowing
+		assert entity is not glowing with "Failed to stop dropped item from glowing"
+		make entity glow
+		assert entity is glowing with "Failed to make dropped item glow"
+		make entity not glow
+		assert entity is not glowing with "Failed to make dropped item not glow"
+		delete entity
+
+test "Entity Glowing for multiple entities":
+	spawn 2 pigs at test-location:
+		add entity to {_pigs::*}
+
+	assert {_pigs::*} aren't glowing with "Spawned pigs were already glowing"
+	make {_pigs::*} start glowing
+	assert {_pigs::*} are glowing with "Failed to make 2 pigs start glowing"
+	stop {_pigs::*} from glowing
+	assert {_pigs::*} are not glowing with "Failed to stop 2 pigs from glowing"
+	make {_pigs::*} glow
+	assert {_pigs::*} are glowing with "Failed to make 2 pigs glow"
+	make {_pigs::*} not glow
+	assert {_pigs::*} are not glowing with "Failed to make 2 pigs not glow"
+	delete entities within {_pigs::*}
+
+	spawn 2 dropped apples at test-location:
+		add entity to {_dropped items::*}
+
+	assert {_dropped items::*} aren't glowing with "Spawned dropped items were already glowing"
+	make {_dropped items::*} start glowing
+	assert {_dropped items::*} is glowing with "Failed to make 2 dropped items start glowing"
+	stop {_dropped items::*} from glowing
+	assert {_dropped items::*} is not glowing with "Failed to stop 2 dropped items from glowing"
+	make {_dropped items::*} glow
+	assert {_dropped items::*} is glowing with "Failed to make 2 dropped items glow"
+	make {_dropped items::*} not glow
+	assert {_dropped items::*} is not glowing with "Failed to make 2 dropped items not glow"
+	delete entities within {_dropped items::*}

@@ -1,5 +1,8 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Projectile;
@@ -14,21 +17,29 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Projectile Critical State")
-@Description("A projectile's critical state. The only currently accepted projectiles are arrows and tridents.")
+@Description("A projectile's critical state. The only currently accepted projectiles are arrows and tridents. This expression is deprecated and will be removed in a future version. Use the <a href='#EffProjectileCriticalState'>Projectile Critical State</a> effect instead.")
 @Example("""
 	on shoot:
 		event-projectile is an arrow
 		set projectile critical mode of event-projectile to true
 	""")
 @Since("2.5.1")
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class ExprProjectileCriticalState extends SimplePropertyExpression<Projectile, Boolean> {
 	
 	private static final boolean abstractArrowExists = Skript.classExists("org.bukkit.entity.AbstractArrow");
 	
 	static {
 		register(ExprProjectileCriticalState.class, Boolean.class, "(projectile|arrow) critical (state|ability|mode)", "projectiles");
+	}
+
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		ScriptWarning.printDeprecationWarning("This expression is deprecated and will be removed in a future version. Use the projectile critical state effect instead: 'make " + expressions[0].toString(null, false) + " crit'.");
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 	
 	@Nullable
