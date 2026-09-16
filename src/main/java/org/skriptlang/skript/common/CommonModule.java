@@ -6,6 +6,7 @@ import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.common.elements.effects.*;
 import org.skriptlang.skript.common.elements.expressions.*;
+import org.skriptlang.skript.common.elements.sections.EffSecTransform;
 import org.skriptlang.skript.common.properties.PropertiesModule;
 import org.skriptlang.skript.common.types.*;
 
@@ -36,7 +37,8 @@ public class CommonModule extends HierarchicalAddonModule {
 			ExprColorFromHexCode::register,
 			ExprHexCode::register,
 			ExprRecursiveSize::register,
-			ExprReplace::register
+			ExprReplace::register,
+			EffSecTransform::register
 		);
 	}
 
