@@ -200,7 +200,9 @@ public final class SkriptParser {
 	}
 
 	private <T extends SyntaxElement> @Nullable T parse(Iterator<? extends SyntaxInfo<? extends T>> source) {
-		ParsingStack parsingStack = getParser().getParsingStack();
+		ParserInstance parser = getParser();
+		parser.checkParseDeadline(); // we could check every info, but given explosions tend to happen due to recursion, this should suffice
+		ParsingStack parsingStack = parser.getParsingStack();
 		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			while (source.hasNext()) {
 				SyntaxInfo<? extends T> info = source.next();

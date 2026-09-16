@@ -5,6 +5,7 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.parser.ParseTimeoutException;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.CountingLogHandler;
 import ch.njol.skript.log.LogEntry;
@@ -1018,6 +1019,12 @@ public class ScriptLoader {
 	public static ArrayList<TriggerItem> loadItems(SectionNode node) {
 		ParserInstance parser = getParser();
 
+		// store previous deadline for aborting parsing so we can restore it after parsing this section.
+		// we will subtract time spent loading this section, since it's not technically part of the time
+		// spent parsing the section line itself.
+		long outerDeadline = parser.getParseDeadline();
+		long entered = System.nanoTime();
+
 		if (Skript.debug())
 			parser.setIndentation(parser.getIndentation() + "    ");
 
@@ -1045,7 +1052,16 @@ public class ScriptLoader {
 			TriggerItem item = null;
 			if (subNode instanceof SimpleNode) {
 				long start = System.currentTimeMillis();
-				item = Statement.parse(expr, items, "Can't understand this condition/effect: " + expr);
+				parser.setParseDeadline(ParseTimeoutException.createDeadline());
+				try {
+					item = Statement.parse(expr, items, "Can't understand this condition/effect: " + expr);
+				} catch (ParseTimeoutException e) {
+					ParseTimeoutException.printError();
+					continue;
+				} finally {
+					// restore previous deadline w/out this section's self-time
+					parser.setParseDeadline(outerDeadline == 0 ? 0 : outerDeadline + (System.nanoTime() - entered));
+				}
 				if (item == null)
 					continue;
 				long requiredTime = SkriptConfig.longParseTimeWarningThreshold.value().getAs(Timespan.TimePeriod.MILLISECOND);
@@ -1064,8 +1080,8 @@ public class ScriptLoader {
 				items.add(item);
 			} else if (subNode instanceof SectionNode subSection) {
 
-				//noinspection resource - manual management is intentional
 				RetainingLogHandler handler = SkriptLogger.startRetainingLog();
+				parser.setParseDeadline(ParseTimeoutException.createDeadline());
 				find_section:
 				try {
 					// enter capturing scope
@@ -1120,7 +1136,13 @@ public class ScriptLoader {
 						handler.restore(backup);
 					}
 					continue;
+				} catch (ParseTimeoutException e) {
+					ParseTimeoutException.printError();
+					continue;
 				} finally {
+					// restore previous deadline w/out this section's self-time
+					parser.setParseDeadline(outerDeadline == 0 ? 0 : outerDeadline + (System.nanoTime() - entered));
+
 					// exit hint scope (see above)
 					HintManager hintManager = parser.getHintManager();
 					if (item == null) { // unsuccessful, wipe out hints
