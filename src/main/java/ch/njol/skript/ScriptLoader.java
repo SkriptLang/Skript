@@ -320,6 +320,7 @@ public class ScriptLoader {
 		if (size <= 0) {
 			for (AsyncLoaderThread thread : loaderThreads)
 				thread.cancelExecution();
+			loaderThreads.clear();
 			return;
 		}
 
@@ -336,6 +337,7 @@ public class ScriptLoader {
 		if (loaderThreads.size() != size)
 			throw new IllegalStateException();
 		
+		Executor previous = executor;
 		executor = Executors.newFixedThreadPool(asyncLoaderSize, new ThreadFactory() {
 			private final AtomicInteger threadId = new AtomicInteger(0);
 
@@ -346,6 +348,9 @@ public class ScriptLoader {
 				return thread;
 			}
 		});
+
+		if (previous instanceof ExecutorService service)
+			service.shutdown();
 	}
 
 	/**
