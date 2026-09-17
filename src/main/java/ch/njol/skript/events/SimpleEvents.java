@@ -40,12 +40,6 @@ public class SimpleEvents {
 				.examples("on block can build check:",
 						"\tcancel event")
 				.since("1.0 (basic), 2.0 ([un]cancellable)");
-		Skript.registerEvent("Block Damage", SimpleEvent.class, BlockDamageEvent.class, "block damag(ing|e)")
-				.description("Called when a player starts to break a block. You can usually just use the leftclick event for this.")
-				.examples("on block damaging:",
-						"\tif block is tagged with minecraft tag \"logs\":",
-						"\t\tsend \"You can't break the holy log!\"")
-				.since("1.0");
 		Skript.registerEvent("Flow", SimpleEvent.class, BlockFromToEvent.class, "[block] flow[ing]", "block mov(e|ing)")
 				.description("Called when a blocks flows or teleports to another block. This not only applies to water and lava, but teleporting dragon eggs as well.")
 				.examples("on block flow:",
