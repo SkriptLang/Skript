@@ -5,17 +5,25 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.ConfigurationSerializer;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
+import ch.njol.util.coll.CollectionUtils;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.WrittenBookContent;
+import io.papermc.paper.text.Filtered;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.item.book.BookUtils;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
@@ -51,7 +59,11 @@ public class ItemStackClassInfo extends ClassInfo<ItemStack> {
 			.property(Property.AMOUNT,
 				"The number of items in this stack. Can be set.",
 				Skript.instance(),
-				new ItemStackAmountHandler());
+				new ItemStackAmountHandler())
+			.property(Property.TITLE,
+				"An item's title. This currently only applies to signed books.",
+				Skript.instance(),
+				new ItemTypeTitleHandler());
 	}
 
 	private static class ItemStackParser extends Parser<ItemStack> {
@@ -122,6 +134,49 @@ public class ItemStackClassInfo extends ClassInfo<ItemStack> {
 		@Override
 		public @NotNull Class<Number> returnType() {
 			return Number.class;
+		}
+		//</editor-fold>
+	}
+
+	private static class ItemTypeTitleHandler implements ExpressionPropertyHandler<ItemStack, Component> {
+		//<editor-fold desc="item type title handler" defaultstate="collapsed">
+		@Override
+		public @Nullable Component convert(ItemStack item) {
+			if (item.hasData(DataComponentTypes.WRITTEN_BOOK_CONTENT)) {
+				//noinspection ConstantConditions - checked via hasData
+				return LegacyComponentSerializer.legacySection()
+					.deserialize(item.getData(DataComponentTypes.WRITTEN_BOOK_CONTENT).title().raw());
+			}
+			return null;
+		}
+
+		@Override
+		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+			return switch (mode) {
+				case SET, DELETE, RESET -> CollectionUtils.array(Component.class);
+				default -> null;
+			};
+		}
+
+		@Override
+		public void change(ItemStack item, Object @Nullable [] delta, ChangeMode mode) {
+			boolean hasBookContent = item.hasData(DataComponentTypes.WRITTEN_BOOK_CONTENT);
+			if (hasBookContent || item.getType() == Material.WRITTEN_BOOK) {
+				String title = delta == null ? "" : LegacyComponentSerializer.legacySection().serialize((Component) delta[0]);
+				WrittenBookContent newContent;
+				if (hasBookContent) {
+					newContent = BookUtils.modifyWrittenContent(item.getData(DataComponentTypes.WRITTEN_BOOK_CONTENT),
+						content -> content.title(title));
+				} else {
+					newContent = WrittenBookContent.writtenBookContent(Filtered.of(title, title), BookUtils.getDefaultAuthor(item)).build();
+				}
+				item.setData(DataComponentTypes.WRITTEN_BOOK_CONTENT, newContent);
+			}
+		}
+
+		@Override
+		public @NotNull Class<Component> returnType() {
+			return Component.class;
 		}
 		//</editor-fold>
 	}
