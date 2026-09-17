@@ -10,9 +10,12 @@ import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.util.Modifiable;
 import org.skriptlang.skript.util.Priority;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 /**
@@ -24,7 +27,7 @@ import java.util.stream.Collectors;
 @NonExtendable
 @Internal
 @Experimental
-public interface Signature<T> {
+public interface Signature<T> extends Modifiable {
 
 	/**
 	 * @return The name of the function.
@@ -75,37 +78,6 @@ public interface Signature<T> {
 	}
 
 	/**
-	 * @return All modifiers belonging to this signature.
-	 */
-	@Unmodifiable
-	@NotNull Collection<Modifier> modifiers();
-
-	/**
-	 * Returns whether this signature has the specified modifier.
-	 *
-	 * @param modifier The modifier.
-	 * @return True when {@link #modifiers()} contains the specified modifier, false if not.
-	 */
-	default boolean hasModifier(Class<? extends Modifier> modifier) {
-		return modifiers().stream().anyMatch(modifier::isInstance);
-	}
-
-	/**
-	 * Gets a modifier of the specified type if present.
-	 *
-	 * @param modifierClass The class of the modifier to retrieve
-	 * @return The modifier instance.
-	 * @throws NoSuchElementException If no value is found for the modifier.
-	 */
-	default <M extends Modifier> M getModifier(Class<M> modifierClass) {
-		return modifiers().stream()
-				.filter(modifierClass::isInstance)
-				.map(modifierClass::cast)
-				.findAny()
-				.orElseThrow(() -> new NoSuchElementException("No value present for modifier " + modifierClass.getSimpleName()));
-	}
-
-	/**
 	 * @return A human-readable string representing this parameter.
 	 */
 	default @NotNull String toFormattedString() {
@@ -113,7 +85,7 @@ public interface Signature<T> {
 
 		modifiers().stream()
 				.filter(it -> it.priority().isBefore(Modifier.FUNCTION_PRIORITY))
-				.map(Modifier::toFormattedString)
+				.map(org.skriptlang.skript.util.Modifier::toFormattedString)
 				.filter(it -> !it.isEmpty())
 				.forEach(joiner::add);
 
@@ -123,7 +95,7 @@ public interface Signature<T> {
 
 		modifiers().stream()
 				.filter(it -> it.priority().isAfter(Modifier.FUNCTION_PRIORITY))
-				.map(Modifier::toFormattedString)
+				.map(org.skriptlang.skript.util.Modifier::toFormattedString)
 				.filter(it -> !it.isEmpty())
 				.forEach(joiner::add);
 
@@ -133,31 +105,12 @@ public interface Signature<T> {
 	/**
 	 * Represents a modifier that can be applied to a function signature.
 	 */
-	interface Modifier {
+	interface Modifier extends org.skriptlang.skript.util.Modifier {
 
 		/**
 		 * The priority used for printing the type in a signature's string representation.
 		 */
 		Priority FUNCTION_PRIORITY = Priority.base();
-
-		/**
-		 * The priority used when using this modifier in a string representation.
-		 *
-		 * <p>
-		 * Registering after {@link #FUNCTION_PRIORITY} will print after the function,
-		 * e.g. {@code function x() local}.
-		 * Registering before {@link #FUNCTION_PRIORITY} will print before the function,
-		 * e.g. {@code local function x()}.
-		 * </p>
-		 *
-		 * @return The priority used.
-		 */
-		@NotNull Priority priority();
-
-		/**
-		 * @return The modifier as a human-readable, formatted string.
-		 */
-		@NotNull String toFormattedString();
 
 		/**
 		 * Indicates this function is only visible in a specific namespace.

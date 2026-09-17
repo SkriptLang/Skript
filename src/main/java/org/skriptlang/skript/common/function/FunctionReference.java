@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.function.FunctionReferenceParser.EmptyExpression;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
+import org.skriptlang.skript.util.Modifiable;
 
 import java.util.*;
 
@@ -38,31 +39,9 @@ public final class FunctionReference<T> implements Debuggable {
 	private Function<T> cachedFunction;
 	private LinkedHashMap<String, ArgInfo> cachedArguments;
 
-	private record ArgInfo(Expression<?> expression, Class<?> type, Collection<Modifier> modifiers) {
+	private record ArgInfo(Expression<?> expression, Class<?> type, Collection<Modifier> modifiers)
+			implements Modifiable {
 
-		/**
-		 * Returns whether this parameter has the specified modifier.
-		 *
-		 * @param modifier The modifier.
-		 * @return True when {@link #modifiers()} contains the specified modifier, false if not.
-		 */
-		boolean hasModifier(Class<? extends Modifier> modifier) {
-			return modifiers().stream().anyMatch(modifier::isInstance);
-		}
-
-		/**
-		 * Gets a modifier of the specified type if present.
-		 *
-		 * @param modifierClass The class of the modifier to retrieve
-		 * @return The modifier instance, or null if not present
-		 */
-		<M extends Modifier> M getModifier(Class<M> modifierClass) {
-			return modifiers().stream()
-					.filter(modifierClass::isInstance)
-					.map(modifierClass::cast)
-					.findFirst()
-					.orElse(null);
-		}
 	}
 
 	public FunctionReference(@Nullable String namespace,
@@ -134,7 +113,9 @@ public final class FunctionReference<T> implements Debuggable {
 				}
 
 				// all good
-				cachedArguments.put(target.name(), new ArgInfo(converted, target.type(), target.modifiers()));
+				//noinspection unchecked
+				cachedArguments.put(target.name(),
+						new ArgInfo(converted, target.type(), (Collection<Modifier>) target.modifiers()));
 			}
 		}
 

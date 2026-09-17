@@ -10,14 +10,11 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
-import org.skriptlang.skript.common.function.DefaultFunction.Builder;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.util.Modifiable;
 import org.skriptlang.skript.util.Priority;
 
-import java.util.Collection;
-import java.util.NoSuchElementException;
 import java.util.StringJoiner;
 
 /**
@@ -26,7 +23,7 @@ import java.util.StringJoiner;
  * @param <T> The type of the function parameter.
  */
 @NonExtendable
-public interface Parameter<T> {
+public interface Parameter<T> extends Modifiable {
 
 	/**
 	 * @return The name of this parameter.
@@ -39,42 +36,11 @@ public interface Parameter<T> {
 	@NotNull Class<T> type();
 
 	/**
-	 * @return All modifiers belonging to this parameter.
-	 */
-	@Unmodifiable
-	@NotNull Collection<Modifier> modifiers();
-
-	/**
 	 * @deprecated Use {@link #hasModifier(Class)} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	default boolean hasModifier(Modifier modifier) {
 		return modifiers().contains(modifier);
-	}
-
-	/**
-	 * Returns whether this parameter has the specified modifier.
-	 *
-	 * @param modifier The modifier.
-	 * @return True when {@link #modifiers()} contains the specified modifier, false if not.
-	 */
-	default boolean hasModifier(Class<? extends Modifier> modifier) {
-		return modifiers().stream().anyMatch(modifier::isInstance);
-	}
-
-	/**
-	 * Gets a modifier of the specified type if present.
-	 *
-	 * @param modifierClass The class of the modifier to retrieve
-	 * @return The modifier instance.
-	 * @throws NoSuchElementException If no value is found for the modifier.
-	 */
-	default <M extends Modifier> M getModifier(Class<M> modifierClass) {
-		return modifiers().stream()
-				.filter(modifierClass::isInstance)
-				.map(modifierClass::cast)
-				.findFirst()
-				.orElseThrow(() -> new NoSuchElementException("No value present for modifier " + modifierClass.getSimpleName()));
 	}
 
 	/**
@@ -135,7 +101,7 @@ public interface Parameter<T> {
 
 		modifiers().stream()
 				.filter(it -> it.priority().isBefore(Modifier.TYPE_PRIORITY))
-				.map(Modifier::toFormattedString)
+				.map(org.skriptlang.skript.util.Modifier::toFormattedString)
 				.filter(it -> !it.isEmpty())
 				.forEach(joiner::add);
 
@@ -148,7 +114,7 @@ public interface Parameter<T> {
 
 		modifiers().stream()
 				.filter(it -> it.priority().isAfter(Modifier.TYPE_PRIORITY))
-				.map(Modifier::toFormattedString)
+				.map(org.skriptlang.skript.util.Modifier::toFormattedString)
 				.filter(it -> !it.isEmpty())
 				.forEach(joiner::add);
 
@@ -158,31 +124,12 @@ public interface Parameter<T> {
 	/**
 	 * Represents a modifier that can be applied to a parameter.
 	 */
-	interface Modifier {
+	interface Modifier extends org.skriptlang.skript.util.Modifier {
 
 		/**
 		 * The priority used for printing the type in a parameter's string representation.
 		 */
 		Priority TYPE_PRIORITY = Priority.base();
-
-		/**
-		 * The priority used when using this modifier in a string representation.
-		 *
-		 * <p>
-		 * Registering after {@link #TYPE_PRIORITY} will print after the type,
-		 * e.g. {@code x: number optional}.
-		 * Registering before {@link #TYPE_PRIORITY} will print before the type,
-		 * e.g. {@code x: optional number}.
-		 * </p>
-		 *
-		 * @return The priority.
-		 */
-		@NotNull Priority priority();
-
-		/**
-		 * @return The modifier as a human-readable, formatted string.
-		 */
-		@NotNull String toFormattedString();
 
 		/**
 		 * @deprecated Create a new class implementing {@link Modifier} instead.
@@ -414,20 +361,6 @@ public interface Parameter<T> {
 			public @NotNull Priority priority() {
 				return PRIORITY;
 			}
-
-		}
-
-		/**
-		 * A constraint is a modifier which validates the input of a parameter.
-		 */
-		@FunctionalInterface
-		interface Constraint {
-
-			/**
-			 * @param input The input.
-			 * @return True if this input is valid, false if not.
-			 */
-			boolean isValid(Object input);
 
 		}
 
