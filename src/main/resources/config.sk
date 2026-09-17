@@ -80,6 +80,32 @@ log effect commands: false
 # Whether Skript should log the usage of effect commands.
 # They will be logged as [INFORMATION] in this format: '<player> issued effect command: <command>'
 
+multiline effect command token: !-
+multiline effect command tab token: \t
+# If 'enable effect commands' is set to true, chat messages starting with the 'multiline effect command token' will be interpreted and stored until ready for dispatch.
+# Unlike singular effect commands, multiline effect commands allows users to dispatch multiple lines at once as if it were its own script.
+# The key differences between singular and multiline:
+#  - The ability to set and use local variables, but only within each multiline session. They do not transfer over to the next multiline session.
+#  - The ability to use sections
+# Since Minecraft reduces spaces, use 'multiline effect command tab token' to indicate a tab. This is placed right after the 'multiline effect command token'.
+# To finish a multiline effect command, send the 'multiline effect command token' by itself.
+# Example:
+# 	!-set {_bar} to a boss bar:
+#	!-\tset color of event-bossbar to red
+#	!-send color of {_bar}
+#	!-                              # This terminates your current session and executes what has been provided
+#	!-send {_bar}					# This returns nothing as it is a new multiline session
+# Example:
+#	!- spawn a zombie at me:
+#	!- \t make event-entity not persist
+#	!-                              # This terminates your current session and executes what has been provided
+#
+# If both 'effect command token' and 'multiline effect command token' are the same, effect commands will always be treated as multiline.
+
+multiline effect command timeout: 1 minute
+# The amount of time between 2 different entries until the current effect commands are reset.
+# Set to 0 of any time period to disable i.e. 0 minutes
+
 compress backups: true
 # Whether Skript should compress backup files (configs and variables).
 # If true, those files will be zipped to save disk space.
