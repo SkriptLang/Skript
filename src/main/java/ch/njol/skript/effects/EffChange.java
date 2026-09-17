@@ -337,7 +337,9 @@ public class EffChange extends Effect {
 		}
 
 		if (!supported) {
-			Skript.error("'%s' cannot be changed %s".formatted(what, time));
+			Skript.error("'%s' cannot be changed %s",
+					syntax.toChangeDelayString() != null ? syntax.toChangeDelayString() : what,
+					time);
 			return false;
 		}
 		return true;
