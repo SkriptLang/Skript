@@ -104,7 +104,7 @@ test "bee data":
 	testData(angry bee without nectar)
 	testData(angry bee with nectar)
 
-test "boat data":
+test "chest boat data":
 	setSuperTypes(any chest boat)
 	testData(chest boat)
 	testData(acacia chest boat)
