@@ -7,6 +7,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.util.SimpleEvent;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.ContainerEntryData;
@@ -58,8 +59,8 @@ public class StructTestSubValidators extends Structure {
 		List<TriggerItem> items1 = ScriptLoader.loadItems(section1);
 		List<TriggerItem> items2 = ScriptLoader.loadItems(section2);
 		Script script = getParser().getCurrentScript();
-		Trigger trigger1 = new Trigger(script, "sub section", null, items1);
-		Trigger trigger2 = new Trigger(script, "sub sub section", null, items2);
+		Trigger trigger1 = new Trigger(script, "sub section", new SimpleEvent(), items1);
+		Trigger trigger2 = new Trigger(script, "sub sub section", new SimpleEvent(), items2);
 		trigger1.execute(new SkriptTestEvent());
 		trigger2.execute(new SkriptTestEvent());
 		return true;
