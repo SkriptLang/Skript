@@ -104,9 +104,12 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 			return (Expression<? extends R>) this;
 
 		Class<?> returns = reference.signature().returnType();
+		if (returns == null)
+			return null;
+
 		Class<?> converterType = Utils.getComponentType(returns);
 
-		if (Converters.converterExists(converterType, to))
+		if (converterType != null && Converters.converterExists(converterType, to))
 			return new ExprFunctionCall<>(reference, to);
 		return null;
 	}

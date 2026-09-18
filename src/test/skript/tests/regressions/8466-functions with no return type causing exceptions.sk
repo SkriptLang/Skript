@@ -1,0 +1,5 @@
+local function foo():
+    set {_} to "something"
+
+test "functions with no return type causing exceptions"
+    set slot 0 of random element of all players to foo()
