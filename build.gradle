@@ -11,7 +11,9 @@ plugins {
 }
 
 configurations {
-    testImplementation.extendsFrom testShadow
+	jdbcDrivers
+	compileOnly.extendsFrom jdbcDrivers
+	testImplementation.extendsFrom testShadow, shadow, jdbcDrivers
 }
 
 allprojects {
@@ -31,6 +33,11 @@ allprojects {
 
 dependencies {
 	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.2.1'
+	// Provided by Paper. Compile and test against the versions in Paper 1.21.4.
+	jdbcDrivers('com.mysql:mysql-connector-j:9.1.0') {
+		exclude group: 'com.google.protobuf', module: 'protobuf-java' // X DevAPI is unused
+	}
+	jdbcDrivers 'org.xerial:sqlite-jdbc:3.47.0.0'
 
 	implementation group: 'io.papermc.paper', name: 'paper-api', version: '26.2.build.+'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
@@ -96,6 +103,21 @@ test {
 	exclude '**/*'
 }
 
+tasks.register('variableStorageTest', Test) {
+	description = 'Runs variable storage unit tests without a Minecraft or MySQL server.'
+	testClassesDirs = sourceSets.test.output.classesDirs
+	classpath = sourceSets.test.runtimeClasspath
+	include 'ch/njol/skript/variables/*Test.class'
+}
+
+// Run separately from quickTest: release resource tasks share the main output directory.
+tasks.register('jdbcPackagingCheck', JavaExec) {
+	dependsOn jar, compileTestJava
+	classpath = sourceSets.test.output + configurations.jdbcDrivers
+	mainClass = 'ch.njol.skript.variables.JdbcPackagingCheck'
+	args tasks.jar.archiveFile.get().asFile.absolutePath
+}
+
 tasks.register('sourceJar', Jar) {
 	from sourceSets.main.allJava
 	archiveClassifier = 'sources'
@@ -110,6 +132,9 @@ tasks.withType(ShadowJar).configureEach {
 		include(dependency('org.bstats:bstats-base'))
 	}
 	relocate 'org.bstats', 'ch.njol.skript.bstats'
+	exclude 'META-INF/services/java.sql.Driver'
+	exclude 'META-INF/*.SF', 'META-INF/*.RSA', 'META-INF/*.DSA'
+	exclude 'module-info.class', 'META-INF/versions/**/module-info.class'
 	manifest {
 		attributes(
 			'Name': 'ch/njol/skript',
