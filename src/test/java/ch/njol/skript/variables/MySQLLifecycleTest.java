@@ -1,5 +1,7 @@
 package ch.njol.skript.variables;
 
+import ch.njol.skript.log.LogEntry;
+import ch.njol.skript.log.LogHandler;
 import org.junit.Test;
 
 import javax.sql.ConnectionPoolDataSource;
@@ -9,7 +11,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
@@ -51,11 +57,42 @@ public class MySQLLifecycleTest {
 			}).atLeastOnce();
 		}
 		replay(source, physical, connection, statement, rows);
-		PooledMySQLStorage storage = new PooledMySQLStorage(new MySQLConnectionPool(source), "variables_test");
+		List<LogEntry> errors = new ArrayList<>();
+		PooledMySQLStorage storage = new PooledMySQLStorage(new MySQLConnectionPool(source), "variables_test") {
+			private LogHandler handler;
+
+			@Override
+			void writeBatch(Map<String, SerializedVariable> batch) throws SQLException {
+				// Handlers are thread-local: capture the worker's failure and shutdown reports.
+				if (handler == null) {
+					handler = new LogHandler() {
+						@Override
+						public LogResult log(LogEntry entry) {
+							errors.add(entry);
+							return LogResult.DO_NOT_LOG;
+						}
+					}.start();
+				}
+				super.writeBatch(batch);
+			}
+
+			@Override
+			protected void disconnect() {
+				try {
+					super.disconnect();
+				} finally {
+					if (handler != null)
+						handler.stop();
+				}
+			}
+		};
 		// Supply the same journal that load_i normally creates, without requiring a live database.
 		var journalField = PooledMySQLStorage.class.getDeclaredField("journal");
 		journalField.setAccessible(true);
 		journalField.set(storage, new MySQLJournal(path, "test"));
+		var journalFileField = PooledMySQLStorage.class.getDeclaredField("journalFile");
+		journalFileField.setAccessible(true);
+		journalFileField.set(storage, path.toFile());
 		try {
 			storage.save(new SerializedVariable("list::1", new SerializedVariable.Value("string", new byte[]{1, 2, 3})));
 			storage.save(new SerializedVariable("list::2", null));
@@ -64,10 +101,17 @@ public class MySQLLifecycleTest {
 			var recovered = new MySQLJournal(path, "test").read();
 			assertEquals(!unavailable, committed.get());
 			if (unavailable) {
+				assertEquals(List.of(
+						"MySQL persistence failed. 2 changes remain pending; retrying. "
+								+ "Check database availability and free disk space for the recovery file.",
+						"MySQL stopped with 2 pending variables saved in " + path + " for recovery."),
+						errors.stream().map(LogEntry::getMessage).toList());
+				errors.forEach(entry -> assertEquals(Level.SEVERE, entry.getLevel()));
 				assertArrayEquals(new byte[]{1, 2, 3}, recovered.get("list::1").value.data);
 				assertNull(recovered.get("list::2").value);
 			} else {
 				assertTrue(recovered.isEmpty());
+				assertTrue("Successful shutdown must not log errors: " + errors, errors.isEmpty());
 			}
 			verify(source, physical, connection, statement, rows);
 		} finally {

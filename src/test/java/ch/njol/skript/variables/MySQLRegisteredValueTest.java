@@ -1,5 +1,7 @@
 package ch.njol.skript.variables;
 
+import ch.njol.skript.log.LogEntry;
+import ch.njol.skript.log.LogHandler;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Task;
 import org.bukkit.Bukkit;
@@ -59,10 +61,24 @@ public class MySQLRegisteredValueTest {
 		Assume.assumeNotNull(Bukkit.getServer());
 		assertEquals(Boolean.TRUE, Task.callSync(() -> {
 			var bad = new SerializedVariable("bad", new SerializedVariable.Value("missing-addon-type", new byte[0]));
+			var anotherBad = new SerializedVariable("another-bad", bad.value);
 			var good = Variables.serializeChange("good", "still readable");
-			var rows = Map.of("bad", bad, "good", good);
-			assertEquals(Map.of("good", "still readable"), new PooledMySQLStorage().decodeValues(rows));
+			var rows = Map.of("bad", bad, "another-bad", anotherBad, "good", good);
+			List<LogEntry> errors = new ArrayList<>();
+			try (var handler = new LogHandler() {
+				@Override
+				public LogResult log(LogEntry entry) {
+					errors.add(entry);
+					return LogResult.DO_NOT_LOG;
+				}
+			}.start()) {
+				assertEquals(Map.of("good", "still readable"), new PooledMySQLStorage().decodeValues(rows));
+			}
+			assertEquals(List.of("2 variables could not be loaded!", "Affected variables: another-bad, bad"),
+					errors.stream().map(LogEntry::getMessage).toList());
+			errors.forEach(entry -> assertEquals(java.util.logging.Level.SEVERE, entry.getLevel()));
 			assertSame(bad, rows.get("bad"));
+			assertSame(anotherBad, rows.get("another-bad"));
 			return true;
 		}));
 	}

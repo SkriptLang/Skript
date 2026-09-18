@@ -639,14 +639,42 @@ public class Variables {
 					processChangeQueue();
 				}
 				// Process and save requested change
-				variables.setVariable(name, value);
-				saveVariableChange(name, value);
+				applyVariableChange(name, value);
 			} finally {
 				variablesLock.writeLock().unlock();
 			}
 		} else {
 			// Couldn't acquire variable write lock, queue the change (blocking here is a bad idea)
 			queueVariableChange(name, value);
+		}
+	}
+
+	/** Applies a global change while holding the write lock, persisting individual list entries. */
+	private static void applyVariableChange(String name, @Nullable Object value) {
+		if (value == null && name.endsWith("::*")) {
+			Object previous = variables.getVariable(name);
+			if (previous instanceof Map<?, ?> entries)
+				saveListDeletions(name.substring(0, name.length() - 1), entries);
+			variables.setVariable(name, null);
+		} else {
+			variables.setVariable(name, value);
+			saveVariableChange(name, value);
+		}
+	}
+
+	private static void saveListDeletions(String prefix, Map<?, ?> entries) {
+		for (Map.Entry<?, ?> entry : entries.entrySet()) {
+			// The null key holds the parent scalar, which deleting parent::* preserves.
+			if (entry.getKey() == null)
+				continue;
+			String name = prefix + entry.getKey();
+			if (entry.getValue() instanceof TreeMap<?, ?> children) {
+				if (children.get(null) != null)
+					saveVariableChange(name, null);
+				saveListDeletions(name + "::", children);
+			} else {
+				saveVariableChange(name, null);
+			}
 		}
 	}
 
@@ -708,8 +736,7 @@ public class Variables {
 				break;
 
 			// Set and save variable
-			variables.setVariable(change.name, change.value);
-			saveVariableChange(change.name, change.value);
+			applyVariableChange(change.name, change.value);
 		}
 	}
 

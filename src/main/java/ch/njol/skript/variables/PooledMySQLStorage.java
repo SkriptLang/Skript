@@ -188,9 +188,8 @@ class PooledMySQLStorage extends VariablesStorage {
 			}
 		}
 		if (!failed.isEmpty()) {
-			Skript.error("SKRIPT WAS UNABLE TO LOAD THE FOLLOWING VARIABLES:");
-			for (String name : failed)
-				Skript.error("- " + name);
+			Skript.error(failed.size() + " variable" + (failed.size() == 1 ? "" : "s") + " could not be loaded!");
+			Skript.error("Affected variables: " + String.join(", ", failed));
 		}
 		return result;
 	}

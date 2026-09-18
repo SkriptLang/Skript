@@ -309,7 +309,7 @@ databases:
 	# Each database definition must be in a separate section. You can choose any name for the sections, as long as it's not already used.
 	mysql variables:
 		# MySQL 8+ is required
-		# Change to MySQL to enable this database. CSV remains the default below.
+		# Change to MySQL to enable this database.
 		type: disabled
 		pattern: .*
 		host: localhost
@@ -320,16 +320,13 @@ databases:
 		table: skript_vars
 		# TLS modes: VERIFY_IDENTITY, VERIFY_CA, REQUIRED, DISABLED.
 		ssl mode: REQUIRED
-		# MySQL does not support monitoring or multiple servers sharing a table.
-		monitor changes: false
-		# Recovery files are inside plugins/Skript; each MySQL entry needs a unique file.
-		# Keep mysql-pending.bin when moving the previous top-level MySQL configuration here.
-		# If omitted, a stable file name is generated from the database section name.
+		
 		recovery file: mysql-pending.bin
-		# Do not delete recovery files or change their database/table while writes are pending.
-		# Existing tables must match the current schema; there are no automatic migrations.
-		# Uses the normal ClassInfo serializers; list entries are saved individually.
-		# Sudden crashes can lose changes that have not reached the recovery journal yet.
+		# DO NOT DELETE THE RECOVERY FILE!!!! Doing so will cause loss of data & unwanted persistence.
+		# PS. if the schema used by Skript were to ever be updated (likely not), you need to use another table,
+		# delete the used schema or used another database. There is no bundled migrations as of now
+		# If you dont want to risk losing your data while updating, check update logs for any schema updates
+		# that lack proper migrations, if so, refrain from proceeding.
 
 	database 1:
 		# An example database to describe all possible options.
@@ -346,10 +343,12 @@ databases:
 		# e.g. if a variable matches the topmost database's pattern it will be saved there and nowhere else.
 		# BTW: Patterns are checked in a separate thread, i.e. your server likely won't run slower when using complicated patterns.
 
+		# SQLite only. CSV does not monitor changes; MySQL rejects monitoring being enabled.
 		monitor changes: false
 		monitor interval: 20 seconds
-		# If 'monitor changes' is set to true, variables will repeatedly be checked for updates in the database (in intervals set in 'monitor interval').
-		# ! Please note that you should set 'pattern', 'monitor changes' and 'monitor interval' to the same values on all servers that access the same database!
+		# Enable this to periodically load variable updates written by another Skript instance to the same SQLite database.
+		# 'monitor interval' controls how often updates are checked; it has no effect when monitoring is disabled.
+		# Use the same 'pattern', 'monitor changes' and 'monitor interval' on instances sharing that SQLite database.
 
 		# == CSV / SQLite configuration ==
 		file: ./plugins/Skript/variables.db
