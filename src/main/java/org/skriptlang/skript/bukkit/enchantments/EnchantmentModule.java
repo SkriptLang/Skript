@@ -8,6 +8,7 @@ import org.bukkit.enchantments.EnchantmentOffer;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.enchantments.elements.EnchantmentEvents;
 import org.skriptlang.skript.bukkit.enchantments.elements.conditions.CondIsEnchanted;
 import org.skriptlang.skript.bukkit.enchantments.elements.conditions.CondItemEnchantmentGlint;
 import org.skriptlang.skript.bukkit.enchantments.elements.effects.EffEnchant;
@@ -16,6 +17,7 @@ import org.skriptlang.skript.bukkit.enchantments.elements.expressions.*;
 import org.skriptlang.skript.bukkit.enchantments.types.EnchantmentClassInfo;
 import org.skriptlang.skript.bukkit.enchantments.types.EnchantmentOfferClassInfo;
 import org.skriptlang.skript.bukkit.enchantments.types.EnchantmentTypeClassInfo;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converters;
@@ -55,6 +57,8 @@ public class EnchantmentModule extends HierarchicalAddonModule {
 
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
+		EnchantmentEvents.register(moduleRegistry(addon), addon.registry(EventValueRegistry.class));
+
 		register(addon,
 			CondIsEnchanted::register,
 			CondItemEnchantmentGlint::register,

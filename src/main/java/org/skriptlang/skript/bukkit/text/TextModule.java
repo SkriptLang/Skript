@@ -1,10 +1,13 @@
 package org.skriptlang.skript.bukkit.text;
 
+import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.registrations.Classes;
 import net.kyori.adventure.text.Component;
+import org.bukkit.event.server.BroadcastMessageEvent;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.bukkit.text.elements.effects.*;
 import org.skriptlang.skript.bukkit.text.elements.expressions.*;
 import org.skriptlang.skript.bukkit.text.types.*;
@@ -12,6 +15,7 @@ import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class TextModule extends HierarchicalAddonModule {
 
@@ -67,6 +71,24 @@ public class TextModule extends HierarchicalAddonModule {
 			ExprResolvedComponent::register,
 			ExprStringColor::register
 		);
+
+		SyntaxRegistry syntaxRegistry = moduleRegistry(addon);
+
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Broadcast Message")
+			.addEvent(BroadcastMessageEvent.class)
+			.addPatterns(
+				"broadcast [message]",
+				"message being broadcast[ed]"
+			)
+			.addDescription("Called when a message is broadcasted.")
+			.addExample("""
+				on message being broadcasted:
+				   set broadcast-message to "<gray>[<red><bold>BROADCAST<reset><gray>] <white>%broadcasted message%"
+				""")
+			.addSince("2.10")
+			.addSince("INSERT VERSION ('message being broadcast' pattern)")
+			.supplier(() -> new SimpleEvent("broadcast message"))
+			.build());
 	}
 
 	@Override
