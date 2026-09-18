@@ -39,6 +39,14 @@ test "midpoint location - world error":
 		set {_midpoint} to the midpoint between {_loc1} and {_loc2}
 	assert last caught errors is "Cannot get the midpoint of two locations in different worlds." with "ExprMidpoint should error when getting midpoint of locations in different worlds"
 
+test "midpoint blocks - simple":
+	set {_block1} to the block at location(0, 0, 0)
+	set {_block2} to the block at location(10, 10, 10)
+	set {_midpoint} to the midpoint between {_block1} and {_block2}
+	assert {_midpoint} is location(5.5, 5.5, 5.5) with "Simple midpoint block1 -> block2 is incorrect"
+	set {_midpoint2} to the midpoint between {_block2} and {_block1}
+	assert {_midpoint2} is location(5.5, 5.5, 5.5) with "Simple midpoint block2 -> block1 is incorrect"
+
 test "midpoint vectors - simple":
 	set {_vector1} to vector(0, 0, 0)
 	set {_vector2} to vector(10, 10, 10)
