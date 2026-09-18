@@ -10,13 +10,11 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.util.Modifiable;
 import org.skriptlang.skript.util.Priority;
 
-import java.util.Optional;
 import java.util.StringJoiner;
 
 /**
@@ -226,7 +224,7 @@ public interface Parameter<T> extends Modifiable {
 			}
 
 			@Override
-			public java.util.@NonNull Optional<String> validate(Object input) {
+			public java.util.@NotNull Optional<String> validate(Object input) {
 				// convert to right type
 				if (!min.getClass().isInstance(input)) {
 					//noinspection unchecked

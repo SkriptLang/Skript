@@ -22,7 +22,7 @@ public interface Modifier {
 	@NotNull String toFormattedString();
 
 	/**
-	 * A constraint modifier allows validating of the input.
+	 * A modifier constraint allows validating of the input.
 	 */
 	@FunctionalInterface
 	interface Constraint {
@@ -35,7 +35,9 @@ public interface Modifier {
 		@NotNull Optional<String> validate(Object input);
 
 		/**
-		 * Default fallback for boolean checking.
+		 * Checks whether the input is valid.
+		 * @param input The input.
+		 * @return True when the input is valid, false if not.
 		 */
 		default boolean isValid(Object input) {
 			return validate(input).isEmpty();
