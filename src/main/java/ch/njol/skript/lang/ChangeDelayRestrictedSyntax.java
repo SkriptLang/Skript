@@ -3,7 +3,8 @@ package ch.njol.skript.lang;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.effects.EffChange;
 import ch.njol.util.coll.CollectionUtils;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * A syntax element that restricts the delays at which it can be changed.
@@ -51,8 +52,8 @@ public interface ChangeDelayRestrictedSyntax {
 	/**
 	 * @return A string representation of the syntax used in the change delay message.
 	 */
-	default @Nullable String toChangeDelayString() {
-		return null;
+	default Optional<String> toChangeDelayString() {
+		return Optional.empty();
 	}
 
 }
