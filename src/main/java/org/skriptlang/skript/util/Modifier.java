@@ -2,6 +2,8 @@ package org.skriptlang.skript.util;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 /**
  * Something that modifies a class implementing {@link Modifiable}.
  */
@@ -20,16 +22,24 @@ public interface Modifier {
 	@NotNull String toFormattedString();
 
 	/**
-	 * A constraint is a modifier which validates the input of a parameter.
+	 * A constraint modifier allows validating of the input.
 	 */
 	@FunctionalInterface
 	interface Constraint {
 
 		/**
+		 * Checks whether the input is valid and returns an error message if not.
 		 * @param input The input.
-		 * @return True if this input is valid, false if not.
+		 * @return An error message for invalid input or an empty optional for a valid input.
 		 */
-		boolean isValid(Object input);
+		@NotNull Optional<String> validate(Object input);
+
+		/**
+		 * Default fallback for boolean checking.
+		 */
+		default boolean isValid(Object input) {
+			return validate(input).isEmpty();
+		}
 
 	}
 

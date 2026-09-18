@@ -127,6 +127,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 				return null;
 			}
 
+			//noinspection unchecked
 			boolean valid = parameter.modifiers().stream()
 					.filter(it -> it instanceof Parameter.Modifier.Constraint)
 					.map(Parameter.Modifier.Constraint.class::cast)

@@ -10,11 +10,13 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.util.Modifiable;
 import org.skriptlang.skript.util.Priority;
 
+import java.util.Optional;
 import java.util.StringJoiner;
 
 /**
@@ -224,19 +226,26 @@ public interface Parameter<T> extends Modifiable {
 			}
 
 			@Override
-			@SuppressWarnings("unchecked")
-			public boolean isValid(Object input) {
+			public java.util.@NonNull Optional<String> validate(Object input) {
 				// convert to right type
 				if (!min.getClass().isInstance(input)) {
+					//noinspection unchecked
 					Converter<Object, ?> converter = (Converter<Object, ?>) Converters.getConverter(input.getClass(), min.getClass());
 					if (converter == null)
-						return false;
+						return java.util.Optional.of("No converter found between %s and %s"
+								.formatted(input.getClass().getSimpleName(), min.getClass().getSimpleName()));
+					Object previous = input;
 					input = converter.convert(input);
 					if (input == null)
-						return false;
+						return java.util.Optional.of("Failed to convert %s between %s and %s"
+								.formatted(previous, previous.getClass().getSimpleName(), min.getClass().getSimpleName()));
 				}
 				// compare
-				return ((T) input).compareTo(min) > -1 && ((T) input).compareTo(max) < 1;
+				//noinspection unchecked
+				if (((T) input).compareTo(min) <= -1 || ((T) input).compareTo(max) >= 1) {
+					return java.util.Optional.of("%s is not between %s and %s".formatted(input, min, max));
+				}
+				return java.util.Optional.empty();
 			}
 		}
 
