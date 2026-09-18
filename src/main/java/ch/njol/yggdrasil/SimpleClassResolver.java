@@ -24,8 +24,6 @@ public class SimpleClassResolver implements ClassResolver {
 
 	@Override
 	public @Nullable String getID(Class<?> type) {
-		// A simple mapping must resolve back to the exact class. Serializers handle
-		// implementation classes that need to be restored through a parent type.
 		return classes.get(type);
 	}
 

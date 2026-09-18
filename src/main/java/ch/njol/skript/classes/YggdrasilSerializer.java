@@ -13,14 +13,19 @@ import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 public class YggdrasilSerializer<T extends YggdrasilSerializable> extends Serializer<T> {
 
 	/**
-	 * Uses native Yggdrasil serialization with the concrete class's registered ID.
-	 * Unlike the default serializer, this does not map subclasses to the parent
-	 * ClassInfo ID. Each implementation must have a stable Yggdrasil registration
-	 * and satisfy its normal enum, constructor, or custom serializer requirements.
-	 * Variable storage retains the complete stream so enum tags and implementation
-	 * IDs survive loading through an interface or superclass ClassInfo.
-	 */
-	public static <T extends YggdrasilSerializable> YggdrasilSerializer<T> forRegisteredTypes() {
+		- Creates a serializer that lets Yggdrasil handle each subtype separately
+		instead of using the parent ClassInfo ID.
+		- This is useful for types like Color, where the actual type can be
+		SkriptColor or ColorRGB
+		- Most types should just use a normal YggdrasilSerializer
+		
+		- Each subtype needs to be registered with Yggdrasil and meet its usual
+		requirements for enums, constructors, or custom serializers.
+		
+		- Variable storage keeps the full header so the actual type and whether it
+		is an enum or normal object can be restored correctly.
+	*/
+	public static <T extends YggdrasilSerializable> YggdrasilSerializer<T> delegatingToSubtypeSerializers() {
 		return new YggdrasilSerializer<>() {
 			@Override
 			public String getID(Class<?> type) {

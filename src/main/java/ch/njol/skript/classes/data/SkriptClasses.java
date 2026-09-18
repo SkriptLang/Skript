@@ -376,7 +376,7 @@ public class SkriptClasses {
 						return "" + color.getName().toLowerCase(Locale.ENGLISH).replace('_', ' ');
 					}
 				})
-				.serializer(YggdrasilSerializer.forRegisteredTypes()));
+				.serializer(YggdrasilSerializer.delegatingToSubtypeSerializers()));
 
 		Classes.registerClass(new EnumClassInfo<>(TreeSpecies.class, "treetype", "tree types")
 				.user("tree ?types?", "trees?")

@@ -162,9 +162,8 @@ public class ColorRGB implements Color {
 
 	@Override
 	public void deserialize(Fields fields) throws StreamCorruptedException {
-		org.bukkit.Color restored = org.bukkit.Color.fromARGB(fields.getPrimitive("argb", int.class));
-		bukkit = restored;
-		dye = DyeColor.getByColor(restored);
+		bukkit = org.bukkit.Color.fromARGB(fields.getPrimitive("argb", int.class));
+		dye = DyeColor.getByColor(bukkit);
 	}
 
 	@Override

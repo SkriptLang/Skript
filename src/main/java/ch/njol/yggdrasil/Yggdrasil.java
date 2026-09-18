@@ -176,9 +176,14 @@ public final class Yggdrasil {
 	}
 	
 	/**
-	 * Resolves a registered class ID, including abstract types used as array
-	 * components or class values. Object writers check instantiability separately.
-	 */
+		- Gets the registered class ID without needing to create an instance of the class.
+		- This is useful for things like Color[] or Color.class, where we
+		only need the ID of the Color interface.
+		
+		- When saving an object, YggdrasilOutputStream.writeGenericObject
+		uses isSerializable(...) to check if the concrete class can be
+		restored normally.
+	*/
 	public String getID(Class<?> type) throws NotSerializableException {
 		String id = getIDNoError(type);
 		if (id == null)
