@@ -235,13 +235,13 @@ public interface Parameter<T> extends Modifiable {
 					Object previous = input;
 					input = converter.convert(input);
 					if (input == null)
-						return java.util.Optional.of("Failed to convert %s between %s and %s"
+						return java.util.Optional.of("Failed to convert '%s' from %s to %s"
 								.formatted(previous, previous.getClass().getSimpleName(), min.getClass().getSimpleName()));
 				}
 				// compare
 				//noinspection unchecked
 				if (((T) input).compareTo(min) <= -1 || ((T) input).compareTo(max) >= 1) {
-					return java.util.Optional.of("%s is not between %s and %s".formatted(input, min, max));
+					return java.util.Optional.of("'%s' must be between %s and %s".formatted(input, min, max));
 				}
 				return java.util.Optional.empty();
 			}
