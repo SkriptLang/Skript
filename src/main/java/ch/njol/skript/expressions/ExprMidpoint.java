@@ -18,7 +18,6 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Midpoint")
@@ -33,7 +32,7 @@ public class ExprMidpoint extends SimpleExpression<Object> implements SyntaxRunt
 
 	static {
 		Skript.registerExpression(ExprMidpoint.class, Object.class, ExpressionType.COMBINED,
-			"[the] mid[-]point (of|between) %object% and %object%");
+			"[the] mid[-]point (of|between) %location/vector% and %location/vector%");
 	}
 
 	private Expression<?> object1;
@@ -69,12 +68,7 @@ public class ExprMidpoint extends SimpleExpression<Object> implements SyntaxRunt
 		Object object2 = this.object2.getSingle(event);
 		if (object1 == null || object2 == null) {
 			return null;
-		}
-		// Objects like Block are not Locations themselves, but are convertible to one (e.g. via a converter),
-		// so try converting rather than relying solely on 'instanceof' against the raw runtime value.
-		Location loc1 = object1 instanceof Location location ? location : Converters.convert(object1, Location.class);
-		Location loc2 = object2 instanceof Location location ? location : Converters.convert(object2, Location.class);
-		if (loc1 != null && loc2 != null) {
+		} else if (object1 instanceof Location loc1 && object2 instanceof Location loc2) {
 			if (loc1.getWorld() != loc2.getWorld()) {
 				error("Cannot get the midpoint of two locations in different worlds.");
 				return null;
@@ -82,14 +76,12 @@ public class ExprMidpoint extends SimpleExpression<Object> implements SyntaxRunt
 			World world = loc1.getWorld();
 			Vector vector = loc1.toVector().getMidpoint(loc2.toVector());
 			return new Location[] {vector.toLocation(world)};
-		}
-		Vector vector1 = object1 instanceof Vector vec ? vec : Converters.convert(object1, Vector.class);
-		Vector vector2 = object2 instanceof Vector vec ? vec : Converters.convert(object2, Vector.class);
-		if (vector1 != null && vector2 != null) {
+		} else if (object1 instanceof Vector vector1 && object2 instanceof Vector vector2) {
 			return new Vector[] {vector1.getMidpoint(vector2)};
+		} else {
+			error("You can only get the midpoint between two locations or two vectors.");
+			return null;
 		}
-		error("You can only get the midpoint between two locations or two vectors.");
-		return null;
 	}
 
 	private Class<?>[] checkExpressionType(Expression<?> expr) {
