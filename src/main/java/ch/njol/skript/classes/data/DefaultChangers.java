@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.types.BlockClassInfo;
 import org.skriptlang.skript.bukkit.types.EntityClassInfo;
-import org.skriptlang.skript.bukkit.types.InventoryClassInfo;
+import org.skriptlang.skript.bukkit.inventory.InventoryClassInfo;
 import org.skriptlang.skript.bukkit.types.PlayerClassInfo;
 
 /**
@@ -65,8 +65,6 @@ public class DefaultChangers {
 			}
 		}
 	};
-
-	public final static Changer<Inventory> inventoryChanger = new InventoryClassInfo.InventoryChanger();
 
 	public final static Changer<Block> blockChanger = new BlockClassInfo.BlockChanger();
 	

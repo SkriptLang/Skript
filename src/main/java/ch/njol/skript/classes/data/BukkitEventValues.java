@@ -440,64 +440,6 @@ public final class BukkitEventValues {
 		// Server stop event
 		registry.register(EventValue.simple(SkriptStopEvent.class, CommandSender.class, event -> Bukkit.getConsoleSender()));
 
-		// === InventoryEvents ===
-		// InventoryClickEvent
-		registry.register(EventValue.simple(InventoryClickEvent.class, Player.class, event -> event.getWhoClicked() instanceof Player player ? player : null));
-		registry.register(EventValue.simple(InventoryClickEvent.class, World.class, event -> event.getWhoClicked().getWorld()));
-		registry.register(EventValue.simple(InventoryClickEvent.class, ItemStack.class, InventoryClickEvent::getCurrentItem));
-		registry.register(EventValue.simple(InventoryClickEvent.class, Slot.class, event -> {
-			Inventory invi = event.getClickedInventory(); // getInventory is WRONG and dangerous
-			if (invi == null)
-				return null;
-			int slotIndex = event.getSlot();
-
-			// Not all indices point to inventory slots. Equipment, for example
-			if (invi instanceof PlayerInventory itemStacks && slotIndex >= 36) {
-				return new ch.njol.skript.util.slot.EquipmentSlot(itemStacks.getHolder(), slotIndex);
-			} else {
-				return new InventorySlot(invi, slotIndex, event.getRawSlot());
-			}
-		}));
-		registry.register(EventValue.simple(InventoryClickEvent.class, InventoryAction.class, InventoryClickEvent::getAction));
-		registry.register(EventValue.simple(InventoryClickEvent.class, ClickType.class, InventoryClickEvent::getClick));
-		registry.register(EventValue.simple(InventoryClickEvent.class, Inventory.class, InventoryClickEvent::getClickedInventory));
-		// InventoryDragEvent
-		registry.register(EventValue.simple(InventoryDragEvent.class, Player.class, event -> event.getWhoClicked() instanceof Player player ? player : null));
-		registry.register(EventValue.simple(InventoryDragEvent.class, World.class, event -> event.getWhoClicked().getWorld()));
-		registry.register(EventValue.builder(InventoryDragEvent.class, ItemStack.class)
-			.getter(InventoryDragEvent::getOldCursor)
-			.time(Time.PAST)
-			.build());
-		registry.register(EventValue.simple(InventoryDragEvent.class, ItemStack.class, InventoryDragEvent::getCursor));
-		registry.register(EventValue.simple(InventoryDragEvent.class, ItemStack[].class, event -> event.getNewItems().values().toArray(new ItemStack[0])));
-		registry.register(EventValue.simple(InventoryDragEvent.class, Slot[].class, event -> {
-			List<Slot> slots = new ArrayList<>(event.getRawSlots().size());
-			InventoryView view = event.getView();
-			for (Integer rawSlot : event.getRawSlots()) {
-				Inventory inventory = InventoryUtils.getInventory(view, rawSlot);
-				Integer slot = InventoryUtils.convertSlot(view, rawSlot);
-				if (inventory == null || slot == null)
-					continue;
-				// Not all indices point to inventory slots. Equipment, for example
-				if (inventory instanceof PlayerInventory && slot >= 36) {
-					slots.add(new ch.njol.skript.util.slot.EquipmentSlot(((PlayerInventory) view.getBottomInventory()).getHolder(), slot));
-				} else {
-					slots.add(new InventorySlot(inventory, slot));
-				}
-			}
-			return slots.toArray(new Slot[0]);
-		}));
-		registry.register(EventValue.simple(InventoryDragEvent.class, ClickType.class, event -> event.getType() == DragType.EVEN ? ClickType.LEFT : ClickType.RIGHT));
-		registry.register(EventValue.simple(InventoryDragEvent.class, Inventory[].class, event -> {
-			Set<Inventory> inventories = new HashSet<>();
-			InventoryView view = event.getView();
-			for (Integer rawSlot : event.getRawSlots()) {
-				Inventory inventory = InventoryUtils.getInventory(view, rawSlot);
-				if (inventory != null)
-					inventories.add(inventory);
-			}
-			return inventories.toArray(new Inventory[0]);
-		}));
 		// PrepareAnvilEvent
 		if (Skript.classExists("com.destroystokyo.paper.event.inventory.PrepareResultEvent"))
 			registry.register(EventValue.simple(PrepareAnvilEvent.class, ItemStack.class, PrepareResultEvent::getResult));
@@ -541,18 +483,7 @@ public final class BukkitEventValues {
 				return event.getCurrentItem();
 			return recipe.getResult();
 		}));
-		//InventoryEvent
-		registry.register(EventValue.simple(InventoryEvent.class, Inventory.class, InventoryEvent::getInventory));
-		//InventoryOpenEvent
-		registry.register(EventValue.simple(InventoryOpenEvent.class, Player.class, event -> (Player) event.getPlayer()));
-		//InventoryCloseEvent
-		registry.register(EventValue.simple(InventoryCloseEvent.class, Player.class, event -> (Player) event.getPlayer()));
-		if (Skript.classExists("org.bukkit.event.inventory.InventoryCloseEvent$Reason"))
-			registry.register(EventValue.simple(InventoryCloseEvent.class, InventoryCloseEvent.Reason.class, InventoryCloseEvent::getReason));
-		//InventoryPickupItemEvent
-		registry.register(EventValue.simple(InventoryPickupItemEvent.class, Inventory.class, InventoryPickupItemEvent::getInventory));
-		registry.register(EventValue.simple(InventoryPickupItemEvent.class, Item.class, InventoryPickupItemEvent::getItem));
-		registry.register(EventValue.simple(InventoryPickupItemEvent.class, ItemStack.class, event -> event.getItem().getItemStack()));
+
 		//PortalCreateEvent
 		registry.register(EventValue.simple(PortalCreateEvent.class, World.class, WorldEvent::getWorld));
 		registry.register(EventValue.simple(PortalCreateEvent.class, Block[].class, event -> event.getBlocks().stream()
@@ -742,20 +673,6 @@ public final class BukkitEventValues {
 		if (Skript.classExists("org.bukkit.event.block.BellResonateEvent")) {
 			registry.register(EventValue.simple(BellResonateEvent.class, Entity[].class, event -> event.getResonatedEntities().toArray(new LivingEntity[0])));
 		}
-
-		// InventoryMoveItemEvent
-		registry.register(EventValue.simple(InventoryMoveItemEvent.class, Inventory.class, InventoryMoveItemEvent::getSource));
-		registry.register(EventValue.builder(InventoryMoveItemEvent.class, Inventory.class)
-			.getter(InventoryMoveItemEvent::getDestination)
-			.time(Time.FUTURE)
-			.build());
-		registry.register(EventValue.simple(InventoryMoveItemEvent.class, Block.class, event -> event.getSource().getLocation().getBlock()));
-		registry.register(EventValue.builder(InventoryMoveItemEvent.class, Block.class)
-			.getter(event -> event.getDestination().getLocation().getBlock())
-			.time(Time.FUTURE)
-			.build());
-		registry.register(EventValue.simple(InventoryMoveItemEvent.class, ItemStack.class, InventoryMoveItemEvent::getItem));
-
 		// EntityRegainHealthEvent
 		registry.register(EventValue.simple(EntityRegainHealthEvent.class, RegainReason.class, EntityRegainHealthEvent::getRegainReason));
 

@@ -9,7 +9,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.types.InventoryClassInfo;
+import org.skriptlang.skript.bukkit.inventory.InventoryClassInfo;
 import org.skriptlang.skript.bukkit.types.ItemStackClassInfo;
 import org.skriptlang.skript.bukkit.types.PlayerClassInfo;
 import org.skriptlang.skript.common.properties.elements.conditions.PropCondContains;
