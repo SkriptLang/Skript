@@ -18,6 +18,7 @@ import ch.njol.skript.localization.Noun;
 import ch.njol.skript.localization.RegexMessage;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.*;
+import ch.njol.skript.variables.Variables;
 import ch.njol.yggdrasil.Fields;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -343,6 +344,8 @@ public class SkriptClasses {
 				})
 				.serializer(new YggdrasilSerializer<>()));
 
+		Variables.yggdrasil.registerSingleClass(SkriptColor.class, "SkriptColor");
+		Variables.yggdrasil.registerSingleClass(ColorRGB.class, "ColorRGB");
 		Classes.registerClass(new ClassInfo<>(Color.class, "color")
 				.user("colou?rs?")
 				.name("Color")
@@ -372,7 +375,8 @@ public class SkriptClasses {
 					public String toVariableNameString(Color color) {
 						return "" + color.getName().toLowerCase(Locale.ENGLISH).replace('_', ' ');
 					}
-				}));
+				})
+				.serializer(YggdrasilSerializer.delegatingToSubtypeSerializers()));
 
 		Classes.registerClass(new EnumClassInfo<>(TreeSpecies.class, "treetype", "tree types")
 				.user("tree ?types?", "trees?")

@@ -26,6 +26,29 @@ public abstract class Serializer<T> extends YggdrasilSerializer<T> {
 		this.info = info;
 	}
 	
+	/**
+		- Whether variable storage can omit the Yggdrasil header when saving a value
+		and reconstruct it from this serializer's ClassInfo when loading.
+		- The header identifies the stored class and whether the value is an enum or
+		an object. The default is true, preserving the usual variable format.
+		
+		- Return false when the ClassInfo does not provide enough information
+		to reconstruct the original header. For example, the Color ClassInfo
+		covers both SkriptColor enums and ColorRGB objects, each
+		with its own registered class. Keeping the full header lets Yggdrasil
+		restore the correct implementation instead of trying to load every color as
+		the Color interface.
+		
+		- Changing this setting changes the saved data format. Existing saved values
+		require a compatible reader or conversion to the new format.
+		
+		@return true to reconstruct the header from the ClassInfo;
+		false to preserve the complete serialized data
+	*/
+	public boolean usesClassInfoHeader() {
+		return true;
+	}
+
 	@Override
 	@Nullable
 	public Class<? extends T> getClass(final String id) {

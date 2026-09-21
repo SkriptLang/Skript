@@ -768,11 +768,13 @@ public abstract class Classes {
 			yggdrasilOutputStream.close();
 
 			byte[] byteArray = byteOutputStream.toByteArray();
-			byte[] start = getYggdrasilStart(classInfo);
-			for (int i = 0; i < start.length; i++)
-				assert byteArray[i] == start[i] : object + " (" + classInfo.getC().getName() + "); " + Arrays.toString(start) + ", " + Arrays.toString(byteArray);
-			byte[] byteArrayCopy = new byte[byteArray.length - start.length];
-			System.arraycopy(byteArray, start.length, byteArrayCopy, 0, byteArrayCopy.length);
+			byte[] byteArrayCopy = byteArray;
+			if (serializer.usesClassInfoHeader()) {
+				byte[] start = getYggdrasilStart(classInfo);
+				for (int i = 0; i < start.length; i++)
+					assert byteArray[i] == start[i] : object + " (" + classInfo.getC().getName() + "); " + Arrays.toString(start) + ", " + Arrays.toString(byteArray);
+				byteArrayCopy = Arrays.copyOfRange(byteArray, start.length, byteArray.length);
+			}
 
 			Object deserialized;
 			assert equals(object,
@@ -816,9 +818,10 @@ public abstract class Classes {
 		assert (s = type.getSerializer()) != null && (s.mustSyncDeserialization() ? Bukkit.isPrimaryThread() : true) : type + "; " + s + "; " + Bukkit.isPrimaryThread();
 		YggdrasilInputStream in = null;
 		try {
-			value = new SequenceInputStream(new ByteArrayInputStream(getYggdrasilStart(type)), value);
+			if (type.getSerializer().usesClassInfoHeader())
+				value = new SequenceInputStream(new ByteArrayInputStream(getYggdrasilStart(type)), value);
 			in = Variables.yggdrasil.newInputStream(value);
-			return in.readObject();
+			return in.readObject(type.getC());
 		} catch (final IOException e) { // i.e. invalid save
 			if (Skript.debug())
 				e.printStackTrace();
