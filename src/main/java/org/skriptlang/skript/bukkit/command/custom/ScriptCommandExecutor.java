@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.command.custom;
 
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.variables.Variables;
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
@@ -132,7 +131,7 @@ public class ScriptCommandExecutor {
 
 		// final validations
 		if (cooldownManager != null && !cooldownManager.checkExecution(commandEvent, context.getSource().getSender())) {
-			return Command.SINGLE_SUCCESS;
+			return 0;
 		}
 
 		// parse and store arguments
@@ -147,7 +146,8 @@ public class ScriptCommandExecutor {
 		// execution
 		trigger.execute(commandEvent);
 
-		return Command.SINGLE_SUCCESS;
+		// TODO support command failure (via exception)
+		return commandEvent.getResult();
 	}
 
 }

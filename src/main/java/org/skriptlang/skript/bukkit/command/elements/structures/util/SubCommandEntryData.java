@@ -50,7 +50,6 @@ import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.entry.KeyValueEntryData;
 import org.skriptlang.skript.lang.entry.util.LiteralEntryData;
-import org.skriptlang.skript.lang.entry.util.TriggerEntryData;
 import org.skriptlang.skript.lang.entry.util.VariableStringEntryData;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.log.runtime.ErrorSource;
@@ -136,7 +135,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 		.addEntryData(new VariableStringEntryData("cooldown message", null, true))
 		.addEntry("cooldown bypass", null, true)
 		.addEntryData(new VariableStringEntryData("cooldown storage", null, true, StringMode.VARIABLE_NAME))
-		.addEntryData(new TriggerEntryData("trigger", null, true))
+		.addEntryData(new CommandTriggerEntryData("trigger"))
 		.addEntryData(new SubCommandEntryData("subcommand", true, true))
 		.addEntryData(new SubCommandEntryData("subcommands", true, true, true))
 		// deprecated entries

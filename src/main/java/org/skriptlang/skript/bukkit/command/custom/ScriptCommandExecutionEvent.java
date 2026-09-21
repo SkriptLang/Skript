@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.command.custom;
 
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 
@@ -17,6 +18,7 @@ public class ScriptCommandExecutionEvent extends ScriptCommandEvent {
 	private final ScriptCommandExecutor commandExecutor;
 
 	final Map<String, Object> arguments = new HashMap<>();
+	int result = Command.SINGLE_SUCCESS;
 
 	public ScriptCommandExecutionEvent(String label, String rawInput, ScriptCommandExecutor commandExecutor,
 		CommandContext<CommandSourceStack> context) {
@@ -61,6 +63,21 @@ public class ScriptCommandExecutionEvent extends ScriptCommandEvent {
 	 */
 	public Object getArgument(String name) {
 		return arguments.get(name);
+	}
+
+	/**
+	 * @return The result for this command execution.
+	 */
+	public int getResult() {
+		return result;
+	}
+
+	/**
+	 * Sets the result for this command execution.
+	 * @param result The new result value.
+	 */
+	public void setResult(int result) {
+		this.result = result;
 	}
 
 }
