@@ -55,7 +55,7 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 			ExprArgument.class, ExprArgument::new, Object.class,
 			"[the] last arg[ument]", // LAST
 			"[the] arg[ument](-| )<(\\d+)>", // ORDINAL
-			"[the] <(\\d*1)st|(\\d*2)nd|(\\d*3)rd|(\\d*[4-90])th> arg[ument][s]", // ORDINAL
+			"[the] (1:first|2:second|3:third|<(\\d*1)st|(\\d*2)nd|(\\d*3)rd|(\\d*[4-90])th>) arg[ument][s]", // ORDINAL
 			"[all [[of] the]|the] arg[ument][all:s]", // SINGLE OR ALL
 			"[the] %*classinfo%( |-)arg[ument][( |-)<\\d+>]", // CLASSINFO
 			"[the] arg[ument]( |-)%*classinfo%[( |-)<\\d+>]" // CLASSINFO
@@ -112,17 +112,21 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 		}
 
 		if (type == ArgumentType.ORDINAL) {
-			// Figure out in which format (1st, 2nd, 3rd, Nth) argument was given in
-			MatchResult regex = parseResult.regexes.getFirst();
-			String argMatch = null;
-			for (int i = 1; i <= 4; i++) {
-				argMatch = regex.group(i);
-				if (argMatch != null) {
-					break; // Found format
+			if (parseResult.regexes.isEmpty()) {
+				ordinal = parseResult.mark;
+			} else {
+				// Figure out in which format (1st, 2nd, 3rd, Nth) argument was given in
+				MatchResult regex = parseResult.regexes.getFirst();
+				String argMatch = null;
+				for (int i = 1; i <= 4; i++) {
+					argMatch = regex.group(i);
+					if (argMatch != null) {
+						break; // Found format
+					}
 				}
+				assert argMatch != null;
+				ordinal = Utils.parseInt(argMatch);
 			}
-			assert argMatch != null;
-			ordinal = Utils.parseInt(argMatch);
 			if (scriptCommand && ordinal > currentArguments.size()) { // Only check if it's a script command as we know nothing of command event arguments
 				Skript.error("This command doesn't have a " + StringUtils.fancyOrderNumber(ordinal) + " argument");
 				return false;

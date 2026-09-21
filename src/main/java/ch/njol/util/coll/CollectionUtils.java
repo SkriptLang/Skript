@@ -1,6 +1,7 @@
 package ch.njol.util.coll;
 
 import ch.njol.util.Pair;
+import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -486,21 +487,7 @@ public abstract class CollectionUtils {
 	 * For example, {@code "x, y, and z"}.
 	 */
 	public static String toString(Collection<?> collection, boolean and) {
-		StringBuilder builder = new StringBuilder();
-		int i = 0;
-		int end = collection.size() - 1;
-		for (Object object : collection) {
-			if (i > 0) {
-				if (i == end) {
-					builder.append(and ? " and " : " or ");
-				} else {
-					builder.append(", ");
-				}
-			}
-			builder.append(object);
-			i++;
-		}
-		return builder.toString();
+		return StringUtils.join(collection, ", ", and ? " and " : " or ");
 	}
 
 }

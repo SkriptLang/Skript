@@ -10,6 +10,8 @@ import org.jetbrains.annotations.Nullable;
  * @param isAutomaticName Whether {@link #name} was automatically generated.
  * @param type The type of the argument.
  * @param defaultValue The default value of the argument, if specified.
+ * @param min A minimum (inclusive) permitted value for this argument. Null if there is no minimum.
+ * @param max A maximum (inclusive) permitted value for this argument. Null if there is no maximum.
  * @param <T> The type of the argument.
  */
 public record ArgumentData<T>(

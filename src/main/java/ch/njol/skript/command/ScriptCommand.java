@@ -64,7 +64,7 @@ import java.util.UUID;
 
 /**
  * This class is used for user-defined commands.
- * @deprecated There is no direct replacement for this command.
+ * @deprecated There is no direct replacement for this class.
  * The closest alternative is {@link org.skriptlang.skript.bukkit.command.custom.ScriptBrigadierCommand}.
  */
 @Deprecated(since = "INSERT VERSION", forRemoval = true)

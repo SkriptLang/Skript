@@ -46,7 +46,7 @@ public class ExprChoiceArgument extends SimpleExpression<String> implements Even
 		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.simple(
 			ExprChoiceArgument.class, ExprChoiceArgument::new, String.class,
 			"[the] choice arg[ument] <(\\d+)>", // ORDINAL
-			"[the] <(\\d*1)st|(\\d*2)nd|(\\d*3)rd|(\\d*[4-90])th> choice arg[ument][s]", // ORDINAL
+			"[the] (1:first|2:second|3:third|<(\\d*1)st|(\\d*2)nd|(\\d*3)rd|(\\d*[4-90])th>) choice arg[ument][s]", // ORDINAL
 			"[the] [:last] choice arg[ument]" // SINGLE or LAST
 		));
 	}
@@ -71,17 +71,21 @@ public class ExprChoiceArgument extends SimpleExpression<String> implements Even
 
 		switch (type) {
 			case ORDINAL -> {
-				// Figure out in which format (1st, 2nd, 3rd, Nth) argument was given in
-				MatchResult regex = parseResult.regexes.getFirst();
-				String argMatch = null;
-				for (int i = 1; i <= 4; i++) {
-					argMatch = regex.group(i);
-					if (argMatch != null) {
-						break; // Found format
+				if (parseResult.regexes.isEmpty()) {
+					ordinal = parseResult.mark;
+				} else {
+					// Figure out in which format (1st, 2nd, 3rd, Nth) argument was given in
+					MatchResult regex = parseResult.regexes.getFirst();
+					String argMatch = null;
+					for (int i = 1; i <= 4; i++) {
+						argMatch = regex.group(i);
+						if (argMatch != null) {
+							break; // Found format
+						}
 					}
+					assert argMatch != null;
+					ordinal = Utils.parseInt(argMatch);
 				}
-				assert argMatch != null;
-				ordinal = Utils.parseInt(argMatch);
 				if (ordinal > choices.size()) {
 					Skript.error("This command doesn't have a " + StringUtils.fancyOrderNumber(ordinal) + " choice argument");
 					return false;

@@ -56,7 +56,6 @@ import org.skriptlang.skript.log.runtime.ErrorSource;
 import org.skriptlang.skript.util.Priority;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -85,19 +84,22 @@ public class SubCommandEntryData extends EntryData<Result> {
 	private static final Pattern COMMAND_PATTERN =
 		Pattern.compile("(?i)^\\s*/?\\s*(.+)?$");
 
+	private static final Pattern SIMPLE_LIST_PATTERN = Pattern.compile("\\s*,(?:\\s+(?:and|or)\\s+)?\\s*|\\s+(?:and|or)\\s+");
+
 	public static final EntryValidator SUB_COMMAND_VALIDATOR = EntryValidator.builder()
 		.addEntryData(new KeyValueEntryData<List<String>>("aliases", null, true) {
-			private final Pattern pattern = Pattern.compile("\\s*,\\s*/?");
-
 			@Override
 			protected List<String> getValue(String value) {
-				List<String> aliases = new ArrayList<>(Arrays.asList(pattern.split(value)));
-				String first = aliases.getFirst();
-				if (first.startsWith("/")) { // not caught by regex
-					aliases.set(0, first.substring(1));
-				} else if (first.isEmpty()) {
-					Skript.error("Invalid aliases list: '" + value + "'. Aliases should be separated by commas.");
-					return List.of();
+				List<String> aliases = new ArrayList<>();
+				for (String alias : SIMPLE_LIST_PATTERN.split(value)) {
+					if (alias.startsWith("/")) {
+						alias = alias.substring(1);
+					}
+					if (alias.isEmpty()) {
+						Skript.error("Invalid aliases list: '" + value + "'. Aliases should be separated by commas.");
+						return List.of();
+					}
+					aliases.add(alias);
 				}
 				return aliases;
 			}
@@ -108,12 +110,10 @@ public class SubCommandEntryData extends EntryData<Result> {
 		.addEntryData(new SuggestionsEntryData())
 		.addEntry("permission", null, true)
 		.addEntryData(new KeyValueEntryData<Set<ExecutableBy>>("executable by", null, true) {
-			private final Pattern pattern = Pattern.compile("\\s*,(?:\\s+(?:and|or)\\s+)?\\s*|\\s+(?:and|or)\\s+");
-
 			@Override
 			protected Set<ExecutableBy> getValue(String value) {
 				EnumSet<ExecutableBy> executableBy = EnumSet.noneOf(ExecutableBy.class);
-				for (String type : pattern.split(value)) {
+				for (String type : SIMPLE_LIST_PATTERN.split(value)) {
 					// "player" kept for compatibility
 					if (type.equalsIgnoreCase("players") || type.equalsIgnoreCase("player")) {
 						executableBy.add(ExecutableBy.PLAYERS);

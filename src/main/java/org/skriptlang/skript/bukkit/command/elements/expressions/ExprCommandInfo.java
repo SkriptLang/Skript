@@ -210,9 +210,7 @@ public class ExprCommandInfo extends SimpleExpression<String> {
 			case PlayerCommandPreprocessEvent preprocessEvent -> preprocessEvent.getMessage().substring(1);
 			default -> throw new IllegalStateException("Unexpected value: " + event);
 		};
-		System.out.println("FULL COMMAND: " + fullCommand);
 		String label = fullCommand.split(":")[0];
-		System.out.println("FULL LABEL: " + label);
 
 		Command command = commandMap.getCommand(label);
 		return command == null ? Stream.empty() : Stream.of(command);
