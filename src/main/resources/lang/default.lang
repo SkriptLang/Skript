@@ -2506,8 +2506,7 @@ particle:
 	white_ash: white ash particle¦s @a
 	white_smoke: white smoke particle¦s @a
 	witch: witch particle¦s @a
-
-	# 26.2
+    # 26.2
 	noxious_gas: noxious gas particle¦s @a, nausea gas particle¦s @a
 	noxious_gas_cloud: noxious gas cloud¦s @a, nausea gas cloud particle¦s @a
 	sulfur_cube_goo: sulfur cube goo particle¦s @a, sulfur cube jump particle¦s @a, sulfur cube jumping particle¦s @a
@@ -2516,6 +2515,92 @@ particle:
 	geyser_base: geyser base particle¦s @a
 	geyser_plume: geyser plume particle¦s @a
 	geyser_poof: geyser poof particle¦s @a
+
+# -- Statistics --
+statistics:
+	animals_bred: animals bred
+	armor_cleaned: armor cleaned
+	aviate_one_cm: aviate one cm, glide distance, elytra distance
+	banner_cleaned: banner cleaned
+	beacon_interaction: beacon interaction
+	bell_ring: bell ring
+	boat_one_cm: boat one cm, boat distance
+	break_item: break item
+	brewingstand_interaction: brewing stand interaction, interact with brewing stand
+	cake_slices_eaten: cake slices eaten
+	cauldron_filled: cauldron filled
+	cauldron_used: cauldron used
+	chest_opened: chest opened
+	clean_shulker_box: clean shulker box
+	climb_one_cm: climb one cm, climb distance
+	craft_item: craft item
+	crafting_table_interaction: crafting table interaction
+	crouch_one_cm: crouch one cm, sneak distance
+	damage_absorbed: damage absorbed
+	damage_blocked_by_shield: damage blocked by shield
+	damage_dealt: damage dealt
+	damage_dealt_absorbed: damage dealt absorbed
+	damage_dealt_resisted: damage dealt resisted
+	damage_resisted: damage resisted
+	damage_taken: damage taken
+	deaths: deaths
+	dispenser_inspected: dispenser inspected
+	drop: drop
+	drop_count: drop count, items dropped
+	dropper_inspected: dropper inspected
+	enderchest_opened: ender chest opened
+	entity_killed_by: entity killed by, times killed by entity
+	fall_one_cm: fall one cm, fall distance
+	fish_caught: fish caught
+	flower_potted: flower potted
+	fly_one_cm: fly one cm, fly distance
+	furnace_interaction: furnace interaction
+	hopper_inspected: hopper inspected
+	horse_one_cm: horse one cm, horse distance, horse riding distance
+	interact_with_anvil: interact with anvil, anvil interaction
+	interact_with_blast_furnace: interact with blast furnace, blast furnace interaction
+	interact_with_campfire: interact with campfire, campfire interaction
+	interact_with_cartography_table: interact with cartography table, cartography table interaction
+	interact_with_grindstone: interact with grindstone, grindstone interaction
+	interact_with_lectern: interact with lectern, lectern interaction
+	interact_with_loom: interact with loom, loom interaction
+	interact_with_smithing_table: interact with smithing table, smithing table interaction
+	interact_with_smoker: interact with smoker, smoker interaction
+	interact_with_stonecutter: interact with stone cutter, stone cutter interaction
+	item_enchanted: item enchanted
+	jump: jump
+	kill_entity: kill entity, entities killed
+	leave_game: leave game
+	mine_block: mine block
+	minecart_one_cm: minecart one cm, minecart distance
+	mob_kills: mob kills, mobs killed
+	noteblock_played: note block played
+	noteblock_tuned: note block tuned
+	open_barrel: open barrel
+	pickup: pick up, items picked up
+	pig_one_cm: pig one cm, pig distance, pig riding distance
+	play_one_minute: play one minute, ticks played, play time, time played
+	player_kills: player kills
+	raid_trigger: raid trigger
+	raid_win: raid win
+	record_played: record played
+	shulker_box_opened: shulker box opened
+	sleep_in_bed: sleep in bed
+	sneak_time: sneak time, crouch time
+	sprint_one_cm: sprint one cm, sprint distance
+	strider_one_cm: strider one cm, strider distance, strider riding distance
+	swim_one_cm: swim one cm, swim distance
+	talked_to_villager: talked to villager
+	target_hit: target hit
+	time_since_death: time since death
+	time_since_rest: time since rest
+	total_world_time: total world time
+	traded_with_villager: traded with villager
+	trapped_chest_triggered: trapped chest triggered
+	use_item: use item
+	walk_on_water_one_cm: walk on water one cm, walk on water distance
+	walk_one_cm: walk one cm, walk distance
+	walk_under_water_one_cm: walk under water one cm, walk underwater once cm, walk under water distance, walk underwater distance
 
 # -- Teleport Flags --
 teleport flags:
