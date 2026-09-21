@@ -2373,9 +2373,9 @@ entity effect:
 	sheep_eat: sheep eating grass animation
 	sheep_eat_grass: sheep eating grass animation
 
-	# identical
+	# totem_resurrect was deprecated in 1.21.2
 	totem_resurrect: protected from death effect
-	protected_from_death: protected from death effect
+	protected_from_death: protected from death effect, totem resurrect effect, totem resurrection effect
 
 	# non-functional
 	guardian_target: guardian target sound effect (non-functional)
