@@ -6,6 +6,8 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
@@ -58,6 +60,14 @@ public class ExprRawString extends SimplePropertyExpression<String, Object> {
 			}
 		}
 		return super.getConvertedExpression(to);
+	}
+
+	@Override
+	public Expression<?> simplify() {
+		if (getExpr() instanceof Literal<? extends String>) {
+			return SimplifiedLiteral.fromExpression(this);
+		}
+		return super.simplify();
 	}
 
 }
