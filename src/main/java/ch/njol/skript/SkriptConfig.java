@@ -368,6 +368,8 @@ public class SkriptConfig {
 
 	public static final Option<Timespan> longParseTimeWarningThreshold = new Option<>("long parse time warning threshold", new Timespan(0));
 
+	public static final Option<Timespan> longParseTimeErrorThreshold = new Option<>("long parse time error threshold", new Timespan(Timespan.TimePeriod.SECOND, 10));
+
 
 	public static final Option<Timespan> runtimeErrorFrameDuration = new Option<>("runtime errors.frame duration", new Timespan(Timespan.TimePeriod.SECOND, 1));
 

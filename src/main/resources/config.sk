@@ -249,6 +249,11 @@ long parse time warning threshold: 2 seconds
 #   stating that the statement has taken a long time to parse.
 # A value of 0 seconds means that this warning should be disabled.
 
+long parse time error threshold: 10 seconds
+# This setting determines how long a single line can take to parse before Skript stops parsing it
+#   and produces an error instead. This prevents extremely slow lines from stalling script loading.
+# A value of 0 seconds means that lines may take any amount of time to parse.
+
 variable changes until save: 1000
 # This setting controls the total number of times that global variables need to be changed
 #   until saving variables to 'variables.csv'.

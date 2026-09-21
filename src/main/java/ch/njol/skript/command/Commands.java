@@ -5,6 +5,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.parser.ParseTimeoutException;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Message;
@@ -27,19 +28,14 @@ import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.help.HelpMap;
 import org.bukkit.help.HelpTopic;
 import org.bukkit.plugin.SimplePluginManager;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.regex.Pattern;
@@ -178,7 +174,15 @@ public abstract class Commands {
 				command = effectCommand.getCommand();
 				ParserInstance parserInstance = ParserInstance.get();
 				parserInstance.setCurrentEvent("effect command", EffectCommandEvent.class);
-				Effect effect = Effect.parse(command, null);
+				parserInstance.setParseDeadline(ParseTimeoutException.createDeadline());
+				Effect effect = null;
+				try {
+					effect = Effect.parse(command, null);
+				} catch (ParseTimeoutException e) {
+					ParseTimeoutException.printError();
+				} finally {
+					parserInstance.setParseDeadline(0);
+				}
 				parserInstance.deleteCurrentEvent();
 
 				TextComponentParser textParser = TextComponentParser.instance();

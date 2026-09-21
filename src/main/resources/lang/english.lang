@@ -139,6 +139,8 @@ log:
 		reloaded: <lime>Successfully automatically reloaded <gold>%s<lime>. <gray>(<gold>%2$sms<gray>)
 		script: <gold>%s<reset>
 
+	parse timeout: This line took too long to parse (over %s) and was skipped. Avoid using long lines and use parentheses to create clearer instructions.
+
 	# runtime errors
 	runtime:
 		error: <light red>The script '<gray>%s<light red>' encountered an error while executing the '<gray>%s<light red>' %s<light red>:\n
