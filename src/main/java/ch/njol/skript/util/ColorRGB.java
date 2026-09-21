@@ -21,7 +21,9 @@ public class ColorRGB implements Color {
 
 	private @Nullable DyeColor dye;
 
-	// Used by Yggdrasil before restoring the ARGB fields.
+	/**
+	 * Used by Yggdrasil before restoring the ARGB fields.
+	 */
 	private ColorRGB() {}
 
 

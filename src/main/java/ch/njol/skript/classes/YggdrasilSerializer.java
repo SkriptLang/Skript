@@ -24,6 +24,9 @@ public class YggdrasilSerializer<T extends YggdrasilSerializable> extends Serial
 		
 		- Variable storage keeps the full header so the actual type and whether it
 		is an enum or normal object can be restored correctly.
+
+		@param <T> the parent type whose subtypes are handled separately
+		@return a serializer that lets Yggdrasil handle each registered subtype separately
 	*/
 	public static <T extends YggdrasilSerializable> YggdrasilSerializer<T> delegatingToSubtypeSerializers() {
 		return new YggdrasilSerializer<>() {

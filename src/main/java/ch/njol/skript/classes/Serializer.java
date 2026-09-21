@@ -42,8 +42,8 @@ public abstract class Serializer<T> extends YggdrasilSerializer<T> {
 		- Changing this setting changes the saved data format. Existing saved values
 		require a compatible reader or conversion to the new format.
 		
-		-> true to reconstruct the header from the ClassInfo
-		-> false to preserve the complete serialized data
+		@return true to reconstruct the header from the ClassInfo;
+		false to preserve the complete serialized data
 	*/
 	public boolean usesClassInfoHeader() {
 		return true;

@@ -183,6 +183,10 @@ public final class Yggdrasil {
 		- When saving an object, YggdrasilOutputStream.writeGenericObject
 		uses isSerializable(...) to check if the concrete class can be
 		restored normally.
+
+		@param type the class whose registered ID is needed
+		@return the registered class ID
+		@throws NotSerializableException if no ID is found for the class
 	*/
 	public String getID(Class<?> type) throws NotSerializableException {
 		String id = getIDNoError(type);
