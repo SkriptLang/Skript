@@ -6,7 +6,6 @@ import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.command.Argument;
-import ch.njol.skript.command.Commands;
 import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.expressions.ExprParse;
@@ -701,13 +700,9 @@ public final class SkriptParser {
 						// Check return type against the expression's return type
 						if (type.isAssignableFrom(parsedReturnType)) {
 							if (!exprInfo.isPlural[i] && !parsedExpression.isSingle()) { // Wrong number of arguments
-								if (context == ParseContext.COMMAND) {
-									Skript.error(Commands.m_too_many_arguments.toString(exprInfo.classes[i].getName().getIndefiniteArticle(), exprInfo.classes[i].getName().toString()), ErrorQuality.SEMANTIC_ERROR);
-								} else {
-									Skript.error("'" + expr + "' can only be a single "
-										+ Classes.toString(Stream.of(exprInfo.classes).map(classInfo -> classInfo.getName().toString()).toArray(), false)
-										+ ", not more.");
-								}
+								Skript.error("'" + expr + "' can only be a single "
+									+ Classes.toString(Stream.of(exprInfo.classes).map(classInfo -> classInfo.getName().toString()).toArray(), false)
+									+ ", not more.");
 								log.printError();
 								return null;
 							}
@@ -957,7 +952,7 @@ public final class SkriptParser {
 	private record OrderedExprInfo(ExprInfo[] infos) { }
 
 	@SafeVarargs
-	private <T> @Nullable Expression<? extends T> parseExpressionList(ParseLogHandler log, Class<? extends T>... types) {
+	public final <T> @Nullable Expression<? extends T> parseExpressionList(ParseLogHandler log, Class<? extends T>... types) {
 		//noinspection unchecked
 		return (Expression<? extends T>) parseExpressionList_i(log, types);
 	}
@@ -1223,7 +1218,11 @@ public final class SkriptParser {
 
 	/**
 	 * Prints parse errors (i.e. must start a ParseLog before calling this method)
+	 * @deprecated This method is no longer used and there is no replacement.
+	 * Command arguments are now generally parsed by Brigadier.
+	 * See {@link org.skriptlang.skript.bukkit.command.custom.ScriptCommandExecutor}.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static boolean parseArguments(String args, ScriptCommand command, ScriptCommandEvent event) {
 		SkriptParser parser = new SkriptParser(args, PARSE_LITERALS, ParseContext.COMMAND);
 		ParseResult parseResult = parser.parse_i(command.getPattern());

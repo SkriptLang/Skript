@@ -1,6 +1,7 @@
 package ch.njol.util.coll;
 
 import ch.njol.util.Pair;
+import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -476,6 +477,17 @@ public abstract class CollectionUtils {
 			wrapped[i] = primitive[i];
 		}
 		return wrapped;
+	}
+
+	/**
+	 * Stringifies a collection as an "and" or "or" list.
+	 * @param collection The collection to stringify.
+	 * @param and Whether this is an "and" list or an "or" list.
+	 * @return Stringification of {@code collection}.
+	 * For example, {@code "x, y, and z"}.
+	 */
+	public static String toString(Collection<?> collection, boolean and) {
+		return StringUtils.join(collection, ", ", and ? " and " : " or ");
 	}
 
 }

@@ -138,14 +138,8 @@ updater:
 
 # -- Commands --
 commands:
-	no permission message: Vous n'avez pas la permission d'utiliser cette commande
 	cooldown message: Vous utilisez cette commande trop souvent, veuillez réessayer plus tard
-	executable by players: Cette commande ne peut être utilisée que par des joueurs
-	executable by console: Cette commande ne peut être utilisée que par la console
-	correct usage: Utilisation correcte :
 	invalid argument: Argument invalide <gray>'%s<gray>'<reset>. Sont autorisés :
-	too many arguments: Cette commande ne peut accepter qu'un seul %2$s.
-	internal error: Une erreur interne s'est produite lors de la tentative d'exécution de cette commande.
 	no player starts with: Il n'y a aucun joueur en ligne dont le nom commence par '%s'
 	multiple players start with: Il y a plusieurs joueurs en ligne dont le nom commence par '%s'
 
