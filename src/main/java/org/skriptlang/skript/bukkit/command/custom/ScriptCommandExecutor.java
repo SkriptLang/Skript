@@ -4,9 +4,12 @@ import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.variables.Variables;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.MessageComponentSerializer;
 import io.papermc.paper.command.brigadier.argument.resolvers.ArgumentResolver;
+import net.kyori.adventure.text.Component;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -110,6 +113,9 @@ public class ScriptCommandExecutor {
 		}
 	}
 
+	private static final DynamicCommandExceptionType ERROR_EXECUTION_FAILURE = new DynamicCommandExceptionType(
+		failureMessage -> MessageComponentSerializer.message().serialize((Component) failureMessage));
+
 	private final Trigger trigger;
 	private final List<ArgumentData<?>> arguments;
 	private final @Nullable CooldownManager cooldownManager;
@@ -146,7 +152,9 @@ public class ScriptCommandExecutor {
 		// execution
 		trigger.execute(commandEvent);
 
-		// TODO support command failure (via exception)
+		if (commandEvent.getFailureMessage() != null) {
+			throw ERROR_EXECUTION_FAILURE.create(commandEvent.getFailureMessage());
+		}
 		return commandEvent.getResult();
 	}
 

@@ -3,6 +3,8 @@ package org.skriptlang.skript.bukkit.command.custom;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,6 +21,7 @@ public class ScriptCommandExecutionEvent extends ScriptCommandEvent {
 
 	final Map<String, Object> arguments = new HashMap<>();
 	int result = Command.SINGLE_SUCCESS;
+	@Nullable Component failureMessage;
 
 	public ScriptCommandExecutionEvent(String label, String rawInput, ScriptCommandExecutor commandExecutor,
 		CommandContext<CommandSourceStack> context) {
@@ -78,6 +81,23 @@ public class ScriptCommandExecutionEvent extends ScriptCommandEvent {
 	 */
 	public void setResult(int result) {
 		this.result = result;
+	}
+
+	/**
+	 * @return A component describing why this command execution failed.
+	 * Null if this command execution did not fail.
+	 */
+	public @Nullable Component getFailureMessage() {
+		return failureMessage;
+	}
+
+	/**
+	 * Sets the failure message for this command execution.
+	 * @param failureMessage A component describing why this command execution failed.
+	 *  {@code null} indicates that command execution should not fail.
+	 */
+	public void setFailureMessage(@Nullable Component failureMessage) {
+		this.failureMessage = failureMessage;
 	}
 
 }
