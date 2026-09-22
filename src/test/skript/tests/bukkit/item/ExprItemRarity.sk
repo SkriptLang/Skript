@@ -17,6 +17,8 @@ test "ExprItemRarity":
 
 	set slot 0 of {_inventory} to {_item2}
 
+	assert item rarity of (slot 0 of {_inventory}) is not rare with "Should not be rare"
+
 	set item rarity of (slot 0 of {_inventory}) to rare
 
 	assert item rarity of (slot 0 of {_inventory}) is rare with "Failed to set item rarity of item in container"
