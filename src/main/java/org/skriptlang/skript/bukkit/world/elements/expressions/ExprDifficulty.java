@@ -47,6 +47,7 @@ public class ExprDifficulty extends SimplePropertyExpression<World, Difficulty> 
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET)
 			return CollectionUtils.array(Difficulty.class);
+
 		return null;
 	}
 

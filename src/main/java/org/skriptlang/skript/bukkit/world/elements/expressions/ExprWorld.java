@@ -10,7 +10,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -73,10 +72,7 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 				case Entity entity -> entity.getWorld();
 				case Location location -> location.getWorld();
 				case Chunk chunk -> chunk.getWorld();
-				default -> {
-					error("You can only get the world of a entity/location/chunk");
-					yield null;
-				}
+				default -> throw new IllegalArgumentException("Unexpected value: " + objectInWorld.getClass());
 			};
 		});
 	}

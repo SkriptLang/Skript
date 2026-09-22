@@ -12,6 +12,7 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.bukkit.generator.WorldInfo;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("World Seed")
@@ -24,17 +25,14 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since({"2.2-dev35", "INSERT VERSION (updated pattern)"})
 public class ExprWorldSeed extends PropertyExpression<World, Long> {
 
-	// TODO: turn this into a type property
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(
 			SyntaxRegistry.EXPRESSION,
-			infoBuilder(
-				ExprWorldSeed.class,
-				Long.class,
-				"[world] seed[s]",
-				"worlds",
-				false
-			)
+			SyntaxInfo.Expression.builder(ExprWorldSeed.class, Long.class)
+				.addPatterns(
+					"[the] seed[s] (from|of) %worlds%",
+				    "%worlds%'[s] seed[s]"
+				)
 				.supplier(ExprWorldSeed::new)
 				.build()
 		);

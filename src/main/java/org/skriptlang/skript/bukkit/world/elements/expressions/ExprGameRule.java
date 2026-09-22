@@ -6,6 +6,8 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.PropertyExpression;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -22,14 +24,12 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Arrays;
 
-import static ch.njol.skript.expressions.base.PropertyExpression.infoBuilder;
-
 @Name("Gamerule Value")
 @Description("The gamerule value of a world.")
 @Example("set the gamerule commandBlockOutput of world \"world\" to false")
 @Since("2.5")
 @SuppressWarnings("rawtypes")
-public class ExprGameRule extends SimpleExpression<GameruleValue> {
+public class ExprGameRule extends PropertyExpression<World, GameruleValue> {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(
@@ -47,29 +47,28 @@ public class ExprGameRule extends SimpleExpression<GameruleValue> {
 	}
 
 	private Expression<GameRule<?>> gamerule;
-	private Expression<World> worlds;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (matchedPattern == 0) {
 			gamerule = (Expression<GameRule<?>>) expressions[0];
-			worlds = (Expression<World>) expressions[1];
+			setExpr((Expression<World>) expressions[1]);
 		} else {
 			gamerule = (Expression<GameRule<?>>) expressions[1];
-			worlds = (Expression<World>) expressions[0];
+			setExpr((Expression<World>) expressions[0]);
 		}
 
 		return true;
 	}
 
 	@Override
-	protected GameruleValue<?> @Nullable [] get(Event event) {
+	protected GameruleValue[] get(Event event, World[] source) {
 		GameRule<?> gamerule = this.gamerule.getSingle(event);
 		if (gamerule == null)
 			return new GameruleValue[0];
 
-		World[] worlds = this.worlds.getArray(event);
+		World[] worlds = getExpr().getArray(event);
 		if (worlds == null)
 			return new GameruleValue[0];
 
@@ -80,9 +79,9 @@ public class ExprGameRule extends SimpleExpression<GameruleValue> {
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.SET) {
+		if (mode == ChangeMode.SET)
 			return new Class[]{Boolean.class, Integer.class};
-		}
+
 		return null;
 	}
 
@@ -111,13 +110,13 @@ public class ExprGameRule extends SimpleExpression<GameruleValue> {
 			return;
 		}
 
-		for (World world : worlds.getArray(event))
+		for (World world : getExpr().getArray(event))
 			world.setGameRule((GameRule<Object>) gamerule, value);
 	}
 
 	@Override
 	public boolean isSingle() {
-		return worlds.isSingle();
+		return getExpr().isSingle();
 	}
 
 	@Override
@@ -128,7 +127,7 @@ public class ExprGameRule extends SimpleExpression<GameruleValue> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return new SyntaxStringBuilder(event, debug)
-			.append("the gamerule ", gamerule, " of ", worlds)
+			.append("the gamerule ", gamerule, " of ", getExpr())
 			.toString();
 	}
 
