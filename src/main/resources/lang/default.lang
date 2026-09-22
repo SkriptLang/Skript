@@ -449,6 +449,28 @@ directions:
 	right: to the right of
 	left: to the left of
 
+# -- Block Faces --
+block faces:
+	up: top face, upper face, up face
+	down: bottom face, lower face, down face
+	north: north face, northern face
+	east: east face, eastern face
+	south: south face, southern face
+	west: west face, western face
+	north_east: north east face, north-east face, north eastern face, north-eastern face
+	north_west: north west face, north-west face, north western face, north-western face
+	south_east: south east face, south-east face, south eastern face, south-eastern face
+	south_west: south west face, south-west face, south western face, south-western face
+	west_north_west: west north west face, west-north-west face, west north western face, west-north-western face
+	north_north_west: north north west face, north-north-west face, north north western face, north-north-western face
+	north_north_east: north north east face, north-north-east face, north north eastern face, north-north-eastern face
+	east_north_east: east north east face, east-north-east face, east north eastern face, east-north-eastern face
+	east_south_east: east south east face, east-south-east face, east south eastern face, east-south-eastern face
+	south_south_east: south south east face, south-south-east face, south south eastern face, south-south-eastern face
+	south_south_west: south south west face, south-south-west face, south south western face, south-south-western face
+	west_south_west: west south west face, west-south-west face, west south western face, west-south-western face
+	self: directionless face
+
 # -- Entities --
 # about patterns:
 #	the tag "plural" is to indicate the pattern is referencing multiple
@@ -2916,6 +2938,7 @@ types:
 	villagercareerchangereason: villager career change reason¦s @a
 	damagesource: damage source¦s @a
 	damagetype: damage type¦s @a
+	raytraceresult: ray trace result¦s @a
 	textcomponent: text component¦s @a
 	audience: audience¦s @an
 	frogvariant: frog variant¦s @a

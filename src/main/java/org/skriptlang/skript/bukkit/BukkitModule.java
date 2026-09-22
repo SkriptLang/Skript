@@ -1,7 +1,11 @@
 package org.skriptlang.skript.bukkit;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.EnumClassInfo;
+import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Direction;
+import org.bukkit.block.BlockFace;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
@@ -21,10 +25,12 @@ import org.skriptlang.skript.bukkit.misc.MiscModule;
 import org.skriptlang.skript.bukkit.particles.ParticleModule;
 import org.skriptlang.skript.bukkit.pdc.PDCModule;
 import org.skriptlang.skript.bukkit.potion.PotionModule;
+import org.skriptlang.skript.bukkit.raytrace.RaytraceModule;
 import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.bukkit.text.TextModule;
 import org.skriptlang.skript.bukkit.types.*;
 import org.skriptlang.skript.bukkit.worldborder.elements.WorldBorderModule;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.List;
 
@@ -54,6 +60,7 @@ public class BukkitModule extends HierarchicalAddonModule {
 			new ParticleModule(this),
 			new PDCModule(this),
 			new PotionModule(this),
+			new RaytraceModule(this),
 			new TagModule(this),
 			new TextModule(this),
 			new WorldBorderModule(this)
@@ -74,6 +81,15 @@ public class BukkitModule extends HierarchicalAddonModule {
 		Classes.registerClass(new PlayerClassInfo());
 		Classes.registerClass(new SlotClassInfo());
 		Classes.registerClass(new VectorClassInfo());
+
+		// blockface
+		Classes.registerClass(new EnumClassInfo<>(BlockFace.class, "blockface", "block faces")
+			.user("block ?faces?")
+			.name("Block Face")
+			.description("A face of a block, such as north face, south face, etc. This can be used as a direction.")
+			.since("INSERT VERSION")
+			.defaultExpression(new EventValueExpression<>(BlockFace.class)));
+		Converters.registerConverter(BlockFace.class, Direction.class, face -> new Direction(face, 1));
 	}
 
 	@Override
