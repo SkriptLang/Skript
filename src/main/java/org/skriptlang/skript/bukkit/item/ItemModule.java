@@ -27,7 +27,7 @@ public class ItemModule extends HierarchicalAddonModule {
 	@Override
 	public void initSelf(SkriptAddon addon) {
 		Classes.registerClass(new EnumClassInfo<>(ItemRarity.class, "itemrarity", "item rarity")
-			.user("item ?rarities?")
+			.user("item ?rarit(y|ies)")
 			.name("Item Rarity")
 			.description("Represents the item rarity of an item.")
 			.since("INSERT VERSION")
