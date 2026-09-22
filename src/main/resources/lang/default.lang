@@ -561,6 +561,9 @@ entities:
 	pale oak chest boat:
 		name: pale oak chest boat¦s
 		pattern: pale oak chest boat[plural:s]
+	poplar chest boat:
+		name: poplar chest boat¦s
+		pattern: poplar chest boat[plural:s]
 
 	# BoatData
 	boat:
@@ -599,6 +602,9 @@ entities:
 	pale oak boat:
 		name: pale oak boat¦s
 		pattern: pale oak boat[plural:s]
+	poplar boat:
+		name: poplar boat¦s
+		pattern: poplar boat[plural:s]
 
 	# CatData
 	cat:

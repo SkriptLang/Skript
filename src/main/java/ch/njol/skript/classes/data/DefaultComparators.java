@@ -6,8 +6,6 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.entity.BoatChestData;
-import ch.njol.skript.entity.BoatData;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.RabbitData;
 import ch.njol.skript.util.*;
@@ -279,10 +277,6 @@ public class DefaultComparators {
 				return Relation.get(i.isOfType(((Item) e).getItemStack()));
 //			if (Skript.classExists("org.bukkit.entity.WitherSkull") && e instanceof WitherSkull)
 //				return Relation.get(i.isOfType(Material.SKULL_ITEM.getId(), (short) 1));
-			if (e instanceof BoatData)
-				return Relation.get(((BoatData)e).isOfItemType(i));
-			if (e instanceof BoatChestData)
-				return Relation.get(((BoatChestData) e).isOfItemType(i));
 			if (e instanceof RabbitData)
 				return Relation.get(i.isOfType(Material.RABBIT));
 			for (ItemData data : i.getTypes()) {
