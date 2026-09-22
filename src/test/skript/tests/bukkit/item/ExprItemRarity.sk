@@ -1,0 +1,20 @@
+
+test "ExprItemRarity":
+	set {_item} to stick
+
+	set item rarity of {_item} to uncommon
+
+	assert item rarity of {_item} is uncommon with "Failed to set item rarity of item"
+
+	reset item rarity of {_item}
+
+	assert item rarity of {_item} is not uncommon with "Failed to reset item rarity of item"
+
+	set {_item2} to bedrock
+	set item rarity of {_item2} to rare
+
+	set {_inventory} to hopper inventory named "test"
+
+	set slot 0 of {_inventory} to {_item2}
+
+	assert item rarity of (slot 0 of {_inventory}) is rare with "Failed to set item rarity of item in container"

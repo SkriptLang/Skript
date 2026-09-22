@@ -2737,6 +2737,13 @@ boss bar styles:
 	segmented_20: 20 segments, twenty segments, notched with 20 segments, notched with twenty segments, 20 notches, twenty notches
 	solid: solid, no notches, progress
 
+# -- Item Rarities --
+item rarity:
+	common: common
+	uncommon: uncommon
+	rare: rare
+	epic: epic
+
 # -- Damage Types --
 damage types:
 	arrow: arrow
