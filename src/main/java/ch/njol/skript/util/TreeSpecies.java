@@ -56,6 +56,9 @@ public enum TreeSpecies {
 	WARPED_FUNGUS(TreeType.WARPED_FUNGUS),
 
 	CHORUS_PLANT(TreeType.CHORUS_PLANT),
+
+	// 26.3
+	POPLAR(TreeType.POPLAR),
 	;
 
 	private final TreeType[] types;

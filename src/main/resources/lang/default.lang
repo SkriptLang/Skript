@@ -315,7 +315,7 @@ tree types:
 	mushroom: huge mushroom, any huge mushroom
 	red_mushroom: huge red mushroom
 	brown_mushroom: huge brown mushroom
-	mangrove: mangrove tree, any mangrove treee
+	mangrove: mangrove tree, any mangrove tree
 	small_mangrove: small mangrove tree
 	big_mangrove: big mangrove tree
 	azalea: azalea tree
@@ -326,6 +326,8 @@ tree types:
 	crimson_fungus: crimson fungus, crimson tree, crimson fungus tree
 	warped_fungus: warped fungus, warped tree, warped fungus tree
 	chorus_plant: chorus plant
+	# 26.3
+	poplar: poplar tree, any poplar tree
 
 # -- Time --
 time:
