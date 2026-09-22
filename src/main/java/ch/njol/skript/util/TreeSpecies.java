@@ -58,12 +58,22 @@ public enum TreeSpecies {
 	CHORUS_PLANT(TreeType.CHORUS_PLANT),
 
 	// 26.3
-	POPLAR(TreeType.POPLAR),
+	POPLAR("POPLAR"),
 	;
 
 	private final TreeType[] types;
 
 	TreeSpecies(TreeType... types) {
+		this.types = types;
+	}
+
+	TreeSpecies(String string) {
+		TreeType[] types;
+		try {
+			types = new TreeType[]{TreeType.valueOf(string)};
+		} catch (IllegalArgumentException e) {
+			types = new TreeType[0];
+		}
 		this.types = types;
 	}
 
@@ -76,6 +86,9 @@ public enum TreeSpecies {
 	 * @param location Location to grow the tree at
 	 */
 	public void grow(Location location) {
+		if (types.length == 0) {
+			return;
+		}
 		TreeType tree = CollectionUtils.getRandom(types);
 		assert tree != null; // No enum member causes empty types
 		World world = location.getWorld();

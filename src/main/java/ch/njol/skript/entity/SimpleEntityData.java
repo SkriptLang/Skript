@@ -225,7 +225,6 @@ public class SimpleEntityData extends EntityData<Entity> {
 			addSimpleEntity("bamboo raft", BambooRaft.class);
 			addSimpleEntity("mangrove boat", MangroveBoat.class);
 			addSimpleEntity("cherry boat", CherryBoat.class);
-			addSimpleEntity("poplar boat", PoplarBoat.class);
 			// chest boats
 			addSimpleEntity("oak chest boat", OakChestBoat.class);
 			addSimpleEntity("dark oak chest boat", DarkOakChestBoat.class);
@@ -237,7 +236,6 @@ public class SimpleEntityData extends EntityData<Entity> {
 			addSimpleEntity("bamboo chest raft", BambooChestRaft.class);
 			addSimpleEntity("mangrove chest boat", MangroveChestBoat.class);
 			addSimpleEntity("cherry chest boat", CherryChestBoat.class);
-			addSimpleEntity("poplar chest boat", PoplarChestBoat.class);
 			// supers
 			addSuperEntity("boat", Boat.class);
 			addSuperEntity("any boat", Boat.class);
@@ -260,6 +258,11 @@ public class SimpleEntityData extends EntityData<Entity> {
 
 		if (Skript.isRunningMinecraft(26, 2)) {
 			addSimpleEntity("sulfur cube", SulfurCube.class);
+		}
+
+		if (Skript.isRunningMinecraft(26, 2)) {
+			addSimpleEntity("poplar boat", PoplarBoat.class);
+			addSimpleEntity("poplar chest boat", PoplarChestBoat.class);
 		}
 
 		// SuperTypes
