@@ -1417,7 +1417,7 @@ entities:
 		pattern: area effect cloud[plural:s]
 	shulker:
 		name: shulker¦s
-		pattern: shulker[plural:s]
+		pattern: [%-color%] shulker[plural:s]
 	shulker bullet:
 		name: shulker bullet¦s
 		pattern: shulker bullet[plural:s]
@@ -1612,6 +1612,11 @@ entities:
 	sulfur cube:
 		name: sulfur cube¦s
 		pattern: sulfur cube[plural:s]
+
+	# 26.3
+	cushion:
+		name: cushion¦s
+		pattern: [%-color%] cushion[plural:s]
 
 	# SuperTypes
 	human:

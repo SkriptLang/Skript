@@ -147,7 +147,6 @@ public class SimpleEntityData extends EntityData<Entity> {
 
 		// 1.9
 		addSimpleEntity("area effect cloud", AreaEffectCloud.class);
-		addSimpleEntity("shulker", Shulker.class);
 		addSimpleEntity("shulker bullet", ShulkerBullet.class);
 		addSimpleEntity("spectral arrow", SpectralArrow.class);
 
