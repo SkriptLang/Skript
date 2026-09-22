@@ -2739,10 +2739,10 @@ boss bar styles:
 
 # -- Item Rarities --
 item rarity:
-	common: common
-	uncommon: uncommon
-	rare: rare
-	epic: epic
+	common: common, common rarity
+	uncommon: uncommon, uncommon rarity
+	rare: rare, rare rarity
+	epic: epic, epic rarity
 
 # -- Damage Types --
 damage types:
