@@ -9,12 +9,19 @@ test "ExprItemRarity":
 	reset item rarity of {_item}
 
 	assert item rarity of {_item} is not uncommon with "Failed to reset item rarity of item"
+	assert item rarity of {_item} is not set with "Failed to reset item rarity of item"
 
 	set {_item2} to bedrock
-	set item rarity of {_item2} to rare
 
-	set {_inventory} to hopper inventory named "test"
+	set {_inventory} to hopper inventory named "Test"
 
 	set slot 0 of {_inventory} to {_item2}
 
+	set item rarity of (slot 0 of {_inventory}) to rare
+
 	assert item rarity of (slot 0 of {_inventory}) is rare with "Failed to set item rarity of item in container"
+
+	reset item rarity of (slot 0 of {_inventory})
+
+	assert item rarity of (slot 0 of {_inventory}) is not rare with "Failed to reset item rarity of item in container"
+	assert item rarity of (slot 0 of {_inventory}) is not set with "Failed to reset item rarity of item in container"
