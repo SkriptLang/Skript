@@ -1,5 +1,6 @@
 package ch.njol.skript.entity;
 
+import ch.njol.skript.Skript;
 import org.bukkit.DyeColor;
 import org.bukkit.entity.Cushion;
 import org.jetbrains.annotations.NotNull;
@@ -8,7 +9,9 @@ import org.jetbrains.annotations.Nullable;
 public class CushionData extends ColorableEntityData<Cushion> {
 
 	static {
-		EntityData.register(CushionData.class, "cushion", Cushion.class, "cushion");
+		if (Skript.classExists("org.bukkit.entity.Cushion")) { // Added in 26.3
+			EntityData.register(CushionData.class, "cushion", Cushion.class, "cushion");
+		}
 	}
 
 	public CushionData() {

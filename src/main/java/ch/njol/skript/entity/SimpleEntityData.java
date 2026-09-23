@@ -260,7 +260,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 			addSimpleEntity("sulfur cube", SulfurCube.class);
 		}
 
-		if (Skript.isRunningMinecraft(26, 2)) {
+		if (Skript.isRunningMinecraft(26, 3)) {
 			addSimpleEntity("poplar boat", PoplarBoat.class);
 			addSimpleEntity("poplar chest boat", PoplarChestBoat.class);
 		}

@@ -1166,7 +1166,7 @@ test "shulker data":
 	testData(white shulker)
 	testData(orange shulker)
 
-test "cushion data":
+test "cushion data" when running minecraft "26.3":
 	setSuperTypes(cushion)
 	testData(cushion)
 	testData(red cushion)
