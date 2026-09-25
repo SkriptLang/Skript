@@ -288,6 +288,8 @@ biomes:
 	pale_garden: pale garden
 	# 26.2
 	sulfur_caves: sulfur caves
+	# 26.3
+	dappled_forest: dappled forest
 
 # -- Tree Types --
 tree types:
@@ -313,7 +315,7 @@ tree types:
 	mushroom: huge mushroom, any huge mushroom
 	red_mushroom: huge red mushroom
 	brown_mushroom: huge brown mushroom
-	mangrove: mangrove tree, any mangrove treee
+	mangrove: mangrove tree, any mangrove tree
 	small_mangrove: small mangrove tree
 	big_mangrove: big mangrove tree
 	azalea: azalea tree
@@ -324,6 +326,8 @@ tree types:
 	crimson_fungus: crimson fungus, crimson tree, crimson fungus tree
 	warped_fungus: warped fungus, warped tree, warped fungus tree
 	chorus_plant: chorus plant
+	# 26.3
+	poplar: poplar tree, any poplar tree
 
 # -- Time --
 time:
@@ -561,6 +565,9 @@ entities:
 	pale oak chest boat:
 		name: pale oak chest boat¦s
 		pattern: pale oak chest boat[plural:s]
+	poplar chest boat:
+		name: poplar chest boat¦s
+		pattern: poplar chest boat[plural:s]
 
 	# BoatData
 	boat:
@@ -599,6 +606,9 @@ entities:
 	pale oak boat:
 		name: pale oak boat¦s
 		pattern: pale oak boat[plural:s]
+	poplar boat:
+		name: poplar boat¦s
+		pattern: poplar boat[plural:s]
 
 	# CatData
 	cat:
@@ -1407,7 +1417,7 @@ entities:
 		pattern: area effect cloud[plural:s]
 	shulker:
 		name: shulker¦s
-		pattern: shulker[plural:s]
+		pattern: [%-color%] shulker[plural:s]
 	shulker bullet:
 		name: shulker bullet¦s
 		pattern: shulker bullet[plural:s]
@@ -1602,6 +1612,11 @@ entities:
 	sulfur cube:
 		name: sulfur cube¦s
 		pattern: sulfur cube[plural:s]
+
+	# 26.3
+	cushion:
+		name: cushion¦s
+		pattern: [%-color%] cushion[plural:s]
 
 	# SuperTypes
 	human:
@@ -2288,6 +2303,17 @@ game effect:
 	brush_block_complete: brush block complete effect, finish brushing block effect,
 	egg_crack: egg crack effect
 
+	# 26.3
+	spell_potion_splash: spell potion splash effect
+	instant_potion_splash: instant potion splash effect
+	destroy_block_with_sound: destroy block with sound effect, destroy block effect with sound, block destruction with sound effect, block destruction effect with sound
+	ender_dragon_egg_teleport: ender dragon egg teleport effect, ender dragon egg teleportation effect, dragon egg teleport effect, dragon egg teleportation effect
+	shulker_teleport: shulker teleport effect, shulker teleportation effect
+	consume_effect_teleport: consume effect teleport effect, consumption teleport effect, item consumption teleport effect
+	enderman_teleport: enderman teleport effect, enderman teleportation effect
+	destroy_progress: destroy progress effect
+	destroy_progress_with_sound: destroy progress with sound effect, destroy progress effect with sound
+
 # -- Entity Effects --
 # all patterns should include the word 'effect' or 'animation'
 # 'effect' should be used for particles, 'sound effect' for sounds, 'animation' for model animations
@@ -2385,6 +2411,10 @@ entity effect:
 	hurt_berry_bush: hurt berry bush effect (non-functional)
 	cat_tame_fail: cat tame fail effect (non-functional)
 	cat_tame_success: cat tame success effect (non-functional)
+
+	# 26.3
+	boat_sink: boat sink animation, boat sinking animation
+	boat_launch: boat launch animation, boat launching animation
 
 # -- Particle Effects --
 # all patterns should include the word 'particle'
@@ -2516,6 +2546,11 @@ particle:
 	geyser_base: geyser base particle¦s @a
 	geyser_plume: geyser plume particle¦s @a
 	geyser_poof: geyser poof particle¦s @a
+
+	# 26.3
+	red_poplar_leaves: red poplar leaves particle¦s @a
+	orange_poplar_leaves: orange poplar leaves particle¦s @a
+	yellow_poplar_leaves: yellow poplar leaves particle¦s @a
 
 # -- Teleport Flags --
 teleport flags:
