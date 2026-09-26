@@ -2737,6 +2737,13 @@ boss bar styles:
 	segmented_20: 20 segments, twenty segments, notched with 20 segments, notched with twenty segments, 20 notches, twenty notches
 	solid: solid, no notches, progress
 
+# -- Item Rarities --
+item rarity:
+	common: common, common rarity
+	uncommon: uncommon, uncommon rarity
+	rare: rare, rare rarity
+	epic: epic, epic rarity
+
 # -- Damage Types --
 damage types:
 	arrow: arrow
@@ -2850,6 +2857,7 @@ types:
 	material: material¦s @a
 	itemstack: item stack¦s @an
 	itementity: dropped item¦s @a # same as entities.dropped item.name
+	itemrarity: item rarit¦y¦ies @an
 	itemflag: item flag¦s @an
 	biome: biome¦s @a
 	bossbar: boss bar¦s @a
