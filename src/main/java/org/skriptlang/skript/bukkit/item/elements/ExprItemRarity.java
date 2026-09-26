@@ -8,6 +8,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -39,7 +40,7 @@ public class ExprItemRarity extends SimplePropertyExpression<ItemType, ItemRarit
 
 	@Override
 	public @Nullable ItemRarity convert(ItemType item) {
-		return item.getItemMeta().hasRarity() ? item.getItemMeta().getRarity() : null;
+		return item.getRandom() != null ? item.getRandom().getData(DataComponentTypes.RARITY) : null;
 	}
 
 	@Override

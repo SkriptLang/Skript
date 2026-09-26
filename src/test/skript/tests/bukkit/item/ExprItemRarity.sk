@@ -9,7 +9,7 @@ test "ExprItemRarity":
 	reset item rarity of {_item}
 
 	assert item rarity of {_item} is not uncommon with "Failed to reset item rarity of item"
-	assert item rarity of {_item} is not set with "Failed to reset item rarity of item"
+	assert item rarity of {_item} is common with "Failed to reset item rarity of item"
 
 	set {_item2} to bedrock
 
@@ -26,4 +26,7 @@ test "ExprItemRarity":
 	reset item rarity of (slot 0 of {_inventory})
 
 	assert item rarity of (slot 0 of {_inventory}) is not rare with "Failed to reset item rarity of item in container"
-	assert item rarity of (slot 0 of {_inventory}) is not set with "Failed to reset item rarity of item in container"
+	assert item rarity of (slot 0 of {_inventory}) is common with "Failed to reset item rarity of item in container"
+
+	assert item rarity of tnt is common with "Failed to get default item rarity of TnT"
+	assert item rarity of enchanted golden apple is rare with "Failed to get default item rarity of Enchanted Golden Apple"
