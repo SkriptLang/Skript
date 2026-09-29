@@ -2304,15 +2304,15 @@ game effect:
 	egg_crack: egg crack effect
 
 	# 26.3
-	spell_potion_splash: spell potion splash effect
-	instant_potion_splash: instant potion splash effect
-	destroy_block_with_sound: destroy block with sound effect, destroy block effect with sound, block destruction with sound effect, block destruction effect with sound
-	ender_dragon_egg_teleport: ender dragon egg teleport effect, ender dragon egg teleportation effect, dragon egg teleport effect, dragon egg teleportation effect
-	shulker_teleport: shulker teleport effect, shulker teleportation effect
-	consume_effect_teleport: consume effect teleport effect, consumption teleport effect, item consumption teleport effect
-	enderman_teleport: enderman teleport effect, enderman teleportation effect
+	spell_potion_splash: spell potion splash sound effect
+	instant_potion_splash: instant potion splash sound effect
+	destroy_block_with_sound: destroy block with sound effect
+	ender_dragon_egg_teleport: ender dragon egg teleport effect
+	shulker_teleport: shulker teleport effect
+	consume_effect_teleport: consume teleport effect
+	enderman_teleport: enderman teleport effect
 	destroy_progress: destroy progress effect
-	destroy_progress_with_sound: destroy progress with sound effect, destroy progress effect with sound
+	destroy_progress_with_sound: destroy progress with sound effect
 
 # -- Entity Effects --
 # all patterns should include the word 'effect' or 'animation'
