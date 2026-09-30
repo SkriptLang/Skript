@@ -47,6 +47,31 @@ public interface InputSource {
 	}
 
 	/**
+	 * @return whether or not change to input is allowed
+	 */
+	default boolean allowChange() {
+		return false;
+	}
+
+	/**
+	 * If change is allowed this method must be implemented to recieve changes to input
+	 *
+	 * @param updatedValue the updated value
+	 */
+	default void updateCurrentValue(Object updatedValue) {
+		// Updated value is ignored.
+	}
+
+	/**
+	 * If change is allowed this method should be implemented to supply unchanged value for ChangeMode.RESET in {@link ExprInput}.
+	 *
+	 * @return The unchanged value that {@link ExprInput} should use for reset.
+	 */
+	default @Nullable Object getUnchangedValue() {
+		return getCurrentValue();
+	}
+
+	/**
 	 * Parses an expression using the given input source and parser instance.
 	 *
 	 * @param expr the string expression to be parsed.
