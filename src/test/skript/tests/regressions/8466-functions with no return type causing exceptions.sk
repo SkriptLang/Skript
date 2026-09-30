@@ -1,0 +1,7 @@
+local function foo():
+    set {_} to "something"
+
+test "functions with no return type causing exceptions":
+    parse:
+        set slot 0 of random element of all players to foo()
+    assert first element of last parse logs contains "a slot can't be set to foo()"
