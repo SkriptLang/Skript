@@ -45,7 +45,8 @@ public class PlayerModule extends HierarchicalAddonModule {
 			ExprPlayerListHeaderFooter::register,
 			ExprPlayerListName::register,
 			ExprPlayerListPriority::register,
-			ExprQuitMessage::register
+			ExprQuitMessage::register,
+			ExprRespawnLocation::register
 		);
 
 		BukkitModule.register(moduleRegistry(addon), eventValueRegistry,

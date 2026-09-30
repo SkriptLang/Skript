@@ -24,6 +24,7 @@ public class EffActionBarTest extends SkriptJUnitTest {
 	@Before
 	public void setup() {
 		sender = EasyMock.createMock(CommandSender.class);
+		EasyMock.expect(sender.getName()).andReturn("EffActionBarTest").anyTimes();
 		actionBarEffect = Effect.parse("send actionbar {_message} to {_sender}", null);
 		if (actionBarEffect == null)
 			throw new IllegalStateException();

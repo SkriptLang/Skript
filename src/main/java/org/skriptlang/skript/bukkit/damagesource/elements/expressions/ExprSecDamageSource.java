@@ -85,7 +85,8 @@ public class ExprSecDamageSource extends SectionExpression<DamageSource> {
 				.supplier(ExprSecDamageSource::new)
 				.build()
 		);
-		EventValues.registerEventValue(DamageSourceSectionEvent.class, DamageSource.class, DamageSourceSectionEvent::buildDamageSource);
+		// TODO event expressions should be reworked such that this value is not necessary
+		EventValues.registerEventValue(DamageSourceSectionEvent.class, DamageSource.class, ignored -> null);
 	}
 
 	private @Nullable Expression<DamageType> damageType;

@@ -47,9 +47,11 @@ public class SimpleEntityData extends EntityData<Entity> {
 				return false;
 			if (c != other.c)
 				return false;
-			assert codeName.equals(other.codeName);
-			assert isSupertype == other.isSupertype;
-			return true;
+			if (codeName.equals(other.codeName)) {
+				return true;
+			}
+			assert isSupertype != other.isSupertype;
+			return false;
 		}
 	}
 	
@@ -145,7 +147,6 @@ public class SimpleEntityData extends EntityData<Entity> {
 
 		// 1.9
 		addSimpleEntity("area effect cloud", AreaEffectCloud.class);
-		addSimpleEntity("shulker", Shulker.class);
 		addSimpleEntity("shulker bullet", ShulkerBullet.class);
 		addSimpleEntity("spectral arrow", SpectralArrow.class);
 
@@ -257,6 +258,11 @@ public class SimpleEntityData extends EntityData<Entity> {
 
 		if (Skript.isRunningMinecraft(26, 2)) {
 			addSimpleEntity("sulfur cube", SulfurCube.class);
+		}
+
+		if (Skript.isRunningMinecraft(26, 3)) {
+			addSimpleEntity("poplar boat", PoplarBoat.class);
+			addSimpleEntity("poplar chest boat", PoplarChestBoat.class);
 		}
 
 		// SuperTypes

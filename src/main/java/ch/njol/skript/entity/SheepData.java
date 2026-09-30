@@ -31,7 +31,7 @@ public class SheepData extends EntityData<Sheep> {
 
 	private Color @Nullable [] colors = null;
 	private Kleenean sheared = Kleenean.UNKNOWN;
-	private Adjective @Nullable [] adjectives = null;
+	private transient Adjective @Nullable [] adjectives = null;
 
 	public SheepData() {}
 
