@@ -237,8 +237,8 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 		// Print the line caused the issue for diagnosing (will be very long most probably), in case of someone pasting this in an issue and not providing the code.
 		Skript.error(line);
 
-		// If testing (assertions enabled) - print the whole stack trace.
-		if (Skript.testing()) {
+		// If debugging, print the whole stack trace.
+		if (Skript.debug()) {
 			Skript.exception(e);
 		}
 

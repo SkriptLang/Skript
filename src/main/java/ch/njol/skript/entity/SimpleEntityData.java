@@ -47,9 +47,11 @@ public class SimpleEntityData extends EntityData<Entity> {
 				return false;
 			if (c != other.c)
 				return false;
-			assert codeName.equals(other.codeName);
-			assert isSupertype == other.isSupertype;
-			return true;
+			if (codeName.equals(other.codeName)) {
+				return true;
+			}
+			assert isSupertype != other.isSupertype;
+			return false;
 		}
 	}
 	
