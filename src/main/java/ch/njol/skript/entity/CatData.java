@@ -1,15 +1,12 @@
 package ch.njol.skript.entity;
 
-import ch.njol.skript.bukkitutil.BukkitUtils;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterators;
-import org.bukkit.Registry;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.entity.Cat;
 import org.bukkit.entity.Cat.Type;
 import org.jetbrains.annotations.NotNull;
@@ -22,13 +19,7 @@ public class CatData extends EntityData<Cat> {
 	private static final Type[] TYPES;
 
 	static {
-		ClassInfo<Type> catTypeClassInfo;
-		if (BukkitUtils.registryExists("CAT_VARIANT")) {
-			catTypeClassInfo = new RegistryClassInfo<>(Cat.Type.class, Registry.CAT_VARIANT, "cattype", "cat types");
-		} else {
-			//noinspection unchecked, rawtypes - it is an enum on other versions
-			catTypeClassInfo = new EnumClassInfo<>((Class) Cat.Type.class, "cattype", "cat types");
-		}
+		var catTypeClassInfo = new RegistryClassInfo<>(Cat.Type.class, RegistryKey.CAT_VARIANT, "cattype", "cat types");
 		Classes.registerClass(catTypeClassInfo
 			.user("cat ?(type|race)s?")
 			.name("Cat Type")

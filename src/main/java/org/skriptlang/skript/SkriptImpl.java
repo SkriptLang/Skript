@@ -13,6 +13,7 @@ import org.skriptlang.skript.util.Registry;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -63,6 +64,11 @@ final class SkriptImpl implements Skript {
 	public <R extends Registry<?>> R registry(Class<R> registryClass, Supplier<R> putIfAbsent) {
 		//noinspection unchecked
 		return (R) registries.computeIfAbsent(registryClass, key -> putIfAbsent.get());
+	}
+
+	@Override
+	public Collection<Registry<?>> registries() {
+		return List.copyOf(registries.values());
 	}
 
 	/*
@@ -182,6 +188,11 @@ final class SkriptImpl implements Skript {
 		}
 
 		@Override
+		public Collection<Registry<?>> registries() {
+			return skript.registries();
+		}
+
+		@Override
 		public SyntaxRegistry syntaxRegistry() {
 			return registry(SyntaxRegistry.class);
 		}
@@ -254,6 +265,11 @@ final class SkriptImpl implements Skript {
 		@Override
 		public <R extends Registry<?>> R registry(Class<R> registryClass, Supplier<R> putIfAbsent) {
 			return unmodifiableAddon.registry(registryClass, putIfAbsent);
+		}
+
+		@Override
+		public Collection<Registry<?>> registries() {
+			return unmodifiableAddon.registries();
 		}
 
 		@Override
