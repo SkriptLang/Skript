@@ -1,0 +1,19 @@
+test "Entity AI Effect":
+	spawn pig at test-location:
+		assert entity has ai with "Spawned pig didn't have ai"
+		disable ai of entity
+		assert entity doesn't have ai with "Failed to disable ai of pig"
+		enable artificial intelligence of entity
+		assert entity has ai with "Failed to enable ai of pig"
+		delete entity
+
+test "Entity AI Effect with multiple entities":
+	spawn 2 pigs at test-location:
+		add entity to {_pigs::*}
+
+	assert {_pigs::*} have ai with "Spawned pigs didn't have ai"
+	disable ai of {_pigs::*}
+	assert {_pigs::*} don't have ai with "Failed to disable ai of 2 pigs"
+	enable artificial intelligence of {_pigs::*}
+	assert {_pigs::*} have ai with "Failed to enable ai of 2 pigs"
+	delete entities within {_pigs::*}
