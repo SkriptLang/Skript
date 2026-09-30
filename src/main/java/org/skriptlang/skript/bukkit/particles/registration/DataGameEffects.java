@@ -92,19 +92,20 @@ public class DataGameEffects {
 			//</editor-fold>
 			(exprs, parseResult, builder) -> builder.append("record song of", exprs[0]));
 
+		boolean isRunning26_2 = Skript.isRunningMinecraft(26, 2);
 		boolean isRunning26_3 = Skript.isRunningMinecraft(26, 3);
 
-		Effect smokeEffect = isRunning26_3 ? Effect.SMOKE_SHOOT : Effect.SMOKE;
+		Effect smokeEffect = isRunning26_2 ? Effect.SMOKE_SHOOT : Effect.SMOKE;
 		registerEffect(smokeEffect, "[dispenser] black smoke effect [(in|with|using) [the] direction] %direction%",
 			DataSupplier::getBlockFaceData,
 			(exprs, parseResult, builder) -> builder.append("black smoke effect in direction", exprs[0]));
 
-		Effect whiteSmokeEffect = isRunning26_3 ? Effect.WHITE_SMOKE_SHOOT : Effect.SHOOT_WHITE_SMOKE;
+		Effect whiteSmokeEffect = isRunning26_2 ? Effect.WHITE_SMOKE_SHOOT : Effect.SHOOT_WHITE_SMOKE;
 		registerEffect(whiteSmokeEffect, "[dispenser] white smoke effect [(in|with|using) [the] direction] %direction%",
 			DataSupplier::getCartesianBlockFaceData,
 			(exprs, parseResult, builder) -> builder.append("white smoke effect in direction", exprs[0]));
 
-		Effect destroyBlockEffect = isRunning26_3 ? Effect.DESTROY_BLOCK : Effect.STEP_SOUND;
+		Effect destroyBlockEffect = isRunning26_2 ? Effect.DESTROY_BLOCK : Effect.STEP_SOUND;
 		registerEffect(destroyBlockEffect, "%itemtype/blockdata% ([foot]step[s]|break|destroy) effect",
 			DataSupplier::getBlockData,
 			(exprs, parseResult, builder) -> builder.append(exprs[0], "footstep sound"));
@@ -158,7 +159,7 @@ public class DataGameEffects {
 		// of 7, based on wiki max charge of 1000 and the formula `floor(ln(1 + charge of the block) ) + 1`.
 		// there's more to it with how the particles roll and how often the sound plays, but I can't be bothered to
 		// figure it out to a tee.
-		Effect sculkChargeEffect = isRunning26_3 ? Effect.SCULK_CHARGE : Effect.PARTICLES_SCULK_CHARGE;
+		Effect sculkChargeEffect = isRunning26_2 ? Effect.SCULK_CHARGE : Effect.PARTICLES_SCULK_CHARGE;
 		registerEffect(sculkChargeEffect, "sculk (charge|spread) effect [(with|using) data %integer%]",
 			(exprs, parseResult, builder) -> builder.append("sculk charge effect with data", exprs[0]));
 
@@ -181,7 +182,7 @@ public class DataGameEffects {
 				(exprs, parseResult, builder) -> builder.append("enderman teleporting").appendIf((exprs[0] != null), "to", exprs[0]).append("effect"));
 		}
 
-		Effect brushEffect = isRunning26_3 ? Effect.BRUSH_BLOCK_COMPLETE : Effect.PARTICLES_AND_SOUND_BRUSH_BLOCK_COMPLETE;
+		Effect brushEffect = isRunning26_2 ? Effect.BRUSH_BLOCK_COMPLETE : Effect.PARTICLES_AND_SOUND_BRUSH_BLOCK_COMPLETE;
 		registerEffect(brushEffect, "[finish] brush[ing] %itemtype/blockdata% effect",
 			DataSupplier::getBlockData,
 			(exprs, parseResult, builder) -> builder.append("brushing", exprs[0], "effect"));

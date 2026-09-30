@@ -2298,9 +2298,9 @@ game effect:
 	ender_dragon_breath: ender dragon breath effect, ender dragon breathing effect
 	white_smoke_shoot: white smoke shoot effect, white smoke eruption effect
 	ender_dragon_growl: ender dragon growl effect, ender dragon growling effect
-	sculk_charge: sculk charge effect,
-	sculk_shriek: sculk shriek effect,
-	brush_block_complete: brush block complete effect, finish brushing block effect,
+	sculk_charge: sculk charge effect
+	sculk_shriek: sculk shriek effect
+	brush_block_complete: brush block complete effect, finish brushing block effect, brush block effect
 	egg_crack: egg crack effect
 
 	# 26.3
