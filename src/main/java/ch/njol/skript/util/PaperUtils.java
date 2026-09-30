@@ -13,9 +13,9 @@ public class PaperUtils {
 	private static final boolean REGISTRY_KEY_EXISTS = Skript.classExists("io.papermc.paper.registry.RegistryKey");
 
 	/**
-	 * Check if a registry exists within {@link RegistryKey}
-	 * @param registry Registry to check for (Fully qualified name of registry)
-	 * @return True if registry exists else false
+	 * Check if a registry exists within {@link RegistryKey}.
+	 * @param registry Registry to check for.
+	 * @return True if registry exists else false.
 	 */
 	public static boolean registryExists(String registry) {
 		return REGISTRY_ACCESS_EXISTS
@@ -24,21 +24,34 @@ public class PaperUtils {
 	}
 
 	/**
-	 * Gets the Bukkit {@link Registry} from Paper's {@link RegistryKey}.
-	 * @param registry Registry to get (Fully qualified name of registry).
+	 * Gets a Paper {@link RegistryKey}.
+	 * @param registry Registry key to get.
 	 * @return The Bukkit {@link Registry} if registry exists else {@code null}.
 	 */
-	public static <T extends Keyed> @Nullable Registry<T> getBukkitRegistry(String registry) {
+	public static <T extends Keyed> @Nullable RegistryKey<T> getBukkitRegistryKey(String registry) {
 		if (!registryExists(registry))
 			return null;
-        RegistryKey registryKey;
+        RegistryKey<T> registryKey;
         try {
-			registryKey = (RegistryKey) RegistryKey.class.getField(registry).get(null);
+			//noinspection unchecked
+			registryKey = (RegistryKey<T>) RegistryKey.class.getField(registry).get(null);
         } catch (NoSuchFieldException | IllegalAccessException ignored) {
             return null;
         }
-		//noinspection unchecked
-		return (Registry<T>) RegistryAccess.registryAccess().getRegistry(registryKey);
+		return registryKey;
+	}
+
+	/**
+	 * Gets the Bukkit {@link Registry} from Paper's {@link RegistryKey}.
+	 * @param registry Registry to get.
+	 * @return The Bukkit {@link Registry} if registry exists else {@code null}.
+	 */
+	public static <T extends Keyed> @Nullable Registry<T> getBukkitRegistry(String registry) {
+		RegistryKey<T> registryKey = getBukkitRegistryKey(registry);
+		if (registryKey == null) {
+			return null;
+		}
+		return RegistryAccess.registryAccess().getRegistry(registryKey);
 	}
 
 }

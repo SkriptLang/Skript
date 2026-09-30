@@ -367,9 +367,28 @@ public class ParticleEffect extends ParticleBuilder implements Debuggable {
 		return (ParticleEffect) super.offset(offsetX, offsetY, offsetZ);
 	}
 
+	// deprecated since 26.3+
+
+	/**
+	 * @deprecated Use {@link #speed(double)} instead.
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public ParticleEffect extra(double extra) {
 		return (ParticleEffect) super.extra(extra);
+	}
+
+	// 26.3+
+	@Override
+	public ParticleEffect speed(double extra) {
+		return (ParticleEffect) super.speed(extra);
+	}
+
+	// 26.3+
+	@Override
+	public ParticleEffect speed(double x, double y, double z) {
+		return (ParticleEffect) super.speed(x, y, z);
 	}
 
 	@Override
