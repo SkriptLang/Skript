@@ -10,7 +10,10 @@ import org.bukkit.entity.Parrot;
 import org.bukkit.entity.Piglin;
 
 @Name("Is Dancing")
-@Description("Checks to see if an entity is dancing, such as allays, parrots, or piglins.")
+@Description("""
+	Checks to see if an entity is dancing, such as allays, parrots, or piglins.
+	Please note that it is not possible to change whether a parrot is dancing.
+	""")
 @Example("""
 	if last spawned allay is dancing:
 		broadcast "Dance Party!"

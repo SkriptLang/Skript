@@ -32,16 +32,6 @@ public class CondCanPickUpItems extends PropertyCondition<LivingEntity> {
 	}
 
 	@Override
-	protected PropertyType getPropertyType() {
-		return PropertyType.CAN;
-	}
-
-	@Override
-	protected String getPropertyName() {
-		return "pick up items";
-	}
-
-	@Override
 	public boolean acceptChange(ChangeMode mode) {
 		return mode == ChangeMode.SET;
 	}
@@ -49,6 +39,16 @@ public class CondCanPickUpItems extends PropertyCondition<LivingEntity> {
 	@Override
 	public void change(LivingEntity livingEntity, boolean canPickUpItems, ChangeMode mode) {
 		livingEntity.setCanPickupItems(canPickUpItems);
+	}
+
+	@Override
+	protected PropertyType getPropertyType() {
+		return PropertyType.CAN;
+	}
+
+	@Override
+	protected String getPropertyName() {
+		return "pick up items";
 	}
 
 }

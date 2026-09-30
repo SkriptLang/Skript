@@ -192,7 +192,7 @@ public abstract class PropertyCondition<T> extends Condition implements Predicat
 	 * Changes the value of the property this condition represents for a property holder.
 	 * @param what The property holder.
 	 * @param deltaValue The new value.
-	 *              This is always false for {@link ChangeMode#DELETE} and {@link ChangeMode#RESET}.
+	 *  This is always false for {@link ChangeMode#DELETE} and {@link ChangeMode#RESET}.
 	 * @param mode The type of change to perform.
 	 */
 	protected void change(T what, boolean deltaValue, ChangeMode mode) { }

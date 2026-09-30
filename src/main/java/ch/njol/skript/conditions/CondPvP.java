@@ -11,6 +11,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.GameRule;
+import org.bukkit.GameRules;
 import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -24,6 +25,9 @@ public class CondPvP extends Condition {
 
 	// Added in 1.21.9
 	private static final boolean PVP_GAME_RULE_EXISTS = Skript.fieldExists(GameRule.class, "PVP");
+
+	// Added in 1.21.11
+	private static final boolean GAME_RULES_CLASS_EXISTS = Skript.classExists("org.bukkit.GameRules");
 	
 	static {
 		Skript.registerCondition(CondPvP.class, "(is PvP|PvP is) enabled [in %worlds%]", "(is PvP|PvP is) disabled [in %worlds%]");
@@ -42,6 +46,8 @@ public class CondPvP extends Condition {
 	
 	@Override
 	public boolean check(Event event) {
+		if (GAME_RULES_CLASS_EXISTS)
+			return worlds.check(event, world -> world.getGameRuleValue(GameRules.PVP), isNegated());
 		if (PVP_GAME_RULE_EXISTS)
 			return worlds.check(event, world -> world.getGameRuleValue(GameRule.PVP), isNegated());
 		return worlds.check(event, world -> world.getPVP(), isNegated());
@@ -55,7 +61,9 @@ public class CondPvP extends Condition {
 	@Override
 	public void change(Event event, boolean enable, ChangeMode mode) {
 		for (World world : worlds.getArray(event)) {
-			if (PVP_GAME_RULE_EXISTS) {
+			if (GAME_RULES_CLASS_EXISTS) {
+				world.setGameRule(GameRules.PVP, enable);
+			} else if (PVP_GAME_RULE_EXISTS) {
 				world.setGameRule(GameRule.PVP, enable);
 			} else {
 				world.setPVP(enable);

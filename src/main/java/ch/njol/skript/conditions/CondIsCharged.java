@@ -12,7 +12,10 @@ import org.bukkit.entity.Wither;
 import org.bukkit.entity.WitherSkull;
 
 @Name("Is Charged")
-@Description("Checks if a creeper, wither, or wither skull is charged (powered).")
+@Description("""
+	Checks if a creeper, wither, or wither skull is charged (powered).
+	Please note that it is not possible to change whether a wither is charged.
+	""")
 @Example("""
 	if the last spawned creeper is charged:
 		broadcast "A charged creeper is at %location of last spawned creeper%"
@@ -43,10 +46,11 @@ public class CondIsCharged extends PropertyCondition<Entity> {
 
 	@Override
 	protected void change(Entity entity, boolean charged, ChangeMode mode) {
-		if (entity instanceof Creeper creeper) {
-			creeper.setPowered(charged);
-		} else if (entity instanceof WitherSkull witherSkull) {
-			witherSkull.setCharged(charged);
+		switch (entity) {
+			case Creeper creeper -> creeper.setPowered(charged);
+			case WitherSkull witherSkull -> witherSkull.setCharged(charged);
+			case Wither ignored -> error("It is not possible to change whether a wither is charged.");
+			default -> { }
 		}
 	}
 
