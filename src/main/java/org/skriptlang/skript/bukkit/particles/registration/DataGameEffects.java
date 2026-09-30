@@ -105,15 +105,20 @@ public class DataGameEffects {
 			DataSupplier::getCartesianBlockFaceData,
 			(exprs, parseResult, builder) -> builder.append("white smoke effect in direction", exprs[0]));
 
-		Effect destroyBlockEffect = isRunning26_2 ? Effect.DESTROY_BLOCK : Effect.STEP_SOUND;
-		registerEffect(destroyBlockEffect, "%itemtype/blockdata% ([foot]step[s]|break|destroy) effect",
+		registerEffect(Effect.STEP_SOUND, "%itemtype/blockdata% [foot]step[s] sound [effect]",
 			DataSupplier::getBlockData,
 			(exprs, parseResult, builder) -> builder.append(exprs[0], "footstep sound"));
+
+		if (isRunning26_2) {
+			registerEffect(Effect.DESTROY_BLOCK, "%itemtype/blockdata% (break|destroy) effect",
+				DataSupplier::getBlockData,
+				(exprs, parseResult, builder) -> builder.append(exprs[0], "destroy effect"));
+		}
 
 		if (isRunning26_3) {
 			registerEffect(Effect.DESTROY_BLOCK_WITH_SOUND, "%itemtype/blockdata% (break|destroy) effect with sound",
 				DataSupplier::getBlockData,
-				(exprs, parseResult, builder) -> builder.append(exprs[0], "footstep sound"));
+				(exprs, parseResult, builder) -> builder.append(exprs[0], "destroy effect with sound"));
 
 			registerEffect(Effect.DESTROY_PROGRESS, "destroy progress effect on the %direction% [side|face]",
 				DataSupplier::getCartesianBlockFaceData,
