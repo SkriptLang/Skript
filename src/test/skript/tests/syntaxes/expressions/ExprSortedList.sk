@@ -1,3 +1,7 @@
+using error catching
+
+# --- Pattern 0: sorted %objects% (natural order) ---
+
 test "sort":
 	# Populate list
 	set {_i} to 0
@@ -17,4 +21,248 @@ test "sort":
 			assert loop-value >= {_prev} with "Couldn't sort correctly"
 		set {_prev} to loop-value
 
-	assert (sorted 1 and "test") is not set with "Sorting incomparable values returned a value"
+	catch runtime errors:
+		assert (sorted 1 and "test") is not set with "Sorting incomparable values returned a value"
+
+# --- Patterns 1 & 2: ascending/descending order ---
+
+test "sorted expression with sort order":
+	set {_numbers::*} to shuffled integers from 1 to 50
+	assert ({_numbers::*} sorted in ascending order) is integers from 1 to 50 with "ascending sorted expression failed"
+
+	set {_numbers::*} to shuffled integers from 1 to 50
+	assert ({_numbers::*} sorted in descending order) is integers from 50 to 1 with "descending sorted expression failed"
+
+# --- Patterns 1 & 2: sort by with InputSource ---
+
+test "sorted expression with sort by":
+	# identity mapping
+	set {_numbers::*} to shuffled integers from 1 to 5
+	assert ({_numbers::*} sorted by (input)) is integers from 1 to 5 with "sort by input (identity) failed"
+
+	# ascending + sort by
+	set {_numbers::*} to shuffled integers from 1 to 5
+	assert ({_numbers::*} sorted in ascending order by (input)) is integers from 1 to 5 with "ascending sort by input failed"
+
+	# descending + sort by
+	set {_numbers::*} to shuffled integers from 1 to 5
+	assert ({_numbers::*} sorted in descending order by (input)) is integers from 5 to 1 with "descending sort by input failed"
+
+	# linear transform preserves order
+	set {_numbers::*} to shuffled integers from 1 to 5
+	assert ({_numbers::*} sorted by (input * 20 + 4 - 3)) is integers from 1 to 5 with "sort by linear transform failed"
+
+	# codepoint-based sort
+	set {_chars::*} to shuffled characters between "a" and "f"
+	assert ({_chars::*} sorted based on (codepoint of input)) is characters between "a" and "f" with "sort by codepoint failed"
+
+	# mixed types sorted by string conversion
+	set {_mixed::*} to shuffled (characters between "a" and "f", integers from 1 to 5)
+	assert ({_mixed::*} sorted by ("%input%")) is 1, 2, 3, 4, 5, and characters between "a" and "f" with "sort by string conversion failed"
+
+	# null mapped value produces runtime error
+	catch runtime errors:
+		set {_numbers::*} to shuffled integers from 1 to 5
+		assert ({_numbers::*} sorted by ("%input%" parsed as time)) is not set with "sort by null mapping returned a value"
+
+	# empty list
+	assert ({_empty::*} sorted by (input)) is not set with "sort by on empty list returned a value"
+
+	# sort by index (keyed mapped sort)
+	set {_list::x} to 1
+	set {_list::aa} to 2
+	set {_list::bxs} to 3
+	set {_list::zysa} to 4
+	set {_list::aaaaa} to 5
+	set {_sorted::*} to {_list::*} sorted by (length of input index)
+	assert {_sorted::*} is integers from 1 to 5 with "sort by index length failed"
+
+# --- bracket delimiter (pattern 2) ---
+
+test "sorted by bracket delimiter":
+	set {_numbers::*} to shuffled integers from 1 to 5
+	assert ({_numbers::*} sorted by [input]) is integers from 1 to 5 with "bracket delimiter sort failed"
+
+	set {_numbers::*} to shuffled integers from 1 to 5
+	assert ({_numbers::*} sorted in descending order by [input]) is integers from 5 to 1 with "bracket delimiter descending sort failed"
+
+# --- edge cases: single element, duplicates, negatives, already sorted ---
+
+test "sorted edge cases":
+	# single element list
+	set {_one::*} to 42
+	assert (sorted {_one::*}) is 42 with "single element sort failed"
+
+	# already sorted
+	set {_sorted::*} to 1, 2, 3, 4 and 5
+	assert (sorted {_sorted::*}) is 1, 2, 3, 4 and 5 with "already sorted list changed"
+
+	# reverse sorted input
+	set {_rev::*} to 5, 4, 3, 2 and 1
+	assert (sorted {_rev::*}) is 1, 2, 3, 4 and 5 with "reverse sorted input failed"
+
+	# duplicates preserved
+	set {_dups::*} to 3, 1, 2, 1 and 3
+	assert (sorted {_dups::*}) is 1, 1, 2, 3 and 3 with "sort with duplicates failed"
+
+	# negative numbers
+	set {_neg::*} to shuffled (-5, -3, -1, 0, 2 and 4)
+	assert (sorted {_neg::*}) is -5, -3, -1, 0, 2 and 4 with "sort with negatives failed"
+
+	# decimals
+	set {_dec::*} to shuffled (0.1, 0.5, 0.3 and 0.9)
+	assert (sorted {_dec::*}) is 0.1, 0.3, 0.5 and 0.9 with "sort with decimals failed"
+
+	# empty list
+	assert (sorted {_empty::*}) is not set with "sort empty list returned a value"
+
+# --- string sorting (case-insensitive) ---
+
+test "sorted strings case insensitive":
+	set {_strs::*} to "Banana", "apple", "Cherry" and "date"
+	assert (sorted {_strs::*}) is "apple", "Banana", "Cherry" and "date" with "case-insensitive sort failed"
+
+	assert ({_strs::*} sorted in descending order) is "date", "Cherry", "Banana" and "apple" with "case-insensitive descending sort failed"
+
+# --- keyed iteration: loop-index retention ---
+
+test "sorted keyed iteration":
+	set {_scores::alice} to 30
+	set {_scores::bob} to 10
+	set {_scores::charlie} to 20
+
+	set {_i} to 0
+	loop sorted {_scores::*}:
+		add 1 to {_i}
+		if {_i} is 1:
+			assert loop-index is "bob" with "keyed sort: first index wrong"
+			assert loop-value is 10 with "keyed sort: first value wrong"
+		else if {_i} is 2:
+			assert loop-index is "charlie" with "keyed sort: second index wrong"
+			assert loop-value is 20 with "keyed sort: second value wrong"
+		else if {_i} is 3:
+			assert loop-index is "alice" with "keyed sort: third index wrong"
+			assert loop-value is 30 with "keyed sort: third value wrong"
+
+test "sorted keyed iteration descending":
+	set {_scores::alice} to 30
+	set {_scores::bob} to 10
+	set {_scores::charlie} to 20
+
+	set {_i} to 0
+	loop {_scores::*} sorted in descending order:
+		add 1 to {_i}
+		if {_i} is 1:
+			assert loop-index is "alice" with "keyed desc sort: first index wrong"
+			assert loop-value is 30 with "keyed desc sort: first value wrong"
+		else if {_i} is 2:
+			assert loop-index is "charlie" with "keyed desc sort: second index wrong"
+			assert loop-value is 20 with "keyed desc sort: second value wrong"
+		else if {_i} is 3:
+			assert loop-index is "bob" with "keyed desc sort: third index wrong"
+			assert loop-value is 10 with "keyed desc sort: third value wrong"
+
+# --- keyed sort by (keyed + mapped) ---
+
+test "sorted keyed with sort by":
+	set {_data::alice} to 30
+	set {_data::bob} to 10
+	set {_data::charlie} to 20
+
+	# sort by index length (keyed mapped sort path)
+	set {_sorted::*} to {_data::*} sorted by (length of input index)
+	assert {_sorted::*} is 10, 30 and 20 with "keyed sort by index length: values wrong"
+
+	# sort by value with descending
+	set {_i} to 0
+	loop {_data::*} sorted in descending order by (input):
+		add 1 to {_i}
+		if {_i} is 1:
+			assert loop-index is "alice" with "keyed desc sort by: first index wrong"
+		else if {_i} is 2:
+			assert loop-index is "charlie" with "keyed desc sort by: second index wrong"
+		else if {_i} is 3:
+			assert loop-index is "bob" with "keyed desc sort by: third index wrong"
+
+# --- keyed sort by with null mapped value ---
+
+test "sorted keyed with null mapping":
+	set {_data::a} to 1
+	set {_data::b} to 2
+	set {_data::c} to 3
+	catch runtime errors:
+		assert ({_data::*} sorted by ("%input%" parsed as time)) is not set with "keyed null mapping returned a value"
+
+# --- duplicates with sort by ---
+
+test "sorted by preserves duplicates":
+	set {_levels::a} to 1
+	set {_levels::b} to 2
+	set {_items::*} to shuffled "a", "a" and "b"
+	set {_sorted::*} to {_items::*} sorted in descending order by ({_levels::%input%})
+	assert {_sorted::*} is "b", "a" and "a" with "sort by with duplicates collapsed or reordered"
+
+# --- sort by with complex expressions ---
+
+test "sorted by complex mapping":
+	# negative mapping reverses order
+	set {_numbers::*} to shuffled integers from 1 to 5
+	assert ({_numbers::*} sorted by (input * -1)) is integers from 5 to 1 with "sort by negation failed"
+
+	# absolute value mapping
+	set {_mixed::*} to shuffled (-3, -1, 0, 2 and 4)
+	set {_sorted::*} to {_mixed::*} sorted by (abs(input))
+	assert first element of {_sorted::*} is 0 with "sort by abs: first element wrong"
+	assert last element of {_sorted::*} is 4 with "sort by abs: last element wrong"
+
+	# modulo mapping
+	set {_numbers::*} to 10, 7, 3, 8 and 5
+	set {_sorted::*} to {_numbers::*} sorted by (mod(input, 3))
+	assert first element of {_sorted::*} is 3 with "sort by mod: first element wrong (3 mod 3 = 0)"
+
+# --- type conversion: getConvertedExpression with mappingExpr ---
+
+test "sorted by with type conversion":
+	# 'health of' requires %living entities%; 'all entities' returns %entities%,
+	# forcing getConvertedExpression(LivingEntity.class) on the sorted-by expression.
+	delete all entities in radius 50 around test-location
+	spawn a zombie at test-location:
+		set {_z1} to entity
+		set entity's name to "charlie"
+	spawn a zombie at test-location:
+		set {_z2} to entity
+		set entity's name to "alpha"
+	spawn a zombie at test-location:
+		set {_z3} to entity
+		set entity's name to "bravo"
+
+	set {_names::*} to names of ((all entities in radius 2 around test-location) sorted by (input's name))
+	assert {_names::*} is "alpha", "bravo" and "charlie" with "sorted-by input name failed"
+	set {_healths::*} to health of ((all entities in radius 2 around test-location) sorted by (input's name))
+	assert size of {_healths::*} is 3 with "sorted-by entity conversion failed"
+
+	delete entity within {_z1}
+	delete entity within {_z2}
+	delete entity within {_z3}
+
+# --- original list is not mutated ---
+
+test "sorted does not mutate source":
+	set {_original::*} to 5, 3, 1, 4 and 2
+	set {_sorted::*} to sorted {_original::*}
+	assert {_sorted::*} is 1, 2, 3, 4 and 5 with "sorted result wrong"
+	assert {_original::*} is 5, 3, 1, 4 and 2 with "original list was mutated by sorted expression"
+
+	set {_original2::*} to 5, 3, 1, 4 and 2
+	set {_sorted2::*} to {_original2::*} sorted in descending order by (input)
+	assert {_sorted2::*} is 5, 4, 3, 2 and 1 with "sorted by result wrong"
+	assert {_original2::*} is 5, 3, 1, 4 and 2 with "original list was mutated by sorted by expression"
+
+# --- large list ---
+
+test "sorted large list":
+	set {_big::*} to shuffled integers from 1 to 500
+	assert (sorted {_big::*}) is integers from 1 to 500 with "large list sort failed"
+
+	set {_big::*} to shuffled integers from 1 to 500
+	assert ({_big::*} sorted in descending order) is integers from 500 to 1 with "large list descending sort failed"
