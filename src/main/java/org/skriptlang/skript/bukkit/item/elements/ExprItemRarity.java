@@ -40,7 +40,8 @@ public class ExprItemRarity extends SimplePropertyExpression<ItemType, ItemRarit
 
 	@Override
 	public @Nullable ItemRarity convert(ItemType item) {
-		return item.getRandom() != null ? item.getRandom().getData(DataComponentTypes.RARITY) : null;
+		var itemStack = item.getRandom();
+		return itemStack != null ? itemStack.getData(DataComponentTypes.RARITY) : null;
 	}
 
 	@Override
