@@ -66,11 +66,20 @@ public abstract class Functions {
 		if (!name.matches(functionNamePattern))
 			throw new SkriptAPIException("Invalid function name '%s'".formatted(name));
 
+		for (String s : function.signature().aliases()) {
+			if (!s.matches(functionNamePattern))
+				throw new SkriptAPIException("Invalid function name '%s'".formatted(name));
+		}
+
 		if (javaNamespace.getSignature(name) == null) {
 			javaNamespace.addSignature((Signature<?>) function.signature());
 			javaNamespace.addFunction((Function<?>) function);
 		}
+
 		globalFunctions.put(function.name(), javaNamespace);
+		for (String alias : function.signature().aliases()) {
+			globalFunctions.put(alias, javaNamespace);
+		}
 
 		FunctionRegistry.getRegistry().register(null, (Function<?>) function);
 
