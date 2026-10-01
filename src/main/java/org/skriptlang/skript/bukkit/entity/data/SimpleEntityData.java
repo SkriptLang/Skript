@@ -137,9 +137,6 @@ public class SimpleEntityData extends EntityData<Entity> implements EntityItemTy
 
 		//<editor-fold desc="1.9" defaultstate="collapsed">
 		buildSimple(AreaEffectCloud.class, "area effect cloud:s @an", "area effect cloud[plural:s]");
-		simpleEntity(Shulker.class, "shulker:s @a", "shulker[plural:s]")
-			.itemTypeComparator(Material.SHULKER_BOX)
-			.build();
 		buildSimple(ShulkerBullet.class, "shulker bullet:s @a", "shulker bullet[plural:s]");
 		simpleEntity(SpectralArrow.class, "spectral arrow:s @a", "spectral[ ]arrow[plural:s]")
 			.itemTypeComparator(Material.SPECTRAL_ARROW)
@@ -314,6 +311,15 @@ public class SimpleEntityData extends EntityData<Entity> implements EntityItemTy
 
 		if (Skript.isRunningMinecraft(26, 2)) {
 			buildSimple(SulfurCube.class, "sulfur cube:s @a", "sulfur (cube|slime)[plural:s]");
+		}
+
+		if (Skript.isRunningMinecraft(26, 3)) {
+			simpleEntity(PoplarBoat.class, "poplar boat:s @a", "poplar boat[plural:s]")
+				.itemTypeComparator(Material.POPLAR_BOAT)
+				.build();
+			simpleEntity(PoplarChestBoat.class, "poplar chest boat:s @a", "poplar chest boat[plural:s]")
+				.itemTypeComparator(Material.POPLAR_CHEST_BOAT)
+				.build();
 		}
 
 		//<editor-fold desc="Super Types" defaultstate="collapsed">

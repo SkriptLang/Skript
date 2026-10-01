@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.entity;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
@@ -136,6 +137,7 @@ public class EntityModule extends HierarchicalAddonModule {
 		RabbitData.register();
 		SalmonData.register();
 		SheepData.register();
+		ShulkerData.register();
 		StriderData.register();
 		ThrownPotionData.register();
 		TropicalFishData.register();
@@ -143,6 +145,10 @@ public class EntityModule extends HierarchicalAddonModule {
 		WolfData.register();
 		XpOrbData.register();
 		ZombieVillagerData.register();
+
+		if (Skript.isRunningMinecraft(26, 3)) {
+			CushionData.register();
+		}
 	}
 	//</editor-fold>
 

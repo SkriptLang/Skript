@@ -52,7 +52,7 @@ public class EntityType
 		return new EntityType(data, amount);
 	}
 
-	private int amount = -1;
+	private int entityAmount = -1;
 
 	private EntityData<?> data;
 
@@ -63,7 +63,7 @@ public class EntityType
 	public EntityType() {
 		super();
 		data = null;
-		amount = 1;
+		entityAmount = 1;
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class EntityType
 		super();
 		assert data != null;
 		this.data = data;
-		this.amount = amount;
+		this.entityAmount = amount;
 	}
 
 	/**
@@ -83,7 +83,7 @@ public class EntityType
 	 * @param other The other {@link EntityType} to copy from.
 	 */
 	private EntityType(EntityType other) {
-		amount = other.amount;
+		entityAmount = other.entityAmount;
 		data = other.data;
 	}
 
@@ -101,7 +101,7 @@ public class EntityType
 	public String toString() {
 		if (getAmount() == 1)
 			return data.toString(0);
-		return amount + " " + data.toString(Language.F_PLURAL);
+		return entityAmount + " " + data.toString(Language.F_PLURAL);
 	}
 
 	/**
@@ -112,22 +112,22 @@ public class EntityType
 	public String toString(int flags) {
 		if (getAmount() == 1)
 			return data.toString(flags);
-		return amount + " " + data.toString(flags | Language.F_PLURAL);
+		return entityAmount + " " + data.toString(flags | Language.F_PLURAL);
 	}
 
 	/**
 	 * @return The amount of {@code this} corresponds to with {@link #data}.
 	 */
 	public int getAmount() {
-		return amount == -1 ? 1 : amount;
+		return entityAmount == -1 ? 1 : entityAmount;
 	}
 
 	/**
 	 * Sets the amount {@code this} corresponds to with {@link #data}.
-	 * @param amount The new amount.
+	 * @param entityAmount The new amount.
 	 */
-	public void setAmount(int amount) {
-		this.amount = amount;
+	public void setAmount(int entityAmount) {
+		this.entityAmount = entityAmount;
 	}
 
 	/**
@@ -156,7 +156,7 @@ public class EntityType
 	public int hashCode() {
 		int prime = 31;
 		int result = 1;
-		result = prime * result + amount;
+		result = prime * result + entityAmount;
 		result = prime * result + data.hashCode();
 		return result;
 	}
@@ -165,7 +165,7 @@ public class EntityType
 	public boolean equals(@Nullable Object obj) {
 		if (!(obj instanceof EntityType other))
 			return false;
-		return amount == other.amount && data.equals(other.data);
+		return entityAmount == other.entityAmount && data.equals(other.data);
 	}
 	
 }

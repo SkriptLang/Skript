@@ -1,31 +1,31 @@
-package ch.njol.skript.entity;
+package org.skriptlang.skript.bukkit.entity.data;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.localization.Adjective;
 import ch.njol.skript.util.Color;
+import ch.njol.skript.util.SkriptColor;
 import org.bukkit.DyeColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.material.Colorable;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.entity.EntityData;
 
 import java.util.Objects;
 
-/**
- * Abstract class for handling simple, colorable entity datas, such as shulkers and cushions.
- */
 public abstract class ColorableEntityData<T extends Entity & Colorable> extends EntityData<T> {
 
 	protected @Nullable DyeColor color = null;
 
-	public ColorableEntityData() { }
+	public ColorableEntityData() {}
 
 	public ColorableEntityData(@Nullable DyeColor color) {
 		this.color = color;
-		super.codeNameIndex = 0;
+		super.groupIndex = 0;
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
 		if (exprs[0] != null) {
 			//noinspection unchecked
 			this.color = ((Literal<Color>) exprs[0]).getSingle().asDyeColor();
@@ -37,16 +37,15 @@ public abstract class ColorableEntityData<T extends Entity & Colorable> extends 
 	protected boolean init(@Nullable Class<? extends T> entityClass, @Nullable T colorable) {
 		if (colorable != null) {
 			color = colorable.getColor();
-			super.codeNameIndex = 0;
+			super.groupIndex = 0;
 		}
 		return true;
 	}
 
 	@Override
 	public void set(T colorable) {
-		if (color != null) {
+		if (color != null)
 			colorable.setColor(color);
-		}
 	}
 
 	@Override
@@ -71,6 +70,22 @@ public abstract class ColorableEntityData<T extends Entity & Colorable> extends 
 		if (!(entityData instanceof ColorableEntityData<?> other) || getClass() != other.getClass())
 			return false;
 		return dataMatch(color, other.color);
+	}
+
+	@Override
+	public String toString(int flags) {
+		StringBuilder builder = new StringBuilder();
+		if (color != null) {
+			SkriptColor skriptColor = SkriptColor.fromDyeColor(color);
+			if (skriptColor != null) {
+				Adjective adjective = skriptColor.getAdjective();
+				if (adjective != null)
+					builder.append(adjective.toString(getName().getGender(), flags))
+						.append(" ");
+			}
+		}
+		builder.append(getName().toString(flags));
+		return builder.toString();
 	}
 
 }
