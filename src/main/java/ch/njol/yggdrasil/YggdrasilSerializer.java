@@ -16,12 +16,12 @@ public abstract class YggdrasilSerializer<T> implements ClassResolver {
 	public abstract Class<? extends T> getClass(String id);
 	
 	/**
-	 * Serialises the given object.
+	 * Serializes the given object.
 	 * <p>
-	 * Use <tt>return new {@link Fields#Fields(Object) Fields}(this);</tt> to emulate the default behaviour.
+	 * Use <tt>return new {@link Fields#Fields(Object) Fields}(this);</tt> to emulate the default behavior.
 	 * 
-	 * @param object The object to serialise
-	 * @return A Fields object representing the object's fields to serialise. Must not be null.
+	 * @param object The object to serialize
+	 * @return A Fields object representing the object's fields to serialize. Must not be null.
 	 * @throws NotSerializableException If this object could not be serialized
 	 */
 	public abstract Fields serialize(T object) throws NotSerializableException;
@@ -54,7 +54,7 @@ public abstract class YggdrasilSerializer<T> implements ClassResolver {
 	/**
 	 * Deserializes an object.
 	 * <p>
-	 * Use <tt>fields.{@link Fields#setFields(Object) setFields}(o);</tt> to emulate the default behaviour.
+	 * Use <tt>fields.{@link Fields#setFields(Object) setFields}(o);</tt> to emulate the default behavior.
 	 * 
 	 * @param object The object to deserialize as returned by {@link #newInstance(Class)}.
 	 * @param fields The fields read from stream

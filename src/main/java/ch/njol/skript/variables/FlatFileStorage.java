@@ -8,7 +8,6 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.Task;
-import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Version;
 import ch.njol.util.NotifyingReference;
 import org.jetbrains.annotations.Nullable;
@@ -24,6 +23,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -108,7 +108,7 @@ public class FlatFileStorage extends VariablesStorage {
 	/**
 	 * Create a new CSV storage of the given name.
 	 *
-	 * @param type the databse type i.e. CSV.
+	 * @param type the database type i.e. CSV.
 	 */
 	FlatFileStorage(String type) {
 		super(type);
@@ -120,7 +120,6 @@ public class FlatFileStorage extends VariablesStorage {
 	 * Doesn't lock the connection, as required by
 	 * {@link Variables#variableLoaded(String, Object, VariablesStorage)}.
 	 */
-	@SuppressWarnings("deprecation")
 	@Override
 	protected boolean load_i(SectionNode sectionNode) {
 		SkriptLogger.setNode(null);
@@ -171,7 +170,7 @@ public class FlatFileStorage extends VariablesStorage {
 					// Invalid CSV line
 
 					Skript.error("invalid amount of commas in line " + lineNum + " ('" + line + "')");
-					if (invalid.length() != 0)
+					if (!invalid.isEmpty())
 						invalid.append(", ");
 
 					invalid.append(split == null ? "<unknown>" : split[0]);
@@ -185,6 +184,7 @@ public class FlatFileStorage extends VariablesStorage {
 					Object deserializedValue;
 					if (update2_1) {
 						// Use old deserialization if variables come from old Skript version
+						// noinspection removal
 						deserializedValue = Classes.deserialize(split[1], split[2]);
 					} else {
 						deserializedValue = Classes.deserialize(split[1], decode(split[2]));
@@ -192,7 +192,7 @@ public class FlatFileStorage extends VariablesStorage {
 
 					if (deserializedValue == null) {
 						// Couldn't deserialize variable
-						if (invalid.length() != 0)
+						if (!invalid.isEmpty())
 							invalid.append(", ");
 
 						invalid.append(split[0]);
@@ -213,7 +213,7 @@ public class FlatFileStorage extends VariablesStorage {
 			if (unsuccessfulVariableCount > 0) {
 				Skript.error(unsuccessfulVariableCount + " variable" + (unsuccessfulVariableCount == 1 ? "" : "s") +
 						" could not be loaded!");
-				Skript.error("Affected variables: " + invalid.toString());
+				Skript.error("Affected variables: " + invalid);
 			}
 
 			if (ioException != null) {
@@ -321,7 +321,7 @@ public class FlatFileStorage extends VariablesStorage {
 	}
 
 	@Override
-	protected boolean save(String name, @Nullable String type, @Nullable byte[] value) {
+	protected boolean save(String name, @Nullable String type, byte @Nullable [] value) {
 		synchronized (connectionLock) {
 			synchronized (changesWriter) {
 				if (!loaded && type == null) {
@@ -401,7 +401,7 @@ public class FlatFileStorage extends VariablesStorage {
 					//  the data in the actual file may be partially lost)
 					File tempFile = new File(file.getParentFile(), file.getName() + ".temp");
 
-					try (PrintWriter pw = new PrintWriter(tempFile, "UTF-8")) {
+					try (PrintWriter pw = new PrintWriter(tempFile, StandardCharsets.UTF_8)) {
 						pw.println("# === Skript's variable storage ===");
 						pw.println("# Please do not modify this file manually!");
 						pw.println("#");
@@ -529,51 +529,71 @@ public class FlatFileStorage extends VariablesStorage {
 	}
 
 	/**
-	 * A regex pattern of a line in a CSV file.
-	 * <ul>
-	 * <li>{@code (?<=^|,)}: assert that the match is preceded by the start of the line or a comma</li>
-	 * <li>{@code (?:([^",]*)|"((?:[^"]+|"")*)")}: match either a quoted or unquoted value</li>
-	 * <ul>
-	 * 	<li>- {@code ([^",]*)}: match an unquoted value</li>
-	 * 	<li>- {@code "((?:[^"]+|"")*)"}: match a quoted value</li>
-	 * </ul>
-	 * <li>{@code (?:,|$)}: match either a comma or the end of the line</li>
-	 * </ul>
-	 */
-	private static final Pattern CSV_LINE_PATTERN = Pattern.compile("(?<=^|,)\\s*(?:([^\",]*)|\"((?:[^\"]+|\"\")*)\")\\s*(?:,|$)");
-
-	/**
 	 * Splits the given CSV line into its values.
+	 * Supports quoted fields (which may contain commas) and doubled-quote
+	 * escaping ("" -> ") inside quoted fields. Unquoted values are trimmed;
+	 * quoted values are taken verbatim (aside from unescaping).
 	 *
 	 * @param line the CSV line.
-	 * @return the array of values.
-	 *
-	 * @see #CSV_LINE_PATTERN
+	 * @return the array of values, or null if the line is malformed.
 	 */
 	@Nullable
 	static String[] splitCSV(String line) {
-		Matcher matcher = CSV_LINE_PATTERN.matcher(line);
+		int n = line.length();
+		int pos = 0;
+		List<String> result = new ArrayList<>();
 
-		int lastEnd = 0;
-		ArrayList<String> result = new ArrayList<>();
+		while (true) {
+			// skip leading whitespace before a value
+			while (pos < n && Character.isWhitespace(line.charAt(pos)))
+				pos++;
 
-		while (matcher.find()) {
-			if (lastEnd != matcher.start())
-				return null; // other stuff in between finds
+			if (pos < n && line.charAt(pos) == '"') {
+				// quoted value
+				pos++; // consume opening quote
+				StringBuilder value = new StringBuilder();
+				boolean closed = false;
+				while (pos < n) {
+					char c = line.charAt(pos);
+					if (c == '"') {
+						if (pos + 1 < n && line.charAt(pos + 1) == '"') {
+							value.append('"'); // escaped quote
+							pos += 2;
+						} else {
+							pos++; // consume closing quote
+							closed = true;
+							break;
+						}
+					} else {
+						value.append(c);
+						pos++;
+					}
+				}
+				if (!closed)
+					return null; // unterminated quoted value
 
-			if (matcher.group(1) != null) {
-				// unquoted, leave as is
-				result.add(matcher.group(1).trim());
+				// skip trailing whitespace after the closing quote
+				while (pos < n && Character.isWhitespace(line.charAt(pos)))
+					pos++;
+
+				result.add(value.toString());
 			} else {
-				// quoted, remove quotes
-				result.add(matcher.group(2).replace("\"\"", "\""));
+				// unquoted value: read until comma, rejecting stray quotes
+				int start = pos;
+				while (pos < n && line.charAt(pos) != ',') {
+					if (line.charAt(pos) == '"')
+						return null; // quote in the middle of an unquoted value
+					pos++;
+				}
+				result.add(line.substring(start, pos).trim());
 			}
 
-			lastEnd = matcher.end();
+			if (pos >= n)
+				break; // end of line, done
+			if (line.charAt(pos) != ',')
+				return null; // expected a comma here, found something else
+			pos++; // consume the comma and parse the next value
 		}
-
-		if (lastEnd != line.length())
-			return null; // other stuff after last find
 
 		return result.toArray(new String[0]);
 	}
@@ -619,7 +639,6 @@ public class FlatFileStorage extends VariablesStorage {
 	/**
 	 * Change the required amount of variable changes until variables are saved.
 	 * Cannot be zero or less.
-	 * @param value
 	 */
 	public static void setRequiredChangesForResave(int value) {
 		if (value <= 0) {

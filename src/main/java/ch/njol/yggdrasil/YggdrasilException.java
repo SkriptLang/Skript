@@ -1,5 +1,7 @@
 package ch.njol.yggdrasil;
 
+import java.io.Serial;
+
 /**
  * Thrown if the object(s) that should be saved/loaded with Yggdrasil do
  * not comply with its requirements, or if Yggdrasil is used incorrectly.
@@ -8,6 +10,7 @@ package ch.njol.yggdrasil;
  */
 public final class YggdrasilException extends RuntimeException {
 	
+	@Serial
 	private static final long serialVersionUID = -6130660396780458226L;
 	
 	public YggdrasilException(String message) {
