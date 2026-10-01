@@ -10,7 +10,9 @@ import org.skriptlang.skript.bukkit.text.TextComponentParser;
 /**
  * Holds info about the usage of a command.
  * TODO: replace with record when java 17
+ * @deprecated There is no direct replacement for this class.
  */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class CommandUsage {
 
 	/**

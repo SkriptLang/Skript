@@ -2,6 +2,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
@@ -57,6 +58,28 @@ public class CondTooltip extends Condition {
 		if (entire)
 			return items.check(event, item -> item.getItemMeta().isHideTooltip(), isNegated());
 		return items.check(event, item -> item.getItemMeta().hasItemFlag(ItemFlag.HIDE_ADDITIONAL_TOOLTIP), isNegated());
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	public void change(Event event, boolean hideTooltip, ChangeMode mode) {
+		for (ItemType item : items.getArray(event)) {
+			ItemMeta meta = item.getItemMeta();
+			if (entire) {
+				meta.setHideTooltip(hideTooltip);
+			} else {
+				if (hideTooltip) {
+					meta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
+				} else {
+					meta.removeItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
+				}
+			}
+			item.setItemMeta(meta);
+		}
 	}
 
 	@Override

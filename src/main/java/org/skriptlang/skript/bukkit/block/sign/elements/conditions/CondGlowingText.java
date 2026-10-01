@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.block.sign.elements.conditions;
 
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
@@ -16,6 +17,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.block.sign.Side;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -58,6 +60,32 @@ public class CondGlowingText extends PropertyCondition<Object> {
 			return sign.getSide(side).isGlowingText();
 		}
 		return false;
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET || mode == ChangeMode.RESET;
+	}
+
+	@Override
+	protected void change(Object object, boolean glowing, ChangeMode mode) {
+		if (object instanceof Block block) {
+			BlockState state = block.getState();
+			if (state instanceof Sign sign) {
+				sign.getSide(side).setGlowingText(glowing);
+				sign.update();
+			}
+		} else if (object instanceof ItemType itemType) {
+			ItemMeta meta = itemType.getItemMeta();
+			if (meta instanceof BlockStateMeta blockStateMeta) {
+				BlockState state = blockStateMeta.getBlockState();
+				if (state instanceof Sign sign) {
+					sign.getSide(side).setGlowingText(glowing);
+					blockStateMeta.setBlockState(sign);
+					itemType.setItemMeta(meta);
+				}
+			}
+		}
 	}
 
 	@Override

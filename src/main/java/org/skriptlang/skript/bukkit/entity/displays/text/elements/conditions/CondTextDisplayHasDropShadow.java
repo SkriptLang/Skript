@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.entity.displays.text.elements.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -49,6 +50,18 @@ public class CondTextDisplayHasDropShadow extends PropertyCondition<Display> {
 	@Override
 	public boolean check(Display value) {
 		return value instanceof TextDisplay textDisplay && textDisplay.isShadowed();
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(Display display, boolean shadowed, ChangeMode mode) {
+		if (display instanceof TextDisplay textDisplay) {
+			textDisplay.setShadowed(shadowed);
+		}
 	}
 
 	@Override

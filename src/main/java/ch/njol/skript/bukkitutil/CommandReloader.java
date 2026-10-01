@@ -10,7 +10,9 @@ import ch.njol.skript.Skript;
 
 /**
  * Utilizes CraftServer with reflection to re-send commands to clients.
+ * @deprecated This behavior should not be relied upon. There is no replacement.
  */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class CommandReloader {
 	
 	@Nullable
