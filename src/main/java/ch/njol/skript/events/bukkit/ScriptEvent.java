@@ -4,8 +4,10 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 /**
- * @author Peter Güttinger
+ * @deprecated This event was never actually called.
+ * It is only used as a context holder for certain events.
  */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class ScriptEvent extends Event {
 	
 	public ScriptEvent() {}
