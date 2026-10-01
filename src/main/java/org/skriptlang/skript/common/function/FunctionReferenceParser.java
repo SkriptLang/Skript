@@ -102,7 +102,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 	 */
 	public <T> FunctionReference<T> parseFunctionReference(String name, FunctionReference.Argument<String>[] arguments, ParseLogHandler log) {
 		// avoid assigning values to a parameter multiple times
-		Set<String> named = new HashSet<>();
+		Collection<String> named = new HashSet<>();
 		for (Argument<String> argument : arguments) {
 			if (argument.type() != ArgumentType.NAMED) {
 				continue;
@@ -127,7 +127,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 		}
 
 		// try to find a matching signature to get which types to parse args with
-		Set<Signature<?>> options = FunctionRegistry.getRegistry().getSignatures(namespace, name);
+		Collection<Signature<?>> options = FunctionRegistry.getRegistry().getSignatures(namespace, name);
 
 		if (options.isEmpty()) {
 			doesNotExist(name, arguments, options);
@@ -153,7 +153,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 		}
 
 		// second, try to match any exact functions
-		Set<FunctionReference<T>> exactReferences = getExactReferences(namespace, name, exacts, arguments);
+		Collection<FunctionReference<T>> exactReferences = getExactReferences(namespace, name, exacts, arguments);
 		if (exactReferences == null) { // a list error, so quit parsing
 			log.printError();
 			return null;
@@ -165,7 +165,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 		}
 
 		// last, find single list functions
-		Set<FunctionReference<T>> listReferences = getListReferences(namespace, name, lists, arguments);
+		Collection<FunctionReference<T>> listReferences = getListReferences(namespace, name, lists, arguments);
 		if (listReferences == null) { // a list error, so quit parsing
 			log.printError();
 			return null;
@@ -197,11 +197,11 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 	 * @param <T>        The return type of the references.
 	 * @return All possible exact {@link FunctionReference FunctionReferences}.
 	 */
-	private <T> Set<FunctionReference<T>> getExactReferences(
+	private <T> Collection<FunctionReference<T>> getExactReferences(
 			String namespace, String name,
-			Set<Signature<?>> signatures, Argument<String>[] arguments
+			Collection<Signature<?>> signatures, Argument<String>[] arguments
 	) {
-		Set<FunctionReference<T>> exactReferences = new HashSet<>();
+		Collection<FunctionReference<T>> exactReferences = new HashSet<>();
 
 		// whether the arguments array contains any NAMED type parameters
 		// if there are no named parameters, then we consider the user arguments to already be in order
@@ -258,7 +258,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 				Expression<?> fallback;
 				if (parameter instanceof ScriptParameter<?> sp) {
 					fallback = sp.defaultValue();
-				} else if (parameter.hasModifier(Modifier.OPTIONAL)) {
+				} else if (parameter.hasModifier(Modifier.Optional.class)) {
 					fallback = new EmptyExpression();
 				} else {
 					fallback = null;
@@ -371,9 +371,9 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 	 * @param <T>        The return type of the references.
 	 * @return All possible {@link FunctionReference FunctionReferences} which contain a single list parameter.
 	 */
-	private <T> Set<FunctionReference<T>> getListReferences(
+	private <T> Collection<FunctionReference<T>> getListReferences(
 			String namespace, String name,
-			Set<Signature<?>> signatures, Argument<String>[] arguments
+			Collection<Signature<?>> signatures, Argument<String>[] arguments
 	) {
 		// disallow naming any arguments other than the first
 		if (arguments.length > 1) {
@@ -387,7 +387,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 			}
 		}
 
-		Set<FunctionReference<T>> references = new HashSet<>();
+		Collection<FunctionReference<T>> references = new HashSet<>();
 
 		signatures:
 		for (Signature<?> signature : signatures) {
@@ -397,7 +397,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 			Expression<?> fallback;
 			if (parameter instanceof ScriptParameter<?> sp) {
 				fallback = sp.defaultValue();
-			} else if (parameter.hasModifier(Modifier.OPTIONAL)) {
+			} else if (parameter.hasModifier(Modifier.Optional.class)) {
 				fallback = new EmptyExpression();
 			} else {
 				fallback = null;
@@ -456,7 +456,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 	 * @param references The possible references.
 	 * @param <T>        The return types of the references.
 	 */
-	private <T> void ambiguousError(String name, Set<FunctionReference<T>> references) {
+	private <T> void ambiguousError(String name, Collection<FunctionReference<T>> references) {
 		List<String> parts = new ArrayList<>();
 
 		for (FunctionReference<T> reference : references) {
@@ -487,7 +487,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 	 * @param arguments The passed arguments to the function call.
 	 * @param possibleSignatures A set of signatures that may contain what the user intended to match.
 	 */
-	private void doesNotExist(String name, FunctionReference.Argument<String>[] arguments, Set<Signature<?>> possibleSignatures) {
+	private void doesNotExist(String name, FunctionReference.Argument<String>[] arguments, Collection<Signature<?>> possibleSignatures) {
 		StringJoiner joiner = new StringJoiner(", ");
 
 		List<Class<?>> argumentTypes = new ArrayList<>();

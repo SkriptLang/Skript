@@ -14,6 +14,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,7 +27,7 @@ import java.util.Set;
  * @param defaultValue The default value, or null if there is no default value.
  * @param <T>          The type.
  */
-public record ScriptParameter<T>(String name, Class<T> type, Set<Modifier> modifiers,
+public record ScriptParameter<T>(String name, Class<T> type, Collection<Modifier> modifiers,
 								 @Nullable Expression<?> defaultValue)
 		implements Parameter<T> {
 
@@ -65,12 +66,12 @@ public record ScriptParameter<T>(String name, Class<T> type, Set<Modifier> modif
 			}
 		}
 
-		Set<Modifier> modifiers = new HashSet<>();
+		Collection<Modifier> modifiers = new HashSet<>();
 		if (defaultValue != null) {
-			modifiers.add(Modifier.OPTIONAL);
+			modifiers.add(new Modifier.Optional());
 		}
 		if (type.isArray()) {
-			modifiers.add(Modifier.KEYED);
+			modifiers.add(new Modifier.Keyed());
 		}
 
 		return new ScriptParameter<>(name, type, defaultValue, modifiers.toArray(new Modifier[0]));
@@ -94,7 +95,7 @@ public record ScriptParameter<T>(String name, Class<T> type, Set<Modifier> modif
 	 */
 	public Object[] evaluate(@Nullable Expression<? extends T> argument, Event event) {
 		if (argument == null) {
-			if (!hasModifier(Modifier.OPTIONAL)) {
+			if (!hasModifier(Modifier.Optional.class)) {
 				throw new IllegalStateException("This parameter is required, but no argument was provided");
 			} else if (defaultValue == null) {
 				throw new IllegalStateException("This parameter does not have a default value");

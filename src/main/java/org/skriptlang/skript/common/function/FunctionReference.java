@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.function.FunctionReferenceParser.EmptyExpression;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
+import org.skriptlang.skript.util.Modifiable;
 
 import java.util.*;
 
@@ -38,7 +39,8 @@ public final class FunctionReference<T> implements Debuggable {
 	private Function<T> cachedFunction;
 	private LinkedHashMap<String, ArgInfo> cachedArguments;
 
-	private record ArgInfo(Expression<?> expression, Class<?> type, Set<Modifier> modifiers) {
+	private record ArgInfo(Expression<?> expression, Class<?> type, Collection<Modifier> modifiers)
+			implements Modifiable {
 
 	}
 
@@ -111,7 +113,9 @@ public final class FunctionReference<T> implements Debuggable {
 				}
 
 				// all good
-				cachedArguments.put(target.name(), new ArgInfo(converted, target.type(), target.modifiers()));
+				//noinspection unchecked
+				cachedArguments.put(target.name(),
+						new ArgInfo(converted, target.type(), (Collection<Modifier>) target.modifiers()));
 			}
 		}
 
@@ -168,7 +172,7 @@ public final class FunctionReference<T> implements Debuggable {
 
 		SequencedMap<String, Object> args = new LinkedHashMap<>();
 		cachedArguments.forEach((k, v) -> {
-			if (v.modifiers().contains(Modifier.KEYED)) {
+			if (v.hasModifier(Modifier.Keyed.class)) {
 				args.put(k, Classes.clone(evaluateKeyed(v.expression(), event)));
 				return;
 			}
@@ -202,7 +206,7 @@ public final class FunctionReference<T> implements Debuggable {
 
 	private KeyedValue<?>[] evaluateSingleListParameter(Expression<?>[] arguments, Event event) {
 		List<Object> values = new ArrayList<>();
-		Set<String> keys = new LinkedHashSet<>();
+		Collection<String> keys = new LinkedHashSet<>();
 		int keyIndex = 1;
 		for (Expression<?> argument : arguments) {
 			Object[] valuesArray = argument.getArray(event);
