@@ -1,0 +1,14 @@
+test "CondCanAge":
+	spawn a pig at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} can age to true
+	assert {_entity} can age with "setting to true failed"
+	set whether {_entity} can age to false
+	assert {_entity} can not age with "setting to false failed"
+	set whether {_entity} can not age to false
+	assert {_entity} can age with "(negated) setting to true failed"
+	set whether {_entity} can not age to true
+	assert {_entity} can not age with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

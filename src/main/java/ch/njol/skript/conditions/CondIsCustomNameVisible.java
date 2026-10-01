@@ -1,6 +1,7 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -35,6 +36,16 @@ public class CondIsCustomNameVisible extends PropertyCondition<Entity> {
 	@Override
 	public boolean check(Entity entity) {
 		return entity.isCustomNameVisible();
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(Entity entity, boolean visible, ChangeMode mode) {
+		entity.setCustomNameVisible(visible);
 	}
 
 	@Override
