@@ -1,17 +1,17 @@
 package ch.njol.skript.registrations;
 
-import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.doc.Documentable;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import com.google.common.base.Preconditions;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
 import org.skriptlang.skript.lang.experiment.LifeCycle;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -209,6 +209,7 @@ public enum Feature implements Experiment, Documentable {
 		};
 	}
 
+	@ApiStatus.Internal
 	public static void registerAll(SkriptAddon addon, ExperimentRegistry manager) {
 		for (Feature value : values()) {
 			manager.register(addon, value);

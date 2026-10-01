@@ -13,6 +13,7 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.util.ExceptionUtils;
+import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.HintManager;
@@ -1355,6 +1356,11 @@ public class ScriptLoader {
 				return null;
 			}
 		}
+
+		if (FileUtils.containsSymlink(scriptFile.toPath(), directory.toPath())) {
+			return scriptFile.getAbsoluteFile();
+		}
+
 		try {
 			// Unless it's a test, check if the user is asking for a script in the scripts folder
 			// and not something outside Skript's domain.

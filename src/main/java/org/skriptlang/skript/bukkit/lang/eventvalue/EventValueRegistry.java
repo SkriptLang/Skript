@@ -1,9 +1,9 @@
 package org.skriptlang.skript.bukkit.lang.eventvalue;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.util.Registry;
 import org.skriptlang.skript.util.ViewProvider;
 
@@ -30,6 +30,14 @@ public interface EventValueRegistry extends Registry<EventValue<?, ?>>, ViewProv
 	 */
 	static EventValueRegistry empty(Skript skript) {
 		return new EventValueRegistryImpl(skript);
+	}
+
+	/**
+	 * @deprecated Use {@link #empty(Skript)}.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	static EventValueRegistry empty(ch.njol.skript.Skript ignored) {
+		return empty(ch.njol.skript.Skript.instance());
 	}
 
 	/**

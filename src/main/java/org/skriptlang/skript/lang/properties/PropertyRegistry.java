@@ -1,9 +1,9 @@
 package org.skriptlang.skript.lang.properties;
 
-import ch.njol.skript.Skript;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.util.Registry;
 
 import java.util.*;
@@ -25,14 +25,22 @@ public class PropertyRegistry implements Registry<Property<?>> {
 		this.properties = new HashMap<>();
 	}
 
+	/**
+	 * @deprecated Use {@link #PropertyRegistry(Skript)}.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public PropertyRegistry(ch.njol.skript.Skript ignored) {
+		this(ch.njol.skript.Skript.instance());
+	}
+
 	public boolean register(@NotNull Property<?> property) {
 		String name = property.name();
 		if (properties.containsKey(name)) {
-			Skript.error("Property '" + name + "' is already registered by " + properties.get(name).provider().name() + ".");
+			ch.njol.skript.Skript.error("Property '" + name + "' is already registered by " + properties.get(name).provider().name() + ".");
 			return false; // Property already registered
 		}
 		properties.put(name, property);
-		Skript.debug("Registered property '" + name + "' provided by " + property.provider().name() + ".");
+		ch.njol.skript.Skript.debug("Registered property '" + name + "' provided by " + property.provider().name() + ".");
 		return true;
 	}
 
@@ -44,11 +52,11 @@ public class PropertyRegistry implements Registry<Property<?>> {
 	public boolean unregister(String name) {
 		name = name.toLowerCase(Locale.ENGLISH);
 		if (!properties.containsKey(name)) {
-			Skript.error("Property '" + name + "' is not registered and cannot be unregistered.");
+			ch.njol.skript.Skript.error("Property '" + name + "' is not registered and cannot be unregistered.");
 			return false; // Property not registered
 		}
 		properties.remove(name);
-		Skript.debug("Unregistered property '" + name + "'.");
+		ch.njol.skript.Skript.debug("Unregistered property '" + name + "'.");
 		return true;
 	}
 

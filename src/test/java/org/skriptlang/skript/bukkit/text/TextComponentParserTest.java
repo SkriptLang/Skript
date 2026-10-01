@@ -1,12 +1,16 @@
 package org.skriptlang.skript.bukkit.text;
 
+import ch.njol.skript.Skript;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.ClickEvent.Payload;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
 import org.junit.Test;
+import org.skriptlang.skript.bukkit.text.TextComponentParser.LinkParseMode;
 
 import java.util.Set;
 
@@ -86,6 +90,18 @@ public class TextComponentParserTest {
 		assertEquals(parser.parse("<#ffff11>hello"), parser.parse("<#ffff11>hello"));
 		assertEquals(parser.parse("<#FFFF11>hello"), parser.parse("<##FFFF11>hello"));
 		assertEquals(parser.parse("<#ffff11>hello"), parser.parse("<##FFFF11>hello"));
+	}
+
+	@Test
+	public void testURLValidation() {
+		TextComponentParser parser = new TextComponentParser();
+		parser.linkParseMode(LinkParseMode.STRICT);
+		// Example: forgot to allow all formatting, so tag is not parsed, but URL is attempted to be automatically formatted
+		ClickEvent<?> result = parser.parseSafe("<url:'https://skriptlang.org/'>My Website").children().getFirst().clickEvent();
+		assertNotNull(result);
+		if (Skript.methodExists(ClickEvent.class, "payload")) { // TODO remove when supporting 1.21.6+
+			assertEquals("https://skriptlang.org/'", ((Payload.Text) result.payload()).value());
+		}
 	}
 
 }

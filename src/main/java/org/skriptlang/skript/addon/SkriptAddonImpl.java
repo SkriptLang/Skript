@@ -5,6 +5,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.Registry;
 import org.skriptlang.skript.util.ViewProvider;
 
+import java.util.Collection;
 import java.util.function.Supplier;
 
 class SkriptAddonImpl {
@@ -47,9 +48,9 @@ class SkriptAddonImpl {
 		@Override
 		public <R extends Registry<?>> R registry(Class<R> registryClass) {
 			R registry = addon.registry(registryClass);
-			if (registry instanceof ViewProvider) {
+			if (registry instanceof ViewProvider<?> viewProvider) {
 				//noinspection unchecked
-				registry = ((ViewProvider<R>) registry).unmodifiableView();
+				registry = (R) viewProvider.unmodifiableView();
 			}
 			return registry;
 		}
@@ -57,6 +58,18 @@ class SkriptAddonImpl {
 		@Override
 		public <R extends Registry<?>> R registry(Class<R> registryClass, Supplier<R> putIfAbsent) {
 			throw new UnsupportedOperationException("Cannot store registries on an unmodifiable addon");
+		}
+
+		@Override
+		public Collection<Registry<?>> registries() {
+			return addon.registries().stream()
+				.map(registry -> {
+					if (registry instanceof ViewProvider<?> viewProvider) {
+						return (Registry<?>) viewProvider.unmodifiableView();
+					}
+					return registry;
+				})
+				.toList();
 		}
 
 		@Override
