@@ -3,9 +3,22 @@ package ch.njol.skript.variables;
 import java.io.File;
 
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.log.SkriptLogger;
-import lib.PatPeter.SQLibrary.Database;
-import lib.PatPeter.SQLibrary.SQLite;
+
+/**
+	- SQLite adapter for {@link SQLStorage} that stores data in a file.
+
+	- It provides the SQLite table setup and opens the configured database file
+	using Paper's JDBC driver. The parent class handles loading, queued SQL
+	changes, commits, and optional monitoring. {@link JdbcDatabase} handles the
+	connection.
+
+	- SQLite is selected normally through {@link Variables}. It uses the same
+	serialized types and values as the other storage options.
+
+	- File and backup handling is done through {@link VariablesStorage}.
+
+	- It does not use the MySQL backend's journal or connection pool.
+*/
 
 public class SQLiteStorage extends SQLStorage {
 
@@ -19,14 +32,16 @@ public class SQLiteStorage extends SQLStorage {
 	}
 
 	@Override
-	public Database initialize(SectionNode config) {
+	public JdbcDatabase initialize(SectionNode config) {
 		File f = file;
 		if (f == null)
 			return null;
 		setTableName(config.get("table", "variables21"));
-		String name = f.getName();
-		assert name.endsWith(".db");
-		return new SQLite(SkriptLogger.LOGGER, "[Skript]", f.getParent(), name.substring(0, name.length() - ".db".length()));
+		return new JdbcDatabase(() -> {
+			org.sqlite.SQLiteDataSource source = new org.sqlite.SQLiteDataSource();
+			source.setUrl("jdbc:sqlite:" + f.getAbsolutePath());
+			return source.getConnection();
+		});
 	}
 
 	@Override

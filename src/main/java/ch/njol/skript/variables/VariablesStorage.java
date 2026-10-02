@@ -24,16 +24,37 @@ import ch.njol.skript.variables.SerializedVariable.Value;
 import ch.njol.util.Closeable;
 
 /**
- * A variable storage is holds the means and methods of storing variables.
- * <p>
- * This is usually some sort of database, and could be as simply as a text file.
- *
- * @see FlatFileStorage
- * @see DatabaseStorage
- */
+	- Handles common storage settings, variable routing, and the queue used to
+	send changes to the backend.
+
+	- {@link Variables} sends {@link SerializedVariable} records here. A null
+	value means the variable should be deleted.
+
+	- Handles name filters and the basic save queue. {@link SQLStorage} uses this
+	queue directly, while {@link PooledMySQLStorage} has its own worker for
+	grouping database changes into transactions.
+
+	- Loading is handled by each storage backend. Values are deserialized using
+	the shared registry and then passed back to {@link Variables}.
+
+	- Each backend is responsible for its own database or file resources and for
+	finishing its pending work when it closes.
+
+	- @see FlatFileStorage
+	- @see SQLStorage
+	- @see PooledMySQLStorage
+*/
+
 // FIXME ! large databases (>25 MB) cause the server to be unresponsive instead of loading slowly
 @SuppressWarnings({"SuspiciousIndentAfterControlStatement", "removal"})
 public abstract class VariablesStorage implements Closeable {
+
+	/** Registers the built-in backends without exposing their implementations to the dispatcher. */
+	static void registerBuiltInTypes() {
+		Variables.registerStorage(FlatFileStorage.class, "csv", "file", "flatfile");
+		Variables.registerStorage(SQLiteStorage.class, "sqlite");
+		Variables.registerStorage(MySQLStorage.class, "mysql");
+	}
 
 	/**
 	 * The size of the variable changes queue.
@@ -426,7 +447,7 @@ public abstract class VariablesStorage implements Closeable {
 	 *
 	 * @param var the serialized variable.
 	 */
-	final void save(SerializedVariable var) {
+	void save(SerializedVariable var) {
 		if (changesQueue.size() > FIRST_WARNING && lastWarning < System.currentTimeMillis() - WARNING_INTERVAL * 1000) {
 			// Too many variables queued up to save, warn the server
 			Skript.warning("Cannot write variables to the database '" + databaseName + "' at sufficient speed; " +

@@ -53,10 +53,29 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Handles all things related to variables.
- *
- * @see #setVariable(String, Object, Event, boolean)
- * @see #getVariable(String, Event, boolean)
+    - Handles variables, storage, and choosing which storage backend to use.
+
+	- Local variables belong to an event. Global variables are serialized on the
+	server thread and then sent to the selected {@link VariablesStorage}.
+
+	- {@link #yggdrasil} and {@link Classes} decide which values can be saved.
+	This means the database code only deals with serialized data and does not
+	have to work with live Bukkit objects.
+
+	- Databases are loaded from the databases section and matched in configuration
+	order using their variable-name patterns.
+
+	- Loaded values go through {@link #variableLoaded(String, Object, VariablesStorage)}
+	so they are handled the same way as other stored variables.
+
+	- The save queue keeps serialization separate from database work. Shutdown
+	empties the queue and waits for the dispatcher to finish before closing storages,
+	so accepted changes are not left behind.
+
+	- @see VariablesStorage
+	- @see SerializedVariable
+	- @see #setVariable(String, Object, Event, boolean)
+	- @see #getVariable(String, Event, boolean)
  */
 public class Variables {
 
@@ -85,9 +104,7 @@ public class Variables {
 
 	// Register some things with Yggdrasil
 	static {
-		registerStorage(FlatFileStorage.class, "csv", "file", "flatfile");
-		registerStorage(SQLiteStorage.class, "sqlite");
-		registerStorage(MySQLStorage.class, "mysql");
+		VariablesStorage.registerBuiltInTypes();
 		yggdrasil.registerSingleClass(Kleenean.class, "Kleenean");
 		// Register ConfigurationSerializable, Bukkit's serialization system
 		yggdrasil.registerClassResolver(new ConfigurationSerializer<ConfigurationSerializable>() {
@@ -288,8 +305,7 @@ public class Variables {
 			int notStoredVariablesCount = onStoragesLoaded();
 			if (notStoredVariablesCount != 0) {
 				Skript.warning(notStoredVariablesCount + " variables were possibly discarded due to not belonging to any database " +
-						"(SQL databases keep such variables and will continue to generate this warning, " +
-						"while CSV discards them).");
+						"(whether unmatched values are retained depends on the storage backend).");
 			}
 
 			// Interrupt the loading logger thread to make it exit earlier
@@ -623,14 +639,42 @@ public class Variables {
 					processChangeQueue();
 				}
 				// Process and save requested change
-				variables.setVariable(name, value);
-				saveVariableChange(name, value);
+				applyVariableChange(name, value);
 			} finally {
 				variablesLock.writeLock().unlock();
 			}
 		} else {
 			// Couldn't acquire variable write lock, queue the change (blocking here is a bad idea)
 			queueVariableChange(name, value);
+		}
+	}
+
+	/** Applies a global change while holding the write lock, persisting individual list entries. */
+	private static void applyVariableChange(String name, @Nullable Object value) {
+		if (value == null && name.endsWith("::*")) {
+			Object previous = variables.getVariable(name);
+			if (previous instanceof Map<?, ?> entries)
+				saveListDeletions(name.substring(0, name.length() - 1), entries);
+			variables.setVariable(name, null);
+		} else {
+			variables.setVariable(name, value);
+			saveVariableChange(name, value);
+		}
+	}
+
+	private static void saveListDeletions(String prefix, Map<?, ?> entries) {
+		for (Map.Entry<?, ?> entry : entries.entrySet()) {
+			// The null key holds the parent scalar, which deleting parent::* preserves.
+			if (entry.getKey() == null)
+				continue;
+			String name = prefix + entry.getKey();
+			if (entry.getValue() instanceof TreeMap<?, ?> children) {
+				if (children.get(null) != null)
+					saveVariableChange(name, null);
+				saveListDeletions(name + "::", children);
+			} else {
+				saveVariableChange(name, null);
+			}
 		}
 	}
 
@@ -692,8 +736,7 @@ public class Variables {
 				break;
 
 			// Set and save variable
-			variables.setVariable(change.name, change.value);
-			saveVariableChange(change.name, change.value);
+			applyVariableChange(change.name, change.value);
 		}
 	}
 
@@ -903,7 +946,21 @@ public class Variables {
 	private static void saveVariableChange(String name, @Nullable Object value) {
 		if (name.startsWith(Variable.EPHEMERAL_VARIABLE_TOKEN))
 			return;
-		saveQueue.add(serialize(name, value));
+		SerializedVariable change = serializeChange(name, value);
+		if (change != null)
+			saveQueue.add(change);
+	}
+
+	/**
+	 * Converts a main-thread mutation to storage data using the shared type registry.
+	 * A failed non-null value is skipped, never confused with an explicit deletion.
+	 * No backend sees live Bukkit objects or decides which types are persistable.
+	 */
+	static @Nullable SerializedVariable serializeChange(String name, @Nullable Object value) {
+		SerializedVariable.Value serialized = serialize(value);
+		if (value == null || serialized != null)
+			return new SerializedVariable(name, serialized);
+		return null;
 	}
 
 	/**
@@ -962,6 +1019,18 @@ public class Variables {
 		// Then we can safely interrupt and stop the thread
 		closed = true;
 		saveThread.interrupt();
+		// An empty queue may still have a change being dispatched. Wait until every
+		// accepted change has reached its storage before the storages are closed.
+		boolean interrupted = false;
+		while (saveThread.isAlive()) {
+			try {
+				saveThread.join();
+			} catch (InterruptedException e) {
+				interrupted = true;
+			}
+		}
+		if (interrupted)
+			Thread.currentThread().interrupt();
 	}
 
 	/**
