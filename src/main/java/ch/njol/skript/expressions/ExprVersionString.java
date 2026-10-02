@@ -3,6 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.ChangeDelayRestrictedSyntax;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -27,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 	""")
 @Since("2.3")
 @Events("Server List Ping")
-public class ExprVersionString extends SimpleExpression<String> implements EventRestrictedSyntax {
+public class ExprVersionString extends SimpleExpression<String> implements EventRestrictedSyntax, ChangeDelayRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprVersionString.class, String.class, ExpressionType.SIMPLE, "[the] [shown|custom] version [string|text]");
@@ -54,10 +55,6 @@ public class ExprVersionString extends SimpleExpression<String> implements Event
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (getParser().getHasDelayBefore().isTrue()) {
-			Skript.error("Can't change the version string anymore after the server list ping event has already passed");
-			return null;
-		}
 		if (mode == ChangeMode.SET)
 			return CollectionUtils.array(String.class);
 		return null;

@@ -6,6 +6,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.ChangeDelayRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -28,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 		set {server-icons::default} to the default server icon
 	""")
 @Since("2.3")
-public class ExprServerIcon extends SimpleExpression<CachedServerIcon> {
+public class ExprServerIcon extends SimpleExpression<CachedServerIcon> implements ChangeDelayRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprServerIcon.class, CachedServerIcon.class, ExpressionType.PROPERTY,
@@ -68,10 +69,6 @@ public class ExprServerIcon extends SimpleExpression<CachedServerIcon> {
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (isServerPingEvent && !isDefault) {
-			if (getParser().getHasDelayBefore().isTrue()) {
-				Skript.error("Can't change the server icon anymore after the server list ping event has already passed");
-				return null;
-			}
 			if (mode == ChangeMode.SET || mode == ChangeMode.RESET)
 				return CollectionUtils.array(CachedServerIcon.class);
 		}
