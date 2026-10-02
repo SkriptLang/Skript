@@ -1,4 +1,4 @@
-package ch.njol.skript.events;
+package org.skriptlang.skript.bukkit.misc.elements.events;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.events.bukkit.SkriptStartEvent;
@@ -8,8 +8,14 @@ import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,13 +23,36 @@ import java.util.List;
 
 public class EvtSkript extends SkriptEvent {
 
-	static {
-		Skript.registerEvent("Server Start/Stop", EvtSkript.class, CollectionUtils.array(SkriptStartEvent.class, SkriptStopEvent.class),
-				"(:server|skript) (start|load|enable)", "(:server|skript) (stop|unload|disable)"
+	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry) {
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtSkript.class, "Skript Start/Stop")
+			.supplier(EvtSkript::new)
+			.addEvents(CollectionUtils.array(SkriptStartEvent.class, SkriptStopEvent.class))
+			.addPatterns(
+				"(:server|skript) (start|load|enable)",
+				"(:server|skript) (stop|unload|disable)"
 			)
-			.description("Called when the server starts or stops (actually, when Skript starts or stops, so a /reload will trigger these events as well).")
-			.examples("on skript start:", "on server stop:")
-			.since("2.0");
+			.addDescription("""
+				Called when Skript itself starts or stops.
+				Note that reloading a script will trigger these events as well.
+				""")
+			.addExample("""
+				on skript start:
+				    set {-example} to diamond pickaxe named "<blue>Example"
+				""")
+			.addExample("""
+				on skript stop:
+				    broadcast "Stopping!"
+				""")
+			.addSince("2.0")
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(SkriptStartEvent.class, CommandSender.class)
+			.getter(event -> Bukkit.getConsoleSender())
+			.build());
+
+		eventValueRegistry.register(EventValue.builder(SkriptStopEvent.class, CommandSender.class)
+			.getter(event -> Bukkit.getConsoleSender())
+			.build());
 	}
 
 	private static final List<Trigger> START = Collections.synchronizedList(new ArrayList<>());
@@ -46,17 +75,17 @@ public class EvtSkript extends SkriptEvent {
 			STOP.clear();
 		}
 	}
-	
+
 	private boolean isStart;
-	
+
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		isStart = matchedPattern == 0;
 		if (parseResult.hasTag("server"))
-			Skript.warning(
-				"Server start/stop events are actually called when Skript is started or stopped." +
-				"It is thus recommended to use 'on Skript start/stop' instead."
-			);
+			Skript.warning("""
+					Server start/stop events are actually called when Skript is started or stopped.
+					It is thus recommended to use 'on Skript start/stop' instead.
+					""");
 		return true;
 	}
 
@@ -80,10 +109,10 @@ public class EvtSkript extends SkriptEvent {
 	public boolean isEventPrioritySupported() {
 		return false;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "on skript " + (isStart ? "start" : "stop");
 	}
-	
+
 }
