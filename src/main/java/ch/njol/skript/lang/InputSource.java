@@ -57,15 +57,20 @@ public interface InputSource {
 		InputData inputData = parser.getData(InputData.class);
 		InputSource originalSource = inputData.getSource();
 		inputData.setSource(this);
-		Expression<?> mappingExpr = new SkriptParser(expr, flags, ParseContext.DEFAULT)
-			.parseExpression(Object.class);
-		if (mappingExpr != null && LiteralUtils.hasUnparsedLiteral(mappingExpr)) {
-			mappingExpr = LiteralUtils.defendExpression(mappingExpr);
-			if (!LiteralUtils.canInitSafely(mappingExpr))
-				return null;
+		try {
+			Expression<?> mappingExpr = new SkriptParser(expr, flags, ParseContext.DEFAULT)
+				.parseExpression(Object.class);
+			if (mappingExpr != null && LiteralUtils.hasUnparsedLiteral(mappingExpr)) {
+				mappingExpr = LiteralUtils.defendExpression(mappingExpr);
+				if (!LiteralUtils.canInitSafely(mappingExpr))
+					return null;
+			}
+			return mappingExpr;
+		} finally {
+			// restored in a finally block so that the source is not left pointing at this
+			// element if parsing is aborted by an exception (e.g. a parse timeout or stack overflow)
+			inputData.setSource(originalSource);
 		}
-		inputData.setSource(originalSource);
-		return mappingExpr;
 	}
 
 	/**
