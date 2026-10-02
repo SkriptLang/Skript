@@ -1,8 +1,8 @@
-function {@function}) :: boolean:
-	return true
-
 options:
 	function: foo(
+
+function {@function}) :: boolean:
+	return true
 
 function local() :: number:
 	return 1
