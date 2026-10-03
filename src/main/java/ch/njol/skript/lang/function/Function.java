@@ -3,7 +3,6 @@ package ch.njol.skript.lang.function;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.KeyProviderExpression;
 import ch.njol.skript.lang.KeyedValue;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
@@ -16,6 +15,8 @@ import org.skriptlang.skript.common.function.Parameters;
 import org.skriptlang.skript.common.function.ScriptParameter;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.SequencedCollection;
 
 /**
  * Functions can be called using arguments.
@@ -186,6 +187,15 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 	 */
 	public @NotNull String @Nullable [] returnedKeys() {
 		return null;
+	}
+
+	@Override
+	public final @NotNull SequencedCollection<String> getReturnedKeys() {
+		String[] returnedKeys = returnedKeys();
+		if (returnedKeys == null || returnedKeys.length == 0) {
+			return Collections.emptyList();
+		}
+		return Arrays.asList(returnedKeys);
 	}
 
 	/**
