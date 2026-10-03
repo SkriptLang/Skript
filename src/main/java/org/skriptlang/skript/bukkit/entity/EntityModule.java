@@ -12,6 +12,7 @@ import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.entity.data.*;
 import org.skriptlang.skript.bukkit.entity.displays.DisplayModule;
+import org.skriptlang.skript.bukkit.entity.elements.expressions.ExprAttachedBlock;
 import org.skriptlang.skript.bukkit.entity.elements.effects.EffTeleport;
 import org.skriptlang.skript.bukkit.entity.elements.expressions.ExprDeathMessage;
 import org.skriptlang.skript.bukkit.entity.elements.expressions.ExprPathfindingLocation;
@@ -101,6 +102,7 @@ public class EntityModule extends HierarchicalAddonModule {
 			.build());
 
 		register(addon,
+			ExprAttachedBlock::register,
 			ExprDeathMessage::register,
 			ExprPathfindingLocation::register,
 			ExprPathfindingTarget::register,
