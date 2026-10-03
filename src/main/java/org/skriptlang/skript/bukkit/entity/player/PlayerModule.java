@@ -46,6 +46,12 @@ public class PlayerModule extends HierarchicalAddonModule {
 				ExprPickedItem::register
 			);
 		}
+        // TODO: UNTIL MC 26.1.1 (remove guard)
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerToggleEntityAgeLockEvent")) {
+			register(addon,
+				EvtPlayerToggleEntityAge::register
+			);
+		}
 
 		SyntaxRegistry syntaxRegistry = moduleRegistry(addon);
 
