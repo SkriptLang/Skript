@@ -1,0 +1,19 @@
+test "CondItemEnchantmentGlint":
+	set {_item} to a diamond
+
+	set whether {_item} has enchantment glint overridden to true
+	assert {_item} has enchantment glint overridden with "setting to true failed"
+	assert {_item} is forced to glint with "(glint) setting to true failed"
+	set whether {_item} has enchantment glint overridden to false
+	assert {_item} does not have enchantment glint overridden with "setting to false failed"
+	assert {_item} is not forced to glint with "(glint) setting to true failed"
+	set whether {_item} does not have enchantment glint overridden to false
+	assert {_item} has enchantment glint overridden with "(negated) setting to true failed"
+	set whether {_item} does not have enchantment glint overridden to true
+	assert {_item} does not have enchantment glint overridden with "(negated) setting to false failed"
+	set whether {_item} is forced to glint to true
+	assert {_item} has enchantment glint overridden with "setting to true failed"
+	assert {_item} is forced to glint with "(glint) setting to true failed"
+	set whether {_item} is not forced to glint to true
+	assert {_item} has enchantment glint overridden with "setting to false failed"
+	assert {_item} is not forced to glint with "(glint) setting to false failed"

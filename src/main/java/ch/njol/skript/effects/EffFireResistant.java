@@ -13,6 +13,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.tag.DamageTypeTags;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Make Fire Resistant")
@@ -45,7 +46,7 @@ public class EffFireResistant extends Effect {
 	protected void execute(Event event) {
 		for (ItemType item : this.items.getArray(event)) {
 			ItemMeta meta = item.getItemMeta();
-			meta.setFireResistant(!not);
+			meta.setDamageResistant(not ? null : DamageTypeTags.IS_FIRE);
 			item.setItemMeta(meta);
 		}
 	}

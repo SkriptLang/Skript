@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -24,6 +25,16 @@ public class CondItemDespawn extends PropertyCondition<Item> {
 	@Override
 	public boolean check(Item item) {
 		return !item.isUnlimitedLifetime();
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(Item item, boolean limitedLifetime, ChangeMode mode) {
+		item.setUnlimitedLifetime(!limitedLifetime);
 	}
 
 	@Override
