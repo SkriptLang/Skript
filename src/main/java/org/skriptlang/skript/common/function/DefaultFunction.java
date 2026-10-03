@@ -153,12 +153,10 @@ public sealed interface DefaultFunction<T>
 	}
 
 	/**
-	 * Represents a builder for {@link DefaultFunction DefaultFunctions}
-	 * which changes a variable's keys during execution.
-	 *
-	 * @param <T> The return type of the function.
+	 * The base for function builders.
+	 * @param <T> The function builder.
 	 */
-	interface KeyedBuilder<T> {
+	interface BaseBuilder<T extends BaseBuilder<T>> {
 
 		/**
 		 * Sets this function builder's {@link ch.njol.skript.util.Contract}.
@@ -167,7 +165,7 @@ public sealed interface DefaultFunction<T>
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		KeyedBuilder<T> contract(@NotNull ch.njol.skript.util.Contract contract);
+		BaseBuilder<T> contract(@NotNull ch.njol.skript.util.Contract contract);
 
 		/**
 		 * Sets this function builder's description.
@@ -176,7 +174,7 @@ public sealed interface DefaultFunction<T>
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		KeyedBuilder<T> description(@NotNull String @NotNull ... description);
+		BaseBuilder<T> description(@NotNull String @NotNull ... description);
 
 		/**
 		 * Sets this function builder's version history.
@@ -185,7 +183,7 @@ public sealed interface DefaultFunction<T>
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		KeyedBuilder<T> since(@NotNull String @NotNull ... since);
+		BaseBuilder<T> since(@NotNull String @NotNull ... since);
 
 		/**
 		 * Sets this function builder's examples.
@@ -194,7 +192,7 @@ public sealed interface DefaultFunction<T>
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		KeyedBuilder<T> examples(@NotNull String @NotNull ... examples);
+		BaseBuilder<T> examples(@NotNull String @NotNull ... examples);
 
 		/**
 		 * Sets this function builder's keywords.
@@ -203,7 +201,7 @@ public sealed interface DefaultFunction<T>
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		KeyedBuilder<T> keywords(@NotNull String @NotNull ... keywords);
+		BaseBuilder<T> keywords(@NotNull String @NotNull ... keywords);
 
 		/**
 		 * Sets this function builder's requires.
@@ -212,7 +210,7 @@ public sealed interface DefaultFunction<T>
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		KeyedBuilder<T> requires(@NotNull String @NotNull ... requires);
+		BaseBuilder<T> requires(@NotNull String @NotNull ... requires);
 
 		/**
 		 * Adds a parameter to this function builder.
@@ -223,7 +221,17 @@ public sealed interface DefaultFunction<T>
 		 * @return This builder.
 		 */
 		@Contract("_, _, _ -> this")
-		KeyedBuilder<T> parameter(@NotNull String name, @NotNull Class<?> type, Modifier @NotNull ... modifiers);
+		BaseBuilder<T> parameter(@NotNull String name, @NotNull Class<?> type, Modifier @NotNull ... modifiers);
+
+	}
+
+	/**
+	 * Represents a builder for {@link DefaultFunction DefaultFunctions}
+	 * which changes a variable's keys during execution.
+	 *
+	 * @param <T> The return type of the function.
+	 */
+	interface KeyedBuilder<T> extends BaseBuilder<KeyedBuilder<T>> {
 
 		/**
 		 * Completes this builder with the code to execute on call of this function.
