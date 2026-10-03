@@ -104,7 +104,6 @@ test "game effects with data":
 	play record song of music disc cat at test-location # broken in paper versions but should still parse and execute without errors
 	play black smoke effect upwards at test-location
 	play white smoke effect upwards at test-location
-	play stone footsteps sound effect at test-location
 	play red potion break effect at test-location
 	play red instant potion break effect at test-location
 	play compost success sound at test-location

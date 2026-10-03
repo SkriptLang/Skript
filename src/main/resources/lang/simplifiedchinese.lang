@@ -138,14 +138,8 @@ updater:
 
 # -- Commands --
 commands:
-	no permission message: 你没有必要的权限来使用这个命令
 	cooldown message: 你使用此命令的频率过高，请稍后再试。
-	executable by players: 这个命令只能由玩家使用
-	executable by console: 这个命令只能在控制台使用
-	correct usage: 正确的用法：
 	invalid argument: 无效的参数<gray>“%s<gray>”<reset>。允许的是：
-	too many arguments: 这个命令只能接受单个的%2$s。
-	internal error: 在试图执行此命令时发生了一个内部错误。
 	no player starts with: 没有名字以“%s”开头的玩家在线
 	multiple players start with: 有多个名字以“%s”开头的玩家在线
 

@@ -167,14 +167,8 @@ updater:
 
 # -- Ordres --
 commands:
-	no permission message: No tens el permís necessari per utilitzar aquesta ordre
 	cooldown message: Estàs utilitzant aquesta ordre massa sovint, si us plau, intenta-ho més tard
-	executable by players: Aquesta ordre només pot ser utilitzada per jugadors
-	executable by console: Aquesta ordre només pot ser utilitzada per la consola
-	correct usage: Ús correcte:
 	invalid argument: Argument invàlid <gray>'%s<gray>'<reset>. Els permesos són:
-	too many arguments: Aquesta ordre només pot acceptar un únic %2$s.
-	internal error: Hi ha hagut un error intern en intentar executar aquesta ordre.
 	no player starts with: No hi ha cap jugador en línia el nom del qual comenci amb '%s'
 	multiple players start with: Hi ha diversos jugadors en línia els noms dels quals comencen amb '%s'
 

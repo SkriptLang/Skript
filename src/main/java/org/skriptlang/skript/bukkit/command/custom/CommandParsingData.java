@@ -1,0 +1,136 @@
+package org.skriptlang.skript.bukkit.command.custom;
+
+import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.lang.parser.ParserInstance.Data;
+import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+
+/**
+ * Parsing data holding command context.
+ */
+public final class CommandParsingData extends Data {
+
+	/**
+	 * @param isSubcommandGroup Whether this data is coming from a group of subcommands (for defining shared data among them).
+	 * @param permission String representing the permission the {@link CommandSender} must have to execute the command.
+	 * @param executableBy Set describing what kinds of {@link CommandSender} can execute the command.
+	 * @param cooldownManager Handles cooldown management for cooldown command entries.
+	 */
+	public record ExecutorData(
+		boolean isSubcommandGroup,
+		@Nullable String permission,
+		@Nullable Set<ExecutableBy> executableBy,
+		@Nullable CooldownManager cooldownManager
+	) { }
+
+	private final LinkedList<ArgumentData<?>> arguments = new LinkedList<>();
+	private final Deque<Integer> argumentsIndices = new ArrayDeque<>(4);
+
+	private final LinkedList<Set<String>> choices = new LinkedList<>();
+	private final Deque<Integer> choicesIndices = new ArrayDeque<>(2);
+
+	private final Deque<ExecutorData> executorDatas = new ArrayDeque<>(4);
+
+	public boolean isParsingCooldownEntry = false;
+
+	public CommandParsingData(ParserInstance parserInstance) {
+		super(parserInstance);
+	}
+
+	/**
+	 * @return Whether this parsing data contains any data.
+	 */
+	public boolean isEmpty() {
+		return argumentsIndices.isEmpty();
+	}
+
+	/**
+	 * @return Arguments currently stored on this data, in declaration order.
+	 */
+	public List<ArgumentData<?>> getArguments() {
+		return List.copyOf(arguments);
+	}
+
+	/**
+	 * Pushes arguments to this data.
+	 * @param arguments The arguments to push.
+	 * @see #popArguments()
+	 */
+	public void pushArguments(List<ArgumentData<?>> arguments) {
+		argumentsIndices.push(this.arguments.size());
+		this.arguments.addAll(arguments);
+	}
+
+	/**
+	 * Removes the last pushed arguments from this data.
+	 * @see #pushArguments(List)
+	 */
+	public void popArguments() {
+		arguments.subList(argumentsIndices.pop(), arguments.size()).clear();
+	}
+
+	/**
+	 * @return All choice groups currently stored on this data, in declaration order.
+	 */
+	public List<Set<String>> getChoices() {
+		return List.copyOf(choices);
+	}
+
+	/**
+	 * Pushes choices to this data.
+	 * @param choices The choices to push.
+	 * @see #popChoices()
+	 */
+	public void pushChoices(List<Set<String>> choices) {
+		choicesIndices.push(this.choices.size());
+		this.choices.addAll(choices);
+	}
+
+	/**
+	 * Removes the last pushed choices from this data.
+	 * @see #pushChoices(List)
+	 */
+	public void popChoices() {
+		choices.subList(choicesIndices.pop(), choices.size()).clear();
+	}
+
+	/**
+	 * Pushes executor data to this data.
+	 * @param executorData The data to push.
+	 * @see #popExecutorData()
+	 */
+	public void pushExecutorData(ExecutorData executorData) {
+		executorDatas.push(executorData);
+	}
+
+	/**
+	 * Removes the last pushed executor data from this data.
+	 * @see #pushExecutorData(ExecutorData)
+	 */
+	public void popExecutorData() {
+		executorDatas.pop();
+	}
+
+	/**
+	 * Obtains the first non-null instance of a value from the pushed executors.
+	 * @param function A function to obtain the desired value from the data.
+	 * @return The value, or null if it was never set.
+	 */
+	public @Nullable <T> T getExecutorData(Function<ExecutorData, T> function) {
+		for (ExecutorData executorData : executorDatas) {
+			T result = function.apply(executorData);
+			if (result != null) {
+				return result;
+			}
+		}
+		return null;
+	}
+
+}

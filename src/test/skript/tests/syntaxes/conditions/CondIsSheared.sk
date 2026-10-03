@@ -1,0 +1,14 @@
+test "CondIsSheared":
+	spawn a sheep at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} is sheared to true
+	assert {_entity} is sheared with "setting to true failed"
+	set whether {_entity} is sheared to false
+	assert {_entity} is not sheared with "setting to false failed"
+	set whether {_entity} is not sheared to false
+	assert {_entity} is sheared with "(negated) setting to true failed"
+	set whether {_entity} is not sheared to true
+	assert {_entity} is not sheared with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

@@ -28,7 +28,7 @@ public class PropertyRegistry implements Registry<Property<?>> {
 	/**
 	 * @deprecated Use {@link #PropertyRegistry(Skript)}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.17", forRemoval = true)
 	public PropertyRegistry(ch.njol.skript.Skript ignored) {
 		this(ch.njol.skript.Skript.instance());
 	}

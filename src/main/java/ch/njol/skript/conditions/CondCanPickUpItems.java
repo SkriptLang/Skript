@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -28,6 +29,16 @@ public class CondCanPickUpItems extends PropertyCondition<LivingEntity> {
 	@Override
 	public boolean check(LivingEntity livingEntity) {
 		return livingEntity.getCanPickupItems();
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	public void change(LivingEntity livingEntity, boolean canPickUpItems, ChangeMode mode) {
+		livingEntity.setCanPickupItems(canPickUpItems);
 	}
 
 	@Override

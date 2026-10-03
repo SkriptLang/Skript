@@ -138,14 +138,8 @@ updater:
 
 # -- Commands --
 commands:
-	no permission message: Нет прав для выполнения этой команды
 	cooldown message: Вы используете эту команду слишком часто
-	executable by players: Эту команду могут использовать только игроки
-	executable by console: Эту команду можно использовать только из консоли
-	correct usage: Верное использование:
 	invalid argument: Неверный аргумент <gray>'%s<gray>'<reset>. Список верных:
-	too many arguments: Эта команда может принять только один единственный %2$s.
-	internal error: Во время исполнения этой команды произошла ошибка.
 	no player starts with: Мы не нашли игрока, чьё имя начинается с '%s'
 	multiple players start with: Мы нашли несколько игроков, чьё имя начинается с '%s'
 

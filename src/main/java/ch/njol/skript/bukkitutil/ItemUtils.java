@@ -329,6 +329,11 @@ public class ItemUtils {
 			TREE_TO_SAPLING_MAP.put(TreeType.PALE_OAK, Material.PALE_OAK_SAPLING);
 			TREE_TO_SAPLING_MAP.put(TreeType.PALE_OAK_CREAKING, Material.PALE_OAK_SAPLING);
 		}
+
+		// poplar
+		if (Skript.isRunningMinecraft(26, 3)) {
+			TREE_TO_SAPLING_MAP.put(TreeType.POPLAR, Material.POPLAR_SAPLING);
+		}
 	}
 
 	public static Material getTreeSapling(TreeType treeType) {

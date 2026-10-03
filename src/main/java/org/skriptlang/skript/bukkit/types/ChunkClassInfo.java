@@ -31,7 +31,7 @@ public class ChunkClassInfo extends ClassInfo<Chunk> {
 			.parser(new ChunkParser())
 			.serializer(new ChunkSerializer())
 			.property(Property.WXYZ,
-				"The X or Z coordinate of the chunk. Added in INSERT VERSION.",
+				"The X or Z coordinate of the chunk. Added in 2.17.",
 				Skript.instance(),
 				new ChunkWXYZHandler());
 	}
