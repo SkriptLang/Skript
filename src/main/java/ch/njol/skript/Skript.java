@@ -4,7 +4,6 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.bukkitutil.BurgerHelper;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.data.*;
-import ch.njol.skript.command.Commands;
 import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.events.EvtSkript;
 import ch.njol.skript.expressions.arithmetic.ExprArithmetic;
@@ -20,6 +19,13 @@ import ch.njol.skript.log.*;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.Feature;
+import ch.njol.skript.skcommand.SkriptCommand;
+import ch.njol.skript.test.runner.EffObjectives;
+import ch.njol.skript.test.runner.SkriptAsyncJUnitTest;
+import ch.njol.skript.test.runner.SkriptJUnitTest;
+import ch.njol.skript.test.runner.SkriptTestEvent;
+import ch.njol.skript.test.runner.TestMode;
+import ch.njol.skript.test.runner.TestTracker;
 import ch.njol.skript.test.runner.*;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseManifest;
@@ -44,15 +50,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.server.PluginDisableEvent;
-import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
@@ -63,6 +68,7 @@ import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.bukkit.BukkitModule;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
+import org.skriptlang.skript.bukkit.command.elements.effects.EffCommand;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
@@ -83,7 +89,9 @@ import org.skriptlang.skript.lang.properties.PropertyRegistry;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
+import org.skriptlang.skript.log.runtime.ErrorSource;
 import org.skriptlang.skript.log.runtime.RuntimeErrorManager;
+import org.skriptlang.skript.log.runtime.RuntimeErrorProducer;
 import org.skriptlang.skript.registration.DefaultSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -206,8 +214,6 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	@Nullable
 	private static Version version = null;
-	@Deprecated(since = "2.9.0", forRemoval = true) // TODO this field will be replaced by a proper registry later
-	private static @UnknownNullability ExperimentRegistry experimentRegistry;
 
 	public static Version getVersion() {
 		final Version v = version;
@@ -342,9 +348,13 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	/**
 	 * @return The manager for experimental, optional features.
+	 * @deprecated {@link ExperimentRegistry} is now a regular registry, and should be accessed as such.
+	 * See {@link org.skriptlang.skript.addon.SkriptAddon#registry(Class)}.
 	 */
+	@Deprecated(since = "2.17", forRemoval = true)
 	public static ExperimentRegistry experiments() {
-		return experimentRegistry;
+		// intentionally returning the modifiable view
+		return skript.registry(ExperimentRegistry.class);
 	}
 
 	/**
@@ -472,13 +482,13 @@ public final class Skript extends JavaPlugin implements Listener {
 		// initialize the old Skript SkriptAddon instance
 		getAddonInstance();
 
-		experimentRegistry = new ExperimentRegistry(this);
-		Feature.registerAll(getAddonInstance(), experimentRegistry);
+		skript.storeRegistry(ExperimentRegistry.class, new ExperimentRegistry(skript));
+		Feature.registerAll(skript, skript.registry(ExperimentRegistry.class));
 
-		skript.storeRegistry(PropertyRegistry.class, new PropertyRegistry(this));
+		skript.storeRegistry(PropertyRegistry.class, new PropertyRegistry(skript));
 		Property.registerDefaultProperties();
 
-		EventValueRegistry eventValueRegistry = EventValueRegistry.empty(this);
+		EventValueRegistry eventValueRegistry = EventValueRegistry.empty(skript);
 		skript.storeRegistry(EventValueRegistry.class, eventValueRegistry);
 		//noinspection removal
 		EventValues.setEventValueRegistry(eventValueRegistry);
@@ -525,15 +535,15 @@ public final class Skript extends JavaPlugin implements Listener {
 		// Use the updater, now that it has been configured to (not) do stuff
 		if (updater != null) {
 			CommandSender console = Bukkit.getConsoleSender();
-			assert console != null;
 			assert updater != null;
 			updater.updateCheck(console);
 		}
 
 		PluginCommand skriptCommand = getCommand("skript");
-		assert skriptCommand != null; // It is defined, unless build is corrupted or something like that
-		skriptCommand.setExecutor(new SkriptCommand());
-		skriptCommand.setTabCompleter(new SkriptCommandTabCompleter());
+		assert skriptCommand != null; // It is defined, unless the build is corrupted or something like that
+		SkriptCommand commandHandler = new SkriptCommand();
+		skriptCommand.setExecutor(commandHandler);
+		skriptCommand.setTabCompleter(commandHandler);
 
 		final AddonModule legacyModule = new AddonModule() {
 
@@ -575,10 +585,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			return;
 		}
 
-		// todo: remove completely 2.11 or 2.12
-		CompletableFuture<Boolean> aliases = Aliases.loadAsync();
-
-		Commands.registerListeners();
+		Aliases.load();
 
 		if (logNormal())
 			info(" " + Language.get("skript.copyright"));
@@ -617,12 +624,6 @@ public final class Skript extends JavaPlugin implements Listener {
 					Skript.exception(e);
 				}
 				finishedLoadingHooks = true;
-
-				try {
-					aliases.get(); // wait for aliases to load
-				} catch (InterruptedException | ExecutionException e) {
-					exception(e, "Could not load aliases concurrently");
-				}
 
 				if (TestMode.ENABLED) {
 					info("Preparing Skript for testing...");
@@ -1288,8 +1289,6 @@ public final class Skript extends JavaPlugin implements Listener {
 				Skript.exception(e, "An error occurred while shutting down.", "This might or might not cause any issues.");
 			}
 		}
-
-		this.experimentRegistry = null;
 	}
 
 	// ================ CONSTANTS, OPTIONS & OTHER ================
@@ -1302,7 +1301,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	public static void outdatedError(final Exception e) {
 		outdatedError();
-		if (testing())
+		if (debug())
 			e.printStackTrace();
 	}
 
@@ -1813,26 +1812,24 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param sender
 	 * @param command
 	 * @return Whether the command was run
+	 * @deprecated There is no replacement for this method.
 	 */
-	public static boolean dispatchCommand(final CommandSender sender, final String command) {
-		try {
-			if (sender instanceof Player) {
-				final PlayerCommandPreprocessEvent e = new PlayerCommandPreprocessEvent((Player) sender, "/" + command);
-				Bukkit.getPluginManager().callEvent(e);
-				if (e.isCancelled() || !e.getMessage().startsWith("/"))
-					return false;
-				return Bukkit.dispatchCommand(e.getPlayer(), e.getMessage().substring(1));
-			} else {
-				final ServerCommandEvent e = new ServerCommandEvent(sender, command);
-				Bukkit.getPluginManager().callEvent(e);
-				if (e.getCommand().isEmpty() || e.isCancelled())
-					return false;
-				return Bukkit.dispatchCommand(e.getSender(), e.getCommand());
+	@Deprecated(since = "2.17", forRemoval = true)
+	public static boolean dispatchCommand(CommandSender sender, String command) {
+		return EffCommand.dispatchCommand(sender, command, new RuntimeErrorProducer() {
+			@Override
+			public @NotNull ErrorSource getErrorSource() {
+				throw new UnsupportedOperationException();
 			}
-		} catch (final Exception ex) {
-			ex.printStackTrace(); // just like Bukkit
-			return false;
-		}
+			@Override
+			public void error(String message) { }
+			@Override
+			public void error(String message, String highlight) { }
+			@Override
+			public void warning(String message) { }
+			@Override
+			public void warning(String message, String highlight) { }
+		});
 	}
 
 	// ================ LOGGING ================
@@ -1850,11 +1847,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	public static boolean debug() {
-		return SkriptLogger.debug();
+		return SkriptLogger.debug() || Skript.testing();
 	}
 
 	public static boolean testing() {
-		return debug() || Skript.class.desiredAssertionStatus();
+		return TestMode.ENABLED || TestMode.DEV_MODE;
 	}
 
 	public static boolean log(final Verbosity minVerb) {

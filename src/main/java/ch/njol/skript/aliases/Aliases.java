@@ -7,7 +7,7 @@ import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.entity.EntityData;
+import org.skriptlang.skript.bukkit.entity.EntityData;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.localization.*;
 import ch.njol.skript.log.BlockingLogHandler;
@@ -379,10 +379,7 @@ public abstract class Aliases {
 	/**
 	 * Loads aliases from Skript's standard locations.
 	 * Exceptions will be logged, but not thrown.
-	 *
-	 * @deprecated Freezes server on call. Use {@link #loadAsync()} instead.
 	 */
-	@Deprecated(since = "2.10.0", forRemoval = true)
 	public static void load() {
 		try {
 			long start = System.currentTimeMillis();

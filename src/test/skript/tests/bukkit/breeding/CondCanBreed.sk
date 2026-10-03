@@ -1,0 +1,14 @@
+test "CondCanBreed":
+	spawn a pig at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} can breed to true
+	assert {_entity} can breed with "setting to true failed"
+	set whether {_entity} can breed to false
+	assert {_entity} can not breed with "setting to false failed"
+	set whether {_entity} can not breed to false
+	assert {_entity} can breed with "(negated) setting to true failed"
+	set whether {_entity} can not breed to true
+	assert {_entity} can not breed with "(negated) setting to false failed"
+
+	delete the entity within {_entity}
