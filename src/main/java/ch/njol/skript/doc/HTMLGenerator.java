@@ -844,7 +844,11 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 		// Examples
 		String[] examples = getDefaultIfNullOrEmpty(typeExamples, "Missing examples.");
-		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(Documentation.escapeHTML(examples)));
+		for (int i = 0; i < examples.length; i++) {
+			examples[i] = Documentation.escapeHTML(examples[i])
+					.replace("\r\n", "\n").replace("\r", "\n").replace("\n", "<br>");
+		}
+		desc = desc.replace("${element.examples}", Joiner.on("<br>").join(examples));
 		desc = desc
 			.replace("${element.examples-safe}", Joiner.on("<br>").join(examples)
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
