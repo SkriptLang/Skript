@@ -57,7 +57,7 @@ public class EvtPeriodical extends SkriptEvent {
 					else:
 						set title of {bar} to "Existence: %{-ticks}% ticks"
 				""")
-			.documentationId("eventperiodical")
+			.documentationId("eventperiodicalinworld")
 			.addSince("1.0")
 			.build());
 
