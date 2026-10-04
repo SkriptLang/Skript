@@ -1,0 +1,19 @@
+test "CondGoatHasHorns":
+	spawn a goat at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} has a left horn to true
+	assert {_entity} has a left horn with "goat does not have a left horn"
+	assert {_entity} has a horn with "goat does not have any horn"
+	set whether {_entity} has a right horn to true
+	assert {_entity} has a right horn with "goat does not have a right horn"
+	set whether {_entity} has both horns to false
+	assert {_entity} does not have any horn with "goat has a horn"
+	assert {_entity} does not have a left horn with "goat has a left horn"
+	assert {_entity} does not have a right horn with "goat has a right horn"
+	assert {_entity} does not have both horns with "goat has both horns"
+	set whether {_entity} does not have a left horn to false
+	assert {_entity} has a left horn with "(negated) goat does not have a left horn"
+	assert {_entity} has a horn with "(negated) goat does not have any horn"
+
+	delete the entity within {_entity}

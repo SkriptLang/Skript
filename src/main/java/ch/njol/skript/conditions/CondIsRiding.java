@@ -1,6 +1,5 @@
 package ch.njol.skript.conditions;
 
-import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.util.SimpleExpression;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
@@ -16,6 +15,7 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.bukkit.entity.EntityData;
 
 @Name("Is Riding")
 @Description("Tests whether an entity is riding any entity, a specific entity type, or a specific entity.")
