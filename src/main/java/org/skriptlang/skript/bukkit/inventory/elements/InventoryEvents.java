@@ -78,7 +78,7 @@ public class InventoryEvents {
 			    This event is also called when a player closes their own inventory.
 			    """)
 			.addExample("""
-				on player close inventory:
+				on inventory closing:
 					if {captcha::%player's uuid%} is not true:
 					    cancel event
 					    send "You need to complete the captcha to prove you're not a bot first!" to player
@@ -131,7 +131,7 @@ public class InventoryEvents {
 			.addExample("""
 				on inventory drag item:
 					if player's top inventory is {example}:
-						sends "You cannot drag items here!" to player
+						send "You cannot drag items here!" to player
 						cancel event
 				""")
 			.addSince("2.7")
