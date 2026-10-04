@@ -226,6 +226,7 @@ public class InventoryEvents {
 
 				return location.getBlock();
 			})
+			.time(Time.FUTURE)
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(InventoryMoveItemEvent.class, Block.class)
@@ -236,7 +237,6 @@ public class InventoryEvents {
 
 				return location.getBlock();
 			})
-			.time(Time.FUTURE)
 			.build());
 
 		eventValueRegistry.register(EventValue.builder(InventoryMoveItemEvent.class, ItemStack.class)
