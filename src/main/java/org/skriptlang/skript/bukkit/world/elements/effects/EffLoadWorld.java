@@ -82,7 +82,7 @@ public class EffLoadWorld extends Effect {
 		return new SyntaxStringBuilder(event, debug)
 			.append(load ? "load" : "unload")
 			.append("the world(s)", worlds)
-			.appendIf(!save, "without saving")
+			.appendIf(!save && !load, "without saving")
 			.appendIf(environment != null, "with environment", environment)
 			.toString();
 	}

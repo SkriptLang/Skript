@@ -27,8 +27,8 @@ public class EvtWeatherChange extends SkriptEvent {
 			.addPatterns("weather change[[d] to %-weathertypes%]")
 			.addDescription("Called when a world's weather changes.")
 			.addExample("""
-				on weather change to rain in world "example":
-					broadcast "Its now raining!" to all players in world "example"
+				on weather change to rain:
+					broadcast "It's now raining!"
 				""")
 			.addExample("""
 				on weather change to storm:

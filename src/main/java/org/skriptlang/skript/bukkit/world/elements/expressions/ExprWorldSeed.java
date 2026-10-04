@@ -57,7 +57,7 @@ public class ExprWorldSeed extends PropertyExpression<World, Long> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the world seed of" + getExpr().toString(event, debug);
+		return "the world seed of " + getExpr().toString(event, debug);
 	}
 
 }

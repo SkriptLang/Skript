@@ -31,9 +31,9 @@ public class ExprWorldSpawn extends PropertyExpression<World, Location> {
 			infoBuilder(
 				ExprWorldSpawn.class,
 				Location.class,
-				"spawn[s] [(point|location)[s]]",
+				"spawn[s] [point|location[s]]",
 				"worlds",
-				false
+				true
 			)
 				.supplier(ExprWorldSpawn::new)
 				.build()
@@ -70,12 +70,12 @@ public class ExprWorldSpawn extends PropertyExpression<World, Location> {
 		if (originalLocation == null)
 			return;
 
+		World originalWorld = originalLocation.getWorld();
 		Location location = originalLocation.clone();
 
-		for (World world : getExpr().getArray(event)) {
-			World locationWorld = location.getWorld();
 
-			if (locationWorld != null && !locationWorld.equals(world))
+		for (World world : getExpr().getArray(event)) {
+			if (originalWorld != null && !originalWorld.equals(world))
 				continue;
 
 			location.setWorld(world);

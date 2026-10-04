@@ -34,7 +34,6 @@ public class EvtWorldInit extends SkriptEvent {
 				""")
 			.addSince("1.0")
 			.addSince("2.8.0 (defining worlds)")
-			.addSince("INSERT VERSION ('world init of world \"example\"'")
 			.build());
 	}
 

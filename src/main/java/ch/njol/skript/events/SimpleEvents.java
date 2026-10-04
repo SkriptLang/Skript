@@ -223,16 +223,6 @@ public class SimpleEvents {
 						"\tif projectile is an arrow:",
 						"\t\tsend \"you shot an arrow!\" to shooter")
 				.since("1.0");
-		Skript.registerEvent("Sign Change", SimpleEvent.class, SignChangeEvent.class, "sign (chang[e]|edit)[ing]", "[player] (chang[e]|edit)[ing] [a] sign")
-				.description("As signs are placed empty, this event is called when a player is done editing a sign.")
-				.examples("on sign change:",
-						"	line 2 is empty",
-						"	set line 1 to \"&lt;red&gt;%line 1%\"");
-		Skript.registerEvent("Spawn Change", SimpleEvent.class, SpawnChangeEvent.class, "[world] spawn change")
-				.description("Called when the spawn point of a world changes.")
-				.examples("on spawn change:",
-						"\tbroadcast \"someone changed the spawn!\"")
-				.since("1.0");
 		Skript.registerEvent("Vehicle Create", SimpleEvent.class, VehicleCreateEvent.class, "vehicle create", "creat(e|ing|ion of) [a] vehicle")
 				.description("Called when a new vehicle is created, e.g. when a player places a boat or minecart.")
 				.examples("on vehicle create:")
