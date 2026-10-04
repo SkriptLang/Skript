@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 		inventory close reason is teleport
 		send "Your inventory closed due to teleporting!" to player
 	""")
-@Events("Inventory Close")
+@Events("Player Inventory Close")
 @Since("2.8.0")
 public class ExprInventoryCloseReason extends EventValueExpression<InventoryCloseEvent.Reason> implements EventRestrictedSyntax {
 	
