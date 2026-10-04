@@ -23,7 +23,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	""")
 @Example("set the item model of player's held item to \"diamond\"")
 @Example("set the item model of {_item} to \"minecraft:dirt\"")
-@Since("INSERT VERSION")
+@Since("2.17")
 public class ExprItemModel extends SimplePropertyExpression<ItemType, String> {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {

@@ -39,7 +39,7 @@ public class ExperimentRegistry implements Registry<Experiment>, ViewProvider<Ex
 	/**
 	 * @deprecated Use {@link #ExperimentRegistry(Skript)}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.17", forRemoval = true)
 	public ExperimentRegistry(ch.njol.skript.Skript ignored) {
 		this(ch.njol.skript.Skript.instance());
 	}
@@ -101,7 +101,7 @@ public class ExperimentRegistry implements Registry<Experiment>, ViewProvider<Ex
 	/**
 	 * @deprecated Use {@link #register(SkriptAddon, Experiment)}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.17", forRemoval = true)
 	public void register(ch.njol.skript.SkriptAddon addon, Experiment experiment) {
 		register((SkriptAddon) addon, experiment);
 	}
@@ -118,7 +118,7 @@ public class ExperimentRegistry implements Registry<Experiment>, ViewProvider<Ex
 	/**
 	 * @deprecated Use {@link #registerAll(SkriptAddon, Experiment...)}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.17", forRemoval = true)
 	public void registerAll(ch.njol.skript.SkriptAddon addon, Experiment... experiments) {
 		registerAll((SkriptAddon) addon, experiments);
 	}
@@ -141,7 +141,7 @@ public class ExperimentRegistry implements Registry<Experiment>, ViewProvider<Ex
 	/**
 	 * @deprecated Use {@link #unregister(SkriptAddon, Experiment)}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.17", forRemoval = true)
 	public void unregister(ch.njol.skript.SkriptAddon addon, Experiment experiment) {
 		unregister((SkriptAddon) addon, experiment);
 	}
@@ -165,7 +165,7 @@ public class ExperimentRegistry implements Registry<Experiment>, ViewProvider<Ex
 	/**
 	 * @deprecated Use {@link #register(SkriptAddon, String, LifeCycle, String...)}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.17", forRemoval = true)
 	public Experiment register(ch.njol.skript.SkriptAddon addon, String codeName, LifeCycle phase, String... patterns) {
 		return register((SkriptAddon) addon, codeName, phase, patterns);
 	}

@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import org.bukkit.entity.Entity;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
@@ -22,7 +23,17 @@ public class CondIsSilent extends PropertyCondition<Entity> {
 	public boolean check(Entity entity) {
 		return entity.isSilent();
 	}
-	
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(Entity entity, boolean silent, ChangeMode mode) {
+		entity.setSilent(silent);
+	}
+
 	@Override
 	protected String getPropertyName() {
 		return "silent";

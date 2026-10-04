@@ -1,6 +1,7 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.*;
 import org.bukkit.entity.Allay;
@@ -9,7 +10,10 @@ import org.bukkit.entity.Parrot;
 import org.bukkit.entity.Piglin;
 
 @Name("Is Dancing")
-@Description("Checks to see if an entity is dancing, such as allays, parrots, or piglins.")
+@Description("""
+	Checks to see if an entity is dancing, such as allays, parrots, or piglins.
+	Please note that it is not possible to change whether a parrot is dancing.
+	""")
 @Example("""
 	if last spawned allay is dancing:
 		broadcast "Dance Party!"
@@ -33,6 +37,31 @@ public class CondIsDancing extends PropertyCondition<LivingEntity> {
 			return piglin.isDancing();
 		}
 		return false;
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(LivingEntity entity, boolean dancing, ChangeMode mode) {
+		switch (entity) {
+			case Allay allay -> {
+				if (dancing) {
+					allay.startDancing();
+				} else {
+					allay.stopDancing();
+				}
+			}
+			case Parrot ignored -> error("It is not possible to force whether a parrot is dancing.");
+			case Piglin piglin -> {
+				if (SUPPORTS_PIGLINS) {
+					piglin.setDancing(dancing);
+				}
+			}
+			default -> { }
+		}
 	}
 
 	@Override

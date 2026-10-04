@@ -1,0 +1,14 @@
+test "CondEntityUnload":
+	spawn an pig at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} can despawn when far away to true
+	assert {_entity} can despawn when far away with "setting to true failed"
+	set whether {_entity} can despawn when far away to false
+	assert {_entity} can not despawn when far away with "setting to false failed"
+	set whether {_entity} can not despawn when far away to false
+	assert {_entity} can despawn when far away with "(negated) setting to true failed"
+	set whether {_entity} can not despawn when far away to true
+	assert {_entity} can not despawn when far away with "(negated) setting to false failed"
+
+	delete the entity within {_entity}
