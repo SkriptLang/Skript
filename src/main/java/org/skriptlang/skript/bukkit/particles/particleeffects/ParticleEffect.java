@@ -374,7 +374,7 @@ public class ParticleEffect extends ParticleBuilder implements Debuggable {
 	 * {@inheritDoc}
 	 */
 	@Override
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.17", forRemoval = true)
 	public ParticleEffect extra(double extra) {
 		return (ParticleEffect) super.extra(extra);
 	}

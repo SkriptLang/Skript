@@ -6,7 +6,7 @@ import java.util.List;
 import org.bukkit.Material;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.entity.EntityData;
+import org.skriptlang.skript.bukkit.entity.EntityData;
 
 /**
  * Stores the aliases.

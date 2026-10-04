@@ -33,3 +33,18 @@ test "is charged":
 	delete entity within {_w}
 	delete entity within {_s}
 	delete entity within {_z}
+
+test "CondIsCharged":
+	spawn a creeper at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} is charged to true
+	assert {_entity} is charged with "setting to true failed"
+	set whether {_entity} is charged to false
+	assert {_entity} is not charged with "setting to false failed"
+	set whether {_entity} is not charged to false
+	assert {_entity} is charged with "(negated) setting to true failed"
+	set whether {_entity} is not charged to true
+	assert {_entity} is not charged with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

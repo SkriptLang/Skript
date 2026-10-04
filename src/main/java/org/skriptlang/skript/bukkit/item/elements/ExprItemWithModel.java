@@ -24,7 +24,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	set {_item} to emerald with model "minecraft:diamond" named "fake diamond"'
 	give {_item} to player
 	""")
-@Since("INSERT VERSION")
+@Since("2.17")
 @Keywords("item model")
 public class ExprItemWithModel extends PropertyExpression<ItemType, ItemType> {
 

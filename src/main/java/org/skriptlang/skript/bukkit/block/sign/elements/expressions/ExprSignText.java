@@ -43,7 +43,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		cancel the event
 		send "<red>You may not write profanity on signs!" to the player
 	""")
-@Since({"1.3", "INSERT VERSION (sign side support)"})
+@Since({"1.3", "2.17 (sign side support)"})
 public class ExprSignText extends SimpleExpression<Component> {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
