@@ -147,9 +147,6 @@ public class SkriptMetrics {
 		metrics.addCustomChart(new SimplePie("caseSensitiveVariables", () ->
 			String.valueOf(!SkriptConfig.caseInsensitiveVariables.value())
 		));
-		metrics.addCustomChart(new SimplePie("caseSensitiveCommands", () ->
-			String.valueOf(!SkriptConfig.caseInsensitiveCommands.value())
-		));
 
 		metrics.addCustomChart(new SimplePie("disableSaveWarnings", () ->
 			SkriptConfig.disableObjectCannotBeSavedWarnings.value().toString()
@@ -177,10 +174,6 @@ public class SkriptMetrics {
 
 		metrics.addCustomChart(new SimplePie("colorResetCodes", () ->
 			SkriptConfig.colorResetCodes.value().toString()
-		));
-
-		metrics.addCustomChart(new SimplePie("keepLastUsage", () ->
-			SkriptConfig.keepLastUsageDates.value().toString()
 		));
 
 		metrics.addCustomChart(new DrilldownPie("drilldownParsetimeWarningThreshold", () ->

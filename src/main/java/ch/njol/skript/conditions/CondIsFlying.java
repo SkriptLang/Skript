@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import org.bukkit.entity.Player;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
@@ -22,7 +23,17 @@ public class CondIsFlying extends PropertyCondition<Player> {
 	public boolean check(Player player) {
 		return player.isFlying();
 	}
-	
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(Player player, boolean flying, ChangeMode mode) {
+		player.setFlying(flying);
+	}
+
 	@Override
 	protected String getPropertyName() {
 		return "flying";

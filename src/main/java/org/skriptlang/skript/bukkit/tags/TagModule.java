@@ -2,10 +2,8 @@ package org.skriptlang.skript.bukkit.tags;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
-import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.slot.Slot;
@@ -20,9 +18,15 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.entity.EntityData;
+import org.skriptlang.skript.bukkit.entity.EntityUtils;
 import org.skriptlang.skript.bukkit.tags.elements.conditions.CondIsTagged;
 import org.skriptlang.skript.bukkit.tags.elements.effects.EffRegisterTag;
-import org.skriptlang.skript.bukkit.tags.elements.expressions.*;
+import org.skriptlang.skript.bukkit.tags.elements.expressions.ExprTag;
+import org.skriptlang.skript.bukkit.tags.elements.expressions.ExprTagContents;
+import org.skriptlang.skript.bukkit.tags.elements.expressions.ExprTagKey;
+import org.skriptlang.skript.bukkit.tags.elements.expressions.ExprTagsOf;
+import org.skriptlang.skript.bukkit.tags.elements.expressions.ExprTagsOfType;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 

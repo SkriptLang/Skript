@@ -26,7 +26,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	If a sign side is not specified, the front side will be used by default.
 	""")
 @Example("make target block of player have glowing text")
-@Since({"2.8.0", "INSERT VERSION (sign side support)"})
+@Since({"2.8.0", "2.17 (sign side support)"})
 public class EffGlowingText extends Effect {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {

@@ -136,14 +136,8 @@ updater:
 
 # -- Commands --
 commands:
-	no permission message: Bu komutu kullanmak için gerekli yetkiye sahip değilsiniz.
 	cooldown message: Bu komutu çok sık kullanıyorsunuz, lütfen daha sonra tekrar deneyin.
-	executable by players: Bu komut yalnızca oyuncular tarafından kullanılabilir.
-	executable by console: Bu komut yalnızca konsol tarafından kullanılabilir.
-	correct usage: Doğru kullanım:
 	invalid argument: Yanlış argüman <gray>'%s<gray>'<reset>. İzin verilenler:
-	too many arguments: Bu komut yalnızca bir tane %2$s kabul eder.
-	internal error: Bu komut gerçekleştirilmeye çalışılırken dahili bir hata oluştu.
 	no player starts with: Adı '%s' ile başlayan oyuncu bulunamadı.
 	multiple players start with: Adı '%s' ile başlayan birden fazla oyuncu var.
 

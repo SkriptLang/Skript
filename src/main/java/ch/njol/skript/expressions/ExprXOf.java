@@ -7,7 +7,6 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -18,6 +17,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.entity.EntityType;
 import org.skriptlang.skript.bukkit.particles.particleeffects.ParticleEffect;
 
 import java.lang.reflect.Array;
@@ -95,7 +95,7 @@ public class ExprXOf extends PropertyExpression<Object, Object> {
 				return type;
 			} else if (object instanceof EntityType ogType) {
 				EntityType entityType = ogType.clone();
-				entityType.amount = (int) absAmount;
+				entityType.setAmount((int) absAmount);
 				return entityType;
 			} else if (object instanceof ParticleEffect particleEffect) {
 				ParticleEffect effect = particleEffect.copy();
