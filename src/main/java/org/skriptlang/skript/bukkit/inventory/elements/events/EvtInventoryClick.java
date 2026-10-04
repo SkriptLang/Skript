@@ -100,6 +100,9 @@ public class EvtInventoryClick extends SkriptEvent {
 
 		InventoryClickEvent inventoryEvent = (InventoryClickEvent) event;
 
+		if (inventoryEvent.getCurrentItem() == null)
+			return false;
+
 		return itemType.check(event, itemType -> itemType.isOfType(inventoryEvent.getCurrentItem()));
 	}
 
