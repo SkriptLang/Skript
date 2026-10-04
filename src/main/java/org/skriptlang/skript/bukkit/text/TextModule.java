@@ -83,7 +83,7 @@ public class TextModule extends HierarchicalAddonModule {
 			.addDescription("Called when a message is broadcasted.")
 			.addExample("""
 				on message being broadcasted:
-				   set broadcast-message to "<gray>[<red><bold>BROADCAST<reset><gray>] <white>%broadcasted message%"
+					set broadcast-message to "<gray>[<red><bold>BROADCAST<reset><gray>] <white>%broadcasted message%"
 				""")
 			.addSince("2.10")
 			.addSince("INSERT VERSION ('message being broadcast' pattern)")

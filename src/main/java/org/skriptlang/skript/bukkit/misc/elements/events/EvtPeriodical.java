@@ -21,7 +21,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public class EvtPeriodical extends SkriptEvent {
 
 	public static void register(SyntaxRegistry syntaxRegistry, EventValueRegistry eventValueRegistry) {
-		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtPeriodical.class, "Periodical")
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtPeriodical.class, "*Periodical")
 			.supplier(EvtPeriodical::new)
 			.addEvent(ScheduledNoWorldEvent.class)
 			.addPattern("every %timespan%")
@@ -38,7 +38,7 @@ public class EvtPeriodical extends SkriptEvent {
 			.addSince("1.0")
 			.build());
 
-		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtPeriodical.class, "Periodical")
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtPeriodical.class, "*Periodical")
 			.supplier(EvtPeriodical::new)
 			.addEvent(ScheduledEvent.class)
 			.addPattern("every %timespan% in [world[s]] %worlds%")

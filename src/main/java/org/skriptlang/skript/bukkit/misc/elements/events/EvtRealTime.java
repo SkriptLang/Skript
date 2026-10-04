@@ -22,7 +22,7 @@ public class EvtRealTime extends SkriptEvent {
 	private static Timer TIMER;
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
-		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtRealTime.class, "System Time")
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtRealTime.class, "*System Time")
 			.supplier(EvtRealTime::new)
 			.addEvent(RealTimeEvent.class)
 			.addPatterns("at %times% [in] real time")
@@ -73,7 +73,7 @@ public class EvtRealTime extends SkriptEvent {
 	public boolean postLoad() {
 		Calendar currentCalendar = Calendar.getInstance();
 		currentCalendar.setTimeZone(TimeZone.getDefault());
-		for (Time time : times.getArray()) {
+		for (Time time : times.getAll()) {
 			Calendar expectedCalendar = Calendar.getInstance();
 			expectedCalendar.setTimeZone(TimeZone.getDefault());
 			expectedCalendar.set(Calendar.MILLISECOND, 0);

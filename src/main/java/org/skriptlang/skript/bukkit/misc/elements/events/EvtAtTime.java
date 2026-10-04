@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
-		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtAtTime.class, "At Time")
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtAtTime.class, "*At Time")
 			.supplier(EvtAtTime::new)
 			.addEvent(ScheduledEvent.class)
 			.addPattern("at %time% [in %-worlds%]")

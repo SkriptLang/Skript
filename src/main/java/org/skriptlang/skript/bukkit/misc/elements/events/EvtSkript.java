@@ -33,15 +33,15 @@ public class EvtSkript extends SkriptEvent {
 			)
 			.addDescription("""
 				Called when Skript itself starts or stops.
-				Note that reloading a script will trigger these events as well.
+				Note that a /reload will trigger these events as well.
 				""")
 			.addExample("""
 				on skript start:
-				    set {-example} to diamond pickaxe named "<blue>Example"
+					set {-example} to diamond pickaxe named "<blue>Example"
 				""")
 			.addExample("""
 				on skript stop:
-				    broadcast "Stopping!"
+					broadcast "Stopping!"
 				""")
 			.addSince("2.0")
 			.build());

@@ -19,13 +19,13 @@ public class MiscEvents {
 			.addDescription("""
 				Called when a server list ping is coming in, generally when a Minecraft client pings the server to show its information in the server list.
 				The <a href='#ExprIP'>IP</a> expression can be used to get the IP address of the pinger.
-				Cancelling this event will make the player will see the server as offline (but still can join).
+				Cancelling this event will make the player see the server as offline (but still can join).
 				
-				See <a href='#ExprMOTD'>MOTD</a>, <a href='#ExprMaxPlayers'>Max Players</a>,\
-				<a href='#ExprOnlinePlayersCount'>Online Players Count</a>, <a href='#ExprProtocolVersion'>Protocol Version</a>,\
-				<a href='#ExprVersionString'>Version String</a>,\
-				<a href='#ExprHoverList'>Hover List</a> and <a href='#ExprServerIcon'>Server Icon</a>\
-				<a href='#EffPlayerInfoVisibility'>Player Info Visibility</a> and <a href='#EffHidePlayerFromServerList'>Hide Player from Server List</a>\
+				See <a href='#ExprMOTD'>MOTD</a>, <a href='#ExprMaxPlayers'>Max Players</a>, \
+				<a href='#ExprOnlinePlayersCount'>Online Players Count</a>, <a href='#ExprProtocolVersion'>Protocol Version</a>, \
+				<a href='#ExprVersionString'>Version String</a>, \
+				<a href='#ExprHoverList'>Hover List</a> and <a href='#ExprServerIcon'>Server Icon</a> expressions, and \
+				<a href='#EffPlayerInfoVisibility'>Player Info Visibility</a> and <a href='#EffHidePlayerFromServerList'>Hide Player from Server List</a> effects \
 				for how to modify the server list.
 				""")
 			.addExample("""
@@ -49,8 +49,8 @@ public class MiscEvents {
 				on anvil prepare:
 					event-item is set
 					chance of 5%:
-						set repair cost to cost * 50%
-						send "Your LUCKY! You got 50% discount!" to player
+						set repair cost to repair cost * 50%
+						send "You're LUCKY! You got 50% discount!" to player
 				""")
 			.addSince("2.7")
 			.supplier(() -> new SimpleEvent("anvil prepare"))
