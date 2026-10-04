@@ -365,7 +365,7 @@ public class DefaultFunctions {
 			)
 			.since("2.14")
 			.parameter("n", Long[].class)
-			.parameter("base", Long.class, Modifier.ranged(2, 36))
+			.parameter("base", Long.class, new Modifier.Ranged<>(2, 36))
 			.contract(new Contract() {
 				@Override
 				public boolean isSingle(Expression<?>... arguments) {
@@ -405,7 +405,7 @@ public class DefaultFunctions {
 				""")
 			.since("2.14")
 			.parameter("string value", String[].class)
-			.parameter("base", Long.class, Modifier.ranged(2, 36))
+			.parameter("base", Long.class, new Modifier.Ranged<>(2, 36))
 			.contract(new Contract() {
 				@Override
 				public boolean isSingle(Expression<?>... arguments) {
@@ -482,9 +482,9 @@ public class DefaultFunctions {
 			.parameter("x", Number.class)
 			.parameter("y", Number.class)
 			.parameter("z", Number.class)
-			.parameter("world", World.class, Modifier.OPTIONAL)
-			.parameter("yaw", Float.class, Modifier.OPTIONAL)
-			.parameter("pitch", Float.class, Modifier.OPTIONAL)
+			.parameter("world", World.class, new Modifier.Optional())
+			.parameter("yaw", Float.class, new Modifier.Optional())
+			.parameter("pitch", Float.class, new Modifier.Optional())
 			.build(args -> {
 				World world = args.getOrDefault("world", Bukkit.getWorlds().get(0));
 
@@ -612,10 +612,10 @@ public class DefaultFunctions {
 				"set the colour of a text display to rgb(10, 50, 100, 50)"
 			)
 			.since("2.5, 2.10 (alpha)")
-			.parameter("red", Long.class, Modifier.ranged(0, 255))
-			.parameter("green", Long.class, Modifier.ranged(0, 255))
-			.parameter("blue", Long.class, Modifier.ranged(0, 255))
-			.parameter("alpha", Long.class, Modifier.ranged(0, 255), Modifier.OPTIONAL)
+			.parameter("red", Long.class, new Modifier.Ranged<>(0, 255))
+			.parameter("green", Long.class, new Modifier.Ranged<>(0, 255))
+			.parameter("blue", Long.class, new Modifier.Ranged<>(0, 255))
+			.parameter("alpha", Long.class, new Modifier.Ranged<>(0, 255), new Modifier.Optional())
 			.build(args -> ColorRGB.fromRGBA(
 				args.<Long>get("red").intValue(),
 				args.<Long>get("green").intValue(),
@@ -635,7 +635,7 @@ public class DefaultFunctions {
 			)
 			.since("2.8.0")
 			.parameter("nameOrUUID", String.class)
-			.parameter("getExactPlayer", Boolean.class, Modifier.OPTIONAL)
+			.parameter("getExactPlayer", Boolean.class, new Modifier.Optional())
 			.build(args -> {
 				String name = args.get("nameOrUUID");
 				boolean isExact = args.getOrDefault("getExactPlayer", false);
