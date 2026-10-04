@@ -68,11 +68,7 @@ public class ExprGameRule extends PropertyExpression<World, GameruleValue> {
 		if (gamerule == null)
 			return new GameruleValue[0];
 
-		World[] worlds = getExpr().getArray(event);
-		if (worlds == null)
-			return new GameruleValue[0];
-
-		return Arrays.stream(worlds)
+		return Arrays.stream(source)
 			.map(world -> new GameruleValue<>(world.getGameRuleValue(gamerule)))
 			.toArray(GameruleValue[]::new);
 	}
