@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.item.book.elements.expressions;
 
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -15,9 +14,6 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-/**
- * @deprecated This is being removed in favor of {@link org.skriptlang.skript.common.properties.elements.expressions.PropExprAuthor}
- */
 @Name("Book Author")
 @Description("The author of a book.")
 @Example("""
@@ -25,13 +21,9 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		broadcast "A new book has been created by %author of event-item%"
 	""")
 @Since("2.2-dev31")
-@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class ExprBookAuthor extends SimplePropertyExpression<ItemType, Component> {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
-		if (SkriptConfig.useTypeProperties.value())
-			return;
-
 		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, infoBuilder(ExprBookAuthor.class, Component.class,
 			"[book] (author|writer|publisher)", "itemtypes", false)
 				.supplier(ExprBookAuthor::new)
