@@ -12,6 +12,28 @@ import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
  */
 public class YggdrasilSerializer<T extends YggdrasilSerializable> extends Serializer<T> {
 	
+	/**
+	 * Delegates serialization to registered concrete subtypes and preserves their
+	 * complete Yggdrasil headers, including enum and object tags.
+	 *
+	 * @param <T> the parent type
+	 * @return a serializer for a parent type with separately registered subtypes
+	 */
+	public static <T extends YggdrasilSerializable> YggdrasilSerializer<T> delegatingToSubtypeSerializers() {
+		return new YggdrasilSerializer<>() {
+			@Override
+			public String getID(Class<?> type) {
+				assert info != null;
+				return type == info.getC() ? info.getCodeName() : null;
+			}
+
+			@Override
+			public boolean usesClassInfoHeader() {
+				return false;
+			}
+		};
+	}
+
 	@Override
 	public final Fields serialize(final T o) throws NotSerializableException {
 		if (o instanceof YggdrasilExtendedSerializable)

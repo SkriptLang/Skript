@@ -35,6 +35,10 @@ dependencies {
 	implementation group: 'io.papermc.paper', name: 'paper-api', version: '26.2.build.+'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
 
+	implementation 'com.zaxxer:HikariCP:5.1.0'
+	implementation 'com.h2database:h2:2.3.232'
+	testImplementation 'org.xerial:sqlite-jdbc:3.46.1.0'
+
 	// bundled with Minecraft 1.19.4+ for display entity transforms
 	implementation group: 'org.joml', name: 'joml', version: '1.10.9'
 

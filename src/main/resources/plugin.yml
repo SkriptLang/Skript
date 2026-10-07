@@ -61,3 +61,7 @@ permissions:
     skript.see_runtime_errors:
         default: op
         description: Shows notifications in chat when runtime errors occur.
+
+libraries:
+    - com.zaxxer:HikariCP:5.1.0
+    - com.h2database:h2:2.3.232

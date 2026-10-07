@@ -298,21 +298,23 @@ runtime errors:
 # ==== Variables ====
 
 databases:
-	# Databases to store variables in. These can either be used as a simple one-server-storage
-	# where variables are written constantly but only read at server start,
-	# or as a connection between multiple servers by monitoring the database(s) for changes.
+	# Databases to store variables in. CSV loads variables at startup; SQLite, H2 and MySQL load them on access.
+	# Changes are saved in batches. These storages do not monitor changes made by other servers.
 	#
 	# You can define as many databases as you want, just make sure to choose a distinct name for each one, and don't forget to set all options correctly.
 	#
 	# Please note that '/skript reload' will not reload this section, i.e. you'll have to restart Skript for changes to take effect.
 
 	# Each database definition must be in a separate section. You can choose any name for the sections, as long as it's not already used.
-	database 1:
-		# An example database to describe all possible options.
 
+	database 1:
+		# Disabled example. Supported types: CSV, SQLite, H2 & MySQL.
 		type: disabled
-		# The type of this database. Allowed values are 'CSV' and 'disabled'.
-		# CSV uses a text file to store the variables and 'disabled' makes Skript ignore the database as if it wasn't defined at all.
+		# The type of this database. Allowed values are 'CSV', 'SQLite', 'H2', 'MySQL' and 'disabled'.
+		# CSV uses a text file to store the variables
+		# SQLite & H2 use a binary .db/.mv.db file to store the variables
+		# MySQL uses an external database to store the variables
+		# Disabled makes Skript ignore the database as if it wasn't defined at all.
 
 		pattern: .*
 		# Defines which variables to save in this database.
@@ -320,42 +322,53 @@ databases:
 		# or use '.*' (the default value) to store all variables here (recommended for the last database in this list, as otherwise some variables might not be saved).
 		# Please note that variables are only stored in one database, and databases are checked from top to bottom,
 		# e.g. if a variable matches the topmost database's pattern it will be saved there and nowhere else.
-		# BTW: Patterns are checked in a separate thread, i.e. your server likely won't run slower when using complicated patterns.
+		# If MySQL above default uses '.*', it receives all persistent variables; the CSV file may still be created.
+		# Existing CSV values are not imported while the CSV pattern still accepts them.
 
-		monitor changes: false
-		monitor interval: 20 seconds
-		# If 'monitor changes' is set to true, variables will repeatedly be checked for updates in the database (in intervals set in 'monitor interval').
-		# ! Please note that you should set 'pattern', 'monitor changes' and 'monitor interval' to the same values on all servers that access the same database!
+		save delay: 5 minutes
+		save period: 5 minutes
+		required changes per save: 1000
+		# "save delay" dictates when to start checking for saves after the server starts (e.g. first check)
+		# "save period" is the timespan between every check after the initial delay (e.g. between second check and third check...)
+		# "required changed per save" is a metric that triggers an early save when the threshhold of variable manipulation is reached
 
-		# == CSV configuration ==
-		file: ./plugins/Skript/variables.db
-		# Where to save the variables to. For a CSV file, the file extension '.csv' is recommended, but not required, but SQLite database files must end in '.db' (SQLibrary forces this).
+		file: ./plugins/Skript/database.db
+		# Where to save the variables to.
+		# For a CSV file, the file extension '.csv' is recommended, but not required
+		# For a SQLite file, use '.db', auto appeneded if missing
+		# For an H2 file, use '.mv.db', auto appeneded if missing
+		# For a MySQL configuration, this entry is ignored
 		# The file path can either be absolute (e.g. 'C:\whatever\...' [Windows] or '/usr/whatever/...' [Unix]), or relative to the server directory (e.g. './plugins/Skript/...').
 
 		backup interval: 2 hours
-		# Creates a backup of the file every so often. This can be useful if you ever want to revert variables to an older state.
-		# Variables are saved constantly no matter what is set here, thus a server crash will never make you lose any variables.
-		# Set this to 0 to disable this feature.
+		backups to keep: 3
+		# Creates a backup of the save file every so "specified interval". This can be useful if you ever want to revert variables to an older state.
+		# Changes since the last successful save can be lost if the server crashes.
+		# Set this to 0 to disable this feature. -1 to keep every backup, any positive value 'x' retains the newest 'x' backups.
 
-		backups to keep: -1
-		# if set to a value greater than -1, Skript will ensure only that many backups are kept.
-		# Backups are removed from oldest to newest.
-		# If disabled (set to -1), no backup files will be deleted.
-		# WARNING: Setting to 0 will delete all files located in the backup directory upon plugin start/reload
+		table: skript_vars
+		# The database table used by SQLite, H2 and MySQL
+		# Changing the table will create a new one in the database, effectively saving the old table and not interacting with it, but
+		# old variables will not transfer over to the new table
+
+		# MySQL connection options
+		host: localhost
+		port: 3306
+		database: skript
+		user: skript
+		password: changeme
 
 	default:
 		# The default "database" is a simple text file, with each variable on a separate line and the variable's name, type, and value separated by commas.
 		# This is the last database in this list to catch all variables that have not been saved anywhere else.
 		# You can modify this database freely, but make sure to know what you're doing if you don't want to lose any variables.
-
 		type: CSV
-
 		pattern: .*
-
 		file: ./plugins/Skript/variables.csv
-
+		save delay: 5 minutes
+		save period: 5 minutes
+		required changes per save: 1000
 		backup interval: 2 hours
-
 		backups to keep: -1
 
 

@@ -98,6 +98,7 @@ local.properties
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+vlt-references/
 
 # Generated files
 .idea/**/contentModel.xml

@@ -34,7 +34,7 @@ public class ClassesTest {
 				"String",
 				
 				// Skript
-				SkriptColor.BLACK, TreeSpecies.RED_MUSHROOM, WeatherType.THUNDER,
+				SkriptColor.BLACK, ch.njol.skript.util.ColorRGB.fromRGB(12, 34, 56), TreeSpecies.RED_MUSHROOM, WeatherType.THUNDER,
 				new Date(System.currentTimeMillis()), new Timespan(1337), new Time(12000), new Timeperiod(1000, 23000),
 				new Experience(15), new Direction(0, Math.PI, 10), new Direction(new double[] {0, 1, 0}),
 				new EntityType(new SimpleEntityData(HumanEntity.class), 300),
@@ -50,7 +50,7 @@ public class ClassesTest {
 				// there is also at least one variable for each class on my test server which are tested whenever the server shuts down.
 		};
 		for (Object o : random)
-			Classes.serialize(o); // includes a deserialisation test
+			org.junit.Assert.assertEquals(o, Classes.deserialize(Classes.serialize(o)));
 	}
 
 }
