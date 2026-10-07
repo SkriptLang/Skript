@@ -32,6 +32,9 @@ test "color of firework effects":
 	assert {_colors::1} is set with "first firework effect colour failed"
 	assert {_colors::2} is set with "second firework effect colour failed"
 	assert {_colors::1} is not {_colors::2} with "firework effect colours should differ"
+	parse:
+		set colours of (ball firework effect coloured red) to blue
+	assert last parse logs is set with "firework effect colours should not be changeable"
 
 test "color of displays":
 	spawn a text display at spawn of world "world":

@@ -1,22 +1,17 @@
 package org.skriptlang.skript.bukkit.types;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.util.Color;
 import ch.njol.skript.util.ColorRGB;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.FireworkEffect;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
-
-import java.util.List;
 
 @ApiStatus.Internal
 public class FireworkEffectClassInfo extends ClassInfo<FireworkEffect> {
@@ -40,7 +35,7 @@ public class FireworkEffectClassInfo extends ClassInfo<FireworkEffect> {
 			.since("2.4")
 			.parser(new FireworkEffectParser())
 			.property(Property.COLOR,
-				"The colors of a firework effect. Can be set, added to, removed from, reset and deleted.",
+				"The colors of a firework effect. Cannot be changed, since firework effects are immutable.",
 				Skript.instance(),
 				new FireworkEffectColorHandler());
 	}
@@ -71,40 +66,6 @@ public class FireworkEffectClassInfo extends ClassInfo<FireworkEffect> {
 			return effect.getColors().stream()
 				.map(ColorRGB::fromBukkitColor)
 				.toArray(Color[]::new);
-		}
-
-		@Override
-		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-			return switch (mode) {
-				case SET, ADD, REMOVE, REMOVE_ALL, DELETE, RESET -> CollectionUtils.array(Color[].class);
-				default -> null;
-			};
-		}
-
-		@Override
-		public void change(FireworkEffect effect, Object @Nullable [] delta, ChangeMode mode) {
-			List<org.bukkit.Color> colors = effect.getColors();
-			switch (mode) {
-				case DELETE, RESET -> colors.clear();
-				case SET -> {
-					colors.clear();
-					addAll(colors, delta);
-				}
-				case ADD -> addAll(colors, delta);
-				case REMOVE, REMOVE_ALL -> {
-					if (delta == null)
-						return;
-					for (Object object : delta)
-						colors.remove(((Color) object).asBukkitColor());
-				}
-			}
-		}
-
-		private static void addAll(List<org.bukkit.Color> colors, Object @Nullable [] delta) {
-			if (delta == null)
-				return;
-			for (Object object : delta)
-				colors.add(((Color) object).asBukkitColor());
 		}
 
 		@Override
