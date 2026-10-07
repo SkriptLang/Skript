@@ -1,0 +1,137 @@
+using script reflection
+using error catching
+
+# selecting an overload from the arguments alone, with each argument filling one parameter
+
+function dfrMatch(n: number) :: text:
+	return "number"
+
+function dfrMatch(t: text) :: text:
+	return "text"
+
+function dfrArity() :: text:
+	return "none"
+
+function dfrArity(a: number) :: text:
+	return "one"
+
+function dfrArity(a: number, b: number) :: text:
+	return "two"
+
+function dfrOrder(a: number, b: text) :: text:
+	return "number text"
+
+function dfrOrder(a: text, b: number) :: text:
+	return "text number"
+
+function dfrWide(o: object) :: text:
+	return "object"
+
+function dfrWide(n: number) :: text:
+	return "number"
+
+test "the argument types pick the overload":
+	assert (result of (function "dfrMatch") with arguments 1) is "number" with "a number argument should pick the number overload"
+	assert (result of (function "dfrMatch") with arguments "hello") is "text" with "a text argument should pick the text overload"
+
+test "the number of arguments picks the overload":
+	assert (result of (function "dfrArity")) is "none" with "no arguments should pick the parameterless overload"
+	assert (result of (function "dfrArity") with arguments 1) is "one" with "one argument should pick the one parameter overload"
+	assert (result of (function "dfrArity") with arguments 1 and 2) is "two" with "two arguments should pick the two parameter overload"
+	assert (result of (function "dfrArity") with arguments 1, 2 and 3) doesn't exist with "three arguments fit no overload"
+
+test "the order of the arguments picks the overload":
+	assert (result of (function "dfrOrder") with arguments 1 and "hello") is "number text" with "wrong overload for a number then a text"
+	assert (result of (function "dfrOrder") with arguments "hello" and 1) is "text number" with "wrong overload for a text then a number"
+
+test "an argument of unknown type cannot pick between overloads":
+	# a variable has no known type, so either overload would do and neither may be chosen
+	set {_unknown} to 1
+	assert (result of (function "dfrMatch") with arguments {_unknown}) doesn't exist with "an ambiguous argument was resolved anyway"
+
+test "the type of an argument can be stated to pick an overload":
+	set {_unknown} to 1
+	assert (result of (function "dfrMatch") with arguments (number within {_unknown})) is "number" with "stating the type did not pick the number overload"
+
+	set {_other} to "hello"
+	assert (result of (function "dfrMatch") with arguments (text within {_other})) is "text" with "stating the type did not pick the text overload"
+
+test "an overload whose parameter is a supertype is ambiguous":
+	# there is no preference for the most specific parameter, so a value fitting both overloads
+	# cannot pick between them
+	assert (result of (function "dfrWide") with arguments 1) doesn't exist with "a supertype pair was resolved anyway"
+
+	parse:
+		dfrWide(1)
+
+	assert last parse logs is set with "a static call should be ambiguous in the same way"
+	assert first element of last parse logs contains "Cannot determine which function named 'dfrWide' to call" with "unexpected error for a supertype pair"
+
+test "static calls pick the overload the same way":
+	parse:
+		dfrMatch({_unknown})
+
+	assert last parse logs is set with "an ambiguous argument should be an error"
+	assert first element of last parse logs contains "Cannot determine which function named 'dfrMatch' to call" with "unexpected error for an ambiguous argument"
+
+# the only overload of its name, so an argument of unknown type binds to it and the value is
+# converted per execution rather than used to pick between candidates
+function dfrOnlyNumber(n: number) :: text:
+	return "number %{_n}%"
+
+test "one call site handles an argument whose type changes between executions":
+	# one stored reference and one call site, so the same binding is reused for both values
+	set {_function} to function "dfrOnlyNumber"
+	set {_values::1} to 1
+	set {_values::2} to "test"
+
+	loop 2 times:
+		clear {_result}
+		set {_value} to {_values::%loop-number%}
+		catch runtime errors:
+			set {_result} to result of {_function} with arguments {_value}
+
+		if loop-number is 1:
+			assert {_result} is "number 1" with "a convertible value should have reached the only overload"
+		else:
+			# a value which cannot convert to the parameter type still runs the function, with the
+			# parameter left unset. That is pre-existing and happens identically for a call written
+			# in the script, so the reused binding is not what causes it; it is the deferred
+			# FunctionReference.validate() conversion bug. Pinned here so that fixing it is a
+			# deliberate change to this assertion rather than a silent one.
+			assert {_result} is "number <none>" with "the reused binding diverged from a static call"
+
+test "an argument of unknown type stays ambiguous however its value changes":
+	# the overload cannot be picked from the value, so neither execution may resolve one. It must
+	# say which overloads matched, exactly as the parse error for a static call does, rather than
+	# failing silently or running an arbitrary overload with an unset parameter.
+	set {_function} to function "dfrMatch"
+	set {_values::1} to 1
+	set {_values::2} to "test"
+
+	loop 2 times:
+		clear {_result}
+		set {_value} to {_values::%loop-number%}
+		catch runtime errors:
+			set {_result} to result of {_function} with arguments {_value}
+
+		set {_errors::*} to last caught runtime errors
+		assert {_result} is not set with "an ambiguous argument was resolved from its value"
+		assert {_errors::1} contains "Cannot determine which function named 'dfrMatch' to call" with "the ambiguity was not reported"
+		assert {_errors::1} contains "value within" with "the report did not suggest how to disambiguate"
+
+test "each call site is ambiguous on its own, whatever the variable holds":
+	# a variable has no known type even directly after being assigned a literal: the binder reads
+	# getReturnType(), which for a variable is its supertype, while a type hint lives in
+	# possibleReturnTypes(). So two separate call sites are no better than one reused site.
+	set {_function} to function "dfrMatch"
+
+	set {_x} to "hello"
+	catch runtime errors:
+		run {_function} with arguments {_x}
+	assert first element of (last caught runtime errors) contains "Cannot determine which function named 'dfrMatch' to call" with "a text value did not report the ambiguity"
+
+	set {_x} to 1
+	catch runtime errors:
+		run {_function} with arguments {_x}
+	assert first element of (last caught runtime errors) contains "Cannot determine which function named 'dfrMatch' to call" with "a number value did not report the ambiguity"

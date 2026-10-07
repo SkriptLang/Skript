@@ -1,0 +1,5 @@
+# Reloaded and unloaded by tests/syntaxes/effects/EffRunReload.sk, so nothing else should
+# depend on this script being loaded.
+
+function dfrReloadable() :: text:
+	return "reloadable"

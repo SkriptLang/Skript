@@ -40,3 +40,51 @@ test "get functions":
 test "get all functions":
 	set {_functions::*} to all functions from the current script
 	assert size of {_functions::*} is 4 with "found wrong number of functions"
+
+test "get java function":
+	# java functions have no source script, which used to throw while resolving one
+	set {_function} to function "floor"
+	assert {_function} exists with "java function wasn't found"
+	set {_result} to result of {_function} with arguments 2.9
+	assert {_result} exists with "java function didn't run"
+	assert {_result} is 2 with "java function didn't return correctly"
+
+test "function reference round trip":
+	# a stringified reference must parse back into the same function
+	set {_function} to function "testExprFunction1"
+	assert {_function} exists with "function wasn't found"
+	set {_parsed} to "%{_function}%" parsed as function
+	assert {_parsed} exists with "stringified function reference didn't parse back"
+	assert name of {_parsed} is "testExprFunction1" with "parsed function reference has the wrong name"
+	set {_result} to result of {_parsed}
+	assert {_result} is true with "parsed function reference didn't return correctly"
+
+test "local function reference round trip":
+	# the stringified form of a local reference names its source script
+	set {_function} to function "testExprFunction3" from the current script
+	assert {_function} exists with "local function wasn't found"
+	set {_parsed} to "%{_function}%" parsed as function
+	assert {_parsed} exists with "stringified local function reference didn't parse back"
+	assert name of {_parsed} is "testExprFunction3" with "parsed local function reference has the wrong name"
+
+test "cross-script function reference round trip":
+	# the stringified form has to name the script the function was declared in, not the one it
+	# was looked up from
+	set {_script} to the script named {@misc} + "dummy.sk"
+	set {_function} to function "testDummy" from {_script}
+	assert {_function} exists with "the function from another script wasn't found"
+	set {_parsed} to "%{_function}%" parsed as function
+	assert {_parsed} exists with "a reference to another script's function didn't parse back"
+	assert name of {_parsed} is "testDummy" with "parsed cross-script reference has the wrong name"
+	set {_result} to result of {_parsed}
+	assert {_result} is true with "parsed cross-script reference didn't run the right function"
+
+test "a script in a folder whose name contains a dot can be named":
+	# the dot is part of the folder, not an extension, so this is still a script name
+	set {_script} to the script named {@misc} + "dotted.folder/dotted script.sk"
+	assert {_script} exists with "a script in a dotted folder wasn't found"
+	assert (result of (function "dfrDottedFolder" from {_script})) is "dotted" with "the function in a dotted folder didn't run"
+
+	# and without the extension, which is the path that did the rejecting
+	set {_script} to the script named {@misc} + "dotted.folder/dotted script"
+	assert {_script} exists with "a script in a dotted folder wasn't found without its extension"

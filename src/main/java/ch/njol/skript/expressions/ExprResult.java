@@ -8,12 +8,11 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.function.DynamicFunctionReference;
+import ch.njol.skript.registrations.experiments.ReflectionExperimentSyntax;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import ch.njol.skript.registrations.experiments.ReflectionExperimentSyntax;
 import org.skriptlang.skript.util.Executable;
 
 @Name("Result")
@@ -36,7 +35,7 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 
 	private Expression<?> arguments;
 	private boolean hasArguments, isPlural;
-	private DynamicFunctionReference.Input input;
+	private Expression<?>[] argumentExpressions;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult result) {
@@ -52,10 +51,10 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 			} else {
 				arguments = new Expression[] {this.arguments};
 			}
-			this.input = new DynamicFunctionReference.Input(arguments);
+			this.argumentExpressions = arguments;
 			return LiteralUtils.canInitSafely(this.arguments);
 		} else {
-			this.input = new DynamicFunctionReference.Input();
+			this.argumentExpressions = new Expression[0];
 		}
 		return true;
 	}
@@ -63,14 +62,20 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 	@Override
 	protected Object[] get(Event event, Executable<Event, Object>[] source) {
 		for (Executable<Event, Object> task : source) {
-			Object[] arguments;
-			//noinspection rawtypes
-			if (task instanceof DynamicFunctionReference reference) {
-				Expression<?> validated = reference.validate(input);
-				if (validated == null)
+			// something which decides for itself what its arguments mean, such as a function with
+			// parameters, is handed the argument expressions rather than a flat list of their values
+			Executable.BoundExecutable<Event, Object> boundExecutable = task.bind(argumentExpressions);
+			if (boundExecutable != null) {
+				Object result = Executable.run(boundExecutable, event, this::error);
+				if (result == null)
 					return new Object[0];
-				arguments = validated.getArray(event);
-			} else if (hasArguments) {
+				if (result instanceof Object[] results)
+					return results;
+				return new Object[]{result};
+			}
+
+			Object[] arguments;
+			if (hasArguments) {
 				arguments = this.arguments.getArray(event);
 			} else {
 				arguments = new Object[0];
@@ -105,7 +110,5 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 			text += " with arguments " + arguments.toString(event, debug);
 		return text;
 	}
-
-
 
 }

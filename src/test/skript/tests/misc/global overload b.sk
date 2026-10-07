@@ -1,0 +1,4 @@
+# The other overload of dfrCrossOv; see 'global overload a.sk'.
+
+function dfrCrossOv(t: text) :: text:
+	return "text"

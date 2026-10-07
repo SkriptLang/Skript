@@ -1,0 +1,97 @@
+using script reflection
+using error catching
+
+function dfrErrOne(n: number) :: number:
+	return {_n}
+
+function dfrErrAmbiguous(n: number) :: text:
+	return "number"
+
+function dfrErrAmbiguous(t: text) :: text:
+	return "text"
+
+test "running with arguments which do not fit reports why":
+	set {_function} to function "dfrErrOne"
+	set {_list::*} to 1 and 2
+
+	catch runtime errors:
+		run {_function} with arguments {_list::*}
+
+	set {_errors::*} to last caught runtime errors
+	assert {_errors::1} is set with "running with unacceptable arguments reported nothing"
+	# the binder's own reason, not a generic "cannot run it with the given arguments"
+	assert {_errors::1} contains "Expected type number for argument 'n'" with "the failure did not report which argument does not fit"
+
+test "the result of a call with arguments which do not fit reports why":
+	set {_function} to function "dfrErrOne"
+	set {_list::*} to 1 and 2
+
+	catch runtime errors:
+		set {_result} to result of {_function} with arguments {_list::*}
+
+	set {_errors::*} to last caught runtime errors
+	assert {_result} is not set with "the call should not have produced a result"
+	assert {_errors::1} is set with "asking for the result of an unacceptable call reported nothing"
+	assert {_errors::1} contains "Expected type number for argument 'n'" with "the failure did not report which argument does not fit"
+
+test "an ambiguous call reports which overloads matched":
+	set {_function} to function "dfrErrAmbiguous"
+	set {_unknown} to 1
+
+	catch runtime errors:
+		set {_result} to result of {_function} with arguments {_unknown}
+
+	assert {_result} is not set with "an ambiguous call should not have produced a result"
+	# the candidates are listed from a set, so only the stable part of the message is checked
+	set {_errors::*} to last caught runtime errors
+	assert {_errors::1} contains "Cannot determine which function named 'dfrErrAmbiguous' to call" with "an ambiguous call did not report the candidates"
+	assert {_errors::1} contains "value within" with "the message should suggest how to disambiguate"
+
+test "a call which fits reports nothing":
+	set {_function} to function "dfrErrOne"
+
+	catch runtime errors:
+		set {_result} to result of {_function} with arguments 1
+
+	assert {_result} is 1 with "the call should have succeeded"
+	assert last caught runtime errors is not set with "a successful call reported an error"
+
+function dfrErrVoid(t: text):
+	set {_ignored} to {_t}
+
+function dfrErrNoValue(n: number) :: number:
+	if {_n} > 0:
+		return {_n}
+
+test "running a function with no return type reports nothing":
+	set {_function} to function "dfrErrVoid"
+
+	catch runtime errors:
+		run {_function} with arguments "hi"
+
+	assert last caught runtime errors is not set with "a void function reported an error"
+
+test "a function returning no value reports nothing":
+	set {_function} to function "dfrErrNoValue"
+
+	catch runtime errors:
+		set {_result} to result of {_function} with arguments -1
+
+	assert {_result} is not set with "the function should not have produced a value"
+	assert last caught runtime errors is not set with "returning no value reported an error"
+
+test "a call fitting no overload reports the call, not one overload's reason":
+	# two values against two single-parameter overloads, so each overload logs its own reason
+	# while matching and neither of them is the whole story. Which one came first depended on the
+	# iteration order of a hash set, so the summary naming the call is reported instead
+	set {_function} to function "dfrErrAmbiguous"
+	set {_list::*} to 1 and 2
+
+	catch runtime errors:
+		set {_result} to result of {_function} with arguments {_list::*}
+
+	assert {_result} is not set with "a call fitting no overload should not have produced a result"
+	set {_errors::*} to last caught runtime errors
+	assert {_errors::1} is set with "a call fitting no overload reported nothing"
+	assert {_errors::1} contains "dfrErrAmbiguous" with "the failure did not name the function"
+	assert {_errors::1} contains "does not exist" with "the failure reported one overload's reason instead of the call"

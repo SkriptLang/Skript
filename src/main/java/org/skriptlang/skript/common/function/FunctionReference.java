@@ -34,6 +34,13 @@ public final class FunctionReference<T> implements Debuggable {
 
 	private Signature<T> cachedSignature;
 	private boolean validSignature = true;
+
+	/**
+	 * Whether this reference is revalidated when the functions it may resolve to change.
+	 *
+	 * @see #track()
+	 */
+	private volatile boolean tracked;
 	private boolean printedInvalidSignatureWarning;
 	private Function<T> cachedFunction;
 	private LinkedHashMap<String, ArgInfo> cachedArguments;
@@ -115,9 +122,29 @@ public final class FunctionReference<T> implements Debuggable {
 			}
 		}
 
-		cachedSignature.addCall(this);
+		if (tracked) {
+			// re-register against the signature, which the block above may just have replaced
+			cachedSignature.addCall(this);
+		}
 
 		return true;
+	}
+
+	/**
+	 * Registers this reference to be revalidated whenever the functions it may resolve to change,
+	 * and keeps it registered across a reload.
+	 * <p>
+	 * This is for a reference belonging to a parsed script, which lives as long as the script does
+	 * and so has to be told when the function it calls is replaced. A reference obtained at
+	 * runtime must not be tracked: it is owned by whatever obtained it, which is responsible for
+	 * discarding it, and tracking it would have it revalidated, and warned about, after it has
+	 * already been thrown away.
+	 * </p>
+	 */
+	@ApiStatus.Internal
+	public void track() {
+		tracked = true;
+		cachedSignature.addCall(this);
 	}
 
 	private boolean validateArgument(Parameter<?> target, Expression<?> original, Expression<?> converted) {
@@ -169,7 +196,7 @@ public final class FunctionReference<T> implements Debuggable {
 		SequencedMap<String, Object> args = new LinkedHashMap<>();
 		cachedArguments.forEach((k, v) -> {
 			if (v.modifiers().contains(Modifier.KEYED)) {
-				args.put(k, Classes.clone(evaluateKeyed(v.expression(), event)));
+				args.put(k, evaluateKeyed(v.expression(), event)); // evalKeyed clones, so no need to clone here
 				return;
 			}
 
@@ -265,6 +292,28 @@ public final class FunctionReference<T> implements Debuggable {
 	}
 
 	/**
+	 * Supplies the function this reference resolves to, so that it is not looked up in the
+	 * registry again.
+	 * <p>
+	 * This is for a caller which has already resolved the same signature to a function and knows
+	 * that resolution still holds, such as a call site re-binding to a signature it remembered.
+	 * {@code function} is ignored unless it belongs to the signature this reference is bound to,
+	 * so supplying the wrong one costs the lookup rather than calling the wrong function.
+	 * </p>
+	 *
+	 * @param function The function this reference resolves to.
+	 */
+	@ApiStatus.Internal
+	public void cacheFunction(@NotNull Function<?> function) {
+		Preconditions.checkNotNull(function, "function cannot be null");
+
+		if (cachedSignature.equals(function.signature())) {
+			//noinspection unchecked
+			cachedFunction = (Function<T>) function;
+		}
+	}
+
+	/**
 	 * @return The signature belonging to this reference.
 	 */
 	public Signature<T> signature() {
@@ -290,6 +339,33 @@ public final class FunctionReference<T> implements Debuggable {
 	 */
 	public @NotNull Argument<Expression<?>>[] arguments() {
 		return arguments;
+	}
+
+	/**
+	 * The argument expressions converted to the types of the parameters they bound to, in parameter
+	 * order, leaving out any parameter which was not passed and therefore takes its default.
+	 * <p>
+	 * Unlike {@link #arguments()}, which hands back the expressions exactly as they were bound,
+	 * these are the converted ones this actually evaluates. Only for the deprecated
+	 * {@code DynamicFunctionReference#validate}, which returned converted expressions before it was
+	 * rewritten and has to keep doing so.
+	 * </p>
+	 *
+	 * @return The converted argument expressions, or null if an argument does not fit the parameter
+	 * 	it bound to, which also reports why.
+	 */
+	@ApiStatus.Internal
+	public Expression<?> @Nullable [] convertedArguments() {
+		if (!validate()) {
+			return null;
+		}
+
+		Expression<?>[] converted = new Expression[cachedArguments.size()];
+		int index = 0;
+		for (ArgInfo info : cachedArguments.values()) {
+			converted[index++] = info.expression();
+		}
+		return converted;
 	}
 
 	/**

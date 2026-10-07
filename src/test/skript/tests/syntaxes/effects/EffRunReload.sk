@@ -1,0 +1,60 @@
+options:
+	misc: "../../../../../../src/test/skript/tests/misc/"
+
+	# paths are relativised to the /scripts/ directory, but these scripts are loaded from the
+	# test folder, so the path has to climb back out
+
+using script reflection
+using error catching
+
+test "a reference survives its script being reloaded":
+	set {_path} to {@misc} + "reloadable function.sk"
+	set {_function} to function "dfrReloadable" from (script named {_path})
+	assert {_function} exists with "the function wasn't found"
+	assert (result of {_function}) is "reloadable" with "the function didn't run"
+
+	reload (script named {_path})
+
+	# the cached binding points at the function object the reload replaced, so it has to be
+	# resolved again rather than reused
+	assert (result of {_function}) is "reloadable" with "the reference stopped working after a reload"
+
+test "a reference stops working when its script is unloaded":
+	set {_path} to {@misc} + "reloadable function.sk"
+	set {_script} to script named {_path}
+	set {_function} to function "dfrReloadable" from {_script}
+	assert {_function} exists with "the function wasn't found"
+
+	unload the script within {_script}
+
+	# the function it resolved to is gone, so the reference must not fall back to anything else,
+	# and it should say so rather than failing silently
+	catch runtime errors:
+		set {_result} to result of {_function}
+
+	assert {_result} is not set with "the reference still ran after its script was unloaded"
+	set {_errors::*} to last caught runtime errors
+	assert {_errors::1} contains "dfrReloadable" with "the failure did not name the function"
+	assert {_errors::1} contains "does not exist" with "the failure did not say the function is gone"
+
+	# put it back, so the order tests run in cannot matter
+	load the script within (script named {_path})
+	assert (result of (function "dfrReloadable" from (script named {_path}))) is "reloadable" with "the script didn't load back"
+
+test "a resolved name is not reused once the function is gone":
+	set {_path} to {@misc} + "reloadable function.sk"
+	set {_script} to script named {_path}
+
+	# one call site evaluated on both passes, so the second pass would reuse what the first
+	# resolved if resolution were not discarded when the registered functions change
+	loop 2 times:
+		set {_reference} to function "dfrReloadable" from {_script}
+		if loop-number is 1:
+			assert {_reference} exists with "the function wasn't found"
+			unload the script within {_script}
+		else:
+			assert {_reference} is not set with "a resolved name was reused after its script was unloaded"
+
+	# put it back, so the order tests run in cannot matter
+	load the script within (script named {_path})
+	assert (result of (function "dfrReloadable" from (script named {_path}))) is "reloadable" with "the script didn't load back"

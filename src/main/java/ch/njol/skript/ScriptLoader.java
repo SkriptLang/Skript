@@ -142,6 +142,13 @@ public class ScriptLoader {
 	}));
 
 	/**
+	 * Map for looking up scripts by name to avoid filesystem IO.
+	 * Must be kept in sync with {@link #loadedScripts}.
+	 * @see #getLoadedScriptFromName(String)
+	 */
+	private static final Map<String, Script> scriptsByName = new ConcurrentHashMap<>();
+
+	/**
 	 * Filter for loaded scripts and folders.
 	 */
 	private static final FileFilter loadedScriptFilter =
@@ -741,6 +748,9 @@ public class ScriptLoader {
 
 			// Add to loaded files to use for future reloads
 			loadedScripts.add(script);
+			String name = normaliseScriptName(script.getConfig().getFileName());
+			if (name != null)
+				scriptsByName.put(name, script);
 
 			ScriptLoader.eventRegistry().events(ScriptInitEvent.class)
 					.forEach(event -> event.onInit(script));
@@ -941,6 +951,10 @@ public class ScriptLoader {
 			script.clearData();
 			script.invalidate();
 			loadedScripts.remove(script); // We just unloaded it, so...
+			String name = normaliseScriptName(script.getConfig().getFileName());
+			if (name != null)
+				// Only remove our own entry; a reload may have already registered the new script
+				scriptsByName.remove(name, script);
 			File scriptFile = script.getConfig().getFile();
 			assert scriptFile != null;
 			disabledScripts.add(new File(scriptFile.getParentFile(), DISABLED_SCRIPT_PREFIX + scriptFile.getName()));
@@ -1321,35 +1335,49 @@ public class ScriptLoader {
 
 	/**
 	 * Gets a script's file from its name, if one exists.
+	 * This is simply a file lookup, and does not care if the script is loaded or not.
 	 *
 	 * @param script The script name/path
 	 * @return The script file, if one is found
 	 */
-	@Nullable
-	public static File getScriptFromName(String script) {
-		return getScriptFromName(script, Skript.getInstance().getScriptsFolder());
+	public static @Nullable File getScriptFileFromName(String script) {
+		return getScriptFileFromName(script, Skript.getInstance().getScriptsFolder());
+	}
+
+
+	/**
+	 * Gets a script's file from its name, if one exists.
+	 * This is simply a file lookup, and does not care if the script is loaded or not.
+	 *
+	 * @param script The script name/path
+	 * @return The script file, if one is found
+	 * @deprecated Use {@link #getScriptFileFromName(String)} instead.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public static @Nullable File getScriptFromName(String script) {
+		return getScriptFileFromName(script);
 	}
 
 	/**
 	 * Gets a script's file from its name and directory, if one exists.
+	 * This is simply a file lookup, and does not care if the script is loaded or not.
 	 *
 	 * @param script The script name/path
 	 * @param directory The scripts (or testing scripts) directory
 	 * @return The script file, if one is found
 	 */
 	@Nullable
-	public static File getScriptFromName(String script, File directory) {
-		if (script.endsWith("/") || script.endsWith("\\")) { // Always allow '/' and '\' regardless of OS
-			script = script.replace('/', File.separatorChar).replace('\\', File.separatorChar);
-		} else if (!StringUtils.endsWithIgnoreCase(script, ".sk")) {
-			int dot = script.lastIndexOf('.');
-			if (dot > 0 && !script.substring(dot + 1).isEmpty())
+	public static File getScriptFileFromName(String script, File directory) {
+		// unlike a script name, this also resolves folders, which keep their name as it is
+		if (script.endsWith("/") || script.endsWith("\\")) {
+			script = script.replace("/", File.separator).replace("\\", File.separator);
+			if (script.startsWith(DISABLED_SCRIPT_PREFIX))
+				script = script.substring(DISABLED_SCRIPT_PREFIX_LENGTH);
+		} else {
+			script = normaliseScriptName(script);
+			if (script == null)
 				return null;
-			script = script + ".sk";
 		}
-
-		if (script.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
-			script = script.substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH);
 
 		File scriptFile = new File(directory, script);
 		if (!scriptFile.exists()) {
@@ -1372,6 +1400,86 @@ public class ScriptLoader {
 		} catch (IOException e) {
 			throw Skript.exception(e, "An exception occurred while trying to get the script file from the string '" + script + "'");
 		}
+	}
+
+	/**
+	 * Gets a script's file from its name and directory, if one exists.
+	 * This is simply a file lookup, and does not care if the script is loaded or not.
+	 *
+	 * @param script    The script name/path
+	 * @param directory The scripts (or testing scripts) directory
+	 * @return The script file, if one is found
+	 * @deprecated Use {@link #getScriptFileFromName(String, File)} instead.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public static @Nullable File getScriptFromName(String script, File directory) {
+		return getScriptFileFromName(script, directory);
+	}
+
+	/**
+	 * Searches the loaded scripts for the one with the provided name.
+	 * <p>
+	 * Unlike {@link #getScriptFileFromName(String)} this avoids the filesystem for a name which
+	 * matches the one a script was loaded under, but it can
+	 * only find scripts that are currently loaded. Prefer this method when a {@link Script} is
+	 * what you need, as the file-based lookup requires several filesystem operations.
+	 * </p>
+	 *
+	 * @param name The script's name, relative to the scripts folder, with or without the
+	 *             '.sk' extension. Both '/' and '\' are accepted as separators, regardless of OS.
+	 * @return The loaded script with the provided name, or null if no such script is loaded.
+	 */
+	public static @Nullable Script getLoadedScriptFromName(@Nullable String name) {
+		String normalised = normaliseScriptName(name);
+		if (normalised == null)
+			return null;
+
+		Script script = scriptsByName.get(normalised);
+		if (script != null)
+			return script;
+
+		// A name can identify a loaded script without matching the name it was loaded under: the
+		// file system may be case insensitive, or the path may lead through a symlink. Resolving
+		// the file sorts both out, so fall back to that rather than reporting it as not loaded.
+		File file = getScriptFileFromName(name);
+		return file != null && file.isFile() ? getScript(file) : null;
+	}
+
+	/**
+	 * Normalises a script name into the form used as a key in {@link #scriptsByName},
+	 * which is the script's path relative to the scripts folder.
+	 *
+	 * @param name The name to normalise.
+	 * @return The normalised name, or null if the provided name cannot denote a script, as a
+	 * 	folder name cannot.
+	 */
+	private static @Nullable String normaliseScriptName(@Nullable String name) {
+		if (name == null || name.isEmpty())
+			return null;
+
+		// Always allow '/' and '\' regardless of OS
+		name = name.replace('/', File.separatorChar).replace('\\', File.separatorChar);
+
+		if (name.startsWith(DISABLED_SCRIPT_PREFIX))
+			name = name.substring(DISABLED_SCRIPT_PREFIX_LENGTH);
+
+		// a trailing separator names a folder, which is never a script
+		if (name.endsWith(File.separator))
+			return null;
+
+		if (!StringUtils.endsWithIgnoreCase(name, ".sk")) {
+			// A different extension means this cannot be a script. Only a dot in the file name
+			// itself is an extension, so a folder may contain one, as in 'my.scripts/script'. With
+			// no folder the separator is at -1, which is the plain 'dot > 0' this replaced: a name
+			// beginning with a dot is a hidden file rather than a bare extension
+			int separator = name.lastIndexOf(File.separatorChar);
+			int dot = name.lastIndexOf('.');
+			if (dot > separator + 1 && !name.substring(dot + 1).isEmpty())
+				return null;
+			name = name + ".sk";
+		}
+
+		return name;
 	}
 
 }
