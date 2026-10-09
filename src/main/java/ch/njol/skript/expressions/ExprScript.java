@@ -92,7 +92,7 @@ public class ExprScript extends SimpleExpression<Script> {
 			return scripts.toArray(new Script[0]);
 		}
 		return name.stream(event)
-				.map(ScriptLoader::getScriptFromName)
+				.map(ScriptLoader::getScriptFileFromName)
 				.map(ExprScript::getHandle)
 				.filter(Objects::nonNull)
 				.toArray(Script[]::new);
