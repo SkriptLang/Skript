@@ -42,7 +42,6 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Peter Güttinger
@@ -713,10 +712,14 @@ public abstract class Classes {
 	private final static Charset UTF_8 = Charset.forName("UTF-8");
 
 	private static byte[] getYggdrasilStart(final ClassInfo<?> c) throws NotSerializableException {
+		return getYggdrasilStart(c, c.getC());
+	}
+
+	private static byte[] getYggdrasilStart(final ClassInfo<?> c, Class<?> serializedClass) throws NotSerializableException {
 		assert Enum.class.isAssignableFrom(Kleenean.class) && Tag.getType(Kleenean.class) == Tag.T_ENUM : Tag.getType(Kleenean.class); // TODO why is this check here?
 		final Tag t = Tag.getType(c.getC());
 		assert t.isWrapper() || t == Tag.T_STRING || t == Tag.T_OBJECT || t == Tag.T_ENUM;
-		final byte[] cn = t == Tag.T_OBJECT || t == Tag.T_ENUM ? Variables.yggdrasil.getID(c.getC()).getBytes(UTF_8) : null;
+		final byte[] cn = t == Tag.T_OBJECT || t == Tag.T_ENUM ? Variables.yggdrasil.getID(serializedClass).getBytes(UTF_8) : null;
 		final byte[] r = new byte[YGGDRASIL_START.length + 1 + (cn == null ? 0 : 1 + cn.length)];
 		int i = 0;
 		for (; i < YGGDRASIL_START.length; i++)
@@ -729,132 +732,6 @@ public abstract class Classes {
 		}
 		assert i == r.length;
 		return r;
-	}
-
-	/**
-	 * Represents a context for serialization of a value as a variable.
-	 *
-	 * @param classInfo class info of the object
-	 * @param value object to serialize
-	 */
-	private record SerializationContext(ClassInfo<?> classInfo, Object value) {
-		public @Nullable Serializer<?> serializer() {
-			return classInfo.getSerializer();
-		}
-		public boolean mustSyncDeserialization() {
-			Serializer<?> serializer = serializer();
-			return serializer != null && serializer.mustSyncDeserialization();
-		}
-	}
-
-	/**
-	 * Returns the serializer used for serializing the given object as a variable.
-	 * <p>
-	 * Returns {@code null} if the object can not be serialized (there is no serializer available).
-	 *
-	 * @param object object to serialize
-	 * @return serializer for the serialization of given object
-	 */
-	private static SerializationContext getSerializationContext(Object object) {
-		ClassInfo<?> classInfo = getSuperClassInfo(object.getClass());
-
-		if (classInfo.getSerializeAs() != null) {
-			classInfo = getExactClassInfo(classInfo.getSerializeAs());
-			if (classInfo == null) {
-				assert false : object.getClass();
-				return null;
-			}
-			object = Converters.convert(object, classInfo.getC());
-			if (object == null) {
-				assert false : classInfo.getCodeName();
-				return null;
-			}
-		}
-		return new SerializationContext(classInfo, object);
-	}
-
-	/**
-	 * Serializes the provided map of variables.
-	 * <p>
-	 * Is blocking if the serializer for some of the variables needs to be synchronized and
-	 * the method is not called from the main thread.
-	 * <p>
-	 * This does processed null values in the map and will provide empty
-	 * serialized variables in the returned set for such variables.
-	 * <p>
-	 * This method is thread safe.
-	 *
-	 * @param variables variables to serialize
-	 * @return serialized variables, returns null if the serialization failed
-	 * because Skript is disabled, some of the variables need to be serialized
-	 * on the main thread and this method was called off the main thread.
-	 */
-	@Blocking
-	public static @Nullable Set<SerializedVariable> serialize(Map<String, @Nullable Object> variables) {
-		Set<SerializedVariable> collected = ConcurrentHashMap.newKeySet();
-		Map<String, SerializationContext> needsSync = new ConcurrentHashMap<>();
-		java.util.concurrent.atomic.AtomicBoolean failed = new java.util.concurrent.atomic.AtomicBoolean();
-
-		variables.entrySet().stream().forEach(entry -> {
-			String key = entry.getKey();
-			Object value = entry.getValue();
-
-			if (value == null) {
-				collected.add(new SerializedVariable(key, null));
-				return;
-			}
-
-			SerializationContext context = getSerializationContext(value);
-			if (context == null || context.classInfo.getSerializer() == null) {
-				collected.add(new SerializedVariable(key, null));
-				return;
-			}
-
-			if (context.mustSyncDeserialization()) {
-				needsSync.put(key, context);
-				return;
-			}
-			try {
-				var serialized = serialize(context.value, context.classInfo);
-				collected.add(new SerializedVariable(key, serialized));
-			} catch (IOException exception) {
-				failed.set(true);
-				Skript.exception(exception, "Failed to serialize " + context.value);
-			}
-		});
-
-		Runnable syncSerialization = () -> needsSync.forEach((key, context) -> {
-			try {
-				var serialized = serialize(context.value, context.classInfo);
-				collected.add(new SerializedVariable(key, serialized));
-			} catch (IOException exception) {
-				failed.set(true);
-				Skript.exception(exception, "Failed to serialize " + context.value);
-			}
-		});
-
-		if (needsSync.isEmpty())
-			return failed.get() ? null : collected;
-
-		if (Bukkit.isPrimaryThread()) {
-			syncSerialization.run();
-		} else {
-			try {
-				if (!Skript.getInstance().isEnabled())
-					// At this point we can not serialize variables synchronously,
-					// we fail rather than provide partial result
-					return null;
-				CompletableFuture.supplyAsync(() -> {
-					syncSerialization.run();
-					return null;
-				}, Bukkit.getScheduler().getMainThreadExecutor(Skript.getInstance())).get();
-			} catch (Exception exception) {
-				Skript.exception(exception, "Failed to process variables on the main thread");
-				return null;
-			}
-		}
-
-		return failed.get() ? null : collected;
 	}
 
 	/**
@@ -872,7 +749,7 @@ public abstract class Classes {
 	public static SerializedVariable.@Nullable Value serialize(@Nullable Object object) {
 		if (object == null)
 			return null;
-		var result = serialize(Map.of("object", object));
+		var result = Variables.serialize(Map.of("object", object));
 		if (result == null)
 			return null;
 		var iterator = result.iterator();
@@ -887,10 +764,16 @@ public abstract class Classes {
 	 * This method must be called from the main thread if the serializer for
 	 * given class info must be synchronized.
 	 *
+	 * The object must already be converted to the supplied class info's serialization type.
+	 *
+	 * @param object converted object to serialize
+	 * @param classInfo class info with a registered serializer
+	 * @return serialized value
+	 * @throws IOException if serialization fails
 	 * @see #serialize(Object)
-	 * @see #serialize(Map)
+	 * @see Variables#serialize(Map)
 	 */
-	private static SerializedVariable.Value serialize(Object object, ClassInfo<?> classInfo) throws IOException {
+	public static SerializedVariable.Value serialize(Object object, ClassInfo<?> classInfo) throws IOException {
 		assert classInfo.getSerializer() != null;
 		assert !classInfo.getSerializer().mustSyncDeserialization() || Bukkit.isPrimaryThread();
 
@@ -902,7 +785,10 @@ public abstract class Classes {
 		yggdrasilOutputStream.close();
 
 		byte[] byteArray = byteOutputStream.toByteArray();
-		byte[] start = classInfo.getSerializer().usesClassInfoHeader() ? getYggdrasilStart(classInfo) : new byte[0];
+		// Runtime implementations can resolve to a different ID than their registered API class.
+		Class<?> serializedClass = object instanceof Enum<?> value ? value.getDeclaringClass() : object.getClass();
+		byte[] start = classInfo.getSerializer().usesClassInfoHeader()
+			? getYggdrasilStart(classInfo, serializedClass) : new byte[0];
 		for (int i = 0; i < start.length; i++)
 			assert byteArray[i] == start[i] : object + " (" + classInfo.getC().getName() + "); " + Arrays.toString(start) + ", " + Arrays.toString(byteArray);
 		byte[] byteArrayCopy = new byte[byteArray.length - start.length];
@@ -927,8 +813,8 @@ public abstract class Classes {
 	 */
 	@Blocking
 	public static @Nullable Map<String, Object> deserialize(Set<SerializedVariable> variables) {
-		Map<String, Object> collected = new ConcurrentHashMap<>();
-		Set<SerializedVariable> needsSync = ConcurrentHashMap.newKeySet();
+		Map<String, Object> collected = new HashMap<>();
+		Set<SerializedVariable> needsSync = new HashSet<>();
 
 		variables.stream().forEach(var -> {
 			String key = var.name();
@@ -987,7 +873,8 @@ public abstract class Classes {
 				CompletableFuture.supplyAsync(() -> {
 					syncDeserialization.run();
 					return null;
-				}, Bukkit.getScheduler().getMainThreadExecutor(Skript.getInstance())).get();
+				}, Bukkit.getScheduler().getMainThreadExecutor(Skript.getInstance()))
+				.get();
 			} catch (Exception exception) {
 				Skript.exception(exception, "Failed to process variables on the main thread");
 				return null;

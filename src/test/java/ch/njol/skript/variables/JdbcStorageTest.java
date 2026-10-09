@@ -33,6 +33,41 @@ public class JdbcStorageTest {
 	}
 
 	@Test
+	public void compressedBackupRetentionIncludesLegacyCsv() throws Exception {
+		var directory = folder.newFolder("backups").toPath();
+		JdbcStorage storage = new SQLiteStorage(Skript.instance(), "sqlite") {
+			@Override
+			protected java.nio.file.Path getBackupDirectory() { return directory; }
+			@Override
+			protected String backupExtension() { return ".csv.gz"; }
+		};
+		assertTrue(storage.loadConfig(configuration(folder.getRoot().toPath().resolve("retention.db").toString())));
+		try {
+			var old = directory.resolve("1-00000000-0000-0000-0000-000000000000.csv");
+			var unrelated = directory.resolve("manual.csv.gz");
+			java.nio.file.Files.writeString(old, "old backup");
+			java.nio.file.Files.writeString(unrelated, "keep");
+			storage.backupIntervalMillis = 1;
+			storage.lastBackup = 0;
+			storage.backupsToKeep = 1;
+			storage.setVariable("entry", "saved");
+			assertTrue(storage.flush());
+			assertFalse(java.nio.file.Files.exists(old));
+			assertEquals("keep", java.nio.file.Files.readString(unrelated));
+			try (var files = java.nio.file.Files.list(directory)) {
+				var generated = files.filter(path -> !path.equals(unrelated)).toList();
+				assertEquals(1, generated.size());
+				assertTrue(generated.getFirst().toString().endsWith(".csv.gz"));
+				try (var gzip = new java.util.zip.GZIPInputStream(java.nio.file.Files.newInputStream(generated.getFirst()))) {
+					assertTrue(new String(gzip.readAllBytes(), StandardCharsets.UTF_8).contains("entry"));
+				}
+			}
+		} finally {
+			storage.close();
+		}
+	}
+
+	@Test
 	public void mysqlReplacementWritesInH2CompatibilityMode() throws Exception {
 		checkMysqlReplacementWrites(false);
 	}
@@ -101,7 +136,13 @@ public class JdbcStorageTest {
 	}
 
 	private JdbcStorage storage(boolean h2) {
-		return h2 ? new H2Storage(Skript.instance(), "h2") : new SQLiteStorage(Skript.instance(), "sqlite");
+		return h2 ? new H2Storage(Skript.instance(), "h2") {
+			@Override
+			protected String backupExtension() { return ".csv.gz"; }
+		} : new SQLiteStorage(Skript.instance(), "sqlite") {
+			@Override
+			protected String backupExtension() { return ".csv.gz"; }
+		};
 	}
 
 	private void checkPersistence(boolean h2) throws Exception {
@@ -206,9 +247,14 @@ public class JdbcStorageTest {
 			assertTrue(reopened.loadConfig(configuration(file)));
 			try {
 				assertEquals(0, reopened.loadedVariables());
-				java.nio.file.Path backup = folder.getRoot().toPath().resolve(h2 ? "h2.csv" : "sqlite.csv");
+				java.nio.file.Path backup = folder.getRoot().toPath().resolve(h2 ? "h2.csv.gz" : "sqlite.csv.gz");
 				reopened.writeBackup(backup);
-				assertTrue(java.nio.file.Files.readString(backup).contains("unloaded"));
+				try (var gzip = new java.util.zip.GZIPInputStream(java.nio.file.Files.newInputStream(backup))) {
+					String csv = new String(gzip.readAllBytes(), StandardCharsets.UTF_8);
+					assertTrue(csv.contains("unloaded"));
+					assertTrue(csv.contains(FlatFileStorage.encode(
+						ch.njol.skript.registrations.Classes.serialize("preserved").data())));
+				}
 				assertEquals(0, reopened.loadedVariables());
 			} finally {
 				reopened.close();

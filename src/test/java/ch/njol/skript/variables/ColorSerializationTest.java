@@ -15,7 +15,7 @@ public class ColorSerializationTest {
 	public void batchPreservesConcreteColorTypesAndAlpha() {
 		Map<String, Object> values = Map.of("named", SkriptColor.BLACK,
 			"rgba", ColorRGB.fromRGBA(12, 34, 56, 78), "plain", "value");
-		var encoded = Classes.serialize(values);
+		var encoded = Variables.serialize(values);
 		assertNotNull(encoded);
 		var decoded = Classes.deserialize(encoded);
 		assertEquals(values, decoded);

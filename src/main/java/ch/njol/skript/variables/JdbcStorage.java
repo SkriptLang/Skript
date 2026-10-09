@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.StampedLock;
+import java.util.regex.Pattern;
 
 /**
  * Storage for Skript variables that uses SQL database.
@@ -46,6 +47,8 @@ import java.util.concurrent.locks.StampedLock;
  * </ul>
  */
 public abstract class JdbcStorage extends VariableStorage {
+
+	private static final Pattern TABLE_NAME_PATTERN = Pattern.compile("[A-Za-z_][A-Za-z0-9_]{0,63}");
 
 	protected static final String DEFAULT_TABLE_NAME = "skript_vars";
 
@@ -262,7 +265,7 @@ public abstract class JdbcStorage extends VariableStorage {
 	@Override
 	protected boolean loadAbstract(SectionNode sectionNode) {
 		table = sectionNode.get("table", DEFAULT_TABLE_NAME);
-		if (!table.matches("[A-Za-z_][A-Za-z0-9_]{0,63}")) {
+		if (!TABLE_NAME_PATTERN.matcher(table).matches()) {
 			Skript.error("Invalid database table name: " + table);
 			return false;
 		}
@@ -341,6 +344,7 @@ public abstract class JdbcStorage extends VariableStorage {
 				mark.single = true;
 			// update the read variables map
 			variablesMap.setVariable(name, value);
+			markBackupChanged();
 			// update the writes variables map
 			dirty.setVariable(name, value);
 
@@ -590,7 +594,7 @@ public abstract class JdbcStorage extends VariableStorage {
 				lock.unlockWrite(stamp);
 			}
 			assert snapshotCleared != null;
-			Set<SerializedVariable> serialized = Classes.serialize(snapshotDirty.getAll());
+			Set<SerializedVariable> serialized = Variables.serialize(snapshotDirty.getAll());
 			if (serialized == null)
 				return false;
 			// Never commit a partial batch when a serializer failed.
@@ -668,12 +672,17 @@ public abstract class JdbcStorage extends VariableStorage {
 				pendingDirty = null;
 				pendingCleared = null;
 				afterSave(conn);
-				backupIfDue();
-				return true;
-			} catch (SQLException | java.io.IOException exception) {
+			} catch (SQLException exception) {
 				Skript.error("Failed to save variables to database: " + exception.getLocalizedMessage());
 				return false;
 			}
+			// Release the save connection before the backup borrows one (SQLite's pool has one).
+			try {
+				backupIfDue();
+			} catch (java.io.IOException exception) {
+				Skript.error("Variables saved, but database backup failed: " + exception.getLocalizedMessage());
+			}
+			return true;
 		} finally {
 			saveLock.unlock();
 		}
@@ -782,7 +791,8 @@ public abstract class JdbcStorage extends VariableStorage {
 			throw new java.io.IOException("Database unavailable");
 		try (Connection conn = database.getConnection(); Statement stmt = conn.createStatement();
 			 ResultSet rows = stmt.executeQuery("SELECT `name`, `type`, `value` FROM " + table);
-			 java.io.PrintWriter writer = new java.io.PrintWriter(target.toFile(), FlatFileStorage.FILE_CHARSET)) {
+			 var output = backupOutput(target);
+			 java.io.PrintWriter writer = new java.io.PrintWriter(output, false, FlatFileStorage.FILE_CHARSET)) {
 			writer.println("# version: " + Skript.getVersion());
 			while (rows.next()) {
 				String type = rows.getString("type");
@@ -792,6 +802,9 @@ public abstract class JdbcStorage extends VariableStorage {
 			}
 			if (writer.checkError())
 				throw new java.io.IOException("Cannot write database backup");
+			// Finish explicitly so gzip trailer errors propagate instead of being swallowed by PrintWriter.
+			if (output instanceof java.util.zip.GZIPOutputStream gzip)
+				gzip.finish();
 		} catch (SQLException exception) {
 			throw new java.io.IOException("Cannot back up database", exception);
 		}

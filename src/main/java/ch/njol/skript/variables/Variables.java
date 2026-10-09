@@ -4,6 +4,11 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.Serializer;
+import org.skriptlang.skript.lang.converter.Converters;
+import org.bukkit.Bukkit;
+import org.jetbrains.annotations.Blocking;
+import java.io.IOException;
 import ch.njol.skript.classes.ConfigurationSerializer;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
@@ -53,6 +58,134 @@ import org.skriptlang.skript.variables.storage.SQLiteStorage;
  */
 @ThreadSafe
 public final class Variables {
+
+	/**
+	 * Represents a context for serialization of a value as a variable.
+	 *
+	 * @param classInfo class info of the object
+	 * @param value object to serialize
+	 */
+	private record SerializationContext(ClassInfo<?> classInfo, Object value) {
+		public @Nullable Serializer<?> serializer() {
+			return classInfo.getSerializer();
+		}
+		public boolean mustSyncDeserialization() {
+			Serializer<?> serializer = serializer();
+			return serializer != null && serializer.mustSyncDeserialization();
+		}
+	}
+
+	/**
+	 * Returns the serializer used for serializing the given object as a variable.
+	 * <p>
+	 * Returns {@code null} if the object can not be serialized (there is no serializer available).
+	 *
+	 * @param object object to serialize
+	 * @return serializer for the serialization of given object
+	 */
+	private static SerializationContext getSerializationContext(Object object) {
+		ClassInfo<?> classInfo = Classes.getSuperClassInfo(object.getClass());
+
+		if (classInfo.getSerializeAs() != null) {
+			classInfo = Classes.getExactClassInfo(classInfo.getSerializeAs());
+			if (classInfo == null) {
+				assert false : object.getClass();
+				return null;
+			}
+			object = Converters.convert(object, classInfo.getC());
+			if (object == null) {
+				assert false : classInfo.getCodeName();
+				return null;
+			}
+		}
+		return new SerializationContext(classInfo, object);
+	}
+
+	/**
+	 * Serializes the provided map of variables.
+	 * <p>
+	 * Is blocking if the serializer for some of the variables needs to be synchronized and
+	 * the method is not called from the main thread.
+	 * <p>
+	 * This processes null values in the map and will provide empty
+	 * serialized variables in the returned set for such variables.
+	 * <p>
+	 * This method is thread safe.
+	 *
+	 * @param variables, variable names without braces mapped to their Java types; null represents deletions
+	 * @return serialized variables, returns null if the serialization failed
+	 * because Skript is disabled, some of the variables need to be serialized
+	 * on the main thread and this method was called off the main thread.
+	 */
+	@Blocking
+	public static @Nullable Set<SerializedVariable> serialize(Map<String, @Nullable Object> variables) {
+		Set<SerializedVariable> collected = ConcurrentHashMap.newKeySet();
+		Map<String, SerializationContext> needsSync = new ConcurrentHashMap<>();
+		java.util.concurrent.atomic.AtomicBoolean failed = new java.util.concurrent.atomic.AtomicBoolean();
+
+		variables.entrySet().stream().forEach(entry -> {
+			String key = entry.getKey();
+			Object value = entry.getValue();
+
+			if (value == null) {
+				collected.add(new SerializedVariable(key, null));
+				return;
+			}
+
+			SerializationContext context = getSerializationContext(value);
+			if (context == null || context.classInfo.getSerializer() == null) {
+				collected.add(new SerializedVariable(key, null));
+				return;
+			}
+
+			if (context.mustSyncDeserialization()) {
+				needsSync.put(key, context);
+				return;
+			}
+			try {
+				var serialized = Classes.serialize(context.value, context.classInfo);
+				collected.add(new SerializedVariable(key, serialized));
+			} catch (IOException exception) {
+				failed.set(true);
+				Skript.exception(exception, "Failed to serialize " + context.value);
+			}
+		});
+
+		Runnable syncSerialization = () -> needsSync.forEach((key, context) -> {
+			try {
+				var serialized = Classes.serialize(context.value, context.classInfo);
+				collected.add(new SerializedVariable(key, serialized));
+			} catch (IOException exception) {
+				failed.set(true);
+				Skript.exception(exception, "Failed to serialize " + context.value);
+			}
+		});
+
+		if (needsSync.isEmpty())
+			return failed.get() ? null : collected;
+
+		if (Bukkit.isPrimaryThread()) {
+			syncSerialization.run();
+		} else {
+			try {
+				if (!Skript.getInstance().isEnabled())
+					// At this point we can not serialize variables synchronously,
+					// we fail rather than provide partial result
+					return null;
+				CompletableFuture.supplyAsync(() -> {
+					syncSerialization.run();
+					return null;
+				}, Bukkit.getScheduler().getMainThreadExecutor(Skript.getInstance()))
+				.get();
+			} catch (Exception exception) {
+				Skript.exception(exception, "Failed to process variables on the main thread");
+				return null;
+			}
+		}
+
+		return failed.get() ? null : collected;
+	}
+
 
 	/**
 	 * The version of {@link Yggdrasil} this class is using.
@@ -600,7 +733,14 @@ public final class Variables {
 	 * Closes all loaded variable storages.
 	 */
 	public static void close() {
-		STORAGES.forEach(VariableStorage::close);
+		for (VariableStorage storage : STORAGES) {
+			try {
+				storage.close();
+			} catch (Throwable exception) {
+				Skript.exception(exception, "Failed to close variable storage '"
+					+ storage.getUserConfigurationName() + "'");
+			}
+		}
 	}
 
 	/**

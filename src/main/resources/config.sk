@@ -82,6 +82,7 @@ log effect commands: false
 
 compress backups: true
 # Whether Skript should compress backup files (configs and variables).
+# Variable storage backups use .csv.gz when enabled and .csv when disabled, including SQL exports.
 # If true, those files will be zipped to save disk space.
 
 load default aliases: true
@@ -328,6 +329,8 @@ databases:
 		save delay: 5 minutes
 		save period: 5 minutes
 		required changes per save: 1000
+		# CSV automatic snapshots require this many changes AND at least 5 minutes since the last save.
+		# Smaller batches remain journaled; explicit flushes and shutdown still save them.
 		# "save delay" dictates when to start checking for saves after the server starts (e.g. first check)
 		# "save period" is the timespan between every check after the initial delay (e.g. between second check and third check...)
 		# "required changed per save" is a metric that triggers an early save when the threshhold of variable manipulation is reached
@@ -342,6 +345,8 @@ databases:
 
 		backup interval: 2 hours
 		backups to keep: 3
+		# Setting backups to keep to 0 deletes existing generated backups for this storage.
+		# Backups require changes since the last successful backup.
 		# Creates a backup of the save file every so "specified interval". This can be useful if you ever want to revert variables to an older state.
 		# Changes since the last successful save can be lost if the server crashes.
 		# Set this to 0 to disable this feature. -1 to keep every backup, any positive value 'x' retains the newest 'x' backups.
@@ -368,6 +373,8 @@ databases:
 		save delay: 5 minutes
 		save period: 5 minutes
 		required changes per save: 1000
+		# CSV automatic snapshots require this many changes AND at least 5 minutes since the last save.
+		# Smaller batches remain journaled; explicit flushes and shutdown still save them.
 		backup interval: 2 hours
 		backups to keep: -1
 

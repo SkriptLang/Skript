@@ -36,6 +36,8 @@ import java.util.regex.Pattern;
  */
 public class FlatFileStorage extends VariableStorage {
 
+	private static final Pattern HEX_PATTERN = Pattern.compile("[0-9a-fA-F]*");
+
 	/**
 	 * The {@link Charset} used in the CSV storage file.
 	 */
@@ -50,6 +52,11 @@ public class FlatFileStorage extends VariableStorage {
 
 	private final AtomicInteger changes = new AtomicInteger(0);
 
+	private static final long AUTO_SAVE_INTERVAL = TimeUnit.MINUTES.toNanos(5);
+
+	// Monotonic time; allow the first automatic save immediately.
+	private volatile long lastSaveAttempt = System.nanoTime() - AUTO_SAVE_INTERVAL;
+
 	/**
 	 * Whether the storage is being saved now (written to a file).
 	 */
@@ -59,6 +66,24 @@ public class FlatFileStorage extends VariableStorage {
 	 * Variables map of variables managed by this storage.
 	 */
 	private final VariablesMap variablesMap = new VariablesMap();
+	// Serialized at assignment, never during snapshot writes. Guarded by journalLock.
+	private final VariablesMap serializedValues = new VariablesMap();
+	private final Set<String> serializationFailures = new HashSet<>();
+
+	private final Object journalLock = new Object();
+	private @Nullable CsvJournal journal;
+	private long journalSequence;
+	private boolean journalFailed;
+
+	private record Snapshot(Map<String, Object> values, long sequence) {}
+
+	private @Nullable Snapshot snapshot() {
+		synchronized (journalLock) {
+			if (!serializationFailures.isEmpty())
+				return null;
+			return new Snapshot(serializedValues.getAll(), journalSequence);
+		}
+	}
 
 	/**
 	 * Executor used for scheduling the storage save.
@@ -100,7 +125,9 @@ public class FlatFileStorage extends VariableStorage {
 		}
 
 		Map<String, SerializedVariable> collected = new java.util.LinkedHashMap<>();
+		Map<String, Object> legacyValues = new java.util.LinkedHashMap<>();
 		boolean legacy = false;
+		boolean hadLegacy = false;
 		boolean failed = false;
 
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(file.toPath()), FILE_CHARSET))) {
@@ -111,10 +138,21 @@ public class FlatFileStorage extends VariableStorage {
 
 				line = line.trim();
 
+				if (line.startsWith(CsvJournal.CHECKPOINT)) {
+					try {
+						journalSequence = Long.parseLong(line.substring(CsvJournal.CHECKPOINT.length()));
+						if (journalSequence < 0)
+							return false;
+					} catch (NumberFormatException exception) {
+						Skript.error("Invalid CSV journal checkpoint in " + file.getName());
+						return false;
+					}
+				}
 				if (line.startsWith("# version:")) {
 					try {
 						legacy = new ch.njol.skript.util.Version(line.substring(10).trim())
 							.isSmallerThan(new ch.njol.skript.util.Version(2, 1));
+						hadLegacy |= legacy;
 					} catch (IllegalArgumentException exception) {
 						Skript.error("Invalid CSV version in " + file.getName());
 						return false;
@@ -142,7 +180,9 @@ public class FlatFileStorage extends VariableStorage {
 							Object value = Classes.deserialize(type, split[2]);
 							if (value == null)
 								throw new IllegalArgumentException("Invalid legacy value");
-							serializedVariable = new SerializedVariable(key, Classes.serialize(value));
+							legacyValues.put(key, value);
+							collected.remove(key);
+							continue;
 						} else {
 							serializedVariable = new SerializedVariable(key, type, decode(split[2]));
 						}
@@ -152,6 +192,7 @@ public class FlatFileStorage extends VariableStorage {
 						continue;
 					}
 				}
+				legacyValues.remove(key);
 				collected.put(key, serializedVariable);
 			}
 		} catch (IOException e) {
@@ -163,7 +204,7 @@ public class FlatFileStorage extends VariableStorage {
 		if (deserialized == null)
 			return false;
 		long expected = collected.values().stream().filter(variable -> variable.value() != null).count();
-		if (failed || deserialized.size() != expected || legacy) {
+		if (failed || deserialized.size() != expected || hadLegacy) {
 			try {
 				FileUtils.backup(file);
 			} catch (IOException exception) {
@@ -171,14 +212,47 @@ public class FlatFileStorage extends VariableStorage {
 				return false;
 			}
 		}
+		for (SerializedVariable variable : collected.values()) {
+			if (deserialized.containsKey(variable.name()))
+				serializedValues.setVariable(variable.name(), variable.value());
+		}
+		// Legacy text has no reusable binary representation; convert it once during loading.
+		Set<SerializedVariable> convertedLegacy = Variables.serialize(legacyValues);
+		if (convertedLegacy == null)
+			return false;
+		convertedLegacy.forEach(variable -> serializedValues.setVariable(variable.name(), variable.value()));
+		deserialized.putAll(legacyValues);
 		deserialized.forEach(variablesMap::setVariable);
-		if (legacy)
+		if (hadLegacy)
 			changes.incrementAndGet();
+		try {
+			journal = new CsvJournal(file.toPath().resolveSibling(file.getName() + ".journal"));
+			long checkpoint = journalSequence;
+			for (CsvJournal.Entry entry : journal.read()) {
+				if (entry.sequence() <= checkpoint)
+					continue;
+				SerializedVariable variable = entry.variable();
+				Object value = variable.value() == null ? null : Classes.deserialize(variable.value());
+				if (variable.value() != null && value == null)
+					throw new IOException("Cannot deserialize journal variable '" + variable.name() + "'");
+				variablesMap.setVariable(variable.name(), value);
+				serializedValues.setVariable(variable.name(), variable.value());
+				markBackupChanged();
+				journalSequence = entry.sequence();
+				changes.incrementAndGet();
+			}
+		} catch (IOException exception) {
+			// Preserve the original files if journal recovery cannot complete.
+			changes.set(0);
+			journal = null;
+			Skript.exception(exception, "Cannot recover CSV variable journal");
+			return false;
+		}
 
 		saveTask = new Task(Skript.getInstance(), saveTaskDelay, saveTaskPeriod, true) {
 			@Override
 			public void run() {
-				if (changes.get() > 0 || isBackupDue())
+				if (changes.get() >= requiredChangesForResave || isBackupDue())
 					saveAsync();
 			}
 		};
@@ -187,17 +261,37 @@ public class FlatFileStorage extends VariableStorage {
 	}
 
 	/**
-	 * Calls the save executor to perform the rewrite of the CSV file.
+	 * Requests an automatic CSV rewrite, at most once every five minutes.
+	 * Snapshot rewrites require the configured change threshold as well as the cooldown.
+	 * Backup-only requests do not rewrite the snapshot.
 	 */
 	private void saveAsync() {
-		if (closed.get())
+		if (closed.get() || (changes.get() < requiredChangesForResave && !isBackupDue())
+			|| System.nanoTime() - lastSaveAttempt < AUTO_SAVE_INTERVAL)
 			return;
 		if (isSaving.compareAndSet(false, true)) {
+			// Another save may have finished between the first check and acquiring the flag.
+			if (System.nanoTime() - lastSaveAttempt < AUTO_SAVE_INTERVAL) {
+				isSaving.set(false);
+				return;
+			}
 			saveExecutor.execute(() -> {
 				try {
-					int pending = changes.getAndSet(0);
-					if (!performSave(variablesMap.getAll()))
-						changes.addAndGet(pending);
+					if (changes.get() >= requiredChangesForResave) {
+						lastSaveAttempt = System.nanoTime();
+						flush();
+					} else if (saveLock.tryLock()) {
+						try {
+							backupIfDue();
+						} catch (IOException exception) {
+							Skript.exception(exception, "Cannot back up CSV storage");
+						} finally {
+							saveLock.unlock();
+						}
+					}
+				} catch (Throwable exception) {
+					Skript.exception(exception, "Unexpected error saving CSV database '"
+						+ getUserConfigurationName() + "'");
 				} finally {
 					isSaving.set(false);
 				}
@@ -210,36 +304,29 @@ public class FlatFileStorage extends VariableStorage {
 	 */
 	private final java.util.concurrent.locks.ReentrantLock saveLock = new java.util.concurrent.locks.ReentrantLock();
 
-	private boolean performSave(Map<String, Object> snapshot) {
+	private boolean performSave() {
 		if (!saveLock.tryLock())
 			return false;
 		try {
 			assert file != null;
-			File tempFile = new File(file.getParentFile(), file.getName() + ".temp");
-
-			Set<SerializedVariable> serializedVariables = Classes.serialize(snapshot);
-			if (serializedVariables == null || serializedVariables.size() != snapshot.size()) {
-				if (Skript.debug()) {
-					Skript.warning("Failed to save the variables off main thread, this may happen when Skript gets disabled.");
-					Skript.warning("No data is lost, final save will run synchronously on the main thread.");
-				}
+			Snapshot snapshot = snapshot();
+			if (snapshot == null) {
+				Skript.error("Cannot save CSV snapshot: failed variable serialization must be corrected by setting or deleting the affected variables.");
 				return false;
 			}
+			File tempFile = new File(file.getParentFile(), file.getName() + ".temp");
 
 			try (PrintWriter pw = new PrintWriter(tempFile, FILE_CHARSET)) {
 				pw.println("# === Skript's variable storage ===");
 				pw.println("# Please do not modify this file manually!");
 				pw.println("#");
 				pw.println("# version: " + Skript.getVersion());
+				pw.println(CsvJournal.CHECKPOINT + snapshot.sequence());
 				pw.println();
 
-				serializedVariables.forEach(variable -> {
-					if (variable.value() == null)
-						return;
-					String name = variable.name();
-					String type = variable.value().type();
-					String encoded = encode(variable.value().data());
-					writeCSV(pw, name, type, encoded);
+				snapshot.values().entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
+					SerializedVariable.Value value = (SerializedVariable.Value) entry.getValue();
+					writeCSV(pw, entry.getKey(), value.type(), encode(value.data()));
 				});
 
 				pw.println();
@@ -247,12 +334,35 @@ public class FlatFileStorage extends VariableStorage {
 				if (pw.checkError())
 					throw new IOException("Failed writing variable snapshot");
 				pw.close();
-				backupIfDue();
-				FileUtils.move(tempFile, file, true);
+				try {
+					backupIfDue();
+				} catch (IOException exception) {
+					Skript.error("Cannot back up database '" + getUserConfigurationName()
+						+ "'; continuing with the variable save: " + ExceptionUtils.toString(exception));
+				}
+				synchronized (journalLock) {
+					// Publish the checkpoint before removing any journal records.
+					Files.move(tempFile.toPath(), file.toPath(), java.nio.file.StandardCopyOption.ATOMIC_MOVE,
+						java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+					if (journal != null) {
+						try {
+							if (!journalFailed) {
+								journal.compact(snapshot.sequence());
+							} else if (snapshot.sequence() == journalSequence) {
+								// All changes are now in the snapshot, including failed appends.
+								journal.reset();
+								journalFailed = false;
+							}
+						} catch (IOException exception) {
+							Skript.exception(exception, "CSV snapshot saved, but journal cleanup failed");
+						}
+					}
+				}
+				lastSaveAttempt = System.nanoTime();
 				return true;
 			} catch (IOException e) {
 				Skript.error("Unable to make a save of the database '" + getUserConfigurationName() +
-					"' (no variables are lost): " + ExceptionUtils.toString(e));
+					"'; changes remain unsaved: " + ExceptionUtils.toString(e));
 				return false;
 			}
 		} finally {
@@ -275,10 +385,46 @@ public class FlatFileStorage extends VariableStorage {
 		return variablesMap.getVariable(name);
 	}
 
+	/**
+	 * Captures serialized bytes at assignment for journaling and asynchronous snapshots.
+	 * Mutable values must be assigned again after modification to persist the new state.
+	 */
 	@Override
 	public void setVariable(String name, @Nullable Object value) {
-		variablesMap.setVariable(name, value);
-		int currentChanges = changes.incrementAndGet();
+		// Serialize before acquiring the lock: serializers may wait for the main thread.
+		Map<String, Object> single = new java.util.HashMap<>();
+		single.put(name, value);
+		Set<SerializedVariable> serialized = Variables.serialize(single);
+		int currentChanges;
+		synchronized (journalLock) {
+			if (closed.get())
+				throw new IllegalStateException("Variable storage is closed");
+			variablesMap.setVariable(name, value);
+			if (serialized == null) {
+				serializationFailures.add(name);
+			} else {
+				serializedValues.setVariable(name, serialized.iterator().next().value());
+				if (name.endsWith("::*")) {
+					String prefix = name.substring(0, name.length() - 1);
+					serializationFailures.removeIf(key -> key.startsWith(prefix));
+				} else {
+					serializationFailures.remove(name);
+				}
+			}
+			markBackupChanged();
+			long sequence = ++journalSequence;
+			currentChanges = changes.incrementAndGet();
+			if (journal != null && !journalFailed && serialized != null) {
+				try {
+					journal.append(new CsvJournal.Entry(sequence, serialized.iterator().next()));
+				} catch (IOException exception) {
+					journalFailed = true;
+					Skript.exception(exception, "Cannot append variable journal; changes remain in memory until a snapshot succeeds");
+				}
+			} else if (serialized == null) {
+				Skript.error("Cannot journal variable '" + name + "'; set or delete it again to retry serialization");
+			}
+		}
 		if (currentChanges >= requiredChangesForResave) {
 			saveAsync();
 		}
@@ -287,10 +433,14 @@ public class FlatFileStorage extends VariableStorage {
 	@Override
 	public boolean flush() {
 		int pending = changes.getAndSet(0);
-		boolean success = performSave(variablesMap.getAll());
-		if (!success)
-			changes.addAndGet(pending);
-		return success;
+		boolean success = false;
+		try {
+			success = performSave();
+			return success;
+		} finally {
+			if (!success)
+				changes.addAndGet(pending);
+		}
 	}
 
 	@Override
@@ -307,35 +457,58 @@ public class FlatFileStorage extends VariableStorage {
 	public void close() {
 		if (!closed.compareAndSet(false, true))
 			return;
+		boolean interrupted = Thread.interrupted();
+		boolean locked = false;
+		boolean safeToRelease = false;
 		try {
 			if (saveTask != null) {
 				saveTask.cancel();
 				saveTask = null;
 			}
-			// it can not finish the save anyway because Skript is disabled and
-			// serialization will fail off main thread as it can not schedule
-			// tasks to serialize such variables.
-			// we can shutdown now as all variables are on heap and will be
-			// saved once again on the main thread
+			// Interrupt a worker waiting for main-thread serialization before waiting for it.
 			saveExecutor.shutdownNow();
-
-			// wait for the background thread to actually release the file
-			try {
-				if (!saveExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
-					Skript.warning("Variable save thread took too long to shutdown. Final save might fail.");
+			long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(30);
+			long warningAt = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+			boolean warned = false;
+			while (System.nanoTime() < deadline) {
+				try {
+					// Wait for the worker's bookkeeping as well as its file operations.
+					if (saveExecutor.awaitTermination(1, TimeUnit.SECONDS)) {
+						long remaining = deadline - System.nanoTime();
+						if (remaining > 0 && saveLock.tryLock(Math.min(remaining,
+							TimeUnit.SECONDS.toNanos(1)), TimeUnit.NANOSECONDS)) {
+							locked = true;
+							break;
+						}
+					}
+				} catch (InterruptedException exception) {
+					// Finish the shutdown attempt, then restore the caller's interrupt status.
+					interrupted = true;
 				}
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
+				if (!warned && System.nanoTime() >= warningAt) {
+					Skript.warning("Waiting for an active variable save for database '"
+						+ getUserConfigurationName() + "' before the final save.");
+					warned = true;
+				}
 			}
-
-			// now write to file.temp
-			if (changes.get() > 0) {
-				Map<String, Object> snapshot = variablesMap.getAll();
-				changes.set(0);
-				performSave(snapshot);
+			if (!locked) {
+				Skript.error("Timed out after 30 seconds waiting to save database '"
+					+ getUserConfigurationName() + "'. A save may be stalled; unsaved changes may be lost."
+					+ " File ownership is retained while a writer may still be active.");
+				return;
 			}
+			safeToRelease = true;
+			// The worker has finished restoring pending changes after any failed save.
+			if (changes.get() > 0 && !flush())
+				Skript.error("Final save failed for database '" + getUserConfigurationName()
+					+ "'. Unsaved changes will be lost when the server stops.");
 		} finally {
-			releaseFile();
+			if (locked)
+				saveLock.unlock();
+			if (safeToRelease)
+				releaseFile();
+			if (interrupted)
+				Thread.currentThread().interrupt();
 		}
 	}
 
@@ -363,7 +536,7 @@ public class FlatFileStorage extends VariableStorage {
 	 * @return the byte array.
 	 */
 	static byte[] decode(String hex) {
-		if ((hex.length() & 1) != 0 || !hex.matches("[0-9a-fA-F]*"))
+		if ((hex.length() & 1) != 0 || !HEX_PATTERN.matcher(hex).matches())
 			throw new IllegalArgumentException("Invalid hexadecimal value");
 		byte[] decoded = new byte[hex.length() / 2];
 

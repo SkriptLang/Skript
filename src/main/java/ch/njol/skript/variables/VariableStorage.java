@@ -35,12 +35,20 @@ import org.skriptlang.skript.addon.SkriptAddon;
 @ThreadSafe
 public abstract class VariableStorage implements Closeable {
 
+	private static final Pattern BACKUP_FILE_PATTERN = Pattern.compile("[0-9]+-[0-9a-f-]{36}\\.csv(?:\\.gz)?");
+
 	protected long saveTaskDelay = 6000;
 	protected long saveTaskPeriod = 6000;
 	protected int requiredChangesForResave = 1000;
 	protected long backupIntervalMillis = 7200000;
 	protected int backupsToKeep = -1;
-	protected volatile long lastBackup;
+	protected volatile long lastBackup = System.currentTimeMillis();
+	private final java.util.concurrent.atomic.AtomicLong backupChanges = new java.util.concurrent.atomic.AtomicLong();
+	private volatile long backedUpChanges;
+
+	protected final void markBackupChanged() {
+		backupChanges.incrementAndGet();
+	}
 
 	private boolean loadSaveOptions(SectionNode node) {
 		String[] keys = {"save delay", "save period", "backup interval"};
@@ -233,6 +241,14 @@ public abstract class VariableStorage implements Closeable {
 		databaseName = sectionNode.getKey();
 		if (!loadSaveOptions(sectionNode))
 			return false;
+		if (backupsToKeep == 0) {
+			try {
+				pruneBackups();
+			} catch (IOException exception) {
+				Skript.exception(exception, "Cannot remove disabled variable backups");
+				return false;
+			}
+		}
 		String pattern = getValue(sectionNode, "pattern");
 		if (pattern == null)
 			return false;
@@ -390,10 +406,27 @@ public abstract class VariableStorage implements Closeable {
 		return Set.of();
 	}
 
+	/** File extension matching the format written by {@link #writeBackup}. */
+	protected String backupExtension() {
+		return ch.njol.skript.SkriptConfig.compressBackups.value() ? ".csv.gz" : ".csv";
+	}
+
+	protected final java.io.OutputStream backupOutput(java.nio.file.Path target) throws IOException {
+		var output = java.nio.file.Files.newOutputStream(target);
+		try {
+			return backupExtension().endsWith(".gz") ? new java.util.zip.GZIPOutputStream(output) : output;
+		} catch (IOException exception) {
+			output.close();
+			throw exception;
+		}
+	}
+
 	protected void writeBackup(java.nio.file.Path target) throws IOException {
 		if (file == null)
 			throw new IOException("Storage has no associated file");
-		java.nio.file.Files.copy(file.toPath(), target);
+		try (var output = backupOutput(target)) {
+			java.nio.file.Files.copy(file.toPath(), output);
+		}
 	}
 
 	protected java.nio.file.Path getBackupDirectory() {
@@ -402,17 +435,23 @@ public abstract class VariableStorage implements Closeable {
 	}
 
 	protected final boolean isBackupDue() {
-		return backupIntervalMillis > 0 && backupsToKeep != 0
-			&& System.currentTimeMillis() - lastBackup >= backupIntervalMillis;
+		return backupsToKeep == 0 || (backupIntervalMillis > 0
+			&& backupChanges.get() != backedUpChanges
+			&& System.currentTimeMillis() - lastBackup >= backupIntervalMillis);
 	}
 
 	protected final void backupIfDue() throws IOException {
+		if (backupsToKeep == 0) {
+			pruneBackups();
+			return;
+		}
 		long now = System.currentTimeMillis();
-		if (backupIntervalMillis == 0 || backupsToKeep == 0 || now - lastBackup < backupIntervalMillis)
+		long revision = backupChanges.get();
+		if (backupIntervalMillis == 0 || revision == backedUpChanges || now - lastBackup < backupIntervalMillis)
 			return;
 		java.nio.file.Path directory = getBackupDirectory();
 		java.nio.file.Files.createDirectories(directory);
-		java.nio.file.Path target = directory.resolve(now + "-" + java.util.UUID.randomUUID() + ".csv");
+		java.nio.file.Path target = directory.resolve(now + "-" + java.util.UUID.randomUUID() + backupExtension());
 		java.nio.file.Path temporary = directory.resolve(target.getFileName() + ".tmp");
 		try {
 			writeBackup(temporary);
@@ -422,10 +461,15 @@ public abstract class VariableStorage implements Closeable {
 			throw exception;
 		}
 		lastBackup = now;
-		if (backupsToKeep > -1) {
+		backedUpChanges = revision;
+		pruneBackups();
+	}
+
+	private void pruneBackups() throws IOException {
+		java.nio.file.Path directory = getBackupDirectory();
+		if (backupsToKeep > -1 && java.nio.file.Files.isDirectory(directory)) {
 			try (var files = java.nio.file.Files.list(directory)) {
-				var backups = files.filter(path -> path.getFileName().toString()
-					.matches("[0-9]+-[0-9a-f-]{36}\\.csv"))
+				var backups = files.filter(path -> BACKUP_FILE_PATTERN.matcher(path.getFileName().toString()).matches())
 					.sorted(java.util.Comparator.reverseOrder()).toList();
 				for (int i = backupsToKeep; i < backups.size(); i++)
 					java.nio.file.Files.delete(backups.get(i));
