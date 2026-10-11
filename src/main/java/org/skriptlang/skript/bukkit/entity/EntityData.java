@@ -730,6 +730,13 @@ public abstract class EntityData<E extends Entity>
 	public E[] getAll(World... worlds) {
 		assert worlds != null && worlds.length > 0 : Arrays.toString(worlds);
 		List<E> list = new ArrayList<>();
+		if (getType() == Player.class) {
+			for (Player player : Bukkit.getOnlinePlayers()) {
+				if (CollectionUtils.contains(worlds, player.getWorld()) && match((E) player))
+					list.add((E) player);
+			}
+			return list.toArray((E[]) Array.newInstance(getType(), list.size()));
+		}
 		for (World world : worlds) {
 			for (E entity : world.getEntitiesByClass(getType())) {
 				if (match(entity))
