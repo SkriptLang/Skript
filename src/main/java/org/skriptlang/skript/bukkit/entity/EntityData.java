@@ -250,6 +250,14 @@ public abstract class EntityData<E extends Entity>
 	@SuppressWarnings("unchecked")
 	public static <E extends Entity> E[] getAll(EntityData<?>[] types, Class<E> type, Chunk[] chunks) {
 		assert types.length > 0;
+		if (type == Player.class) {
+			List<Player> list = new ArrayList<>();
+			for (Player player : Bukkit.getOnlinePlayers()) {
+				if (CollectionUtils.contains(chunks, player.getChunk()))
+					list.add(player);
+			}
+			return (E[]) list.toArray(new Player[list.size()]);
+		}
 		List<E> list = new ArrayList<>();
 		for (Chunk chunk : chunks) {
 			for (Entity entity : chunk.getEntities()) {
