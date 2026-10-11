@@ -23,13 +23,13 @@ public interface Modifiable {
 		/**
 	 * Returns whether this object has the specified modifier.
 	 *
-	 * @param modifier The modifier.
+	 * @param modifierClass The modifier.
 	 * @return True when {@link #modifiers()} contains the specified modifier, false if not.
 	 */
-	default boolean hasModifier(@NotNull Class<? extends Modifier> modifier) {
-		Preconditions.checkNotNull(modifier, "modifier cannot be null");
+	default boolean hasModifier(@NotNull Class<? extends Modifier> modifierClass) {
+		Preconditions.checkNotNull(modifierClass, "modifierClass cannot be null");
 
-		return modifiers().stream().anyMatch(modifier::isInstance);
+		return modifiers().stream().anyMatch(modifierClass::isInstance);
 	}
 
 	/**

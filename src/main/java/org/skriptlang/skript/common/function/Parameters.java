@@ -1,12 +1,10 @@
 package org.skriptlang.skript.common.function;
 
-import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.SequencedMap;
 
 /**

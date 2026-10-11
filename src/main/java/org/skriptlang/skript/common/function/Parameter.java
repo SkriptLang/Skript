@@ -1,5 +1,6 @@
 package org.skriptlang.skript.common.function;
 
+import ch.njol.skript.config.Option;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.KeyProviderExpression;
 import ch.njol.skript.lang.KeyedValue;
@@ -10,9 +11,11 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.function.Parameter.Modifier.Ranged;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.util.Modifiable;
+import org.skriptlang.skript.util.Modifier;
 import org.skriptlang.skript.util.Priority;
 
 import java.util.StringJoiner;
@@ -40,7 +43,38 @@ public interface Parameter<T> extends Modifiable {
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	default boolean hasModifier(Modifier modifier) {
+		if (modifier == Modifier.RANGED) {
+			return Modifiable.super.hasModifier(Modifier.RangedModifier.class) || hasModifier(Modifier.Ranged.class);
+		}
+
 		return modifiers().contains(modifier);
+	}
+
+	@Override
+	default boolean hasModifier(@NotNull Class<? extends org.skriptlang.skript.util.Modifier> modifierClass) {
+		if (modifierClass == Modifier.RangedModifier.class) {
+			return Modifiable.super.hasModifier(Modifier.RangedModifier.class) || hasModifier(Modifier.Ranged.class);
+		}
+
+		return Modifiable.super.hasModifier(modifierClass);
+	}
+
+	@Override
+	@NotNull
+	default <M extends org.skriptlang.skript.util.Modifier> M getModifier(@NotNull Class<M> modifierClass) {
+		if (modifierClass == Modifier.RangedModifier.class) {
+			if (Modifiable.super.hasModifier(Modifier.RangedModifier.class)) {
+				//noinspection unchecked
+				return (M) Modifiable.super.getModifier(Modifier.RangedModifier.class);
+			} else if (Modifiable.super.hasModifier(Modifier.Ranged.class)) {
+				Ranged<?> ranged = getModifier(Modifier.Ranged.class);
+
+				//noinspection unchecked,rawtypes
+				return (M) new Modifier.RangedModifier(ranged.min, ranged.max);
+			}
+		}
+
+		return Modifiable.super.getModifier(modifierClass);
 	}
 
 	/**
@@ -61,7 +95,7 @@ public interface Parameter<T> extends Modifiable {
 	/**
 	 * Evaluates the provided argument expression and returns the resulting values, taking into account this parameter's modifiers.
 	 *
-	 * <p>If this parameter has the {@link org.skriptlang.skript.common.function.Parameter.Modifier#KEYED} modifier,
+	 * <p>If this parameter has the {@link Parameter.Modifier.Keyed} modifier,
 	 * the returned array will contain {@link ch.njol.skript.lang.KeyedValue} objects, pairing each value with its corresponding key.
 	 * If the argument expression does not provide keys, numerical indices (1, 2, 3, ...) will be used as keys;
 	 * otherwise, the returned array will contain only the values.</p>
@@ -210,7 +244,7 @@ public interface Parameter<T> extends Modifiable {
 			public Ranged {
 				Preconditions.checkNotNull(min, "min cannot be null");
 				Preconditions.checkNotNull(max, "max cannot be null");
-				Preconditions.checkState(min.compareTo(max) < 1, "Min value cannot be greater than max value!");
+				Preconditions.checkState(min.compareTo(max) < 1, "min cannot be greater than max");
 			}
 
 			@Override

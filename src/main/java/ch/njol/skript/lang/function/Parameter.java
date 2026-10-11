@@ -14,11 +14,15 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.MoreObjects.ToStringHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.junit.Assert;
 import org.skriptlang.skript.common.function.DefaultFunction;
 import org.skriptlang.skript.common.function.ScriptParameter;
+import org.skriptlang.skript.util.Modifier;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -61,13 +65,6 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	private final Set<Modifier> modifiers;
 
 	/**
-	 * @deprecated Use {@link org.skriptlang.skript.common.function.Parameter}
-	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
-	 * instead.
-	 */
-	final boolean keyed;
-
-	/**
 	 * @deprecated Use {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)} instead.
 	 */
 	@Deprecated(since = "2.13", forRemoval = true)
@@ -86,7 +83,6 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 		this.type = type;
 		this.def = def;
 		this.single = single;
-		this.keyed = keyed;
 		this.modifiers = new HashSet<>();
 
 		if (def != null) {
@@ -108,7 +104,6 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 		this.type = type;
 		this.def = def;
 		this.single = single;
-		this.keyed = keyed;
 		this.modifiers = new HashSet<>();
 
 		if (optional) {
@@ -133,7 +128,6 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 		this.def = def;
 		this.single = single;
 		this.modifiers = Set.of(modifiers);
-		this.keyed = hasModifier(Modifier.Keyed.class);
 	}
 
 	/**
@@ -280,8 +274,7 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 		if (!(o instanceof Parameter<?> parameter))
 			return false;
 
-		return modifiers.stream().map(Modifier::getClass).collect(Collectors.toSet())
-				.equals(parameter.modifiers().stream().map(Modifier::getClass).collect(Collectors.toSet()))
+		return modifiers.equals(parameter.modifiers)
 				&& single == parameter.single
 				&& name.equals(parameter.name)
 				&& type.equals(parameter.type)

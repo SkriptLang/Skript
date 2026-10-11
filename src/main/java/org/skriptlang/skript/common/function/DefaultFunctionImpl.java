@@ -314,7 +314,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 
 		@SuppressWarnings("removal")
 		private static Collection<Modifier> modernizeModifiers(Modifier[] modifiers) {
-			Collection<Modifier> result = new LinkedHashSet<>();
+			Collection<Modifier> result = new HashSet<>();
 			for (Modifier modifier : modifiers) {
 				if (modifier instanceof Parameter.Modifier.RangedModifier<?> rangedModifier) {
 					//noinspection rawtypes,unchecked

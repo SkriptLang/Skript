@@ -42,7 +42,8 @@ public class DefaultFunctionTest {
 
 		Parameter<?>[] parameters = signature.getParameters();
 
-		assertEquals(new ch.njol.skript.lang.function.Parameter<>("x", getClassInfo(String[].class), false, null, false, true), parameters[0]);
+		ch.njol.skript.lang.function.Parameter<String[]> created = new ch.njol.skript.lang.function.Parameter<>("x", getClassInfo(String[].class), false, null, false, true);
+		assertEquals("%s not equal to %s".formatted(created, parameters[0]), created, parameters[0]);
 	}
 
 	@Test
