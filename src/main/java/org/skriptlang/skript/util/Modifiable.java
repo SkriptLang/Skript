@@ -6,6 +6,8 @@ import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.Collection;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * An object that can be modified with modifiers extending {@link Modifier}.
@@ -13,7 +15,7 @@ import java.util.NoSuchElementException;
 public interface Modifiable {
 
 	/**
-	 * @return All modifiers belonging to this parameter.
+	 * @return All modifiers belonging to this object.
 	 */
 	@UnmodifiableView
 	@NotNull Collection<? extends Modifier> modifiers();

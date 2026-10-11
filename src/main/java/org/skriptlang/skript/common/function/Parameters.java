@@ -33,7 +33,7 @@ public final class Parameters {
 		}
 
 		int j = size() - 1;
-		for (Parameter<?> parameter : Lists.reverse(new LinkedList<>(parameters.values()))) {
+		for (Parameter<?> parameter : parameters.sequencedValues().reversed()) {
 			if (!parameter.hasModifier(Parameter.Modifier.Optional.class)) {
 				this.minCount = j + 1;
 				break;

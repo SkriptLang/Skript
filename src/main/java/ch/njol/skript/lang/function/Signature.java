@@ -56,10 +56,18 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 		this.name = name;
 		this.parameters = initParameters(parameters);
 		this.namespace = namespace;
-		if (local && namespace != null)
+
+		if (local) {
+			Preconditions.checkNotNull(namespace, "namespace cannot be null for a local function");
 			modifiers.add(new Modifier.Local(namespace));
-		if (returnType != null)
-			modifiers.add(new Modifier.Returns<>(returnType.getC()));
+		}
+		if (returnType != null) {
+			if (single) {
+				modifiers.add(new Modifier.Returns<>(returnType.getC()));
+			} else {
+				modifiers.add(new Modifier.Returns<>(returnType.getC().arrayType()));
+			}
+		}
 		this.returnType = returnType;
 		this.single = single;
 		this.contract = contract;

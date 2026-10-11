@@ -78,7 +78,7 @@ public interface Signature<T> extends Modifiable {
 	}
 
 	/**
-	 * @return A human-readable string representing this parameter.
+	 * @return A human-readable string representing this signature.
 	 */
 	default @NotNull String toFormattedString() {
 		StringJoiner joiner = new StringJoiner(" ");

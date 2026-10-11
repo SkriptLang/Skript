@@ -225,6 +225,10 @@ public interface Parameter<T> extends Modifiable {
 
 			@Override
 			public java.util.@NotNull Optional<String> validate(Object input) {
+				if (input == null) {
+					return java.util.Optional.of("Invalid input");
+				}
+
 				// convert to right type
 				if (!min.getClass().isInstance(input)) {
 					//noinspection unchecked
@@ -279,7 +283,7 @@ public interface Parameter<T> extends Modifiable {
 		@Deprecated(forRemoval = true, since = "INSERT VERSION")
 		class RangedModifier<T extends Comparable<T>> implements Modifier {
 
-			private static final Priority PRIORITY = Priority.before(TYPE_PRIORITY);
+			private static final Priority PRIORITY = Priority.after(TYPE_PRIORITY);
 
 			private final T min;
 			private final T max;
