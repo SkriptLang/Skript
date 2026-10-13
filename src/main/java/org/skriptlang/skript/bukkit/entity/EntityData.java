@@ -217,9 +217,8 @@ public abstract class EntityData<E extends Entity>
 			if (worlds == null)
 				return (E[]) Bukkit.getOnlinePlayers().toArray(new Player[0]);
 			List<Player> list = new ArrayList<>();
-			for (Player player : Bukkit.getOnlinePlayers()) {
-				if (CollectionUtils.contains(worlds, player.getWorld()))
-					list.add(player);
+			for (World world : worlds) {
+				list.addAll(world.getPlayers());
 			}
 			return (E[]) list.toArray(new Player[list.size()]);
 		}
@@ -731,9 +730,11 @@ public abstract class EntityData<E extends Entity>
 		assert worlds != null && worlds.length > 0 : Arrays.toString(worlds);
 		List<E> list = new ArrayList<>();
 		if (getType() == Player.class) {
-			for (Player player : Bukkit.getOnlinePlayers()) {
-				if (CollectionUtils.contains(worlds, player.getWorld()) && match((E) player))
-					list.add((E) player);
+			for (World world : worlds) {
+				for (Player player : world.getPlayers()) {
+					if (match((E) player))
+						list.add((E) player);
+				}
 			}
 			return list.toArray((E[]) Array.newInstance(getType(), list.size()));
 		}
