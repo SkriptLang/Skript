@@ -706,7 +706,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 			int optionalArgs = 0;
 			for (int i = 0; i < signatureParams.length; i++) {
 				Parameter<?> param = signatureParams[i];
-				if (param.hasModifier(Modifier.OPTIONAL)) {
+				if (param.hasModifier(Modifier.Optional.class)) {
 					optionalArgs++;
 				}
 

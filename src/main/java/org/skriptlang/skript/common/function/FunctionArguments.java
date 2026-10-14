@@ -3,7 +3,7 @@ package org.skriptlang.skript.common.function;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.Set;
+import java.util.Collection;
 import java.util.function.Supplier;
 
 /**
@@ -77,6 +77,6 @@ public sealed interface FunctionArguments
 	 *
 	 * @return All argument names.
 	 */
-	@Unmodifiable @NotNull Set<String> names();
+	@Unmodifiable @NotNull Collection<String> names();
 
 }

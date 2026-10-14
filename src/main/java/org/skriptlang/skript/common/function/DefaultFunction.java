@@ -62,6 +62,15 @@ public sealed interface DefaultFunction<T>
 	interface Builder<T> {
 
 		/**
+		 * Adds modifiers to this builder.
+		 *
+		 * @param modifiers The modifiers for this function.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		Builder<T> modifiers(@NotNull Signature.Modifier @NotNull ... modifiers);
+
+		/**
 		 * Sets this function builder's {@link ch.njol.skript.util.Contract}.
 		 *
 		 * @param contract The contract.

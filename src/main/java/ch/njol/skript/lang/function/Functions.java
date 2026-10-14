@@ -21,12 +21,6 @@ import java.util.stream.Collectors;
  */
 public abstract class Functions {
 
-	private static final String INVALID_FUNCTION_DEFINITION =
-		"Invalid function definition. Please check for " +
-			"typos and make sure that the function's name " +
-			"only contains letters and underscores. " +
-			"Refer to the documentation for more information.";
-
 	private Functions() {}
 
 	public static @Nullable ScriptFunction<?> currentFunction = null;
@@ -117,10 +111,6 @@ public abstract class Functions {
 				return null; // Probably duplicate signature; reported before
 		}
 
-		if (Skript.debug() || node.debug()) {
-			Skript.debug(signature.toString());
-		}
-
 		Function<?> function;
 		try {
 			function = new ScriptFunction<>(signature, node);
@@ -133,9 +123,13 @@ public abstract class Functions {
 			return null;
 		}
 
-		if (namespace.getFunction(signature.getName()) == null) {
+		// compatibility
+		if (namespace.getSignature(signature.getName(), signature.isLocal()) == null)
+			namespace.addSignature(signature);
+		if (namespace.getFunction(signature.getName(), signature.isLocal()) == null)
 			namespace.addFunction(function);
-		}
+		if (!signature.isLocal() && !globalFunctions.containsKey(signature.getName()))
+			globalFunctions.put(signature.getName(), namespace);
 
 		if (function.getSignature().isLocal()) {
 			FunctionRegistry.getRegistry().register(script.getConfig().getFileName(), function);
@@ -167,12 +161,8 @@ public abstract class Functions {
 		if (parameters.length == 1 && !parameters[0].isSingle()) {
 			existing = FunctionRegistry.getRegistry().getExactSignature(signature.namespace(), signature.getName(), parameters[0].type().arrayType());
 		} else {
-			Class<?>[] types = new Class<?>[parameters.length];
-			for (int i = 0; i < parameters.length; i++) {
-				types[i] = parameters[i].type();
-			}
-
-			existing = FunctionRegistry.getRegistry().getExactSignature(signature.namespace(), signature.getName(), types);
+			existing = FunctionRegistry.getRegistry().getExactSignature(signature.namespace(), signature.getName(),
+					Arrays.stream(parameters).map(Parameter::type).toArray(Class<?>[]::new));
 		}
 
 		// if this function has already been registered, only allow it if one function is local and one is global.
@@ -202,6 +192,7 @@ public abstract class Functions {
 		if (namespace.getSignature(signature.getName()) == null) {
 			namespace.addSignature(signature);
 		}
+
 		if (!signature.isLocal())
 			globalFunctions.put(signature.getName(), namespace);
 

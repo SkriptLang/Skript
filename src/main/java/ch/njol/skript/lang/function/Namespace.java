@@ -177,7 +177,7 @@ public class Namespace {
 
 	public void addFunction(Function<?> func) {
 		Info info = new Info(func.getName(), func.getSignature().isLocal());
-		assert signatures.containsKey(info) : "missing signature for function";
+		assert signatures.containsKey(info) : "missing signature for %s".formatted(func.signature().toFormattedString());
 		functions.put(info, func);
 	}
 
