@@ -104,7 +104,7 @@ test "bee data":
 	testData(angry bee without nectar)
 	testData(angry bee with nectar)
 
-test "boat data":
+test "chest boat data":
 	setSuperTypes(any chest boat)
 	testData(chest boat)
 	testData(acacia chest boat)
@@ -1158,5 +1158,19 @@ test "display data":
 	testData(item display entity of bedrock)
 	testData(bedrock item display)
 	testData(bedrock item display entity)
+
+test "shulker data":
+	setSuperTypes(shulker)
+	testData(shulker)
+	testData(red shulker)
+	testData(white shulker)
+	testData(orange shulker)
+
+test "cushion data" when running minecraft "26.3":
+	setSuperTypes(cushion)
+	testData(cushion)
+	testData(red cushion)
+	testData(white cushion)
+	testData(orange cushion)
 
 # TODO: simple entity data

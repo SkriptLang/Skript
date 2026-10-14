@@ -1,8 +1,11 @@
 package ch.njol.skript.classes.data;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.bukkitutil.EntityUtils;
-import ch.njol.skript.classes.*;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.EnumClassInfo;
+import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.PatternedParser;
+import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -23,7 +26,12 @@ import org.bukkit.block.DoubleChest;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.*;
+import org.bukkit.entity.EntitySnapshot;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Vehicle;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
@@ -46,6 +54,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.metadata.Metadatable;
 import org.bukkit.util.CachedServerIcon;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.entity.EntityUtils;
 import org.skriptlang.skript.bukkit.types.EntityClassInfo.EntityChanger;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
@@ -346,80 +355,6 @@ public class BukkitClasses {
 				.examples("")
 				.since("2.0")
 				.after("itemtype", "itemstack", "entitydata", "entitytype"));
-
-		Classes.registerClass(new ClassInfo<>(Chunk.class, "chunk")
-				.user("chunks?")
-				.name("Chunk")
-				.description("A chunk is a cuboid of 16×16×128 (x×z×y) blocks. Chunks are spread on a fixed rectangular grid in their world.")
-				.usage("")
-				.examples("")
-				.since("2.0")
-				.parser(new Parser<>() {
-					@Override
-					public boolean canParse(final ParseContext context) {
-						return false;
-					}
-
-					@Override
-					public String toString(final Chunk c, final int flags) {
-						return "chunk (" + c.getX() + "," + c.getZ() + ") of " + c.getWorld().getName();
-					}
-
-					@Override
-					public String toVariableNameString(final Chunk c) {
-						return c.getWorld().getName() + ":" + c.getX() + "," + c.getZ();
-					}
-				})
-				.serializer(new Serializer<>() {
-					@Override
-					public Fields serialize(Chunk chunk) {
-						final Fields f = new Fields();
-						f.putObject("world", chunk.getWorld());
-						f.putPrimitive("x", chunk.getX());
-						f.putPrimitive("z", chunk.getZ());
-						return f;
-					}
-
-					@Override
-					public boolean canBeInstantiated() {
-						return false;
-					}
-
-					@Override
-					protected Chunk deserialize(Fields fields) throws StreamCorruptedException {
-						World world = fields.getObject("world", World.class);
-						if (world == null)
-							throw new StreamCorruptedException("Missing world");
-
-						int x = fields.getPrimitive("x", int.class);
-						int z = fields.getPrimitive("z", int.class);
-						return world.getChunkAt(x, z);
-					}
-
-					// return c.getWorld().getName() + ":" + c.getX() + "," + c.getZ();
-					@Override
-					@Nullable
-					public Chunk deserialize(final String s) {
-						final String[] split = s.split("[:,]");
-						if (split.length != 3)
-							return null;
-						final World w = Bukkit.getWorld(split[0]);
-						if (w == null)
-							return null;
-						try {
-							final int x = Integer.parseInt(split[1]);
-							final int z = Integer.parseInt(split[1]);
-							return w.getChunkAt(x, z);
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return true;
-					}
-				}));
 
 		Material[] allMaterials = Material.values();
 		Classes.registerClass(new ClassInfo<>(Material.class, "material")

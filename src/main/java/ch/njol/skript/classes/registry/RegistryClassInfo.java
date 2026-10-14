@@ -102,7 +102,7 @@ public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 	 * @param languageNode The language node of the type
 	 * @deprecated Use {@link #RegistryClassInfo(Class, RegistryKey, String, String)}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.17", forRemoval = true)
 	public RegistryClassInfo(Class<R> registryClass, Registry<R> registry, String codeName, String languageNode) {
 		this(registryClass, registry, codeName, languageNode, new EventValueExpression<>(registryClass));
 	}
@@ -115,7 +115,7 @@ public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 	 * @param parseCallback A consumer to run on a successful parse.
 	 * @deprecated Use {@link #RegistryClassInfo(Class, RegistryKey, String, String, Consumer)}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.17", forRemoval = true)
 	public RegistryClassInfo(Class<R> registryClass, Registry<R> registry, String codeName, String languageNode, Consumer<R> parseCallback) {
 		this(registryClass, registry, codeName, languageNode, new EventValueExpression<>(registryClass), parseCallback);
 	}
@@ -128,7 +128,7 @@ public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 	 * @param defaultExpression The default expression of the type
 	 * @deprecated Use {@link #RegistryClassInfo(Class, RegistryKey, String, String)} with {@link #defaultExpression(DefaultExpression)}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.17", forRemoval = true)
 	public RegistryClassInfo(Class<R> registryClass, Registry<R> registry, String codeName, String languageNode,
 							 DefaultExpression<R> defaultExpression) {
 		this(registryClass, registry, codeName, languageNode, defaultExpression, ignored -> {});
@@ -144,7 +144,7 @@ public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 	 * @deprecated Use {@link #RegistryClassInfo(Class, RegistryKey, String, String, Consumer)}
 	 *  with {@link #defaultExpression(DefaultExpression)}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.17", forRemoval = true)
 	public RegistryClassInfo(Class<R> registryClass, Registry<R> registry, String codeName, String languageNode,
 							 DefaultExpression<R> defaultExpression, Consumer<R> parseCallback) {
 		this(registryClass, null, registry, codeName, languageNode, defaultExpression, parseCallback);
