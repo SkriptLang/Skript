@@ -67,7 +67,7 @@ public class ItemTypeClassInfo extends ClassInfo<ItemType> {
 		public @Nullable ItemType parse(String s, ParseContext context) {
 			ItemType itemType = Aliases.parseItemType(s);
 			if (itemType != null && itemType.getTypes().size() == 1 && itemType.getTypes().getFirst().getStack() != null) {
-				itemType.isRandom = true;
+				itemType.isWrappingItemStack = true;
 			}
 			return itemType;
 		}
