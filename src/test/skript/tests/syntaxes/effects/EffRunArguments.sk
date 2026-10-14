@@ -1,0 +1,107 @@
+using script reflection
+
+function dfrDistinct(a: object, b: objects, c: objects) :: number:
+	# how many values each list parameter was given
+	return (size of {_b::*}) * 10 + (size of {_c::*})
+
+function dfrGreedy(a: number, b: numbers) :: number:
+	return {_a} + (size of {_b::*})
+
+function dfrTwo(a: text, b: number) :: text:
+	return "%{_a}%-%{_b}%"
+
+function dfrTwoLists(a: numbers, b: numbers) :: number:
+	return (size of {_a::*}) * 10 + (size of {_b::*})
+
+function dfrMiddleList(a: number, b: numbers, c: number) :: number:
+	return {_a} * 100 + (size of {_b::*}) * 10 + {_c}
+
+function dfrOneList(ns: numbers) :: number:
+	return size of {_ns::*}
+
+function dfrOneSingle(n: number) :: number:
+	return {_n}
+
+test "an argument which is itself a list stays one argument":
+	set {_list::*} to 4 and 5
+	# three arguments: a single value, a parenthesised list, and a list variable
+	set {_result} to result of (function "dfrDistinct") with arguments 1, (2 and 3) and {_list::*}
+	assert {_result} exists with "the arguments were not accepted"
+	assert {_result} is 22 with "each list argument should have filled one parameter with both of its values"
+
+test "arguments spread greedily across a list parameter":
+	# the last parameter takes as many of the arguments as are left over
+	set {_result} to result of (function "dfrGreedy") with arguments 1, 2 and 3
+	assert {_result} exists with "the arguments were not accepted"
+	assert {_result} is 3 with "the list parameter should have taken the two remaining arguments"
+
+test "arguments spread across two list parameters":
+	# the leftmost list parameter takes as much as it can while leaving enough for the other
+	set {_result} to result of (function "dfrTwoLists") with arguments 1, 2, 3 and 4
+	assert {_result} exists with "four arguments were not accepted"
+	assert {_result} is 31 with "the first list parameter should have taken three of the four arguments"
+
+	set {_result} to result of (function "dfrTwoLists") with arguments 1 and 2
+	assert {_result} exists with "two arguments were not accepted"
+	assert {_result} is 11 with "each list parameter should have taken one argument"
+
+test "arguments spread across a list parameter between two single ones":
+	set {_result} to result of (function "dfrMiddleList") with arguments 1, 2, 3 and 4
+	assert {_result} exists with "four arguments were not accepted"
+	assert {_result} is 124 with "the middle parameter should have taken the two surplus arguments"
+
+	set {_result} to result of (function "dfrMiddleList") with arguments 1, 2 and 3
+	assert {_result} exists with "three arguments were not accepted"
+	assert {_result} is 113 with "the middle parameter should have taken one argument"
+
+test "a single value may fill a list parameter":
+	set {_result} to result of (function "dfrOneList") with arguments 1
+	assert {_result} exists with "a single argument was not accepted by a list parameter"
+	assert {_result} is 1 with "the list parameter should have been given one value"
+
+	set {_result} to result of (function "dfrOneList") with arguments 1, 2 and 3
+	assert {_result} is 3 with "the list parameter should have been given three values"
+
+test "a single list argument is spread across the parameters":
+	set {_arguments::*} to "x" and 2
+	set {_result} to result of (function "dfrTwo") with arguments {_arguments::*}
+	assert {_result} exists with "the arguments were not accepted"
+	assert {_result} is "x-2" with "the values of the list should have filled both parameters"
+
+test "a list argument which does not fit is rejected":
+	set {_arguments::*} to "x" and 2 and 3
+	assert (result of (function "dfrTwo") with arguments {_arguments::*}) doesn't exist with "too many values were accepted"
+
+test "how many values a list argument holds decides whether it fits a single parameter":
+	# the spread is worked out per execution, so the same call can fit or not depending on the
+	# values it is given
+	set {_arguments::*} to 7
+	assert (result of (function "dfrOneSingle") with arguments {_arguments::*}) is 7 with "one value should have filled the single parameter"
+
+	set {_arguments::*} to 7 and 8
+	assert (result of (function "dfrOneSingle") with arguments {_arguments::*}) doesn't exist with "two values should not fit one single parameter"
+
+test "a parenthesised list cannot fill a single parameter":
+	assert (result of (function "dfrOneSingle") with arguments (1 and 2)) doesn't exist with "a list was accepted by a single parameter"
+
+test "static calls reject a list passed to a single parameter":
+	set {_list::*} to 1 and 2
+
+	parse:
+		dfrOneSingle({_list::*})
+
+	assert last parse logs is set with "passing a list to a single parameter should be an error"
+	assert first element of last parse logs contains "Expected type number for argument 'n', but {_list::*} is of type numbers" with "unexpected error for a list passed to a single parameter"
+
+test "static calls accept a single value for a list parameter":
+	parse:
+		dfrOneList(1)
+
+	assert last parse logs is not set with "a single value should be accepted by a list parameter"
+
+test "static calls reject too many arguments":
+	parse:
+		dfrOneSingle(1, 2)
+
+	assert last parse logs is set with "too many arguments should be an error"
+	assert first element of last parse logs contains "The function dfrOneSingle(integer, integer) does not exist" with "unexpected error for too many arguments"

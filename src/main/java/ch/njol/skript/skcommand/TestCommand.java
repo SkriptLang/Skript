@@ -43,7 +43,7 @@ class TestCommand extends SubCommand {
 				scriptFile = TestMode.TEST_DIR.toFile();
 			} else {
 				String scriptName = StringUtils.join(args, " ", 1, args.length);
-				scriptFile = ScriptCommandUtils.getScriptFromName(sender, scriptName, TestMode.TEST_DIR.toFile());
+				scriptFile = ScriptCommandUtils.getScriptFileFromName(sender, scriptName, TestMode.TEST_DIR.toFile());
 				TestMode.lastTestFile = scriptFile;
 			}
 		}

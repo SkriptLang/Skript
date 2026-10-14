@@ -39,7 +39,7 @@ class DisableCommand extends SubCommand {
 			disableAll(sender);
 		}
 		String scriptName = StringUtils.join(args, " ", 1, args.length);
-		File scriptFile = ScriptCommandUtils.getScriptFromName(sender, scriptName);
+		File scriptFile = ScriptCommandUtils.getScriptFileFromName(sender, scriptName);
 		if (scriptFile == null) // TODO allow disabling deleted/renamed scripts
 			return;
 

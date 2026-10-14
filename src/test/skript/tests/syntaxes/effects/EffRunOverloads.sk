@@ -1,0 +1,168 @@
+using script reflection
+
+# arities, so that a spread can pick between them by how many values it produces
+function dfrCountOv(a: number) :: text:
+	return "one"
+
+function dfrCountOv(a: number, b: number) :: text:
+	return "two"
+
+function dfrCountOv(a: number, b: number, c: number) :: text:
+	return "three"
+
+# an exact arity against one which can only be reached by spreading
+function dfrPrecOv(a: number, b: numbers) :: text:
+	return "greedy"
+
+function dfrPrecOv(a: number, b: number, c: number) :: text:
+	return "exact"
+
+# the same shape, distinguished only by the type of the first parameter
+function dfrTypeOv(a: number, b: numbers) :: text:
+	return "number first"
+
+function dfrTypeOv(a: text, b: numbers) :: text:
+	return "text first"
+
+# both of these can take three arguments once something is spread
+function dfrAmbigOv(a: objects, b: number) :: text:
+	return "list first"
+
+function dfrAmbigOv(a: number, b: objects) :: text:
+	return "list second"
+
+# a list overload alongside one which needs several arguments
+function dfrListOv(a: number, b: number) :: text:
+	return "two singles"
+
+function dfrListOv(ns: numbers) :: text:
+	return "list"
+
+test "an exact arity is preferred over spreading":
+	# three arguments fit the three parameter overload exactly, so nothing is spread
+	assert (result of (function "dfrPrecOv") with arguments 1, 2 and 3) is "exact" with "spreading was preferred over an exact arity"
+
+	# four arguments fit no overload exactly, so the list parameter takes the surplus
+	assert (result of (function "dfrPrecOv") with arguments 1, 2, 3 and 4) is "greedy" with "the surplus arguments were not spread"
+
+test "spreading picks the overload matching the argument types":
+	assert (result of (function "dfrTypeOv") with arguments 1, 2 and 3) is "number first" with "wrong overload chosen for a leading number"
+	assert (result of (function "dfrTypeOv") with arguments "a", 2 and 3) is "text first" with "wrong overload chosen for a leading text"
+
+test "spreading which fits several overloads is rejected":
+	# both overloads can take three arguments, so neither may be chosen arbitrarily
+	assert (result of (function "dfrAmbigOv") with arguments 1, 2 and 3) doesn't exist with "an ambiguous spread was resolved anyway"
+
+test "how many values a list argument holds picks the overload":
+	# the spread happens per execution, so the overload depends on the values, not the call
+	set {_values::*} to 1
+	assert (result of (function "dfrCountOv") with arguments {_values::*}) is "one" with "one value should reach the one parameter overload"
+
+	set {_values::*} to 1 and 2
+	assert (result of (function "dfrCountOv") with arguments {_values::*}) is "two" with "two values should reach the two parameter overload"
+
+	set {_values::*} to 1, 2 and 3
+	assert (result of (function "dfrCountOv") with arguments {_values::*}) is "three" with "three values should reach the three parameter overload"
+
+	set {_values::*} to 1, 2, 3 and 4
+	assert (result of (function "dfrCountOv") with arguments {_values::*}) doesn't exist with "four values fit no overload"
+
+test "a list overload takes a list argument whole rather than spreading it":
+	# spreading is a last resort, so an overload which accepts the list as one argument wins
+	set {_values::*} to 1 and 2
+	assert (result of (function "dfrListOv") with arguments {_values::*}) is "list" with "the list argument should have filled the list overload"
+
+	set {_values::*} to 1, 2 and 3
+	assert (result of (function "dfrListOv") with arguments {_values::*}) is "list" with "the list overload should take any number of values"
+
+test "spreading respects an explicitly selected overload":
+	# with the two parameter overload pinned, a three value list no longer fits
+	set {_values::*} to 1 and 2
+	assert (result of (function "dfrCountOv(number, number)") with arguments {_values::*}) is "two" with "the pinned overload was not used"
+
+	set {_values::*} to 1, 2 and 3
+	assert (result of (function "dfrCountOv(number, number)") with arguments {_values::*}) doesn't exist with "the pin was ignored in favour of another overload"
+
+test "one call site rebinds as the number of values changes":
+	# the test above uses a separate call site per size, so each one gets its own binding. This
+	# reuses a single call site with a single stored reference, so the cached binding is the same
+	# object every iteration and the spread still has to be worked out from the current values.
+	set {_function} to function "dfrCountOv"
+	set {_expected::1} to "one"
+	set {_expected::2} to "two"
+	set {_expected::3} to "three"
+
+	loop 3 times:
+		add loop-number to {_values::*}
+		assert (result of {_function} with arguments {_values::*}) is {_expected::%loop-number%} with "a cached binding was reused for a different number of values"
+
+# the same number of values, distinguished only by their type
+function dfrShapeOv(a: number, b: number) :: text:
+	return "numbers"
+
+function dfrShapeOv(a: text, b: text) :: text:
+	return "texts"
+
+test "a spread is resolved from the types of the values, not just how many there are":
+	# one call site, two values both times, so anything remembering the spread by how many values
+	# it held would answer the first overload twice
+	set {_function} to function "dfrShapeOv"
+	set {_sets::1::*} to 1 and 2
+	set {_sets::2::*} to "a" and "b"
+
+	loop 2 times:
+		set {_values::*} to {_sets::%loop-number%::*}
+		set {_result} to result of {_function} with arguments {_values::*}
+		if loop-number is 1:
+			assert {_result} is "numbers" with "two numbers did not reach the number overload"
+		else:
+			assert {_result} is "texts" with "a remembered spread was reused for values of a different type"
+
+
+# three list parameters, so how the values divide between them depends on their types and not only
+# on how many there are
+function dfrThreeLists(a: texts, b: numbers, c: texts) :: text:
+	return "%{_a::*}% / %{_b::*}% / %{_c::*}%"
+
+test "a spread is divided by the types of the values, not only by count":
+	set {_function} to function "dfrThreeLists"
+	set {_args::*} to "1", "2", -1, "3"
+	set {_expected::1} to "1 and 2 / -1 / 3"
+	set {_expected::2} to "1 and 2 / -1 / 3 and 4"
+	set {_expected::3} to "1 and 2 / -1 / 3, 4 and 5"
+	set {_extra::1} to "4"
+	set {_extra::2} to "5"
+
+	# one call site throughout, so each pass also exercises a shape the last one did not remember
+	loop 3 times:
+		assert (result of {_function} with arguments {_args::*}) is {_expected::%loop-number%} with "the values were not divided by their types"
+		add {_extra::%loop-number%} to {_args::*}
+
+test "a spread repeated with the same shape keeps binding the same way":
+	# three passes over one call site with the same values exercise three different paths: the
+	# first resolves from scratch, the second binds to the remembered signature and works out
+	# which division of the values fits, and the third binds straight to that division
+	set {_function} to function "dfrThreeLists"
+	set {_args::*} to "1", "2", -1, "3", "4"
+
+	loop 3 times:
+		assert (result of {_function} with arguments {_args::*}) is "1 and 2 / -1 / 3 and 4" with "pass %loop-number% divided the values differently"
+
+# a list parameter followed by a single one, so a list argument of n values always divides as
+# (n - 1, 1) and every different length is a different shape to the spread memo
+function dfrSatOv(a: numbers, b: number) :: text:
+	return "%size of {_a::*}%"
+
+test "a saturated spread memo keeps answering correctly":
+	# one call site reaching far more shapes than the memo holds. It stops taking new shapes once
+	# full rather than clearing itself, so the shapes it had no room for must still resolve through
+	# the full search, and an update to a shape it did keep must still be let through
+	set {_function} to function "dfrSatOv"
+
+	loop 2 times:
+		delete {_values::*}
+		add 1 to {_values::*}
+		loop 19 times:
+			add 1 to {_values::*}
+			set {_expected} to (size of {_values::*}) - 1
+			assert (result of {_function} with arguments {_values::*}) is "%{_expected}%" with "a spread was divided wrongly with the memo full"

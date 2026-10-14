@@ -17,7 +17,7 @@ public final class Parameters {
 
 	public Parameters(SequencedMap<String, Parameter<?>> parameters) {
 		this.named = parameters;
-
+		
 		indexed = new Parameter[parameters.size()];
 		int i = 0;
 		for (Parameter<?> parameter : parameters.values()) {

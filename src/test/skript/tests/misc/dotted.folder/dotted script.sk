@@ -1,0 +1,5 @@
+# In a folder whose name contains a dot, which normaliseScriptName used to read as a file
+# extension and reject. Looked up by tests/syntaxes/expressions/ExprFunction.sk.
+
+function dfrDottedFolder() :: text:
+	return "dotted"

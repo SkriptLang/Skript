@@ -1,0 +1,148 @@
+using script reflection
+
+function dfrOverload(n: number) :: text:
+	return "number"
+
+function dfrOverload(t: text) :: text:
+	return "text"
+
+function dfrOverload(ns: numbers) :: text:
+	return "numbers"
+
+function dfrPair(a: number, b: number) :: text:
+	return "number, number"
+
+function dfrPair(a: text, b: text) :: text:
+	return "text, text"
+
+function dfrPair(a: number, b: text) :: text:
+	return "number, text"
+
+function dfrPair(a: text, b: number) :: text:
+	return "text, number"
+
+function dfrPair(a: number, b: numbers) :: text:
+	return "number, numbers"
+
+function dfrPair(a: number, b: number, c: number) :: text:
+	return "number, number, number"
+
+function dfrSpaced(t: entity type) :: text:
+	return "entity type"
+
+function dfrSpaced(ts: entity types) :: text:
+	return "entity types"
+
+test "select an overload by its parameter types":
+	set {_function} to function "dfrOverload(number)"
+	assert {_function} exists with "the (number) overload wasn't found"
+	assert (result of {_function} with arguments 1) is "number" with "wrong overload selected for (number)"
+
+	set {_function} to function "dfrOverload(text)"
+	assert {_function} exists with "the (text) overload wasn't found"
+	assert (result of {_function} with arguments "hello") is "text" with "wrong overload selected for (text)"
+
+test "select a list overload by its parameter types":
+	# a plural type name selects the overload declaring a list parameter
+	set {_function} to function "dfrOverload(numbers)"
+	assert {_function} exists with "the (numbers) overload wasn't found"
+	assert (result of {_function} with arguments 1) is "numbers" with "wrong overload selected for (numbers)"
+
+test "select a multiple parameter overload by its parameter types":
+	set {_function} to function "dfrPair(number, number)"
+	assert {_function} exists with "the (number, number) overload wasn't found"
+	assert (result of {_function} with arguments 1 and 2) is "number, number" with "wrong overload selected for (number, number)"
+
+	set {_function} to function "dfrPair(text, text)"
+	assert {_function} exists with "the (text, text) overload wasn't found"
+	assert (result of {_function} with arguments "a" and "b") is "text, text" with "wrong overload selected for (text, text)"
+
+test "the order of the parameter types is respected":
+	# these two overloads differ only in the order of their parameters
+	set {_function} to function "dfrPair(number, text)"
+	assert {_function} exists with "the (number, text) overload wasn't found"
+	assert (result of {_function} with arguments 1 and "b") is "number, text" with "wrong overload selected for (number, text)"
+
+	set {_function} to function "dfrPair(text, number)"
+	assert {_function} exists with "the (text, number) overload wasn't found"
+	assert (result of {_function} with arguments "a" and 2) is "text, number" with "wrong overload selected for (text, number)"
+
+test "select an overload by the number of its parameters":
+	set {_function} to function "dfrPair(number, number, number)"
+	assert {_function} exists with "the three parameter overload wasn't found"
+	assert (result of {_function} with arguments 1 and 2 and 3) is "number, number, number" with "wrong overload selected by arity"
+
+test "a plural type in a later parameter":
+	set {_function} to function "dfrPair(number, numbers)"
+	assert {_function} exists with "the (number, numbers) overload wasn't found"
+	assert (result of {_function} with arguments 1 and 2) is "number, numbers" with "wrong overload selected for (number, numbers)"
+
+test "parameter types written with more than one word":
+	# a type name may contain spaces, so only commas separate the parameter types
+	set {_function} to function "dfrSpaced(entity type)"
+	assert {_function} exists with "the (entity type) overload wasn't found"
+	assert (result of {_function} with arguments pig) is "entity type" with "wrong overload selected for (entity type)"
+
+	set {_function} to function "dfrSpaced(entity types)"
+	assert {_function} exists with "the (entity types) overload wasn't found"
+	assert (result of {_function} with arguments pig) is "entity types" with "wrong overload selected for (entity types)"
+
+test "an unmatched parameter type list resolves nothing":
+	# 'player' is a real type, but no overload declares it
+	assert (function "dfrOverload(player)") doesn't exist with "an unmatched type list resolved anyway"
+	assert (function "dfrOverload(number, number)") doesn't exist with "an unmatched arity resolved anyway"
+	assert (function "dfrPair(number)") doesn't exist with "an unmatched arity resolved anyway"
+	assert (function "dfrPair(numbers, number)") doesn't exist with "a single type matched a list parameter"
+
+test "empty parentheses select no particular overload":
+	# 'myFunction()' has always meant the function of that name, whatever its parameters
+	assert (function "dfrOverload()") exists with "empty parentheses didn't resolve by name"
+	assert (function "dfrOverload") exists with "a bare name didn't resolve"
+
+test "a selected overload is part of the stringified reference":
+	# the stringified form names whatever the reference was pinned to, so a round trip comes back
+	# pinned to the same overload instead of taking whichever one the arguments select
+	set {_function} to function "dfrOverload(text)"
+	assert {_function} exists with "the (text) overload wasn't found"
+	assert "%{_function}%" contains "dfrOverload(text)" with "the stringified reference should name the overload"
+
+	set {_parsed} to "%{_function}%" parsed as function
+	assert {_parsed} exists with "the stringified reference didn't parse back"
+	assert (result of {_parsed} with arguments "a") is "text" with "the round tripped reference lost its overload"
+
+test "a reference naming no overload stringifies without one":
+	# nothing was specified, so nothing is written: 'dfrOverload()' has always meant the function
+	# of that name whatever its parameters
+	set {_function} to function "dfrOverload"
+	assert {_function} exists with "the function wasn't found"
+	assert "%{_function}%" contains "dfrOverload()" with "an unpinned reference should not name an overload"
+
+	set {_parsed} to "%{_function}%" parsed as function
+	assert {_parsed} exists with "the stringified reference didn't parse back"
+	assert (result of {_parsed} with arguments 1) is "number" with "the round tripped reference should not be pinned"
+	assert (result of {_parsed} with arguments "a") is "text" with "the round tripped reference should not be pinned"
+
+test "a list overload is named in the stringified reference with a plural type":
+	# the plural form is what parseParameterTypes reads back into an array type
+	set {_function} to function "dfrOverload(numbers)"
+	assert {_function} exists with "the (numbers) overload wasn't found"
+	assert "%{_function}%" contains "dfrOverload(numbers)" with "the stringified reference should name the list overload"
+
+	set {_parsed} to "%{_function}%" parsed as function
+	assert {_parsed} exists with "the stringified reference didn't parse back"
+	assert (result of {_parsed} with arguments 1) is "numbers" with "the round tripped reference lost its list overload"
+
+test "a global name uses overloads declared in different scripts":
+	# the two overloads of dfrCrossOv are declared in two other scripts, so neither is declared
+	# where this reference is looked up from. A reference used to pin itself to one declaring
+	# script, picked from a set whose iteration order is randomised per JVM start, so which of the
+	# two overloads it could reach varied between server starts
+	set {_function} to function "dfrCrossOv"
+	assert {_function} exists with "the global function wasn't found"
+	assert (result of {_function} with arguments 1) is "number" with "the overload from the first script wasn't usable"
+	assert (result of {_function} with arguments "x") is "text" with "the overload from the second script wasn't usable"
+
+test "a global reference does not reach another script's local function":
+	# testDummy is local to misc/dummy.sk, so a global lookup must not find it even though
+	# treating all global declarations as one namespace widens what a reference may use
+	assert (function "testDummy") doesn't exist with "a global lookup found another script's local function"

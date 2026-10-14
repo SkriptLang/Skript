@@ -2,6 +2,7 @@ package ch.njol.skript.bukkitutil;
 
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.util.ValidationResult;
+import org.skriptlang.skript.util.Result;
 import org.bukkit.NamespacedKey;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.log.runtime.RuntimeErrorProducer;
@@ -36,20 +37,34 @@ public class NamespacedUtils {
 	 * containing if it's valid, an error or warning message and the resulting {@link NamespacedKey}.
 	 * @param string The {@link String} to check.
 	 * @return {@link ValidationResult}.
+	 * @deprecated Use {@link #validate(String)} instead.
 	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@SuppressWarnings("removal")
 	public static ValidationResult<NamespacedKey> checkValidation(String string) {
+		return ValidationResult.of(validate(string));
+	}
+
+	/**
+	 * Checks whether {@code string} is valid for a {@link NamespacedKey}.
+	 *
+	 * @param string The {@link String} to check.
+	 * @return The key, or why {@code string} is not one. A successful result may carry a warning
+	 * 	about the key it produced.
+	 */
+	public static Result<NamespacedKey> validate(String string) {
 		if (string.length() > Short.MAX_VALUE)
-			return new ValidationResult<>(false, "A namespaced key can not be longer than " + Short.MAX_VALUE + " characters.");
+			return Result.failure("A namespaced key can not be longer than " + Short.MAX_VALUE + " characters.");
 		String[] split = string.split(":");
 		if (split.length > 2)
-			return new ValidationResult<>(false, "A namespaced key can not have more than one ':'.");
+			return Result.failure("A namespaced key can not have more than one ':'.");
 
 		String key = split.length == 2 ? split[1] : split[0];
 		if (key.isEmpty())
-			return new ValidationResult<>(false, "The key cannot be empty.");
+			return Result.failure("The key cannot be empty.");
 		for (char character : key.toCharArray()) {
 			if (!isValidKeyChar(character)) {
-				return new ValidationResult<>(false, "Invalid character '" + character + "'.");
+				return Result.failure("Invalid character '" + character + "'.");
 			}
 		}
 
@@ -60,7 +75,7 @@ public class NamespacedUtils {
 			if (!namespace.isEmpty()) {
 				for (char character : namespace.toCharArray()) {
 					if (!isValidNamespaceChar(character)) {
-						return new ValidationResult<>(false, "Invalid character '" + character + "'.");
+						return Result.failure("Invalid character '" + character + "'.");
 					}
 				}
 				namespacedKey = new NamespacedKey(namespace, key);
@@ -73,12 +88,11 @@ public class NamespacedUtils {
 		}
 
 		if (emptyNamespace) {
-			return new ValidationResult<>(
-				true,
-				"The namespace section of the key is empty. Consider removing the ':'.",
-				namespacedKey);
+			return Result.success(
+				namespacedKey,
+				"The namespace section of the key is empty. Consider removing the ':'.");
 		}
-		return new ValidationResult<>(true, namespacedKey);
+		return Result.success(namespacedKey);
 	}
 
 	/**
@@ -88,15 +102,18 @@ public class NamespacedUtils {
 	 * @return The key, if parsed without errors, otherwise null.
 	 */
 	public static @Nullable NamespacedKey checkValidationAndSend(String string, RuntimeErrorProducer producer) {
-		ValidationResult<NamespacedKey> validationResult = NamespacedUtils.checkValidation(string);
-		String validationMessage = validationResult.message();
-		if (!validationResult.valid()) {
-			producer.error(validationMessage + ". " + NamespacedUtils.NAMEDSPACED_FORMAT_MESSAGE);
-			return null;
-		} else if (validationMessage != null) {
-			producer.warning(validationMessage);
-		}
-		return validationResult.data();
+		return switch (NamespacedUtils.validate(string)) {
+			case Result.Failure<NamespacedKey>(String error) -> {
+				producer.error(error + ". " + NamespacedUtils.NAMEDSPACED_FORMAT_MESSAGE);
+				yield null;
+			}
+			case Result.Success<NamespacedKey>(NamespacedKey key, String warning) -> {
+				if (warning != null) {
+					producer.warning(warning);
+				}
+				yield key;
+			}
+		};
 	}
 
 	/**
@@ -105,7 +122,7 @@ public class NamespacedUtils {
 	 * @return {@code True} if valid, otherwise {@code false}.
 	 */
 	public static boolean isValid(String string) {
-		return checkValidation(string).valid();
+		return validate(string) instanceof Result.Success<NamespacedKey>;
 	}
 
 }

@@ -9,8 +9,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.function.DynamicFunctionReference;
-import ch.njol.skript.lang.function.Functions;
-import ch.njol.skript.lang.function.Namespace;
+import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -26,7 +25,6 @@ import java.util.Objects;
 @Example("set {_function} to the function named \"myFunction\"")
 @Example("run {_function} with arguments 13 and true")
 @Since("2.10")
-@SuppressWarnings("rawtypes")
 public class ExprFunction extends SimpleExpression<DynamicFunctionReference> implements ReflectionExperimentSyntax {
 
 	static {
@@ -65,7 +63,7 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> imp
 	}
 
 	@Override
-	protected DynamicFunctionReference<?>[] get(Event event) {
+	protected DynamicFunctionReference[] get(Event event) {
 		@Nullable Script script;
 		if (local) {
 			script = this.script.getSingle(event);
@@ -77,21 +75,21 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> imp
 				@Nullable String name = this.name.getSingle(event);
 				if (name == null)
 					yield CollectionUtils.array();
-				@Nullable DynamicFunctionReference reference = DynamicFunctionReference.resolveFunction(name, script);
+				@Nullable DynamicFunctionReference reference =
+					DynamicFunctionReference.resolveFunction(name, script);
 				if (reference == null)
 					yield CollectionUtils.array();
 				yield CollectionUtils.array(reference);
 			}
-			case 1 -> this.name.stream(event).map(string -> DynamicFunctionReference.resolveFunction(string, script))
+			case 1 -> this.name.stream(event)
+					.map(string -> DynamicFunctionReference.resolveFunction(string, script))
 					.filter(Objects::nonNull)
 					.toArray(DynamicFunctionReference[]::new);
 			case 2 -> {
 				if (script == null)
 					yield CollectionUtils.array();
-				@Nullable Namespace namespace = Functions.getScriptNamespace(script.getConfig().getFileName());
-				if (namespace == null)
-					yield CollectionUtils.array();
-				yield namespace.getFunctions().stream()
+				yield FunctionRegistry.getRegistry()
+					.getDeclaredFunctions(script.getConfig().getFileName()).stream()
 					.map(DynamicFunctionReference::new)
 					.toArray(DynamicFunctionReference[]::new);
 			}

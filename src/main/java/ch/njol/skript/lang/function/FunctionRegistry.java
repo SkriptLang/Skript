@@ -16,6 +16,7 @@ import org.skriptlang.skript.util.Registry;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -54,6 +55,35 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	 * All registered namespaces.
 	 */
 	private final Map<NamespaceIdentifier, Namespace> namespaces = new ConcurrentHashMap<>();
+
+	/**
+	 * Incremented whenever a function or signature is registered or removed.
+	 * <p>
+	 * Always incremented <em>after</em> the registry has changed, and in a {@code finally} so that
+	 * a change which only partly happened still moves it. This is what makes a cached resolution
+	 * safe: a reader reads the generation before it resolves and stores its result against that
+	 * value, so a change landing while it resolves leaves the stored generation behind the current
+	 * one and the result is discarded. Incrementing before the change instead lets a reader observe
+	 * the new generation, resolve against the old registry and store that stale result under the
+	 * new generation, where nothing would ever discard it.
+	 * </p>
+	 */
+	private final AtomicLong generation = new AtomicLong();
+
+	/**
+	 * A number which changes whenever the registered functions change, so that anything caching a
+	 * resolution can tell that it may no longer be correct.
+	 * <p>
+	 * A script being reloaded unregisters and re-registers its functions, which replaces their
+	 * {@link Function} objects, so a cached resolution from before a reload would otherwise keep
+	 * calling the unloaded one.
+	 * </p>
+	 *
+	 * @return The current generation.
+	 */
+	public long generation() {
+		return generation.get();
+	}
 
 	@Override
 	public @Unmodifiable @NotNull Collection<Function<?>> elements() {
@@ -102,23 +132,28 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 			namespaceId = GLOBAL_NAMESPACE;
 		}
 
-		Namespace ns = namespaces.computeIfAbsent(namespaceId, n -> new Namespace());
 		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
-		// register
-		// since we are getting a set and then updating it,
-		// avoid race conditions by ensuring only one thread can access this namespace for this operation
-		synchronized (ns) {
-			Set<FunctionIdentifier> identifiersWithName = ns.identifiers.computeIfAbsent(identifier.name, s -> new HashSet<>());
-			boolean exists = identifiersWithName.add(identifier);
-			if (!exists) {
+		try {
+			Namespace ns = namespaces.computeIfAbsent(namespaceId, n -> new Namespace());
+
+			// register
+			// since we are getting a set and then updating it,
+			// avoid race conditions by ensuring only one thread can access this namespace for this operation
+			synchronized (ns) {
+				Set<FunctionIdentifier> identifiersWithName = ns.identifiers.computeIfAbsent(identifier.name, s -> new HashSet<>());
+				boolean exists = identifiersWithName.add(identifier);
+				if (!exists) {
+					alreadyRegisteredError(signature.getName(), identifier, namespaceId);
+				}
+			}
+
+			Signature<?> existing = ns.signatures.putIfAbsent(identifier, signature);
+			if (existing != null) {
 				alreadyRegisteredError(signature.getName(), identifier, namespaceId);
 			}
-		}
-
-		Signature<?> existing = ns.signatures.putIfAbsent(identifier, signature);
-		if (existing != null) {
-			alreadyRegisteredError(signature.getName(), identifier, namespaceId);
+		} finally {
+			generation.incrementAndGet();
 		}
 	}
 
@@ -164,15 +199,23 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 		}
 
 		FunctionIdentifier identifier = FunctionIdentifier.of(function.getSignature());
-		if (!signatureExists(namespaceId, identifier)) {
-			register(namespace, function.getSignature());
-		}
 
-		Namespace ns = namespaces.computeIfAbsent(namespaceId, n -> new Namespace());
+		try {
+			// registering the signature moves the generation itself; this one moves it again once
+			// the function is in place, so a reader which saw only the signature is not left
+			// holding a resolution it stored under the final generation
+			if (!signatureExists(namespaceId, identifier)) {
+				register(namespace, function.getSignature());
+			}
 
-		Function<?> existing = ns.functions.putIfAbsent(identifier, function);
-		if (existing != null) {
-			alreadyRegisteredError(name, identifier, namespaceId);
+			Namespace ns = namespaces.computeIfAbsent(namespaceId, n -> new Namespace());
+
+			Function<?> existing = ns.functions.putIfAbsent(identifier, function);
+			if (existing != null) {
+				alreadyRegisteredError(name, identifier, namespaceId);
+			}
+		} finally {
+			generation.incrementAndGet();
 		}
 	}
 
@@ -412,22 +455,59 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 
 		Map<FunctionIdentifier, Signature<?>> total = new HashMap<>();
 
-		// obtain all local functions of "name"
+		// obtain all local functions of "name". The namespace is looked up rather than defaulted,
+		// since a default would be built on every call even when there is one to find
 		if (namespace != null) {
-			Namespace local = namespaces.getOrDefault(new NamespaceIdentifier(namespace), new Namespace());
-
-			for (FunctionIdentifier identifier : local.identifiers.getOrDefault(name, Collections.emptySet())) {
-				total.putIfAbsent(identifier, local.signatures.get(identifier));
+			Namespace local = namespaces.get(new NamespaceIdentifier(namespace));
+			if (local != null) {
+				for (FunctionIdentifier identifier : local.identifiers.getOrDefault(name, Collections.emptySet())) {
+					total.putIfAbsent(identifier, local.signatures.get(identifier));
+				}
 			}
 		}
 
 		// obtain all global functions of "name"
-		Namespace global = namespaces.getOrDefault(GLOBAL_NAMESPACE, new Namespace());
-		for (FunctionIdentifier identifier : global.identifiers.getOrDefault(name, Collections.emptySet())) {
-			total.putIfAbsent(identifier, global.signatures.get(identifier));
+		Namespace global = namespaces.get(GLOBAL_NAMESPACE);
+		if (global != null) {
+			for (FunctionIdentifier identifier : global.identifiers.getOrDefault(name, Collections.emptySet())) {
+				total.putIfAbsent(identifier, global.signatures.get(identifier));
+			}
 		}
 
 		return Set.copyOf(total.values());
+	}
+
+
+	/**
+	 * Gets every function declared in {@code namespace}.
+	 * <p>
+	 * Only functions whose body has been loaded are returned.
+	 * </p>
+	 *
+	 * @param namespace The namespace functions were declared in.
+	 *                  Usually represents the path of the script in question.
+	 * @return All functions declared in {@code namespace}.
+	 */
+	public @Unmodifiable @NotNull Set<Function<?>> getDeclaredFunctions(@Nullable String namespace) {
+		Set<Function<?>> declared = new HashSet<>();
+
+		if (namespace != null) {
+			Namespace local = namespaces.get(new NamespaceIdentifier(namespace));
+			if (local != null) {
+				declared.addAll(local.functions.values());
+			}
+		}
+
+		Namespace global = namespaces.get(GLOBAL_NAMESPACE);
+		if (global != null) {
+			for (Function<?> function : global.functions.values()) {
+				if (Objects.equals(function.getSignature().namespace(), namespace)) {
+					declared.add(function);
+				}
+			}
+		}
+
+		return Set.copyOf(declared);
 	}
 
 	/**
@@ -558,6 +638,12 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 			int argIndex = 0;
 
 			while (argIndex < provided.args.length) {
+				if (argIndex >= candidate.args.length) {
+					// this candidate takes every provided argument in one list parameter, so there is
+					// no positional argument of its own left to compare against
+					break;
+				}
+
 				if (provided.args[argIndex] == Object.class) {
 					argIndex++;
 					continue;
@@ -602,7 +688,13 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 				continue;
 			}
 
-			removeUpdateMaps(namespace, other, name);
+			// only once something was actually removed, so that removing a signature which is not
+			// registered does not discard every cached resolution for nothing
+			try {
+				removeUpdateMaps(namespace, other, name);
+			} finally {
+				generation.incrementAndGet();
+			}
 			return;
 		}
 	}

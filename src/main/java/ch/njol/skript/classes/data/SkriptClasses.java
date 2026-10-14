@@ -527,7 +527,7 @@ public class SkriptClasses {
 			.examples("run {_function} with arguments 1 and true",
 					"set {_result} to the result of {_function}")
 			.since("2.10")
-			.parser(new Parser<DynamicFunctionReference<?>>() {
+			.parser(new Parser<DynamicFunctionReference>() {
 
 				@Override
 				public boolean canParse(final ParseContext context) {
@@ -539,7 +539,7 @@ public class SkriptClasses {
 
 				@Override
 				@Nullable
-				public DynamicFunctionReference<?> parse(final String name, final ParseContext context) {
+				public DynamicFunctionReference parse(final String name, final ParseContext context) {
 					return switch (context) {
 						case PARSE, COMMAND -> DynamicFunctionReference.parseFunction(name);
 						default -> null;
@@ -547,12 +547,12 @@ public class SkriptClasses {
 				}
 
 				@Override
-				public String toString(DynamicFunctionReference<?> function, final int flags) {
+				public String toString(DynamicFunctionReference function, final int flags) {
 					return function.toString();
 				}
 
 				@Override
-				public String toVariableNameString(DynamicFunctionReference<?> function) {
+				public String toVariableNameString(DynamicFunctionReference function) {
 					return this.toString(function, 0);
 				}
 			}).property(Property.NAME,

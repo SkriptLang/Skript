@@ -1,0 +1,7 @@
+# Declares one overload of the global function dfrCrossOv; the other is in
+# 'global overload b.sk'. Both are deliberately declared somewhere other than the script which
+# looks the name up, so that neither is preferred for being declared there. Used by
+# tests/syntaxes/expressions/ExprFunctionOverloads.sk.
+
+function dfrCrossOv(n: number) :: text:
+	return "number"
