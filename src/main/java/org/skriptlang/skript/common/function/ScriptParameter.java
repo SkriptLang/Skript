@@ -54,7 +54,8 @@ public record ScriptParameter<T>(String name, Class<T> type, Set<Modifier> modif
 			// Parse the default value expression
 			try (RetainingLogHandler log = SkriptLogger.startRetainingLog()) {
 				defaultValue = new SkriptParser(def, SkriptParser.ALL_FLAGS, ParseContext.DEFAULT).parseExpression(target);
-				if (defaultValue == null || LiteralUtils.hasUnparsedLiteral(defaultValue)) {
+				defaultValue = LiteralUtils.defendExpression(defaultValue);
+				if (!LiteralUtils.canInitSafely(defaultValue)) {
 					log.printErrors("Can't understand this expression: " + def);
 					log.stop();
 					return null;

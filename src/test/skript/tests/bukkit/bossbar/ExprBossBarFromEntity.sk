@@ -1,0 +1,10 @@
+
+test "bossbar from entity":
+	spawn wither at test-location:
+		set {_e} to entity
+
+	assert boss bar of {_e} is set with "Failed to get boss bar of wither"
+	set {_bar} to boss bar of {_e}
+	set title of {_bar} to "Testing"
+	assert title of {_bar} is "Testing" with "Failed to set title of boss bar of wither"
+	clear entity in {_e}

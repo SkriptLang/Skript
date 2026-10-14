@@ -6,7 +6,9 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.util.Kleenean;
 import net.kyori.adventure.text.Component;
 import org.skriptlang.skript.bukkit.text.TextComponentParser;
@@ -38,6 +40,7 @@ public class ExprColored extends SimplePropertyExpression<String, Object> {
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprColored.class, Object.class)
 			.supplier(ExprColored::new)
+			.priority(DEFAULT_PRIORITY)
 			.addPatterns("[negated:(un|non)[-]](colo[u]r-|colo[u]red )%strings%",
 				"[negated:(un|non)[-]](format-|formatted )%strings%")
 			.build());
@@ -73,6 +76,14 @@ public class ExprColored extends SimplePropertyExpression<String, Object> {
 			return isFormat ? "formatted" : "colored";
 		}
 		return isFormat ? "unformatted" : "uncolored";
+	}
+
+	@Override
+	public Expression<?> simplify() {
+		if (getExpr() instanceof Literal<? extends String>) {
+			return SimplifiedLiteral.fromExpression(this);
+		}
+		return super.simplify();
 	}
 
 	/**

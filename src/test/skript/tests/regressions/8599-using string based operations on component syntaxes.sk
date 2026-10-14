@@ -1,0 +1,4 @@
+test "regression 8599 - using string based operations on component syntaxes":
+	set {_item} to a dirt block named "Dirty Dirt"
+	replace all "Dirt" with "Dirty Dirt" in the name of {_item}
+	assert the name of {_item} is "Dirty Dirty Dirty Dirt"

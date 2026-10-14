@@ -1,23 +1,24 @@
 package ch.njol.skript.hooks;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 import ch.njol.skript.doc.Documentation;
+import ch.njol.skript.lang.SyntaxElement;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.localization.ArgsMessage;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.util.ClassLoader;
 
-/**
- * @author Peter Güttinger
- */
 public abstract class Hook<P extends Plugin> {
+
+	private final static ArgsMessage m_hooked = new ArgsMessage("hooks.hooked");
+	private final static ArgsMessage m_hook_error = new ArgsMessage("hooks.error");
 	
-	private final static ArgsMessage m_hooked = new ArgsMessage("hooks.hooked"),
-			m_hook_error = new ArgsMessage("hooks.error");
-	
-	public final P plugin;
+	protected final P plugin;
 	
 	public final P getPlugin() {
 		return plugin;
@@ -25,10 +26,10 @@ public abstract class Hook<P extends Plugin> {
 	
 	@SuppressWarnings("null")
 	public Hook() throws IOException {
-		@SuppressWarnings("unchecked")
-		final P p = (P) Bukkit.getPluginManager().getPlugin(getName());
-		plugin = p;
-		if (p == null) {
+		// noinspection unchecked
+		P plugin = (P) Bukkit.getPluginManager().getPlugin(getName());
+		this.plugin = plugin;
+		if (plugin == null || !plugin.isEnabled()) {
 			if (Documentation.canGenerateUnsafeDocs()) {
 				loadClasses();
 				if (Skript.logHigh())
@@ -38,20 +39,18 @@ public abstract class Hook<P extends Plugin> {
 		}
 
 		if (!init()) {
-			Skript.error(m_hook_error.toString(p.getName()));
+			Skript.error(m_hook_error.toString(plugin.getName()));
 			return;
 		}
 
 		loadClasses();
 
 		if (Skript.logHigh())
-			Skript.info(m_hooked.toString(p.getName()));
-
-		return;
+			Skript.info(m_hooked.toString(plugin.getName()));
 	}
 	
 	protected void loadClasses() throws IOException {
-		Skript.getAddonInstance().loadClasses("" + getClass().getPackage().getName());
+		Skript.getAddonInstance().loadClasses(getClass().getPackage().getName());
 	}
 	
 	/**

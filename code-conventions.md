@@ -303,8 +303,9 @@ Skript **must** run on these MC versions, in one way or another.
 If your contribution breaks compatibility for any of these versions we cannot accept it.
 
 Please try to make sure contributions are future-safe, to the best of your ability.
-Where possible, avoid using version-specific code to target a feature (e.g. accessing different copies of an internal class via reflection for each minecraft version) as this creates additional maintenance work every time a new version releases.
+Where possible, avoid using version-specific code to target a feature (e.g. accessing different copies of an internal class via reflection for each Minecraft version) as this creates additional maintenance work every time a new version releases.
 Checking whether a class exists in order to target supported versions is acceptable.
+If a feature requires a version check to support older versions, mark it for future cleanup. Above any checks, add a comment stating the target version where the check can be safely removed: `// TODO: UNTIL MC/SKRIPT x.y.z`.
 
 ### Support the Target Servers
 

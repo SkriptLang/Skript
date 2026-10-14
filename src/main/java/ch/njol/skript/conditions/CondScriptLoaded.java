@@ -2,7 +2,6 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptCommand;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
@@ -62,7 +61,11 @@ public class CondScriptLoaded extends Condition {
 			return ScriptLoader.getLoadedScripts().contains(currentScript) ^ isNegated();
 		return scripts.check(event, scriptName -> {
 			File scriptFile = ScriptLoader.getScriptFromName(scriptName);
-			return scriptFile != null && ScriptLoader.getLoadedScripts().contains(ScriptLoader.getScript(scriptFile));
+			if (scriptFile == null) {
+				return false;
+			}
+			Script script = ScriptLoader.getScript(scriptFile);
+			return script != null && ScriptLoader.getLoadedScripts().contains(script);
 		}, isNegated());
 	}
 

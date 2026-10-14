@@ -5,21 +5,22 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Entity;
+import io.papermc.paper.entity.Leashable;
 
 @Name("Is Leashed")
 @Description("Checks to see if an entity is currently leashed.")
 @Example("target entity is leashed")
-@Since("2.5")
-public class CondLeashed extends PropertyCondition<LivingEntity> {
+@Since("2.5, 2.16 (all leashable entities)")
+public class CondLeashed extends PropertyCondition<Entity> {
 
 	static {
-		register(CondLeashed.class, PropertyType.BE, "leashed", "livingentities");
+		register(CondLeashed.class, PropertyType.BE, "leashed", "entities");
 	}
 
 	@Override
-	public boolean check(LivingEntity entity) {
-		return entity.isLeashed();
+	public boolean check(Entity entity) {
+		return entity instanceof Leashable leashable && leashable.isLeashed();
 	}
 
 	@Override

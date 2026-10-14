@@ -1,9 +1,10 @@
 package org.skriptlang.skript.bukkit.text;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -21,13 +22,14 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -83,7 +85,7 @@ public final class TextComponentParser {
 		 */
 		STRICT(TextReplacementConfig.builder()
 			.match(Pattern.compile("https?://[-\\w.]+\\.\\w{2,}(?:/\\S*)?"))
-			.replacement(url -> url.clickEvent(ClickEvent.openUrl(url.content())))
+			.replacement(LinkParseMode::parseUrl)
 			.build()),
 
 		/**
@@ -91,8 +93,26 @@ public final class TextComponentParser {
 		 */
 		LENIENT(TextReplacementConfig.builder()
 			.match(Pattern.compile("(?:https?://)?[-\\w.]+\\.\\w{2,}(?:/\\S*)?"))
-			.replacement(url -> url.clickEvent(ClickEvent.openUrl(url.content())))
+			.replacement(LinkParseMode::parseUrl)
 			.build());
+
+		private static TextComponent.Builder parseUrl(TextComponent.Builder builder) {
+			String url = builder.content();
+			URI uri;
+			try {
+				uri = new URI(url);
+			} catch (URISyntaxException e) {
+				if (e.getIndex() == -1) { // no recovery possible
+					return builder;
+				}
+				try {
+					uri = new URI(url.substring(0, e.getIndex()));
+				} catch (URISyntaxException ignored) {
+					return builder;
+				}
+			}
+			return builder.clickEvent(ClickEvent.openUrl(uri.toString()));
+		}
 
 		private final TextReplacementConfig textReplacementConfig;
 
@@ -118,6 +138,18 @@ public final class TextComponentParser {
 	 * For example, {@code <dark red>}.
 	 */
 	private static final Pattern MULTI_WORD_COLOR_PATTERN = Pattern.compile("(\\\\*)<([a-zA-Z]+ [a-zA-Z]+)>");
+
+	/**
+	 * A pattern for matching double hashtag hex color tags ({@code <##123456>}).
+	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
+	 */
+	private static final Pattern LEGACY_DOUBLE_HASHTAG_PATTERN = Pattern.compile("(\\\\*)<(##[a-fA-F0-9]{6})>");
+
+	/**
+	 * A pattern for matching legacy hex codes ({@code &x&1&2&3&4&5&6}).
+	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
+	 */
+	static final Pattern LEGACY_CODE_PATTERN = Pattern.compile("(\\\\*)([&§][a-fA-F0-9kKlLoOmMnNrR])");
 
 	static {
 		INSTANCE = new TextComponentParser();
@@ -164,17 +196,17 @@ public final class TextComponentParser {
 	// The normal parser will process any proper tags
 	private final MiniMessage parser = MiniMessage.builder()
 		.strict(false)
-		.tags(TagResolver.builder()
-			.resolvers(StandardTags.defaults())
-			.resolver(createSkriptTagResolver(false))
-			.build())
+		.tags(TagResolver.resolver(
+			StandardTags.defaults(),
+			StandardTags.color(), // explicitly define color tag again to ensure it is serialized before decorations tag
+			createSkriptTagResolver(false)))
 		.build();
 
 	// The safe parser only parses those defined as safe in the configuration file
 	private final MiniMessage safeParser = MiniMessage.builder()
 		.strict(false)
-		.tags(TagResolver.builder()
-			.resolver(new TagResolver() {
+		.tags(TagResolver.resolver(
+			new TagResolver() {
 				@Override
 				public @Nullable Tag resolve(@NotNull String name, @NotNull ArgumentQueue arguments, @NotNull Context ctx) throws ParsingException {
 					return safeTagResolver.resolve(name, arguments, ctx);
@@ -184,9 +216,8 @@ public final class TextComponentParser {
 				public boolean has(@NotNull String name) {
 					return safeTagResolver.has(name);
 				}
-			})
-			.resolver(createSkriptTagResolver(true))
-			.build())
+			},
+			createSkriptTagResolver(true)))
 		.build();
 	private TagResolver safeTagResolver = TagResolver.empty();
 
@@ -426,7 +457,14 @@ public final class TextComponentParser {
 		realMessage = reformatText(realMessage);
 
 		// parse as component
-		Component component = safe ? safeParser.deserialize(realMessage) : parser.deserialize(realMessage);
+		Component component;
+		try {
+			component = safe ? safeParser.deserialize(realMessage) : parser.deserialize(realMessage);
+		} catch (ParsingException e) {
+			Skript.exception(e, "An error occurred while trying to parse formatting for '" + realMessage + "'." +
+				" This is likely caused by the presence of legacy formatting characters (such as '§') that Skript could not handle.");
+			return Component.text(message instanceof String ? (String) message : Classes.toString(message));
+		}
 
 		// replace links based on configuration setting
 		if (linkParseMode != LinkParseMode.DISABLED) {
@@ -444,17 +482,27 @@ public final class TextComponentParser {
 	public String reformatText(String text) {
 		// TODO improve...
 		// replace spaces with underscores for simple tags
-		text = StringUtils.replaceAll(text, MULTI_WORD_COLOR_PATTERN, matcher -> {
-			if (matcher.group(1).length() % 2 == 1) { // tag is escaped
-				return Matcher.quoteReplacement(matcher.group());
+		text = MULTI_WORD_COLOR_PATTERN.matcher(text).replaceAll(result -> {
+			if (result.group(1).length() % 2 == 1) { // tag is escaped
+				return Matcher.quoteReplacement(result.group());
 			}
-			String mappedTag = matcher.group(2).replace(" ", "_");
+			String mappedTag = result.group(2).replace(" ", "_");
 			if (simplePlaceholders.containsKey(mappedTag) || StandardTags.color().has(mappedTag)) { // only replace if it makes a valid tag
-				return Matcher.quoteReplacement(matcher.group(1) + "<" + mappedTag + ">");
+				return Matcher.quoteReplacement(result.group(1) + "<" + mappedTag + ">");
 			}
-			return Matcher.quoteReplacement(matcher.group());
+			return Matcher.quoteReplacement(result.group());
 		});
-		assert text != null;
+
+		text = LEGACY_DOUBLE_HASHTAG_PATTERN.matcher(text).replaceAll(result -> {
+			if (result.group(1).length() % 2 == 1) { // tag is escaped
+				return Matcher.quoteReplacement(result.group());
+			}
+			String mappedTag = result.group(2).substring(1);
+			if (StandardTags.color().has(mappedTag)) {
+				return Matcher.quoteReplacement("<" + mappedTag + ">");
+			}
+			return Matcher.quoteReplacement(result.group());
+		});
 
 		// legacy compatibility, transform color codes into tags
 		text = TextComponentUtils.replaceLegacyFormattingCodes(text);
@@ -471,25 +519,25 @@ public final class TextComponentParser {
 	public String escape(String string) {
 		// legacy compatibility, escape color codes
 		if (string.contains("&") || string.contains("§")) {
-			StringBuilder reconstructedString = new StringBuilder();
-			char[] messageChars = string.toCharArray();
-			for (int i = 0; i < messageChars.length; i++) {
-				char current = messageChars[i];
-				char next = (i + 1 != messageChars.length) ? messageChars[i + 1] : ' ';
-				boolean isCode = (current == '&' || current == '§') && (i == 0 || messageChars[i - 1] != '\\');
-				if (isCode && next == 'x' && i + 13 <= messageChars.length) { // assume hex -> &x&1&2&3&4&5&6
-					reconstructedString.append('\\');
-					for (int i2 = i; i2 < i + 14; i2++) { // append the rest of the hex code, don't escape these symbols
-						reconstructedString.append(messageChars[i2]);
-					}
-					i += 13; // skip to the end
-				} else if (isCode && ChatColor.getByChar(next) != null) {
-					reconstructedString.append('\\');
+			string = LEGACY_CODE_PATTERN.matcher(string).replaceAll(result -> {
+				// Even if escaped, MiniMessage will throw an exception for legacy section codes
+				String group = result.group().replace('§', '&');
+				if (result.group(1).length() % 2 == 1) { // tag is already escaped
+					return Matcher.quoteReplacement(group);
 				}
-				reconstructedString.append(current);
-			}
-			string = reconstructedString.toString();
+				return Matcher.quoteReplacement('\\' + group);
+			});
 		}
+		string = LEGACY_DOUBLE_HASHTAG_PATTERN.matcher(string).replaceAll(result -> {
+			if (result.group(1).length() % 2 == 1) { // tag is escaped
+				return Matcher.quoteReplacement(result.group());
+			}
+			String mappedTag = result.group(2).substring(1);
+			if (StandardTags.color().has(mappedTag)) {
+				return Matcher.quoteReplacement("\\<#" + mappedTag) + ">";
+			}
+			return Matcher.quoteReplacement(result.group());
+		});
 		return parser.escapeTags(string);
 	}
 

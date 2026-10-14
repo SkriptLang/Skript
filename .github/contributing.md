@@ -111,6 +111,11 @@ generally consist of more than `Fix bug`, `Add feature`, or `Updated FileClass.j
 >
 > If you are using **any kind of AI assistance** to contribute to Skript,
 > it must be disclosed in the pull request.
+>
+> **All communications in issues and pull requests must be human-authored.**
+> AI assistance may be used in translation and phrasing of messages, but this must also be
+> disclosed and **the underlying message must originate from real human thought, not an automated
+> process**.
 
 If you relied on AI assistance to make a pull request, you must disclose it in the
 pull request, together with the extent of the usage. For example, if you used

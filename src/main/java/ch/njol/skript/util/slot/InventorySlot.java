@@ -58,7 +58,7 @@ public class InventorySlot extends SlotWithIndex {
 		if (index == -999) //Non-existent slot, e.g. Outside GUI
 			return null;
 		ItemStack item = inventory.getItem(index);
-		return item == null  ? new ItemStack(Material.AIR, 1) : item.clone();
+		return item == null  ? new ItemStack(Material.AIR, 1) : item;
 	}
 
 	@Override

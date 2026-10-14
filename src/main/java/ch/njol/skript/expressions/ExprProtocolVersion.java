@@ -3,6 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -33,24 +34,20 @@ import org.jetbrains.annotations.Nullable;
 	""")
 @Since("2.3")
 @Events("server list ping")
-public class ExprProtocolVersion extends SimpleExpression<Long> {
+public class ExprProtocolVersion extends SimpleExpression<Long> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprProtocolVersion.class, Long.class, ExpressionType.SIMPLE, "[the] [server] [(sent|required|fake)] protocol version [number]");
 	}
 
-	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
-
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!PAPER_EVENT_EXISTS) {
-			Skript.error("The protocol version expression requires Paper 1.12.2 or newer");
-			return false;
-		} else if (!getParser().isCurrentEvent(PaperServerListPingEvent.class)) {
-			Skript.error("The protocol version expression can't be used outside of a server list ping event");
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(PaperServerListPingEvent.class);
 	}
 
 	@Override

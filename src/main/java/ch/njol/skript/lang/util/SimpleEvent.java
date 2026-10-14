@@ -9,12 +9,27 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * A very basic SkriptEvent which returns true for all events (i.e. all registered events).
- * 
- * @author Peter Güttinger
  */
 public class SimpleEvent extends SkriptEvent {
 
-	public SimpleEvent() {}
+	private final String toString;
+
+	/**
+	 * Creates a new SimpleEvent with the default toString of 'simple event'.
+	 * Prefer using {@link #SimpleEvent(String)} to provide a more descriptive toString.
+	 */
+	public SimpleEvent() {
+		this("simple event");
+	}
+
+	/**
+	 * Creates a new SimpleEvent with a custom toString.
+	 *
+	 * @param string the string to return in toString
+	 */
+	public SimpleEvent(String string) {
+		this.toString = string;
+	}
 
 	@Override
 	public boolean check(Event event) {
@@ -30,7 +45,7 @@ public class SimpleEvent extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "simple event";
+		return toString;
 	}
 
 }

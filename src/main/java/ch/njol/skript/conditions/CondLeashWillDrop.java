@@ -1,5 +1,8 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityUnleashEvent;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +26,7 @@ import ch.njol.util.Kleenean;
 @Keywords("lead")
 @Events("Leash / Unleash")
 @Since("2.10")
-public class CondLeashWillDrop extends Condition {
+public class CondLeashWillDrop extends Condition implements EventRestrictedSyntax {
 
 	static {
 		// TODO - remove this when Spigot support is dropped
@@ -33,12 +36,13 @@ public class CondLeashWillDrop extends Condition {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EntityUnleashEvent.class)) {
-			Skript.error("The 'leash will drop' condition can only be used in an 'unleash' event");
-			return false;
-		}
 		setNegated(parseResult.hasTag("not"));
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EntityUnleashEvent.class);
 	}
 
 	@Override
@@ -46,6 +50,18 @@ public class CondLeashWillDrop extends Condition {
 		if (!(event instanceof EntityUnleashEvent unleashEvent))
 			return false;
 		return unleashEvent.isDropLeash() ^ isNegated();
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	public void change(Event event, boolean dropLeash, ChangeMode mode) {
+		if (event instanceof EntityUnleashEvent unleashEvent) {
+			unleashEvent.setDropLeash(dropLeash);
+		}
 	}
 
 	@Override

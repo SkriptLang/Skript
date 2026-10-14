@@ -71,6 +71,7 @@ public final class SkriptEventHandler {
 		return triggers.asMap().entrySet().stream()
 				.filter(entry -> entry.getKey().isAssignableFrom(event) && getHandlerList(entry.getKey()) == eventHandlerList)
 				.flatMap(entry -> entry.getValue().stream())
+				.distinct()
 				.collect(Collectors.toList()); // forces evaluation now and prevents us from having to call getTriggers again if very high logging is enabled
 	}
 

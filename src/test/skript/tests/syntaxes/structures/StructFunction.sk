@@ -16,6 +16,9 @@ local function bar() :: boolean:
 local function _blob() :: string:
 	return "blub"
 
+local function mutate(v: vector) :: vector:
+	add 1 to x of {_v}
+
 test "functions":
 	assert foo() is true with "function return type failed"
 	assert local() is not 1 with "global function parsed before local function"
@@ -208,3 +211,8 @@ test "duplicate keys in function arguments":
 	set {_a::foo} to "first"
 	set {_b::foo} to "second"
 	assert duplicate_keys_test(keyed {_a::*}, keyed {_b::*}) is "first"
+
+test "clone objects at function boundary":
+	set {_vector} to vector(0, 0, 0)
+	mutate({_vector})
+	assert {_vector} is vector(0, 0, 0) with "Values aren't cloned at function boundary"

@@ -25,6 +25,13 @@ test "ExprElement":
 	assert elements from 1 to 1 of {_list::*} is "foo" with "Incorrect elements from 1 to 1"
 	assert (first element out of (5 and 6)) + 5 is 10 with "Incorrect return type"
 
+	assert size of 10 random distinct elements of {_list::*} is 3
+	assert size of 10 random elements of {_list::*} is 10
+
+	loop 10 times:
+		assert 3 random distinct elements of {_list::*} contains {_list::*}
+		assert {_list::*} contains 10 random elements of {_list::*}
+
 test "keyed ExprElement":
 	set {_list::a} to "foo"
 	set {_list::b} to "bar"

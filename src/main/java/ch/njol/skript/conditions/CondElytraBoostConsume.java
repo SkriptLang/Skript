@@ -1,11 +1,14 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Condition;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -18,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 			prevent the used firework from being consumed
 	""")
 @Since("2.10")
-public class CondElytraBoostConsume extends Condition {
+public class CondElytraBoostConsume extends Condition implements EventRestrictedSyntax {
 
 	static {
 		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerElytraBoostEvent")) {
@@ -32,12 +35,13 @@ public class CondElytraBoostConsume extends Condition {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerElytraBoostEvent.class)) {
-			Skript.error("This condition can only be used in an 'elytra boost' event.");
-			return false;
-		}
 		checkConsume = matchedPattern == 0;
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(PlayerElytraBoostEvent.class);
 	}
 
 	@Override
@@ -45,6 +49,18 @@ public class CondElytraBoostConsume extends Condition {
 		if (!(event instanceof PlayerElytraBoostEvent boostEvent))
 			return false;
 		return boostEvent.shouldConsume() == checkConsume;
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	public void change(Event event, boolean consume, ChangeMode mode) {
+		if (event instanceof PlayerElytraBoostEvent boostEvent) {
+			boostEvent.setShouldConsume(consume);
+		}
 	}
 
 	@Override

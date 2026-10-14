@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.particles.registration;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -91,17 +92,42 @@ public class DataGameEffects {
 			//</editor-fold>
 			(exprs, parseResult, builder) -> builder.append("record song of", exprs[0]));
 
-		registerEffect(Effect.SMOKE, "[dispenser] black smoke effect [(in|with|using) [the] direction] %direction%",
+		boolean isRunning26_2 = Skript.isRunningMinecraft(26, 2);
+		boolean isRunning26_3 = Skript.isRunningMinecraft(26, 3);
+
+		Effect smokeEffect = isRunning26_2 ? Effect.SMOKE_SHOOT : Effect.SMOKE;
+		registerEffect(smokeEffect, "[dispenser] black smoke effect [(in|with|using) [the] direction] %direction%",
 			DataSupplier::getBlockFaceData,
 			(exprs, parseResult, builder) -> builder.append("black smoke effect in direction", exprs[0]));
 
-		registerEffect(Effect.SHOOT_WHITE_SMOKE, "[dispenser] white smoke effect [(in|with|using) [the] direction] %direction%",
+		Effect whiteSmokeEffect = isRunning26_2 ? Effect.WHITE_SMOKE_SHOOT : Effect.SHOOT_WHITE_SMOKE;
+		registerEffect(whiteSmokeEffect, "[dispenser] white smoke effect [(in|with|using) [the] direction] %direction%",
 			DataSupplier::getCartesianBlockFaceData,
 			(exprs, parseResult, builder) -> builder.append("white smoke effect in direction", exprs[0]));
 
 		registerEffect(Effect.STEP_SOUND, "%itemtype/blockdata% [foot]step[s] sound [effect]",
 			DataSupplier::getBlockData,
-			(exprs, parseResult, builder) -> builder.append(exprs[0], "footstep sound")); // handle version changes
+			(exprs, parseResult, builder) -> builder.append(exprs[0], "footstep sound"));
+
+		if (isRunning26_2) {
+			registerEffect(Effect.DESTROY_BLOCK, "%itemtype/blockdata% (break|destroy) effect",
+				DataSupplier::getBlockData,
+				(exprs, parseResult, builder) -> builder.append(exprs[0], "destroy effect"));
+		}
+
+		if (isRunning26_3) {
+			registerEffect(Effect.DESTROY_BLOCK_WITH_SOUND, "%itemtype/blockdata% (break|destroy) effect with sound",
+				DataSupplier::getBlockData,
+				(exprs, parseResult, builder) -> builder.append(exprs[0], "destroy effect with sound"));
+
+			registerEffect(Effect.DESTROY_PROGRESS, "destroy progress effect on the %direction% [side|face]",
+				DataSupplier::getCartesianBlockFaceData,
+				(exprs, parseResult, builder) -> builder.append("destroy progress effect on the", exprs[0], "face"));
+
+			registerEffect(Effect.DESTROY_PROGRESS_WITH_SOUND, "destroy progress effect on the %direction% [side|face] with sound",
+				DataSupplier::getCartesianBlockFaceData,
+				(exprs, parseResult, builder) -> builder.append("destroy progress effect on the", exprs[0], "face with sound"));
+		}
 
 		registerEffect(Effect.POTION_BREAK, "%color% [splash] potion break effect",
 			DataSupplier::getColorData,
@@ -123,7 +149,8 @@ public class DataGameEffects {
 
 		registerEffect(Effect.BONE_MEAL_USE, "[fake] bone meal effect [(with|using) %-number% particles]",
 			DataSupplier::getNumberDefault10,
-			(exprs, parseResult, builder) -> builder.append("bone meal effect with", exprs[0], "particles"));
+			(exprs, parseResult, builder) -> builder.append("bone meal effect")
+													.appendIf(exprs[0] != null, "with", exprs[0], "particles"));
 
 		registerEffect(Effect.ELECTRIC_SPARK, "(electric|lightning[ rod]|copper) spark effect [(in|using|along) the (1:x|2:y|3:z) axis]",
 			(event, expressions, parseResult) -> (parseResult.mark == 0 ? null : Axis.values()[parseResult.mark - 1]),
@@ -137,10 +164,31 @@ public class DataGameEffects {
 		// of 7, based on wiki max charge of 1000 and the formula `floor(ln(1 + charge of the block) ) + 1`.
 		// there's more to it with how the particles roll and how often the sound plays, but I can't be bothered to
 		// figure it out to a tee.
-		registerEffect(Effect.PARTICLES_SCULK_CHARGE, "sculk (charge|spread) effect [(with|using) data %integer%]",
+		Effect sculkChargeEffect = isRunning26_2 ? Effect.SCULK_CHARGE : Effect.PARTICLES_SCULK_CHARGE;
+		registerEffect(sculkChargeEffect, "sculk (charge|spread) effect [(with|using) data %integer%]",
 			(exprs, parseResult, builder) -> builder.append("sculk charge effect with data", exprs[0]));
 
-		registerEffect(Effect.PARTICLES_AND_SOUND_BRUSH_BLOCK_COMPLETE, "[finish] brush[ing] %itemtype/blockdata% effect",
+		if (isRunning26_3) {
+			// the radii passed to getPackedOffsetData are the shifts the client hardcodes for each of these effects,
+			registerEffect(Effect.ENDER_DRAGON_EGG_TELEPORT, "ender dragon egg teleport[ing] [to %-vector%] effect",
+				DataSupplier.getPackedOffsetData(16, 8, 16),
+				(exprs, parseResult, builder) -> builder.append("ender dragon egg teleporting").appendIf((exprs[0] != null), "to", exprs[0]).append("effect"));
+
+			registerEffect(Effect.SHULKER_TELEPORT, "shulker teleport[ing] [to %-vector%] effect",
+				DataSupplier.getPackedOffsetData(8, 8, 8),
+				(exprs, parseResult, builder) -> builder.append("shulker teleporting").appendIf((exprs[0] != null), "to", exprs[0]).append("effect"));
+
+			registerEffect(Effect.CONSUME_EFFECT_TELEPORT, "consumable teleport[ing] [to %-vector%] effect",
+				DataSupplier.getPackedOffsetData(127, 127, 127),
+				(exprs, parseResult, builder) -> builder.append("consumable teleporting").appendIf((exprs[0] != null), "to", exprs[0]).append("effect"));
+
+			registerEffect(Effect.ENDERMAN_TELEPORT, "enderman teleport[ing] [to %-vector%] effect",
+				DataSupplier.getPackedOffsetData(127, 127, 127),
+				(exprs, parseResult, builder) -> builder.append("enderman teleporting").appendIf((exprs[0] != null), "to", exprs[0]).append("effect"));
+		}
+
+		Effect brushEffect = isRunning26_2 ? Effect.BRUSH_BLOCK_COMPLETE : Effect.PARTICLES_AND_SOUND_BRUSH_BLOCK_COMPLETE;
+		registerEffect(brushEffect, "[finish] brush[ing] %itemtype/blockdata% effect",
 			DataSupplier::getBlockData,
 			(exprs, parseResult, builder) -> builder.append("brushing", exprs[0], "effect"));
 
@@ -167,7 +215,8 @@ public class DataGameEffects {
 
 		registerEffect(Effect.BEE_GROWTH, "bee growth effect [(with|using) %-number% particles]",
 			DataSupplier::getNumberDefault10,
-			(exprs, parseResult, builder) -> builder.append("bee [plant] grow[th] effect with", exprs[0], "particles"));
+			(exprs, parseResult, builder) -> builder.append("bee [plant] grow[th] effect")
+													.appendIf(exprs[0] != null, "with", exprs[0], "particles"));
 
 		registerEffect(Effect.VAULT_ACTIVATE, "[:ominous] [trial] vault activate effect",
 			DataSupplier::isOminous,
@@ -192,11 +241,13 @@ public class DataGameEffects {
 
 		registerEffect(Effect.TURTLE_EGG_PLACEMENT, "place turtle egg effect [(with|using) %-number% particles]",
 			DataSupplier::getNumberDefault10,
-			(exprs, parseResult, builder) -> builder.append("place turtle egg effect with", exprs[0], "particles"));
+			(exprs, parseResult, builder) -> builder.append("place turtle egg effect")
+													.appendIf(exprs[0] != null, "with", exprs[0], "particles"));
 
 		registerEffect(Effect.SMASH_ATTACK, "[mace] smash attack effect [(with|using) %-number% particles]",
 			DataSupplier::getNumberDefault10,
-			(exprs, parseResult, builder) -> builder.append("smash attack effect with", exprs[0], "particles"));
+			(exprs, parseResult, builder) -> builder.append("smash attack effect")
+													.appendIf(exprs[0] != null, "with", exprs[0], "particles"));
 	}
 
 }

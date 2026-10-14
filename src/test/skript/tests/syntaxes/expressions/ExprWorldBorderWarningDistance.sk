@@ -1,3 +1,5 @@
+using error catching
+
 test "worldborder warning distance":
 	set {_max} to max integer value
 	set {_border} to worldborder of world("world")
@@ -9,11 +11,14 @@ test "worldborder warning distance":
 	assert worldborder warning distance of {_border} is 1 with "Failed to set worldborder warning distance"
 	set worldborder warning distance of {_border} to {_None}
 	assert worldborder warning distance of {_border} is 1 with "Setting worldborder warning distance to None changed the warning distance"
-	set worldborder warning distance of {_border} to NaN value
+	catch runtime errors:
+		set worldborder warning distance of {_border} to NaN value
 	assert worldborder warning distance of {_border} is 1 with "Setting worldborder warning distance to NaN changed the warning distance"
-	set worldborder warning distance of {_border} to infinity value
+	catch runtime errors:
+		set worldborder warning distance of {_border} to infinity value
 	assert worldborder warning distance of {_border} is {_max} with "Failed to set worldborder warning distance to infinity"
-	set worldborder warning distance of {_border} to -infinity value
+	catch runtime errors:
+		set worldborder warning distance of {_border} to -infinity value
 	assert worldborder warning distance of {_border} is 0 with "Setting worldborder warning distance to -infinity did not stop at 0"
 	set worldborder warning distance of {_border} to 1
 
@@ -24,11 +29,14 @@ test "worldborder warning distance":
 	assert worldborder warning distance of {_border} is 1 with "Failed adding negative integer to warning distance"
 	add {_None} to worldborder warning distance of {_border}
 	assert worldborder warning distance of {_border} is 1 with "Adding None to worldborder warning distance changed the warning distance"
-	add NaN value to worldborder warning distance of {_border}
+	catch runtime errors:
+		add NaN value to worldborder warning distance of {_border}
 	assert worldborder warning distance of {_border} is 1 with "Adding NaN to worldborder warning distance changed the warning distance"
-	add -infinity value to worldborder warning distance of {_border}
+	catch runtime errors:
+		add -infinity value to worldborder warning distance of {_border}
 	assert worldborder warning distance of {_border} is 0 with "Adding -infinity to worldborder warning distance did not stop at 0"
-	add infinity value to worldborder warning distance of {_border}
+	catch runtime errors:
+		add infinity value to worldborder warning distance of {_border}
 	assert worldborder warning distance of {_border} is {_max} with "Failed adding infinity to warning distance"
 	set worldborder warning distance of {_border} to 1
 
@@ -39,11 +47,14 @@ test "worldborder warning distance":
 	assert worldborder warning distance of {_border} is 1 with "Failed removing negative integer from warning distance"
 	remove {_None} from worldborder warning distance of {_border}
 	assert worldborder warning distance of {_border} is 1 with "Removing None from worldborder warning distance changed the warning distance"
-	remove NaN value from worldborder warning distance of {_border}
+	catch runtime errors:
+		remove NaN value from worldborder warning distance of {_border}
 	assert worldborder warning distance of {_border} is 1 with "Removing NaN from worldborder warning distance changed the warning distance"
-	remove infinity value from worldborder warning distance of {_border}
+	catch runtime errors:
+		remove infinity value from worldborder warning distance of {_border}
 	assert worldborder warning distance of {_border} is 0 with "Removing infinity from worldborder warning distance did not stop at 0"
-	remove -infinity value from worldborder warning distance of {_border}
+	catch runtime errors:
+		remove -infinity value from worldborder warning distance of {_border}
 	assert worldborder warning distance of {_border} is {_max} with "Failed removing -infinity from warning distance"
 
 	set worldborder warning distance of {_border} to -10

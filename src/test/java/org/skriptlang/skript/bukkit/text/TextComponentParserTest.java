@@ -1,10 +1,16 @@
 package org.skriptlang.skript.bukkit.text;
 
+import ch.njol.skript.Skript;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.ClickEvent.Payload;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.ChatColor;
 import org.junit.Test;
+import org.skriptlang.skript.bukkit.text.TextComponentParser.LinkParseMode;
 
 import java.util.Set;
 
@@ -49,6 +55,53 @@ public class TextComponentParserTest {
 			.append(Component.text("world!", Style.style(NamedTextColor.BLUE, TextDecoration.BOLD.withState(false))));
 		parsed = parser.parse("<red><bold>Hello <blue>world!");
 		assertEquals(expected, parsed);
+	}
+
+	@Test
+	public void testLegacy() {
+		TextComponentParser parser = new TextComponentParser();
+		assertEquals(parser.parse("<red>hello"), parser.parse("&chello"));
+		assertEquals(parser.parse("<#123456>hello"), parser.parse("&x&1&2&3&4&5&6hello"));
+		assertEquals(Component.text("&chello"), parser.parse("\\&chello"));
+		assertEquals(Component.text("&x&1&2&3&4&5&6hello"), parser.parse("&x\\&1\\&2\\&3\\&4\\&5\\&6hello"));
+
+		//noinspection deprecation - yes i know
+		for (ChatColor color : ChatColor.values()) {
+			String message = "&" + color.getChar() + "hello";
+			assertEquals(LegacyComponentSerializer.legacyAmpersand().deserialize(message), parser.parse(message));
+			message = "&" + Character.toUpperCase(color.getChar()) + "hello";
+			assertEquals(LegacyComponentSerializer.legacyAmpersand().deserialize(message), parser.parse(message));
+		}
+	}
+
+	@Test
+	public void testLegacyEscaping() {
+		TextComponentParser parser = new TextComponentParser();
+		assertEquals("\\&chello", parser.escape("&chello"));
+		assertEquals("&x\\&1\\&2\\&3\\&4\\&5\\&6hello &x", parser.escape("&x&1&2&3&4&5&6hello &x"));
+	}
+
+	@Test
+	public void testLegacyDoubleHashtag() {
+		TextComponentParser parser = new TextComponentParser();
+		assertEquals(parser.parse("<#123456>hello"), parser.parse("<##123456>hello"));
+		assertEquals("\\<##123456>hello", parser.escape("<##123456>hello"));
+		// test letters in tag
+		assertEquals(parser.parse("<#ffff11>hello"), parser.parse("<#ffff11>hello"));
+		assertEquals(parser.parse("<#FFFF11>hello"), parser.parse("<##FFFF11>hello"));
+		assertEquals(parser.parse("<#ffff11>hello"), parser.parse("<##FFFF11>hello"));
+	}
+
+	@Test
+	public void testURLValidation() {
+		TextComponentParser parser = new TextComponentParser();
+		parser.linkParseMode(LinkParseMode.STRICT);
+		// Example: forgot to allow all formatting, so tag is not parsed, but URL is attempted to be automatically formatted
+		ClickEvent<?> result = parser.parseSafe("<url:'https://skriptlang.org/'>My Website").children().getFirst().clickEvent();
+		assertNotNull(result);
+		if (Skript.methodExists(ClickEvent.class, "payload")) { // TODO remove when supporting 1.21.6+
+			assertEquals("https://skriptlang.org/'", ((Payload.Text) result.payload()).value());
+		}
 	}
 
 }

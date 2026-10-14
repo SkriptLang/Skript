@@ -3,26 +3,29 @@ package ch.njol.skript.classes.data;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
-import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.entity.EntityType;
-import ch.njol.skript.entity.XpOrbData;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyNamed;
-import ch.njol.skript.util.*;
+import ch.njol.skript.util.BlockInventoryHolder;
+import ch.njol.skript.util.Direction;
+import ch.njol.skript.util.Experience;
 import ch.njol.skript.util.slot.Slot;
 import net.kyori.adventure.text.Component;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
+import org.bukkit.Material;
+import org.bukkit.Nameable;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Server;
+import org.bukkit.World;
+import org.bukkit.WorldType;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntitySnapshot;
 import org.bukkit.entity.LivingEntity;
@@ -37,7 +40,10 @@ import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.bukkit.entity.EntityData;
+import org.skriptlang.skript.bukkit.entity.EntityType;
+import org.skriptlang.skript.bukkit.entity.EntityUtils;
+import org.skriptlang.skript.bukkit.entity.data.XpOrbData;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.script.Script;
@@ -113,12 +119,6 @@ public class DefaultConverters {
 
 		// Block - ItemType
 		Converters.registerConverter(Block.class, ItemType.class, ItemType::new, Converter.NO_LEFT_CHAINING | Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
-
-		// Block - Location
-		Converters.registerConverter(Block.class, Location.class, BlockUtils::getLocation, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
-
-		// Entity - Location
-		Converters.registerConverter(Entity.class, Location.class, Entity::getLocation, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
 
 		// Entity - EntityData
 		Converters.registerConverter(Entity.class, EntityData.class, EntityData::fromEntity, Commands.CONVERTER_NO_COMMAND_ARGUMENTS | Converter.NO_RIGHT_CHAINING);
@@ -285,33 +285,8 @@ public class DefaultConverters {
 				Converter.NO_RIGHT_CHAINING);
 		}
 
-		// InventoryHolder - Location
-		// since the individual ones can't be trusted to chain.
-		Converters.registerConverter(InventoryHolder.class, Location.class, holder -> {
-			if (holder instanceof Entity entity)
-				return entity.getLocation();
-			if (holder instanceof Block block)
-				return block.getLocation();
-			if (holder instanceof BlockState state)
-				return BlockUtils.getLocation(state.getBlock());
-			if (holder instanceof DoubleChest doubleChest) {
-				if (doubleChest.getLeftSide() != null) {
-					return BlockUtils.getLocation(((BlockState) doubleChest.getLeftSide()).getBlock());
-				} else if (doubleChest.getRightSide() != null) {
-					return BlockUtils.getLocation(((BlockState) doubleChest.getRightSide()).getBlock());
-				}
-			}
-			return null;
-		});
-
-		// Enchantment - EnchantmentType
-		Converters.registerConverter(Enchantment.class, EnchantmentType.class, e -> new EnchantmentType(e, -1));
-
 		// Vector - Direction
 		Converters.registerConverter(Vector.class, Direction.class, Direction::new);
-
-		// EnchantmentOffer - EnchantmentType
-		Converters.registerConverter(EnchantmentOffer.class, EnchantmentType.class, eo -> new EnchantmentType(eo.getEnchantment(), eo.getEnchantmentLevel()));
 
 		Converters.registerConverter(String.class, World.class, Bukkit::getWorld);
 

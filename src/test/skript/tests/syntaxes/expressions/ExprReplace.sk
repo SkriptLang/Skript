@@ -1,0 +1,35 @@
+test "replace expression":
+
+	assert "hello this is a test" where "hello" is replaced with "goodbye" is "goodbye this is a test" with "replace"
+
+
+	assert "hello this is a test" where regex pattern "[el]" is replaced with "!" is "h!!!o this is a t!st" with "regex replace pattern 1"
+
+	assert "hello this is a test" where "[el]" is replaced with "!" using regex is "h!!!o this is a t!st" with "regex replace pattern 2"
+
+
+	set {_test::*} to "hello", "this", "is", "a", "test"
+
+	assert {_test::*} where "hello", "tes" are replaced with "!" is ("!", "this", "is", "a", "!t") with "replace list"
+
+	assert {_test::*} where regex "[el]" is replaced with "!" is "h!!!o", "this", "is", "a", "t!st" with "regex replace list"
+
+
+	assert "aaaaAAAAbbbbBBBB" where "a" is replaced with "!" with case sensitivity is "!!!!AAAAbbbbBBBB" with "replace case sensitivity"
+
+
+	assert "test hello test hello this is a test" where first instance of "hello" is replaced with "!" is "test ! test hello this is a test" with "replace first"
+
+	assert "test hello test hello this is a test" where all instances of "hello" are replaced with "!" is "test ! test ! this is a test" with "replace all"
+
+
+	assert "abc abcd" where first instance of regex "[ac]" is replaced with "!" is "!bc abcd" with "regex replace first"
+
+	assert "abc abcd" where first instance of regex "[ac]", "[acd]" is replaced with "!" is "!b! abcd" with "regex replace multi first"
+
+
+	set {_test::*} to "hello", "this", "is", "a", "test"
+
+	assert {_test::*} where first instance of "hel", "this" are replaced with "!" is ("!lo", "!", "is", "a", "test") with "first replace multi list"
+
+	assert {_test::*} where first instances of regex patterns "[he]", "l" are replaced with "!" is ("!e!lo", "t!is", "is", "a", "t!st") with "first regex replace multi list"

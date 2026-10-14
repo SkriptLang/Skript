@@ -1,0 +1,22 @@
+test "ExprBookPages":
+	set {_i} to a written book
+
+	# all pages
+	assert {_i}'s book pages are not set with "non-existent book pages failed"
+	set pages of {_i} to "&aPages testing" and "test 2"
+	assert size of {_i}'s book pages is 2 with "failed to match exact pages size"
+	assert page 2 of {_i} is "test 2" with "failed to compare page 2"
+	add "test 3" to the pages of {_i}
+	assert page 3 of {_i} is "test 3" with "failed to compare page 3"
+	clear pages of {_i}
+	assert {_i}'s book pages are not set with "non-existent book pages failed 2"
+
+	# specific pages
+	set page 3 of {_i} to "test 3"
+	assert page 3 of {_i} is "test 3" with "failed to set page 3"
+	assert size of {_i}'s book pages is 3 with "failed to add correct number of pages"
+	delete page 2 of {_i}
+	# page 3 becomes page 2
+	assert page 2 of {_i} is "test 3" with "failed to remove page 2"
+	reset page 2 of {_i}
+	assert page 2 of {_i} is "" with "failed to reset page 2"

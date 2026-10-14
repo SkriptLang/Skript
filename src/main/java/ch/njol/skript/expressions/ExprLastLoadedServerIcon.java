@@ -26,14 +26,8 @@ public class ExprLastLoadedServerIcon extends SimpleExpression<CachedServerIcon>
 		Skript.registerExpression(ExprLastLoadedServerIcon.class, CachedServerIcon.class, ExpressionType.SIMPLE, "[the] [last[ly]] loaded server icon");
 	}
 
-	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
-
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!PAPER_EVENT_EXISTS) {
-			Skript.error("The last loaded server icon expression requires Paper 1.12.2+");
-			return false;
-		}
 		return true;
 	}
 

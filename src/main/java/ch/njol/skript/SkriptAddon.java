@@ -2,6 +2,7 @@ package ch.njol.skript;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -152,6 +153,11 @@ public final class SkriptAddon implements org.skriptlang.skript.addon.SkriptAddo
 	@Override
 	public <R extends Registry<?>> R registry(Class<R> registryClass, Supplier<R> putIfAbsent) {
 		return addon.registry(registryClass, putIfAbsent);
+	}
+
+	@Override
+	public Collection<Registry<?>> registries() {
+		return addon.registries();
 	}
 
 	@Override

@@ -3,6 +3,8 @@ package ch.njol.skript.expressions;
 
 import java.util.Iterator;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockFertilizeEvent;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +29,7 @@ import ch.njol.util.Kleenean;
 @Events("block fertilize")
 @Example("the fertilized blocks")
 @Since("2.5")
-public class ExprFertilizedBlocks extends SimpleExpression<BlockStateBlock> {
+public class ExprFertilizedBlocks extends SimpleExpression<BlockStateBlock> implements EventRestrictedSyntax {
 	
 	static {
 		if (Skript.classExists("org.bukkit.event.block.BlockFertilizeEvent"))
@@ -36,11 +38,12 @@ public class ExprFertilizedBlocks extends SimpleExpression<BlockStateBlock> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(BlockFertilizeEvent.class)) {
-			Skript.error("The 'fertilized blocks' are only usable in block fertilize events");
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(BlockFertilizeEvent.class);
 	}
 	
 	@Nullable

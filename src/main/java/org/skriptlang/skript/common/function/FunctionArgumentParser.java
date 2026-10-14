@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
  */
 final class FunctionArgumentParser {
 
-	private static final Pattern PART_PATTERN = Pattern.compile("(?:\\s*(?<name>[_a-zA-Z0-9]+):)?(?<value>.+)");
+	private static final Pattern PART_PATTERN = Pattern.compile("(?:\\s*(?<name>[^:(){}\",]+):)?(?<value>.+)");
 
 	/**
 	 * The input string.

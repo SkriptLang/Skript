@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ClickEventTracker;
 import ch.njol.skript.classes.data.DefaultComparators;
-import ch.njol.skript.entity.EntityData;
+import org.skriptlang.skript.bukkit.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -29,6 +29,9 @@ import org.skriptlang.skript.lang.comparator.Relation;
 import java.util.function.Predicate;
 
 public class EvtClick extends SkriptEvent {
+
+	// TODO: UNTIL MC 26.1.1
+	private final static boolean USE_OLD_PIAEE_BEHAVIOR = !Skript.isRunningMinecraft(26,1,1);
 
 	/**
 	 * Click types.
@@ -111,19 +114,27 @@ public class EvtClick extends SkriptEvent {
 		if (event instanceof PlayerInteractEntityEvent interactEntityEvent) {
 			Entity clicked = interactEntityEvent.getRightClicked();
 
-			// Usually, don't handle these events
-			if (interactEntityEvent instanceof PlayerInteractAtEntityEvent) {
-				// But armor stands are an exception
-				// Later, there may be more exceptions...
-				if (!(clicked instanceof ArmorStand))
-					return false;
+			if (USE_OLD_PIAEE_BEHAVIOR) {
+				// Usually, don't handle these events
+				if (interactEntityEvent instanceof PlayerInteractAtEntityEvent) {
+					// But armor stands are an exception
+					// Later, there may be more exceptions...
+					if (!(clicked instanceof ArmorStand))
+						return false;
+				}
 			}
 
 			if (click == LEFT) // Lefts clicks on entities don't work
 				return false;
 
-			// PlayerInteractAtEntityEvent called only once for armor stands
-			if (!(event instanceof PlayerInteractAtEntityEvent)) {
+			if (USE_OLD_PIAEE_BEHAVIOR) {
+				// PlayerInteractAtEntityEvent called only once for armor stands
+				if (!(event instanceof PlayerInteractAtEntityEvent)) {
+					if (!interactTracker.checkEvent(interactEntityEvent.getPlayer(), interactEntityEvent, interactEntityEvent.getHand())) {
+						return false; // Not first event this tick
+					}
+				}
+			} else {
 				if (!interactTracker.checkEvent(interactEntityEvent.getPlayer(), interactEntityEvent, interactEntityEvent.getHand())) {
 					return false; // Not first event this tick
 				}

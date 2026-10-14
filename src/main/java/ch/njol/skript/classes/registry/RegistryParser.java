@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * A parser based on a {@link Registry} used to parse data from a string or turn data into a string.
@@ -24,15 +25,21 @@ public class RegistryParser<R extends Keyed> extends PatternedParser<R> {
 
 	private final Registry<R> registry;
 	private final String languageNode;
+	private final Consumer<R> parseCallback;
 
 	private final Map<R, String> names = new HashMap<>();
 	private final Map<String, R> parseMap = new HashMap<>();
 	private String[] patterns;
 
 	public RegistryParser(Registry<R> registry, String languageNode) {
+		this(registry, languageNode, ignored -> {});
+	}
+
+	public RegistryParser(Registry<R> registry, String languageNode, Consumer<R> parseCallback) {
 		assert !languageNode.isEmpty() && !languageNode.endsWith(".") : languageNode;
 		this.registry = registry;
 		this.languageNode = languageNode;
+		this.parseCallback = parseCallback;
 		refresh();
 		Language.addListener(this::refresh);
 	}
@@ -102,7 +109,11 @@ public class RegistryParser<R extends Keyed> extends PatternedParser<R> {
 	 */
 	@Override
 	public @Nullable R parse(String input, @NotNull ParseContext context) {
-		return parseMap.get(input.toLowerCase(Locale.ENGLISH));
+		R element = parseMap.get(input.toLowerCase(Locale.ENGLISH));
+		if (element != null) {
+			parseCallback.accept(element);
+		}
+		return element;
 	}
 
 	/**

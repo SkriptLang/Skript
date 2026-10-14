@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.entity.interactions.elements.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -43,6 +44,20 @@ public class CondIsResponsive extends PropertyCondition<Entity> {
 		}
 		return false;
 	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(Entity entity, boolean responsive, ChangeMode mode) {
+		responsive = responsive == this.responsive;
+		if (entity instanceof Interaction interaction) {
+			interaction.setResponsive(responsive);
+		}
+	}
+
 	@Override
 	protected String getPropertyName() {
 		return responsive ? "responsive" : "unresponsive";

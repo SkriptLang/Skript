@@ -48,8 +48,6 @@ public class ExprIP extends SimpleExpression<String> {
 				"IP[( |-)address]");
 	}
 
-	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
-
 	@SuppressWarnings("null")
 	private Expression<Player> players;
 
@@ -61,7 +59,7 @@ public class ExprIP extends SimpleExpression<String> {
 		isProperty = matchedPattern < 2;
 		boolean isConnectEvent = getParser().isCurrentEvent(PlayerLoginEvent.class);
 		boolean isServerPingEvent = getParser().isCurrentEvent(ServerListPingEvent.class) ||
-				(PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class));
+			getParser().isCurrentEvent(PaperServerListPingEvent.class);
 		if (isProperty) {
 			players = (Expression<Player>) exprs[0];
 		} else if (!isConnectEvent && !isServerPingEvent) {
@@ -76,14 +74,15 @@ public class ExprIP extends SimpleExpression<String> {
 	protected String[] get(Event e) {
 		if (!isProperty) {
 			InetAddress address;
-			if (e instanceof PlayerLoginEvent)
+			if (e instanceof PlayerLoginEvent loginEvent) {
 				// Return IP address of the connected player in connect event
-				address = ((PlayerLoginEvent) e).getAddress();
-			else if (e instanceof ServerListPingEvent)
+				address = loginEvent.getAddress();
+			} else if (e instanceof ServerListPingEvent pingEvent)
 				// Return IP address of the pinger in server list ping event
-				address = ((ServerListPingEvent) e).getAddress();
-			else
+				address = pingEvent.getAddress();
+			else {
 				return null;
+			}
 			return CollectionUtils.array(address.getHostAddress());
 		}
 
@@ -106,7 +105,7 @@ public class ExprIP extends SimpleExpression<String> {
 			assert sockAddr != null; // Not in connect event
 			address = sockAddr.getAddress();
 		}
-		
+
 		String hostAddress = address == null ? "unknown" : address.getHostAddress();
 		assert hostAddress != null;
 		return hostAddress;

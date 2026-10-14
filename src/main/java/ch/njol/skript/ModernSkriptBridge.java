@@ -8,6 +8,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.Registry;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -73,6 +74,11 @@ final class ModernSkriptBridge {
 		@Override
 		public <R extends Registry<?>> R registry(Class<R> registryClass, Supplier<R> putIfAbsent) {
 			return unmodifiableSkript.registry(registryClass, putIfAbsent);
+		}
+
+		@Override
+		public Collection<Registry<?>> registries() {
+			return unmodifiableSkript.registries();
 		}
 
 		@Override

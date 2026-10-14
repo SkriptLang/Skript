@@ -2,13 +2,17 @@ package ch.njol.skript.command;
 
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.util.Utils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 /**
  * Holds info about the usage of a command.
  * TODO: replace with record when java 17
+ * @deprecated There is no direct replacement for this class.
  */
+@Deprecated(since = "2.17", forRemoval = true)
 public class CommandUsage {
 
 	/**
@@ -61,6 +65,17 @@ public class CommandUsage {
 		if (event != null || usage.isSimple())
 			return usage.toString(event);
 		return defaultUsage;
+	}
+
+	/**
+	 * @param event The event used to evaluate the usage message.
+	 * @return The evaluated usage message as an Adventure {@link Component} with
+	 *         Skript color tags ({@code <red>}, {@code &c}, etc.) parsed into real
+	 *         chat formatting via {@link TextComponentParser#parse(Object)}. Command
+	 *         usage strings are server-controlled, so unsafe tags are appropriate.
+	 */
+	public Component getUsageComponent(@Nullable Event event) {
+		return TextComponentParser.instance().parse(getUsage(event));
 	}
 
 	@Override

@@ -4,8 +4,8 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
+import org.skriptlang.skript.bukkit.entity.EntityData;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -50,7 +50,7 @@ public class EffPlayEffect extends Effect {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffPlayEffect.class)
 				.addPatterns(
 					"[:force] (play|show|draw) %gameeffects/particles% [%-directions% %locations%] [as %-player%]",
-					"[:force] (play|draw) %gameeffects/particles% [%-directions% %locations%] (for|to) %-players% [as %-player%]", // show is omitted to avoid conflicts with EffOpenInv
+					"[:force] (play|show|draw) %gameeffects/particles% [%-directions% %locations%] (for|to) %-players% [as %-player%]",
 					"(play|show|draw) %gameeffects% [%-directions% %locations%] (in|with) [a] [view] (radius|range) [of] %number%",
 					"(play|show|draw) %entityeffects% on %entities%"
 				)

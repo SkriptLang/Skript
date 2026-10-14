@@ -132,7 +132,6 @@ public class TypePatternElement extends PatternElement {
 					}
 					// time states need to match and be valid
 					if (!applyTimeState(expression)) {
-						loopLog.printError();
 						return null;
 					}
 

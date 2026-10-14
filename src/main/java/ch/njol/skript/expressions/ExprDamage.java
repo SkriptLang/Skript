@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
@@ -39,7 +40,7 @@ import ch.njol.util.coll.CollectionUtils;
 	""")
 @Since("1.3.5, 2.8.0 (item damage event)")
 @Events({"Damage", "Vehicle Damage", "Item Damage"})
-public class ExprDamage extends SimpleExpression<Number> {
+public class ExprDamage extends SimpleExpression<Number> implements EventRestrictedSyntax {
 	
 	static {
 		Skript.registerExpression(ExprDamage.class, Number.class, ExpressionType.SIMPLE, "[the] damage");
@@ -50,12 +51,13 @@ public class ExprDamage extends SimpleExpression<Number> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EntityDamageEvent.class, VehicleDamageEvent.class, PlayerItemDamageEvent.class)) {
-			Skript.error("The 'damage' expression may only be used in damage events");
-			return false;
-		}
 		delay = isDelayed;
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EntityDamageEvent.class, VehicleDamageEvent.class, PlayerItemDamageEvent.class);
 	}
 	
 	@Override
