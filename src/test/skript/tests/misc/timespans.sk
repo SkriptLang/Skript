@@ -40,8 +40,7 @@ test "timespans":
 	execute command "/testtimespan 2.5h"
 	assert {timespan} is "2 hours and 30 minutes" parsed as timespan with "%{timespan}% doesn't equal 2 hours and 30 minutes!"
 
-	execute command "/testtimespan invalidinput"
-	assert {timespan} is "invalid" parsed as timespan to fail with "%{timespan}% was incorrectly parsed!"
+	assert "invalidinput" parsed as timespan is not set with "%{timespan}% was incorrectly parsed!"
 
 	execute command "/testtimespan 1mo 2w 3d 4h 5m 6s"
 	assert {timespan} is "1 month, 2 weeks, 3 days, 4 hours, 5 minutes and 6 seconds" parsed as timespan with "%{timespan}% doesn't equal 1 month, 2 weeks, 3 days, 4 hours, 5 minutes and 6 seconds!"

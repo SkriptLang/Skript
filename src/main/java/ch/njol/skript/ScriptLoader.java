@@ -13,6 +13,7 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.util.ExceptionUtils;
+import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.HintManager;
@@ -320,6 +321,7 @@ public class ScriptLoader {
 		if (size <= 0) {
 			for (AsyncLoaderThread thread : loaderThreads)
 				thread.cancelExecution();
+			loaderThreads.clear();
 			return;
 		}
 
@@ -336,6 +338,8 @@ public class ScriptLoader {
 		if (loaderThreads.size() != size)
 			throw new IllegalStateException();
 		
+		if (executor instanceof ExecutorService service)
+			service.shutdown();
 		executor = Executors.newFixedThreadPool(asyncLoaderSize, new ThreadFactory() {
 			private final AtomicInteger threadId = new AtomicInteger(0);
 
@@ -520,25 +524,24 @@ public class ScriptLoader {
 
 		ScriptInfo scriptInfo = new ScriptInfo();
 
-		List<LoadingScriptInfo> scripts = new ArrayList<>();
-
-		List<CompletableFuture<Void>> scriptInfoFutures = new ArrayList<>();
+		List<CompletableFuture<LoadingScriptInfo>> scriptInfoFutures = new ArrayList<>();
 		for (Config config : configs) {
 			if (config == null)
 				throw new NullPointerException();
 
-			CompletableFuture<Void> future = makeFuture(() -> {
-				LoadingScriptInfo info = loadScript(config);
-				scripts.add(info);
-				scriptInfo.add(new ScriptInfo(1, info.structures.size()));
-				return null;
-			}, openCloseable);
+			CompletableFuture<LoadingScriptInfo> future = makeFuture(() -> loadScript(config), openCloseable);
 
 			scriptInfoFutures.add(future);
 		}
 
 		return CompletableFuture.allOf(scriptInfoFutures.toArray(new CompletableFuture[0]))
 			.thenApply(ignored -> {
+				List<LoadingScriptInfo> scripts = scriptInfoFutures.stream()
+						.map(CompletableFuture::join)
+						.toList();
+				for (LoadingScriptInfo info : scripts)
+					scriptInfo.add(new ScriptInfo(1, info.structures.size()));
+
 				// TODO in the future this won't work when parallel loading is fixed
 				// It does now though so let's avoid calling getParser() a bunch.
 				ParserInstance parser = getParser();
@@ -1355,6 +1358,11 @@ public class ScriptLoader {
 				return null;
 			}
 		}
+
+		if (FileUtils.containsSymlink(scriptFile.toPath(), directory.toPath())) {
+			return scriptFile.getAbsoluteFile();
+		}
+
 		try {
 			// Unless it's a test, check if the user is asking for a script in the scripts folder
 			// and not something outside Skript's domain.

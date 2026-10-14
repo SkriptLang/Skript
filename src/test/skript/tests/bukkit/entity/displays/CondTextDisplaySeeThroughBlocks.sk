@@ -1,0 +1,14 @@
+test "CondTextDisplaySeeThroughBlocks":
+	spawn a text display at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} is visible through blocks to true
+	assert {_entity} is visible through blocks with "setting to true failed"
+	set whether {_entity} is visible through blocks to false
+	assert {_entity} is not visible through blocks with "setting to false failed"
+	set whether {_entity} is not visible through blocks to false
+	assert {_entity} is visible through blocks with "(negated) setting to true failed"
+	set whether {_entity} is not visible through blocks to true
+	assert {_entity} is not visible through blocks with "(negated) setting to false failed"
+
+	delete the entity within {_entity}
