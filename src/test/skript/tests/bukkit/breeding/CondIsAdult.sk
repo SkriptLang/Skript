@@ -1,0 +1,14 @@
+test "CondIsAdult":
+	spawn a pig at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} is an adult to true
+	assert {_entity} is an adult with "setting to true failed"
+	set whether {_entity} is an adult to false
+	assert {_entity} is not an adult with "setting to false failed"
+	set whether {_entity} is not an adult to false
+	assert {_entity} is an adult with "(negated) setting to true failed"
+	set whether {_entity} is not an adult to true
+	assert {_entity} is not an adult with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

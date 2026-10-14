@@ -23,6 +23,7 @@ import ch.njol.skript.variables.FlatFileStorage;
 import ch.njol.skript.variables.Variables;
 import co.aikar.timings.Timings;
 import org.bukkit.event.EventPriority;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.bukkit.text.TextComponentParser.LinkParseMode;
@@ -243,6 +244,10 @@ public class SkriptConfig {
 	public static final Option<Boolean> caseInsensitiveVariables = new Option<>("case-insensitive variables", true)
 			.setter(t -> Variables.caseInsensitiveVariables = t);
 
+	/**
+	 * @deprecated This config option is no longer used and there is no replacement.
+	 */
+	@Deprecated(since = "2.17", forRemoval = true)
 	public static final Option<Boolean> caseInsensitiveCommands = new Option<>("case-insensitive commands", false)
 		.optional(true);
 
@@ -308,6 +313,13 @@ public class SkriptConfig {
 	public static final Option<Boolean> allowUnsafePlatforms = new Option<>("allow unsafe platforms", false)
 			.optional(true);
 
+	public static final Option<Boolean> enableLegacyTabCompletion = new Option<>("enable legacy tab completion event compatibility", true)
+			.optional(true);
+
+	/**
+	 * @deprecated This config option is no longer used and there is no replacement.
+	 */
+	@Deprecated(since = "2.17", forRemoval = true)
 	public static final Option<Boolean> keepLastUsageDates = new Option<>("keep command last usage dates", false)
 			.optional(true);
 
@@ -397,8 +409,8 @@ public class SkriptConfig {
 		return mainConfig;
 	}
 
-	// also used for reloading
-	static void load() {
+	@ApiStatus.Internal
+	public static void load() {
 		if (mainConfig != null)
 			mainConfig.invalidate(); // todo
 		try {

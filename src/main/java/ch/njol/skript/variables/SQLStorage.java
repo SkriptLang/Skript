@@ -580,7 +580,7 @@ public abstract class SQLStorage extends VariablesStorage {
 
 	void sqlException(final SQLException e) {
 		Skript.error("database error: " + e.getLocalizedMessage());
-		if (Skript.testing())
+		if (Skript.debug())
 			e.printStackTrace();
 		prepareQueries(); // a query has to be recreated after an error
 	}

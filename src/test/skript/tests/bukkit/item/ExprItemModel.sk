@@ -1,0 +1,46 @@
+using error catching
+
+test "ExprItemModel":
+	set {_item} to diamond
+
+	set item model of {_item} to "emerald"
+	assert item model of {_item} is "minecraft:emerald" with "Set item model of item"
+
+	set {_inv} to chest inventory with 1 row named "test slots"
+	set slot 1 of {_inv} to diamond
+
+	set item model of slot 1 of {_inv} to "emerald"
+
+	assert item model of slot 1 of {_inv} is "minecraft:emerald" with "Set item model of slot from container"
+
+	set {_item} to dirt with item model "diamond"
+	assert item model of {_item} is "minecraft:diamond" with "ItemType with item model"
+
+	reset item model of {_item}
+	assert item model of {_item} is not set with "Reset item model of item"
+
+	set item model of {_item} to "minecraft:redstone"
+	delete item model of {_item}
+	assert item model of {_item} is not set with "Delete item model of item"
+
+	set {_string} to "test_string"
+	set item model of {_item} to {_string}
+	assert item model of {_item} is "minecraft:test_string" with "Set item model from variable string"
+
+	set item model of {_item} to {_}
+	assert item model of {_item} is not set with "Set item model of item to null"
+
+	set {_item} to diamond with model {_}
+	assert item model of {_item} is not set with "Item with null item model"
+
+	set {_item} to emerald with model {_string}
+	assert item model of {_item} is "minecraft:test_string" with "Item with item model of variable string"
+
+	set {_item} to diamond
+	catch runtime errors:
+		set item model of {_item} to "with spaces"
+	assert last caught runtime errors are set with "Runtime errors produced for invalid key for item model"
+
+	catch runtime errors:
+		set {_item} to diamond with model "with spaces"
+	assert last caught runtime errors are set with "Runtime errors produced for invalid key for item with model"

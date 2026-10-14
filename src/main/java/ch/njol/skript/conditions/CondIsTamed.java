@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -22,6 +23,18 @@ public class CondIsTamed extends PropertyCondition<Entity> {
 	@Override
 	public boolean check(Entity entity) {
 		return (entity instanceof Tameable tameable) && tameable.isTamed();
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(Entity entity, boolean tamed, ChangeMode mode) {
+		if (entity instanceof Tameable tameable) {
+			tameable.setTamed(tamed);
+		}
 	}
 
 	@Override

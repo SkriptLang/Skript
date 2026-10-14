@@ -138,14 +138,8 @@ updater:
 
 # -- Commands --
 commands:
-	no permission message: Nie masz odpowiednich uprawnień, aby użyć tego polecenia.
 	cooldown message: Używasz tego polecenia zbyt często, spróbuj ponownie później
-	executable by players: To polecenie może zostać użyte tylko przez graczy
-	executable by console: To polecenie może zostać użyte tylko z konsoli
-	correct usage: Prawidłowe użycie:
 	invalid argument: Niepoprawny argument <gray>'%s<gray>'<reset>. Dozwolone są:
-	too many arguments: To polecenie przyjmuje tylko jeden argument %2$s.
-	internal error: Podczas próby wykonania tego polecenia wystąpił wewnętrzny błąd.
 	no player starts with: Nie ma obecnie gracza, którego nick zaczyna się na '%s'
 	multiple players start with: Na serwerze jest obecnie kilku graczy, których nicki zaczynają się na '%s'
 

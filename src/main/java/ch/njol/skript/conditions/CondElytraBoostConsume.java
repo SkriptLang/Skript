@@ -1,6 +1,7 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.EventRestrictedSyntax;
@@ -48,6 +49,18 @@ public class CondElytraBoostConsume extends Condition implements EventRestricted
 		if (!(event instanceof PlayerElytraBoostEvent boostEvent))
 			return false;
 		return boostEvent.shouldConsume() == checkConsume;
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	public void change(Event event, boolean consume, ChangeMode mode) {
+		if (event instanceof PlayerElytraBoostEvent boostEvent) {
+			boostEvent.setShouldConsume(consume);
+		}
 	}
 
 	@Override

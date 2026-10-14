@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.breeding.elements.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -36,6 +37,22 @@ public class CondIsBaby extends PropertyCondition<LivingEntity> {
 	@Override
 	public boolean check(LivingEntity entity) {
 		return entity instanceof Ageable ageable && !ageable.isAdult();
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(LivingEntity entity, boolean baby, ChangeMode mode) {
+		if (entity instanceof Ageable ageable) {
+			if (baby) {
+				ageable.setBaby();
+			} else {
+				ageable.setAdult();
+			}
+		}
 	}
 
 	@Override
