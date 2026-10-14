@@ -736,7 +736,7 @@ public abstract class EntityData<E extends Entity>
 						list.add((E) player);
 				}
 			}
-			return list.toArray((E[]) Array.newInstance(getType(), list.size()));
+			return (E[]) list.toArray(new Player[list.size()]);
 		}
 		for (World world : worlds) {
 			for (E entity : world.getEntitiesByClass(getType())) {
