@@ -23,28 +23,28 @@ import static ch.njol.skript.skcommand.SkriptCommand.info;
 /**
  * Writes all scripts in the memory to files, useful when the user accidentally deletes a script<p>
  * Symbolic links that point outside the scripts folder are saved in {@code dump/external/} instead<p>
- * Usage: <code>/sk recover</code>
+ * Usage: <code>/sk restore</code>
  */
-class RecoverCommand extends SubCommand {
+class RestoreCommand extends SubCommand {
 
 	private static final Path DUMP_FOLDER = Skript.getInstance().getDataFolder().toPath().resolve("dump");
 
-	public RecoverCommand() {
-		super("recover", "dump");
+	public RestoreCommand() {
+		super("restore", "dump");
 	}
 
 	@Override
 	public void execute(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
-		// Create a unique folder for each dump, don't want to overwrite old dumps in a recover command
+		// Create a unique folder for each dump, don't want to overwrite old dumps in a restore command
 		// The format looks like '18 July 2026 20-34-20'
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy HH-mm-ss");
 		String targetFolderName = LocalDateTime.now().format(formatter);
 		Path targetFolder = DUMP_FOLDER.resolve(targetFolderName);
 
 		Bukkit.getScheduler().runTaskAsynchronously(Skript.getInstance(), () -> {
-			info(sender, "recover.recovering");
-			recoverScripts(sender, targetFolder);
-			info(sender, "recover.recovered", targetFolder);
+			info(sender, "restore.restoring");
+			restoreScripts(sender, targetFolder);
+			info(sender, "restore.restored", targetFolder);
 		});
 	}
 
@@ -56,13 +56,13 @@ class RecoverCommand extends SubCommand {
 	/**
 	 * Dumps all loaded scripts to a folder. Even if the script files are deleted.
 	 */
-	private static void recoverScripts(CommandSender sender, Path targetFolder) {
+	private static void restoreScripts(CommandSender sender, Path targetFolder) {
 		try {
 			Files.createDirectories(targetFolder);
 		} catch (IOException e) {
-			info(sender, "recover.io error", e.getMessage());
+			info(sender, "restore.io error", e.getMessage());
 			// noinspection ThrowableNotThrown
-			Skript.exception(e, "Error while recovering scripts.");
+			Skript.exception(e, "Error while restoring scripts.");
 		}
 
 		for (Script script : ScriptLoader.getLoadedScripts()) {
@@ -81,9 +81,9 @@ class RecoverCommand extends SubCommand {
 				Files.createFile(filePath);
 				config.save(filePath.toFile());
 			} catch (IOException e) {
-				info(sender, "recover.io error", e.getMessage());
+				info(sender, "restore.io error", e.getMessage());
 				// noinspection ThrowableNotThrown
-				Skript.exception(e, "Error while recovering scripts.");
+				Skript.exception(e, "Error while restoring scripts.");
 			}
 		}
 	}
