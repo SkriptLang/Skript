@@ -45,7 +45,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 			Pattern.compile("(?<name>[\\p{IsAlphabetic}_][\\p{IsAlphabetic}\\d_]*)\\((?<args>.*)\\)");
 
 	private final static Pattern DYNAMIC_FUNCTION_CALL_PATTERN =
-			Pattern.compile("(?<name>[\\p{IsAlphabetic}_][^()]*%[^()]*)\\((?<args>.*)\\)");
+			Pattern.compile("(?<name>[\\p{IsAlphabetic}_][\\p{IsAlphabetic}\\d_]*(?:%[^%]*%[\\p{IsAlphabetic}\\d_]*)+)\\((?<args>.*)\\)");
 
 	private static final ArgsMessage UNEXPECTED_ARGUMENT = new ArgsMessage("functions.unexpected argument");
 	private static final ArgsMessage INVALID_ARGUMENT = new ArgsMessage("functions.invalid argument");
@@ -154,25 +154,28 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 			Argument<String> argument = arguments[i];
 			SkriptParser argumentParser = new SkriptParser(argument.value(), flags | SkriptParser.PARSE_LITERALS, context);
 
+			Expression<?> expression;
 			try (ParseLogHandler logHandler = new ParseLogHandler().start()) {
-				Expression<?> expression = LiteralUtils.defendExpression(argumentParser.parseExpression(Object.class));
+				expression = LiteralUtils.defendExpression(argumentParser.parseExpression(Object.class));
 				if (expression == null) {
 					logHandler.printError(INVALID_ARGUMENT.toString(
 							argument.name(), Classes.getSuperClassInfo(Object.class).getName().getSingular(), argument.value()));
-					log.printError();
-					return null;
 				}
-				if (!LiteralUtils.canInitSafely(expression)) {
-					log.printError();
-					return null;
-				}
-				if (expression instanceof ExpressionList<?> list && !list.getAnd()) {
-					Skript.error(Language.get("functions.or in arguments"));
-					log.printError();
-					return null;
-				}
-				parsedArguments[i] = new Argument<>(argument.type(), argument.name(), expression);
 			}
+			if (expression == null) {
+				log.printError();
+				return null;
+			}
+			if (!LiteralUtils.canInitSafely(expression)) {
+				log.printError();
+				return null;
+			}
+			if (expression instanceof ExpressionList<?> list && !list.getAnd()) {
+				Skript.error(Language.get("functions.or in arguments"));
+				log.printError();
+				return null;
+			}
+			parsedArguments[i] = new Argument<>(argument.type(), argument.name(), expression);
 		}
 
 		log.printLog();

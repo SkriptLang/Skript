@@ -329,6 +329,37 @@ public final class FunctionReference<T> implements Debuggable {
 			}
 		}
 
+		// fill in the default values of parameters that were not provided
+		for (Parameter<?> parameter : parameters) {
+			if (varArgs || args.containsKey(parameter.name()))
+				continue;
+
+			Expression<?> defaultValue;
+			if (parameter instanceof ch.njol.skript.lang.function.Parameter<?> scriptParameter) {
+				defaultValue = scriptParameter.getDefaultExpression();
+			} else if (parameter instanceof ScriptParameter<?> scriptParameter) {
+				defaultValue = scriptParameter.defaultValue();
+			} else {
+				continue; // other parameters (e.g. DefaultFunction) handle their own defaults
+			}
+
+			if (defaultValue == null) {
+				if (!parameter.hasModifier(Modifier.OPTIONAL)) {
+					if (warnedCalls.add("missing " + resolvedName + ' ' + parameter.name()))
+						Skript.warning("Missing argument for parameter '%s' of the function '%s'. Call: %s"
+								.formatted(parameter.name(), resolvedName, toString(null, false)));
+					return null;
+				}
+				continue;
+			}
+
+			//noinspection unchecked,rawtypes
+			Object[] values = parameter.evaluate((Expression) defaultValue, event);
+			args.put(parameter.name(), parameter.isSingle()
+					? (values == null || values.length == 0 ? null : values[0])
+					: values);
+		}
+
 		Function<T> function = (Function<T>) resolved;
 		lastResolvedFunction = function;
 		FunctionEvent<?> fnEvent = new FunctionEvent<>(function);
