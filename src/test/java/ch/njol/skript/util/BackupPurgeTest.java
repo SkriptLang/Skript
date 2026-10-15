@@ -1,6 +1,5 @@
-package org.skriptlang.skript.test.tests.files;
+package ch.njol.skript.util;
 
-import ch.njol.skript.util.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

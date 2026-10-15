@@ -1,5 +1,5 @@
 options:
-	test: "org.skriptlang.skript.test.tests.lang.CancelledEventsTest"
+	test: "org.skriptlang.skript.bukkit.lang.CancelledEventsTest"
 
 # TODO: add negative objectives to test if the cancelled listener is called when the event is not cancelled, for example.
 

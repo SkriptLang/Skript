@@ -1,4 +1,4 @@
-package org.skriptlang.skript.test.tests.files;
+package ch.njol.skript;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -6,9 +6,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 
 import org.junit.Test;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 
 /**
  * Ensures that the default files from Skript are generated.

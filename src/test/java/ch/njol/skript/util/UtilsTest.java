@@ -1,4 +1,4 @@
-package org.skriptlang.skript.test.tests.utils;
+package ch.njol.skript.util;
 
 import static org.junit.Assert.assertEquals;
 
@@ -17,18 +17,16 @@ import java.util.TreeMap;
 
 import org.junit.Test;
 
-import ch.njol.skript.util.Utils;
-
 /**
  * Test methods from the Utils class.
  */
 public class UtilsTest {
 
 	/**
-	 * Testing method {@link Utils#getSuperType(Class...)}
+	 * Testing method {@link Utils#getSuperType(Class...)}.
 	 */
 	@Test
-	public void testSuperClass() {
+	public void testGetSuperType() {
 		Class<?>[][] classes = {
 				{Object.class, Object.class},
 				{String.class, String.class},
@@ -45,6 +43,43 @@ public class UtilsTest {
 		};
 		for (Class<?>[] cs : classes) {
 			assertEquals(cs[cs.length - 1], Utils.getSuperType(Arrays.copyOf(cs, cs.length - 1)));
+		}
+	}
+
+	/**
+	 * Testing methods {@link Utils#toEnglishPlural(String)} and {@link Utils#isPlural(String)}.
+	 */
+	@Test
+	public void testIsPlural() {
+		String[][] strings = {
+			{"house", "houses"},
+			{"cookie", "cookies"},
+			{"creeper", "creepers"},
+			{"cactus", "cacti"},
+			{"rose", "roses"},
+			{"dye", "dyes"},
+			{"name", "names"},
+			{"ingot", "ingots"},
+			{"derp", "derps"},
+			{"sheep", "sheep"},
+			{"choir", "choirs"},
+			{"man", "men"},
+			{"child", "children"},
+			{"hoe", "hoes"},
+			{"toe", "toes"},
+			{"hero", "heroes"},
+			{"kidney", "kidneys"},
+			{"anatomy", "anatomies"},
+			{"axe", "axes"},
+			{"knife", "knives"},
+			{"elf", "elves"},
+			{"shelf", "shelves"},
+			{"self", "selves"},
+			{"gui", "guis"},
+		};
+		for (String[] s : strings) {
+			assertEquals(s[1], Utils.toEnglishPlural(s[0]));
+			assertEquals(s[0], Utils.isPlural(s[1]).updated());
 		}
 	}
 

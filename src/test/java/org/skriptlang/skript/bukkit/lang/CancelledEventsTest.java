@@ -1,4 +1,4 @@
-package org.skriptlang.skript.test.tests.lang;
+package org.skriptlang.skript.bukkit.lang;
 
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 import org.bukkit.Bukkit;

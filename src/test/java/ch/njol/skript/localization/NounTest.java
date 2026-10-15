@@ -1,6 +1,5 @@
-package org.skriptlang.skript.test.tests.localization;
+package ch.njol.skript.localization;
 
-import ch.njol.skript.localization.Noun;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

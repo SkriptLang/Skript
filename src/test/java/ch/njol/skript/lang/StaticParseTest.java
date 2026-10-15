@@ -1,7 +1,5 @@
-package org.skriptlang.skript.test.tests.parsing;
+package ch.njol.skript.lang;
 
-import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;

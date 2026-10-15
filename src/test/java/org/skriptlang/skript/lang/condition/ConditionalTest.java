@@ -1,4 +1,4 @@
-package org.skriptlang.skript.test.tests.lang;
+package org.skriptlang.skript.lang.condition;
 
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -7,7 +7,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.skriptlang.skript.lang.condition.Conditional;
 
 public class ConditionalTest {
 

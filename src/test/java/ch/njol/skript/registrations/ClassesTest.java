@@ -1,6 +1,5 @@
-package org.skriptlang.skript.test.tests.classes;
+package ch.njol.skript.registrations;
 
-import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.Experience;

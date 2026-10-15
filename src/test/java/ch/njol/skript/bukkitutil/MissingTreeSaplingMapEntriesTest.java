@@ -1,6 +1,5 @@
-package org.skriptlang.skript.test.tests.regression;
+package ch.njol.skript.bukkitutil;
 
-import ch.njol.skript.bukkitutil.ItemUtils;
 import org.bukkit.TreeType;
 import org.junit.Assert;
 import org.junit.Test;

@@ -1,10 +1,8 @@
-package org.skriptlang.skript.test.tests.utils;
+package ch.njol.skript.util;
 
-import ch.njol.skript.util.Date;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class DateTest {
 

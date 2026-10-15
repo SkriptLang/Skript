@@ -1,4 +1,4 @@
-package org.skriptlang.skript.test.tests.aliases;
+package ch.njol.skript.aliases;
 
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -7,7 +7,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.junit.Test;
 
-import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.registrations.Classes;
 
 public class AliasesTest {

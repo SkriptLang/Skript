@@ -1,10 +1,8 @@
-package org.skriptlang.skript.test.tests.utils;
+package ch.njol.skript.util;
 
-import ch.njol.skript.test.runner.SkriptJUnitTest;
-import ch.njol.skript.util.Time;
 import org.junit.Test;
 
-public class TimeTest extends SkriptJUnitTest {
+public class TimeTest {
 
 	public void testTime(String parse, int hour, int minute) {
 		Time time = Time.parse(parse);

@@ -1,4 +1,4 @@
-package org.skriptlang.skript.test.tests.lang;
+package org.skriptlang.skript.lang.entry;
 
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 import org.junit.Test;
