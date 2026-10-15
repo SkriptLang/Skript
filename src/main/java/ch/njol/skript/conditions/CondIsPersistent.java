@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -40,6 +41,21 @@ public class CondIsPersistent extends PropertyCondition<Object> {
 			return leaves.isPersistent();
 		}
 		return false;
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(Object object, boolean persistent, ChangeMode mode) {
+		if (object instanceof Entity entity) {
+			entity.setPersistent(persistent);
+		} else if (object instanceof Block block && block.getBlockData() instanceof Leaves leaves) {
+			leaves.setPersistent(persistent);
+			block.setBlockData(leaves);
+		}
 	}
 
 	@Override

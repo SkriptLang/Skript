@@ -25,7 +25,7 @@ import java.util.List;
 @Description("Suppresses target warnings from the current script.")
 @Example("locally suppress missing conjunction warnings")
 @Example("suppress the variable save warnings")
-@Since({"2.3", "INSERT VERSION (suppressing in a section)"})
+@Since({"2.3", "2.17 (suppressing in a section)"})
 public class EffSecSuppressWarnings extends EffectSection {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {

@@ -29,7 +29,7 @@ allprojects {
 	}
 }
 
-final paperVersion = '26.2'
+final paperVersion = '26.3'
 
 dependencies {
 	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.2.1'
@@ -53,7 +53,7 @@ dependencies {
 	implementation fileTree(dir: 'lib', include: '*.jar')
 
 	testShadow group: 'junit', name: 'junit', version: '4.13.2'
-	testShadow group: 'org.easymock', name: 'easymock', version: '5.5.0'
+	testShadow group: 'org.easymock', name: 'easymock', version: '5.7.0'
 }
 
 checkstyle {

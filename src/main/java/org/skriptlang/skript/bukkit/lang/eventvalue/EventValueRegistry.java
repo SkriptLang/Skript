@@ -35,7 +35,7 @@ public interface EventValueRegistry extends Registry<EventValue<?, ?>>, ViewProv
 	/**
 	 * @deprecated Use {@link #empty(Skript)}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.17", forRemoval = true)
 	static EventValueRegistry empty(ch.njol.skript.Skript ignored) {
 		return empty(ch.njol.skript.Skript.instance());
 	}

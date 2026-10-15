@@ -1,0 +1,17 @@
+test "CondIsUnbreakable":
+	set {_item} to a diamond shovel
+
+	set whether {_item} is unbreakable to true
+	assert {_item} is unbreakable with "setting to true failed"
+	assert {_item} is not breakable with "(breakable) setting to true failed"
+	set whether {_item} is unbreakable to false
+	assert {_item} is not unbreakable with "setting to false failed"
+	assert {_item} is breakable with "(breakable) setting to false failed"
+	set whether {_item} is not unbreakable to false
+	assert {_item} is unbreakable with "(negated) setting to true failed"
+	set whether {_item} is not unbreakable to true
+	assert {_item} is not unbreakable with "(negated) setting to false failed"
+	set whether {_item} is breakable to false
+	assert {_item} is not breakable with "(breakable) setting to true failed"
+	set whether {_item} is not breakable to false
+	assert {_item} is breakable with "(breakable) (negated) setting to false failed"
