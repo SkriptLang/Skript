@@ -385,6 +385,7 @@ tasks.register('spigotRelease', ShadowJar) {
 }
 
 tasks.register('nightlyResources', ProcessResources) {
+	dependsOn testJar
 	from 'src/main/resources', {
 		include '**'
 		def hash = 'git rev-parse --short HEAD'.execute().text.trim()
@@ -403,7 +404,7 @@ tasks.register('nightlyResources', ProcessResources) {
 }
 
 tasks.register('nightlyRelease', ShadowJar) {
-	from sourceSets.main.output
+	from sourceSets.main.output, sourceSets.test.output
 	dependsOn nightlyResources
 	archiveFileName = 'Skript-nightly.jar'
 	manifest {

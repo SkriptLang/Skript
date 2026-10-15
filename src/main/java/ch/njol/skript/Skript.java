@@ -20,13 +20,11 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.skcommand.SkriptCommand;
-import ch.njol.skript.test.runner.EffObjectives;
 import ch.njol.skript.test.runner.SkriptAsyncJUnitTest;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 import ch.njol.skript.test.runner.SkriptTestEvent;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.test.runner.TestTracker;
-import ch.njol.skript.test.runner.*;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
@@ -111,7 +109,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -623,14 +620,15 @@ public final class Skript extends JavaPlugin implements Listener {
 				}
 				finishedLoadingHooks = true;
 
-				if (TestMode.ENABLED) {
-					info("Preparing Skript for testing...");
+				if (TestMode.ENABLED && !TestMode.GEN_DOCS) {
 					tainted = true;
 					try {
-						getAddonInstance().loadClasses("ch.njol.skript.test.runner");
-						if (TestMode.JUNIT)
-							getAddonInstance().loadClasses("org.skriptlang.skript.test.junit.registration");
-					} catch (IOException e) {
+						skript.loadModules(
+							(AddonModule) Class.forName("org.skriptlang.skript.test.TestModule")
+								.getConstructor().newInstance(),
+							(AddonModule) Class.forName("org.skriptlang.skript.bukkit.test.BukkitTestModule")
+								.getConstructor().newInstance());
+					} catch (Exception e) {
 						Skript.exception("Failed to load testing environment.");
 						Bukkit.getServer().shutdown();
 					}
@@ -929,8 +927,8 @@ public final class Skript extends JavaPlugin implements Listener {
 			// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
 			Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
 				info("Shutting down server.");
-				if (TestMode.JUNIT && !EffObjectives.isJUnitComplete())
-					EffObjectives.fail();
+				if (TestMode.JUNIT && !SkriptJUnitTest.isJUnitComplete())
+					SkriptJUnitTest.failTesting();
 
 				info("Collecting results to " + TestMode.RESULTS_FILE);
 				String results = new GsonBuilder()

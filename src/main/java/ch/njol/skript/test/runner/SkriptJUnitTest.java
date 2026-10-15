@@ -1,11 +1,17 @@
 package ch.njol.skript.test.runner;
 
 import ch.njol.skript.Skript;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Class that helps the JUnit test communicate with Skript.
@@ -26,6 +32,9 @@ public abstract class SkriptJUnitTest {
 			world.setGameRule(GameRule.DISABLE_RAIDS, false);
 		}
 	}
+
+	public static final Multimap<String, String> requirements = HashMultimap.create();
+	public static final Multimap<String, String> completeness = HashMultimap.create();
 
 	/**
 	 * Used for getting the currently running JUnit test name.
@@ -135,6 +144,33 @@ public abstract class SkriptJUnitTest {
 	public static void clearJUnitTest() {
 		SkriptJUnitTest.currentJUnitTest = null;
 		setShutdownDelay(0);
+	}
+
+	/**
+	 * Check if the currently running JUnit test has passed all
+	 * it's required objectives that the script test setup.
+	 *
+	 * @return boolean true if the test passed.
+	 */
+	public static boolean isJUnitComplete() {
+		assert !completeness.isEmpty() || !requirements.isEmpty();
+		return completeness.equals(requirements);
+	}
+
+	/**
+	 * Fails the JUnit testing system if any JUnit tests did not complete their checks.
+	 */
+	public static void failTesting() {
+		for (String test : requirements.keySet()) {
+			if (!completeness.containsKey(test)) {
+				TestTracker.JUnitTestFailed("JUnit: '" + test + "'", "didn't complete any objectives.");
+				continue;
+			}
+			List<String> failures = new ArrayList<>(requirements.get(test));
+			failures.removeAll(completeness.get(test));
+			if (!failures.isEmpty())
+				TestTracker.JUnitTestFailed("JUnit: '" + test + "'", "failed objectives: " + Arrays.toString(failures.toArray(new String[0])));
+		}
 	}
 
 }

@@ -24,8 +24,8 @@ public class TestResults {
 	 */
 	private final boolean docsFailed;
 
-	public TestResults(Set<String> succeeded, Map<String, String> failed, boolean docs_failed) {
-		this.docsFailed = docs_failed;
+	public TestResults(Set<String> succeeded, Map<String, String> failed, boolean docsFailed) {
+		this.docsFailed = docsFailed;
 		this.succeeded = succeeded;
 		this.failed = failed;
 	}

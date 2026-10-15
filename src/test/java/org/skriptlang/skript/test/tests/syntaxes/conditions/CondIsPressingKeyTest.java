@@ -11,7 +11,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.skriptlang.skript.bukkit.input.InputKey;
-import org.skriptlang.skript.test.utils.InputHelper;
+import org.skriptlang.skript.test.util.InputHelper;
 
 public class CondIsPressingKeyTest extends SkriptJUnitTest {
 
