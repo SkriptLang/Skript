@@ -1,0 +1,7 @@
+test "item hover text":
+	assert item hover component for a diamond sword is formatted "<hover:show_item:diamond_sword>"
+	assert a show item hover component from 33 carrots is formatted "<hover:show_item:carrot:33>"
+	if running minecraft "1.21.5":
+		assert an item hover component using 99 carrots of mending 2 is formatted "<hover:show_item:carrot:99:enchantments:'{""minecraft:mending"":2}'>"
+	else:
+		assert an item hover component using 99 carrots of mending 2 is formatted "<hover:show_item:carrot:99:enchantments:'{levels:{""minecraft:mending"":2}}'>"
