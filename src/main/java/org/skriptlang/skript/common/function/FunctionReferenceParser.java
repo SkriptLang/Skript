@@ -6,6 +6,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -15,6 +16,7 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.StringUtils;
@@ -42,6 +44,9 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 	private final static Pattern FUNCTION_CALL_PATTERN =
 			Pattern.compile("(?<name>[\\p{IsAlphabetic}_][\\p{IsAlphabetic}\\d_]*)\\((?<args>.*)\\)");
 
+	private final static Pattern DYNAMIC_FUNCTION_CALL_PATTERN =
+			Pattern.compile("(?<name>[\\p{IsAlphabetic}_][\\p{IsAlphabetic}\\d_]*(?:%[^%]*%[\\p{IsAlphabetic}\\d_]*)+)\\((?<args>.*)\\)");
+
 	private static final ArgsMessage UNEXPECTED_ARGUMENT = new ArgsMessage("functions.unexpected argument");
 	private static final ArgsMessage INVALID_ARGUMENT = new ArgsMessage("functions.invalid argument");
 	private static final ArgsMessage UNKNOWN_FUNCTION = new ArgsMessage("functions.unknown function");
@@ -61,13 +66,31 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 			}
 
 			Matcher matcher = FUNCTION_CALL_PATTERN.matcher(expr);
-			if (!matcher.matches()) {
-				log.printLog();
-				return null;
-			}
 
-			String functionName = matcher.group("name");
-			String args = matcher.group("args");
+			String functionName;
+			String args;
+			boolean dynamicName;
+			if (matcher.matches()) {
+				functionName = matcher.group("name");
+				args = matcher.group("args");
+				dynamicName = false;
+			} else {
+				// the name may contain interpolated expressions, e.g. myFunc%{_name}%
+				Matcher dynamicMatcher = DYNAMIC_FUNCTION_CALL_PATTERN.matcher(expr);
+				if (!dynamicMatcher.matches()) {
+					log.printLog();
+					return null;
+				}
+				if (!ParserInstance.get().hasExperiment(Feature.SCRIPT_REFLECTION)) {
+					Skript.error("Dynamic function calls require the 'script reflection' feature "
+							+ "(add 'using script reflection' to your script).");
+					log.printError();
+					return null;
+				}
+				functionName = dynamicMatcher.group("name");
+				args = dynamicMatcher.group("args");
+				dynamicName = true;
+			}
 
 			// Check for incorrect quotes, e.g. "myFunction() + otherFunction()" being parsed as one function
 			// See https://github.com/SkriptLang/Skript/issues/1532
@@ -86,8 +109,77 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 			}
 
 			FunctionReference.Argument<String>[] arguments = new FunctionArgumentParser(args).getArguments();
+			if (dynamicName)
+				return parseDynamicFunctionReference(functionName, arguments, log);
 			return parseFunctionReference(functionName, arguments, log);
 		}
+	}
+
+	/**
+	 * Attempts to parse a function reference whose name contains interpolated expressions,
+	 * e.g. {@code myFunc%{_name}%(...)}. The function is resolved when the call is executed.
+	 *
+	 * @param name      The function name pattern, containing at least one {@code %} interpolation.
+	 * @param arguments The passed arguments to the function as an array of {@link Argument Arguments}.
+	 * @param log       The log handler.
+	 * @param <T>       The return type of the function.
+	 * @return A {@link FunctionReference} if parsing succeeded, or {@code null} otherwise.
+	 */
+	private <T> FunctionReference<T> parseDynamicFunctionReference(
+			String name, FunctionReference.Argument<String>[] arguments, ParseLogHandler log
+	) {
+		VariableString nameExpression = VariableString.newInstance(name);
+		if (nameExpression == null) { // errors are printed by newInstance
+			log.printError();
+			return null;
+		}
+		if (!LiteralUtils.canInitSafely(nameExpression)) {
+			log.printError();
+			return null;
+		}
+
+		ParserInstance parser = ParserInstance.get();
+		String namespace;
+		if (parser.isActive()) {
+			namespace = parser.getCurrentScript().getConfig().getFileName();
+		} else {
+			namespace = null;
+		}
+
+		// the signature is unknown, so arguments are parsed generically
+		// and checked against the resolved function at runtime
+		//noinspection unchecked
+		Argument<Expression<?>>[] parsedArguments = (Argument<Expression<?>>[]) new Argument[arguments.length];
+		for (int i = 0; i < arguments.length; i++) {
+			Argument<String> argument = arguments[i];
+			SkriptParser argumentParser = new SkriptParser(argument.value(), flags | SkriptParser.PARSE_LITERALS, context);
+
+			Expression<?> expression;
+			try (ParseLogHandler logHandler = new ParseLogHandler().start()) {
+				expression = LiteralUtils.defendExpression(argumentParser.parseExpression(Object.class));
+				if (expression == null) {
+					logHandler.printError(INVALID_ARGUMENT.toString(
+							argument.name(), Classes.getSuperClassInfo(Object.class).getName().getSingular(), argument.value()));
+				}
+			}
+			if (expression == null) {
+				log.printError();
+				return null;
+			}
+			if (!LiteralUtils.canInitSafely(expression)) {
+				log.printError();
+				return null;
+			}
+			if (expression instanceof ExpressionList<?> list && !list.getAnd()) {
+				Skript.error(Language.get("functions.or in arguments"));
+				log.printError();
+				return null;
+			}
+			parsedArguments[i] = new Argument<>(argument.type(), argument.name(), expression);
+		}
+
+		log.printLog();
+		return new FunctionReference<>(namespace, nameExpression, parsedArguments);
 	}
 
 	/**
