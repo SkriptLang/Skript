@@ -1,0 +1,28 @@
+options:
+	test: "org.skriptlang.skript.test.tests.lang.EventPriorityTest"
+
+test "EventPriorityJUnit" when running JUnit:
+	set {_tests::1} to "run triggers in priority order"
+
+	ensure junit test {@test} completes {_tests::*}
+
+on load:
+	delete {event-priority-test::order::*}
+
+on leaves decay with priority highest:
+	junit test is {@test}
+
+	add "highest" to {event-priority-test::order::*}
+
+	if join {event-priority-test::order::*} with "," is "lowest,normal,highest,lowest,normal,highest":
+		complete objective "run triggers in priority order" for {@test}
+
+on leaves decay:
+	junit test is {@test}
+
+	add "normal" to {event-priority-test::order::*}
+
+on leaves decay with priority lowest:
+	junit test is {@test}
+
+	add "lowest" to {event-priority-test::order::*}
