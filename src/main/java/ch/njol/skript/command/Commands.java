@@ -22,7 +22,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.help.HelpMap;
 import org.bukkit.help.HelpTopic;
@@ -51,10 +50,6 @@ import java.util.regex.Pattern;
  */
 @SuppressWarnings("deprecation")
 public abstract class Commands {
-
-	public final static ArgsMessage m_too_many_arguments = new ArgsMessage("commands.too many arguments");
-	public final static Message m_internal_error = new Message("commands.internal error");
-	public final static Message m_correct_usage = new Message("commands.correct usage");
 
 	/**
 	 * A Converter flag declaring that a Converter cannot be used for parsing command arguments.
@@ -124,46 +119,6 @@ public abstract class Commands {
 	public static String unescape(String string) {
 		return "" + unescape.matcher(string).replaceAll("$0");
 	}
-
-	private final static Listener commandListener = new Listener() {
-
-		@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-		public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
-			// Spigot will simply report that the command doesn't exist if a player does not have permission to use it.
-			// This is good security but, well, it's a breaking change for Skript. So we need to check for permissions
-			// ourselves and handle those messages, for every command.
-
-			// parse command, see if it's a skript command
-			String[] cmd = event.getMessage().substring(1).split("\\s+", 2);
-			String label = cmd[0].toLowerCase(Locale.ENGLISH);
-			String arguments = cmd.length == 1 ? "" : "" + cmd[1];
-			ScriptCommand command = commands.get(label);
-
-			// is it a skript command?
-			if (command != null) {
-				// if so, check permissions to handle ourselves
-				if (!command.checkPermissions(event.getPlayer(), label, arguments))
-					event.setCancelled(true);
-
-				// we can also handle case sensitivity here:
-				if (SkriptConfig.caseInsensitiveCommands.value()) {
-					cmd[0] = event.getMessage().charAt(0) + label;
-					event.setMessage(String.join(" ", cmd));
-				}
-			}
-		}
-
-		@SuppressWarnings("null")
-		@EventHandler(priority = EventPriority.HIGHEST)
-		public void onServerCommand(ServerCommandEvent event) {
-			if (event.getCommand().isEmpty() || event.isCancelled())
-				return;
-			if ((Skript.testing() || SkriptConfig.enableEffectCommands.value()) && event.getCommand().startsWith(SkriptConfig.effectCommandToken.value())) {
-				if (handleEffectCommand(event.getSender(), event.getCommand()))
-					event.setCancelled(true);
-			}
-		}
-	};
 
 	static boolean handleEffectCommand(CommandSender sender, String command) {
 		if (!(Skript.testing() || sender instanceof ConsoleCommandSender || sender.hasPermission("skript.effectcommands") || SkriptConfig.allowOpsToUseEffectCommands.value() && sender.isOp()))
@@ -278,37 +233,45 @@ public abstract class Commands {
 	private static boolean registeredListeners = false;
 
 	public static void registerListeners() {
-		if (!registeredListeners) {
-			Bukkit.getPluginManager().registerEvents(commandListener, Skript.getInstance());
+		if (registeredListeners) {
+			return;
+		}
+		Bukkit.getPluginManager().registerEvents(new Listener() {
+			@EventHandler(priority = EventPriority.HIGHEST)
+			public void onServerCommand(ServerCommandEvent event) {
+				if (event.getCommand().isEmpty() || event.isCancelled())
+					return;
+				if ((Skript.testing() || SkriptConfig.enableEffectCommands.value()) && event.getCommand().startsWith(SkriptConfig.effectCommandToken.value())) {
+					if (handleEffectCommand(event.getSender(), event.getCommand()))
+						event.setCancelled(true);
+				}
+			}
 
-			Bukkit.getPluginManager().registerEvents(new Listener() {
-				@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-				public void onPlayerChat(AsyncPlayerChatEvent event) {
-					if ((!SkriptConfig.enableEffectCommands.value() && !Skript.testing()) || !event.getMessage().startsWith(SkriptConfig.effectCommandToken.value()))
-						return;
-					if (!event.isAsynchronous()) {
-						if (handleEffectCommand(event.getPlayer(), event.getMessage()))
-							event.setCancelled(true);
-					} else {
-						Future<Boolean> f = Bukkit.getScheduler().callSyncMethod(Skript.getInstance(), () -> handleEffectCommand(event.getPlayer(), event.getMessage()));
-						try {
-							while (true) {
-								try {
-									if (f.get())
-										event.setCancelled(true);
-									break;
-								} catch (InterruptedException ignored) {
-								}
-							}
-						} catch (ExecutionException e) {
-							Skript.exception(e);
+			@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+			public void onPlayerChat(AsyncPlayerChatEvent event) {
+				if ((!SkriptConfig.enableEffectCommands.value() && !Skript.testing()) || !event.getMessage().startsWith(SkriptConfig.effectCommandToken.value()))
+					return;
+				if (!event.isAsynchronous()) {
+					if (handleEffectCommand(event.getPlayer(), event.getMessage()))
+						event.setCancelled(true);
+				} else {
+					Future<Boolean> f = Bukkit.getScheduler().callSyncMethod(Skript.getInstance(), () -> handleEffectCommand(event.getPlayer(), event.getMessage()));
+					try {
+						while (true) {
+							try {
+								if (f.get())
+									event.setCancelled(true);
+								break;
+							} catch (InterruptedException ignored) { }
 						}
+					} catch (ExecutionException e) {
+						Skript.exception(e);
 					}
 				}
-			}, Skript.getInstance());
+			}
+		}, Skript.getInstance());
 
-			registeredListeners = true;
-		}
+		registeredListeners = true;
 	}
 
 	/**

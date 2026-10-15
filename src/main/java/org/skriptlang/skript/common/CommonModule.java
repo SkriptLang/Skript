@@ -36,7 +36,8 @@ public class CommonModule extends HierarchicalAddonModule {
 			ExprColorFromHexCode::register,
 			ExprHexCode::register,
 			ExprRecursiveSize::register,
-			ExprReplace::register
+			ExprReplace::register,
+			ExprWhether::register
 		);
 	}
 

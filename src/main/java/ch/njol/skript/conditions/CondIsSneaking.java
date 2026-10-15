@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import org.bukkit.entity.Player;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
@@ -28,7 +29,17 @@ public class CondIsSneaking extends PropertyCondition<Player> {
 	public boolean check(Player player) {
 		return player.isSneaking();
 	}
-	
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(Player player, boolean sneaking, ChangeMode mode) {
+		player.setSneaking(sneaking);
+	}
+
 	@Override
 	protected String getPropertyName() {
 		return "sneaking";

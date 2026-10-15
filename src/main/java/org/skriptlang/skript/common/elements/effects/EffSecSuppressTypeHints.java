@@ -32,7 +32,7 @@ import java.util.List;
 	# potentially unsafe code goes here
 	stop suppressing local variable type hints
 	""")
-@Since({"2.12", "INSERT VERSION (suppressing in a section)"})
+@Since({"2.12", "2.17 (suppressing in a section)"})
 public class EffSecSuppressTypeHints extends EffectSection implements SimpleExperimentalSyntax {
 
 	private static final ExperimentData EXPERIMENT_DATA = ExperimentData.createSingularData(Feature.TYPE_HINTS);

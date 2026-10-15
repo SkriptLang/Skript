@@ -25,7 +25,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		cancel the event
 		send "<red>It is not possible to change the back side of a sign!" to the player
 	""")
-@Since("INSERT VERSION")
+@Since("2.17")
 @Events("sign change")
 public class CondChangedSide extends Condition implements EventRestrictedSyntax {
 
