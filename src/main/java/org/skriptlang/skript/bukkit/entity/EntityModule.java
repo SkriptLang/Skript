@@ -7,11 +7,14 @@ import ch.njol.skript.registrations.Classes;
 import com.destroystokyo.paper.event.entity.EntityPathfindEvent;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
+import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.entity.data.*;
 import org.skriptlang.skript.bukkit.entity.displays.DisplayModule;
+import org.skriptlang.skript.bukkit.entity.elements.expressions.*;
+import org.skriptlang.skript.bukkit.entity.elements.effects.*;
 import org.skriptlang.skript.bukkit.entity.elements.effects.EffTeleport;
 import org.skriptlang.skript.bukkit.entity.elements.expressions.ExprDeathMessage;
 import org.skriptlang.skript.bukkit.entity.elements.expressions.ExprPathfindingLocation;
@@ -60,6 +63,11 @@ public class EntityModule extends HierarchicalAddonModule {
 	}
 
 	protected void loadSelf(SkriptAddon addon) {
+		if (Skript.classExists("org.bukkit.entity.Nautilus")) {
+			NautilusData.register();
+			ZombieNautilusData.register();
+			SimpleEntityData.addSuperEntity("any nautilus", AbstractNautilus.class);
+		}
 		EntityData.register();
 		EntityDataClassInfo entityDataClassInfo = new EntityDataClassInfo();
 		Classes.registerClass(entityDataClassInfo);
@@ -75,6 +83,23 @@ public class EntityModule extends HierarchicalAddonModule {
 
 		SyntaxRegistry syntaxRegistry = moduleRegistry(addon);
 		EventValueRegistry registry = addon.registry(EventValueRegistry.class);
+
+		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Toggle Glide")
+			.addDescription("Called when an entity starts or stops gliding, or when the server toggles the gliding state of an entity forcibly.")
+			.addExample("""
+				on toggling gliding:
+					cancel the event # bad idea, but you CAN do it!
+				""")
+			.addSince("2.2-dev21")
+			.addSince("INSERT VERSION (Pattern changed)")
+			.addPatterns(
+				"gliding state change[d]",
+				"(toggle|toggling) glid(e|ing)",
+				"glid(e|ing) toggle[d]"
+			)
+			.addEvent(EntityToggleGlideEvent.class)
+			.build());
+	
 		syntaxRegistry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Pathfind")
 			.addDescription("Called whenever an entity tries to pathfind to a location or another entity.")
 			.addExample("""
@@ -85,26 +110,24 @@ public class EntityModule extends HierarchicalAddonModule {
 			.addPattern("[entity] [start[s]] pathfind[ing]")
 			.addEvent(EntityPathfindEvent.class)
 			.build());
-
 		registry.register(EventValue.builder(EntityPathfindEvent.class, Location.class)
 			.getter(EntityPathfindEvent::getLoc)
 			.patterns("target location")
 			.build());
-
 		registry.register(EventValue.builder(EntityPathfindEvent.class, Entity.class)
 			.getter(EntityPathfindEvent::getTargetEntity)
 			.patterns("target entity")
 			.build());
-
 		registry.register(EventValue.builder(EntityPathfindEvent.class, Location.class)
 			.getter(event -> event.getEntity().getLocation())
 			.build());
 
 		register(addon,
+			EffGlide::register,
+			EffTeleport::register,
 			ExprDeathMessage::register,
 			ExprPathfindingLocation::register,
 			ExprPathfindingTarget::register,
-			EffTeleport::register,
 			ExprDeathMessage::register
 		);
 	}
