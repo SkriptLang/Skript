@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.misc.elements.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -41,6 +42,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * @deprecated This is being removed in favor of {@link org.skriptlang.skript.common.properties.elements.expressions.PropExprColor}
+ */
 @Name("Color of")
 @Description({
 	"The <a href='#color'>color</a> of an item, entity, block, firework effect, or text display.",
@@ -55,9 +59,13 @@ import java.util.function.Consumer;
 			set the color of the block to black
 	""")
 @Since("1.2, 2.10 (displays), 2.16 (boss bars)")
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
+		if (SkriptConfig.useTypeProperties.value())
+			return;
+
 		syntaxRegistry.register(SyntaxRegistry.EXPRESSION,
 			infoBuilder(ExprColorOf.class, Color.class, "colo[u]r[s]", "blocks/itemtypes/entities/fireworkeffects/potioneffecttypes/displays/bossbars", false)
 				.supplier(ExprColorOf::new)

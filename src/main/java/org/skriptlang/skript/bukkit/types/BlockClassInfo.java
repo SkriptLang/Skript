@@ -10,18 +10,23 @@ import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.util.BlockUtils;
+import ch.njol.skript.util.Color;
+import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.Fields;
 import net.kyori.adventure.text.Component;
+import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.Nameable;
 import org.bukkit.World;
+import org.bukkit.block.Banner;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Colorable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -52,7 +57,63 @@ public class BlockClassInfo extends ClassInfo<Block> {
 				"The custom name of the block, if it has one. Only TileEntities like chests and furnaces can " +
 					"have names. Can be set or reset.",
 				Skript.instance(),
-				new BlockNameHandler());
+				new BlockNameHandler())
+			.property(Property.COLOR,
+				"The color of the block, if it has one. Only a few blocks, such as banners, are colorable. Can be set.",
+				Skript.instance(),
+				new BlockColorHandler());
+	}
+
+	private static class BlockColorHandler implements ExpressionPropertyHandler<Block, Color> {
+		//<editor-fold desc="color property for blocks" defaultstate="collapsed">
+		@Override
+		public @Nullable Color convert(Block block) {
+			BlockState state = block.getState();
+			if (state instanceof Colorable colorable) {
+				DyeColor dyeColor = colorable.getColor();
+				return dyeColor == null ? null : SkriptColor.fromDyeColor(dyeColor);
+			}
+			if (state instanceof Banner banner)
+				return SkriptColor.fromDyeColor(banner.getBaseColor());
+			return null;
+		}
+
+		@Override
+		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+			if (mode == ChangeMode.SET)
+				return CollectionUtils.array(Color.class);
+			return null;
+		}
+
+		@Override
+		public void change(Block block, Object @Nullable [] delta, ChangeMode mode) {
+			if (delta == null || delta.length == 0)
+				return;
+			DyeColor dyeColor = ((Color) delta[0]).asDyeColor();
+			BlockState state = block.getState();
+			if (state instanceof Colorable colorable) {
+				try {
+					colorable.setColor(dyeColor);
+				} catch (UnsupportedOperationException ex) {
+					// https://github.com/SkriptLang/Skript/issues/2931
+					Skript.error("Tried setting the color of a bed, but this isn't possible in your Minecraft version, " +
+						"since different colored beds are different materials. " +
+						"Instead, set the block to right material, such as a blue bed.");
+					return;
+				}
+			} else if (state instanceof Banner banner) {
+				banner.setBaseColor(dyeColor);
+			} else {
+				return;
+			}
+			state.update(true, false);
+		}
+
+		@Override
+		public @NotNull Class<Color> returnType() {
+			return Color.class;
+		}
+		//</editor-fold>
 	}
 
 	private static class BlockNameHandler implements ExpressionPropertyHandler<Block, Component> {
