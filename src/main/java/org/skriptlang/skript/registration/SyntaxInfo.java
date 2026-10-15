@@ -1,8 +1,13 @@
 package org.skriptlang.skript.registration;
 
 import ch.njol.skript.lang.SyntaxElement;
+import ch.njol.skript.patterns.PatternCompiler;
+import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.docs.Documentation;
+import org.skriptlang.skript.docs.DocumentationAdapter;
+import org.skriptlang.skript.docs.DocumentationDocumentable;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfoImpl.BuilderImpl;
 import org.skriptlang.skript.util.Priority;
@@ -15,16 +20,16 @@ import java.util.function.Supplier;
  * A syntax info contains the details of a syntax, including its origin and patterns.
  * @param <E> The class providing the implementation of the syntax this info represents.
  */
-public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends DefaultSyntaxInfos {
+public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends DocumentationDocumentable, DefaultSyntaxInfos {
 
 	/**
-	 * A priority for infos with patterns that only match simple text (they do not have any {@link Expression}s).
+	 * A priority for infos with patterns that only match simple text (they do not have any {@link ch.njol.skript.lang.Expression}s).
 	 * Example: "[the] console"
 	 */
 	Priority SIMPLE = Priority.base();
 
 	/**
-	 * A priority for infos with patterns that contain at least one {@link Expression}.
+	 * A priority for infos with patterns that contain at least one {@link ch.njol.skript.lang.Expression}.
 	 * This is typically the default priority of an info.
 	 * Example: "[the] first %number% characters of %strings%"
 	 */
@@ -70,8 +75,12 @@ public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends DefaultS
 
 	/**
 	 * @return The origin of this syntax.
+	 * @deprecated Use {@link Documentation#origin()}.
 	 */
-	Origin origin();
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	default Origin origin() {
+		return documentation().origin();
+	}
 
 	/**
 	 * @return The class providing the implementation of this syntax.
@@ -95,6 +104,33 @@ public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends DefaultS
 	Priority priority();
 
 	/**
+	 * @return Documentation describing this syntax.
+	 */
+	@Override
+	Documentation documentation();
+
+	@Override
+	default void preWrite(DocumentationAdapter adapter) {
+		String id = documentation().id();
+		if (id == null) {
+			id = type().getSimpleName();
+		}
+		adapter.enterScope(id);
+	}
+
+	@Override
+	default void write(DocumentationAdapter adapter) {
+		DocumentationDocumentable.super.write(adapter);
+		adapter.write("patterns", patterns().stream()
+			.map(pattern -> PatternCompiler.compile(pattern).toString(StringificationProperties.builder()
+				.excludeParseTags()
+				.excludeTypeFlags()
+				.mapUndocumentableTypes()
+				.build()))
+			.toList());
+	}
+
+	/**
 	 * A builder is used for constructing a new syntax info.
 	 * @see #builder(Class)
 	 * @param <B> The type of builder being used.
@@ -109,6 +145,7 @@ public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends DefaultS
 		 * @see SyntaxInfo#origin()
 		 */
 		@Contract("_ -> this")
+		@Deprecated(forRemoval = true, since = "INSERT VERSION")
 		B origin(Origin origin);
 
 		/**
@@ -162,6 +199,13 @@ public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends DefaultS
 		 */
 		@Contract("_ -> this")
 		B priority(Priority priority);
+
+		/**
+		 * Sets the documentation the syntax info will use.
+		 * @param documentation The documentation to use.
+		 * @return This builder.
+		 */
+		B documentation(Documentation documentation);
 
 		/**
 		 * Builds a new syntax info from the set details.

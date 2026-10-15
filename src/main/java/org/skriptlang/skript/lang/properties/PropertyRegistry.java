@@ -3,6 +3,8 @@ package org.skriptlang.skript.lang.properties;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.docs.Documentable;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.util.Registry;
 
@@ -15,7 +17,7 @@ import java.util.*;
  * has a matching handler with the already registered one. If so, you should be able to use the other property instead of your own.
  */
 @ApiStatus.Experimental
-public class PropertyRegistry implements Registry<Property<?>> {
+public class PropertyRegistry implements Registry<Property<?>>, Documentable {
 
 	private final Map<String, Property<?>> properties;
 	private final Skript skript;
@@ -75,6 +77,13 @@ public class PropertyRegistry implements Registry<Property<?>> {
 
 	public boolean isRegistered(@NotNull String name) {
 		return properties.containsKey(name.toLowerCase(Locale.ENGLISH));
+	}
+
+	@Override
+	public void write(DocumentationAdapter adapter) {
+		adapter.enterScope("properties");
+		properties.values().forEach(adapter::write);
+		adapter.exitScope();
 	}
 
 }

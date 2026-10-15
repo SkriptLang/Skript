@@ -34,6 +34,7 @@ import org.skriptlang.skript.bukkit.entity.EntityDataInfo.Builder;
 import org.skriptlang.skript.bukkit.entity.data.PigData;
 import org.skriptlang.skript.bukkit.entity.data.SimpleEntityData;
 import org.skriptlang.skript.bukkit.entity.data.SimpleEntityData.SimpleEntityDataInfo;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.localization.GeneralNoun;
 
 import java.io.NotSerializableException;
@@ -1062,6 +1063,16 @@ public abstract class EntityData<E extends Entity>
 			this(index, name, null, patterns);
 		}
 
+	}
+
+	/**
+	 * Writes all {@link EntityDataInfo}s to {@code adapter}.
+	 * @param adapter The adapter to write to.
+	 */
+	public static void write(DocumentationAdapter adapter) {
+		adapter.enterScope("entitydatas");
+		INFOS.forEach(adapter::write);
+		adapter.exitScope();
 	}
 
 }

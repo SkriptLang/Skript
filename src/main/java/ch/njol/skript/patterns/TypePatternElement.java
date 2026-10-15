@@ -16,6 +16,7 @@ import ch.njol.util.Kleenean;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
+import org.skriptlang.skript.docs.Documentation;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -296,7 +297,13 @@ public class TypePatternElement extends PatternElement {
 			}
 		}
 		for (int i = 0; i < classes.length; i++) {
-			String codeName = classes[i].getCodeName();
+			ClassInfo<?> classInfo = classes[i];
+			String codeName;
+			if (properties.mapUndocumentableTypes() && Documentation.isNoDocs(classInfo.documentation())) {
+				codeName = Classes.getDocumentableClassInfo(classInfo).getCodeName();
+			} else {
+				codeName = classInfo.getCodeName();
+			}
 			if (isPlural[i]) {
 				stringBuilder.append(Utils.toEnglishPlural(codeName));
 			} else {

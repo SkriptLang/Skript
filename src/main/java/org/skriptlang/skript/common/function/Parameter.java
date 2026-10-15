@@ -13,6 +13,8 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.DefaultFunction.Builder;
 import org.skriptlang.skript.common.function.Parameter.Modifier.RangedModifier;
+import org.skriptlang.skript.docs.Documentable;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 
@@ -25,7 +27,7 @@ import java.util.StringJoiner;
  * @param <T> The type of the function parameter.
  */
 @NonExtendable
-public interface Parameter<T> {
+public interface Parameter<T> extends Documentable {
 
 	/**
 	 * @return The name of this parameter.
@@ -156,9 +158,24 @@ public interface Parameter<T> {
 		}
 
 		/**
+		 * Creates a new modifier with support for being documented.
+		 * @param documentable Documentable describing this modifier.
+		 * @return A new Modifier instance to be used as a custom flag.
+		 */
+		private static Modifier of(Documentable documentable) {
+			class DocumentableModifier implements Modifier, Documentable {
+				@Override
+				public void write(DocumentationAdapter adapter) {
+					adapter.write(documentable);
+				}
+			}
+			return new DocumentableModifier();
+		}
+
+		/**
 		 * The modifier for parameters that are optional.
 		 */
-		Modifier OPTIONAL = of();
+		Modifier OPTIONAL = of(adapter -> adapter.write("optional", true));
 
 		/**
 		 * The modifier for parameters that support optional keyed expressions.
@@ -187,7 +204,7 @@ public interface Parameter<T> {
 		 * Note that ALL instances will have the same hashCode and will be equal to {@link Modifier#RANGED}.
 		 * Avoid comparing these objects or putting multiple into a HashSet or HashMap!
 		 */
-		class RangedModifier<T extends Comparable<T>> implements Modifier {
+		class RangedModifier<T extends Comparable<T>> implements Modifier, Documentable {
 			private final T min;
 			private final T max;
 
@@ -265,7 +282,38 @@ public interface Parameter<T> {
 				return "RangedModifier(min=" + min + ", max=" + max + ")";
 			}
 
+			@Override
+			public void write(DocumentationAdapter adapter) {
+				adapter.enterScope("ranged");
+				adapter.write("min", Classes.toString(min));
+				adapter.write("max", Classes.toString(max));
+				adapter.exitScope();
+			}
 		}
+	}
+
+	@Override
+	default void preWrite(DocumentationAdapter adapter) {
+		adapter.enterScope(name());
+	}
+
+	@Override
+	default void write(DocumentationAdapter adapter) {
+		adapter.write("name", name());
+		adapter.write("type", type());
+		adapter.write("plural", type().isArray());
+		adapter.enterScope("modifiers");
+		modifiers().forEach(modifier -> {
+			if (modifier instanceof Documentable documentable) {
+				adapter.write(documentable);
+			}
+		});
+		adapter.exitScope();
+	}
+
+	@Override
+	default void postWrite(DocumentationAdapter adapter) {
+		adapter.exitScope();
 	}
 
 }

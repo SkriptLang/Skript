@@ -6,6 +6,9 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.docs.Documentable;
+import org.skriptlang.skript.docs.Documentation;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 
 /**
  * Represents a function implementation.
@@ -16,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 @NonExtendable
 @Internal
 @Experimental
-public interface Function<T> {
+public interface Function<T> extends Documentable {
 
 	/**
 	 * Executes this function with the given parameters.
@@ -43,5 +46,27 @@ public interface Function<T> {
 	 */
 	@Experimental
 	@NotNull String @Nullable [] returnedKeys();
+
+	@Override
+	default boolean canWrite(DocumentationAdapter adapter) {
+		// this is intentional
+		// we define a generic write method for Functions, but implementations must opt in.
+		return false;
+	}
+
+	@Override
+	default void write(DocumentationAdapter adapter) {
+		// return type
+		if (signature().returnType() != null) {
+			adapter.write("returnType", signature().returnType());
+		}
+
+		// parameters
+		adapter.enterScope("parameters");
+		for (Parameter<?> parameter : signature().parameters().all()) {
+			adapter.write(parameter);
+		}
+		adapter.exitScope();
+	}
 
 }

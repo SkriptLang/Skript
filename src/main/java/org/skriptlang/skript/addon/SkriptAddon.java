@@ -1,7 +1,11 @@
 package org.skriptlang.skript.addon;
 
+import ch.njol.skript.lang.function.FunctionRegistry;
+import ch.njol.skript.registrations.Classes;
 import org.jetbrains.annotations.Contract;
 import org.skriptlang.skript.Skript;
+import org.skriptlang.skript.docs.Documentable;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.localization.Localizer;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.Registry;
@@ -16,7 +20,7 @@ import java.util.function.Supplier;
  * A Skript addon is an extension to Skript that expands its features.
  * Typically, an addon instance may be obtained through {@link Skript#registerAddon(Class, String)}.
  */
-public interface SkriptAddon extends ViewProvider<SkriptAddon> {
+public interface SkriptAddon extends ViewProvider<SkriptAddon>, Documentable {
 
 	/**
 	 * @return A class from the application that registered this addon.
@@ -118,6 +122,23 @@ public interface SkriptAddon extends ViewProvider<SkriptAddon> {
 	@Contract("-> new")
 	default SkriptAddon unmodifiableView() {
 		return new SkriptAddonImpl.UnmodifiableAddon(this);
+	}
+
+	@Override
+	default void write(DocumentationAdapter adapter) {
+		adapter.enterScope("source");
+		adapter.write("name", name());
+		adapter.exitScope();
+
+		for (var registry : registries()) {
+			if (registry instanceof Documentable documentable) {
+				adapter.write(documentable);
+			}
+		}
+
+		// TODO remove once these are both registries
+		Classes.write(adapter);
+		adapter.write(FunctionRegistry.getRegistry());
 	}
 
 }

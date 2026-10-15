@@ -1,15 +1,21 @@
 package ch.njol.skript.skcommand;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Documentation;
-import ch.njol.skript.doc.HTMLGenerator;
-import ch.njol.skript.doc.JSONGenerator;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.skcommand.SkriptCommand.SubCommand;
+import ch.njol.skript.test.runner.TestMode;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.docs.Events;
+import org.skriptlang.skript.bukkit.entity.EntityData;
+import org.skriptlang.skript.docs.DocumentationAdapter;
+import org.skriptlang.skript.docs.DocumentationGenerator;
+import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
+import org.skriptlang.skript.registration.SyntaxInfo;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -23,33 +29,52 @@ class GenDocsCommand extends SubCommand {
 
 	@Override
 	public void execute(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
-		File templateDir = Documentation.getDocsTemplateDirectory();
-		File outputDir = Documentation.getDocsOutputDirectory();
+		// determine addon to generate for
+		SkriptAddon addon;
+		if (args.length == 2) {
+			addon = Skript.instance().addon(args[1]);
+			if (addon == null) {
+				Skript.error(sender, "No addon by that name exists!");
+				return;
+			}
+		} else {
+			addon = Skript.instance();
+		}
+
+		// generate
+		File outputDir = TestMode.getDocsOutputDirectory();
 		outputDir.mkdirs();
 
 		Skript.info(sender, "Generating docs...");
 
-		try {
-			JSONGenerator.of(Skript.instance())
-				.generate(outputDir.toPath().resolve("docs.json"));
-		} catch (IOException e) {
-			// noinspection ThrowableNotThrown
-			Skript.exception(e, "Error while generating docs.");
-		}
+		DocumentationAdapter documentationAdapter = DocumentationAdapter.of(addon, (adapter, documentable) -> {
+			if (documentable instanceof SyntaxInfo<?> info) {
+				Object instance = info.instance();
+				if (instance instanceof SimpleExperimentalSyntax experimental) {
+					adapter.write(experimental.getExperimentData());
+				}
+				if (instance instanceof EventRestrictedSyntax ers &&
+					info.documentation().additionalData(Events.class) == null) {
+					adapter.write(Events.of(ers.supportedEvents()));
+				}
+			} else if (documentable == addon) {
+				adapter.editScope("source");
+				adapter.write("version", JavaPlugin.getProvidingPlugin(addon.source()).getPluginMeta().getVersion());
+				adapter.exitScope();
+			}
+		});
+		// write Bukkit-specific registries
+		EntityData.write(documentationAdapter);
 
-		if (!templateDir.exists()) {
-			Skript.info(sender, "JSON-only documentation generated!");
-			return;
-		}
+		DocumentationGenerator.json(documentationAdapter)
+			.generate(outputDir.toPath().resolve(addon.name() + "-docs.json"));
 
-		HTMLGenerator htmlGenerator = new HTMLGenerator(templateDir, outputDir);
-		htmlGenerator.generate(); // Try to generate docs... hopefully
 		Skript.info(sender, "All documentation generated!");
 	}
 
 	@Override
 	public List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
-		return List.of();
+		return List.of("gen-docs");
 	}
 
 }
