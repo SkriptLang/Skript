@@ -1,0 +1,52 @@
+package org.skriptlang.skript.bukkit.world.elements.expressions;
+
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import org.bukkit.World;
+import org.bukkit.World.Environment;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+
+@Name("World Environment")
+@Description("The environment of a world.")
+@Example("""
+	if environment of player's world is nether:
+		apply fire resistance to player for 10 minutes
+	""")
+@Since("2.7")
+public class ExprWorldEnvironment extends SimplePropertyExpression<World, Environment> {
+
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprWorldEnvironment.class,
+				Environment.class,
+				"[world] environment",
+				"worlds",
+				false
+			)
+				.supplier(ExprWorldEnvironment::new)
+				.build()
+		);
+	}
+
+	@Override
+	public @Nullable Environment convert(World world) {
+		return world.getEnvironment();
+	}
+
+	@Override
+	public Class<? extends Environment> getReturnType() {
+		return Environment.class;
+	}
+
+	@Override
+	protected String getPropertyName() {
+		return "environment";
+	}
+
+}
