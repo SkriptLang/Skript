@@ -553,13 +553,15 @@ public final class Skript extends JavaPlugin implements Listener {
 
 			@Override
 			public void load(org.skriptlang.skript.addon.SkriptAddon addon) {
-				try {
-					//noinspection removal
-					getAddonInstance().loadClasses("ch.njol.skript",
-						"conditions", "effects", "events", "expressions", "entity", "literals", "sections", "structures");
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
+				ClassLoader.builder()
+					.basePackage("ch.njol.skript")
+					.addSubPackages("conditions", "effects", "events", "expressions", "entity", "literals", "sections", "structures")
+					// filter out testing classes/inner classes
+					.filter(fqn -> !fqn.endsWith("Test") && !fqn.contains("Test$"))
+					.initialize(true)
+					.deep(true)
+					.build()
+					.loadClasses(Skript.class, getFile());
 				BukkitEventValues.register(eventValueRegistry);
 				new DefaultFunctions();
 				new DefaultOperations();
