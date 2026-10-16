@@ -72,7 +72,7 @@ public abstract class SkriptJUnitTest {
 	 * @return the test world.
 	 */
 	public static World getTestWorld() {
-		return Bukkit.getWorlds().get(0);
+		return Bukkit.getWorlds().getFirst();
 	}
 
 	/**

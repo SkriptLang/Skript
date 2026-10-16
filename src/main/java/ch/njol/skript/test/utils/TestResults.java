@@ -5,7 +5,7 @@ import java.util.Set;
 
 /**
  * Contains test results: successes, failures and doc failure. Will be serialized with Gson
- * for transfering it between processes of gradle/environment and the actual spigot server.
+ * for transferring it between processes of gradle/environment and the actual spigot server.
  */
 public class TestResults {
 
