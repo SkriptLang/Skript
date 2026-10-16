@@ -2,10 +2,18 @@ package org.skriptlang.skript.bukkit.entity;
 
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.util.Utils;
-import ch.njol.yggdrasil.YggdrasilSerializable;
+import ch.njol.skript.variables.Variables;
+import ch.njol.yggdrasil.FieldHandler;
+import ch.njol.yggdrasil.Fields;
+import ch.njol.yggdrasil.Fields.FieldContext;
+import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import org.bukkit.entity.Entity;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.NotSerializableException;
+import java.io.StreamCorruptedException;
+import java.lang.reflect.Field;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,9 +22,35 @@ import java.util.regex.Pattern;
  */
 public class EntityType
 	extends ch.njol.skript.entity.EntityType
-	implements Cloneable, YggdrasilSerializable {
+	implements Cloneable, YggdrasilExtendedSerializable {
 
 	private static final Pattern PARSE_PATTERN = Pattern.compile("(?i)((?<article>an?)|(?<amount>\\d+))? *(?<data>.+)");
+
+	static void register() {
+		Variables.yggdrasil.registerFieldHandler(new FieldHandler() {
+			@Override
+			public boolean excessiveField(Object object, FieldContext field) throws StreamCorruptedException {
+				if (!(object instanceof EntityType entityType))
+					return false;
+				if (field.getID().equalsIgnoreCase("amount")) {
+					//noinspection DataFlowIssue
+					entityType.entityAmount = (int) field.getObject();
+					return true;
+				}
+				return false;
+			}
+
+			@Override
+			public boolean missingField(Object object, Field field) throws StreamCorruptedException {
+				return object instanceof EntityType;
+			}
+
+			@Override
+			public boolean incompatibleField(Object object, Field field, FieldContext context) throws StreamCorruptedException {
+				return false;
+			}
+		});
+	}
 
 	/**
 	 * Parses the provided {@code string} into a {@link EntityData} and stores in a new {@link EntityType}.
@@ -54,7 +88,7 @@ public class EntityType
 
 	private int entityAmount = -1;
 
-	private EntityData<?> data;
+	private EntityData<?> entityData;
 
 	/**
 	 * Only used for deserialisation
@@ -62,19 +96,19 @@ public class EntityType
 	@SuppressWarnings({"unused", "null"})
 	public EntityType() {
 		super();
-		data = null;
+		entityData = (EntityData<?>) super.data;
 		entityAmount = 1;
 	}
 
 	/**
 	 * Constructs a new {@link EntityType}.
-	 * @param data The corresponding {@link EntityData}.
+	 * @param entityData The corresponding {@link EntityData}.
 	 * @param amount The amount of {@code data}.
 	 */
-	public EntityType(EntityData<?> data, int amount) {
+	public EntityType(EntityData<?> entityData, int amount) {
 		super();
-		assert data != null;
-		this.data = data;
+		assert entityData != null;
+		this.entityData = entityData;
 		this.entityAmount = amount;
 	}
 
@@ -84,7 +118,7 @@ public class EntityType
 	 */
 	private EntityType(EntityType other) {
 		entityAmount = other.entityAmount;
-		data = other.data;
+		entityData = other.entityData;
 	}
 
 	/**
@@ -94,14 +128,14 @@ public class EntityType
 	 * @see EntityData#isInstance(Entity)
 	 */
 	public boolean isInstance(Entity entity) {
-		return data.isInstance(entity);
+		return entityData.isInstance(entity);
 	}
 
 	@Override
 	public String toString() {
 		if (getAmount() == 1)
-			return data.toString(0);
-		return entityAmount + " " + data.toString(Language.F_PLURAL);
+			return entityData.toString(0);
+		return entityAmount + " " + entityData.toString(Language.F_PLURAL);
 	}
 
 	/**
@@ -111,19 +145,19 @@ public class EntityType
 	 */
 	public String toString(int flags) {
 		if (getAmount() == 1)
-			return data.toString(flags);
-		return entityAmount + " " + data.toString(flags | Language.F_PLURAL);
+			return entityData.toString(flags);
+		return entityAmount + " " + entityData.toString(flags | Language.F_PLURAL);
 	}
 
 	/**
-	 * @return The amount of {@code this} corresponds to with {@link #data}.
+	 * @return The amount of {@code this} corresponds to with {@link #entityData}.
 	 */
 	public int getAmount() {
 		return entityAmount == -1 ? 1 : entityAmount;
 	}
 
 	/**
-	 * Sets the amount {@code this} corresponds to with {@link #data}.
+	 * Sets the amount {@code this} corresponds to with {@link #entityData}.
 	 * @param entityAmount The new amount.
 	 */
 	public void setAmount(int entityAmount) {
@@ -133,8 +167,8 @@ public class EntityType
 	/**
 	 * @return The {@link EntityData} {@code this} corresponds to.
 	 */
-	public EntityData<?> getData() {
-		return data;
+	public EntityData<?> getEntityData() {
+		return entityData;
 	}
 
 	/**
@@ -144,7 +178,7 @@ public class EntityType
 	 * @see EntityData#equals(Object)
 	 */
 	public boolean sameType(EntityType other) {
-		return data.equals(other.data);
+		return entityData.equals(other.entityData);
 	}
 
 	@Override
@@ -157,7 +191,7 @@ public class EntityType
 		int prime = 31;
 		int result = 1;
 		result = prime * result + entityAmount;
-		result = prime * result + data.hashCode();
+		result = prime * result + entityData.hashCode();
 		return result;
 	}
 	
@@ -165,7 +199,26 @@ public class EntityType
 	public boolean equals(@Nullable Object obj) {
 		if (!(obj instanceof EntityType other))
 			return false;
-		return entityAmount == other.entityAmount && data.equals(other.data);
+		return entityAmount == other.entityAmount && entityData.equals(other.entityData);
 	}
-	
+
+	@Override
+	public Fields serialize() throws NotSerializableException {
+		return new Fields(this);
+	}
+
+	@Override
+	public void deserialize(@NotNull Fields fields) throws StreamCorruptedException, NotSerializableException {
+		if (fields.contains("data")) {
+			Object data = fields.getObject("data");
+			if (data instanceof ch.njol.skript.entity.EntityData<?> oldEntity) {
+				this.entityData = (EntityData<?>) oldEntity;
+			}
+		}
+		if (fields.contains("amount")) {
+			this.entityAmount = (int) fields.getPrimitive("amount");
+		}
+		fields.setFields(this);
+	}
+
 }
