@@ -104,6 +104,8 @@ public abstract class EntityData<E extends Entity>
 					//noinspection DataFlowIssue
 					entityData.groupIndex = (int) field.getObject();
 					return true;
+				} else if (field.getID().equals("codenameindex")) { //2.16- to 2.17+
+					return true;
 				}
 				// Typically do not experience any drastic changes in field names or types
 				// If this becomes a recurrent issue, should create a method that takes FieldContext
