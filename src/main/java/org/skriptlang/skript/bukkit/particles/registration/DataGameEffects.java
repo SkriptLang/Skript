@@ -98,7 +98,7 @@ public class DataGameEffects {
 				}
 				ItemType itemType = (ItemType) expressions[0].getSingle(event);
 				ItemStack stack = itemType == null ? null : itemType.getRandom();
-				var component = stack == null ? null : itemType.getRandom().getData(DataComponentTypes.JUKEBOX_PLAYABLE);
+				var component = stack == null ? null : stack.getData(DataComponentTypes.JUKEBOX_PLAYABLE);
 				return component == null ? null: component.jukeboxSong();
 			},
 			//</editor-fold>
