@@ -211,6 +211,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		for (final ItemData d : i) {
 			types.add(d.clone());
 		}
+		isWrappingItemStack = i.isWrappingItemStack;
 	}
 
 	public ItemType(Block block) {
@@ -670,6 +671,12 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	private final static Random random = new Random();
 
 	/**
+	 * Represents whether this ItemType is simply wrapping an ItemStack.
+	 * That is, it has only a single data, and that data represents a random ItemStack.
+	 */
+	public boolean isWrappingItemStack = false;
+
+	/**
 	 * @return One random ItemStack that this ItemType represents. If you have a List or an Inventory, use {@link #addTo(Inventory)} or {@link #addTo(List)} respectively.
 	 * @see #addTo(Inventory)
 	 * @see #addTo(ItemStack)
@@ -680,6 +687,11 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 * @see #removeFrom(List...)
 	 */
 	public @Nullable ItemStack getRandom() {
+		if (isWrappingItemStack) {
+			ItemStack stack = types.getFirst().getStack();
+			stack.setAmount(getAmount());
+			return stack;
+		}
 		List<ItemData> datas = types.stream()
 				.filter(data -> data.stack != null)
 				.collect(Collectors.toList());
