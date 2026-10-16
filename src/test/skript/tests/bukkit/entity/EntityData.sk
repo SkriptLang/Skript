@@ -271,7 +271,8 @@ test "creeper data":
 	testData(unpowered creeper)
 
 test "dropped item data":
-	setSuperTypes(dropped item, dropped item entity)
+	# do not want to refer to ExprLastSpawnedEntity
+	setSuperTypes(dropped item (entitytype), dropped item entity)
 	testData(dropped item entity)
 	testData(dropped stone)
 

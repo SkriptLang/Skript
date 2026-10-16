@@ -6,8 +6,8 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.lang.util.SimpleEvent;
-import ch.njol.skript.test.runner.SkriptTestEvent;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
@@ -53,7 +53,7 @@ public class StructTestEntryContainer extends Structure {
 		List<TriggerItem> triggerItems = ScriptLoader.loadItems(section);
 		Script script = getParser().getCurrentScript();
 		Trigger trigger = new Trigger(script, "entry container test", new SimpleEvent(), triggerItems);
-		trigger.execute(new SkriptTestEvent());
+		trigger.execute(ContextlessEvent.get());
 
 		List<SectionNode> multipleSections = entryContainer.getAll(
 			"has multiple entries", SectionNode.class, false
@@ -61,7 +61,7 @@ public class StructTestEntryContainer extends Structure {
 		for (SectionNode multipleSection : multipleSections) {
 			triggerItems = ScriptLoader.loadItems(multipleSection);
 			trigger = new Trigger(script, "entry container test", new SimpleEvent(), triggerItems);
-			trigger.execute(new SkriptTestEvent());
+			trigger.execute(ContextlessEvent.get());
 		}
 
 		return true;

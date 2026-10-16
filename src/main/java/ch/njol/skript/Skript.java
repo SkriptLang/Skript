@@ -22,7 +22,6 @@ import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.skcommand.SkriptCommand;
 import ch.njol.skript.test.runner.SkriptAsyncJUnitTest;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
-import ch.njol.skript.test.runner.SkriptTestEvent;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.test.runner.TestTracker;
 import ch.njol.skript.timings.SkriptTimings;
@@ -852,7 +851,7 @@ public final class Skript extends JavaPlugin implements Listener {
 				errorCounter.stop();
 			}
 
-			Bukkit.getPluginManager().callEvent(new SkriptTestEvent());
+			TestTracker.runRegisteredTests();
 			if (errorCounter.getCount() > 0) {
 				TestTracker.testStarted("parse scripts");
 				TestTracker.testFailed(errorCounter.getCount() + " error(s) found");

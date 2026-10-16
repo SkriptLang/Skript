@@ -1,16 +1,12 @@
 package org.skriptlang.skript.test;
 
-import ch.njol.skript.Skript;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.test.elements.conditions.*;
 import org.skriptlang.skript.test.elements.effects.*;
-import org.skriptlang.skript.test.elements.events.*;
 import org.skriptlang.skript.test.elements.expressions.*;
 import org.skriptlang.skript.test.elements.sections.*;
 import org.skriptlang.skript.test.elements.structures.*;
-
-import java.io.IOException;
 
 public class TestModule implements AddonModule {
 
@@ -32,8 +28,6 @@ public class TestModule implements AddonModule {
 			EffRunRunnable::register,
 			EffTestExprList::register,
 			EffTestPluralClassInfos::register,
-			// events
-			EvtTestCase::register,
 			// expressions
 			ExprDefaultNumberValue::register,
 			ExprExperimentalOnly::register,
@@ -50,15 +44,11 @@ public class TestModule implements AddonModule {
 			SecParse::register,
 			SecReturnable::register,
 			// structures
+			StructTestCase::register,
 			StructParse::register,
 			StructTestEntryContainer::register,
 			StructTestSubValidators::register
 		);
-		try {
-			Skript.getAddonInstance().loadClasses("ch.njol.skript.test.runner");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	@Override
