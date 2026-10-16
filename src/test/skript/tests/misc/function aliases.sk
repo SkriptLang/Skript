@@ -1,0 +1,3 @@
+test "function aliases":
+    assert ceil(2.3) = 3
+    assert ceiling(2.3) = 3
