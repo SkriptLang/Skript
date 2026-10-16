@@ -55,7 +55,11 @@ test "has persistent data tag - multiple holders":
 	assert {_item2} does not have persistent data tag "skript:test" with "item2 should not have tag"
 	delete persistent data tag "skript:test" of {_item1}
 
+using error catching
+
 test "has persistent data tag - invalid key":
 	set {_item} to a diamond sword
 	# An invalid key should not match
-	assert {_item} does not have persistent data tag "not a valid:key:!" with "invalid key should not match"
+	catch runtime errors:
+		assert {_item} does not have persistent data tag "not a valid:key:!" with "invalid key should not match"
+	assert size of last caught runtime errors is 1
