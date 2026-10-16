@@ -3,10 +3,10 @@ test "EvtBroadcastJUnit" when running JUnit:
 	set {_tests::1} to "set broadcasted message"
 	set {_tests::2} to "clear broadcasted message"
 
-	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtBroadcastTest" completes {_tests::*}
+	ensure junit test "ch.njol.skript.events.EvtBroadcastTest" completes {_tests::*}
 
 on broadcast:
-	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtBroadcastTest"
+	set {_test} to "ch.njol.skript.events.EvtBroadcastTest"
 	junit test is {_test}
 
 	set broadcast message to "hello"

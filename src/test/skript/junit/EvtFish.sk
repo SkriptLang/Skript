@@ -43,10 +43,10 @@ test "EvtFishJUnit" when running JUnit:
 		add "catch - add bite time" to {_tests::*}
 		add "catch - invalid bite time" to {_tests::*}
 
-	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtFishTest" completes {_tests::*}
+	ensure junit test "org.skriptlang.skript.bukkit.fishing.elements.events.EvtFishTest" completes {_tests::*}
 
 on fishing line cast:
-	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtFishTest"
+	set {_test} to "org.skriptlang.skript.bukkit.fishing.elements.events.EvtFishTest"
 	junit test is {_test}
 
 	if player's name is "Efnilite":
@@ -138,7 +138,7 @@ on fishing line cast:
 			complete objective "catch - invalid bite time" for {_test}
 
 on fish catch:
-	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtFishTest"
+	set {_test} to "org.skriptlang.skript.bukkit.fishing.elements.events.EvtFishTest"
 	junit test is {_test}
 
 	if player's name is "Efnilite":

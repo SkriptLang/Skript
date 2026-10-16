@@ -12,13 +12,13 @@ test "EvtPlayerInputJUnit" when running JUnit:
 	set {_tests::10} to "player was pressing forward key"
 	set {_tests::11} to "player was not pressing jump key"
 
-	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtPlayerInputTest" completes {_tests::*}
+	ensure junit test "org.skriptlang.skript.bukkit.input.elements.events.EvtPlayerInputTest" completes {_tests::*}
 
 parse:
 	results: {EvtPlayerInput::parse::*}
 	code:
 		on toggle of any input key:
-			set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtPlayerInputTest"
+			set {_test} to "org.skriptlang.skript.bukkit.input.elements.events.EvtPlayerInputTest"
 			junit test is {_test}
 
 			if player is pressing event-inputkeys:

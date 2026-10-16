@@ -1,5 +1,5 @@
 options:
-	test: "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprLootContextLooterTest"
+	test: "org.skriptlang.skript.bukkit.loottables.elements.expressions.ExprLootContextLooterTest"
 
 test "ExprLootContextKillerJUnit" when running JUnit:
 	set {_tests::1} to "set killer"

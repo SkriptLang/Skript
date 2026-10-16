@@ -5,10 +5,10 @@ test "ExprMessageJUnit" when running JUnit:
 	set {_tests::4} to "clear join message"
 	set {_tests::5} to "set quit message"
 	set {_tests::6} to "clear quit message"
-	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprMessageTest" completes {_tests::*}
+	ensure junit test "ch.njol.skript.expressions.ExprMessageTest" completes {_tests::*}
 
 on chat:
-	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprMessageTest"
+	set {_test} to "ch.njol.skript.expressions.ExprMessageTest"
 	junit test is {_test}
 
 	set chat message to "hello"
@@ -20,7 +20,7 @@ on chat:
 		complete objective "clear chat message" for {_test}
 
 on join:
-	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprMessageTest"
+	set {_test} to "ch.njol.skript.expressions.ExprMessageTest"
 	junit test is {_test}
 
 	set login message to "I joined"
@@ -32,7 +32,7 @@ on join:
 		complete objective "clear join message" for {_test}
 
 on quit:
-	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprMessageTest"
+	set {_test} to "ch.njol.skript.expressions.ExprMessageTest"
 	junit test is {_test}
 
 	set logout message to "I left"

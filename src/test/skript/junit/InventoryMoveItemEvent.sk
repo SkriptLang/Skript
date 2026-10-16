@@ -1,7 +1,6 @@
-
 # TODO properly add test after merge of https://github.com/SkriptLang/Skript/pull/6261
 options:
-	junit: org.skriptlang.skript.test.tests.syntaxes.InventoryMoveItemEventTest
+	junit: ch.njol.skript.events.InventoryMoveItemEventTest
 	objective: inventory move item event success
 
 on script load:

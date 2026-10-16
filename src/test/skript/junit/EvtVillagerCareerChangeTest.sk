@@ -1,5 +1,5 @@
 options:
-	test: "org.skriptlang.skript.test.tests.syntaxes.events.EvtVillagerCareerChangeTest"
+	test: "ch.njol.skript.events.EvtVillagerCareerChangeTest"
 
 test "VillagerCareerChange" when running JUnit:
 	set {_tests::*} to "event called", "past profession is cleric", "profession is armorer", and "profession changed"

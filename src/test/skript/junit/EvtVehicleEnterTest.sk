@@ -1,5 +1,5 @@
 options:
-	test: "org.skriptlang.skript.test.tests.syntaxes.events.EvtVehicleEnterTest"
+	test: "ch.njol.skript.events.EvtVehicleEnterTest"
 
 test "EvtVehicleEnterTest" when running JUnit:
 	ensure {@test} completes "vehicle - pig" and "entity - player"

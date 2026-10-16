@@ -1,5 +1,5 @@
 options:
-	test: "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+	test: "ch.njol.skript.events.EvtGrowTest"
 
 on script load:
 	# itemtype

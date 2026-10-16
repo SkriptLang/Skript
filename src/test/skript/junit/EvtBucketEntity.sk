@@ -8,10 +8,10 @@ test "EvtBucketEntityJUnit" when running JUnit:
 	set {_tests::7} to "specific - correct item"
 	set {_tests::8} to "specific - correct entity bucket"
 
-	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtBucketEntityTest" completes {_tests::*}
+	ensure junit test "org.skriptlang.skript.bukkit.fishing.elements.events.EvtBucketEntityTest" completes {_tests::*}
 
 on bucket catch:
-	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtBucketEntityTest"
+	set {_test} to "org.skriptlang.skript.bukkit.fishing.elements.events.EvtBucketEntityTest"
 	junit test is {_test}
 
 	if event-entity is a salmon:
@@ -29,7 +29,7 @@ on bucket catch:
 		complete objective "any - correct entity bucket" for {_test}
 
 on bucket catch of cod:
-	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtBucketEntityTest"
+	set {_test} to "org.skriptlang.skript.bukkit.fishing.elements.events.EvtBucketEntityTest"
 	junit test is {_test}
 
 	if event-entity is a cod:

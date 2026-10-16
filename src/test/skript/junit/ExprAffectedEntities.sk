@@ -4,10 +4,10 @@ on load:
 	set {_tests::3} to "remove 2 pigs"
 	set {_tests::4} to "set 4 pigs"
 
-	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprAffectedEntitiesTest" completes {_tests::*}
+	ensure junit test "ch.njol.skript.expressions.ExprAffectedEntitiesTest" completes {_tests::*}
 
 on area effect:
-	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprAffectedEntitiesTest"
+	set {_test} to "ch.njol.skript.expressions.ExprAffectedEntitiesTest"
 	junit test is {_test}
 	clear affected entities
 	spawn 5 pigs at spawn of world "world":

@@ -1,5 +1,5 @@
 options:
-	EvtFurnaceTest: "org.skriptlang.skript.test.tests.syntaxes.events.EvtFurnaceTest"
+	EvtFurnaceTest: "org.skriptlang.skript.bukkit.block.furnace.elements.events.EvtFurnaceTest"
 
 on load:
 	set {_tests::1} to "smelt event"

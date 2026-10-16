@@ -1,5 +1,5 @@
 options:
-	test: "org.skriptlang.skript.test.tests.syntaxes.events.BrewingEventsTest"
+	test: "org.skriptlang.skript.bukkit.brewing.elements.events.BrewingEventsTest"
 
 test "BrewingEventsTest" when running JUnit:
 	set {_tests::*} to "brew event" and "brew event - glass bottle"

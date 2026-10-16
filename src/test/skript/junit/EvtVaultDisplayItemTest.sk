@@ -1,5 +1,5 @@
 options:
-	test: "org.skriptlang.skript.test.tests.syntaxes.events.EvtVaultDisplayItemTest"
+	test: "ch.njol.skript.events.EvtVaultDisplayItemTest"
 
 test "VaultDisplayItem" when running JUnit:
 	running minecraft "1.21.1"

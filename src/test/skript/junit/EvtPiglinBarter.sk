@@ -1,5 +1,5 @@
 test "EvtPiglinBarterJUnit" when running JUnit:
-	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtPiglinBarterTest"
+	set {_test} to "ch.njol.skript.events.EvtPiglinBarterTest"
 	set {_tests::1} to "correct barter input"
 	set {_tests::2} to "clear barter drops"
 	set {_tests::3} to "set barter drops to 2 items"
@@ -12,7 +12,7 @@ test "EvtPiglinBarterJUnit" when running JUnit:
 
 
 on piglin barter:
-	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtPiglinBarterTest"
+	set {_test} to "ch.njol.skript.events.EvtPiglinBarterTest"
 	junit test is {_test}
 
 	# Items

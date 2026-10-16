@@ -1,5 +1,5 @@
 options:
-	EvtBeaconTest: "org.skriptlang.skript.test.tests.syntaxes.events.EvtBeaconTest"
+	EvtBeaconTest: "ch.njol.skript.events.EvtBeaconTest"
 
 on load:
 	set {_tests::1} to "beacon activated"

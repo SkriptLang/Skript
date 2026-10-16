@@ -5,10 +5,10 @@ test "EvtBreedJUnit" when running JUnit:
 	set {_tests::4} to "correct bred child"
 	set {_tests::5} to "item is carrot"
 
-	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtBreedTest" completes {_tests::*}
+	ensure junit test "org.skriptlang.skript.bukkit.breeding.elements.events.EvtBreedTest" completes {_tests::*}
 
 on breed of pig:
-	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtBreedTest"
+	set {_test} to "org.skriptlang.skript.bukkit.breeding.elements.events.EvtBreedTest"
 	junit test is {_test}
 
 	if:

@@ -1,5 +1,5 @@
 options:
-	test: "org.skriptlang.skript.test.tests.syntaxes.effects.EffGoatHornsTest"
+	test: "ch.njol.skript.effects.EffGoatHornsTest"
 
 test "EffGoatHornsJUnit" when running JUnit:
 	add "remove left horn" to {_test::*}

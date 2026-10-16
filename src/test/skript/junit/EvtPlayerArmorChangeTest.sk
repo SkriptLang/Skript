@@ -1,5 +1,5 @@
 options:
-	test: "org.skriptlang.skript.test.tests.syntaxes.events.EvtPlayerArmorChangeTest"
+	test: "ch.njol.skript.events.EvtPlayerArmorChangeTest"
 
 on load:
 	set {_tests::*} to "general change - called", "general change - old diamond helmet" and "general change - new netherite helmet"

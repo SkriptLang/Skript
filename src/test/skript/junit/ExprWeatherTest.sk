@@ -1,5 +1,5 @@
 options:
-	test: "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprWeatherTest"
+	test: "ch.njol.skript.expressions.ExprWeatherTest"
 
 test "world weather":
 	set weather of world "world" to rainy

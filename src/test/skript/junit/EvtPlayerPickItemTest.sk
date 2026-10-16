@@ -12,13 +12,13 @@ test "EvtPlayerPickItemJUnit" when running JUnit:
 	set {_tests::10} to "pick pig - picked item is pig spawn egg"
 	set {_tests::11} to "pick pig - picked entity is set"
 	set {_tests::12} to "pick pig - picked block is not set"
-	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtPlayerPickItemTest" completes {_tests::*}
+	ensure junit test "org.skriptlang.skript.bukkit.entity.player.elements.events.EvtPlayerPickItemTest" completes {_tests::*}
 
 parse:
 	results: {EvtPlayerPickItem::parse::item::*}
 	code:
 		on player pick any item:
-			set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtPlayerPickItemTest"
+			set {_test} to "org.skriptlang.skript.bukkit.entity.player.elements.events.EvtPlayerPickItemTest"
 			junit test is {_test}
 			complete objective "pick item - called" for {_test}
 			if picked item is dirt:
@@ -32,7 +32,7 @@ parse:
 	results: {EvtPlayerPickItem::parse::dirt::*}
 	code:
 		on player pick dirt:
-			set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtPlayerPickItemTest"
+			set {_test} to "org.skriptlang.skript.bukkit.entity.player.elements.events.EvtPlayerPickItemTest"
 			junit test is {_test}
 			complete objective "pick dirt - called" for {_test}
 			if picked item is dirt:
@@ -46,7 +46,7 @@ parse:
 	results: {EvtPlayerPickItem::parse::stone::*}
 	code:
 		on player pick stone:
-			set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtPlayerPickItemTest"
+			set {_test} to "org.skriptlang.skript.bukkit.entity.player.elements.events.EvtPlayerPickItemTest"
 			junit test is {_test}
 			assert true is false with "Event called for stone rather than dirt"
 
@@ -54,7 +54,7 @@ parse:
 	results: {EvtPlayerPickItem::parse::pig::*}
 	code:
 		on player pick pig:
-			set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtPlayerPickItemTest"
+			set {_test} to "org.skriptlang.skript.bukkit.entity.player.elements.events.EvtPlayerPickItemTest"
 			junit test is {_test}
 			complete objective "pick pig - called" for {_test}
 			if picked item is pig spawn egg:
@@ -68,7 +68,7 @@ parse:
 	results: {EvtPlayerPickItem::parse::cow::*}
 	code:
 		on player pick cow:
-			set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtPlayerPickItemTest"
+			set {_test} to "org.skriptlang.skript.bukkit.entity.player.elements.events.EvtPlayerPickItemTest"
 			junit test is {_test}
 			assert true is false with "Event called for cow rather than pig"
 

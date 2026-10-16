@@ -1,5 +1,5 @@
 options:
-	test: "org.skriptlang.skript.test.tests.syntaxes.events.EvtVehicleCollisionTest"
+	test: "ch.njol.skript.events.EvtVehicleCollisionTest"
 
 test "EvtVehicleCollisionJUnit" when running JUnit:
 	set {_tests::*} to "any collision", "any collision - obsidian" and "any collision - sheep"

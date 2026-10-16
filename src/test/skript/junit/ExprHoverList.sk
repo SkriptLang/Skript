@@ -1,5 +1,5 @@
 test "ExprHoverListJUnit" when running JUnit:
-	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprHoverListTest"
+	set {_test} to "ch.njol.skript.expressions.ExprHoverListTest"
 
 	set {_tests::1} to "clear hover list"
 	set {_tests::2} to "set hover list"
@@ -10,7 +10,7 @@ test "ExprHoverListJUnit" when running JUnit:
 	ensure junit test {_test} completes {_tests::*}
 
 on server list ping:
-	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprHoverListTest"
+	set {_test} to "ch.njol.skript.expressions.ExprHoverListTest"
 	junit test is {_test}
 
 	clear hover list

@@ -1,5 +1,5 @@
 options:
-	test: "org.skriptlang.skript.test.tests.syntaxes.events.EvtHarvestBlockTest"
+	test: "ch.njol.skript.events.EvtHarvestBlockTest"
 
 test "EvtHarvestBlock" when running junit:
 	set {_tests::*} to "event plain - called", "event plain - player", "event plain - block", "event plain - equipment"
