@@ -1,4 +1,4 @@
-package ch.njol.skript.test.platform;
+package org.skriptlang.skript.test.platform;
 
 import ch.njol.skript.test.utils.TestResults;
 import com.google.common.collect.Sets;
@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import org.apache.commons.lang.StringUtils;
+import org.skriptlang.skript.test.platform.Resource.ResourceDeserializer;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,14 +16,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Main entry point of test platform. It allows running this Skript on
- * multiple testing environments.
+ * Main entry point of test platform.
+ * It allows running this Skript on multiple testing environments.
  */
 public class PlatformMain {
-	
+
 	public static void main(String... args) throws IOException, InterruptedException {
 		System.out.println("Initializing Skript test platform...");
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		Gson gson = new GsonBuilder()
+			.setPrettyPrinting()
+			.registerTypeAdapter(Resource.class, new ResourceDeserializer())
+			.create();
 
 		Path runnerRoot = Paths.get(args[0]);
 		Path testsRoot = Paths.get(args[1]).toAbsolutePath();
@@ -50,25 +54,30 @@ public class PlatformMain {
 		// Load environments
 		List<Environment> envs = new ArrayList<>();
 		for (Path envPath : envPaths) {
-			if (Files.isDirectory(envPath)) {
-				envs.addAll(Files.walk(envPath).filter(path -> !Files.isDirectory(path))
+			if (!Files.isDirectory(envPath)) {
+				envs.add(gson.fromJson(Files.readString(envPath), Environment.class));
+				continue;
+			}
+			try (var pathStream = Files.walk(envPath)) {
+				pathStream.filter(path -> !Files.isDirectory(path))
 					.map(path -> {
 						try {
 							return gson.fromJson(Files.readString(path), Environment.class);
 						} catch (JsonSyntaxException | IOException e) {
 							throw new RuntimeException(e);
 						}
-					}).toList());
-			} else {
-				envs.add(gson.fromJson(Files.readString(envPath), Environment.class));
+					})
+					.forEach(envs::add);
 			}
 		}
-		System.out.println("Test environments: "
-				+ envs.stream().map(Environment::getName).collect(Collectors.joining(", ")));
-		
+		System.out.println("Loaded test environments: " + envs.stream()
+			.map(Environment::getName)
+			.collect(Collectors.joining(", ")));
+
 		Set<String> allTests = new HashSet<>();
+		record TestError(Environment environment, String message) { }
 		Map<String, List<TestError>> failures = new HashMap<>();
-		
+
 		boolean docsFailed = false;
 		Map<Environment, TestResults> collectedResults = Collections.synchronizedMap(new HashMap<>());
 		// Run tests and collect the results
@@ -123,28 +132,56 @@ public class PlatformMain {
 		Collections.sort(failNames);
 
 		// All succeeded tests in a single line
-		StringBuilder output = new StringBuilder(String.format("%s Results %s%n", StringUtils.repeat("-", 25), StringUtils.repeat("-", 25)));
-		output.append("\nTested environments: ").append(envs.stream().map(Environment::getName).collect(Collectors.joining(", ")));
-		output.append("\nSucceeded:\n  ").append(String.join((jUnit ? "\n  " : ", "), succeeded));
+		StringBuilder output = new StringBuilder()
+			.append(StringUtils.repeat("-", 25))
+			.append(" Results ")
+			.append(StringUtils.repeat("-", 25))
+			.append(System.lineSeparator())
+			.append(System.lineSeparator())
+			.append("Tested Environments: ")
+			.append(envs.stream()
+				.map(Environment::getName)
+				.collect(Collectors.joining(", ")))
+			.append(System.lineSeparator())
+			.append("Succeeded:")
+			.append(System.lineSeparator())
+			.append("  ")
+			.append(String.join((jUnit ? (System.lineSeparator() + "  ") : ", "), succeeded));
 
 		if (!failNames.isEmpty()) { // More space for failed tests, they're important
 			output.append("\nFailed:");
 			for (String failed : failNames) {
 				List<TestError> errors = failures.get(failed);
-				output.append("\n  ").append(failed).append(" (on ").append(errors.size()).append(" environment").append(errors.size() == 1 ? "" : "s").append(")");
+				output.append(System.lineSeparator())
+					.append("  ")
+					.append(failed)
+					.append(" (on ")
+					.append(errors.size())
+					.append(" environment")
+					.append(errors.size() == 1 ? "" : "s")
+					.append(")");
 				for (TestError error : errors) {
-					output.append("\n    ").append(error.message()).append(" (on ").append(error.environment().getName()).append(")");
+					output.append(System.lineSeparator())
+						.append("    ")
+						.append(error.message())
+						.append(" (on ").
+						append(error.environment().getName())
+						.append(")");
 				}
 			}
-			output.append(String.format("%n%n%s", StringUtils.repeat("-", 60)));
-			System.err.print(output);
-			System.exit(failNames.size()); // Error code to indicate how many tests failed.
-			return;
-		}
-		output.append(String.format("%n%n%s", StringUtils.repeat("-", 60)));
-		System.out.print(output);
-	}
 
-	private record TestError(Environment environment, String message) { }
+		}
+
+		output.append(System.lineSeparator())
+			.append(System.lineSeparator())
+			.append(StringUtils.repeat("-", 59)); // same length as header
+
+		if (failNames.isEmpty()) { // all tests passed
+			System.out.print(output);
+		} else { // otherwise report failure
+			System.err.print(output);
+			System.exit(failNames.size()); // error code to indicate how many tests failed
+		}
+	}
 
 }
