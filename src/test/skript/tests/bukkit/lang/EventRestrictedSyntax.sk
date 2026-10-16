@@ -1,4 +1,4 @@
-test "supported events":
+test "EventRestrictedSyntax":
 	parse:
 		set {_x} to the exploded blocks
 

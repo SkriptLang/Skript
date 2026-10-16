@@ -1,3 +1,4 @@
+# Testing ReturnableTrigger class
 test "returns":
 	returnable string section:
 		return "hello"

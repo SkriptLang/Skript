@@ -1,4 +1,3 @@
-
 test "fireball":
 	spawn a fireball at test-location:
 		set {_entity} to entity

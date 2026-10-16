@@ -1,0 +1,12 @@
+test "StructTestSubValidators":
+	assert {-test-validators-sub} is true
+	assert {-test-validators-sub-sub} is true
+
+test sub validators:
+	sub validator 1:
+		sub section:
+			set {-test-validators-sub} to true
+	sub validator 2:
+		sub sub validator:
+			sub sub section:
+				set {-test-validators-sub-sub} to true
