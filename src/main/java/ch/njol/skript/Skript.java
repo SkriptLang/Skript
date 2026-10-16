@@ -84,6 +84,9 @@ import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
 import org.skriptlang.skript.log.runtime.ErrorSource;
+import org.skriptlang.skript.log.runtime.Frame.FrameOutput;
+import org.skriptlang.skript.log.runtime.RuntimeError;
+import org.skriptlang.skript.log.runtime.RuntimeErrorConsumer;
 import org.skriptlang.skript.log.runtime.RuntimeErrorManager;
 import org.skriptlang.skript.log.runtime.RuntimeErrorProducer;
 import org.skriptlang.skript.registration.DefaultSyntaxInfos;
@@ -851,7 +854,20 @@ public final class Skript extends JavaPlugin implements Listener {
 				errorCounter.stop();
 			}
 
+			final int[] runtimeErrorCount = {0};
+			var runtimeErrorConsumer = new RuntimeErrorConsumer() {
+				@Override
+				public void printError(RuntimeError error) {
+					if (error.level() == Level.SEVERE) {
+						runtimeErrorCount[0]++;
+					}
+				}
+				@Override
+				public void printFrameOutput(FrameOutput output, Level level) { }
+			};
+			getRuntimeErrorManager().addConsumer(runtimeErrorConsumer);
 			TestTracker.runRegisteredTests();
+			getRuntimeErrorManager().removeConsumer(runtimeErrorConsumer);
 			if (errorCounter.getCount() > 0) {
 				TestTracker.testStarted("parse scripts");
 				TestTracker.testFailed(errorCounter.getCount() + " error(s) found");
@@ -859,6 +875,10 @@ public final class Skript extends JavaPlugin implements Listener {
 			if (errored) { // Check for exceptions thrown while script was executing
 				TestTracker.testStarted("run scripts");
 				TestTracker.testFailed("exception was thrown during execution");
+			}
+			if (runtimeErrorCount[0] > 0) {
+				TestTracker.testStarted("runtime errors");
+				TestTracker.testFailed(runtimeErrorCount[0] + " runtime error(s) found");
 			}
 			if (TestMode.JUNIT) {
 				AtomicLong milliseconds = new AtomicLong(0),
