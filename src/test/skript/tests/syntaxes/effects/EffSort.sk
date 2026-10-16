@@ -15,7 +15,9 @@ test "sorting":
 
 	set {_numbers::*} to shuffled integers from 1 to 5
 	set {_pre-sort-numbers::*} to {_numbers::*}
-	sort {_numbers::*} by "%input%" parsed as time # map expression returns null
+	catch runtime errors:
+		sort {_numbers::*} by "%input%" parsed as time # map expression returns null
+	assert size of last caught runtime errors is 1
 	assert {_numbers::*} is {_pre-sort-numbers::*} with "Invalid sorting expression adjusted list"
 
 	catch runtime errors:

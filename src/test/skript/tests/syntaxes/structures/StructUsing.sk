@@ -4,7 +4,11 @@ test "using before declaration":
 
 using example feature
 using fizz buzz
-using deprecated feature
+
+parse:
+	results: {-StructUsing::deprecated::*}
+	code:
+		using deprecated feature
 
 test "using":
 	assert the current script is using "example feature" with "using feature failed"
@@ -17,3 +21,5 @@ test "using":
 
 	parse if the current script is using "foo bar fake experiment":
 		foo bar fake syntax!
+
+	assert {-StructUsing::deprecated::*} is "The experimental feature 'deprecated feature' is deprecated and may be removed in future versions."

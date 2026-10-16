@@ -42,7 +42,7 @@ public class StructParse extends Structure {
 		.addSection("code", false)
 		.build();
 
-	private SectionNode structureSectionNodeToParse;
+	private Node structureNodeToParse;
 	private String[] logs;
 	private Expression<?> resultsExpression;
 
@@ -68,32 +68,22 @@ public class StructParse extends Structure {
 		}
 
 		SectionNode codeSectionNode = (SectionNode) validatedEntries.get("code", false);
-		Node maybeStructureSectionNodeToParse = Iterables.getFirst(codeSectionNode, null);
-		if (Iterables.size(codeSectionNode) != 1 || !(maybeStructureSectionNodeToParse instanceof SectionNode)) {
-			Skript.error("The code section must contain a single section to parse as a structure");
+		if (Iterables.size(codeSectionNode) != 1) {
+			Skript.error("The code section must contain a single node to parse as a structure");
 			return false;
 		}
 
 		resultsExpression = maybeResultsExpression;
-		structureSectionNodeToParse = (SectionNode) maybeStructureSectionNodeToParse;
-		return true;
-	}
-
-	@Override
-	public boolean postLoad() {
-		Task.callSync(() -> {
-			resultsExpression.change(ContextlessEvent.get(), logs, ChangeMode.SET);
-			return null;
-		});
+		structureNodeToParse = Iterables.getFirst(codeSectionNode, null);
 		return true;
 	}
 
 	@Override
 	public boolean load() {
 		try (RetainingLogHandler handler = SkriptLogger.startRetainingLog()) {
-			String structureSectionNodeKey = ScriptLoader.replaceOptions(structureSectionNodeToParse.getKey());
+			String structureSectionNodeKey = ScriptLoader.replaceOptions(structureNodeToParse.getKey());
 			String error = "Can't understand this structure: " + structureSectionNodeKey;
-			Structure structure = Structure.parse(structureSectionNodeKey, structureSectionNodeToParse, error);
+			Structure structure = Structure.parse(structureSectionNodeKey, structureNodeToParse, error);
 
 			getParser().setCurrentStructure(structure);
 			if (structure != null && structure.preLoad() && structure.load()) {
@@ -107,6 +97,15 @@ public class StructParse extends Structure {
 				.map(LogEntry::getMessage)
 				.toArray(String[]::new);
 		}
+		return true;
+	}
+
+	@Override
+	public boolean postLoad() {
+		Task.callSync(() -> {
+			resultsExpression.change(ContextlessEvent.get(), logs, ChangeMode.SET);
+			return null;
+		});
 		return true;
 	}
 
