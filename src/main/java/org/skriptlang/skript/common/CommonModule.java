@@ -6,6 +6,9 @@ import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.common.elements.effects.*;
 import org.skriptlang.skript.common.elements.expressions.*;
+import org.skriptlang.skript.common.elements.functions.MathFunctions;
+import org.skriptlang.skript.common.elements.functions.StringFunctions;
+import org.skriptlang.skript.common.elements.functions.TimeFunctions;
 import org.skriptlang.skript.common.properties.PropertiesModule;
 import org.skriptlang.skript.common.types.*;
 
@@ -39,6 +42,10 @@ public class CommonModule extends HierarchicalAddonModule {
 			ExprReplace::register,
 			ExprWhether::register
 		);
+
+		new MathFunctions(addon);
+		new StringFunctions(addon);
+		new TimeFunctions(addon);
 	}
 
 	@Override

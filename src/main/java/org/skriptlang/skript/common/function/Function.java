@@ -5,7 +5,8 @@ import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.SequencedCollection;
 
 /**
  * Represents a function implementation.
@@ -21,7 +22,7 @@ public interface Function<T> {
 	/**
 	 * Executes this function with the given parameters.
 	 *
-	 * @param event The event that is associated with this function execution.
+	 * @param event     The event that is associated with this function execution.
 	 * @param arguments The arguments to execute the function with.
 	 * @return The return value.
 	 */
@@ -42,6 +43,6 @@ public interface Function<T> {
 	 * @return The returned keys.
 	 */
 	@Experimental
-	@NotNull String @Nullable [] returnedKeys();
+	@NotNull SequencedCollection<String> getReturnedKeys();
 
 }
