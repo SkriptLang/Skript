@@ -6,6 +6,7 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.log.CountingLogHandler;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RetainingLogHandler;
@@ -20,6 +21,7 @@ import ch.njol.skript.variables.HintManager;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,6 +42,8 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -699,7 +703,10 @@ public class ScriptLoader {
 				SkriptConfig.configs.add(config);
 
 			try (CountingLogHandler ignored = new CountingLogHandler(SkriptLogger.SEVERE).start()) {
-				for (Node node : config.getMainNode()) {
+				SectionNode mainNode = config.getMainNode();
+				resolveParseIfSections(mainNode);
+
+				for (Node node : mainNode) {
 					if (!(node instanceof SimpleNode) && !(node instanceof SectionNode)) {
 						// unlikely to occur, but just in case
 						Skript.error("could not interpret line as a structure");
@@ -769,6 +776,107 @@ public class ScriptLoader {
 		}
 
 		return new LoadingScriptInfo(script, structures, nodeMap);
+	}
+
+	private static final Pattern PARSE_IF_PATTERN = Pattern.compile("parse if (.+)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern ELSE_PARSE_IF_PATTERN = Pattern.compile("else parse if (.+)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern ELSE_PATTERN = Pattern.compile("else", Pattern.CASE_INSENSITIVE);
+
+	private static void resolveParseIfSections(SectionNode section) {
+		for (int i = 0; i < section.size(); i++) {
+			Node node = section.getAt(i);
+			if (node == null || node.isVoid())
+				continue;
+
+			String key = node.getKey();
+			if (key != null && PARSE_IF_PATTERN.matcher(replaceOptions(key).trim()).matches()) {
+				i = resolveParseIfChain(section, i) - 1;
+				continue;
+			}
+
+			if (node instanceof SectionNode child)
+				resolveParseIfSections(child);
+		}
+	}
+
+	private static int resolveParseIfChain(SectionNode section, int index) {
+		List<Node> chain = new ArrayList<>();
+		List<@Nullable String> conditions = new ArrayList<>(); // null condition = 'else' branch
+
+		boolean first = true;
+		for (int j = index; j < section.size(); j++) {
+			Node node = section.getAt(j);
+			if (node == null || node.isVoid())
+				continue;
+			String key = node.getKey();
+			if (key == null)
+				break;
+			String trimmed = replaceOptions(key).trim();
+
+			Matcher matcher = first ? PARSE_IF_PATTERN.matcher(trimmed) : ELSE_PARSE_IF_PATTERN.matcher(trimmed);
+			if (matcher.matches()) {
+				conditions.add(matcher.group(1));
+				chain.add(node);
+				first = false;
+				continue;
+			}
+			if (!first && ELSE_PATTERN.matcher(trimmed).matches()) {
+				conditions.add(null);
+				chain.add(node);
+			}
+			break;
+		}
+
+		if (chain.isEmpty()) // unreachable: caller checked the pattern; guard against stalling anyway
+			return index + 1;
+
+		SectionNode winner = null;
+		for (int c = 0; c < chain.size(); c++) {
+			Node chainNode = chain.get(c);
+			String condition = conditions.get(c);
+			if (!(chainNode instanceof SectionNode branch)) {
+				Skript.error("'" + (condition != null ? "parse if" : "else") + "' requires a section of code below it");
+				continue;
+			}
+			if (condition == null || evaluateParseCondition(condition, chainNode)) {
+				winner = branch;
+				break;
+			}
+			Skript.debug("skipping 'parse if' section on line " + chainNode.getLine() + ": its condition was not met");
+		}
+
+		List<Node> contents = new ArrayList<>();
+		if (winner != null) {
+			resolveParseIfSections(winner);
+			for (Node child : winner)
+				contents.add(child);
+		}
+
+		for (Node chainNode : chain)
+			section.remove(chainNode);
+		for (int k = 0; k < contents.size(); k++)
+			section.add(index + k, contents.get(k));
+
+		return index + contents.size();
+	}
+
+	@SuppressWarnings("unchecked")
+	private static boolean evaluateParseCondition(String conditionText, Node node) {
+		ParserInstance parser = getParser();
+		parser.setNode(node);
+		Class<? extends Event>[] currentEvents = parser.getCurrentEvents();
+		String currentEventName = parser.getCurrentEventName();
+		parser.setCurrentEvents(new Class[]{ContextlessEvent.class});
+		parser.setCurrentEventName("parse");
+		try {
+			Condition condition = Condition.parse(conditionText, "Can't understand this parse-time condition: '" + conditionText + "'");
+			if (condition == null)
+				return false;
+			return condition.check(ContextlessEvent.get());
+		} finally {
+			parser.setCurrentEvents(currentEvents);
+			parser.setCurrentEventName(currentEventName);
+		}
 	}
 
 	/*
