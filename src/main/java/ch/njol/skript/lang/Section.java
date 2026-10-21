@@ -157,20 +157,26 @@ public abstract class Section extends TriggerSection implements SyntaxElement, S
 		ParserInstance.Backup parserBackup = parser.backup();
 		parser.reset();
 
-		if (beforeLoading != null)
-			beforeLoading.run();
+		SkriptEvent skriptEvent;
+		List<TriggerItem> triggerItems;
+		try {
+			if (beforeLoading != null)
+				beforeLoading.run();
 
-		// set our new data for parsing this section
-		parser.setCurrentEvent(name, events);
-		SkriptEvent skriptEvent = new SectionSkriptEvent(name, this);
-		parser.setCurrentStructure(skriptEvent);
-		List<TriggerItem> triggerItems = ScriptLoader.loadItems(sectionNode);
+			// set our new data for parsing this section
+			parser.setCurrentEvent(name, events);
+			skriptEvent = new SectionSkriptEvent(name, this);
+			parser.setCurrentStructure(skriptEvent);
+			triggerItems = ScriptLoader.loadItems(sectionNode);
 
-		if (afterLoading != null)
-			afterLoading.run();
-
-		// return the parser to its original state
-		parser.restoreBackup(parserBackup);
+			if (afterLoading != null)
+				afterLoading.run();
+		} finally {
+			// return the parser to its original state.
+			// this is done in a finally block so that the parser is not left in the switched
+			// context if parsing is aborted by an exception (e.g. a parse timeout or stack overflow)
+			parser.restoreBackup(parserBackup);
+		}
 
 		return new Trigger(parser.getCurrentScript(), name, skriptEvent, triggerItems);
 	}
@@ -247,14 +253,16 @@ public abstract class Section extends TriggerSection implements SyntaxElement, S
 			this.owner = null;
 			this.ownerErrorRepresentation = null;
 
-			T result = supplier.get();
-
-			this.sectionNode = prevSectionNode;
-			this.triggerItems = prevTriggerItems;
-			this.owner = owner;
-			this.ownerErrorRepresentation = ownerErrorRepresentation;
-
-			return result;
+			try {
+				return supplier.get();
+			} finally {
+				// restored in a finally block so that the context is not left mutated
+				// if parsing is aborted by an exception (e.g. a parse timeout or stack overflow)
+				this.sectionNode = prevSectionNode;
+				this.triggerItems = prevTriggerItems;
+				this.owner = owner;
+				this.ownerErrorRepresentation = ownerErrorRepresentation;
+			}
 		}
 
 		/**

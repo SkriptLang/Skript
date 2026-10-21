@@ -501,6 +501,32 @@ public final class ParserInstance implements Experimented {
 		return parsingStack;
 	}
 
+	// Long parse time interruption stuff
+
+	private long parseDeadline;
+
+	/**
+	 * @return The {@link System#nanoTime()} value after which parsing should be aborted, or 0 if there is no deadline.
+	 */
+	public long getParseDeadline() {
+		return parseDeadline;
+	}
+
+	/**
+	 * @param parseDeadline The {@link System#nanoTime()} value after which parsing should be aborted, or 0 for no deadline.
+	 */
+	public void setParseDeadline(long parseDeadline) {
+		this.parseDeadline = parseDeadline;
+	}
+
+	/**
+	 * @throws ParseTimeoutException if the current parse deadline has passed.
+	 */
+	public void checkParseDeadline() {
+		if (parseDeadline != 0 && System.nanoTime() > parseDeadline)
+			throw new ParseTimeoutException();
+	}
+
 	// Experiments API
 
 	@Override
