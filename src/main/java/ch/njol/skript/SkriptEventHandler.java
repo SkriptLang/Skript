@@ -18,6 +18,7 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public final class SkriptEventHandler {
@@ -76,6 +77,62 @@ public final class SkriptEventHandler {
 	}
 
 	/**
+	 * Returned by {@link #getTriggersByPriority(Class)} when no Triggers
+	 * are registered under an Event class.
+	 */
+	private static final Trigger[][] NO_TRIGGERS = new Trigger[0][];
+
+	/**
+	 * Caches the result of {@link #getTriggersByPriority(Class)} per Event class.
+	 * Finding the Triggers scans every registered Trigger, which would otherwise
+	 * happen for every called Event and every priority it is listened at.
+	 * <p>
+	 * When the registered Triggers change, this map is replaced instead of cleared.
+	 * A lookup running at the same time (e.g. for an asynchronous Event) then
+	 * stores its possibly outdated result in the old map, which is no longer used.
+	 */
+	private static volatile Map<Class<? extends Event>, Trigger[][]> triggerCache = new ConcurrentHashMap<>();
+
+	/**
+	 * Clears the Trigger cache.
+	 * Must be called after every change to {@link #triggers}.
+	 */
+	private static void invalidateTriggerCache() {
+		triggerCache = new ConcurrentHashMap<>();
+	}
+
+	/**
+	 * Gets the Triggers registered under the provided Event class,
+	 * grouped by priority.
+	 * @param event The event to find Triggers for.
+	 * @return An array indexed by {@link EventPriority#ordinal()}, each
+	 *  containing the Triggers at that priority in the order of
+	 *  {@link #getTriggers(Class)}, or an empty array if no Triggers are
+	 *  registered under the Event.
+	 */
+	private static Trigger[][] getTriggersByPriority(Class<? extends Event> event) {
+		Map<Class<? extends Event>, Trigger[][]> cache = triggerCache;
+		Trigger[][] triggersByPriority = cache.get(event);
+		if (triggersByPriority != null)
+			return triggersByPriority;
+
+		List<Trigger> eventTriggers = getTriggers(event);
+		if (eventTriggers.isEmpty()) {
+			triggersByPriority = NO_TRIGGERS;
+		} else {
+			EventPriority[] priorities = EventPriority.values();
+			triggersByPriority = new Trigger[priorities.length][];
+			for (EventPriority priority : priorities) {
+				triggersByPriority[priority.ordinal()] = eventTriggers.stream()
+						.filter(trigger -> trigger.getEvent().getEventPriority() == priority)
+						.toArray(Trigger[]::new);
+			}
+		}
+		cache.put(event, triggersByPriority);
+		return triggersByPriority;
+	}
+
+	/**
 	 * This method is used for validating that the provided Event may be handled by Skript.
 	 * If validation is successful, all Triggers associated with the provided Event are executed.
 	 * A Trigger will only be executed if its priority matches the provided EventPriority.
@@ -84,9 +141,10 @@ public final class SkriptEventHandler {
 	 */
 	private static void check(Event event, EventPriority priority) {
 		// get all triggers for this event, return if none
-		List<Trigger> triggers = getTriggers(event.getClass());
-		if (triggers.isEmpty())
+		Trigger[][] triggersByPriority = getTriggersByPriority(event.getClass());
+		if (triggersByPriority.length == 0)
 			return;
+		Trigger[] triggers = triggersByPriority[priority.ordinal()];
 
 		// Check if this event should be treated as cancelled
 		boolean isCancelled = isCancelled(event);
@@ -98,10 +156,6 @@ public final class SkriptEventHandler {
 
 		for (Trigger trigger : triggers) {
 			SkriptEvent triggerEvent = trigger.getEvent();
-
-			// check if the trigger is at the right priority
-			if (triggerEvent.getEventPriority() != priority)
-				continue;
 
 			// check if the cancel state of the event is correct
 			if (!triggerEvent.getListeningBehavior().matches(isCancelled))
@@ -288,6 +342,7 @@ public final class SkriptEventHandler {
 			return;
 
 		triggers.put(event, trigger);
+		invalidateTriggerCache();
 
 		EventPriority priority = trigger.getEvent().getEventPriority();
 
@@ -311,6 +366,7 @@ public final class SkriptEventHandler {
 
 			// Remove the trigger from the map
 			entryIterator.remove();
+			invalidateTriggerCache();
 
 			// check if we can unregister the listener
 			EventPriority priority = trigger.getEvent().getEventPriority();
