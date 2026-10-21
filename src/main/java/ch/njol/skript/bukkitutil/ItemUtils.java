@@ -332,14 +332,19 @@ public class ItemUtils {
 
 		// poplar
 		if (Skript.isRunningMinecraft(26, 3)) {
-			TREE_TO_SAPLING_MAP.put(TreeType.POPLAR, Material.POPLAR_SAPLING);
+			if (Skript.fieldExists(TreeType.class, "POPLAR")) { // Paper 26.3 build 210 or older
+				TREE_TO_SAPLING_MAP.put(TreeType.valueOf("POPLAR"), Material.POPLAR_SAPLING);
+			} else {
+				TREE_TO_SAPLING_MAP.put(TreeType.RED_POPLAR, Material.POPLAR_SAPLING);
+				TREE_TO_SAPLING_MAP.put(TreeType.ORANGE_POPLAR, Material.POPLAR_SAPLING);
+				TREE_TO_SAPLING_MAP.put(TreeType.YELLOW_POPLAR, Material.POPLAR_SAPLING);
+			}
 		}
 	}
 
 	public static Material getTreeSapling(TreeType treeType) {
 		return TREE_TO_SAPLING_MAP.get(treeType);
 	}
-
 
 	private static final boolean HAS_FENCE_TAGS = !Skript.isRunningMinecraft(1, 14);
 
