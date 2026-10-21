@@ -60,7 +60,6 @@ public class EntityModule extends HierarchicalAddonModule {
 	}
 
 	protected void loadSelf(SkriptAddon addon) {
-		EntityData.register();
 		EntityDataClassInfo entityDataClassInfo = new EntityDataClassInfo();
 		Classes.registerClass(entityDataClassInfo);
 		EntityTypeClassInfo entityTypeClassInfo = new EntityTypeClassInfo();
@@ -69,7 +68,6 @@ public class EntityModule extends HierarchicalAddonModule {
 		loadChildren(addon);
 		// Must be registered after every other EntityData, due to the automatic registering of EntityTypes
 		SimpleEntityData.register();
-		EntityType.register();
 
 		entityDataClassInfo.defaultExpression(new SimpleLiteral<>(new SimpleEntityData(Entity.class), true));
 		entityTypeClassInfo.defaultExpression(new SimpleLiteral<>(new EntityType(EntityData.fromClass(Entity.class), 1), true));
