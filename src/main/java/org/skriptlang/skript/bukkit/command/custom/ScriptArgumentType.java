@@ -201,13 +201,7 @@ public class ScriptArgumentType<T> implements CustomArgumentType<Object, String>
 	@Override
 	public @NotNull Object parse(@NotNull StringReader reader) throws CommandSyntaxException {
 		int prevCursor = reader.getCursor();
-		String input;
-		try {
-			input = parseWithNativeType(reader);
-		} catch (CommandSyntaxException e) {
-			ch.njol.skript.Skript.info("[DEBUG-ARG] native parse threw for '" + argument.name() + "' at " + prevCursor + ": " + e.getMessage());
-			throw e;
-		}
+		String input = parseWithNativeType(reader);
 		assert argument.type().getParser() != null;
 
 		Literal<T> result;
@@ -221,7 +215,6 @@ public class ScriptArgumentType<T> implements CustomArgumentType<Object, String>
 			}
 			if (result == null) {
 				reader.setCursor(prevCursor);
-				ch.njol.skript.Skript.info("[DEBUG-ARG] null result for '" + argument.name() + "' input='" + input + "' hasError=" + logHandler.hasError());
 				if (logHandler.hasError()) {
 					//noinspection ConstantConditions - getError is NotNull by hasError check
 					throw ERROR_PARSER_ERROR.createWithContext(reader, logHandler.getError().getMessage());
@@ -251,7 +244,6 @@ public class ScriptArgumentType<T> implements CustomArgumentType<Object, String>
 			}
 		}
 
-		ch.njol.skript.Skript.info("[DEBUG-ARG] parsed '" + argument.name() + "' input='" + input + "' -> " + (argument.isSingle() ? result.getSingle() : result.getArray()));
 		return argument.isSingle() ? result.getSingle() : result.getArray();
 	}
 
