@@ -21,6 +21,7 @@ public class PropertiesModule extends HierarchicalAddonModule {
 				PropCondContains::register,
 				PropCondIsEmpty::register,
 				PropExprAmount::register,
+				PropExprColor::register,
 				PropExprCustomName::register,
 				PropExprName::register,
 				PropExprNumber::register,
