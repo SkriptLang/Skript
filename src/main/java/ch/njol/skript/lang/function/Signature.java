@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.FunctionReference;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 import org.skriptlang.skript.common.function.Parameters;
@@ -67,6 +68,8 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	 * The class path for the origin of this signature.
 	 */
 	@Nullable String originClassPath;
+
+	private final Set<String> aliases = new HashSet<>();
 
 	static Class<?> getReturns(boolean single, Class<?> cls) {
 		if (single) {
@@ -130,6 +133,12 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 		this(namespace, name, initParameters(parameters), returnType, false, contract);
 	}
 
+	public Signature(String namespace, String name, Collection<String> aliases, Parameters parameters, Class<T> returnType, @Nullable Contract contract) {
+		this(namespace, name, parameters, returnType, false, contract);
+
+		this.aliases.addAll(aliases);
+	}
+
 	private static Parameters initParameters(org.skriptlang.skript.common.function.Parameter<?>[] params) {
 		SequencedMap<String, org.skriptlang.skript.common.function.Parameter<?>> map = new LinkedHashMap<>();
 		for (org.skriptlang.skript.common.function.Parameter<?> parameter : params) {
@@ -172,14 +181,16 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	}
 
 	@Override
+	public @Unmodifiable @NotNull Collection<String> aliases() {
+		return Collections.unmodifiableSet(aliases);
+	}
+
+	@Override
 	public @Nullable Class<T> returnType() {
 		//noinspection unchecked
 		return (Class<T>) returns;
 	}
 
-	/**
-	 * @return A {@link SequencedMap} containing all parameters.
-	 */
 	@Override
 	public @NotNull Parameters parameters() {
 		return parameters;
