@@ -763,8 +763,8 @@ public abstract class EntityData<E extends Entity>
 		if (fields.hasField("matchedPattern")) {
 			fields.putPrimitive("groupIndex", fields.getAndRemovePrimitive("matchedPattern", int.class));
 		}
-		if (fields.hasField("codenameindex")) { //2.16- to 2.17+
-			fields.removeField("codenameindex");
+		if (fields.hasField("codeNameIndex")) { //2.16- to 2.17+
+			fields.putPrimitive("groupIndex", fields.getAndRemovePrimitive("codeNameIndex", int.class));
 		}
 		fields.setFields(this);
 	}
