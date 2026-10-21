@@ -34,16 +34,15 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public class CondVersionCompare extends Condition {
 
 	static {
-		Skript.instance().syntaxRegistry().register(SyntaxRegistry.CONDITION,
-			SyntaxInfo.simple(CondVersionCompare.class, CondVersionCompare::new,
-				"[the] (0:skript|1:minecraft|2:server|3:bukkit) version (is|are) at least %string%",
-				"[the] (0:skript|1:minecraft|2:server|3:bukkit) version (is|are) at most %string%",
-				"[the] (0:skript|1:minecraft|2:server|3:bukkit) version (is|are) (newer|later|higher|greater|above) [than] %string%",
-				"[the] (0:skript|1:minecraft|2:server|3:bukkit) version (is|are) (older|earlier|lower|smaller|less|below) [than] %string%",
-				"[the] (0:skript|1:minecraft|2:server|3:bukkit) version (is|are)(n't| not) at least %string%",
-				"[the] (0:skript|1:minecraft|2:server|3:bukkit) version (is|are)(n't| not) at most %string%",
-				"[the] (0:skript|1:minecraft|2:server|3:bukkit) version (is|are)(n't| not) (newer|later|higher|greater|above) [than] %string%",
-				"[the] (0:skript|1:minecraft|2:server|3:bukkit) version (is|are)(n't| not) (older|earlier|lower|smaller|less|below) [than] %string%"));
+		Skript.registerCondition(CondVersionCompare.class,
+			"[the] (0:skript|1:minecraft|2:server|3:bukkit) version (is|are) at least %string%",
+			"[the] (0:skript|1:minecraft|2:server|3:bukkit) version (is|are) at most %string%",
+			"[the] (0:skript|1:minecraft|2:server|3:bukkit) version (is|are) (newer|later|higher|greater|above) [than] %string%",
+			"[the] (0:skript|1:minecraft|2:server|3:bukkit) version (is|are) (older|earlier|lower|smaller|less|below) [than] %string%",
+			"[the] (0:skript|1:minecraft|2:server|3:bukkit) version (is|are)(n't| not) at least %string%",
+			"[the] (0:skript|1:minecraft|2:server|3:bukkit) version (is|are)(n't| not) at most %string%",
+			"[the] (0:skript|1:minecraft|2:server|3:bukkit) version (is|are)(n't| not) (newer|later|higher|greater|above) [than] %string%",
+			"[the] (0:skript|1:minecraft|2:server|3:bukkit) version (is|are)(n't| not) (older|earlier|lower|smaller|less|below) [than] %string%");
 	}
 
 	private int versionType;
