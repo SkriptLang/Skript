@@ -8,12 +8,9 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.localization.Noun;
-import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import ch.njol.yggdrasil.FieldHandler;
 import ch.njol.yggdrasil.Fields;
-import ch.njol.yggdrasil.Fields.FieldContext;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import com.google.common.base.Preconditions;
 import io.papermc.paper.world.flag.FeatureDependant;
@@ -39,7 +36,6 @@ import org.skriptlang.skript.localization.GeneralNoun;
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -93,35 +89,6 @@ public abstract class EntityData<E extends Entity>
 	private static final List<EntityDataInfo<EntityData<?>, ?>> INFOS = new ArrayList<>();
 
 	static final List<EntityData> ALL_ENTITY_DATAS = new ArrayList<>();
-
-	static void register() {
-		Variables.yggdrasil.registerFieldHandler(new FieldHandler() {
-			@Override
-			public boolean excessiveField(Object object, FieldContext field) throws StreamCorruptedException {
-				if (!(object instanceof EntityData<?> entityData))
-					return false;
-				if (field.getID().equals("matchedPattern")) {
-					//noinspection DataFlowIssue
-					entityData.groupIndex = (int) field.getObject();
-					return true;
-				}
-				// Typically do not experience any drastic changes in field names or types
-				// If this becomes a recurrent issue, should create a method that takes FieldContext
-				//		and override on any necessary classes
-				return false;
-			}
-
-			@Override
-			public boolean missingField(Object object, Field field) {
-                return object instanceof EntityData<?>;
-            }
-
-			@Override
-			public boolean incompatibleField(Object object, Field field, FieldContext context) {
-				return false;
-			}
-		});
-	}
 
 	//<editor-fold desc="Static Methods" defaultstate="collapsed">
 	@Internal
@@ -793,6 +760,12 @@ public abstract class EntityData<E extends Entity>
 
 	@Override
 	public void deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
+		if (fields.hasField("matchedPattern")) {
+			fields.putPrimitive("groupIndex", fields.getAndRemovePrimitive("matchedPattern", int.class));
+		}
+		if (fields.hasField("codeNameIndex")) { //2.16- to 2.17+
+			fields.putPrimitive("groupIndex", fields.getAndRemovePrimitive("codeNameIndex", int.class));
+		}
 		fields.setFields(this);
 	}
 
