@@ -12,6 +12,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ParseTimeConstant;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Version;
 import ch.njol.util.Kleenean;
@@ -20,7 +21,7 @@ import ch.njol.util.Kleenean;
 @Description("Checks if current Minecraft version is given version or newer.")
 @Example("running minecraft \"1.14\"")
 @Since("2.5")
-public class CondMinecraftVersion extends Condition {
+public class CondMinecraftVersion extends Condition implements ParseTimeConstant {
 	
 	static {
 		Skript.registerCondition(CondMinecraftVersion.class, "running [(1¦below)] minecraft %string%");
@@ -41,6 +42,11 @@ public class CondMinecraftVersion extends Condition {
 	public boolean check(Event e) {
 		String ver = version.getSingle(e);
 		return ver != null ? Skript.isRunningMinecraft(new Version(ver)) ^ isNegated() : false;
+	}
+
+	@Override
+	public boolean isParseTimeConstant() {
+		return ParseTimeConstant.isConstantExpression(version);
 	}
 
 	@Override

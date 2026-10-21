@@ -307,6 +307,68 @@ public class SkriptClasses {
 					}
 				}));
 
+		Classes.registerClass(new ClassInfo<>(Version.class, "version")
+				.user("versions?")
+				.name("Version")
+				.description("A version number, e.g. of the server, Minecraft, Skript or another plugin. " +
+						"Obtained with the 'version of' expression.",
+						"Versions can be ordered-compared against version strings like \"2.15\" " +
+						"(e.g. 'version of \"skript\" is at least \"2.15\"').")
+				.usage("<major>.<minor>[.<revision>][-<postfix>]",
+						"e.g. 2.15, 1.21.4, 3.0-beta")
+				.examples("if version of \"skript\" is at least \"2.15\":",
+						"parse if version of \"SkBee\" is at least \"3.0\":")
+				.since("INSERT VERSION")
+				.parser(new Parser<Version>() {
+					@Override
+					@Nullable
+					public Version parse(final String s, final ParseContext context) {
+						return Version.parse(s);
+					}
+
+					@Override
+					public String toString(final Version v, final int flags) {
+						return v.toString();
+					}
+
+					@Override
+					public String toVariableNameString(final Version v) {
+						return "version:" + v.toString();
+					}
+				})
+				.serializer(new Serializer<Version>() {
+					@Override
+					public Fields serialize(final Version v) {
+						final Fields fields = new Fields();
+						fields.putObject("version", v.toString());
+						return fields;
+					}
+
+					@Override
+					protected Version deserialize(final Fields fields) throws StreamCorruptedException {
+						final String s = fields.getObject("version", String.class);
+						final Version v = s == null ? null : Version.parse(s);
+						if (v == null)
+							throw new StreamCorruptedException("Cannot deserialize version '" + s + "'");
+						return v;
+					}
+
+					@Override
+					public void deserialize(final Version v, final Fields fields) {
+						throw new IllegalStateException("Cannot deserialize to an existing version object.");
+					}
+
+					@Override
+					public boolean mustSyncDeserialization() {
+						return false;
+					}
+
+					@Override
+					protected boolean canBeInstantiated() {
+						return false;
+					}
+				}));
+
 		Classes.registerClass(new ClassInfo<>(Direction.class, "direction")
 				.user("directions?")
 				.name("Direction")

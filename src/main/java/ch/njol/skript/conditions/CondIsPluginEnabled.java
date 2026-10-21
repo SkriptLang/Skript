@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ParseTimeConstant;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
@@ -24,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 @Example("if plugins \"Essentials\" and \"Vault\" are enabled:")
 @Example("if plugin \"MyBrokenPlugin\" is disabled:")
 @Since("2.6")
-public class CondIsPluginEnabled extends Condition {
+public class CondIsPluginEnabled extends Condition implements ParseTimeConstant {
 
 	static {
 		Skript.registerCondition(CondIsPluginEnabled.class,
@@ -43,6 +44,11 @@ public class CondIsPluginEnabled extends Condition {
 		plugins = (Expression<String>) exprs[0];
 		pattern = matchedPattern;
 		return true;
+	}
+
+	@Override
+	public boolean isParseTimeConstant() {
+		return ParseTimeConstant.isConstantExpression(plugins);
 	}
 
 	@Override

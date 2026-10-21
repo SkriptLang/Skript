@@ -212,6 +212,16 @@ public class SecConditional extends Section {
 			if (conditionals.isEmpty())
 				return false;
 
+			if (parseIf) {
+				for (Conditional<Event> cond : conditionals) {
+					if (!(cond instanceof ParseTimeConstant constant) || !constant.isParseTimeConstant()) {
+						Skript.error("'parse if' requires a condition that is constant at parse time "
+								+ "(e.g. 'plugin \"X\" is enabled' or version comparisons)");
+						return false;
+					}
+				}
+			}
+
 			/*
 				This allows the embedded multilined conditions to be properly debugged.
 				Debugs are caught within the RetainingLogHandler in ScriptLoader#loadItems
