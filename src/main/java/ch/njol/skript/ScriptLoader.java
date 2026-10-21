@@ -793,9 +793,6 @@ public class ScriptLoader {
 				i = resolveParseIfChain(section, i) - 1;
 				continue;
 			}
-
-			if (node instanceof SectionNode child)
-				resolveParseIfSections(child);
 		}
 	}
 
@@ -847,7 +844,6 @@ public class ScriptLoader {
 
 		List<Node> contents = new ArrayList<>();
 		if (winner != null) {
-			resolveParseIfSections(winner);
 			for (Node child : winner)
 				contents.add(child);
 		}
@@ -872,6 +868,12 @@ public class ScriptLoader {
 			Condition condition = Condition.parse(conditionText, "Can't understand this parse-time condition: '" + conditionText + "'");
 			if (condition == null)
 				return false;
+			if (!(condition instanceof ParseTimeConstant constant) || !constant.isParseTimeConstant()) {
+				Skript.error("'" + conditionText + "' cannot be used in 'parse if': "
+						+ "only conditions that are constant at parse time are allowed "
+						+ "(e.g. 'plugin \"X\" is enabled' or version comparisons)");
+				return false;
+			}
 			return condition.check(ContextlessEvent.get());
 		} finally {
 			parser.setCurrentEvents(currentEvents);

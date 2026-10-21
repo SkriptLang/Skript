@@ -26,13 +26,17 @@ else:
 	test "SecConditional - ParseIf structure else (skipped)":
 		assert 10 = 1 with "top-level ParseIf else branch was parsed when it should not have been"
 
-parse if skript version is at least "999.0":
+parse if version of "skript" is at least "999.0":
 	test "SecConditional - ParseIf version (skipped)":
 		floopidy flopidy flernindurf
 
-parse if skript version is at least "2.0":
+parse if version of "skript" is at least "2.0":
 	test "SecConditional - ParseIf version":
 		assert 10 is 10 with "version-gated structure was not loaded"
+
+parse if version of "LaDeDa-LeFakePlugin" is at least "1.0":
+	test "SecConditional - ParseIf plugin version (skipped)":
+		floopidy flopidy flernindurf
 
 command /parsetest:
 	parse if plugin "LaDeDa-LeFakePlugin" is enabled:
