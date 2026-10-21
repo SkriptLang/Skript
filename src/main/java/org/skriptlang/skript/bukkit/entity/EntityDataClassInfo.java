@@ -68,6 +68,28 @@ public class EntityDataClassInfo extends ClassInfo<EntityData> {
 			String codeName = fields.getAndRemoveObject("codeName", String.class);
 			if (codeName == null)
 				throw new StreamCorruptedException();
+			if (codeName.equals("simple")) {
+				String simpleCodeName;
+				if (fields.hasField("info.name")) {
+					simpleCodeName = fields.getObject("info.name", String.class);
+				} else {
+					simpleCodeName = fields.getObject("info.codeName", String.class);
+				}
+				if (simpleCodeName == null) {
+					throw new StreamCorruptedException();
+				}
+				// TODO something more generic for handling simple entity datas that become non-simple
+				boolean changed = false;
+				if (simpleCodeName.equals("shulker")) {
+					codeName = "shulker";
+					changed = true;
+				}
+				if (changed) {
+					// remove redundant fields
+					fields.removeField("info.name");
+					fields.removeField("info.codeName"); // before 2.17
+				}
+			}
 			EntityDataInfo<?, ?> info = EntityData.getInfo(codeName);
 			if (info == null)
 				throw new StreamCorruptedException("Invalid EntityData code name " + codeName);
