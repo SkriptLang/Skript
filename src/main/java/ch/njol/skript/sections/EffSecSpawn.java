@@ -139,9 +139,9 @@ public class EffSecSpawn extends EffectSection {
 						for (int i = 0; i < typeAmount; i++) {
 							if (consumer != null) {
 								//noinspection unchecked,rawtypes
-								entityType.getEntityData().spawn(location, (Consumer) consumer); // lastSpawned set within Consumer
+								entityType.getData().spawn(location, (Consumer) consumer); // lastSpawned set within Consumer
 							} else {
-								lastSpawned = entityType.getEntityData().spawn(location);
+								lastSpawned = entityType.getData().spawn(location);
 							}
 						}
 					} else if (type instanceof EntitySnapshot snapshot) {

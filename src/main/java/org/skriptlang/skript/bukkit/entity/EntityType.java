@@ -167,7 +167,7 @@ public class EntityType
 	/**
 	 * @return The {@link EntityData} {@code this} corresponds to.
 	 */
-	public EntityData<?> getEntityData() {
+	public EntityData<?> getData() {
 		return entityData;
 	}
 
