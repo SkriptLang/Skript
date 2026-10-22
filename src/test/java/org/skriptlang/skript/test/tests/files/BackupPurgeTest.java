@@ -14,11 +14,15 @@ import static org.junit.Assert.*;
 
 public class BackupPurgeTest {
 
-	private static final Path FOLDER = Path.of("plugins", "Skript", "backups");
-	private static final Path VARIABLES = Path.of("plugins", "Skript", "variables.csv");
+	@org.junit.Rule
+	public org.junit.rules.TemporaryFolder temporaryFolder = new org.junit.rules.TemporaryFolder();
+	private Path FOLDER;
+	private Path VARIABLES;
 
 	@Before
 	public void setup() throws IOException {
+		FOLDER = temporaryFolder.getRoot().toPath().resolve("backups");
+		VARIABLES = temporaryFolder.getRoot().toPath().resolve("variables.csv");
 		if (Files.exists(FOLDER)) {
 			clearFolder();
 		} else {
@@ -52,7 +56,7 @@ public class BackupPurgeTest {
 		clearFolder();
 	}
 
-	private static void clearFolder() throws IOException {
+	private void clearFolder() throws IOException {
 		try (Stream<Path> list = Files.list(FOLDER)) {
 			list.forEach(path -> {
 				try {
@@ -64,7 +68,7 @@ public class BackupPurgeTest {
 		}
 	}
 
-	private static void testBackupPurge(int toKeep) throws IOException {
+	private void testBackupPurge(int toKeep) throws IOException {
 		FileUtils.backupPurge(VARIABLES.toFile(), toKeep);
 
 		try (Stream<Path> files = Files.list(FOLDER)) {
