@@ -1,8 +1,6 @@
 package ch.njol.skript.aliases;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemData.OldItemData;
-import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.lang.Unit;
 import ch.njol.skript.lang.util.common.AnyAmount;
@@ -15,18 +13,14 @@ import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.Container;
 import ch.njol.skript.util.Container.ContainerType;
 import ch.njol.skript.util.EnchantmentType;
-import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.iterator.EmptyIterable;
 import ch.njol.util.coll.iterator.SingleItemIterable;
-import ch.njol.yggdrasil.FieldHandler;
 import ch.njol.yggdrasil.Fields;
-import ch.njol.yggdrasil.Fields.FieldContext;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import com.google.common.collect.Iterators;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.enchantments.Enchantment;
@@ -43,7 +37,6 @@ import org.jetbrains.annotations.UnknownNullability;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.BiPredicate;
@@ -55,36 +48,6 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	AnyNamed, AnyAmount {
 
 	private static final boolean IS_RUNNING_1_21_2 = Skript.isRunningMinecraft(1, 21, 2);
-
-	static {
-		// This handles updating ItemType and ItemData variable records
-		Variables.yggdrasil.registerFieldHandler(new FieldHandler() {
-
-			@Override
-			public boolean missingField(Object o, Field field) throws StreamCorruptedException {
-				if (!(o instanceof ItemType || o instanceof ItemData))
-					return false;
-				if (field.getName().equals("globalMeta"))
-					return true; // Just null, no need for updating that data
-				return false;
-			}
-
-			@Override
-			public boolean incompatibleField(Object o, Field f, FieldContext field) throws StreamCorruptedException {
-				return false;
-			}
-
-			@Override
-			public boolean excessiveField(Object o, FieldContext field) throws StreamCorruptedException {
-				if (!(o instanceof ItemType || o instanceof ItemData))
-					return false;
-				String id = field.getID();
-				if (id.equals("meta") || id.equals("enchantments") || id.equals("ignoreMeta") || id.equals("numItems"))
-					return true;
-				return false;
-			}
-		});
-	}
 
 	/**
 	 * DO NOT ADD ItemDatas to this list directly!
@@ -181,14 +144,6 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		add_(new ItemData(i));
 	}
 
-	/**
-	 * @deprecated Use {@link #ItemType(BlockData)} instead.
-	 */
-	@Deprecated(since = "2.8.4", forRemoval = true)
-	public ItemType(BlockState blockState) {
-		this(blockState.getBlockData());
-	}
-
 	public ItemType(BlockData blockData) {
 		add_(new ItemData(blockData));
 	}
@@ -274,14 +229,6 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		if (item == null)
 			return isOfType(Material.AIR, null);
 		return isOfType(new ItemData(item));
-	}
-
-	/**
-	 * @deprecated Use {@link #isOfType(BlockData)} instead.
-	 */
-	@Deprecated(since = "2.8.4", forRemoval = true)
-	public boolean isOfType(@Nullable BlockState blockState) {
-		return blockState != null && isOfType(blockState.getBlockData());
 	}
 
 	public boolean isOfType(@Nullable BlockData blockData) {
@@ -1263,31 +1210,22 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 	@Override
 	public Fields serialize() throws NotSerializableException {
-		final Fields f = new Fields(this);
-		return f;
+		return new Fields(this);
 	}
 
 	@Override
 	public void deserialize(final Fields fields) throws StreamCorruptedException, NotSerializableException {
-		fields.setFields(this);
-
-		// Legacy data (before aliases rework) update
-		if (!types.isEmpty()) {
-			@SuppressWarnings("rawtypes")
-			ArrayList noGenerics = types;
-			if (noGenerics.get(0).getClass().equals(OldItemData.class)) { // Sorry generics :)
-				for (int i = 0; i < types.size(); i++) {
-					OldItemData old = (OldItemData) (Object) types.get(i); // Grab and hack together OldItemData
-					Material mat = BukkitUnsafe.getMaterialFromId(old.typeid);
-					if (mat != null) {
-						ItemData data = new ItemData(mat); // Create new ItemData based on it
-						types.set(i, data); // Replace old with new
-					} else {
-						throw new NotSerializableException("item with id " + old.typeid + " could not be converted to new alias system");
-					}
-				}
-			}
+		if (!fields.hasField("globalMeta")) {
+			fields.putObject("globalMeta", null);
 		}
+		// remove unused, unhandled legacy fields
+		fields.removeField("meta");
+		fields.removeField("enchantments");
+		fields.removeField("ignoreMeta");
+		fields.removeField("numItems");
+
+		// restore data
+		fields.setFields(this);
 	}
 
 	/**
@@ -1305,38 +1243,6 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		}
 
 		return rawNames;
-	}
-
-	/**
-	 * Gets all enchantments of this item.
-	 * @return Enchantments.
-	 * @deprecated Use {@link ItemType#getEnchantmentTypes()} instead.
-	 */
-	@Deprecated(since = "2.3.0", forRemoval = true)
-	@Nullable
-	public Map<Enchantment,Integer> getEnchantments() {
-		if (globalMeta == null)
-			return null;
-		assert globalMeta != null;
-		Map<Enchantment,Integer> enchants = globalMeta.getEnchants();
-		if (enchants.isEmpty())
-			return null;
-		return enchants;
-	}
-
-	/**
-	 * Adds enchantments to this item type.
-	 * @param enchantments Enchantments.
-	 * @deprecated Use {@link ItemType#addEnchantments(EnchantmentType...)} instead.
-	 */
-	@Deprecated(since = "2.3.0", forRemoval = true)
-	public void addEnchantments(Map<Enchantment,Integer> enchantments) {
-		if (globalMeta == null)
-			globalMeta = ItemData.itemFactory.getItemMeta(Material.STONE);
-		for (Entry<Enchantment,Integer> entry : enchantments.entrySet()) {
-			assert globalMeta != null;
-			globalMeta.addEnchant(entry.getKey(), entry.getValue(), true);
-		}
 	}
 
 	/**
@@ -1407,29 +1313,6 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 				return true;
 		}
 		return false;
-	}
-
-	/**
-	 * Checks whether this item type contains all the given enchantments.
-	 * Also checks the enchantment level, where any level equal or lesser than the item's level is accepted.
-	 * @param enchantments The enchantments to be checked.
-	 * @deprecated Use {@link #hasEnchantmentsOrBetter(EnchantmentType...)}
-	 */
-	@Deprecated(since="2.12")
-	public boolean hasEnchantments(EnchantmentType... enchantments) {
-		return hasEnchantmentsOrBetter(true, enchantments);
-	}
-
-	/**
-	 * Checks whether this item type contains the given enchantments.
-	 * Also checks the enchantment level, where any level equal or lesser than the item's level is accepted.
-	 * @param all Whether to check all enchantments or any enchantment.
-	 * @param enchantments The enchantments to be checked.
-	 * @deprecated Use {@link #hasEnchantmentsOrBetter(boolean, EnchantmentType...)}
-	 */
-	@Deprecated(since="2.12")
-	public boolean hasEnchantments(boolean all, EnchantmentType... enchantments) {
-		return hasEnchantmentsOrBetter(all, enchantments);
 	}
 
 	/**

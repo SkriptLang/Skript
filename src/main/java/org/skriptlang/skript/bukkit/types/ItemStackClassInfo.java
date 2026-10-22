@@ -9,9 +9,11 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.ConfigurationSerializer;
 import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.util.coll.CollectionUtils;
+import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.WrittenBookContent;
 import io.papermc.paper.text.Filtered;
@@ -27,6 +29,7 @@ import org.skriptlang.skript.bukkit.item.book.BookUtils;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
+import java.io.StreamCorruptedException;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -105,6 +108,52 @@ public class ItemStackClassInfo extends ClassInfo<ItemStack> {
 			}
 
 			return b.toString();
+		}
+		//</editor-fold>
+	}
+
+	private static class ItemStackSerializer extends Serializer<ItemStack> {
+		//<editor-fold desc="item stack serializer" defaultstate="collapsed">
+		@Override
+		public Fields serialize(ItemStack itemStack) {
+			Fields fields = new Fields();
+			fields.putObject("data", itemStack.serializeAsBytes());
+			return fields;
+		}
+
+		@Override
+		protected ItemStack deserialize(Fields fields) throws StreamCorruptedException {
+			//<editor-fold desc="legacy serialization" defaultstate="collapsed">
+			if (fields.hasField("value")) {
+				String value = fields.getObject("value", String.class);
+				if (value == null) {
+					throw new StreamCorruptedException();
+				}
+				var yamlConfig = new org.bukkit.configuration.file.YamlConfiguration();
+				try {
+					yamlConfig.loadFromString(value);
+				} catch (org.bukkit.configuration.InvalidConfigurationException e) {
+					throw new StreamCorruptedException();
+				}
+				return (ItemStack) yamlConfig.get("value");
+			}
+			//</editor-fold>
+
+			byte[] data = fields.getObject("data", byte[].class);
+			if (data == null) {
+				throw new StreamCorruptedException();
+			}
+			return ItemStack.deserializeBytes(data);
+		}
+
+		@Override
+		public boolean mustSyncDeserialization() {
+			return false;
+		}
+
+		@Override
+		protected boolean canBeInstantiated() {
+			return false;
 		}
 		//</editor-fold>
 	}

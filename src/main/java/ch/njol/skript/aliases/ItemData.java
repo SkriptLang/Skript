@@ -1,6 +1,5 @@
 package ch.njol.skript.aliases;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.bukkitutil.block.BlockCompat;
@@ -8,11 +7,11 @@ import ch.njol.skript.bukkitutil.block.BlockValues;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.variables.Variables;
 import ch.njol.yggdrasil.Fields;
+import ch.njol.yggdrasil.SimpleClassSerializer.NonInstantiableClassSerializer;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFactory;
@@ -25,57 +24,43 @@ import org.bukkit.potion.PotionEffect;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
-import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
-	
-	static {
-		Variables.yggdrasil.registerSingleClass(ItemData.class, "NewItemData");
-		Variables.yggdrasil.registerSingleClass(OldItemData.class, "ItemData");
-	}
 
-	/**
-	 * Represents old ItemData (before aliases rework and MC 1.13).
-	 */
-	public static class OldItemData {
-		
-		int typeid = -1;
-		public short dataMin = -1;
-		public short dataMax = -1;
-	}
-
-	static final ItemFactory itemFactory = Bukkit.getServer().getItemFactory();
-	
-	// Load or create material registry
 	static {
-		Path materialsFile = Paths.get(Skript.getInstance().getDataFolder().getAbsolutePath(), "materials.json");
-		if (Files.exists(materialsFile)) {
-			try {
-				Files.delete(materialsFile);
-			} catch (IOException e) {
-				Skript.exception(e, "Failed to remove legacy material registry file!");
+		Variables.yggdrasil.registerClassResolver(new NonInstantiableClassSerializer<>(ItemData.class, "ItemData") {
+			@Override
+			public Fields serialize(ItemData itemData) throws NotSerializableException {
+				return itemData.serialize();
 			}
-		}
+
+			@Override
+			protected ItemData deserialize(Fields fields) throws NotSerializableException, StreamCorruptedException {
+				ItemData itemData = new ItemData();
+				itemData.deserialize(fields);
+				return itemData;
+			}
+
+			@Override
+			public @Nullable Class<? extends ItemData> getClass(String id) {
+				// both "ItemData" and "NewItemData" should point to this class
+				if (id.equals(this.id) || id.equals("NewItemData")) {
+					return this.type;
+				}
+				return null;
+			}
+		});
 	}
+
+	private static final ItemFactory itemFactory = Bukkit.getServer().getItemFactory();
 	
 	private final static Message m_named = new Message("aliases.named");
-	
-	/**
-	 * Before 1.13, data values ("block states") are applicable to items.
-	 *
-	 * @deprecated before 1.13 is no longer supported.
-	 */
-	@Deprecated(since = "2.7.0", forRemoval = true)
-	public static final boolean itemDataValues = false;
 	
 	/**
 	 * Type of the item as Bukkit material. Serialized manually.
@@ -90,7 +75,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	/**
 	 * ItemStack, which is used for everything but serialization.
 	 */
-	transient @Nullable ItemStack stack;
+	@Nullable ItemStack stack;
 
 	/**
 	 * When this ItemData represents a block, this contains information to
@@ -122,7 +107,12 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	 * Some properties about this item.
 	 */
 	int itemFlags;
-	
+
+	/**
+	 * Only to be used for serialization and cloning.
+	 */
+	private ItemData() { }
+
 	public ItemData(Material type, @Nullable String tags) {
 		this.type = type;
 
@@ -133,18 +123,18 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 			applyTags(tags);
 		}
 	}
-	
+
 	public ItemData(Material type, int amount) {
 		this.type = type;
 		if (type.isItem())
-			this.stack = new ItemStack(type, Math.abs(amount));
+			this.stack = ItemStack.of(type, Math.abs(amount));
 		this.blockValues = BlockCompat.INSTANCE.getBlockValues(type);
 	}
-	
+
 	public ItemData(Material type) {
 		this(type, 1);
 	}
-	
+
 	public ItemData(ItemData data) {
 		this.stack = data.stack != null ? data.stack.clone() : null;
 		this.type = data.type;
@@ -182,14 +172,6 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		this.itemForm = true;
 	}
 
-	/**
-	 * @deprecated Use {@link ItemData#ItemData(BlockData)} instead.
-	 */
-	@Deprecated(since = "2.8.4", forRemoval = true)
-	public ItemData(BlockState blockState) {
-		this(blockState.getBlockData());
-	}
-
 	public ItemData(BlockData blockData) {
 		this.type = blockData.getMaterial();
 		if (type.isItem())
@@ -200,12 +182,6 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	public ItemData(Block block) {
 		this(block.getBlockData());
 	}
-	
-	/**
-	 * Only to be used for serialization.
-	 */
-	@SuppressWarnings("null") // Yeah, only for internal use
-	public ItemData() {}
 	
 	/**
 	 * Tests whether the given item is of this type.
@@ -569,13 +545,10 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 
 	@Override
 	public Fields serialize() throws NotSerializableException {
-		Fields fields = new Fields(this); // ItemStack is transient, will be ignored
+		Fields fields = new Fields(this);
 		fields.putObject("key", type.getKey().toString());
-		fields.putObject("meta", stack != null ? stack.getItemMeta() : null);
 		return fields;
 	}
-
-	private static final Material[] materials = Material.values();
 
 	@Override
 	public void deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
@@ -586,51 +559,21 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 			this.type = Material.matchMaterial(key);
 		} else {
 			// attempt back compat deserialization, though using ordinals is not reliable
-			this.type = materials[fields.getAndRemovePrimitive("id", int.class)];
+			this.type = Material.values()[fields.getAndRemovePrimitive("id", int.class)];
 		}
 
-		ItemMeta meta = fields.getAndRemoveObject("meta", ItemMeta.class);
-
-		// Initialize ItemStack
-		if (meta != null && type.isItem()) {
-			this.stack = new ItemStack(type);
-			stack.setItemMeta(meta); // Just set meta to it
+		if (fields.hasField("meta")) { // on older versions, we only stored meta
+			ItemMeta meta = fields.getAndRemoveObject("meta", ItemMeta.class);
+			// Initialize ItemStack
+			ItemStack itemStack = null;
+			if (meta != null && type.isItem()) {
+				itemStack = ItemStack.of(type);
+				itemStack.setItemMeta(meta); // Just set meta to it
+			}
+			fields.putObject("stack", itemStack);
 		}
 
 		fields.setFields(this); // Everything but ItemStack and Material
-	}
-	
-	/**
-	 * Creates a plain copy of this ItemData. It will have same material,
-	 * amount of 1 and same block values. Tags will also be copied, with
-	 * following exceptions:
-	 * <ul>
-	 * <li>Damage: 1.13 tag-damage is only used for actual durability.
-	 * Present on 1.12 and older versions.
-	 * <li>Name: custom names made with anvil do not change item type
-	 * </ul>
-	 * @return A modified copy of this item data.
-	 * @deprecated Use {@link #getBaseCopy()} instead if you want a plain copy.
-	 */
-	@Deprecated(since = "INSERT_VERSION", forRemoval = true)
-	public ItemData aliasCopy() {
-		ItemData data = new ItemData();
-		if (stack != null) {
-			data.stack = new ItemStack(type, 1);
-			if (stack.hasItemMeta()) {
-				ItemMeta meta = stack.getItemMeta(); // Creates a copy
-				meta.setDisplayName(null); // Clear display name
-				if (!itemFactory.getItemMeta(type).equals(meta)) // there may be different tags (e.g. potions)
-					data.itemFlags |= ItemFlags.CHANGED_TAGS;
-				data.stack.setItemMeta(meta);
-			}
-			if (ItemUtils.getDamage(stack) > 0) // https://github.com/SkriptLang/Skript/issues/7687
-				ItemUtils.setDamage(data.stack, 0); // Set to undamaged iff item is damaged
-		}
-		data.type = type;
-		data.blockValues = blockValues;
-		data.itemForm = itemForm;
-		return data;
 	}
 
 	/**
