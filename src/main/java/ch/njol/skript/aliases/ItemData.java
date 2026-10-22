@@ -278,13 +278,13 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 			if (item.blockValues != null) { // Other item has block values, so match against them
 				quality = values.match(item.blockValues);
 			} else { // Other item has no block values, but we do
-				quality = MatchQuality.SAME_MATERIAL;
+				return MatchQuality.SAME_MATERIAL;
 			}
 		}
 
 		if (this.stack == null || item.stack == null) { // nothing else to compare
 			if (this.stack != null) { // one has a stack, the other does not
-				quality = MatchQuality.SAME_MATERIAL;
+				return MatchQuality.SAME_MATERIAL;
 			}
 			return quality;
 		}
@@ -293,19 +293,18 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		// From API perspective, durability is part of ItemMeta; however, we need to support 1.12 and older
 		if (itemForm && !stack.getDataOrDefault(DataComponentTypes.DAMAGE, 0).equals(item.stack.getDataOrDefault(DataComponentTypes.DAMAGE, 0))) {
 			if (item.hasFlag(ItemFlags.CHANGED_DURABILITY)) { // Given item requests we match its durability
-				quality = MatchQuality.SAME_MATERIAL;
+				return MatchQuality.SAME_MATERIAL;
 			} else { // Given item doesn't care about durability, so are still same enough
 				quality = MatchQuality.SAME_ITEM;
 			}
 		}
 
-		// If given item doesn't care about meta, promote to SAME_ITEM
-		// i.e., we checked meta only to eliminate EXACT match
-		MatchQuality itemQuality = compareItemStacks(this.stack, item.stack);
-		if (itemQuality == MatchQuality.SAME_MATERIAL && !item.hasFlag(ItemFlags.CHANGED_TAGS)) {
+		if (item.hasFlag(ItemFlags.CHANGED_TAGS)) {
+			// other item has specific data we should compare to
+			quality = quality.min(compareItemStacks(this.stack, item.stack));
+		} else if (quality == MatchQuality.EXACT && !stack.matchesWithoutData(item.stack, DAMAGE_ONLY, true)) {
+			// other item doesn't care about meta, it's not EXACT, but is still SAME_ITEM
 			quality = MatchQuality.SAME_ITEM;
-		} else if (quality.isBetter(itemQuality)) { // Otherwise just allow meta to lower quality
-			quality = itemQuality;
 		}
 
 		return quality;
@@ -326,27 +325,27 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		.filter(type -> type != DataComponentTypes.DAMAGE)
 		.toArray(DataComponentType[]::new);
 
-	private static MatchQuality compareItemStacks(ItemStack ourStack, ItemStack theirStack) {
-		MatchQuality quality = MatchQuality.EXACT; // lowered as we go on
+	private static final Set<DataComponentType> DAMAGE_ONLY = Set.of(DataComponentTypes.DAMAGE);
 
-		// idea: ourStack's data should be a super set of theirStack's data
+	private static MatchQuality compareItemStacks(ItemStack ourStack, ItemStack theirStack) {
+		// early check for equality (allows fewer isDataOverridden calls and is about 50% faster as a result)
+		if (ourStack.matchesWithoutData(theirStack, DAMAGE_ONLY, true))
+			return MatchQuality.EXACT;
+
 		Set<DataComponentType> excluded = new HashSet<>();
-		excluded.add(DataComponentTypes.DAMAGE);
-		// this is cheaper than iterating over the specific data types of the ItemStacks
 		for (var type : ALL_TYPES) {
-			boolean oursHasData = ourStack.isDataOverridden(type);
-			boolean theirsHasData = theirStack.isDataOverridden(type);
-			if (oursHasData && !theirsHasData) { // if we have this data, but they do not, we may be a superset
+			// if we have data and they do not, then we may be a superset, exclude in final check
+			if (ourStack.isDataOverridden(type) && !theirStack.isDataOverridden(type))
 				excluded.add(type);
-				quality = MatchQuality.SAME_ITEM;
-			} else if (!oursHasData && theirsHasData) { // if they have this data, but we do not, we are different items
-				return MatchQuality.SAME_MATERIAL;
-			}
 		}
 
-		// compare rest of item data
-		boolean matches = ourStack.matchesWithoutData(theirStack, excluded, true);
-		return matches ? quality : MatchQuality.SAME_MATERIAL;
+		// since at this point we know we are different, if there are no exclusions the difference MUST
+		// either be 1 component that we override differently, or a component that they override and we do not.
+		if (excluded.isEmpty())
+			return MatchQuality.SAME_MATERIAL;
+
+		excluded.add(DataComponentTypes.DAMAGE); // we handle damage separately
+		return ourStack.matchesWithoutData(theirStack, excluded, true) ? MatchQuality.SAME_ITEM : MatchQuality.SAME_MATERIAL;
 	}
 
 	/**
