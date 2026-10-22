@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.entity;
 
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.Nullable;
@@ -7,6 +8,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.bukkit.entity.EntityData.EntityDataPatterns;
 import org.skriptlang.skript.bukkit.entity.EntityData.PatternGroup;
 import org.skriptlang.skript.bukkit.entity.EntityDataInfo.Builder;
+import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.localization.GeneralNoun;
 import org.skriptlang.skript.registration.SyntaxInfo;
@@ -149,6 +151,11 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 	}
 
 	@Override
+	public Documentation documentation() {
+		return defaultInfo.documentation();
+	}
+
+	@Override
 	public Data instance() {
 		return defaultInfo.instance();
 	}
@@ -197,7 +204,10 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 			this.dataClass = dataClass;
 			this.dataName = dataName;
 			this.defaultBuilder = SyntaxInfo.builder(dataClass)
-				.origin(EntityModule.origin)
+				.documentation(Documentation.builder()
+					.origin(EntityModule.origin)
+					.name(WordUtils.capitalizeFully(dataName))
+					.build())
 				.addPattern("");
 		}
 
@@ -240,6 +250,15 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 		@Override
 		public B priority(@Nullable Priority priority) {
 			defaultBuilder.priority(priority);
+			return (B) this;
+		}
+
+		@Override
+		public B documentation(Documentation documentation) {
+			defaultBuilder.documentation(documentation.toBuilder()
+				.origin(EntityModule.origin)
+				.name(WordUtils.capitalizeFully(dataName))
+				.build());
 			return (B) this;
 		}
 

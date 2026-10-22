@@ -15,10 +15,12 @@ public class PatternCompilerTest {
 		assertEquals("hello (world|server)", PatternCompiler.compile("hello (world|server)").toString());
 		assertEquals("hello <.*>", PatternCompiler.compile("hello <.*>").toString());
 		assertEquals("hello [world|server]", PatternCompiler.compile("hello [(world|server)]").toString());
+		assertEquals("hello %integer%", PatternCompiler.compile("hello %integer%").toString());
 
 		StringificationProperties properties = StringificationProperties.builder()
 			.excludeParseTags()
 			.excludeTypeFlags()
+			.mapUndocumentableTypes()
 			.build();
 		assertEquals("hello [a:world]", PatternCompiler.compile("hello [a:world]").toString());
 		assertEquals("hello [world]", PatternCompiler.compile("hello [a:world]").toString(properties));
@@ -28,6 +30,7 @@ public class PatternCompilerTest {
 		assertEquals("hello [%number%]", PatternCompiler.compile("hello [%-number%]").toString(properties));
 		assertEquals("hello [%number@1%]", PatternCompiler.compile("hello [%number@1%]").toString());
 		assertEquals("hello [%number%]", PatternCompiler.compile("hello [%number@1%]").toString(properties));
+		assertEquals("hello %number%", PatternCompiler.compile("hello %integer%").toString(properties));
 	}
 
 }
