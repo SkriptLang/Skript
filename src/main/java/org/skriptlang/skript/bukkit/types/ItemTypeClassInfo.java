@@ -156,7 +156,7 @@ public class ItemTypeClassInfo extends ClassInfo<ItemType> {
 		public void change(ItemType itemType, Object @Nullable [] delta, ChangeMode mode) {
 			if (mode == ChangeMode.SET) {
 				assert delta != null;
-				itemType.setAmount((Integer) delta[0]);
+				itemType.setAmount(((Integer) delta[0]).intValue());
 			}
 		}
 

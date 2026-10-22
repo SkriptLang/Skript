@@ -8,7 +8,6 @@ import ch.njol.skript.variables.Variables;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.SimpleClassSerializer.NonInstantiableClassSerializer;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
-import com.google.common.collect.Sets;
 import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.registry.RegistryAccess;
@@ -25,8 +24,8 @@ import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 
@@ -292,7 +291,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 
 		// See if we need to compare durability; for blocks, BlockValues handles this when needed
 		// From API perspective, durability is part of ItemMeta; however, we need to support 1.12 and older
-		if (itemForm && ItemUtils.getDamage(stack) != ItemUtils.getDamage(item.stack)) {
+		if (itemForm && !stack.getDataOrDefault(DataComponentTypes.DAMAGE, 0).equals(item.stack.getDataOrDefault(DataComponentTypes.DAMAGE, 0))) {
 			if (item.hasFlag(ItemFlags.CHANGED_DURABILITY)) { // Given item requests we match its durability
 				quality = MatchQuality.SAME_MATERIAL;
 			} else { // Given item doesn't care about durability, so are still same enough
@@ -321,41 +320,32 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		return (itemFlags & flag) != 0;
 	}
 
-	private static final Set<DataComponentType.Valued<?>> STACK_COMPARABLE = Set.of(
-		DataComponentTypes.CUSTOM_NAME, DataComponentTypes.LORE, DataComponentTypes.ENCHANTMENTS,
-		DataComponentTypes.TOOLTIP_DISPLAY, DataComponentTypes.DAMAGE
-	);
+	private static final DataComponentType[] ALL_TYPES = RegistryAccess.registryAccess()
+		.getRegistry(RegistryKey.DATA_COMPONENT_TYPE)
+		.stream()
+		.filter(type -> type != DataComponentTypes.DAMAGE)
+		.toArray(DataComponentType[]::new);
 
 	private static MatchQuality compareItemStacks(ItemStack ourStack, ItemStack theirStack) {
 		MatchQuality quality = MatchQuality.EXACT; // lowered as we go on
 
-		Set<DataComponentType> allTypes = RegistryAccess.registryAccess()
-			.getRegistry(RegistryKey.DATA_COMPONENT_TYPE)
-			.stream()
-			.filter(type -> type != DataComponentTypes.DAMAGE)
-			.collect(Collectors.toSet());
-
 		// idea: ourStack's data should be a super set of theirStack's data
-		for (var type : STACK_COMPARABLE) {
-			if (type == DataComponentTypes.DAMAGE) {
-				continue;
-			}
+		Set<DataComponentType> excluded = new HashSet<>();
+		excluded.add(DataComponentTypes.DAMAGE);
+		// this is cheaper than iterating over the specific data types of the ItemStacks
+		for (var type : ALL_TYPES) {
 			boolean oursHasData = ourStack.isDataOverridden(type);
 			boolean theirsHasData = theirStack.isDataOverridden(type);
-			if (oursHasData && theirsHasData) {
-				if (!ourStack.matchesWithoutData(theirStack, Sets.difference(allTypes, Set.of(type)), true)) {
-					return MatchQuality.SAME_MATERIAL;
-				}
-			} else if (oursHasData) { // if we have this data, but they do not, we may be a superset
+			if (oursHasData && !theirsHasData) { // if we have this data, but they do not, we may be a superset
+				excluded.add(type);
 				quality = MatchQuality.SAME_ITEM;
-			} else if (theirsHasData) { // if they have this data, but we do not, we are different items
+			} else if (!oursHasData && theirsHasData) { // if they have this data, but we do not, we are different items
 				return MatchQuality.SAME_MATERIAL;
 			}
 		}
 
 		// compare rest of item data
-		//noinspection unchecked
-		boolean matches = ourStack.matchesWithoutData(theirStack, (Set<DataComponentType>) (Set<?>) STACK_COMPARABLE, true);
+		boolean matches = ourStack.matchesWithoutData(theirStack, excluded, true);
 		return matches ? quality : MatchQuality.SAME_MATERIAL;
 	}
 
