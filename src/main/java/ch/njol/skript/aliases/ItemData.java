@@ -1,6 +1,5 @@
 package ch.njol.skript.aliases;
 
-import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.bukkitutil.block.BlockCompat;
 import ch.njol.skript.bukkitutil.block.BlockValues;
@@ -9,27 +8,25 @@ import ch.njol.skript.variables.Variables;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.SimpleClassSerializer.NonInstantiableClassSerializer;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import com.google.common.collect.Sets;
+import io.papermc.paper.datacomponent.DataComponentType;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFactory;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.MusicInstrumentMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionEffect;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 
@@ -59,14 +56,13 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	}
 
 	private static final ItemFactory itemFactory = Bukkit.getServer().getItemFactory();
-	
-	private final static Message m_named = new Message("aliases.named");
-	
+	private static final Message M_NAMED = new Message("aliases.named");
+
 	/**
 	 * Type of the item as Bukkit material. Serialized manually.
 	 */
 	transient Material type;
-	
+
 	/**
 	 * If this represents all possible items.
 	 */
@@ -84,17 +80,15 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	@Nullable BlockValues blockValues;
 
 	/**
-	 * Whether this represents an item (that definitely cannot have
-	 * block states) or a block, which might have them.
+	 * Whether this represents an item (that definitely cannot have block states) or a block, which might have them.
 	 */
 	boolean itemForm;
-	
+
 	/**
-	 * If this item is an alias or a clone of one that has not been
-	 * modified after loading the aliases.
+	 * If this item is an alias or a clone of one that has not been modified after loading the aliases.
 	 */
 	boolean isAlias = false;
-	
+
 	/**
 	 * Whether this item is a 'plain' item type.
 	 * This is used for comparison, as any item type matched to this item type must also be plain OR be an alias.
@@ -113,15 +107,8 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	 */
 	private ItemData() { }
 
-	public ItemData(Material type, @Nullable String tags) {
-		this.type = type;
-
-		if (type.isItem())
-			this.stack = new ItemStack(type);
-		this.blockValues = BlockCompat.INSTANCE.getBlockValues(type);
-		if (tags != null) {
-			applyTags(tags);
-		}
+	public ItemData(Material type) {
+		this(type, 1);
 	}
 
 	public ItemData(Material type, int amount) {
@@ -131,29 +118,16 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		this.blockValues = BlockCompat.INSTANCE.getBlockValues(type);
 	}
 
-	public ItemData(Material type) {
-		this(type, 1);
-	}
-
-	public ItemData(ItemData data) {
-		this.stack = data.stack != null ? data.stack.clone() : null;
-		this.type = data.type;
-		this.blockValues = data.blockValues;
-		this.isAlias = data.isAlias;
-		this.plain = data.plain;
-		this.itemFlags = data.itemFlags;
-	}
-
 	public ItemData(Material material, @Nullable BlockValues values) {
 		this.type = material;
 		this.blockValues = values;
 	}
-	
+
 	public ItemData(ItemStack stack, @Nullable BlockValues values) {
 		this.stack = stack;
 		this.type = stack.getType();
 		this.blockValues = values;
-		
+
 		// Set ItemFlags as accurately as possible based on given stack
 		if (type.getMaxDurability() != 0) {
 			// We're not checking current damage; when it is 0, it might still be explicitly set
@@ -166,7 +140,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		// See issue #2714 for examples of bad things that this causes
 		itemFlags |= ItemFlags.CHANGED_TAGS;
 	}
-	
+
 	public ItemData(ItemStack stack) {
 		this(stack, BlockCompat.INSTANCE.getBlockValues(stack));
 		this.itemForm = true;
@@ -178,24 +152,24 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 			this.stack = new ItemStack(type);
 		this.blockValues = BlockCompat.INSTANCE.getBlockValues(blockData);
 	}
-	
+
 	public ItemData(Block block) {
 		this(block.getBlockData());
 	}
-	
+
 	/**
 	 * Tests whether the given item is of this type.
 	 * 
-	 * @param item
+	 * @param item The stack to compare too.
 	 * @return Whether the given item is of this type.
 	 */
 	public boolean isOfType(@Nullable ItemStack item) {
 		if (item == null)
 			return type == Material.AIR;
-		
+
 		if (type != item.getType())
 			return false; // Obvious mismatch
-		
+
 		if (stack != null && itemFlags != 0) { // Either stack has tags (or durability)
 			if (ItemUtils.getDamage(stack) != ItemUtils.getDamage(item))
 				return false; // On 1.12 and below, damage is not in meta
@@ -205,50 +179,49 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Returns <code>Aliases.{@link Aliases#getMaterialName(ItemData, boolean) getMaterialName}(ItemData, boolean)</code>
-	 * called with this object and relevant plurarily setting.
+	 * called with this object and relevant plurality setting.
 	 */
 	@Override
 	public String toString() {
 		return toString(false, false);
 	}
-	
+
 	public String toString(final boolean debug, final boolean plural) {
 		StringBuilder builder = new StringBuilder(Aliases.getMaterialName(this, plural));
 		ItemMeta meta = stack != null ? stack.getItemMeta() : null;
 		if (meta != null && meta.hasDisplayName()) {
 			builder.append(" ")
-				.append(m_named)
+				.append(M_NAMED)
 				.append(" ")
 				.append(TextComponentParser.instance().toString(meta.displayName()));
 		}
 		return builder.toString();
 	}
-	
+
 	/**
 	 * @return The item's gender or -1 if no name is found
 	 */
 	public int getGender() {
 		return Aliases.getGender(this);
 	}
-	
+
 	@Override
 	public boolean equals(final @Nullable Object obj) {
 		if (obj == this)
 			return true;
-		if (!(obj instanceof ItemData))
+		if (!(obj instanceof ItemData other))
 			return false;
-		
-		ItemData other = (ItemData) obj;
+
 		if (isAlias()) { // This is alias, other item might not be
 			return other.matchAlias(this).isAtLeast(MatchQuality.SAME_ITEM);
 		} else { // This is not alias, but other might be
 			return matchAlias(other).isAtLeast(MatchQuality.SAME_ITEM);
 		}
 	}
-	
+
 	@Override
 	public int hashCode() {
 		int hash = type.hashCode(); // Has collisions, but probably not too many of them
@@ -257,7 +230,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		}
 		return hash;
 	}
-	
+
 	/**
 	 * Checks how well this item matches the given item.
 	 * @param item Other item, preferably an alias.
@@ -282,7 +255,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		if (isAnything || item.isAnything) {
 			return MatchQuality.EXACT; // TODO different match quality?
 		}
-		
+
 		// Ensure that both items share the material
 		if (item.getType() != getType()) {
 			return MatchQuality.DIFFERENT;
@@ -300,7 +273,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		 * between items are discovered.
 		 */
 		MatchQuality quality = MatchQuality.EXACT;
-		
+
 		// Check that block values of given item match ours
 		if (values != null) {
 			if (item.blockValues != null) { // Other item has block values, so match against them
@@ -309,7 +282,14 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 				quality = MatchQuality.SAME_MATERIAL;
 			}
 		}
-		
+
+		if (this.stack == null || item.stack == null) { // nothing else to compare
+			if (this.stack != null) { // one has a stack, the other does not
+				quality = MatchQuality.SAME_MATERIAL;
+			}
+			return quality;
+		}
+
 		// See if we need to compare durability; for blocks, BlockValues handles this when needed
 		// From API perspective, durability is part of ItemMeta; however, we need to support 1.12 and older
 		if (itemForm && ItemUtils.getDamage(stack) != ItemUtils.getDamage(item.stack)) {
@@ -319,23 +299,19 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 				quality = MatchQuality.SAME_ITEM;
 			}
 		}
-		
-		// See if we need to compare item metas (excluding durability)
-		if (quality.isAtLeast(MatchQuality.SAME_ITEM) && this.hasItemMeta() || item.hasItemMeta()) { // Item meta checks could lower this
-			MatchQuality metaQuality = compareItemMetas(getItemMeta(), item.getItemMeta());
-			
-			// If given item doesn't care about meta, promote to SAME_ITEM
-			// I.e. we checked meta only to eliminate EXACT match
-			if (metaQuality == MatchQuality.SAME_MATERIAL && !item.hasFlag(ItemFlags.CHANGED_TAGS)) {
-				quality = MatchQuality.SAME_ITEM;
-			} else if (quality.isBetter(metaQuality)) { // Otherwise just allow meta to lower quality
-				quality = metaQuality;
-			}
+
+		// If given item doesn't care about meta, promote to SAME_ITEM
+		// i.e., we checked meta only to eliminate EXACT match
+		MatchQuality itemQuality = compareItemStacks(this.stack, item.stack);
+		if (itemQuality == MatchQuality.SAME_MATERIAL && !item.hasFlag(ItemFlags.CHANGED_TAGS)) {
+			quality = MatchQuality.SAME_ITEM;
+		} else if (quality.isBetter(itemQuality)) { // Otherwise just allow meta to lower quality
+			quality = itemQuality;
 		}
-		
+
 		return quality;
 	}
-	
+
 	/**
 	 * Checks if this item has given flag.
 	 * @param flag Flag found in {@link ItemFlags}.
@@ -344,79 +320,45 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	private boolean hasFlag(int flag) {
 		return (itemFlags & flag) != 0;
 	}
-	
-	/**
-	 * Compares {@link ItemMeta}s for {@link #matchAlias(ItemData)}.
-	 * Note that this method assumes the metas are coming from similar types.
-	 * @param first Meta of this item.
-	 * @param second Meta of given item.
-	 * @return Match quality of metas.
-	 * Lowest is {@link MatchQuality#SAME_MATERIAL}.
-	 */
-	private static MatchQuality compareItemMetas(ItemMeta first, ItemMeta second) {
-		MatchQuality quality = MatchQuality.EXACT; // Lowered as we go on
-		MatchQuality newQuality; // Used to prevent upgrading the quality
-		
-		// Display name
-		String ourName = first.hasDisplayName() ? first.getDisplayName() : null;
-		String theirName = second.hasDisplayName() ? second.getDisplayName() : null;
-		if (!Objects.equals(ourName, theirName)) {
-			newQuality = (ourName != null && theirName == null) ? MatchQuality.SAME_ITEM : MatchQuality.SAME_MATERIAL;
-			if (!newQuality.isBetter(quality))
-				quality = newQuality;
-		}
-		
-		// Lore
-		List<String> ourLore = first.hasLore() ? first.getLore() : null;
-		List<String> theirLore = second.hasLore() ? second.getLore() : null;
-		if (!Objects.equals(ourLore, theirLore)) {
-			newQuality = (ourLore != null && theirLore == null) ? MatchQuality.SAME_ITEM : MatchQuality.SAME_MATERIAL;
-			if (!newQuality.isBetter(quality))
-				quality = newQuality;
-		}
-		
-		// Enchantments
-		Map<Enchantment, Integer> ourEnchants = first.getEnchants();
-		Map<Enchantment, Integer> theirEnchants = second.getEnchants();
-		if (!Objects.equals(ourEnchants, theirEnchants)) {
-			newQuality = (!ourEnchants.isEmpty() && theirEnchants.isEmpty()) ? MatchQuality.SAME_ITEM : MatchQuality.SAME_MATERIAL;
-			if (!newQuality.isBetter(quality))
-				quality = newQuality;
-		}
-		
-		// Item flags
-		Set<ItemFlag> ourFlags = first.getItemFlags();
-		Set<ItemFlag> theirFlags = second.getItemFlags();
-		if (!Objects.equals(ourFlags, theirFlags)) {
-			newQuality = (!ourFlags.isEmpty() && theirFlags.isEmpty()) ? MatchQuality.SAME_ITEM : MatchQuality.SAME_MATERIAL;
-			if (!newQuality.isBetter(quality))
-				quality = newQuality;
+
+	private static final Set<DataComponentType.Valued<?>> STACK_COMPARABLE = Set.of(
+		DataComponentTypes.CUSTOM_NAME, DataComponentTypes.LORE, DataComponentTypes.ENCHANTMENTS,
+		DataComponentTypes.TOOLTIP_DISPLAY, DataComponentTypes.DAMAGE
+	);
+
+	private static MatchQuality compareItemStacks(ItemStack ourStack, ItemStack theirStack) {
+		MatchQuality quality = MatchQuality.EXACT; // lowered as we go on
+
+		Set<DataComponentType> allTypes = RegistryAccess.registryAccess()
+			.getRegistry(RegistryKey.DATA_COMPONENT_TYPE)
+			.stream()
+			.filter(type -> type != DataComponentTypes.DAMAGE)
+			.collect(Collectors.toSet());
+
+		// idea: ourStack's data should be a super set of theirStack's data
+		for (var type : STACK_COMPARABLE) {
+			if (type == DataComponentTypes.DAMAGE) {
+				continue;
+			}
+			boolean oursHasData = ourStack.isDataOverridden(type);
+			boolean theirsHasData = theirStack.isDataOverridden(type);
+			if (oursHasData && theirsHasData) {
+				if (!ourStack.matchesWithoutData(theirStack, Sets.difference(allTypes, Set.of(type)), true)) {
+					return MatchQuality.SAME_MATERIAL;
+				}
+			} else if (oursHasData) { // if we have this data, but they do not, we may be a superset
+				quality = MatchQuality.SAME_ITEM;
+			} else if (theirsHasData) { // if they have this data, but we do not, we are different items
+				return MatchQuality.SAME_MATERIAL;
+			}
 		}
 
-		// awful but we have to make these values the same so that they don't matter for comparison
-		// clone to avoid affecting user
-		first = first.clone();
-		second = second.clone();
-
-		first.setDisplayName(null);
-		second.setDisplayName(null);
-
-		first.setLore(null);
-		second.setLore(null);
-
-		for (Enchantment ourEnchant : ourEnchants.keySet())
-			first.removeEnchant(ourEnchant);
-		for (Enchantment theirEnchant : theirEnchants.keySet())
-			second.removeEnchant(theirEnchant);
-
-		for (ItemFlag ourFlag : ourFlags)
-			first.removeItemFlags(ourFlag);
-		for (ItemFlag theirFlag : theirFlags)
-			second.removeItemFlags(theirFlag);
-
-		return first.equals(second) ? quality : MatchQuality.SAME_MATERIAL;
+		// compare rest of item data
+		//noinspection unchecked
+		boolean matches = ourStack.matchesWithoutData(theirStack, (Set<DataComponentType>) (Set<?>) STACK_COMPARABLE, true);
+		return matches ? quality : MatchQuality.SAME_MATERIAL;
 	}
-	
+
 	/**
 	 * Checks if this item is a 'default' of type. Default items must have not
 	 * had their ItemMeta (tags) modified or have block states. Only aliases
@@ -426,7 +368,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	public boolean isDefault() {
 		return itemFlags == 0 && blockValues == null;
 	}
-	
+
 	/**
 	 * Checks if this item is an alias or a clone of one that has not been
 	 * modified after loading the aliases.
@@ -436,24 +378,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	public boolean isAlias() {
 		return isAlias || (itemFlags == 0 && blockValues == null);
 	}
-	
-	/**
-	 * Computes the intersection of two ItemDatas. The data range of the returned item data will be the real intersection of the two data ranges, and the type id will be the one
-	 * set if any.
-	 * 
-	 * @param other
-	 * @return A new ItemData which is the intersection of the given types, or null if the intersection of the data ranges is empty or both datas have an id != -1 which are not the
-	 *         same.
-	 */
-	@Nullable
-	public ItemData intersection(final ItemData other) {
-		if (other.type != type) // Different type, no intersection possible
-			return null;
-		
-		// TODO implement meta intersection
-		return this;
-	}
-	
+
 	/**
 	 * Returns the ItemStack backing this ItemData.
 	 * It is not a copy, so please be careful.
@@ -463,24 +388,29 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		return stack;
 	}
 
-	private boolean hasItemMeta() {
-		return stack != null && stack.hasItemMeta();
-	}
-	
 	@Override
 	public ItemData clone() {
-		return new ItemData(this);
+		ItemData itemData;
+		try {
+			itemData = (ItemData) super.clone();
+		} catch (CloneNotSupportedException e) { // should not be possible
+			throw new RuntimeException(e);
+		}
+		if (itemData.stack != null) {
+			itemData.stack = itemData.stack.clone();
+		}
+		return itemData;
 	}
-	
+
 	public Material getType() {
 		return type;
 	}
-	
+
 	@Nullable
 	public BlockValues getBlockValues() {
 		return blockValues;
 	}
-	
+
 	public ItemMeta getItemMeta() {
 		ItemMeta meta = stack != null ? stack.getItemMeta() : null;
 		if (meta == null) { // AIR has null item meta!
@@ -489,7 +419,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		assert meta != null;
 		return meta;
 	}
-	
+
 	public void setItemMeta(ItemMeta meta) {
 		if (stack == null)
 			return;
@@ -498,13 +428,13 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		plain = false; // This is no longer a plain item
 		itemFlags |= ItemFlags.CHANGED_TAGS;
 	}
-	
+
 	public int getDurability() {
 		if (stack == null)
 			return 0; // no damage?
 		return ItemUtils.getDamage(stack);
 	}
-	
+
 	public void setDurability(int durability) {
 		if (stack == null)
 			return;
@@ -513,7 +443,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		plain = false; // This is no longer a plain item
 		itemFlags |= ItemFlags.CHANGED_DURABILITY;
 	}
-	
+
 	/**
 	 * Checks if this item type was created through {@link ch.njol.skript.expressions.ExprPlain}
 	 * and thus has no modifications made to it.
@@ -522,11 +452,11 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	public boolean isPlain() {
 		return plain;
 	}
-	
+
 	public void setPlain(boolean plain) {
 		this.plain = plain;
 	}
-	
+
 	/**
 	 * Compares this ItemData with another to determine if they are matching "plain" items.
 	 * For these ItemDatas to match, they must share a {@link Material}. One of the following must also be true:
@@ -576,6 +506,10 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		fields.setFields(this); // Everything but ItemStack and Material
 	}
 
+	private static final DataComponentType.Valued<?>[] COPYABLE_FOR_BASE = new DataComponentType.Valued[]{
+		DataComponentTypes.POTION_CONTENTS, DataComponentTypes.INSTRUMENT
+	};
+
 	/**
 	 * Returns a base version of this item data, i.e. only contains
 	 * the minimum ItemMeta info to represent the item, in the case of potions/goat horns.
@@ -588,56 +522,17 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		data.itemForm = itemForm;
 		if (stack != null) {
 			data.stack = new ItemStack(type, 1);
-			if (stack.hasItemMeta()) {
-				ItemMeta meta = stack.getItemMeta();
-				if (meta instanceof PotionMeta potionMeta) {
-					copyPotionInfo(potionMeta, data);
-				} else if (meta instanceof MusicInstrumentMeta musicMeta) {
-					copyMusicInfo(musicMeta, data);
+			// note: there is a bulk copy method, but we need to be sure a change is actually applied
+			//noinspection rawtypes
+			for (DataComponentType.Valued type : COPYABLE_FOR_BASE) {
+				if (stack.hasData(type)) {
+					//noinspection unchecked, ConstantConditions - presence is checked
+					data.stack.setData(type, stack.getData(type));
+					data.itemFlags = ItemFlags.CHANGED_TAGS;
 				}
 			}
 		}
 		return data;
 	}
 
-	private static void copyPotionInfo(PotionMeta potionMeta, ItemData data) {
-		PotionMeta newMeta = (PotionMeta) itemFactory.getItemMeta(data.type);
-		if (newMeta.equals(potionMeta))
-			return;
-		// copy potion meta info
-		if (potionMeta.hasBasePotionType())
-			newMeta.setBasePotionType(potionMeta.getBasePotionType());
-		if (potionMeta.hasCustomEffects()) {
-			for (PotionEffect effect : potionMeta.getCustomEffects()) {
-				newMeta.addCustomEffect(effect, false);
-			}
-		}
-		if (potionMeta.hasColor())
-			newMeta.setColor(potionMeta.getColor());
-		if (potionMeta.hasCustomPotionName())
-			newMeta.setCustomPotionName(potionMeta.getCustomPotionName());
-		data.itemFlags = ItemFlags.CHANGED_TAGS;
-		data.setItemMeta(newMeta);
-	}
-
-	private static void copyMusicInfo(MusicInstrumentMeta musicMeta, ItemData data) {
-		MusicInstrumentMeta newMeta = (MusicInstrumentMeta) itemFactory.getItemMeta(data.type);
-		if (newMeta.equals(musicMeta))
-			return;
-		newMeta.setInstrument(musicMeta.getInstrument());
-		data.itemFlags = ItemFlags.CHANGED_TAGS;
-		data.setItemMeta(newMeta);
-	}
-
-	/**
-	 * Applies tags to this item.
-	 * @param tags Tags in Mojang's JSON format.
-	 */
-	public void applyTags(String tags) {
-		if (stack == null)
-			return;
-		BukkitUnsafe.modifyItemStack(stack, tags);
-		itemFlags |= ItemFlags.CHANGED_TAGS;
-	}
-	
 }

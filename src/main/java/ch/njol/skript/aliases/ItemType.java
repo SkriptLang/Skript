@@ -131,10 +131,6 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		}
 	}
 
-	public ItemType(Material id, String tags) {
-		add_(new ItemData(id, tags));
-	}
-
 	public ItemType(ItemData d) {
 		add_(d.clone());
 	}
@@ -227,20 +223,20 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 	public boolean isOfType(@Nullable ItemStack item) {
 		if (item == null)
-			return isOfType(Material.AIR, null);
+			return isOfType(Material.AIR);
 		return isOfType(new ItemData(item));
 	}
 
 	public boolean isOfType(@Nullable BlockData blockData) {
 		if (blockData == null)
-			return isOfType(Material.AIR, null);
+			return isOfType(Material.AIR);
 
 		return isOfType(new ItemData(blockData));
 	}
 
 	public boolean isOfType(@Nullable Block block) {
 		if (block == null)
-			return isOfType(Material.AIR, null);
+			return isOfType(Material.AIR);
 		return isOfType(block.getBlockData());
 	}
 
@@ -253,13 +249,9 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		return false;
 	}
 
-	public boolean isOfType(Material id, @Nullable String tags) {
-		return isOfType(new ItemData(id, tags));
-	}
-
 	public boolean isOfType(Material id) {
 		// TODO avoid object creation
-		return isOfType(new ItemData(id, (String) null));
+		return isOfType(new ItemData(id));
 	}
 
 	/**
@@ -425,28 +417,6 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 				continue;
 			BlockUtils.sendBlockChange(player, location, blockType, d.getBlockValues());
 		}
-	}
-
-	/**
-	 * Intersects all ItemDatas with all ItemDatas of the given ItemType, returning an ItemType with at most n*m ItemDatas, where n = #ItemDatas of this ItemType, and m =
-	 * #ItemDatas of the argument.
-	 *
-	 * @see ItemData#intersection(ItemData)
-	 * @param other
-	 * @return A new item type which is the intersection of the two item types or null if the intersection is empty.
-	 */
-	@Nullable
-	public ItemType intersection(ItemType other) {
-		ItemType r = new ItemType();
-		for (ItemData d1 : types) {
-			for (ItemData d2 : other.types) {
-				assert d2 != null;
-				r.add_(d1.intersection(d2));
-			}
-		}
-		if (r.types.isEmpty())
-			return null;
-		return r;
 	}
 
 	/**
