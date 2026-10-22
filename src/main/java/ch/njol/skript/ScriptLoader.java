@@ -1431,6 +1431,9 @@ public class ScriptLoader {
 	/**
 	 * Normalises a script name into the form used as a key in {@link #scriptsByName},
 	 * which is the script's path relative to the scripts folder.
+	 * <p>
+	 * If the provided name ends in a file separator character (e.g. /), the returned name
+	 * will not have .sk appended.
 	 *
 	 * @param name The name to normalise.
 	 * @return The normalised name, or null if the provided name cannot denote a script.
@@ -1439,19 +1442,17 @@ public class ScriptLoader {
 		if (name == null || name.isEmpty())
 			return null;
 
-		// Always allow '/' and '\' regardless of OS
-		name = name.replace('/', File.separatorChar).replace('\\', File.separatorChar);
-
-		if (name.startsWith(DISABLED_SCRIPT_PREFIX))
-			name = name.substring(DISABLED_SCRIPT_PREFIX_LENGTH);
-
-		if (!StringUtils.endsWithIgnoreCase(name, ".sk")) {
-			// A different extension means this cannot be a script
+		if (name.endsWith("/") || name.endsWith("\\")) { // Always allow '/' and '\' regardless of OS
+			name = name.replace('/', File.separatorChar).replace('\\', File.separatorChar);
+		} else if (!StringUtils.endsWithIgnoreCase(name, ".sk")) {
 			int dot = name.lastIndexOf('.');
 			if (dot > 0 && !name.substring(dot + 1).isEmpty())
 				return null;
 			name = name + ".sk";
 		}
+
+		if (name.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
+			name = name.substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH);
 
 		return name;
 	}
