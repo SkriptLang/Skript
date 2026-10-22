@@ -172,29 +172,10 @@ public class SecConditional extends Section {
 
 			// if this is a multiline "if", we have to parse each line as its own condition
 			if (multiline) {
-				// we have to get the size of the iterator here as SectionNode#size includes empty/void nodes
-				int nonEmptyNodeCount = Iterables.size(sectionNode);
-				if (nonEmptyNodeCount < 2) {
-					Skript.error((ifAny ? "'if any'" : "'if all'") + " sections must contain at least two conditions");
+				List<Conditional<Event>> parsed = parseConditionList(sectionNode, 2, ifAny ? "'if any'" : "'if all'");
+				if (parsed == null)
 					return false;
-				}
-				for (Node childNode : sectionNode) {
-					if (childNode instanceof SectionNode) {
-						Skript.error((ifAny ? "'if any'" : "'if all'") + " sections may not contain other sections");
-						return false;
-					}
-					String childKey = childNode.getKey();
-					if (childKey != null) {
-						childKey = ScriptLoader.replaceOptions(childKey);
-						parser.setNode(childNode);
-						Condition condition = Condition.parse(childKey, "Can't understand this condition: '" + childKey + "'");
-						// if this condition was invalid, don't bother parsing the rest
-						if (condition == null)
-							return false;
-						conditionals.add(condition);
-					}
-				}
-				parser.setNode(sectionNode);
+				conditionals.addAll(parsed);
 			} else {
 				// otherwise, this is just a simple single line "if", with the condition on the same line
 				String expr = parseResult.regexes.get(0).group();
@@ -211,17 +192,6 @@ public class SecConditional extends Section {
 
 			if (conditionals.isEmpty())
 				return false;
-
-			/*
-				This allows the embedded multilined conditions to be properly debugged.
-				Debugs are caught within the RetainingLogHandler in ScriptLoader#loadItems
-				Which will be printed after the debugged section (e.g 'if all')
-			 */
-			if ((Skript.debug() || sectionNode.debug()) && conditionals.size() > 1) {
-				String indentation = parser.getIndentation() + "    ";
-				for (Conditional<?> condition : conditionals)
-					Skript.debug(indentation + TextComponentParser.instance().escape(condition.toString(null, true)));
-			}
 
 			conditional = Conditional.compound(ifAny ? Operator.OR : Operator.AND, conditionals);
 		}
@@ -412,6 +382,74 @@ public class SecConditional extends Section {
 
 	private boolean checkConditions(Event event) {
 		return conditional == null || conditional.evaluate(event).isTrue();
+	}
+
+	public Conditional<Event> getCondition() {
+		return conditional;
+	}
+
+	/**
+	 * Parses the contents of a section node as a list of conditions, one condition per line.
+	 * This is what backs multiline conditional sections such as {@code if all:}.
+	 * <br>
+	 * The {@link ParserInstance}'s node is left pointing at {@code sectionNode} when this method returns.
+	 *
+	 * @param sectionNode The node whose children should be parsed as conditions.
+	 * @param minimum The minimum amount of conditions the section must contain.
+	 * @param label How the section should be referred to in errors, e.g. {@code "'if all'"}.
+	 * @return The parsed conditions, or null if the section was invalid. An error will have been printed in that case.
+	 */
+	public static @Nullable List<Conditional<Event>> parseConditionList(SectionNode sectionNode, int minimum, String label) {
+		ParserInstance parser = ParserInstance.get();
+
+		// we have to get the size of the iterator here as SectionNode#size includes empty/void nodes
+		int nonEmptyNodeCount = Iterables.size(sectionNode);
+		if (nonEmptyNodeCount < minimum) {
+			Skript.error(label + " sections must contain at least " + switch (minimum) {
+				case 1 -> "one condition";
+				case 2 -> "two conditions";
+				default -> minimum + " conditions";
+			});
+			return null;
+		}
+
+		List<Conditional<Event>> conditionals = new ArrayList<>();
+		try {
+			for (Node childNode : sectionNode) {
+				if (childNode instanceof SectionNode) {
+					Skript.error(label + " sections may not contain other sections");
+					return null;
+				}
+				String childKey = childNode.getKey();
+				if (childKey != null) {
+					childKey = ScriptLoader.replaceOptions(childKey);
+					parser.setNode(childNode);
+					Condition condition = Condition.parse(childKey, "Can't understand this condition: '" + childKey + "'");
+					// if this condition was invalid, don't bother parsing the rest
+					if (condition == null)
+						return null;
+					conditionals.add(condition);
+				}
+			}
+		} finally {
+			parser.setNode(sectionNode);
+		}
+
+		if (conditionals.isEmpty())
+			return null;
+
+		/*
+			This allows the embedded multilined conditions to be properly debugged.
+			Debugs are caught within the RetainingLogHandler in ScriptLoader#loadItems
+			Which will be printed after the debugged section (e.g 'if all')
+		 */
+		if ((Skript.debug() || sectionNode.debug()) && conditionals.size() > 1) {
+			String indentation = parser.getIndentation() + "    ";
+			for (Conditional<?> condition : conditionals)
+				Skript.debug(indentation + TextComponentParser.instance().escape(condition.toString(null, true)));
+		}
+
+		return conditionals;
 	}
 
 	private @Nullable Node getNextNode(Node precedingNode, ParserInstance parser) {
