@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Explosive;
 import org.bukkit.event.Event;
@@ -63,6 +64,27 @@ public class CondIncendiary extends Condition {
 			return ((ExplosionPrimeEvent) e).getFire() ^ isNegated();
 		}
 		return entities.check(e, entity -> entity instanceof Explosive && ((Explosive) entity).isIncendiary(), isNegated());
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	public void change(Event event, boolean isIncendiary, ChangeMode mode) {
+		if (isEvent) {
+			if (event instanceof ExplosionPrimeEvent explosionPrimeEvent) {
+				explosionPrimeEvent.setFire(isIncendiary);
+			}
+			return;
+		}
+
+		for (Entity entity : entities.getArray(event)) {
+			if (entity instanceof Explosive explosive) {
+				explosive.setIsIncendiary(isIncendiary);
+			}
+		}
 	}
 
 	@Override

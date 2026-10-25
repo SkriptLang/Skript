@@ -1,6 +1,6 @@
 package ch.njol.skript.conditions;
 
-import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
@@ -17,23 +17,35 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 	""")
 @Since("2.5, 2.10 (gamemode)")
 public class CondIsInvulnerable extends PropertyCondition<Object> {
-
-	private static final boolean SUPPORTS_GAMEMODE = Skript.methodExists(GameMode.class, "isInvulnerable");
 	
 	static {
-		register(CondIsInvulnerable.class, "(invulnerable|invincible)", "entities" + (SUPPORTS_GAMEMODE ? "/gamemodes" : ""));
+		register(CondIsInvulnerable.class, "(invulnerable|invincible)", "entities/gamemodes");
 	}
 	
 	@Override
 	public boolean check(Object object) {
 		if (object instanceof Entity entity) {
 			return entity.isInvulnerable();
-		} else if (SUPPORTS_GAMEMODE && object instanceof GameMode gameMode) {
+		} else if (object instanceof GameMode gameMode) {
 			return gameMode.isInvulnerable();
 		}
 		return false;
 	}
-	
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(Object object, boolean invulnerable, ChangeMode mode) {
+		if (object instanceof Entity entity) {
+			entity.setInvulnerable(invulnerable);
+		} else if (object instanceof GameMode ignored) {
+			error("It is not possible to change whether a game mode makes players invulnerable.");
+		}
+	}
+
 	@Override
 	protected String getPropertyName() {
 		return "invulnerable";

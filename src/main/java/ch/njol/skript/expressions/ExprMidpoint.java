@@ -32,7 +32,7 @@ public class ExprMidpoint extends SimpleExpression<Object> implements SyntaxRunt
 
 	static {
 		Skript.registerExpression(ExprMidpoint.class, Object.class, ExpressionType.COMBINED,
-			"[the] mid[-]point (of|between) %object% and %object%");
+			"[the] mid[-]point (of|between) %location/vector% and %location/vector%");
 	}
 
 	private Expression<?> object1;
