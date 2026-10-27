@@ -19,6 +19,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
@@ -75,7 +76,7 @@ public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 		EventValues.registerEventValue(PotionEffectSectionEvent.class, SkriptPotionEffect.class, event -> event.effect);
 	}
 
-	static class PotionEffectSectionEvent extends LocalVariableHoldingEvent{
+	static class PotionEffectSectionEvent extends LocalVariableHoldingEvent {
 		public SkriptPotionEffect effect;
 		@Override
 		public @NotNull HandlerList getHandlers() {

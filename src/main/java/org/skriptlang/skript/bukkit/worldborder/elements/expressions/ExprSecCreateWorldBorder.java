@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.worldborder.elements.expressions;
 
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
@@ -10,8 +11,8 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SectionUtils;
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import ch.njol.skript.variables.Variables;
-import ch.njol.skript.doc.Example;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.WorldBorder;
@@ -98,7 +99,7 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 		return "a virtual worldborder";
 	}
 
-	public static class CreateWorldborderEvent extends LocalVariableHoldingEvent{
+	public static class CreateWorldborderEvent extends LocalVariableHoldingEvent {
 		private final WorldBorder worldborder;
 
 		public CreateWorldborderEvent(WorldBorder worldborder) {

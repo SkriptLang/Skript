@@ -1,12 +1,12 @@
 package ch.njol.skript.test.runner;
 
-import org.bukkit.event.Event;
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import org.bukkit.event.HandlerList;
 
 /**
  * Raised by Skript when tests are run.
  */
-public class SkriptTestEvent extends LocalVariableHoldingEvent{
+public class SkriptTestEvent extends LocalVariableHoldingEvent {
 
 	private static final HandlerList handlers = new HandlerList();
 	

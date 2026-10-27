@@ -13,6 +13,7 @@ import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
@@ -51,7 +52,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Since("2.12")
 public class ExprSecDamageSource extends SectionExpression<DamageSource> {
 
-	static class DamageSourceSectionEvent extends LocalVariableHoldingEvent{
+	static class DamageSourceSectionEvent extends LocalVariableHoldingEvent {
 
 		public DamageType damageType = DamageType.GENERIC;
 		public @Nullable Entity causingEntity = null;

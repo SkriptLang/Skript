@@ -9,6 +9,7 @@ import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -46,7 +47,7 @@ import java.util.List;
 @Since("2.13")
 public class ExprSecBlankEquipComp extends SectionExpression<EquippableWrapper> implements EquippableExperimentSyntax {
 
-	private static class BlankEquippableSectionEvent extends LocalVariableHoldingEvent{
+	private static class BlankEquippableSectionEvent extends LocalVariableHoldingEvent {
 
 		private final EquippableWrapper wrapper;
 

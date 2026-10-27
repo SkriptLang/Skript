@@ -6,6 +6,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Time;
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -16,7 +17,7 @@ import java.util.*;
 
 public class EvtRealTime extends SkriptEvent {
 
-	public static class RealTimeEvent extends LocalVariableHoldingEvent{
+	public static class RealTimeEvent extends LocalVariableHoldingEvent {
 		@Override
 		public @NotNull HandlerList getHandlers() {
 			throw new IllegalStateException();

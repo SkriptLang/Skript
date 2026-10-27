@@ -3,7 +3,6 @@ package ch.njol.skript.sections;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.*;
-import org.skriptlang.skript.bukkit.entity.EntityType;
 import ch.njol.skript.lang.EffectSection;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -12,6 +11,7 @@ import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Direction;
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
@@ -21,6 +21,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.entity.EntityType;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -52,7 +53,7 @@ import java.util.function.Consumer;
 @Since("1.0, 2.6.1 (with section), 2.8.6 (dropped items), 2.10 (entity snapshots)")
 public class EffSecSpawn extends EffectSection {
 
-	public static class SpawnEvent extends LocalVariableHoldingEvent{
+	public static class SpawnEvent extends LocalVariableHoldingEvent {
 
 		private final Entity entity;
 

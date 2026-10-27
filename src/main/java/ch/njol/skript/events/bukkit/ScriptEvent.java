@@ -1,12 +1,12 @@
 package ch.njol.skript.events.bukkit;
 
-import org.bukkit.event.Event;
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import org.bukkit.event.HandlerList;
 
 /**
  * @author Peter Güttinger
  */
-public class ScriptEvent extends LocalVariableHoldingEvent{
+public class ScriptEvent extends LocalVariableHoldingEvent {
 	
 	public ScriptEvent() {}
 	

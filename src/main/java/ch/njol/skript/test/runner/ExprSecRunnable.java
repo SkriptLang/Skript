@@ -9,6 +9,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -20,7 +21,7 @@ import java.util.List;
 @NoDoc
 public class ExprSecRunnable extends SectionExpression<Object> {
 
-	public static class RunnableEvent extends LocalVariableHoldingEvent{
+	public static class RunnableEvent extends LocalVariableHoldingEvent {
 
 		@Override
 		@NotNull
