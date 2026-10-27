@@ -51,7 +51,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Since("2.12")
 public class ExprSecDamageSource extends SectionExpression<DamageSource> {
 
-	static class DamageSourceSectionEvent extends Event {
+	static class DamageSourceSectionEvent extends LocalVariableHoldingEvent{
 
 		public DamageType damageType = DamageType.GENERIC;
 		public @Nullable Entity causingEntity = null;

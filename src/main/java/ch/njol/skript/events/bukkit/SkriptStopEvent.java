@@ -8,7 +8,7 @@ import org.bukkit.event.HandlerList;
  * 
  * @author Peter Güttinger
  */
-public class SkriptStopEvent extends Event {
+public class SkriptStopEvent extends LocalVariableHoldingEvent{
 	
 	// Bukkit stuff
 	private final static HandlerList handlers = new HandlerList();

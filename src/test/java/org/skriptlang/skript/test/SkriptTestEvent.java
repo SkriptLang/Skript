@@ -1,6 +1,6 @@
 package org.skriptlang.skript.test;
 
-import org.bukkit.event.Event;
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
  * Raised by Skript when tests are run.
  * Only intended to be used for context, not actual event calls.
  */
-public class SkriptTestEvent extends Event {
+public class SkriptTestEvent extends LocalVariableHoldingEvent {
 	
 	@Override
 	public @NotNull HandlerList getHandlers() {

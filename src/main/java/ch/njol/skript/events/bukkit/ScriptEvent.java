@@ -6,7 +6,7 @@ import org.bukkit.event.HandlerList;
 /**
  * @author Peter Güttinger
  */
-public class ScriptEvent extends Event {
+public class ScriptEvent extends LocalVariableHoldingEvent{
 	
 	public ScriptEvent() {}
 	

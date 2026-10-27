@@ -171,7 +171,7 @@ public class ExprSecCreateBossBar extends SectionExpression<BossBar> {
 			.toString();
 	}
 
-	private static class CreateBossBarEvent extends Event {
+	private static class CreateBossBarEvent extends LocalVariableHoldingEvent{
 		private final BossBar bar;
 
 		public CreateBossBarEvent(BossBar bar) {

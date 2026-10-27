@@ -16,7 +16,7 @@ import java.util.*;
 
 public class EvtRealTime extends SkriptEvent {
 
-	public static class RealTimeEvent extends Event {
+	public static class RealTimeEvent extends LocalVariableHoldingEvent{
 		@Override
 		public @NotNull HandlerList getHandlers() {
 			throw new IllegalStateException();

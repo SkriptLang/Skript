@@ -10,7 +10,7 @@ import ch.njol.skript.hooks.regions.classes.Region;
 /**
  * @author Peter Güttinger
  */
-public class RegionBorderEvent extends Event implements Cancellable {
+public class RegionBorderEvent extends LocalVariableHoldingEventimplements Cancellable {
 	
 	private final Region region;
 	final Player player;

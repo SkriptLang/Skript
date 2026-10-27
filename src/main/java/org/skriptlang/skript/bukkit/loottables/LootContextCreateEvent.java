@@ -7,7 +7,7 @@ import org.skriptlang.skript.bukkit.loottables.elements.expressions.ExprSecCreat
 /**
  * The event used in the {@link ExprSecCreateLootContext} section.
  */
-public class LootContextCreateEvent extends Event {
+public class LootContextCreateEvent extends LocalVariableHoldingEvent{
 
 	private final LootContextWrapper contextWrapper;
 
