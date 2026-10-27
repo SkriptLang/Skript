@@ -1,7 +1,6 @@
 package ch.njol.skript;
 
 import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.bukkitutil.BurgerHelper;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.data.*;
 import ch.njol.skript.doc.Documentation;
@@ -379,8 +378,6 @@ public final class Skript extends JavaPlugin implements Listener {
 			setEnabled(false);
 			return;
 		}
-
-		handleJvmArguments(); // JVM arguments
 
 		version = new Version("" + getDescription().getVersion()); // Skript version
 
@@ -993,68 +990,6 @@ public final class Skript extends JavaPlugin implements Listener {
 			!SkriptAsyncJUnitTest.class.isAssignableFrom(clazz)) // can't access blocks, entities async
 			((SkriptJUnitTest) clazz.getConstructor().newInstance()).cleanup();
 		SkriptJUnitTest.clearJUnitTest();
-	}
-
-	/**
-	 * Handles -Dskript.stuff command line arguments.
-	 */
-	private void handleJvmArguments() {
-		Path folder = getDataFolder().toPath();
-
-		/*
-		 * Burger is a Python application that extracts data from Minecraft.
-		 * Datasets for most common versions are available for download.
-		 * Skript uses them to provide minecraft:material to Bukkit
-		 * Material mappings on Minecraft 1.12 and older.
-		 */
-		String burgerEnabled = System.getProperty("skript.burger.enable");
-		if (burgerEnabled != null) {
-			tainted = true;
-			String version = System.getProperty("skript.burger.version");
-			String burgerInput;
-			if (version == null) { // User should have provided JSON file path
-				String inputFile = System.getProperty("skript.burger.file");
-				if (inputFile == null) {
-					Skript.exception("burger enabled but skript.burger.file not provided");
-					return;
-				}
-				try {
-					burgerInput = new String(Files.readAllBytes(Paths.get(inputFile)), StandardCharsets.UTF_8);
-				} catch (IOException e) {
-					Skript.exception(e);
-					return;
-				}
-			} else { // Try to download Burger dataset for this version
-				try {
-					Path data = folder.resolve("burger-" + version + ".json");
-					if (!Files.exists(data)) {
-						URL url = new URL("https://pokechu22.github.io/Burger/" + version + ".json");
-						try (InputStream is = url.openStream()) {
-							Files.copy(is, data);
-						}
-					}
-					burgerInput = new String(Files.readAllBytes(data), StandardCharsets.UTF_8);
-				} catch (IOException e) {
-					Skript.exception(e);
-					return;
-				}
-			}
-
-			// Use BurgerHelper to create some mappings, then dump them as JSON
-			try {
-				BurgerHelper burger = new BurgerHelper(burgerInput);
-				Map<String,Material> materials = burger.mapMaterials();
-				Map<Integer,Material> ids = BurgerHelper.mapIds();
-
-				Gson gson = new Gson();
-				Files.write(folder.resolve("materials_mappings.json"), gson.toJson(materials)
-						.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
-				Files.write(folder.resolve("id_mappings.json"), gson.toJson(ids)
-						.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
-			} catch (IOException e) {
-				Skript.exception(e);
-			}
-		}
 	}
 
 	public static Version getMinecraftVersion() {

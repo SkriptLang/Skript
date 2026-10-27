@@ -161,3 +161,8 @@ test "item comparisons":
 	assert {_fire-resist} is not {_water-breathing} with "fire resist is water breathing"
 	assert {_fire-resist} is not {_water-bottle} with "fire resist is water bottle"
 	assert {_water-bottle} is not {_water-breathing} with "water bottle is water breathing"
+
+	# gradient name
+	set {_a} to dirt named "<gradient:red:gold>Colorful Dirt"
+	set {_b} to dirt named "<gradient:red:gold>Colorful Dirt"
+	assert {_a} is {_b}
