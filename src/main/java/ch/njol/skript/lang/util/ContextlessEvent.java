@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
  * So, this classes exists to avoid dangerously passing null in these places.
  * @see #get()
  */
-public final class ContextlessEvent extends Event {
+public final class ContextlessEvent extends LocalVariableHoldingEvent{
 
 	private ContextlessEvent() { }
 

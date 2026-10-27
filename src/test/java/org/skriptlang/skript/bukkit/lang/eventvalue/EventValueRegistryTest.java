@@ -19,14 +19,15 @@ public class EventValueRegistryTest {
 		registry = EventValueRegistry.empty(Skript.of(EventValueRegistryTest.class, "EventValueRegistryTest"));
 	}
 
-	private static class TestEvent extends Event {
+	private static class TestEvent extends LocalVariableHoldingEvent {
 		@Override
 		public @NotNull HandlerList getHandlers() {
 			throw new UnsupportedOperationException();
 		}
 	}
 	private static class SubTestEvent extends TestEvent {}
-	private static class OtherEvent extends Event {
+
+	private static class OtherEvent extends LocalVariableHoldingEvent {
 		@Override
 		public @NotNull HandlerList getHandlers() {
 			throw new UnsupportedOperationException();

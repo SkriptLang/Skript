@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * @author Peter Güttinger
  */
-public class ScheduledEvent extends Event {
+public class ScheduledEvent extends LocalVariableHoldingEvent{
 
 	static {
 		EventValues.registerEventValue(ScheduledEvent.class, World.class, ScheduledEvent::getWorld, EventValues.TIME_NOW,

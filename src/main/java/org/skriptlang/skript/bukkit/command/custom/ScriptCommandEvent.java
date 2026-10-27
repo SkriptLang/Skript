@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Parent event for all {@link ScriptBrigadierCommand} events/contexts.
  */
-public class ScriptCommandEvent extends Event {
+public class ScriptCommandEvent extends LocalVariableHoldingEvent{
 
 	private final CommandContext<CommandSourceStack> context;
 

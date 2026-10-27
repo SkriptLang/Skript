@@ -52,7 +52,7 @@ import java.util.function.Consumer;
 @Since("1.0, 2.6.1 (with section), 2.8.6 (dropped items), 2.10 (entity snapshots)")
 public class EffSecSpawn extends EffectSection {
 
-	public static class SpawnEvent extends Event {
+	public static class SpawnEvent extends LocalVariableHoldingEvent{
 
 		private final Entity entity;
 

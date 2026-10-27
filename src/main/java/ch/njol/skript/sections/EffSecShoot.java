@@ -120,7 +120,7 @@ public class EffSecShoot extends EffectSection {
 		public abstract @Nullable Entity shootHandler(EntityData<?> entityData, LivingEntity shooter, Location location, Class<? extends Entity> type, Vector vector, Consumer<?> consumer);
 	}
 
-	public static class ShootEvent extends Event {
+	public static class ShootEvent extends LocalVariableHoldingEvent{
 
 		private Entity projectile;
 		private @Nullable LivingEntity shooter;

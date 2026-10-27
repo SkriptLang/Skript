@@ -46,7 +46,7 @@ import java.util.List;
 @Since("2.13")
 public class ExprSecBlankEquipComp extends SectionExpression<EquippableWrapper> implements EquippableExperimentSyntax {
 
-	private static class BlankEquippableSectionEvent extends Event {
+	private static class BlankEquippableSectionEvent extends LocalVariableHoldingEvent{
 
 		private final EquippableWrapper wrapper;
 

@@ -5,7 +5,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class ExperienceSpawnEvent extends Event implements Cancellable {
+public class ExperienceSpawnEvent extends LocalVariableHoldingEventimplements Cancellable {
 	
 	private int exp;
 	private final Location location;

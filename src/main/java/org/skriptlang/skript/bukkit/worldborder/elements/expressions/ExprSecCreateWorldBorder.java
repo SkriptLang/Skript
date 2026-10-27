@@ -98,7 +98,7 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 		return "a virtual worldborder";
 	}
 
-	public static class CreateWorldborderEvent extends Event {
+	public static class CreateWorldborderEvent extends LocalVariableHoldingEvent{
 		private final WorldBorder worldborder;
 
 		public CreateWorldborderEvent(WorldBorder worldborder) {

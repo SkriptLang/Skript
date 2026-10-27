@@ -20,7 +20,7 @@ import java.util.List;
 @NoDoc
 public class ExprSecRunnable extends SectionExpression<Object> {
 
-	public static class RunnableEvent extends Event {
+	public static class RunnableEvent extends LocalVariableHoldingEvent{
 
 		@Override
 		@NotNull
