@@ -367,12 +367,18 @@ public class VariableString implements Expression<String> {
 
 		Object[] string = this.strings;
 		assert string != null;
+		// default var hints only needed if not local and they actually exist
+		DefaultVariables data = null;
+		if (script != null && mode == StringMode.VARIABLE_NAME && !(string[0] instanceof String first && first.startsWith(Variable.LOCAL_VARIABLE_TOKEN))) {
+			data = script.getData(DefaultVariables.class);
+		}
+		List<Class<?>> types = data != null ? new ArrayList<>() : null;
+
 		StringBuilder builder = new StringBuilder();
-		List<Class<?>> types = new ArrayList<>();
 		for (Object object : string) {
-			if (object instanceof Expression<?>) {
-				Object[] objects = ((Expression<?>) object).getArray(event);
-				if (objects != null && objects.length > 0)
+			if (object instanceof Expression<?> expression) {
+				Object[] objects = expression.getArray(event);
+				if (types != null && objects != null && objects.length > 0)
 					types.add(objects[0].getClass());
 				builder.append(Classes.toString(objects, true, mode));
 			} else {
@@ -380,11 +386,8 @@ public class VariableString implements Expression<String> {
 			}
 		}
 		String complete = builder.toString();
-		if (script != null && mode == StringMode.VARIABLE_NAME && !types.isEmpty()) {
-			DefaultVariables data = script.getData(DefaultVariables.class);
-			if (data != null)
-				data.add(complete, types.toArray(new Class<?>[0]));
-		}
+		if (types != null && !types.isEmpty() && !complete.startsWith(Variable.LOCAL_VARIABLE_TOKEN))
+			data.add(complete, types.toArray(new Class<?>[0]));
 		return complete;
 	}
 
