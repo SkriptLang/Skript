@@ -33,6 +33,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -143,6 +144,8 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 */
 	public void modified() {
 		item = block = null;
+		// we assume these wrapping stacks should never change
+		isWrappingItemStack = false;
 	}
 
 	/**
@@ -549,9 +552,19 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 	/**
 	 * Represents whether this ItemType is simply wrapping an ItemStack.
+	 * @see #canRepresentWrappingItemStack()
+	 */
+	@ApiStatus.Internal
+	public boolean isWrappingItemStack = false;
+
+	/**
+	 * @return Whether this ItemType could represent one simply wrapping an ItemStack.
 	 * That is, it has only a single data, and that data represents a random ItemStack.
 	 */
-	public boolean isWrappingItemStack = false;
+	@ApiStatus.Internal
+	public boolean canRepresentWrappingItemStack() {
+		return types.size() == 1 && types.getFirst().getStack() != null;
+	}
 
 	/**
 	 * @return One random ItemStack that this ItemType represents. If you have a List or an Inventory, use {@link #addTo(Inventory)} or {@link #addTo(List)} respectively.
@@ -1097,6 +1110,10 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		if (!fields.hasField("globalMeta")) {
 			fields.putObject("globalMeta", null);
 		}
+		boolean missingIsWrappingItemStack = !fields.hasField("isWrappingItemStack");
+		if (missingIsWrappingItemStack) { // Field added in INSERT VERSION
+			fields.putPrimitive("isWrappingItemStack", false);
+		}
 		// remove unused, unhandled legacy fields
 		fields.removeField("meta");
 		fields.removeField("enchantments");
@@ -1105,6 +1122,9 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 		// restore data
 		fields.setFields(this);
+		if (missingIsWrappingItemStack) { // this is probably safe
+			this.isWrappingItemStack = canRepresentWrappingItemStack();
+		}
 	}
 
 	/**
