@@ -6,7 +6,6 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import org.skriptlang.skript.bukkit.entity.EntityData;
 import ch.njol.skript.lang.EffectSection;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -15,6 +14,7 @@ import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Direction;
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
@@ -28,6 +28,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.entity.EntityData;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -120,7 +121,7 @@ public class EffSecShoot extends EffectSection {
 		public abstract @Nullable Entity shootHandler(EntityData<?> entityData, LivingEntity shooter, Location location, Class<? extends Entity> type, Vector vector, Consumer<?> consumer);
 	}
 
-	public static class ShootEvent extends LocalVariableHoldingEvent{
+	public static class ShootEvent extends LocalVariableHoldingEvent {
 
 		private Entity projectile;
 		private @Nullable LivingEntity shooter;

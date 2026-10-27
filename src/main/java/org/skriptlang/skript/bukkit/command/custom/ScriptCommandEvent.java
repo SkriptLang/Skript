@@ -1,11 +1,11 @@
 package org.skriptlang.skript.bukkit.command.custom;
 
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Parent event for all {@link ScriptBrigadierCommand} events/contexts.
  */
-public class ScriptCommandEvent extends LocalVariableHoldingEvent{
+public class ScriptCommandEvent extends LocalVariableHoldingEvent {
 
 	private final CommandContext<CommandSourceStack> context;
 

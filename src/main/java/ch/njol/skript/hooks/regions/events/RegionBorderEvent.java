@@ -1,16 +1,15 @@
 package ch.njol.skript.hooks.regions.events;
 
+import ch.njol.skript.hooks.regions.classes.Region;
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-
-import ch.njol.skript.hooks.regions.classes.Region;
 
 /**
  * @author Peter Güttinger
  */
-public class RegionBorderEvent extends LocalVariableHoldingEventimplements Cancellable {
+public class RegionBorderEvent extends LocalVariableHoldingEvent implements Cancellable {
 	
 	private final Region region;
 	final Player player;

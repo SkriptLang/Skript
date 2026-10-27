@@ -3,6 +3,7 @@ package org.skriptlang.skript.bukkit.bossbar.elements.expressions;
 import ch.njol.skript.bukkitutil.NamespacedUtils;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
@@ -13,8 +14,8 @@ import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.util.Color;
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import ch.njol.skript.variables.Variables;
-import ch.njol.skript.doc.Example;
 import ch.njol.util.Kleenean;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -171,7 +172,7 @@ public class ExprSecCreateBossBar extends SectionExpression<BossBar> {
 			.toString();
 	}
 
-	private static class CreateBossBarEvent extends LocalVariableHoldingEvent{
+	private static class CreateBossBarEvent extends LocalVariableHoldingEvent {
 		private final BossBar bar;
 
 		public CreateBossBarEvent(BossBar bar) {

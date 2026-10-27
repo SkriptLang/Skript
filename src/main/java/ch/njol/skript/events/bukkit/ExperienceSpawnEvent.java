@@ -1,11 +1,11 @@
 package ch.njol.skript.events.bukkit;
 
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import org.bukkit.Location;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class ExperienceSpawnEvent extends LocalVariableHoldingEventimplements Cancellable {
+public class ExperienceSpawnEvent extends LocalVariableHoldingEvent implements Cancellable {
 	
 	private int exp;
 	private final Location location;

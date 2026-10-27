@@ -1,6 +1,6 @@
 package ch.njol.skript.events.bukkit;
 
-import org.bukkit.event.Event;
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import org.bukkit.event.HandlerList;
 
 /**
@@ -8,7 +8,7 @@ import org.bukkit.event.HandlerList;
  * 
  * @author Peter Güttinger
  */
-public class SkriptStartEvent extends LocalVariableHoldingEvent{
+public class SkriptStartEvent extends LocalVariableHoldingEvent {
 	
 	// Bukkit stuff
 	private final static HandlerList handlers = new HandlerList();

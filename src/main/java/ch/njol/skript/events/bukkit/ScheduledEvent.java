@@ -1,15 +1,15 @@
 package ch.njol.skript.events.bukkit;
 
 import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import org.bukkit.World;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Peter Güttinger
  */
-public class ScheduledEvent extends LocalVariableHoldingEvent{
+public class ScheduledEvent extends LocalVariableHoldingEvent {
 
 	static {
 		EventValues.registerEventValue(ScheduledEvent.class, World.class, ScheduledEvent::getWorld, EventValues.TIME_NOW,

@@ -1,7 +1,7 @@
 package ch.njol.skript.lang.util;
 
 import ch.njol.skript.lang.parser.ParserInstance;
-import org.bukkit.event.Event;
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
  * So, this classes exists to avoid dangerously passing null in these places.
  * @see #get()
  */
-public final class ContextlessEvent extends LocalVariableHoldingEvent{
+public final class ContextlessEvent extends LocalVariableHoldingEvent {
 
 	private ContextlessEvent() { }
 
