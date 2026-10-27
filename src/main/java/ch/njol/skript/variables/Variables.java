@@ -389,6 +389,11 @@ public class Variables {
 	 */
 	@Nullable
 	public static VariablesMap removeLocals(Event event) {
+		if (event instanceof LocalVariableHoldingEvent localVariableHoldingEvent) {
+			VariablesMap map = localVariableHoldingEvent.getLocals();
+			localVariableHoldingEvent.setLocals(null);
+			return map;
+		}
 		return localVariables.remove(event);
 	}
 
@@ -405,7 +410,11 @@ public class Variables {
 	 */
 	public static void setLocalVariables(Event event, @Nullable Object map) {
 		if (map != null) {
-			localVariables.put(event, (VariablesMap) map);
+			if (event instanceof LocalVariableHoldingEvent lvEvent) {
+				lvEvent.setLocals((VariablesMap) map);
+			} else {
+				localVariables.put(event, (VariablesMap) map);
+			}
 		} else {
 			removeLocals(event);
 		}
@@ -419,7 +428,7 @@ public class Variables {
 	 * @return the copy.
 	 */
 	public static @Nullable Object copyLocalVariables(Event event) {
-		VariablesMap from = localVariables.get(event);
+		VariablesMap from = event instanceof LocalVariableHoldingEvent lvEvent ? lvEvent.getLocals() : localVariables.get(event);
 		if (from == null)
 			return null;
 
@@ -466,7 +475,7 @@ public class Variables {
 		}
 
 		if (local) {
-			VariablesMap map = localVariables.get(event);
+			VariablesMap map = event instanceof LocalVariableHoldingEvent lvEvent ? lvEvent.getLocals() : localVariables.get(event);
 			if (map == null)
 				return null;
 
@@ -603,7 +612,16 @@ public class Variables {
 			assert event != null : name;
 
 			// Get the variables map and set the variable in it
-			VariablesMap map = localVariables.computeIfAbsent(event, e -> new VariablesMap());
+			VariablesMap map;
+			if (event instanceof LocalVariableHoldingEvent lvEvent) {
+				map = lvEvent.getLocals();
+				if (map == null) {
+					map = new VariablesMap();
+					lvEvent.setLocals(map);
+				}
+			} else {
+				map = localVariables.computeIfAbsent(event, e -> new VariablesMap());
+			}
 			map.setVariable(name, value);
 		} else {
 			setVariable(name, value);

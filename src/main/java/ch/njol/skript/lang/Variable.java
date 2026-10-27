@@ -342,7 +342,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	 * This method also checks against default variables.
 	 */
 	public @Nullable Object getRaw(Event event) {
-		DefaultVariables data = script == null ? null : script.getData(DefaultVariables.class);
+		DefaultVariables data = (script == null || local) ? null : script.getData(DefaultVariables.class);
 		if (data != null)
 			data.enterScope();
 		try {
