@@ -1,6 +1,6 @@
 package org.skriptlang.skript.bukkit.lang.eventvalue;
 
-import org.bukkit.event.Event;
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;

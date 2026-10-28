@@ -1,6 +1,7 @@
 package org.skriptlang.skript.util;
 
 import com.google.common.base.Preconditions;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.*;
@@ -14,15 +15,44 @@ import java.util.*;
  * {@code "3"}. The {@link #add(Object)} method inserts a value using the
  * next available integer key.</p>
  *
+ * <p>The next available index can never exceed {@code size() + 1}, so only small indices
+ * matter for finding it. This means we can use a {@link BitSet} and avoid over-allocating
+ * even if the list contains very large indices.</p>
+ *
  * @param <V> the type of mapped values
  */
 public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 
-	private final Set<String> mapIndices = new HashSet<>();
+	/**
+	 * The initial and minimum number of indices tracked.
+	 */
+	private static final int MIN_TRACKED = 64;
 
-	private final Set<Integer> numericalIndices = new HashSet<>();
+	/**
+	 * The largest the tracking limit may grow to: every positive int, so every index can be tracked.
+	 */
+	private static final int MAX_TRACKED = Integer.MAX_VALUE;
+
+	/**
+	 * The keys that map to other maps. Created on the first such key, as most lists have none.
+	 * Used for excluding sublists in size calculations.
+	 */
+	private @Nullable Set<String> mapIndices;
+
+	/**
+	 * Bit {@code i} is set when positive integer key {@code i} maps to a non-null value,
+	 * for {@code 1 <= i <= trackedLimit}. Keys above the limit are not tracked.
+	 * Created on the first tracked index, so lists keyed only by other strings or large numbers never need it.
+	 */
+	private @Nullable BitSet trackedIndices;
+	private int trackedLimit = MIN_TRACKED;
+
+	/**
+	 * The smallest positive integer that is not a key. Every index below it is set,
+	 * so it never exceeds {@code size() + 1}. The one exception is {@link Integer#MAX_VALUE}, which it stays at
+	 * once every index up to it is in use.
+	 */
 	private int nextIndex = 1;
-	private int maxIndex = -1;
 
 	public IndexTrackingTreeMap() {
 		super();
@@ -54,10 +84,11 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 	 */
 	public void add(V value) {
 		Preconditions.checkNotNull(value, "value");
-		String key = String.valueOf(nextIndex);
+		int index = nextOpenIndex();
+		String key = String.valueOf(index);
 
 		super.put(key, value);
-		handleInsert(key, nextIndex, value);
+		handleInsert(key, index, value);
 	}
 
 	@Override
@@ -71,10 +102,10 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 	@Override
 	public void clear() {
 		super.clear();
-		numericalIndices.clear();
-		mapIndices.clear();
+		mapIndices = null;
+		trackedIndices = null;
+		trackedLimit = MIN_TRACKED;
 		nextIndex = 1;
-		maxIndex = -1;
 	}
 
 	/**
@@ -85,13 +116,33 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 	 * missing index, starting at {@code 1}.</p>
 	 *
 	 * @return the next available positive integer index
+	 * @throws IllegalStateException if every index up to {@link Integer#MAX_VALUE} is in use
 	 */
 	public int nextOpenIndex() {
+		if (nextIndex == Integer.MAX_VALUE && get(String.valueOf(Integer.MAX_VALUE)) != null)
+			throw new IllegalStateException("Every index up to " + Integer.MAX_VALUE + " is in use, so no more values can be added");
 		return nextIndex;
 	}
 
+	/**
+	 * Returns whether the positive integer keys of this map are exactly {@code 1} to {@code n}
+	 * for some {@code n >= 1}, with no gaps and nothing above.
+	 * <p>
+	 * This scans every key, as indices above the first gap are not necessarily tracked.
+	 *
+	 * @return whether the numeric keys are consecutive from 1
+	 */
 	public boolean consecutive() {
-		return nextIndex == maxIndex + 1;
+		if (nextIndex == 1)
+			return false; // no numeric keys at all
+		if (nextIndex == size() + 1)
+			return true; // the entries are exactly 1..nextIndex - 1
+		// find any numeric entries > nextIndex
+		for (Map.Entry<String, V> entry : entrySet()) {
+			if (entry.getValue() != null && parsePositiveInt(entry.getKey()) > nextIndex)
+				return false;
+		}
+		return true;
 	}
 
 	/**
@@ -100,57 +151,147 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 	 * @return a collection of all keys pointing to a map
 	 */
 	public @UnmodifiableView Collection<String> mapIndices() {
+		if (mapIndices == null)
+			return Collections.emptySet();
 		return Collections.unmodifiableCollection(mapIndices);
 	}
 
+	private void addMapIndex(String key) {
+		if (mapIndices == null)
+			mapIndices = new HashSet<>();
+		mapIndices.add(key);
+	}
+
+	private void removeMapIndex(String key) {
+		if (mapIndices != null)
+			mapIndices.remove(key);
+	}
+
+	/**
+	 * Handles bookkeeping when inserting a value into the map, allocating mapIndices and BitSet if needed.
+	 * @param key The key inserted.
+	 * @param index The integer value of key, or -1 if not an int.
+	 * @param value The value inserted.
+	 */
 	private void handleInsert(String key, int index, V value) {
 		if (value instanceof Map)
-			mapIndices.add(key);
+			addMapIndex(key);
 
 		if (index < 0)
 			return;
 
-		numericalIndices.add(index);
+		if (index <= trackedLimit) {
+			if (trackedIndices == null)
+				trackedIndices = new BitSet(MIN_TRACKED + 1);
+			trackedIndices.set(index);
+		}
 
-		maxIndex = Math.max(maxIndex, index);
-		advanceNextIndex();
+		if (index == nextIndex)
+			advanceNextIndex();
 	}
 
+	/**
+	 * Handles bookkeeping when  replacing a value in the map, dealing with mapIndices if needed.
+	 * @param key The key replaced.
+	 * @param previous The previous value.
+	 * @param value The new value.
+	 */
 	private void handleReplace(String key, V previous, V value) {
 		if (value instanceof Map) {
-			mapIndices.add(key);
+			addMapIndex(key);
 		} else if (previous instanceof Map) {
-			mapIndices.remove(key);
+			removeMapIndex(key);
 		}
 	}
 
+	/**
+	 * Handles bookkeeping when removing a value from the map, handling mapIndices and resizing BitSet if needed.
+	 * @param key The key removed.
+	 * @param previous The former value.
+	 */
 	private void handleRemove(String key, V previous) {
 		if (previous instanceof Map)
-			mapIndices.remove(key);
+			removeMapIndex(key);
 
 		int index = parsePositiveInt(key);
-		if (index < 0)
-			return;
-
-		numericalIndices.remove(index);
-
-		if (index == maxIndex)
-			recomputeMaxIndex();
-		nextIndex = Math.min(nextIndex, index);
-	}
-
-	private void advanceNextIndex() {
-		if (nextIndex == maxIndex) {
-			nextIndex++;
-			return;
+		if (index >= 0) {
+			if (index <= trackedLimit && trackedIndices != null)
+				trackedIndices.clear(index);
+			nextIndex = Math.min(nextIndex, index);
 		}
-		while (numericalIndices.contains(nextIndex))
-			nextIndex++;
+
+		shrinkIfSparse();
 	}
 
-	private void recomputeMaxIndex() {
-		while (maxIndex >= 0 && !numericalIndices.contains(maxIndex))
-			maxIndex--;
+	/**
+	 * Moves {@link #nextIndex} to the first index after it that is not a key,
+	 * growing the tracked range whenever every tracked index is in use.
+	 */
+	private void advanceNextIndex() {
+		nextIndex = nextClearIndex(nextIndex);
+		while (nextIndex > trackedLimit) { // never true once the limit is MAX_TRACKED, as no int exceeds it
+			grow();
+			nextIndex = nextClearIndex(nextIndex);
+		}
+	}
+
+	/**
+	 * Returns the first index from {@code from} onwards that is not tracked as in use.
+	 * If every index from {@code from} up to {@link Integer#MAX_VALUE} is in use, returns
+	 * {@link Integer#MAX_VALUE}, which {@link #nextOpenIndex()} then reports as full.
+	 * {@link BitSet#nextClearBit(int)} would overflow past it instead.
+	 */
+	private int nextClearIndex(int from) {
+		assert trackedIndices != null;
+		// the last bit is only set once the tracked range covers every int, so this is one cheap check otherwise
+		if (trackedIndices.get(Integer.MAX_VALUE) && trackedIndices.previousClearBit(Integer.MAX_VALUE) < from)
+			return Integer.MAX_VALUE;
+		return trackedIndices.nextClearBit(from);
+	}
+
+	/**
+	 * Grows the tracked range to the first power of two above {@code size()}, which always holds
+	 * {@link #nextIndex}, so one call is enough. Keys inside the new range were not tracked until now,
+	 * so they are picked up with one pass over the entries, skipped when every entry is already tracked.
+	 * This only happens once every tracked index is in use, so the map holds at least
+	 * {@link #trackedLimit} entries and the pass is paid for by the inserts that filled it.
+	 */
+	private void grow() {
+		int oldLimit = trackedLimit;
+		long doubled = 2L * oldLimit; // long, as doubling past 2^30 overflows an int
+		while (doubled <= size())
+			doubled *= 2;
+		int newLimit = (int) Math.min(doubled, MAX_TRACKED);
+		trackedLimit = newLimit;
+		assert trackedIndices != null;
+		if (trackedIndices.cardinality() == size())
+			return; // every entry is a tracked index, so none lies in the new range
+		// catch any prior indices that should now be tracked
+		for (Map.Entry<String, V> entry : entrySet()) {
+			if (entry.getValue() == null)
+				continue;
+			int index = parsePositiveInt(entry.getKey());
+			if (index > oldLimit && index <= newLimit)
+				trackedIndices.set(index);
+		}
+	}
+
+	/**
+	 * Shrinks the tracked range once the map holds fewer than an eighth of it, so a list that
+	 * grew large and was then mostly emptied does not keep its peak-sized tracking. Growing at
+	 * full and shrinking at an eighth keeps a list hovering around one size from resizing back
+	 * and forth. Indices dropped from tracking are picked up again by {@link #grow()} if needed.
+	 */
+	private void shrinkIfSparse() {
+		if (trackedLimit <= MIN_TRACKED || size() >= trackedLimit / 8)
+			return;
+		int newLimit = MIN_TRACKED;
+		while (newLimit < size() * 2)
+			newLimit *= 2;
+		// nextIndex <= size() + 1 <= newLimit, so it stays within the tracked range
+		assert trackedIndices != null : "the limit only exceeds the minimum after growing";
+		trackedIndices = trackedIndices.get(0, newLimit + 1);
+		trackedLimit = newLimit;
 	}
 
 	private int parsePositiveInt(String string) {
@@ -163,7 +304,7 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 				char c = string.charAt(i);
 				if (!isDigit(c))
 					return -1;
-				value = Math.addExact(value * 10, c - '0');
+				value = Math.addExact(Math.multiplyExact(value, 10), c - '0');
 			}
 		} catch (ArithmeticException e) { // overflow
 			return -1;
