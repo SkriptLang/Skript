@@ -32,18 +32,8 @@ import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -596,6 +586,7 @@ public class Variables {
 		}
 
 		// Check if conversion is needed due to ClassInfo#getSerializeAs
+		// we do this even for locals because of conversions like Slot->Itemstack
 		if (value != null) {
 			assert !name.endsWith("::*");
 
@@ -612,16 +603,7 @@ public class Variables {
 			assert event != null : name;
 
 			// Get the variables map and set the variable in it
-			VariablesMap map;
-			if (event instanceof LocalVariableHoldingEvent lvEvent) {
-				map = lvEvent.getLocals();
-				if (map == null) {
-					map = new VariablesMap();
-					lvEvent.setLocals(map);
-				}
-			} else {
-				map = localVariables.computeIfAbsent(event, e -> new VariablesMap());
-			}
+			VariablesMap map = getOrCreateLocals(event);
 			map.setVariable(name, value);
 		} else {
 			setVariable(name, value);
@@ -650,6 +632,134 @@ public class Variables {
 			// Couldn't acquire variable write lock, queue the change (blocking here is a bad idea)
 			queueVariableChange(name, value);
 		}
+	}
+
+	/**
+	 * Sets a list to the following keys and values, replacing the whole list at once.
+	 * This is two to three times as fast as deleting the list and calling
+	 * {@link #setVariable(String, Object, Event, boolean)} for each element.
+	 * For global variables, readers on other threads see either the old list or the new one, never a mix.
+	 *
+	 * @param listName The full name of the list, without ::* on the end.
+	 * @param keys     The keys to use for the list's values, in any order. If a key repeats, the last value wins.
+	 * @param values   The values to use in the list, one per key. This array is not modified.
+	 */
+	public static void setList(String listName, @NotNull String @NotNull [] keys, @NotNull Object @NotNull [] values, @Nullable Event event, boolean local) {
+		assert keys.length == values.length : keys.length + " keys, " + values.length + " values";
+		// keys like a::b (from keyed recursive lists) make nested lists, which the bulk path can't build.
+		if (containsSeparator(keys)) {
+			setVariable(listName + Variable.SEPARATOR + "*", null, event, local);
+			for (int i = 0; i < keys.length; i++)
+				setVariable(listName + Variable.SEPARATOR + keys[i], values[i], event, local);
+			return;
+		}
+		if (caseInsensitiveVariables) {
+			listName = listName.toLowerCase(Locale.ENGLISH);
+			keys = lowercased(keys); // same array back if no key changed
+		}
+
+		ClassInfo<?> lastCI = null;
+		Class<?> lastClass = null;
+		boolean copied = false;
+		for (int i = 0; i < values.length; i++) {
+			assert values[i] != null : "null value for key " + keys[i];
+			// Check if conversion is needed due to ClassInfo#getSerializeAs
+			// we do this even for locals because of conversions like Slot->ItemStack
+			Class<?> valueClass = values[i].getClass();
+			ClassInfo<?> ci = valueClass == lastClass ? lastCI : Classes.getSuperClassInfo(valueClass);
+			Class<?> sas = ci.getSerializeAs();
+
+			if (sas != null) {
+				Object newValue = Converters.convert(values[i], sas);
+				assert newValue != null : ci + ", " + sas;
+				if (!copied) { // don't modify the caller's array
+					values = values.clone();
+					copied = true;
+				}
+				values[i] = newValue;
+			}
+			lastClass = valueClass;
+			lastCI = ci;
+		}
+
+		if (local) {
+			assert event != null;
+			getOrCreateLocals(event).setList(listName, keys, values);
+		} else {
+			setGlobalList(listName, keys, values);
+		}
+	}
+
+	/**
+	 * Sets the given global list to the given keys and values, taking the write lock once for the whole list.
+	 * The changes saved are the same as deleting the list and setting each element would save.
+	 *
+	 * @param listName the list's name, without ::* on the end, already lowercased if needed.
+	 * @param keys the keys, already lowercased if needed and without separators.
+	 * @param values the values, already converted with {@link ClassInfo#getSerializeAs()}.
+	 */
+	private static void setGlobalList(String listName, String[] keys, Object[] values) {
+		String prefix = listName + Variable.SEPARATOR;
+		if (variablesLock.writeLock().tryLock()) {
+			try {
+				if (!changeQueue.isEmpty()) // Process older, queued changes first, to keep changes in order
+					processChangeQueue();
+				variables.setList(listName, keys, values);
+				saveVariableChange(prefix + "*", null);
+				for (int i = 0; i < keys.length; i++)
+					saveVariableChange(prefix + keys[i], values[i]);
+			} finally {
+				variablesLock.writeLock().unlock();
+			}
+		} else {
+			// Couldn't acquire variable write lock, queue the changes (blocking here is a bad idea)
+			queueVariableChange(prefix + "*", null);
+			for (int i = 0; i < keys.length; i++)
+				queueVariableChange(prefix + keys[i], values[i]);
+		}
+	}
+
+	private static boolean containsSeparator(String[] keys) {
+		for (String key : keys) {
+			if (key.contains(Variable.SEPARATOR))
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Lowercases each key, returning the same array if none of them changed.
+	 *
+	 * @param keys the strings to lowercase
+	 * @return the lowercased keys array (a new array if any were uppercase, or the existing array)
+	 */
+	private static String[] lowercased(String[] keys) {
+		String[] result = keys;
+		for (int i = 0; i < keys.length; i++) {
+			String lower = keys[i].toLowerCase(Locale.ENGLISH);
+			//noinspection StringEquality
+			if (lower != keys[i]) { // toLowerCase returns the same instance when nothing changes
+				if (result == keys)
+					result = keys.clone(); // first change: copy, so the caller's array is untouched
+				result[i] = lower;
+			}
+		}
+		return result;
+	}
+
+	// helper to get/create a local variable map
+	private static VariablesMap getOrCreateLocals(Event event) {
+		VariablesMap map;
+		if (event instanceof LocalVariableHoldingEvent lvEvent) {
+			map = lvEvent.getLocals();
+			if (map == null) {
+				map = new VariablesMap();
+				lvEvent.setLocals(map);
+			}
+		} else {
+			map = localVariables.computeIfAbsent(event, e -> new VariablesMap());
+		}
+		return map;
 	}
 
 	/**

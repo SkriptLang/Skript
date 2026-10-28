@@ -458,6 +458,44 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		Variables.setVariable(name.substring(0, name.length() - 1) + index, value, event, local);
 	}
 
+	/**
+	 * Replaces this list's contents with the given values in one go, using {@link Variables#setList}.
+	 * Null values are skipped. Does nothing if any value is an array, since those become nested lists.
+	 *
+	 * @param keys the key for each value, or null to number the values from 1
+	 * @return whether the list was set
+	 */
+	private boolean setListInBulk(Event event, Object[] delta, String @Nullable [] keys) {
+		assert list;
+		int length = keys == null ? delta.length : Math.min(delta.length, keys.length);
+		for (int i = 0; i < length; i++) {
+			if (delta[i] instanceof Object[])
+				return false;
+		}
+
+		String[] bulkKeys = new String[length];
+		Object[] bulkValues = new Object[length];
+		int count = 0;
+		for (int i = 0; i < length; i++) {
+			Object value = delta[i];
+			if (value == null)
+				continue;
+			bulkKeys[count] = keys == null ? String.valueOf(i + 1) : keys[i];
+			bulkValues[count] = value;
+			count++;
+		}
+		if (count < length) {
+			bulkKeys = Arrays.copyOf(bulkKeys, count);
+			bulkValues = Arrays.copyOf(bulkValues, count);
+		}
+
+		String name = this.name.toString(event);
+		assert name.endsWith(SEPARATOR + "*") : name + "; " + this.name;
+		String listName = name.substring(0, name.length() - (SEPARATOR.length() + 1));
+		Variables.setList(listName, bulkKeys, bulkValues, event, local);
+		return true;
+	}
+
 	public int size(Event event) {
 		Preconditions.checkState(list, "Cannot get the size of a single variable");
 		Map<?, ?> map = (Map<?, ?>) getRaw(event);
@@ -500,6 +538,8 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		}
 		if (mode == ChangeMode.SET) {
 			assert delta.length == keys.length;
+			if (setListInBulk(event, delta, keys))
+				return;
 			this.set(event, null);
 			int length = Math.min(delta.length, keys.length);
 			for (int index = 0; index < length; index++) {
@@ -528,6 +568,8 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 			case SET:
 				assert delta != null;
 				if (list) {
+					if (setListInBulk(event, delta, null))
+						break;
 					set(event, null);
 					int i = 1;
 					for (Object value : delta) {
