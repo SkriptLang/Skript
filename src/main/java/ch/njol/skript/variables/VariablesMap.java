@@ -240,17 +240,29 @@ final class VariablesMap {
 		// Iterate over the parts of the variable name
 		for (int i = 0; i < split.length; i++) {
 			String childNodeName = split[i];
+
+			if (i == split.length - 1) {
+				// End of the variable name reached: write first, as that is one search instead of a get and a put.
+				Object previous = value == null ? parent.remove(childNodeName) : parent.put(childNodeName, value);
+				if (previous instanceof TreeMap) {
+					// The variable is also a list, e.g. {mylist} while {mylist::3} is set,
+					//  so restore the list and store the value under its null key instead.
+					// This is a performance hit, but a -25% to common case is worth a +30% to rare case.
+					TreeMap<String, Object> childNodeMap = (TreeMap<String, Object>) previous;
+					parent.put(childNodeName, childNodeMap);
+					if (value == null)
+						childNodeMap.remove(null);
+					else
+						childNodeMap.put(null, value);
+				}
+				break;
+			}
+
 			Object childNode = parent.get(childNodeName);
 
 			if (childNode == null) {
 				// Expected child node not found
-				if (i == split.length - 1) {
-					// End of the variable name reached, set variable if needed
-					if (value != null)
-						parent.put(childNodeName, value);
-
-					break;
-				} else if (value != null) {
+				if (value != null) {
 					// Create child node, add it to parent and continue iteration
 					childNode = new IndexTrackingTreeMap<>(VARIABLE_NAME_COMPARATOR);
 
@@ -264,15 +276,7 @@ final class VariablesMap {
 				// Child node found
 				TreeMap<String, Object> childNodeMap = ((TreeMap<String, Object>) childNode);
 
-				if (i == split.length - 1) {
-					// End of variable name reached, adjust child node accordingly
-					if (value == null)
-						childNodeMap.remove(null);
-					else
-						childNodeMap.put(null, value);
-
-					break;
-				} else if (i == split.length - 2 && split[i + 1].equals("*")) {
+				if (i == split.length - 2 && split[i + 1].equals("*")) {
 					// Second to last part of variable name
 					assert value == null;
 
@@ -295,15 +299,7 @@ final class VariablesMap {
 				}
 			} else {
 				// Ran into leaf node
-				if (i == split.length - 1) {
-					// If we arrived at the end of the variable name, update parent
-					if (value == null)
-						parent.remove(childNodeName);
-					else
-						parent.put(childNodeName, value);
-
-					break;
-				} else if (value != null) {
+				if (value != null) {
 					// Need to continue iteration, create new child node and put old value in it
 					TreeMap<String, Object> newChildNodeMap = new IndexTrackingTreeMap<>(VARIABLE_NAME_COMPARATOR);
 					newChildNodeMap.put(null, childNode);
