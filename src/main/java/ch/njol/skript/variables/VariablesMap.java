@@ -1,15 +1,13 @@
 package ch.njol.skript.variables;
 
+import ch.njol.skript.lang.KeyedValue;
 import ch.njol.skript.lang.Variable;
 import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.util.IndexTrackingTreeMap;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 
 /**
  * A map for storing variables in a sorted and efficient manner.
@@ -219,6 +217,8 @@ final class VariablesMap {
 	 * <p>
 	 * This method accepts list variables,
 	 * but these may only be set to {@code null}.
+	 * <p>
+	 * If you are setting a list all at once, consider {@link #setList}
 	 *
 	 * @param name the variable name.
 	 * @param value the variable value, {@code null} to delete the variable.
@@ -312,6 +312,108 @@ final class VariablesMap {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Sets a list to the following keys and values.
+	 * Does not lock or save anything: for global variables, the caller must hold the write lock and save the changes.
+	 *
+	 * @param listName The full name of the list, without ::* on the end.
+	 * @param keys     The keys to use for the list's values
+	 * @param values   The values to use in the list.
+	 */
+	@SuppressWarnings("unchecked")
+	void setList(String listName, String[] keys, Object[] values) {
+		// clear old list
+		if (keys.length == 0) {
+			setVariable(listName + Variable.SEPARATOR + "*", null); // nothing to write, just delete the list
+			return;
+		}
+		// find location of new list, creating sublists on the way as setVariable does
+		String[] split = Variables.splitVariableName(listName);
+		TreeMap<String, Object> parent = treeMap;
+		for (int i = 0; i < split.length - 1; i++) {
+			Object child = parent.get(split[i]);
+			if (child instanceof TreeMap) {
+				// enter the child map
+				parent = (TreeMap<String, Object>) child;
+				continue;
+			}
+			// Nothing here yet, or a plain value in the way: make a sublist, keeping that value under its null key
+			TreeMap<String, Object> sublist = new IndexTrackingTreeMap<>(VARIABLE_NAME_COMPARATOR);
+			if (child != null)
+				sublist.put(null, child);
+			parent.put(split[i], sublist);
+			parent = sublist;
+		}
+		// verify sorting order
+		if (!isStrictlyIncreasing(keys)) {
+			KeyedValue<?>[] entries = sortedWithoutRepeats(keys, values);
+			keys = new String[entries.length];
+			values = new Object[entries.length];
+			for (int i = 0; i < entries.length; i++) {
+				keys[i] = entries[i].key();
+				values[i] = entries[i].value();
+			}
+		}
+
+		// Swap in the new list, then clean up whatever it replaced
+		IndexTrackingTreeMap<Object> list = IndexTrackingTreeMap.ofSorted(VARIABLE_NAME_COMPARATOR, keys, values);
+		Object previous = parent.put(split[split.length - 1], list);
+		Object listValue = previous; // {listName}'s existing value, if it has one
+		if (previous instanceof TreeMap) {
+			// if previously a list, clear it out but save the null key for our new map.
+			TreeMap<String, Object> oldList = (TreeMap<String, Object>) previous;
+			deleteFromHashMap(listName, oldList); // the old elements, including nested sublists
+			listValue = oldList.get(null);
+		}
+		if (listValue != null)
+			list.put(null, listValue);
+
+		// ensure everything's in the hashmap too.
+		String prefix = listName + Variable.SEPARATOR;
+		for (int i = 0; i < keys.length; i++) {
+			hashMap.put(prefix + keys[i], values[i]);
+		}
+	}
+
+	/**
+	 * @param keys the keys to check
+	 * @return Whether the keys are in {@link #VARIABLE_NAME_COMPARATOR} order with no repeats, as
+	 * {@link IndexTrackingTreeMap#ofSorted} requires.
+	 */
+	private static boolean isStrictlyIncreasing(String[] keys) {
+		for (int i = 1; i < keys.length; i++) {
+			if (VARIABLE_NAME_COMPARATOR.compare(keys[i - 1], keys[i]) >= 0)
+				return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Sorts the entries by key. A key that appears more than once keeps its last value,
+	 * as writing each element in turn would.
+	 *
+	 * @param keys   the keys to sort
+	 * @param values the values corresponding to each key
+	 * @return an array of sorted key-value pairs.
+	 */
+	private static KeyedValue<?>[] sortedWithoutRepeats(String[] keys, Object[] values) {
+		KeyedValue<?>[] entries = new KeyedValue<?>[keys.length];
+		for (int i = 0; i < keys.length; i++)
+			entries[i] = new KeyedValue<>(keys[i], values[i]);
+		// stable, so entries with the same key stay in the order they were given
+		Arrays.sort(entries, Comparator.comparing(KeyedValue<?>::key, VARIABLE_NAME_COMPARATOR));
+
+		// avoid duplicate keys.
+		int count = 0;
+		for (int i = 0; i < entries.length; i++) {
+			boolean writtenAgainLater = i + 1 < entries.length
+				&& VARIABLE_NAME_COMPARATOR.compare(entries[i].key(), entries[i + 1].key()) == 0;
+			if (!writtenAgainLater)
+				entries[count++] = entries[i];
+		}
+		return count == entries.length ? entries : Arrays.copyOf(entries, count);
 	}
 
 	/**

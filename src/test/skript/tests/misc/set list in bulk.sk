@@ -1,0 +1,121 @@
+local function bulk_indices(l: objects) returns texts:
+	return indices of {_l::*}
+
+local function bulk_values(l: objects) returns objects:
+	return {_l::*}
+
+local function bulk_recursive_size(l: objects) returns number:
+	return recursive size of {_l::*}
+
+test "set list in bulk":
+	set {_l::*} to "a", "b" and "c"
+	assert indices of {_l::*} is "1", "2" and "3" with "list wasn't numbered from 1"
+	assert {_l::*} is "a", "b" and "c" with "list values were wrong"
+
+	# replacing a list removes all of the old one, including its sublists
+	set {_l::x::y} to "nested"
+	set {_l::*} to "d" and "e"
+	assert size of {_l::*} is 2 with "old elements were kept"
+	assert {_l::3} is not set with "old element 3 was kept"
+	assert {_l::x::y} is not set with "old sublist was kept"
+	assert {_l::*} is "d" and "e" with "replaced list values were wrong"
+
+	# setting to nothing deletes the list
+	set {_l::*} to {_none::*}
+	assert {_l::*} is not set with "list wasn't deleted when set to nothing"
+
+test "set list in bulk keeps the list's own value":
+	set {_l} to "self"
+	set {_l::*} to 1, 2 and 3
+	assert {_l} is "self" with "{_l} was lost when {_l::*} was set"
+	set {_l::*} to 4
+	assert {_l} is "self" with "{_l} was lost when {_l::*} was replaced"
+	assert {_l::*} is 4 with "replaced list was wrong"
+	delete {_l::*}
+	assert {_l} is "self" with "{_l} was lost when {_l::*} was deleted"
+
+	# a plain value in the way of a nested list stays put
+	set {_a::b} to "plain"
+	set {_a::b::*} to 1 and 2
+	assert {_a::b} is "plain" with "{_a::b} was lost when {_a::b::*} was set"
+	assert {_a::b::*} is 1 and 2 with "nested list was wrong"
+	set {_a::b::c::*} to 3
+	assert {_a::b::c::1} is 3 with "deeper nested list was wrong"
+	assert {_a::b} is "plain" with "{_a::b} was lost when {_a::b::c::*} was set"
+
+test "set list in bulk then add":
+	set {_l::*} to 1, 2 and 3
+	add 4 to {_l::*}
+	assert {_l::4} is 4 with "add after a bulk set didn't use the next index"
+
+	# keys 1 and 3, so the gap at 2 is filled first
+	set {_src::1} to "a"
+	set {_src::3} to "c"
+	set {_l::*} to keyed {_src::*}
+	assert indices of {_l::*} is "1" and "3" with "keyed copy changed the keys"
+	add "b" to {_l::*}
+	assert {_l::2} is "b" with "add after a keyed bulk set didn't fill the gap"
+	add "d" to {_l::*}
+	assert {_l::4} is "d" with "add after filling the gap didn't use the next index"
+
+	# more elements than the smallest tracked range
+	loop 200 times:
+		set {_big::%loop-value%} to loop-value
+	set {_l::*} to {_big::*}
+	assert size of {_l::*} is 200 with "large copy lost elements"
+	add 201 to {_l::*}
+	assert {_l::201} is 201 with "add after a large bulk set didn't use the next index"
+	delete {_l::150}
+	add "refill" to {_l::*}
+	assert {_l::150} is "refill" with "add after deleting from a large bulk set didn't fill the gap"
+
+test "set list in bulk with keys":
+	set {_src::b} to "B"
+	set {_src::10} to "ten"
+	set {_src::2} to "two"
+	set {_src::a} to "A"
+	set {_l::*} to keyed {_src::*}
+	assert indices of {_l::*} is "2", "10", "a" and "b" with "keyed copy is out of order: %indices of {_l::*}%"
+	assert {_l::10} is "ten" with "keyed copy lost a value"
+	assert {_l::b} is "B" with "keyed copy lost a value"
+
+	# keys that arrive in no particular order end up sorted
+	set {_l::*} to test key values
+	assert indices of {_l::*} is "a", "foo" and "hello" with "unsorted keys weren't sorted: %indices of {_l::*}%"
+
+test "set list in bulk with nested keys":
+	set {_data::a::b} to "ab"
+	set {_data::a::c} to "ac"
+	set {_data::d} to "d"
+	set {_copy::*} to recursive keyed {_data::*}
+	assert {_copy::a::b} is "ab" with "nested key wasn't made into a sublist"
+	assert {_copy::a::c} is "ac" with "nested key wasn't made into a sublist"
+	# {_copy::a} is a sublist with no value of its own, so it isn't counted by size
+	assert size of {_copy::*} is 1 with "nested keys were stored flat: %indices of {_copy::*}%"
+	assert recursive size of {_copy::*} is 3 with "nested copy lost elements"
+
+	# the same for keys reaching a list parameter
+	assert bulk_recursive_size(recursive keyed {_data::*}) is 3 with "nested keys in a list parameter were stored flat"
+
+test "set list parameter in bulk":
+	assert bulk_values(1, 2 and 3) is 1, 2 and 3 with "list parameter values were wrong"
+	assert size of bulk_indices(1, 2 and 3) is 3 with "list parameter lost elements"
+
+	set {_src::x} to "X"
+	set {_src::y} to "Y"
+	assert bulk_indices(keyed {_src::*}) is "x" and "y" with "keyed list parameter lost its keys"
+	assert bulk_values(keyed {_src::*}) is "X" and "Y" with "keyed list parameter values were wrong"
+
+	loop 150 times:
+		set {_big::%loop-value%} to loop-value
+	assert size of bulk_values({_big::*}) is 150 with "large list parameter lost elements"
+
+test "set global list in bulk":
+	delete {bulk list test::*}
+	set {bulk list test::src::*} to "a", "b" and "c"
+	set {bulk list test::dst::*} to {bulk list test::src::*}
+	assert {bulk list test::dst::*} is "a", "b" and "c" with "global list copy was wrong"
+	set {bulk list test::dst::*} to "d"
+	assert {bulk list test::dst::*} is "d" with "global list replacement was wrong"
+	assert {bulk list test::dst::2} is not set with "global list replacement kept an old element"
+	delete {bulk list test::*}

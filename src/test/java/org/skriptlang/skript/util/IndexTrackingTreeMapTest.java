@@ -590,6 +590,148 @@ public class IndexTrackingTreeMapTest {
 		assertTrue(map.consecutive());
 	}
 
+	// --- ofSorted ---
+
+	private static IndexTrackingTreeMap<Object> ofSorted(String... keys) {
+		Object[] values = new Object[keys.length];
+		for (int i = 0; i < keys.length; i++)
+			values[i] = "v" + keys[i];
+		return IndexTrackingTreeMap.ofSorted(Comparator.naturalOrder(), keys, values);
+	}
+
+	@Test
+	public void ofSortedEmpty() {
+		IndexTrackingTreeMap<Object> map = ofSorted();
+
+		assertTrue(map.isEmpty());
+		assertEquals(1, map.nextOpenIndex());
+		assertFalse(map.consecutive());
+		assertTrue(map.mapIndices().isEmpty());
+	}
+
+	@Test
+	public void ofSortedHoldsEntriesInOrder() {
+		IndexTrackingTreeMap<Object> map = ofSorted("1", "2", "3", "a", "b");
+
+		assertEquals(List.of("1", "2", "3", "a", "b"), new ArrayList<>(map.keySet()));
+		assertEquals("v2", map.get("2"));
+		assertEquals("vb", map.get("b"));
+		assertEquals(4, map.nextOpenIndex());
+		assertTrue(map.consecutive());
+	}
+
+	@Test
+	public void ofSortedFindsFirstGap() {
+		IndexTrackingTreeMap<Object> map = ofSorted("1", "2", "4");
+
+		assertEquals(3, map.nextOpenIndex());
+		assertFalse(map.consecutive());
+		map.add("three");
+		assertEquals("three", map.get("3"));
+		assertEquals(5, map.nextOpenIndex());
+	}
+
+	@Test
+	public void ofSortedIgnoresNonIndexKeys() {
+		IndexTrackingTreeMap<Object> map = ofSorted("0", "01", "2147483647", "4294967297", "key");
+
+		assertEquals(1, map.nextOpenIndex());
+		assertFalse(map.consecutive());
+	}
+
+	@Test
+	public void ofSortedTracksMoreIndicesThanTheMinimum() {
+		// more entries than the minimum tracked range, so the range must be sized to fit them up front
+		String[] keys = new String[200];
+		for (int i = 0; i < keys.length; i++)
+			keys[i] = String.valueOf(i + 1);
+		IndexTrackingTreeMap<String> map = IndexTrackingTreeMap.ofSorted(
+			Comparator.comparingInt(String::length).thenComparing(Comparator.naturalOrder()), keys, keys.clone());
+
+		assertEquals(201, map.nextOpenIndex());
+		assertTrue(map.consecutive());
+		map.remove("150");
+		assertEquals(150, map.nextOpenIndex());
+		map.add("refill");
+		map.add("next");
+		assertEquals("refill", map.get("150"));
+		assertEquals("next", map.get("201"));
+	}
+
+	@Test
+	public void ofSortedTracksMapValues() {
+		Object[] values = {"one", Map.of("a", "b"), "three", new TreeMap<>()};
+		IndexTrackingTreeMap<Object> map = IndexTrackingTreeMap.ofSorted(
+			Comparator.naturalOrder(), new String[] {"1", "2", "3", "x"}, values);
+
+		assertEquals(Set.of("2", "x"), new HashSet<>(map.mapIndices()));
+		map.put("2", "two");
+		assertEquals(Set.of("x"), new HashSet<>(map.mapIndices()));
+	}
+
+	@Test
+	public void ofSortedUsesTheGivenComparator() {
+		Comparator<String> byLength = Comparator.comparingInt(String::length).thenComparing(Comparator.naturalOrder());
+		IndexTrackingTreeMap<String> map = IndexTrackingTreeMap.ofSorted(
+			byLength, new String[] {"2", "10", "100"}, new String[] {"two", "ten", "hundred"});
+
+		assertSame(byLength, map.comparator());
+		assertEquals("2", map.firstKey());
+		assertEquals("ten", map.get("10"));
+		map.put("9", "nine");
+		assertEquals(List.of("2", "9", "10", "100"), new ArrayList<>(map.keySet()));
+	}
+
+	@Test
+	public void ofSortedDoesNotKeepTheArrays() {
+		String[] keys = {"1", "2"};
+		String[] values = {"one", "two"};
+		IndexTrackingTreeMap<String> map = IndexTrackingTreeMap.ofSorted(Comparator.naturalOrder(), keys, values);
+
+		keys[0] = "changed";
+		values[1] = "changed";
+		assertEquals("one", map.get("1"));
+		assertEquals("two", map.get("2"));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void ofSortedRejectsMismatchedLengths() {
+		IndexTrackingTreeMap.ofSorted(Comparator.naturalOrder(), new String[] {"1", "2"}, new String[] {"one"});
+	}
+
+	@Test
+	public void ofSortedMatchesReference() {
+		for (long seed = 0; seed < 200; seed++) {
+			Random random = new Random(seed);
+			int maxIndex = random.nextBoolean() ? 50 : 500;
+			TreeMap<String, Object> reference = new TreeMap<>();
+			int size = random.nextInt(maxIndex);
+			for (int i = 0; i < size; i++)
+				reference.put(randomKey(random, maxIndex), random.nextInt(10) == 0 ? Map.of("a", "b") : "v" + i);
+
+			IndexTrackingTreeMap<Object> map = IndexTrackingTreeMap.ofSorted(Comparator.naturalOrder(),
+				reference.keySet().toArray(new String[0]), reference.values().toArray());
+			assertMatchesReference(map, reference, "seed " + seed + ", built");
+
+			// the tracking it starts with must keep working as the map changes
+			for (int op = 0; op < 200; op++) {
+				String key = randomKey(random, maxIndex);
+				String description;
+				if (random.nextBoolean()) {
+					map.remove(key);
+					reference.remove(key);
+					description = "remove " + key;
+				} else {
+					int index = map.nextOpenIndex();
+					map.add("a" + op);
+					reference.put(String.valueOf(index), "a" + op);
+					description = "add (at " + index + ")";
+				}
+				assertMatchesReference(map, reference, "seed " + seed + ", op " + op + ": " + description);
+			}
+		}
+	}
+
 	// --- worst cases that used to hang ---
 
 	@Test(timeout = 1000)
