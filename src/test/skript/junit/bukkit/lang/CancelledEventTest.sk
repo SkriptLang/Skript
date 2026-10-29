@@ -3,7 +3,7 @@ options:
 
 # TODO: add negative objectives to test if the cancelled listener is called when the event is not cancelled, for example.
 
-test "ExprDropsJUnit" when running JUnit:
+test "CancelledEventTest" when running JUnit:
 	set {_tests::1} to "listen for uncancelled event"
 	set {_tests::5} to "listen for cancelled event"
 	set {_tests::6} to "listen for any event"
