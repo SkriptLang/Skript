@@ -30,13 +30,9 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,14 +49,14 @@ import java.util.regex.Pattern;
  */
 public final class TextComponentParser {
 
-	private record SkriptTag(Tag tag, @Nullable String parent, boolean reset) { }
+	private record SkriptTag(Tag tag, @Nullable String parent, @Nullable Tag resetTag) {
+	}
 
 	private record SkriptTagResolver(TagResolver resolver, @Nullable String parent) {
 
 		@Override
-		@SuppressWarnings("EqualsDoesntCheckParameterClass") // resolver impl will do this
 		public boolean equals(Object obj) {
-			return resolver.equals(obj);
+			return obj instanceof SkriptTagResolver other && resolver.equals(other.resolver);
 		}
 
 		@Override
@@ -68,6 +64,9 @@ public final class TextComponentParser {
 			return resolver.hashCode();
 		}
 
+	}
+
+	private record NamedRegistration(Set<String> names, SkriptTagResolver resolver) {
 	}
 
 	/**
@@ -133,23 +132,27 @@ public final class TextComponentParser {
 	private static final TextComponentParser INSTANCE;
 
 	/**
-	 * A pattern for matching multi-word color tags.
-	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
-	 * For example, {@code <dark red>}.
+	 * A pattern for matching the tags {@link #reformatText(String)} handles:
+	 * Double hashtag hex color tags ({@code <##123456>}) and multi-word color tags ({@code <dark red>}).
+	 * This does double-up with {@link #LEGACY_DOUBLE_HASHTAG_PATTERN} but it's included so that there's only one replace
+	 * pass over the string during reformatting, rather than 2.
+	 * The tag's contents are in group 1.
+	 * This should be used with {@link TextComponentUtils#replaceEscapeAware} to determine whether the match is escaped.
 	 */
-	private static final Pattern MULTI_WORD_COLOR_PATTERN = Pattern.compile("(\\\\*)<([a-zA-Z]+ [a-zA-Z]+)>");
+	private static final Pattern REWRITTEN_TAG_PATTERN = Pattern.compile("<(##[a-fA-F0-9]{6}|[a-zA-Z]+ [a-zA-Z]+)>");
 
 	/**
 	 * A pattern for matching double hashtag hex color tags ({@code <##123456>}).
-	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
+	 * The tag's contents are in group 1.
+	 * This should be used with {@link TextComponentUtils#replaceEscapeAware} to determine whether the match is escaped.
 	 */
-	private static final Pattern LEGACY_DOUBLE_HASHTAG_PATTERN = Pattern.compile("(\\\\*)<(##[a-fA-F0-9]{6})>");
+	private static final Pattern LEGACY_DOUBLE_HASHTAG_PATTERN = Pattern.compile("<(##[a-fA-F0-9]{6})>");
 
 	/**
-	 * A pattern for matching legacy hex codes ({@code &x&1&2&3&4&5&6}).
-	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
+	 * A pattern for matching standard legacy codes ({@code &1}).
+	 * This should be used with {@link TextComponentUtils#replaceEscapeAware} to determine whether the match is escaped.
 	 */
-	static final Pattern LEGACY_CODE_PATTERN = Pattern.compile("(\\\\*)([&§][a-fA-F0-9kKlLoOmMnNrR])");
+	static final Pattern LEGACY_CODE_PATTERN = Pattern.compile("[&§][a-fA-F0-9kKlLoOmMnNrR]");
 
 	static {
 		INSTANCE = new TextComponentParser();
@@ -222,10 +225,15 @@ public final class TextComponentParser {
 	private TagResolver safeTagResolver = TagResolver.empty();
 
 	private final Map<String, SkriptTag> simplePlaceholders = new HashMap<>();
+	// resolvers with fixed tag names can be cached by name to avoid looping (last registered wins though)
+	private final Map<String, SkriptTagResolver> namedResolvers = new HashMap<>();
+	// every named registration in order, so an overridden name can fall back when the override is unregistered
+	private final List<NamedRegistration> namedRegistrations = new ArrayList<>();
 	private final Set<SkriptTagResolver> resolvers = new HashSet<>();
 
 	private LinkParseMode linkParseMode = LinkParseMode.DISABLED;
 	private boolean colorsCauseReset = false;
+	private final Map<String, Tag> resetColorTags = new ConcurrentHashMap<>();
 
 	private TagResolver createSkriptTagResolver(boolean isSafeMode) {
 		return new TagResolver() {
@@ -233,25 +241,45 @@ public final class TextComponentParser {
 			public @Nullable Tag resolve(@NotNull String name, @NotNull ArgumentQueue arguments, @NotNull Context ctx) throws ParsingException {
 				SkriptTag simple = simplePlaceholders.get(name);
 				if (simple != null && isSafe(name, simple.parent)) {
-					if (colorsCauseReset && simple.reset) {
-						return disableUnsetStyling(simple.tag);
+					if (colorsCauseReset && simple.resetTag != null) {
+						return simple.resetTag;
 					}
 					return simple.tag;
 				}
 
+				// check for cached custom resolvers
+				SkriptTagResolver named = namedResolvers.get(name);
+				if (named != null && isSafe(name, named.parent)) {
+					return named.resolver.resolve(name, arguments, ctx);
+				}
+
 				// attempt our custom resolvers
 				for (SkriptTagResolver skriptResolver : resolvers) {
-					if (!isSafe(name, skriptResolver.parent) || !skriptResolver.resolver.has(name)) {
+					if (!skriptResolver.resolver.has(name) || !isSafe(name, skriptResolver.parent)) {
 						continue;
 					}
 					return skriptResolver.resolver.resolve(name, arguments, ctx);
 				}
 
 				// only process resets for standard color tags
-				if (colorsCauseReset && StandardTags.color().has(name)) {
+				if (colorsCauseReset && StandardTags.color().has(name) && isSafe(name, null)) {
+					// if it's a fixed <#rrggbb> or <red> tag we can cache the combined reset tag instead of recomputing
+					boolean cacheable = !arguments.hasNext();
+					if (cacheable) {
+						Tag cached = resetColorTags.get(name);
+						if (cached != null)
+							return cached;
+					}
 					Tag colorTag = StandardTags.color().resolve(name, arguments, ctx);
 					if (colorTag != null) {
-						return disableUnsetStyling(colorTag);
+						colorTag = disableUnsetStyling(colorTag);
+						if (cacheable) {
+							// keys come from user input, so clear rather than stop caching once full
+							if (resetColorTags.size() >= 512)
+								resetColorTags.clear();
+							resetColorTags.put(name, colorTag);
+						}
+						return colorTag;
 					}
 				}
 
@@ -266,15 +294,21 @@ public final class TextComponentParser {
 					return isSafe(name, simple.parent);
 				}
 
+				// check for cached custom resolvers
+				SkriptTagResolver named = namedResolvers.get(name);
+				if (named != null && isSafe(name, named.parent)) {
+					return true;
+				}
+
 				// check our custom resolvers
 				for (SkriptTagResolver skriptResolver : resolvers) {
-					if (isSafe(name, skriptResolver.parent) && skriptResolver.resolver.has(name)) {
+					if (skriptResolver.resolver.has(name) && isSafe(name, skriptResolver.parent)) {
 						return true;
 					}
 				}
 
 				// otherwise, only process standard colors here if config applies
-				return colorsCauseReset && StandardTags.color().has(name);
+				return colorsCauseReset && StandardTags.color().has(name) && isSafe(name, null);
 			}
 
 			private boolean isSafe(String tag, @Nullable String parent) {
@@ -307,9 +341,21 @@ public final class TextComponentParser {
 				return null;
 			}
 
+			private final Map<String, Boolean> known = new ConcurrentHashMap<>();
+
 			@Override
 			public boolean has(@NotNull String name) {
-				return resolvers.stream().anyMatch(resolver -> resolver.has(name)) || CollectionUtils.contains(safeTags, name);
+				Boolean cached = known.get(name);
+				if (cached != null)
+					return cached;
+				boolean result = CollectionUtils.contains(safeTags, name);
+				for (int i = 0; !result && i < resolvers.size(); i++)
+					result = resolvers.get(i).has(name);
+				// keys come from user input, so clear rather than stop caching once full
+				if (known.size() >= 512)
+					known.clear();
+				known.put(name, result);
+				return result;
 			}
 		};
 	}
@@ -359,7 +405,7 @@ public final class TextComponentParser {
 	}
 
 	private void registerPlaceholder(String name, Tag result, @Nullable String parent, boolean reset) {
-		simplePlaceholders.put(name, new SkriptTag(result, parent, reset));
+		simplePlaceholders.put(name, new SkriptTag(result, parent, reset ? disableUnsetStyling(result) : null));
 	}
 
 	/**
@@ -372,6 +418,9 @@ public final class TextComponentParser {
 
 	/**
 	 * Registers a TagResolver with Skript's unsafe message parser.
+	 * <br>
+	 * If this resolver conflicts in tag names with an existing resolver, the winning resolver is undefined and based on
+	 * hashset ordering.
 	 * @param resolver The TagResolver to register.
 	 */
 	public void registerResolver(TagResolver resolver) {
@@ -380,6 +429,9 @@ public final class TextComponentParser {
 
 	/**
 	 * Registers a TagResolver with Skript's safe and unsafe message parsers.
+	 * <br>
+	 * If this resolver conflicts in tag names with an existing resolver, the winning resolver is undefined and based on
+	 * hashset ordering.
 	 * @param resolver The TagResolver to register.
 	 * @param parent If this tag acts as an alias or subset of another tag, the name of that tag.
 	 *  This is used for associating tags permitted for the safe parser.
@@ -389,12 +441,64 @@ public final class TextComponentParser {
 	}
 
 	/**
+	 * Registers a resolver for a fixed set of tag names with Skript's unsafe message parser.
+	 * Prefer this over {@link #registerResolver(TagResolver)} when the names are known up front,
+	 * as tags are looked up by name rather than by querying every registered resolver.
+	 * <br>
+	 * If a name conflicts with an existing resolver, this will override that association, so whoever registers
+	 * last wins. This is not encouraged behavior, but it does allow a user to change the behavior of an existing tag.
+	 *
+	 * @param names   The names of the tags to resolve.
+	 * @param handler Creates the tag from its arguments. See {@link TagResolver#resolver(Set, BiFunction)}.
+	 * @return The created resolver, which can be passed to {@link #unregisterResolver(TagResolver)}.
+	 */
+	@SuppressWarnings("UnusedReturnValue")
+	public @NotNull TagResolver registerResolver(Set<String> names, BiFunction<ArgumentQueue, Context, Tag> handler) {
+		return registerResolver(names, handler, null);
+	}
+
+	/**
+	 * Registers a resolver for a fixed set of tag names with Skript's safe and unsafe message parsers.
+	 * Prefer this over {@link #registerResolver(TagResolver, String)} when the names are known up front,
+	 * as tags are looked up by name rather than by querying every registered resolver.
+	 * <br>
+	 * If a name conflicts with an existing resolver, this will override that association, so whoever registers
+	 * last wins. This is not encouraged behavior, but it does allow a user to change the behavior of an existing tag.
+	 *
+	 * @param names   The names of the tags to resolve.
+	 * @param handler Creates the tag from its arguments. See {@link TagResolver#resolver(Set, BiFunction)}.
+	 * @param parent  If this tag acts as an alias or subset of another tag, the name of that tag.
+	 *                This is used for associating tags permitted for the safe parser.
+	 * @return The created resolver, which can be passed to {@link #unregisterResolver(TagResolver)}.
+	 */
+	public @NotNull TagResolver registerResolver(Set<String> names, BiFunction<ArgumentQueue, Context, Tag> handler, @Nullable String parent) {
+		// copy so that the resolver's names cannot change after it is indexed
+		names = Set.copyOf(names);
+		TagResolver resolver = TagResolver.resolver(names, handler);
+		SkriptTagResolver skriptResolver = new SkriptTagResolver(resolver, parent);
+		namedRegistrations.add(new NamedRegistration(names, skriptResolver));
+		for (String name : names) {
+			namedResolvers.put(name, skriptResolver);
+		}
+		return resolver;
+	}
+
+	/**
 	 * Unregisters a TagResolver from Skript's message parsers.
 	 * @param resolver The TagResolver to unregister.
 	 */
 	public void unregisterResolver(TagResolver resolver) {
 		// safe parameter is irrelevant as only resolver is considered in equality
 		resolvers.remove(new SkriptTagResolver(resolver, null));
+		if (namedRegistrations.removeIf(named -> named.resolver.resolver.equals(resolver))) {
+			// rebuild so that any name the resolver overrode goes back to the latest remaining registration
+			namedResolvers.clear();
+			for (NamedRegistration named : namedRegistrations) {
+				for (String name : named.names) {
+					namedResolvers.put(name, named.resolver);
+				}
+			}
+		}
 	}
 
 	/**
@@ -481,28 +585,29 @@ public final class TextComponentParser {
 	 */
 	public String reformatText(String text) {
 		// TODO improve...
-		// replace spaces with underscores for simple tags
-		text = MULTI_WORD_COLOR_PATTERN.matcher(text).replaceAll(result -> {
-			if (result.group(1).length() % 2 == 1) { // tag is escaped
-				return Matcher.quoteReplacement(result.group());
-			}
-			String mappedTag = result.group(2).replace(" ", "_");
-			if (simplePlaceholders.containsKey(mappedTag) || StandardTags.color().has(mappedTag)) { // only replace if it makes a valid tag
-				return Matcher.quoteReplacement(result.group(1) + "<" + mappedTag + ">");
-			}
-			return Matcher.quoteReplacement(result.group());
-		});
-
-		text = LEGACY_DOUBLE_HASHTAG_PATTERN.matcher(text).replaceAll(result -> {
-			if (result.group(1).length() % 2 == 1) { // tag is escaped
-				return Matcher.quoteReplacement(result.group());
-			}
-			String mappedTag = result.group(2).substring(1);
-			if (StandardTags.color().has(mappedTag)) {
-				return Matcher.quoteReplacement("<" + mappedTag + ">");
-			}
-			return Matcher.quoteReplacement(result.group());
-		});
+		if (text.indexOf('<') != -1) {
+			text = TextComponentUtils.replaceEscapeAware(text, REWRITTEN_TAG_PATTERN, (result, backslashes) -> {
+				String unchanged = "\\".repeat(backslashes) + result.group();
+				if (backslashes % 2 == 1) { // tag is escaped
+					return unchanged;
+				}
+				String tag = result.group(1);
+				if (tag.startsWith("##")) {
+					// strip the extra hashtag
+					String mappedTag = tag.substring(1);
+					if (StandardTags.color().has(mappedTag)) {
+						return "\\".repeat(backslashes) + "<" + mappedTag + ">";
+					}
+					return unchanged;
+				}
+				// replace spaces with underscores for simple tags
+				String mappedTag = tag.replace(' ', '_');
+				if (simplePlaceholders.containsKey(mappedTag) || StandardTags.color().has(mappedTag)) { // only replace if it makes a valid tag
+					return "\\".repeat(backslashes) + "<" + mappedTag + ">";
+				}
+				return unchanged;
+			});
+		}
 
 		// legacy compatibility, transform color codes into tags
 		text = TextComponentUtils.replaceLegacyFormattingCodes(text);
@@ -519,24 +624,25 @@ public final class TextComponentParser {
 	public String escape(String string) {
 		// legacy compatibility, escape color codes
 		if (string.contains("&") || string.contains("§")) {
-			string = LEGACY_CODE_PATTERN.matcher(string).replaceAll(result -> {
+			string = TextComponentUtils.replaceEscapeAware(string, LEGACY_CODE_PATTERN, (result, backslashes) -> {
 				// Even if escaped, MiniMessage will throw an exception for legacy section codes
-				String group = result.group().replace('§', '&');
-				if (result.group(1).length() % 2 == 1) { // tag is already escaped
-					return Matcher.quoteReplacement(group);
+				String code = "\\".repeat(backslashes) + result.group().replace('§', '&');
+				if (backslashes % 2 == 1) { // tag is already escaped
+					return code;
 				}
-				return Matcher.quoteReplacement('\\' + group);
+				return '\\' + code;
 			});
 		}
-		string = LEGACY_DOUBLE_HASHTAG_PATTERN.matcher(string).replaceAll(result -> {
-			if (result.group(1).length() % 2 == 1) { // tag is escaped
-				return Matcher.quoteReplacement(result.group());
+		string = TextComponentUtils.replaceEscapeAware(string, LEGACY_DOUBLE_HASHTAG_PATTERN, (result, backslashes) -> {
+			String unchanged = "\\".repeat(backslashes) + result.group();
+			if (backslashes % 2 == 1) { // tag is escaped
+				return unchanged;
 			}
-			String mappedTag = result.group(2).substring(1);
+			String mappedTag = result.group(1).substring(1);
 			if (StandardTags.color().has(mappedTag)) {
-				return Matcher.quoteReplacement("\\<#" + mappedTag) + ">";
+				return "\\".repeat(backslashes) + "\\<#" + mappedTag + ">";
 			}
-			return Matcher.quoteReplacement(result.group());
+			return unchanged;
 		});
 		return parser.escapeTags(string);
 	}
@@ -563,7 +669,7 @@ public final class TextComponentParser {
 
 	private String stripFormatting(String string, boolean onlySafe) {
 		// TODO this is expensive...
-		while (true) {
+		while (mayContainFormatting(string)) {
 			String stripped = (onlySafe ? safeParser : parser).stripTags(reformatText(string));
 			if (string.equals(stripped)) { // nothing more to strip
 				break;
@@ -571,6 +677,16 @@ public final class TextComponentParser {
 			string = stripped;
 		}
 		return string;
+	}
+
+	/**
+	 * Helper for {@link #stripFormatting(String, boolean)}
+	 *
+	 * @param string string to check
+	 * @return whether there are any chars that could be formatting present
+	 */
+	private static boolean mayContainFormatting(String string) {
+		return string.indexOf('<') != -1 || string.indexOf('&') != -1 || string.indexOf('§') != -1;
 	}
 
 	/**
@@ -648,22 +764,22 @@ public final class TextComponentParser {
 
 		registerPlaceholder("r", ParserDirective.RESET, "reset");
 
-		registerResolver(TagResolver.resolver(Set.of("open_url", "link", "url"), (argumentQueue, context) -> {
+		registerResolver(Set.of("open_url", "link", "url"), (argumentQueue, context) -> {
 			String url = argumentQueue.popOr("A link tag must have an argument of the url").value();
 			return Tag.styling(ClickEvent.openUrl(url));
-		}), "click");
+		}, "click");
 
-		registerResolver(TagResolver.resolver(Set.of("run_command", "command", "cmd"), (argumentQueue, context) -> {
+		registerResolver(Set.of("run_command", "command", "cmd"), (argumentQueue, context) -> {
 			String command = argumentQueue.popOr("A run command tag must have an argument of the command to execute").value();
 			return Tag.styling(ClickEvent.runCommand(command));
-		}), "click");
+		}, "click");
 
-		registerResolver(TagResolver.resolver(Set.of("suggest_command", "sgt"), (argumentQueue, context) -> {
+		registerResolver(Set.of("suggest_command", "sgt"), (argumentQueue, context) -> {
 			String command = argumentQueue.popOr("A suggest command tag must have an argument of the command to suggest").value();
 			return Tag.styling(ClickEvent.suggestCommand(command));
-		}), "click");
+		}, "click");
 
-		registerResolver(TagResolver.resolver(Set.of("change_page"), (argumentQueue, context) -> {
+		registerResolver(Set.of("change_page"), (argumentQueue, context) -> {
 			String rawPage = argumentQueue.popOr("A change page tag must have an argument of the page number").value();
 			int page;
 			try {
@@ -672,40 +788,40 @@ public final class TextComponentParser {
 				throw context.newException(e.getMessage(), argumentQueue);
 			}
 			return Tag.styling(ClickEvent.changePage(page));
-		}), "click");
+		}, "click");
 
-		registerResolver(TagResolver.resolver(Set.of("copy_to_clipboard", "copy", "clipboard"), (argumentQueue, context) -> {
+		registerResolver(Set.of("copy_to_clipboard", "copy", "clipboard"), (argumentQueue, context) -> {
 			String string = argumentQueue.popOr("A copy to clipboard tag must have an argument of the string to copy").value();
 			return Tag.styling(ClickEvent.copyToClipboard(string));
-		}), "click");
+		}, "click");
 
-		registerResolver(TagResolver.resolver(Set.of("show_text", "tooltip", "ttp"), (argumentQueue, context) -> {
+		registerResolver(Set.of("show_text", "tooltip", "ttp"), (argumentQueue, context) -> {
 			String tooltip = argumentQueue.popOr("A tooltip tag must have an argument of the message to show").value();
 			return Tag.styling(HoverEvent.showText(context.deserialize(tooltip)));
-		}), "hover");
+		}, "hover");
 
-		registerResolver(TagResolver.resolver(Set.of("f"),
-			(argumentQueue, context) -> StandardTags.font().resolve("font", argumentQueue, context)),
+		registerResolver(Set.of("f"),
+			(argumentQueue, context) -> StandardTags.font().resolve("font", argumentQueue, context),
 			"font");
 
-		registerResolver(TagResolver.resolver(Set.of("insertion", "ins"),
-			(argumentQueue, context) -> StandardTags.insertion().resolve("insert", argumentQueue, context)),
+		registerResolver(Set.of("insertion", "ins"),
+			(argumentQueue, context) -> StandardTags.insertion().resolve("insert", argumentQueue, context),
 			"insert");
 
-		registerResolver(TagResolver.resolver(Set.of("keybind"),
-			(argumentQueue, context) -> StandardTags.keybind().resolve("key", argumentQueue, context)),
+		registerResolver(Set.of("keybind"),
+			(argumentQueue, context) -> StandardTags.keybind().resolve("key", argumentQueue, context),
 			"key");
 
 		final Pattern unicodePattern = Pattern.compile("[0-9a-f]{4,}");
 		// note: "u" is already reserved by MiniMessage for underline, we override it
-		registerResolver(TagResolver.resolver(Set.of("unicode", "u"), (argumentQueue, context) -> {
+		registerResolver(Set.of("unicode", "u"), (argumentQueue, context) -> {
 			String argument = argumentQueue.popOr("A unicode tag must have an argument of the unicode").value();
 			Matcher matcher = unicodePattern.matcher(argument.toLowerCase(Locale.ENGLISH));
 			if (!matcher.matches())
 				throw context.newException("Invalid unicode tag");
 			String unicode = Character.toString(Integer.parseInt(matcher.group(), 16));
 			return Tag.selfClosingInserting(Component.text(unicode));
-		}));
+		});
 	}
 
 }

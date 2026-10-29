@@ -13,6 +13,7 @@ import org.skriptlang.skript.lang.converter.Converters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,11 +53,13 @@ public final class TextComponentUtils {
 	 */
 	public static Component joinByNewLine(Component... components) {
 		// we want formatting from the first to apply to the next, so append this way
-		Component combined = components[0];
+		List<Component> children = new ArrayList<>(components[0].children());
 		for (int i = 1; i < components.length; i++) {
-			combined = combined.appendNewline().append(components[i]);
+			// we collect children in our own list since append() has to copy the children list every time
+			children.add(Component.newline());
+			children.add(components[i]);
 		}
-		return combined.compact();
+		return components[0].children(children).compact();
 	}
 
 	public static Component appendToEnd(Component base, Component appendee) {
@@ -74,8 +77,64 @@ public final class TextComponentUtils {
 	}
 
 	/**
-	 * A pattern for matching standard legacy codes ({@code &1}).
-	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
+	 * Replaces a match together with the backslashes directly preceding it.
+	 * Having a `(\\\\*)` group at the start of a regex pattern leads to matching attempts at
+	 * every single character and can get expensive, so ideally we start the pattern with a literal `<`.
+	 * Since we still need to know about the \, we use this class in conjunction with {@link #replaceEscapeAware(String, Pattern, EscapeAwareReplacer)}
+	 * to detect and replace the \ before the match instead of relying on regex for it.
+	 */
+	@FunctionalInterface
+	interface EscapeAwareReplacer {
+
+		/**
+		 * @param match       The match to replace.
+		 * @param backslashes The number of backslashes directly preceding the match.
+		 * @return The replacement for the backslashes and the match.
+		 * The backslashes are not copied to the output, so the replacement must include any that should be kept.
+		 */
+		String replace(MatchResult match, int backslashes);
+
+	}
+
+	/**
+	 * Replaces every match of {@code pattern} in {@code text}, like {@link Matcher#replaceAll(java.util.function.Function)},
+	 * but also passes the replacer the number of backslashes directly preceding each match,
+	 * so that it can determine whether the match is escaped.
+	 * Counting the backslashes here rather than in the pattern keeps the pattern's first character fixed,
+	 * which is much faster to search for than a leading {@code (\\\\*)} group.
+	 *
+	 * @param text     The text to replace matches in.
+	 * @param pattern  The pattern to match. Its matches must not end with a backslash.
+	 * @param replacer Produces the replacement for each match and its preceding backslashes.
+	 * @return {@code text} with all matches replaced.
+	 */
+	static String replaceEscapeAware(String text, Pattern pattern, EscapeAwareReplacer replacer) {
+		Matcher matcher = pattern.matcher(text);
+		if (!matcher.find()) {
+			return text;
+		}
+		StringBuilder builder = new StringBuilder(text.length() + 16);
+		int last = 0;
+		do {
+			// count backslashes
+			int start = matcher.start();
+			int backslashStart = start;
+			while (backslashStart > last && text.charAt(backslashStart - 1) == '\\') {
+				backslashStart--;
+			}
+			// append text since last match
+			builder.append(text, last, backslashStart);
+			// append replaced text
+			builder.append(replacer.replace(matcher, start - backslashStart));
+			last = matcher.end();
+			// find next match
+		} while (matcher.find());
+		builder.append(text, last, text.length());
+		return builder.toString();
+	}
+
+	/**
+	 * A pattern for matching legacy hex codes ({@code &x&1&2&3&4&5&6}).
 	 */
 	private static final Pattern LEGACY_HEX_PATTERN = Pattern.compile("[&§]x(?:[&§][a-fA-F0-9]){6}");
 
@@ -100,18 +159,16 @@ public final class TextComponentUtils {
 			return Matcher.quoteReplacement(replacement.toString());
 		});
 
-		text = TextComponentParser.LEGACY_CODE_PATTERN.matcher(text).replaceAll(result -> {
-			String backslashes = result.group(1);
-			if (backslashes.length() % 2 == 1) { // tag is escaped
-				return Matcher.quoteReplacement(result.group().substring(1));
-			} else if (!backslashes.isEmpty()) {
-				backslashes = backslashes.substring(1);
+		text = replaceEscapeAware(text, TextComponentParser.LEGACY_CODE_PATTERN, (result, backslashes) -> {
+			// one backslash is consumed either way
+			String kept = "\\".repeat(Math.max(backslashes - 1, 0));
+			if (backslashes % 2 == 1) { // tag is escaped, so keep literal text
+				return kept + result.group();
 			}
-			StringBuilder replacement = new StringBuilder(backslashes);
-			ChatColor color = ChatColor.getByChar(Character.toLowerCase(result.group(2).charAt(1)));
+			// tag was unescaped, so turn into color tag
+			ChatColor color = ChatColor.getByChar(Character.toLowerCase(result.group().charAt(1)));
 			assert color != null;
-			replacement.append('<').append(color.asBungee().getName()).append('>');
-			return Matcher.quoteReplacement(replacement.toString());
+			return kept + '<' + color.asBungee().getName() + '>';
 		});
 
 		return text;

@@ -7,6 +7,8 @@ import net.kyori.adventure.text.event.ClickEvent.Payload;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.tag.Tag;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
 import org.junit.Test;
@@ -90,6 +92,29 @@ public class TextComponentParserTest {
 		assertEquals(parser.parse("<#ffff11>hello"), parser.parse("<#ffff11>hello"));
 		assertEquals(parser.parse("<#FFFF11>hello"), parser.parse("<##FFFF11>hello"));
 		assertEquals(parser.parse("<#ffff11>hello"), parser.parse("<##FFFF11>hello"));
+		// an even number of preceding backslashes are kept
+		assertEquals("\\\\<#123456>hello", parser.reformatText("\\\\<##123456>hello"));
+		assertEquals("\\\\\\<##123456>hello", parser.escape("\\\\<##123456>hello"));
+	}
+
+	@Test
+	public void testSafeColorsCauseReset() {
+		TextComponentParser parser = new TextComponentParser();
+		parser.colorsCauseReset(true);
+		parser.setSafeTags("");
+		assertEquals(Component.text("<red>hello"), parser.parseSafe("<red>hello"));
+		assertEquals(Component.text("<#123456>hello"), parser.parseSafe("<#123456>hello"));
+	}
+
+	@Test
+	public void testUnregisterOverride() {
+		TextComponentParser parser = new TextComponentParser();
+		Component expected = parser.parse("<link:'https://skriptlang.org/'>site");
+		TagResolver override = parser.registerResolver(Set.of("link"),
+			(arguments, context) -> Tag.selfClosingInserting(Component.text("overridden")));
+		assertEquals(Component.text("overridden"), parser.parse("<link:'https://skriptlang.org/'>"));
+		parser.unregisterResolver(override);
+		assertEquals(expected, parser.parse("<link:'https://skriptlang.org/'>site"));
 	}
 
 	@Test
