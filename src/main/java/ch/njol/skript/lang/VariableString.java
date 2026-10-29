@@ -49,6 +49,12 @@ public class VariableString implements Expression<String> {
 	private final StringMode mode;
 
 	/**
+	 * Whether this is the name of a local variable, which never uses default variables.
+	 * The name is stored without its {@link Variable#LOCAL_VARIABLE_TOKEN}, so the {@link Variable} has to say so.
+	 */
+	private boolean localVariableName;
+
+	/**
 	 * Creates a new VariableString which does not contain variables.
 	 *
 	 * @param input Content for string.
@@ -369,7 +375,7 @@ public class VariableString implements Expression<String> {
 		assert string != null;
 		// default var hints only needed if not local and they actually exist
 		DefaultVariables data = null;
-		if (script != null && mode == StringMode.VARIABLE_NAME && !(string[0] instanceof String first && first.startsWith(Variable.LOCAL_VARIABLE_TOKEN))) {
+		if (script != null && mode == StringMode.VARIABLE_NAME && !localVariableName) {
 			data = script.getData(DefaultVariables.class);
 		}
 		List<Class<?>> types = data != null ? new ArrayList<>() : null;
@@ -386,7 +392,7 @@ public class VariableString implements Expression<String> {
 			}
 		}
 		String complete = builder.toString();
-		if (types != null && !types.isEmpty() && !complete.startsWith(Variable.LOCAL_VARIABLE_TOKEN))
+		if (types != null && !types.isEmpty())
 			data.add(complete, types.toArray(new Class<?>[0]));
 		return complete;
 	}
@@ -460,6 +466,14 @@ public class VariableString implements Expression<String> {
 			hintIndex++;
 		}
 		return typeHints.stream().map(StringBuilder::toString).collect(Collectors.toList());
+	}
+
+	/**
+	 * Marks this as the name of a local variable, so evaluating it doesn't record default variable type hints.
+	 * Local variables don't open a type hint scope, so a hint would land in the scope of an enclosing global variable.
+	 */
+	void markLocalVariableName() {
+		localVariableName = true;
 	}
 
 	public boolean isSimple() {

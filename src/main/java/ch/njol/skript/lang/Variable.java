@@ -89,6 +89,8 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		this.list = list;
 
 		this.name = name;
+		if (local)
+			name.markLocalVariableName();
 
 		this.types = types;
 		this.superType = (Class<T>) Classes.getSuperClassInfo(types).getC();
