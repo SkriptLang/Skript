@@ -1,14 +1,14 @@
 package ch.njol.skript.command;
 
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import org.bukkit.command.CommandSender;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Peter Güttinger
  */
-public class CommandEvent extends Event {
+public class CommandEvent extends LocalVariableHoldingEvent {
 
 	private final CommandSender sender;
 	String command;

@@ -63,26 +63,52 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 				continue;
 			}
 
-			boolean keyed = Arrays.stream(val).allMatch(it -> it instanceof KeyedValue<?>);
-			if (keyed) {
-				for (Object value : val) {
-					KeyedValue<?> keyedValue = (KeyedValue<?>) value;
-					Variables.setVariable(parameter.name() + Variable.SEPARATOR + keyedValue.key(), keyedValue.value(), event, true);
-				}
-			} else {
-				int count = 0;
-				for (Object value : val) {
-					// backup for if the passed argument is not a keyed value.
-					// an example of this is passing `xs: integers = (1, 2)` as a parameter.
-					Variables.setVariable(parameter.name() + Variable.SEPARATOR + count, value, event, true);
-					count++;
-				}
+			if (val.length == 0) {
+				i++;
+				continue;
 			}
+
+			boolean keyed = Arrays.stream(val).allMatch(it -> it instanceof KeyedValue<?>);
+			setListParameter(parameter.name(), val, keyed, event);
 			i++;
 		}
 
 		trigger.execute(event);
 		return type() != null ? returnValues.get() : null;
+	}
+
+	/**
+	 * Sets a list parameter's local variable to the given values in one go.
+	 * Null values are skipped.
+	 *
+	 * @param keyed whether every value is a {@link KeyedValue}. If not, values are numbered from 0.
+	 */
+	private static void setListParameter(String name, Object[] values, boolean keyed, Event event) {
+		String[] keys = new String[values.length];
+		Object[] listValues = new Object[values.length];
+		int count = 0;
+		for (int i = 0; i < values.length; i++) {
+			String key;
+			Object value;
+			if (keyed) {
+				KeyedValue<?> keyedValue = (KeyedValue<?>) values[i];
+				key = keyedValue.key();
+				value = keyedValue.value();
+			} else {
+				key = String.valueOf(i);
+				value = values[i];
+			}
+			if (value == null)
+				continue;
+			keys[count] = key;
+			listValues[count] = value;
+			count++;
+		}
+		if (count < values.length) {
+			keys = Arrays.copyOf(keys, count);
+			listValues = Arrays.copyOf(listValues, count);
+		}
+		Variables.setList(name, keys, listValues, event, true);
 	}
 
 	@Override
@@ -101,17 +127,9 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 			if (parameter.isSingle()) {
 				Variables.setVariable(name, value, newEvent, true);
 			} else {
-				if (value instanceof KeyedValue<?>[] keyedValues) {
-					for (KeyedValue<?> keyedValue : keyedValues) {
-						Variables.setVariable(name + "::" + keyedValue.key(), keyedValue.value(), newEvent, true);
-					}
-				} else {
-					int i = 0;
-					for (Object o : (Object[]) value) {
-						Variables.setVariable(name + "::" + i, o, newEvent, true);
-						i++;
-					}
-				}
+				Object[] values = (Object[]) value;
+				if (values.length > 0)
+					setListParameter(name, values, value instanceof KeyedValue<?>[], newEvent);
 			}
 		}
 
