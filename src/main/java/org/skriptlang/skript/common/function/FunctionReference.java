@@ -35,6 +35,7 @@ public final class FunctionReference<T> implements Debuggable {
 	private Signature<T> cachedSignature;
 	private boolean validSignature = true;
 	private boolean printedInvalidSignatureWarning;
+	private boolean registeredCall;
 	private Function<T> cachedFunction;
 	private LinkedHashMap<String, ArgInfo> cachedArguments;
 
@@ -73,6 +74,7 @@ public final class FunctionReference<T> implements Debuggable {
 				validSignature = true;
 				printedInvalidSignatureWarning = false;
 				cachedFunction = null; // need to re-obtain function now since signature changed
+				registeredCall = false; // need to tell new signature about this call site.
 			} else {
 				if (!printedInvalidSignatureWarning) {
 					printedInvalidSignatureWarning = true;
@@ -115,7 +117,10 @@ public final class FunctionReference<T> implements Debuggable {
 			}
 		}
 
-		cachedSignature.addCall(this);
+		if (!registeredCall) {
+			cachedSignature.addCall(this);
+			registeredCall = true;
+		}
 
 		return true;
 	}
@@ -169,7 +174,7 @@ public final class FunctionReference<T> implements Debuggable {
 		SequencedMap<String, Object> args = new LinkedHashMap<>();
 		cachedArguments.forEach((k, v) -> {
 			if (v.modifiers().contains(Modifier.KEYED)) {
-				args.put(k, Classes.clone(evaluateKeyed(v.expression(), event)));
+				args.put(k, evaluateKeyed(v.expression(), event)); // evalKeyed clones, so no need to clone here
 				return;
 			}
 

@@ -20,9 +20,19 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
 	private final Trigger trigger;
 
-	private final ThreadLocal<Boolean> returnValueSet = ThreadLocal.withInitial(() -> false);
-	private final ThreadLocal<T @Nullable []> returnValues = new ThreadLocal<>();
-	private final ThreadLocal<String @Nullable []> returnKeys = new ThreadLocal<>();
+	private static final class ReturnState<T> {
+		boolean set;
+		T @Nullable [] values;
+		String @Nullable [] keys;
+
+		void reset() {
+			set = false;
+			values = null;
+			keys = null;
+		}
+	}
+
+	private final ThreadLocal<ReturnState<T>> returnState = ThreadLocal.withInitial(ReturnState::new);
 
 	public ScriptFunction(Signature<T> sign, SectionNode node) {
 		super(sign);
@@ -82,7 +92,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 		}
 
 		trigger.execute(event);
-		return type() != null ? returnValues.get() : null;
+		return type() != null ? returnState.get().values : null;
 	}
 
 	@Override
@@ -117,7 +127,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
 		trigger.execute(newEvent);
 
-		T[] vs = returnValues.get();
+		T[] vs = returnState.get().values;
 		if (type() == null || vs == null || vs.length == 0) {
 			return null;
 		}
@@ -132,24 +142,28 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
 	@Override
 	public @NotNull String @Nullable [] returnedKeys() {
-		return type() != null ? returnKeys.get() : null;
+		return type() != null ? returnState.get().keys : null;
 	}
 
 	@Override
 	public boolean resetReturnValue() {
-		returnValueSet.remove();
-		returnValues.remove();
-		returnKeys.remove();
+		returnState.get().reset();
 		return true;
 	}
 
 	@Override
 	public final void returnValues(Event event, Expression<? extends T> value) {
-		assert !returnValueSet.get();
-		returnValueSet.set(true);
-		this.returnValues.set(value.getArray(event));
-		if (KeyProviderExpression.canReturnKeys(value))
-			this.returnKeys.set(((KeyProviderExpression<?>) value).getArrayKeys(event));
+		// evaluate before touching state: the expression may call this same function recursively
+		T[] values = value.getArray(event);
+		String[] keys = KeyProviderExpression.canReturnKeys(value)
+				? ((KeyProviderExpression<?>) value).getArrayKeys(event)
+				: null;
+
+		ReturnState<T> state = returnState.get();
+		assert !state.set;
+		state.set = true;
+		state.values = values;
+		state.keys = keys;
 	}
 
 	@Override
