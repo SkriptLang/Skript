@@ -1,5 +1,6 @@
 test "MD5 hash":
-	assert "hello world" hashed with MD5 is "5eb63bbbe01eeed093cb22bb8f5acdc3" with "incorrect hash"
+	suppress deprecated syntax warnings:
+		assert "hello world" hashed with MD5 is "5eb63bbbe01eeed093cb22bb8f5acdc3" with "incorrect hash"
 
 test "SHA-256 hash":
 	assert "hello world" hashed with SHA-256 is "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9" with "incorrect hash"

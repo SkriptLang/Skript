@@ -1,4 +1,4 @@
-test "rotate around global axis":
+test "rotate around global axis expression":
 	set {_v::1} to quaternion(1, 0, 0, 0)
 
 	set {_v::*} to {_v::*} rotated around y axis by 90 degrees
@@ -10,7 +10,7 @@ test "rotate around global axis":
 	set {_v::*} to {_v::*} rotated around z axis by -90 degrees
 	assert {_v::1} is quaternion(0, 0, 0.7071067094802856, -0.7071067094802856) with "rotate quaternion around z axis failed"
 
-test "rotate around local axis":
+test "rotate around local axis expression":
 	set {_v::1} to quaternion(1, 0, 0, 0)
 
 	set {_v::*} to {_v::*} rotated around local y axis by 90 degrees
@@ -22,7 +22,7 @@ test "rotate around local axis":
 	set {_v::*} to {_v::*} rotated around local z axis by 90 degrees
 	assert {_v::1} is quaternion(0.7071067094802856, 0.7071067094802856, 0, 0) with "rotate quaternion around local z axis failed"
 
-test "vector rotate around vector":
+test "vector rotate around vector expression":
 	set {_x} to vector(1, 0, 0)
 	set {_y} to vector(0, 1, 0)
 	set {_z} to vector(0, 0, 1)
@@ -45,7 +45,7 @@ test "vector rotate around vector":
 	assert {_v} is vector(0, 0, -2) with "rotate around non-unit vector failed"
 
 
-test "quaternion rotate by ZYX rotation":
+test "quaternion rotate by ZYX rotation expression":
 	set {_q} to quaternion(1,0,0,0)
 	set {_q} to {_q} rotated by x 90, y 90, z 90
 	assert {_q} is quaternion(0.7071067094802856, 0, 0.7071067094802856, 0) with "failed to rotate quaternion by ZYX"

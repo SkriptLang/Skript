@@ -11,7 +11,8 @@ test "teleport flags":
 	spawn pig at location(0, 0, 0):
 		make entity ride {_pig}
 		set {_pig2} to entity
-	teleport {_pig} to location(1, 30, 1) retaining passengers, xyz velocity, and yaw and pitch velocity
+	suppress deprecated syntax warnings: # some flags are deprecated on newer versions
+		teleport {_pig} to location(1, 30, 1) retaining passengers, xyz velocity, and yaw and pitch velocity
 	assert location of {_pig} is location(1, 30, 1) with "failed to teleport entity"
 	assert passenger of {_pig} is {_pig2} with "failed to retain passenger"
 

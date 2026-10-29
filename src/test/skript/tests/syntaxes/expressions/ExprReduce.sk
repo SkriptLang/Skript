@@ -6,7 +6,7 @@ test "basic sum":
 	set {_sum} to {_numbers::*} reduced with [reduced value + input]
 	assert {_sum} is 15 with "sum of 1+2+3+4+5 should be 15", expected 15, got {_sum}
 
-test "string concatenation":
+test "reduction string concatenation":
 	set {_strings::*} to "Hello", " ", "World", and "!"
 	set {_result} to {_strings::*} reduced with ["%reduced value%%input%"]
 	assert {_result} is "Hello World!" with "concatenation should produce 'Hello World!'", expected "Hello World!", got {_result}

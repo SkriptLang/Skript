@@ -3,9 +3,11 @@ package ch.njol.skript.test.runner;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import ch.njol.skript.Skript;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
@@ -15,6 +17,11 @@ import ch.njol.skript.test.utils.TestResults;
  * Tracks failed and succeeded tests.
  */
 public class TestTracker {
+
+	/**
+	 * Registered tests for eventual group execution.
+	 */
+	private static final Map<String, Runnable> registeredTests = new LinkedHashMap<>(200);
 
 	/**
 	 * Started tests.
@@ -28,6 +35,25 @@ public class TestTracker {
 
 	@Nullable
 	private static String currentTest;
+
+	public static void registerTest(String test, Runnable runnable) {
+		if (registeredTests.containsKey(test)) {
+			throw new IllegalArgumentException("Test already registered: " + test);
+		}
+		registeredTests.put(test, runnable);
+	}
+
+	public static void unregisterTest(String test) {
+		registeredTests.remove(test);
+	}
+
+	public static void runRegisteredTests() {
+		for (var entry : registeredTests.entrySet()) {
+			Skript.info("Running test case " + entry.getKey());
+			testStarted(entry.getKey());
+			entry.getValue().run();
+		}
+	}
 
 	public static void testStarted(String name) {
 		startedTests.add(name);

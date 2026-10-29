@@ -55,7 +55,7 @@ test "expression sections that don't work":
 	parse:
 		{_n} has potion effect of speed:
 			hide the particles
-	assert last parse logs contain "There's no potion effect in an on test case event" with "exprsec claimed over secConditional"
+	assert last parse logs contain "There's no potion effect in a test case" with "exprsec claimed over secConditional"
 
 	parse:
 		if {_n} has potion effect of speed:
