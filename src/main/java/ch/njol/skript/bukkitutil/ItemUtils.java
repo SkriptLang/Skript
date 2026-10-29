@@ -7,11 +7,8 @@ import com.destroystokyo.paper.profile.PlayerProfile;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Tag;
-import org.bukkit.TreeType;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Fence;
@@ -66,14 +63,20 @@ public class ItemUtils {
 	 * @return Damage.
 	 */
 	public static int getDamage(ItemStack itemStack) {
-		return getDamage(itemStack.getItemMeta());
+		if (itemStack.hasData(DataComponentTypes.DAMAGE)) {
+			Integer damage = itemStack.getData(DataComponentTypes.DAMAGE);
+			return damage == null ? 0 : damage;
+		}
+		return 0;
 	}
 
 	/**
 	 * Gets damage/durability of an itemmeta, or 0 if it does not have damage.
 	 * @param itemMeta ItemMeta.
 	 * @return Damage.
+	 * @deprecated Use {@link #getDamage(ItemStack)}
 	 */
+	@Deprecated(since = "INSERT VERSION")
 	public static int getDamage(ItemMeta itemMeta) {
 		if (itemMeta instanceof Damageable)
 			return ((Damageable) itemMeta).getDamage();
@@ -86,9 +89,10 @@ public class ItemUtils {
 	 * @return Max amount of damage this item can take
 	 */
 	public static int getMaxDamage(ItemStack itemStack) {
-		ItemMeta meta = itemStack.getItemMeta();
-		if (HAS_MAX_DAMAGE && meta instanceof Damageable && ((Damageable) meta).hasMaxDamage())
-			return ((Damageable) meta).getMaxDamage();
+		if (itemStack.hasData(DataComponentTypes.MAX_DAMAGE)) {
+			Integer damage = itemStack.getData(DataComponentTypes.MAX_DAMAGE);
+			return damage == null ? 0 : damage;
+		}
 		return itemStack.getType().getMaxDurability();
 	}
 
@@ -131,10 +135,8 @@ public class ItemUtils {
 	 * @return Damage.
 	 */
 	public static int getDamage(ItemType itemType) {
-		ItemMeta meta = itemType.getItemMeta();
-		if (meta instanceof Damageable)
-			return ((Damageable) meta).getDamage();
-		return 0; // Non damageable item
+		ItemStack stack = itemType.getTypes().getFirst().getStack();
+		return stack == null ? 0 : getDamage(stack);
 	}
 
 	/** Gets the max damage/durability of an item
@@ -143,10 +145,8 @@ public class ItemUtils {
 	 * @return Max amount of damage this item can take
 	 */
 	public static int getMaxDamage(ItemType itemType) {
-		ItemMeta meta = itemType.getItemMeta();
-		if (HAS_MAX_DAMAGE && meta instanceof Damageable && ((Damageable) meta).hasMaxDamage())
-			return ((Damageable) meta).getMaxDamage();
-		return itemType.getMaterial().getMaxDurability();
+		ItemStack stack = itemType.getTypes().getFirst().getStack();
+		return stack == null ? 0 : getMaxDamage(stack);
 	}
 
 	/**
