@@ -81,6 +81,11 @@ public class StructTestCase extends Structure {
 	}
 
 	@Override
+	public void unload() {
+		TestTracker.unregisterTest(name.getSingle());
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "test " + name.getSingle();
 	}

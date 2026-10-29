@@ -22,7 +22,7 @@ test "villager wakeup and sleep":
 	clear entity within {_entity}
 	set block at test-block to {_old}
 
-test "invalid entities":
+test "invalid entities for sleeping":
 	spawn a cow, a sheep and a pig at test-location:
 		add entity to {_entities::*}
 	make {_entities::*} go to sleep

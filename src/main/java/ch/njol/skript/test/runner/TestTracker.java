@@ -37,7 +37,14 @@ public class TestTracker {
 	private static String currentTest;
 
 	public static void registerTest(String test, Runnable runnable) {
+		if (registeredTests.containsKey(test)) {
+			throw new IllegalArgumentException("Test already registered: " + test);
+		}
 		registeredTests.put(test, runnable);
+	}
+
+	public static void unregisterTest(String test) {
+		registeredTests.remove(test);
 	}
 
 	public static void runRegisteredTests() {
