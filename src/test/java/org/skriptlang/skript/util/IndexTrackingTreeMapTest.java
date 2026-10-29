@@ -659,6 +659,43 @@ public class IndexTrackingTreeMapTest {
 	}
 
 	@Test
+	public void ofSortedWithoutIndicesShrinksWhenEmptied() {
+		// enough entries to size the range past the minimum, but none of them tracked indices
+		String[] keys = new String[100];
+		for (int i = 0; i < keys.length; i++)
+			keys[i] = "name" + (1000 + i);
+		IndexTrackingTreeMap<String> map = IndexTrackingTreeMap.ofSorted(Comparator.naturalOrder(), keys, keys.clone());
+
+		for (int i = 0; i < 95; i++)
+			map.remove(keys[i]);
+
+		assertEquals(5, map.size());
+		assertEquals(1, map.nextOpenIndex());
+		map.add("one");
+		map.add("two");
+		assertEquals("one", map.get("1"));
+		assertEquals(3, map.nextOpenIndex());
+	}
+
+	@Test
+	public void ofSortedWithOnlyLargeIndicesShrinksWhenEmptied() {
+		// indices above the range the entry count gives aren't tracked either
+		String[] keys = new String[100];
+		for (int i = 0; i < keys.length; i++)
+			keys[i] = String.valueOf(1000 + i);
+		IndexTrackingTreeMap<String> map = IndexTrackingTreeMap.ofSorted(Comparator.naturalOrder(), keys, keys.clone());
+
+		for (int i = 0; i < 95; i++)
+			map.remove(keys[i]);
+
+		assertEquals(5, map.size());
+		assertEquals(1, map.nextOpenIndex());
+		assertFalse(map.consecutive());
+		map.add("one");
+		assertEquals(2, map.nextOpenIndex());
+	}
+
+	@Test
 	public void ofSortedTracksMapValues() {
 		Object[] values = {"one", Map.of("a", "b"), "three", new TreeMap<>()};
 		IndexTrackingTreeMap<Object> map = IndexTrackingTreeMap.ofSorted(

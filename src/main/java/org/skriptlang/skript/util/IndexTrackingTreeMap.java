@@ -339,8 +339,9 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 		while (newLimit < size() * 2)
 			newLimit *= 2;
 		// nextIndex <= size() + 1 <= newLimit, so it stays within the tracked range
-		assert trackedIndices != null : "the limit only exceeds the minimum after growing";
-		trackedIndices = trackedIndices.get(0, newLimit + 1);
+		// ofSorted sizes the range to the entry count, so it can exceed the minimum with no index ever tracked
+		if (trackedIndices != null)
+			trackedIndices = trackedIndices.get(0, newLimit + 1);
 		trackedLimit = newLimit;
 	}
 
