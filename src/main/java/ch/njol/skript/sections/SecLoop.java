@@ -79,10 +79,7 @@ public class SecLoop extends LoopSection {
 
 	protected @UnknownNullability Expression<?> expression;
 
-	private final transient Map<Event, Iterator<?>> iteratorMap = new WeakHashMap<>();
-	private final transient Map<Event, Object> previous = new WeakHashMap<>();
-	private final transient Map<Event, Object> current = new WeakHashMap<>();
-	private final transient Map<Event, Object> next = new WeakHashMap<>();
+	private final transient Map<Event, RunState> states = new WeakHashMap<>();
 
 	protected @Nullable TriggerItem actualNext;
 	private boolean guaranteedToLoop;
@@ -132,7 +129,8 @@ public class SecLoop extends LoopSection {
 
 	@Override
 	protected @Nullable TriggerItem walk(Event event) {
-		Iterator<?> iter = iteratorMap.get(event);
+		RunState state = states.get(event);
+		Iterator<?> iter = state != null ? state.iterator : null;
 		if (iter == null) {
 			if (iterableSingle) {
 				Object value = expression.getSingle(event);
@@ -149,33 +147,53 @@ public class SecLoop extends LoopSection {
 					? ((KeyedIterableExpression<?>) expression).keyedIterator(event)
 					: expression.iterator(event);
 				if (iter != null && iter.hasNext()) {
-					iteratorMap.put(event, iter);
+					if (state == null) {
+						state = new RunState();
+						states.put(event, state);
+					}
+					state.iterator = iter;
 				} else {
 					iter = null;
 				}
 			}
 		}
 
-		Object nextValue = next.get(event);
+		Object nextValue = state != null ? state.next : null;
 		if (iter == null || (!iter.hasNext() && nextValue == null)) {
 			exit(event);
 			debug(event, false);
 			return actualNext;
 		} else {
-			previous.put(event, current.get(event));
+			// only iterableSingle loops get here without a state, as they don't keep their iterator
+			if (state == null) {
+				state = new RunState();
+				states.put(event, state);
+			}
+			state.previous = state.current;
 			if (nextValue != null) {
-				this.store(event, nextValue);
-				next.remove(event);
+				advance(state, event, nextValue);
+				state.next = null;
 			} else if (iter.hasNext()) {
-				this.store(event, iter.next());
+				advance(state, event, iter.next());
 			}
 			return walk(event, true);
 		}
 	}
 
+	private void advance(RunState state, Event event, Object value) {
+		state.current = value;
+		state.counter++;
+		this.store(event, value);
+	}
+
+	/**
+	 * Called for each element, after it has become the current loop-value and the loop counter has been incremented.
+	 * Subclasses can override this to expose the element elsewhere, e.g. in variables.
+	 *
+	 * @param event the event the loop is running in
+	 * @param next the new current element
+	 */
 	protected void store(Event event, Object next) {
-		this.current.put(event, next);
-		this.currentLoopCounter.put(event, (currentLoopCounter.getOrDefault(event, 0L)) + 1);
 	}
 
 	@Override
@@ -189,28 +207,37 @@ public class SecLoop extends LoopSection {
 	}
 
 	public @Nullable Object getCurrent(Event event) {
-		return current.get(event);
+		RunState state = states.get(event);
+		return state != null ? state.current : null;
 	}
 
 	public @Nullable Object getNext(Event event) {
 		if (!loopPeeking)
 			return null;
-		Object nextValue = next.get(event);
-		if (nextValue != null) {
-			return nextValue;
+		RunState state = states.get(event);
+		if (state == null)
+			return null;
+		if (state.next != null) {
+			return state.next;
 		}
-		Iterator<?> iter = iteratorMap.get(event);
+		Iterator<?> iter = state.iterator;
 		if (iter == null || !iter.hasNext())
 			return null;
 		if (iter instanceof PeekingIterator<?> peekingIterator)
 			return peekingIterator.peek();
-		nextValue = iter.next();
-		next.put(event, nextValue);
-		return nextValue;
+		state.next = iter.next();
+		return state.next;
 	}
 
 	public @Nullable Object getPrevious(Event event) {
-		return previous.get(event);
+		RunState state = states.get(event);
+		return state != null ? state.previous : null;
+	}
+
+	@Override
+	public long getLoopCounter(Event event) {
+		RunState state = states.get(event);
+		return state != null ? state.counter : 1L;
 	}
 
 	public Expression<?> getLoopedExpression() {
@@ -242,10 +269,7 @@ public class SecLoop extends LoopSection {
 
 	@Override
 	public void exit(Event event) {
-		iteratorMap.remove(event);
-		previous.remove(event);
-		current.remove(event);
-		next.remove(event);
+		states.remove(event);
 		super.exit(event);
 	}
 
@@ -283,6 +307,20 @@ public class SecLoop extends LoopSection {
 
 	public Expression<?> getExpression() {
 		return expression;
+	}
+
+	/**
+	 * Everything one run of this loop keeps between iterations, for one event.
+	 */
+	private static final class RunState {
+
+		// null for iterableSingle loops, which create a new iterator each iteration
+		@Nullable Iterator<?> iterator;
+		@Nullable Object previous;
+		@Nullable Object current;
+		@Nullable Object next;
+		long counter;
+
 	}
 
 }
