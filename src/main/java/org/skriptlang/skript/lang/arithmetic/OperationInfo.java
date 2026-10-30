@@ -87,10 +87,15 @@ public record OperationInfo<L, R, T>(Class<L> left, Class<R> right, Class<T> ret
 	 * @param <L2> type of the new left operand
 	 * @param <R2> type of the new right operand
 	 */
+	@SuppressWarnings("unchecked")
 	public <L2, R2, T2> @Nullable OperationInfo<L2, R2, T2> getConverted(Class<L2> fromLeft, Class<R2> fromRight,
 			Class<T2> toReturnType) {
 		if (fromLeft == Object.class || fromRight == Object.class)
 			return null;
+		// nothing to convert, so skip converting each operand and the result on every calculation
+		if (left.isAssignableFrom(fromLeft) && right.isAssignableFrom(fromRight)
+				&& toReturnType.isAssignableFrom(returnType))
+			return new OperationInfo<>(fromLeft, fromRight, toReturnType, (Operation<L2, R2, T2>) operation);
 		if (!Converters.converterExists(fromLeft, left)
 			|| !Converters.converterExists(fromRight, right)
 			|| !Converters.converterExists(returnType, toReturnType))

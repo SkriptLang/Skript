@@ -15,9 +15,12 @@ class PriorityImpl implements Priority {
 
 	private final Set<Priority> before;
 
+	private int hash;
+
 	PriorityImpl() {
 		this.after = ImmutableSet.of();
 		this.before = ImmutableSet.of();
+		this.hash = Objects.hash(after, before);
 	}
 
 	PriorityImpl(Priority priority, boolean isBefore) {
@@ -33,6 +36,7 @@ class PriorityImpl implements Priority {
 
 		this.after = ImmutableSet.copyOf(after);
 		this.before = ImmutableSet.copyOf(before);
+		this.hash = Objects.hash(this.after, this.before);
 	}
 
 	@Override
@@ -84,7 +88,7 @@ class PriorityImpl implements Priority {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(after, before);
+		return hash;
 	}
 
 	@Override
