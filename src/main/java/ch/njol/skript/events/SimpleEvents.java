@@ -384,22 +384,6 @@ public class SimpleEvents {
 					"	cancel event")
 				.since("2.3");
 
-		Class<? extends Event> serverListPingEventClass = (Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent")
-			? PaperServerListPingEvent.class : ServerListPingEvent.class);
-		Skript.registerEvent("Server List Ping", SimpleEvent.class, serverListPingEventClass, "server [list] ping")
-				.description("Called when a server list ping is coming in, generally when a Minecraft client pings the server to show its information in the server list.",
-						"The <a href='#ExprIP'>IP</a> expression can be used to get the IP adress of the pinger.",
-						"This event can be cancelled on PaperSpigot 1.12.2+ only and this means the player will see the server as offline (but still can join).",
-						"",
-						"Also you can use <a href='#ExprMOTD'>MOTD</a>, <a href='#ExprMaxPlayers'>Max Players</a>, " +
-						"<a href='#ExprOnlinePlayersCount'>Online Players Count</a>, <a href='#ExprProtocolVersion'>Protocol Version</a>, " +
-						"<a href='#ExprVersionString'>Version String</a>, <a href='#ExprHoverList'>Hover List</a> and <a href='#ExprServerIcon'>Server Icon</a> " +
-						"expressions, and <a href='#EffPlayerInfoVisibility'>Player Info Visibility</a> and <a href='#EffHidePlayerFromServerList'>Hide Player from Server List</a> effects to modify the server list.")
-				.examples("on server list ping:",
-						"	set the motd to \"Welcome %{player-by-IP::%ip%}%! Join now!\" if {player-by-IP::%ip%} is set, else \"Join now!\"",
-						"	set the fake max players count to (online players count + 1)",
-						"	set the shown icon to a random server icon out of {server-icons::*}")
-				.since("2.3");
 		Skript.registerEvent("Swim Toggle", SimpleEvent.class, EntityToggleSwimEvent.class, "[entity] toggl(e|ing) swim",
 				"[entity] swim toggl(e|ing)")
 				.description("Called when an entity swims or stops swimming.")
@@ -421,20 +405,7 @@ public class SimpleEvents {
 					"\tloop absorbed blocks:",
 					"\t\tbroadcast \"%loop-block% was absorbed by a sponge\"!")
 				.since("2.5");
-		Skript.registerEvent("Enchant Prepare", SimpleEvent.class, PrepareItemEnchantEvent.class, "[item] enchant prepare")
-			.description("Called when a player puts an item into enchantment table. This event may be called multiple times.",
-				" To get the enchant item, see the <a href='#ExprEnchantEventsEnchantItem'>enchant item expression</a>")
-			.examples("on enchant prepare:",
-				"\tset enchant offer 1 to sharpness 1",
-				"\tset the cost of enchant offer 1 to 10 levels")
-			.since("2.5");
-		Skript.registerEvent("Enchant", SimpleEvent.class, EnchantItemEvent.class, "[item] enchant")
-		.description("Called when a player successfully enchants an item.",
-			" To get the enchanted item, see the <a href='#ExprEnchantEventsEnchantItem'>enchant item expression</a>")
-		.examples("on enchant:",
-			"\tif the clicked button is 1: # offer 1",
-			"\t\tset the applied enchantments to sharpness 10 and unbreaking 10")
-		.since("2.5");
+
 		Skript.registerEvent("Inventory Pickup", SimpleEvent.class, InventoryPickupItemEvent.class, "inventory pick[ ]up")
 				.description("Called when an inventory (a hopper, a hopper minecart, etc.) picks up an item")
 				.examples("on inventory pickup:")
@@ -463,14 +434,7 @@ public class SimpleEvents {
 				"\t\tcancel the event",
 				"\t\tsend \"Oops! Mending failed!\" to player")
 			.since("2.5.1");
-		Skript.registerEvent("Anvil Prepare", SimpleEvent.class, PrepareAnvilEvent.class, "anvil prepar(e|ing)")
-			.description("Called when an item is put in a slot for repair by an anvil. Please note that this event is called multiple times in a single item slot move.")
-			.examples("on anvil prepare:",
-				"\tevent-item is set # result item",
-				"\tchance of 5%:",
-				"\t\tset repair cost to repair cost * 50%",
-				"\t\tsend \"You're LUCKY! You got 50% discount.\" to player")
-			.since("2.7");
+
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerTradeEvent")) {
 			Skript.registerEvent("Player Trade", SimpleEvent.class, PlayerTradeEvent.class, "player trad(e|ing)")
 				.description("Called when a player has traded with a villager.")
@@ -622,14 +586,6 @@ public class SimpleEvents {
 				)
 				.since("2.10");
 		}
-
-		Skript.registerEvent("Broadcast", SimpleEvent.class, BroadcastMessageEvent.class, "broadcast")
-			.description("Called when a message is broadcasted.")
-			.examples(
-				"on broadcast:",
-					"\tset broadcast-message to \"&c[BROADCAST] %broadcasted message%\""
-			)
-			.since("2.10");
 
 		Skript.registerEvent("Experience Cooldown Change", SimpleEvent.class, PlayerExpCooldownChangeEvent.class, "player (experience|[e]xp) cooldown change")
 			.description(
