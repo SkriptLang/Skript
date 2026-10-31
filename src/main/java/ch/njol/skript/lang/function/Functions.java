@@ -165,7 +165,7 @@ public abstract class Functions {
 		Parameter<?>[] parameters = signature.parameters().all();
 
 		if (parameters.length == 1 && !parameters[0].isSingle()) {
-			existing = FunctionRegistry.getRegistry().getExactSignature(signature.namespace(), signature.getName(), parameters[0].type().arrayType());
+			existing = FunctionRegistry.getRegistry().getExactSignature(signature.namespace(), signature.getName(), parameters[0].type());
 		} else {
 			Class<?>[] types = new Class<?>[parameters.length];
 			for (int i = 0; i < parameters.length; i++) {
