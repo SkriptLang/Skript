@@ -101,3 +101,15 @@ test "function overloading with single param lists":
 	assert overloading_listarg(1, 2, 3) = 2
 	assert overloading_listarg(1, 2, 3, 4) = 3
 	assert overloading_listarg(1, 2, 3, 4, 5) = 3
+
+function overloading_players(p: players) :: number:
+    return 2
+
+function overloading_players(p: player) :: number:
+    return 1
+
+test "function overloading with plural player types":
+    set {_p::*} to all players
+    assert overloading_players({_p::*}) = 2
+    loop {_p::*}:
+        assert overloading_players(loop-value) = 1

@@ -497,15 +497,20 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 		for (FunctionIdentifier candidate : existing) {
 			// by this point, all candidates have matching names
 
-			if (Arrays.stream(candidate.args).filter(Class::isArray).count() == 1
-				&& candidate.args.length == 1
-				&& candidate.args[0].isArray()) {
-				// if a function has single list value param, check all types
-				// make sure all types in the passed array are valid for the array parameter
+			if (candidate.args.length == 1 && candidate.args[0].isArray()) {
+				if (exact) {
+					if (provided.args.length == 1 && provided.args[0] == candidate.args[0]) {
+						candidates.add(candidate);
+					}
+					continue;
+				}
+				// If a function has a single list value parameter, check all types.
+				// Make sure all types in the passed array are valid for the array parameter.
 				Class<?> arrayType = candidate.args[0].componentType();
+
 				for (Class<?> arrayArg : provided.args) {
 					arrayArg = Utils.getComponentType(arrayArg);
-          
+
 					if (!Converters.converterExists(arrayArg, arrayType)) {
 						continue candidates;
 					}
