@@ -100,7 +100,7 @@ public class EffScriptFile extends Effect {
 		} else {
 			String name = scriptNameExpression.getSingle(event);
 			if (name != null)
-				this.handle(ScriptLoader.getScriptFromName(name), name, logHandler);
+				this.handle(ScriptLoader.getScriptFileFromName(name), name, logHandler);
 		}
 		logHandler.close();
 	}
