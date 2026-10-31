@@ -615,6 +615,32 @@ public class DefaultComparators {
 		// UUID
 		Comparators.registerComparator(UUID.class, UUID.class, (one, two) -> Relation.get(one.equals(two)));
 		Comparators.registerComparator(UUID.class, String.class, (one, two) -> Relation.get(one.toString().equals(two)));
+
+		// Version - Version
+		Comparators.registerComparator(Version.class, Version.class, new Comparator<Version, Version>() {
+			@Override
+			public Relation compare(Version v1, Version v2) {
+				return Relation.get(v1.compareTo(v2));
+			}
+
+			@Override
+			public boolean supportsOrdering() {
+				return true;
+			}
+		});
+		
+		Comparators.registerComparator(Version.class, String.class, new Comparator<Version, String>() {
+			@Override
+			public Relation compare(Version v, String s) {
+				Version other = Version.parse(s);
+				return other == null ? Relation.NOT_EQUAL : Relation.get(v.compareTo(other));
+			}
+
+			@Override
+			public boolean supportsOrdering() {
+				return true;
+			}
+		});
 	}
 	
 }
