@@ -12,11 +12,13 @@ import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Experience;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockExpEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.ExpBottleEvent;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.plugin.EventExecutor;
@@ -25,6 +27,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class EvtExperienceSpawn extends SkriptEvent {
@@ -34,8 +38,7 @@ public class EvtExperienceSpawn extends SkriptEvent {
 				"[e]xp[erience] [orb] spawn",
 				"spawn of [a[n]] [e]xp[erience] [orb]"
 			).description(
-				"Called whenever experience is about to spawn.",
-				"Please note that this event will not fire for xp orbs spawned by plugins (including Skript) with Bukkit."
+				"Called whenever experience is about to spawn. This includes xp orbs spawned by plugins (including Skript)."
 			).examples(
 				"on xp spawn:",
 				"\tworld is \"minigame_world\"",
@@ -48,6 +51,9 @@ public class EvtExperienceSpawn extends SkriptEvent {
 	private static final List<Trigger> TRIGGERS = Collections.synchronizedList(new ArrayList<>());
 
 	private static final AtomicBoolean REGISTERED_EXECUTORS = new AtomicBoolean();
+
+	private static final Set<ExperienceOrb> HANDLED_ORBS =
+		Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 
 	private static final EventExecutor EXECUTOR = (listener, event) -> {
 		ExperienceSpawnEvent experienceEvent;
@@ -73,6 +79,13 @@ public class EvtExperienceSpawn extends SkriptEvent {
 				((PlayerFishEvent) event).getExpToDrop(),
 				((PlayerFishEvent) event).getPlayer().getLocation()
 			);
+		} else if (event instanceof EntitySpawnEvent spawnEvent) {
+			// orbs from vanilla sources are already handled by the events above, so only handle orbs spawned by plugins
+			if (!(spawnEvent.getEntity() instanceof ExperienceOrb orb) || orb.getSpawnReason() != ExperienceOrb.SpawnReason.CUSTOM)
+				return;
+			if (!HANDLED_ORBS.add(orb))
+				return;
+			experienceEvent = new ExperienceSpawnEvent(orb.getExperience(), orb.getLocation());
 		} else {
 			assert false;
 			return;
@@ -87,6 +100,15 @@ public class EvtExperienceSpawn extends SkriptEvent {
 			}
 		}
 		SkriptEventHandler.logEventEnd();
+
+		if (event instanceof EntitySpawnEvent spawnEvent) {
+			if (experienceEvent.isCancelled()) {
+				spawnEvent.setCancelled(true);
+			} else {
+				((ExperienceOrb) spawnEvent.getEntity()).setExperience(experienceEvent.getSpawnedXP());
+			}
+			return;
+		}
 
 		if (experienceEvent.isCancelled())
 			experienceEvent.setSpawnedXP(0);
@@ -113,7 +135,7 @@ public class EvtExperienceSpawn extends SkriptEvent {
 		if (REGISTERED_EXECUTORS.compareAndSet(false, true)) {
 			EventPriority priority = SkriptConfig.defaultEventPriority.value();
 			//noinspection unchecked
-			for (Class<? extends Event> clazz : new Class[]{BlockExpEvent.class, EntityDeathEvent.class, ExpBottleEvent.class, PlayerFishEvent.class})
+			for (Class<? extends Event> clazz : new Class[]{BlockExpEvent.class, EntityDeathEvent.class, ExpBottleEvent.class, PlayerFishEvent.class, EntitySpawnEvent.class})
 				Bukkit.getPluginManager().registerEvent(clazz, new Listener(){}, priority, EXECUTOR, Skript.getInstance(), true);
 		}
 		return true;
