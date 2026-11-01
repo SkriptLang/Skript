@@ -550,8 +550,10 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 				child.removed = true;
 				child.childCount = 0;
 				child.valueChildren = 0;
-				if (!isKept)
+				if (!isKept) {
 					valueRemove(child.fullName);
+					child.hasValue = false;
+				}
 			} else if (!isKept) {
 				// remove any values that don't match kept
 				valueRemove((String) entry.getValue());
