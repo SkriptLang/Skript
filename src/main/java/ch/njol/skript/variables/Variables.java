@@ -152,8 +152,7 @@ public class Variables {
 	 * @return whether the loading was successful.
 	 */
 	public static boolean load() {
-		assert variables.treeMap.isEmpty();
-		assert variables.hashMap.isEmpty();
+		assert variables.isEmpty();
 		assert STORAGES.isEmpty();
 
 		Config config = SkriptConfig.getConfig();
@@ -329,10 +328,10 @@ public class Variables {
 	static final ReadWriteLock variablesLock = new ReentrantReadWriteLock(true);
 
 	/**
-	 * The {@link VariablesMap} storing global variables,
+	 * The {@link VariableMap} storing global variables,
 	 * must be locked with {@link #variablesLock}.
 	 */
-	static final VariablesMap variables = new VariablesMap();
+	static final VariableMap variables = VariableMap.concurrent();
 
 	/**
 	 * A map storing all local variables,
@@ -341,22 +340,14 @@ public class Variables {
 	private static final Map<Event, VariableMap> localVariables = new ConcurrentHashMap<>();
 
 	/**
-	 * Gets the {@link TreeMap} of all global variables.
-	 * <p>
-	 * Remember to lock with {@link #getReadLock()} and to not make any changes!
+	 * Gets a sorted snapshot of all global variables by their full names.
+	 * This copies every variable, so it's only meant for things like saving.
+	 *
+	 * @return An unmodifiable copy of the global variables.
+	 * @see VariableMap#getAll()
 	 */
-	static TreeMap<String, Object> getVariables() {
-		return variables.treeMap;
-	}
-
-	/**
-	 * Gets the {@link Map} of all global variables.
-	 * <p>
-	 * This map cannot be modified.
-	 * Remember to lock with {@link #getReadLock()}!
-	 */
-	static Map<String, Object> getVariablesHashMap() {
-		return Collections.unmodifiableMap(variables.hashMap);
+	static Map<String, Object> getVariables() {
+		return variables.getAll();
 	}
 
 	/**
@@ -573,8 +564,8 @@ public class Variables {
 	 * Sets a variable.
 	 *
 	 * @param name the variable's name.
-	 *                Can be a "list variable::*", but {@code value}
-	 *                must be {@code null} in this case.
+	 *                Can be a "list variable::*", but only to delete it.
+	 *                Setting one to a value does nothing.
 	 * @param value The variable's value. Use {@code null}
 	 *                 to delete the variable.
 	 * @param event if {@code local} is {@code true}, this is the event
@@ -589,7 +580,9 @@ public class Variables {
 		// Check if conversion is needed due to ClassInfo#getSerializeAs
 		// we do this even for locals because of conversions like Slot->Itemstack
 		if (value != null) {
-			assert !name.endsWith("::*");
+			// names are computed at runtime, so {a::%arg%} can end up as a list name
+			if (name.endsWith(Variable.SEPARATOR + "*"))
+				return;
 
 			ClassInfo<?> ci = Classes.getSuperClassInfo(value.getClass());
 			Class<?> sas = ci.getSerializeAs();
@@ -872,6 +865,12 @@ public class Variables {
 		if (value == null)
 			return false;
 
+		// older versions could save values under list names, which can't exist
+		if (name.endsWith(Variable.SEPARATOR + "*")) {
+			Skript.warning("Skipping the stored variable '" + name + "', since variables can't have the same name as a list.");
+			return false;
+		}
+
 		synchronized (TEMP_VARIABLES) {
 			Map<String, NonNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
 			if (tvs != null) {
@@ -1102,7 +1101,7 @@ public class Variables {
 	public static int numVariables() {
 		try {
 			variablesLock.readLock().lock();
-			return variables.hashMap.size();
+			return (int) variables.size();
 		} finally {
 			variablesLock.readLock().unlock();
 		}
