@@ -31,6 +31,8 @@ public interface VariableList extends Map<String, Object> {
 	int valueCount();
 
 	/**
+	 * This is only a hint if other threads are changing the list at the same time.
+	 *
 	 * @return The lowest free positive integer index.
 	 */
 	int nextOpenIndex();
