@@ -36,7 +36,7 @@ public class Trigger extends TriggerSection {
 		Variables.removeLocals(event);
 		/*
 		 * Local variables can be used in delayed effects by backing reference
-		 * of VariablesMap up. Basically:
+		 * of VariableMap up. Basically:
 		 *
 		 * Object localVars = Variables.removeLocals(event);
 		 *

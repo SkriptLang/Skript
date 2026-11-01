@@ -15,7 +15,6 @@ import ch.njol.skript.structures.StructVariables.DefaultVariables;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import com.google.common.base.Preconditions;
-import org.skriptlang.skript.util.IndexTrackingTreeMap;
 import org.skriptlang.skript.variables.VariableList;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
@@ -501,32 +500,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 
 	public int size(Event event) {
 		Preconditions.checkState(list, "Cannot get the size of a single variable");
-		Map<?, ?> map = (Map<?, ?>) getRaw(event);
-		if (map == null)
-			return 0;
-
-		if (map instanceof VariableList list)
-			return list.valueCount();
-
-		int size = map.size();
-		if (map.containsKey(null)) // if we're trying to get the size of {_list::*}, exclude {_list} from being counted
-			size--;
-
-		if (!(map instanceof IndexTrackingTreeMap<?> indexTrackingMap)) {
-			for (Object value : map.values()) {
-				if (value instanceof Map<?, ?> sublist && !sublist.containsKey(null))
-					size--;
-			}
-			return size;
-		}
-
-		Collection<String> sublistIndices = indexTrackingMap.mapIndices();
-		for (String sublistIndex : sublistIndices) {
-			if (!((Map<?, ?>) map.get(sublistIndex)).containsKey(null))
-				size--;
-		}
-
-		return size;
+		return getRaw(event) instanceof VariableList variableList ? variableList.valueCount() : 0;
 	}
 
 	@Override
@@ -655,23 +629,14 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 						}
 					} else {
 						assert mode == ChangeMode.ADD;
-						if (map instanceof VariableList list) {
+						if (map instanceof VariableList variableList) {
 							for (Object value : delta)
-								setIndex(event, String.valueOf(list.nextOpenIndex()), value);
+								setIndex(event, String.valueOf(variableList.nextOpenIndex()), value);
 							return;
 						}
-						if (map instanceof IndexTrackingTreeMap<Object> indexTrackingMap) {
-							for (Object value : delta) {
-								int index = indexTrackingMap.nextOpenIndex();
-								setIndex(event, String.valueOf(index), value);
-							}
-							return;
-						}
+						// the list doesn't exist yet, so these can just be numbered from 1
 						int i = 1;
 						for (Object value : delta) {
-							if (map != null)
-								while (map.containsKey("" + i))
-									i++;
 							setIndex(event, "" + i, value);
 							i++;
 						}
