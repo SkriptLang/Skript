@@ -24,8 +24,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -407,7 +407,7 @@ public class FlatFileStorage extends VariablesStorage {
 						pw.println("#");
 						pw.println("# version: " + Skript.getVersion());
 						pw.println();
-						save(pw, "", Variables.getVariables());
+						save(pw, Variables.getVariables());
 						pw.println();
 						pw.flush();
 						pw.close();
@@ -439,58 +439,37 @@ public class FlatFileStorage extends VariablesStorage {
 
 	/**
 	 * Saves the variables.
-	 * <p>
-	 * This method uses the sorted variables map to save the variables in order.
 	 *
 	 * @param pw the print writer to write the CSV lines too.
-	 * @param parent The parent's name with {@link Variable#SEPARATOR} at the end.
-	 * @param map the variables map.
+	 * @param variables the variables to save, by full name.
 	 */
-	@SuppressWarnings("unchecked")
-	private void save(PrintWriter pw, String parent, TreeMap<String, Object> map) {
-		if (parent.startsWith(Variable.EPHEMERAL_VARIABLE_TOKEN))
-			// Skip ephemeral variables
-			return;
+	private void save(PrintWriter pw, Map<String, Object> variables) {
+		for (Entry<String, Object> entry : variables.entrySet()) {
+			String name = entry.getKey();
 
-		// Iterate over all children
-		for (Entry<String, Object> childEntry : map.entrySet()) {
-			Object childNode = childEntry.getValue();
-			String childKey = childEntry.getKey();
+			if (name.startsWith(Variable.EPHEMERAL_VARIABLE_TOKEN))
+				// Skip ephemeral variables
+				continue;
 
-			if (childNode == null)
-				continue; // Leaf node
+			try {
+				// Loop over storages to make sure this variable is ours to store
+				for (VariablesStorage storage : Variables.STORAGES) {
+					if (storage.accept(name)) {
+						if (storage == this) {
+							// Serialize the value
+							SerializedVariable.Value serializedValue = Classes.serialize(entry.getValue());
 
-			if (childNode instanceof TreeMap) {
-				// TreeMap found, recurse
-				save(pw, parent + childKey + Variable.SEPARATOR, (TreeMap<String, Object>) childNode);
-			} else {
-				// Remove variable separator if needed
-				String name = childKey == null ? parent.substring(0, parent.length() - Variable.SEPARATOR.length()) : parent + childKey;
-
-				if (name.startsWith(Variable.EPHEMERAL_VARIABLE_TOKEN))
-					// Skip ephemeral variables
-					continue;
-
-				try {
-					// Loop over storages to make sure this variable is ours to store
-					for (VariablesStorage storage : Variables.STORAGES) {
-						if (storage.accept(name)) {
-							if (storage == this) {
-								// Serialize the value
-								SerializedVariable.Value serializedValue = Classes.serialize(childNode);
-
-								// Write the CSV line
-								if (serializedValue != null)
-									writeCSV(pw, name, serializedValue.type, encode(serializedValue.data));
-							}
-
-							break;
+							// Write the CSV line
+							if (serializedValue != null)
+								writeCSV(pw, name, serializedValue.type, encode(serializedValue.data));
 						}
+
+						break;
 					}
-				} catch (Exception ex) {
-					//noinspection ThrowableNotThrown
-					Skript.exception(ex, "Error saving variable named " + name);
 				}
+			} catch (Exception ex) {
+				//noinspection ThrowableNotThrown
+				Skript.exception(ex, "Error saving variable named " + name);
 			}
 		}
 	}
