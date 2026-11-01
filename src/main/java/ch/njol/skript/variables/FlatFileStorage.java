@@ -62,8 +62,7 @@ public class FlatFileStorage extends VariablesStorage {
 	 * to the {@link #file}.
 	 * <p>
 	 * A Lock on this object must be acquired after connectionLock
-	 * if that lock is used
-	 * (and thus also after {@link Variables#getReadLock()}).
+	 * if that lock is used.
 	 */
 	private final NotifyingReference<PrintWriter> changesWriter = new NotifyingReference<>();
 
@@ -369,69 +368,58 @@ public class FlatFileStorage extends VariablesStorage {
 				backupTask.cancel();
 		}
 
-		try {
-			// Acquire read lock
-			Variables.getReadLock().lock();
+		// no lock on variables is held here, so writers carry on while the file is rewritten.
+		// the snapshot has to come after disconnect(), which drops any changes that haven't been written yet.
+		// those changes have all been made to the variables already, so the snapshot will include them,
+		// and anything it does miss hasn't been passed to this storage yet, so it's written after reconnecting.
+		synchronized (connectionLock) {
+			try {
+				if (file == null) {
+					// This storage requires a file, so file should be nonnull
+					assert false : this;
+					return;
+				}
 
-			synchronized (connectionLock) {
-				try {
-					if (file == null) {
-						// This storage requires a file, so file should be nonnull
-						assert false : this;
+				disconnect();
+
+				if (loadError) {
+					// There was an error while loading the CSV file, create a backup of it
+					try {
+						File backup = FileUtils.backup(file);
+						Skript.info("Created a backup of the old " + file.getName() + " as " + backup.getName());
+						loadError = false;
+					} catch (IOException e) {
+						Skript.error("Could not backup the old " + file.getName() + ": " + ExceptionUtils.toString(e));
+						Skript.error("No variables are saved!");
 						return;
 					}
-
-					disconnect();
-
-					if (loadError) {
-						// There was an error while loading the CSV file, create a backup of it
-						try {
-							File backup = FileUtils.backup(file);
-							Skript.info("Created a backup of the old " + file.getName() + " as " + backup.getName());
-							loadError = false;
-						} catch (IOException e) {
-							Skript.error("Could not backup the old " + file.getName() + ": " + ExceptionUtils.toString(e));
-							Skript.error("No variables are saved!");
-							return;
-						}
-					}
-
-					// Write the variables to a temporary file, giving less problems if saving fails
-					//  (if saving fails during writing to the actual file,
-					//  the data in the actual file may be partially lost)
-					File tempFile = new File(file.getParentFile(), file.getName() + ".temp");
-
-					try (PrintWriter pw = new PrintWriter(tempFile, "UTF-8")) {
-						pw.println("# === Skript's variable storage ===");
-						pw.println("# Please do not modify this file manually!");
-						pw.println("#");
-						pw.println("# version: " + Skript.getVersion());
-						pw.println();
-						save(pw, Variables.getVariables());
-						pw.println();
-						pw.flush();
-						pw.close();
-						FileUtils.move(tempFile, file, true);
-					} catch (IOException e) {
-						Skript.error("Unable to make a final save of the database '" + getUserConfigurationName() +
-								"' (no variables are lost): " + ExceptionUtils.toString(e));
-						// FIXME happens at random - check locks/threads
-					}
-				} finally {
-					// Reconnect if needed
-					if (!finalSave) {
-						connect();
-					}
 				}
-			}
-		} finally {
-			Variables.getReadLock().unlock();
-			boolean gotWriteLock = Variables.variablesLock.writeLock().tryLock();
-			if (gotWriteLock) { // Only process queue now if it doesn't require us to wait
-				try {
-					Variables.processChangeQueue();
-				} finally {
-					Variables.variablesLock.writeLock().unlock();
+
+				// Write the variables to a temporary file, giving less problems if saving fails
+				//  (if saving fails during writing to the actual file,
+				//  the data in the actual file may be partially lost)
+				File tempFile = new File(file.getParentFile(), file.getName() + ".temp");
+
+				try (PrintWriter pw = new PrintWriter(tempFile, "UTF-8")) {
+					pw.println("# === Skript's variable storage ===");
+					pw.println("# Please do not modify this file manually!");
+					pw.println("#");
+					pw.println("# version: " + Skript.getVersion());
+					pw.println();
+					save(pw, Variables.getVariables());
+					pw.println();
+					pw.flush();
+					pw.close();
+					FileUtils.move(tempFile, file, true);
+				} catch (IOException e) {
+					Skript.error("Unable to make a final save of the database '" + getUserConfigurationName() +
+							"' (no variables are lost): " + ExceptionUtils.toString(e));
+					// FIXME happens at random - check locks/threads
+				}
+			} finally {
+				// Reconnect if needed
+				if (!finalSave) {
+					connect();
 				}
 			}
 		}
