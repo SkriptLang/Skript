@@ -1102,6 +1102,11 @@ public class VariableMapTest {
 		assertEquals(4, VariableMap.lastSeparator("a::b::c"));
 		assertEquals(1, VariableMap.lastSeparator("a:::b"));
 		assertEquals(3, VariableMap.lastSeparator("a::::b"));
+		assertEquals(0, VariableMap.lastSeparator("::a"));
+		assertEquals(1, VariableMap.lastSeparator("a:::"));
+		assertEquals(3, VariableMap.lastSeparator("a::::"));
+		assertEquals(4, VariableMap.lastSeparator("a::b:::c"));
+		assertEquals(1, VariableMap.lastSeparator("a::b:c"));
 	}
 
 }

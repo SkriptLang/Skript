@@ -57,6 +57,10 @@ public final class VariableNameComparator implements Comparator<String> {
 			}
 		}
 
+		// Lookups end on a key comparing against itself, and the walk below can't return anything else for equal names.
+		if (s1.equals(s2))
+			return 0;
+
 		int i = 0;
 		int j = 0;
 
