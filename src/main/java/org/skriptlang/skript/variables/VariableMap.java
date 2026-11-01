@@ -1,10 +1,7 @@
 package org.skriptlang.skript.variables;
 
 import ch.njol.skript.lang.Variable;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.*;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -494,6 +491,18 @@ public final class VariableMap {
 		}
 	}
 
+	/**
+	 * Simple helper to iterate the child entries of a branch, in sorted order.
+	 * For concurrent maps this is weakly consistent. For local maps, changing the branch
+	 * while iterating will throw a {@link ConcurrentModificationException}, just like any {@link TreeMap}.
+	 *
+	 * @param branch The branch to iterate
+	 * @return An iterator over the branch's keys and child entries
+	 */
+	private Iterator<Map.Entry<String, Object>> childIterator(VariableBranch branch) {
+		return concurrent ? sharedChildren(branch).entrySet().iterator() : localChildren(branch).entrySet().iterator();
+	}
+
 	// ================ Locks ================
 
 	/**
@@ -524,8 +533,8 @@ public final class VariableMap {
 	 */
 	public @Nullable Object getVariable(String name) {
 		if (name.endsWith(LIST_SUFFIX)) {
-			// TODO:
-			return null;
+			VariableBranch branch = branchGet(name.substring(0, name.length() - LIST_SUFFIX.length()));
+			return branch == null || branch.childCount == 0 ? null : new View(branch, true);
 		}
 		return valueGet(name);
 	}
@@ -575,6 +584,158 @@ public final class VariableMap {
 	 */
 	public boolean isEmpty() {
 		return concurrent ? sharedValues().isEmpty() : localValues().isEmpty();
+	}
+
+	/**
+	 * A live view of one branch, which is what reading a list variable returns.
+	 * It holds no data of its own and reads everything from the branch and {@link #values} as it's needed,
+	 * so creating one is cheap, reading a list copies nothing, and any later change to the list shows up here.
+	 * <p>
+	 * {@link AbstractMap} provides the rest of the map, including throwing on anything that tries to modify it.
+	 * Its {@code get}, {@code containsKey} and {@code size} walk every entry though, so those are overridden.
+	 * <p>
+	 * For concurrent maps this is weakly consistent. A value can show up in {@link #values} slightly before it
+	 * shows up here, and values can disappear while iterating, so anything that reads as null is treated as not there.
+	 */
+	private final class View extends AbstractMap<String, Object> implements VariableList {
+		private final VariableBranch branch; // source of the list
+		private final boolean includeOwnValue; // whether to include the value of {a::b} as the null key value in the view, assuming list is {a::b::*}
+
+		/**
+		 * Creates a new view of a branch.
+		 *
+		 * @param branch          the branch to view
+		 * @param includeOwnValue whether the {@link Map} methods include the list's own value under the null key
+		 */
+		View(VariableBranch branch, boolean includeOwnValue) {
+			this.branch = branch;
+			this.includeOwnValue = includeOwnValue;
+		}
+
+		/**
+		 * Translates a child entry into what callers should see, so they never get a full name or a branch.
+		 * A branch can only be empty if it's in the middle of being pruned, so all that's left to show is its value.
+		 *
+		 * @param entry The child entry, which is the child's full name or its {@link VariableBranch}
+		 * @return The child's value, a nested view if it has children, or null if it was just deleted
+		 */
+		private @Nullable Object exposed(Object entry) {
+			if (entry instanceof String leaf)
+				return valueGet(leaf);
+			VariableBranch child = (VariableBranch) entry;
+			return child.childCount > 0 ? new View(child, true) : valueGet(child.fullName);
+		}
+
+		/**
+		 * Gets a direct child of this list.
+		 *
+		 * @param key The child's key, or null for the list's own value if this view includes it
+		 * @return The child's value, a nested view if it has children, or null if there's no such child
+		 */
+		@Override
+		public @Nullable Object get(Object key) {
+			// {a::b}
+			if (key == null)
+				return includeOwnValue ? ownValue() : null;
+			// bad key
+			if (!(key instanceof String name))
+				return null;
+			// {a::b::<key>}
+			Object entry = childGet(branch, name);
+			return entry == null ? null : exposed(entry);
+		}
+
+		/**
+		 * Gets the entries of this list, in variable name order.
+		 * If this view includes the list's own value, it comes first under the null key.
+		 * The entries can't be changed, and neither can the set.
+		 *
+		 * @return A view of the entries, which walks the live children on each iteration.
+		 */
+		@Override
+		public @NotNull Set<Entry<String, Object>> entrySet() {
+			return new AbstractSet<>() {
+				@Override
+				public Iterator<Entry<String, Object>> iterator() {
+					Object own = includeOwnValue ? ownValue() : null;
+					Iterator<Entry<String, Object>> children = childIterator(branch);
+					return new Iterator<>() {
+						// start with own value as the null entry
+						private @Nullable Entry<String, Object> next = own != null ? new SimpleImmutableEntry<>(null, own) : null;
+
+						@Override
+						public boolean hasNext() {
+							// map each child to its value and provide in an entry
+							while (next == null && children.hasNext()) {
+								Entry<String, Object> child = children.next();
+								Object value = exposed(child.getValue());
+								if (value != null)
+									next = new SimpleImmutableEntry<>(child.getKey(), value);
+							}
+							return next != null;
+						}
+
+						@Override
+						public Entry<String, Object> next() {
+							if (!hasNext())
+								throw new NoSuchElementException();
+							Entry<String, Object> entry = next;
+							next = null;
+							return entry;
+						}
+					};
+				}
+
+				@Override
+				public int size() {
+					return View.this.size();
+				}
+			};
+		}
+
+		@Override
+		public @Nullable Object ownValue() {
+			return valueGet(branch.fullName);
+		}
+
+		@Override
+		public @UnmodifiableView Map<String, Object> children() {
+			if (!includeOwnValue)
+				return this;
+			return new View(branch, false);
+		}
+
+		@Override
+		public int valueCount() {
+			return branch.valueChildren;
+		}
+
+		@Override
+		public int nextOpenIndex() {
+			return branch.nextIndex;
+		}
+
+		/**
+		 * Gets the number of entries in this view, which includes sublists with no value of their own.
+		 * Use {@link #valueCount()} for what a script considers the size of a list.
+		 *
+		 * @return The number of direct children, plus one if this view includes a set own value.
+		 */
+		@Override
+		public int size() {
+			return branch.childCount + ((includeOwnValue && branch.hasValue) ? 1 : 0);
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return size() == 0;
+		}
+
+		@Override
+		public boolean containsKey(Object key) {
+			return get(key) != null;
+		}
+
 	}
 
 	/**
