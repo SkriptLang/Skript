@@ -1,5 +1,6 @@
 package org.skriptlang.skript.variables;
 
+import ch.njol.skript.lang.KeyedValue;
 import ch.njol.skript.lang.Variable;
 import org.jetbrains.annotations.*;
 
@@ -357,6 +358,14 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 	abstract NavigableMap<String, Object> newChildren();
 
 	/**
+	 * Creates a children map of the right type for this map from entries that are already sorted, in linear time.
+	 *
+	 * @param sorted The entries, which must be sorted by {@link VariableNameComparator#INSTANCE}
+	 * @return A new children map holding those entries.
+	 */
+	abstract NavigableMap<String, Object> newChildren(SortedMap<String, Object> sorted);
+
+	/**
 	 * Simple helper to read a child entry of a branch.
 	 *
 	 * @param branch The branch to read from
@@ -409,8 +418,44 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 
 	// ========= Set List Helpers ===========
 
+	/**
+	 * @param keys the keys to check
+	 * @return Whether the keys are in {@link VariableNameComparator#INSTANCE} order with no repeats, as
+	 * {@link SortedEntries} requires.
+	 */
+	private static boolean isStrictlyIncreasing(String[] keys) {
+		for (int i = 1; i < keys.length; i++) {
+			if (VariableNameComparator.INSTANCE.compare(keys[i - 1], keys[i]) >= 0)
+				return false;
+		}
+		return true;
+	}
 
+	/**
+	 * Sorts the entries by key. A key that appears more than once keeps its last value,
+	 * as writing each element in turn would.
+	 *
+	 * @param keys   the keys to sort
+	 * @param values the values corresponding to each key
+	 * @return an array of sorted key-value pairs.
+	 */
+	private static KeyedValue<?>[] sortedWithoutRepeats(String[] keys, Object[] values) {
+		KeyedValue<?>[] entries = new KeyedValue<?>[keys.length];
+		for (int i = 0; i < keys.length; i++)
+			entries[i] = new KeyedValue<>(keys[i], values[i]);
+		// stable, so entries with the same key stay in the order they were given
+		Arrays.sort(entries, Comparator.comparing(KeyedValue<?>::key, VariableNameComparator.INSTANCE));
 
+		// avoid duplicate keys.
+		int count = 0;
+		for (int i = 0; i < entries.length; i++) {
+			boolean writtenAgainLater = i + 1 < entries.length
+				&& VariableNameComparator.INSTANCE.compare(entries[i].key(), entries[i + 1].key()) == 0;
+			if (!writtenAgainLater)
+				entries[count++] = entries[i];
+		}
+		return count == entries.length ? entries : Arrays.copyOf(entries, count);
+	}
 
 	// ================ Locks ================
 
