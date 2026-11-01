@@ -211,6 +211,23 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 	}
 
 	/**
+	 * Creates a flat, sorted snapshot of every variable in this map. There's no entries for lists,
+	 * so {@code {x}} and {@code {x::a}} are just two separate keys.
+	 * <p>
+	 * This copies and sorts everything, so it's only meant for occasional uses like saving, not for hot paths.
+	 * It takes no lock, so writers aren't held up while it runs. For concurrent maps this means that it's only
+	 * weakly consistent if writes are happening at the same time. Every entry is a real value,
+	 * but the snapshot as a whole may not match the map at any single moment.
+	 *
+	 * @return A new map of full names to values, in variable name order. Later changes to this map don't affect it.
+	 */
+	public @Unmodifiable Map<String, Object> getAll() {
+		TreeMap<String, Object> all = new TreeMap<>(VariableNameComparator.INSTANCE);
+		all.putAll(allValues());
+		return Collections.unmodifiableMap(all);
+	}
+
+	/**
 	 * Gets the number of variables in this map. Lists aren't counted, only the values inside them.
 	 * This is only an estimate for concurrent maps if writes are happening at the same time.
 	 *
@@ -279,6 +296,13 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 	 * @return A new map with the same values, and no branches.
 	 */
 	abstract VariableMap copyValues();
+
+	/**
+	 * Simple helper to read all of {@code values} at once. This is the live collection, so it must not be changed.
+	 *
+	 * @return Every variable with a value, by full name, in no particular order.
+	 */
+	abstract Map<String, Object> allValues();
 
 	// ============= Branches ===============
 
