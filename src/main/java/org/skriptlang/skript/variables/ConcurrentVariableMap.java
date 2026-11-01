@@ -117,8 +117,8 @@ final class ConcurrentVariableMap extends VariableMap {
 	}
 
 	@Override
-	void childRemove(VariableBranch branch, String key, Object entry) {
-		children(branch).remove(key, entry);
+	boolean childRemove(VariableBranch branch, String key, Object entry) {
+		return children(branch).remove(key, entry);
 	}
 
 	@Override
