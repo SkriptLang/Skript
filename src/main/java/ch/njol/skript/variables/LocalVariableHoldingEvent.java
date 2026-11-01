@@ -3,6 +3,7 @@ package ch.njol.skript.variables;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.variables.VariableMap;
 
 /**
  * An event which can hold local variables itself, rather than resorting to the global {@link java.util.concurrent.ConcurrentHashMap}
@@ -13,12 +14,12 @@ import org.jetbrains.annotations.Nullable;
 @ApiStatus.Internal
 public abstract class LocalVariableHoldingEvent extends Event {
 
-	private @Nullable VariablesMap map;
+	private @Nullable VariableMap map;
 
 	/**
 	 * @return The current local variable map for this event instance. May be null.
 	 */
-	@Nullable VariablesMap getLocals() {
+	@Nullable VariableMap getLocals() {
 		return map;
 	}
 
@@ -27,7 +28,7 @@ public abstract class LocalVariableHoldingEvent extends Event {
 	 *
 	 * @param map The new local variables. May be null to clear.
 	 */
-	void setLocals(@Nullable VariablesMap map) {
+	void setLocals(@Nullable VariableMap map) {
 		this.map = map;
 	}
 

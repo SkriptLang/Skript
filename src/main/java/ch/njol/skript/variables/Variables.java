@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.variables.VariableMap;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -337,7 +338,7 @@ public class Variables {
 	 * A map storing all local variables,
 	 * indexed by their {@link Event}.
 	 */
-	private static final Map<Event, VariablesMap> localVariables = new ConcurrentHashMap<>();
+	private static final Map<Event, VariableMap> localVariables = new ConcurrentHashMap<>();
 
 	/**
 	 * Gets the {@link TreeMap} of all global variables.
@@ -378,9 +379,9 @@ public class Variables {
 	 * or {@code null} if the event had no local variables.
 	 */
 	@Nullable
-	public static VariablesMap removeLocals(Event event) {
+	public static Object removeLocals(Event event) {
 		if (event instanceof LocalVariableHoldingEvent localVariableHoldingEvent) {
-			VariablesMap map = localVariableHoldingEvent.getLocals();
+			VariableMap map = localVariableHoldingEvent.getLocals();
 			localVariableHoldingEvent.setLocals(null);
 			return map;
 		}
@@ -401,9 +402,9 @@ public class Variables {
 	public static void setLocalVariables(Event event, @Nullable Object map) {
 		if (map != null) {
 			if (event instanceof LocalVariableHoldingEvent lvEvent) {
-				lvEvent.setLocals((VariablesMap) map);
+				lvEvent.setLocals((VariableMap) map);
 			} else {
-				localVariables.put(event, (VariablesMap) map);
+				localVariables.put(event, (VariableMap) map);
 			}
 		} else {
 			removeLocals(event);
@@ -411,14 +412,14 @@ public class Variables {
 	}
 
 	/**
-	 * Creates a copy of the {@link VariablesMap} for local variables
+	 * Creates a copy of the {@link VariableMap} for local variables
 	 * in an event.
 	 *
 	 * @param event the event to copy local variables from.
 	 * @return the copy.
 	 */
 	public static @Nullable Object copyLocalVariables(Event event) {
-		VariablesMap from = event instanceof LocalVariableHoldingEvent lvEvent ? lvEvent.getLocals() : localVariables.get(event);
+		VariableMap from = event instanceof LocalVariableHoldingEvent lvEvent ? lvEvent.getLocals() : localVariables.get(event);
 		if (from == null)
 			return null;
 
@@ -465,7 +466,7 @@ public class Variables {
 		}
 
 		if (local) {
-			VariablesMap map = event instanceof LocalVariableHoldingEvent lvEvent ? lvEvent.getLocals() : localVariables.get(event);
+			VariableMap map = event instanceof LocalVariableHoldingEvent lvEvent ? lvEvent.getLocals() : localVariables.get(event);
 			if (map == null)
 				return null;
 
@@ -512,7 +513,7 @@ public class Variables {
 
 		if (val == null)
 			return new EmptyIterator<>();
-		assert val instanceof TreeMap;
+		assert val instanceof Map;
 		// temporary list to prevent CMEs
 		@SuppressWarnings("unchecked")
 		Iterator<String> keys = new ArrayList<>(((Map<String, Object>) val).keySet()).iterator();
@@ -530,7 +531,7 @@ public class Variables {
 					key = keys.next();
 					if (key != null) {
 						next = Variable.convertIfOldPlayer(subName + key, local, event, Variables.getVariable(subName + key, event, local));
-						if (next != null && !(next instanceof TreeMap))
+						if (next != null && !(next instanceof Map))
 							return true;
 					}
 				}
@@ -603,7 +604,7 @@ public class Variables {
 			assert event != null : name;
 
 			// Get the variables map and set the variable in it
-			VariablesMap map = getOrCreateLocals(event);
+			VariableMap map = getOrCreateLocals(event);
 			map.setVariable(name, value);
 		} else {
 			setVariable(name, value);
@@ -647,7 +648,8 @@ public class Variables {
 	public static void setList(String listName, @NotNull String @NotNull [] keys, @NotNull Object @NotNull [] values, @Nullable Event event, boolean local) {
 		assert keys.length == values.length : keys.length + " keys, " + values.length + " values";
 		// keys like a::b (from keyed recursive lists) make nested lists, which the bulk path can't build.
-		if (containsSeparator(keys)) {
+		// list names ending in : are the same, as a:: + b splits into a and :b, so that's really a different list.
+		if (containsSeparator(keys) || listName.endsWith(":")) {
 			setVariable(listName + Variable.SEPARATOR + "*", null, event, local);
 			for (int i = 0; i < keys.length; i++)
 				setVariable(listName + Variable.SEPARATOR + keys[i], values[i], event, local);
@@ -748,16 +750,16 @@ public class Variables {
 	}
 
 	// helper to get/create a local variable map
-	private static VariablesMap getOrCreateLocals(Event event) {
-		VariablesMap map;
+	private static VariableMap getOrCreateLocals(Event event) {
+		VariableMap map;
 		if (event instanceof LocalVariableHoldingEvent lvEvent) {
 			map = lvEvent.getLocals();
 			if (map == null) {
-				map = new VariablesMap();
+				map = VariableMap.local();
 				lvEvent.setLocals(map);
 			}
 		} else {
-			map = localVariables.computeIfAbsent(event, e -> new VariablesMap());
+			map = localVariables.computeIfAbsent(event, e -> VariableMap.local());
 		}
 		return map;
 	}
