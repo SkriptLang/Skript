@@ -13,8 +13,36 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * A map specifically for tracking and storage variables.
- * Maps from {@link #concurrent()} are thread-safe. Maps from {@link #local()} are confined to one thread at a time.
+ * A map specifically for tracking and storing variables, used for both local and global variables.
+ * <p>
+ * The data is split across two maps:
+ * <ul>
+ *     <li>{@link #values} maps the full name of every variable to its value. This is the only place values are stored,
+ *     so reading or overwriting a single variable is one hash operation, no matter how deep it is.</li>
+ *     <li>{@link #branches} maps every name that has children to its {@link Branch}, together forming the tree.
+ *     A branch stores no values. It only keeps its sorted child keys, each pointing to either the child's full name,
+ *     which can then be looked up in {@link #values}, or the child's own branch if it has children too.</li>
+ * </ul>
+ * For example, setting {@code {coins}}, {@code {a::b::c}} and {@code {a::d}} gives us:
+ * <pre>{@code
+ * values:   "coins"   -> v1
+ *           "a::b::c" -> v2
+ *           "a::d"    -> v3
+ *
+ * branches: "a"    -> Branch(children: "b" -> Branch("a::b"), "d" -> "a::d")
+ *           "a::b" -> Branch(children: "c" -> "a::b::c")
+ * }</pre>
+ * Plain root-level names like {@code coins} never get put into the tree, since nothing can view the root.
+ * <p>
+ * The tree never keeps anything empty. Deleting {@code {x::a}} removes it from the children of {@code x},
+ * unless it still has children of its own, and a branch left with no children is removed as well.
+ * Overwriting a value that's already there adds or removes nothing, so overwrites never touch the tree.
+ * Only creating or deleting a name does, which is the expensive path.
+ * <p>
+ * Maps from {@link #concurrent()} are thread-safe: reads and overwrites are lock-free,
+ * and anything that changes the tree takes one lock that covers the whole map.
+ * Maps from {@link #local()} run the same algorithm on plain collections with no lock,
+ * and are confined to one thread at a time.
  */
 @ApiStatus.Internal
 public final class VariableMap {
@@ -157,10 +185,9 @@ public final class VariableMap {
 		//</editor-fold>
 	};
 
-	private static boolean isDigit(char c) {
-		return '0' <= c && c <= '9';
-	}
-
+	/**
+	 * What the name of a list variable ends with.
+	 */
 	private static final String LIST_SUFFIX = Variable.SEPARATOR + "*";
 
 	/**
@@ -168,10 +195,16 @@ public final class VariableMap {
 	 * or to use plain hashmaps and treemaps, which are faster for local variables.
 	 */
 	private final boolean concurrent;
+
+	/**
+	 * Guards every change to the tree. Null for local maps, which are confined to one thread and have no need for it.
+	 */
 	private final @Nullable ReentrantLock lock;
 
 	/**
-	 * This is the main value store
+	 * The main value store, mapping the full name of every variable to its value.
+	 * A {@link ConcurrentHashMap} if {@link #concurrent} is true, otherwise a {@link HashMap}.
+	 * Only access this through the helpers below, so that each callsite sees one concrete type.
 	 */
 	private final Map<String, Object> values;
 
@@ -179,14 +212,28 @@ public final class VariableMap {
 	 * Stores which indices correspond to values and which are lists.
 	 * Allocated up front for concurrent maps, as readers access it without the lock.
 	 * Lazily allocated for local maps, as most events never use a list.
+	 * A {@link ConcurrentHashMap} if {@link #concurrent} is true, otherwise a {@link HashMap}.
+	 * Only access this through the helpers below, so that each callsite sees one concrete type.
 	 */
 	private @Nullable Map<String, Branch> branches;
 
+	/**
+	 * Creates a thread-safe map, for global variables and storages.
+	 * Reads and overwrites are lock-free, and anything that changes the tree takes one lock.
+	 *
+	 * @return A new concurrent variable map.
+	 */
 	@Contract(" -> new")
 	public static @NotNull VariableMap concurrent() {
 		return new VariableMap(true);
 	}
 
+	/**
+	 * Creates a map for local variables, with no thread-safety overhead.
+	 * It can only be used by one thread at a time, but can be handed over to another thread through the scheduler.
+	 *
+	 * @return A new local variable map.
+	 */
 	@Contract(" -> new")
 	public static @NotNull VariableMap local() {
 		return new VariableMap(false);
@@ -236,14 +283,34 @@ public final class VariableMap {
 		return (HashMap<String, Object>) values;
 	}
 
+	/**
+	 * Simple helper to read from {@link #values}.
+	 *
+	 * @param key The full name of the variable
+	 * @return The value, or null if there is none. Never a list.
+	 */
 	private @Nullable Object valueGet(String key) {
 		return concurrent ? sharedValues().get(key) : localValues().get(key);
 	}
 
+	/**
+	 * Simple helper to write to {@link #values}. {@link ConcurrentHashMap} throws on null values,
+	 * so deletions have to go through {@link #valueRemove} instead.
+	 *
+	 * @param key   The full name of the variable
+	 * @param value The value to set
+	 * @return The previous value, or null if there was none
+	 */
 	private @Nullable Object valuePut(String key, @NotNull Object value) {
 		return concurrent ? sharedValues().put(key, value) : localValues().put(key, value);
 	}
 
+	/**
+	 * Simple helper to remove from {@link #values}.
+	 *
+	 * @param key The full name of the variable
+	 * @return The previous value, or null if there was none
+	 */
 	private @Nullable Object valueRemove(String key) {
 		return concurrent ? sharedValues().remove(key) : localValues().remove(key);
 	}
@@ -274,12 +341,24 @@ public final class VariableMap {
 		return (HashMap<String, Branch>) branches;
 	}
 
+	/**
+	 * Simple helper to read from {@link #branches}.
+	 *
+	 * @param name The full name of the branch, without the list suffix
+	 * @return The branch, or null if this name has no children
+	 */
 	private @Nullable Branch branchGet(String name) {
 		if (branches == null)
 			return null;
 		return concurrent ? sharedBranches().get(name) : localBranches().get(name);
 	}
 
+	/**
+	 * Simple helper to add to {@link #branches}, allocating it for local maps if needed.
+	 * Must be called under the lock.
+	 *
+	 * @param branch The branch to add, keyed by its full name
+	 */
 	private void branchPut(Branch branch) {
 		if (concurrent) {
 			sharedBranches().put(branch.fullName, branch);
@@ -290,6 +369,13 @@ public final class VariableMap {
 		localBranches().put(branch.fullName, branch);
 	}
 
+	/**
+	 * Simple helper to remove from {@link #branches}. This only removes the entry if it's still {@code branch},
+	 * so removing a stale branch can't orphan a newer one with the same name.
+	 * Must be called under the lock.
+	 *
+	 * @param branch The branch to remove
+	 */
 	private void branchRemove(Branch branch) {
 		if (branches == null)
 			return;
@@ -302,34 +388,89 @@ public final class VariableMap {
 
 	// ============= Branch Children =============
 
+	/**
+	 * Returns a branch's children as a {@link ConcurrentSkipListMap} in order to avoid the children callsites
+	 * from being megamorphic, and instead so the JIT can optimize the concrete type calls.
+	 * Should only be called if {@link #concurrent} is true.
+	 *
+	 * @param branch The branch to get the children of
+	 * @return The children with a concrete type of {@link ConcurrentSkipListMap}.
+	 */
 	private ConcurrentSkipListMap<String, Object> sharedChildren(Branch branch) {
 		assert concurrent;
 		return (ConcurrentSkipListMap<String, Object>) branch.children;
 	}
 
+	/**
+	 * Returns a branch's children as a {@link TreeMap} in order to avoid the children callsites
+	 * from being megamorphic, and instead so the JIT can optimize the concrete type calls.
+	 * Should only be called if {@link #concurrent} is false.
+	 *
+	 * @param branch The branch to get the children of
+	 * @return The children with a concrete type of {@link TreeMap}.
+	 */
 	private TreeMap<String, Object> localChildren(Branch branch) {
 		assert !concurrent;
 		return (TreeMap<String, Object>) branch.children;
 	}
 
+	/**
+	 * Creates an empty children map of the right type for this map,
+	 * sorted by {@link #VARIABLE_NAME_COMPARATOR}.
+	 *
+	 * @return A new, empty children map.
+	 */
 	private NavigableMap<String, Object> newChildren() {
 		return concurrent
 			? new ConcurrentSkipListMap<>(VARIABLE_NAME_COMPARATOR)
 			: new TreeMap<>(VARIABLE_NAME_COMPARATOR);
 	}
 
+	/**
+	 * Simple helper to read a child entry of a branch.
+	 *
+	 * @param branch The branch to read from
+	 * @param key    The child's key, which is the last part of its name. Must not be null.
+	 * @return The child's full name if it's a leaf, its {@link Branch} if it has children, or null if there's no child
+	 */
 	private @Nullable Object childGet(Branch branch, String key) {
 		return concurrent ? sharedChildren(branch).get(key) : localChildren(branch).get(key);
 	}
 
+	/**
+	 * Simple helper to set a child entry of a branch, replacing any existing entry.
+	 * Used for swapping a leaf for a branch and back. Must be called under the lock.
+	 *
+	 * @param branch The branch to write to
+	 * @param key    The child's key
+	 * @param entry  The child's full name if it's a leaf, or its {@link Branch} if it has children
+	 * @return The previous entry, or null if there was none
+	 */
 	private @Nullable Object childPut(Branch branch, String key, Object entry) {
 		return concurrent ? sharedChildren(branch).put(key, entry) : localChildren(branch).put(key, entry);
 	}
 
+	/**
+	 * Simple helper to link a new child into a branch without overwriting an existing entry.
+	 * Must be called under the lock.
+	 *
+	 * @param branch The branch to write to
+	 * @param key    The child's key
+	 * @param entry  The child's full name if it's a leaf, or its {@link Branch} if it has children
+	 * @return The existing entry, or null if the new one was linked
+	 */
 	private @Nullable Object childPutIfAbsent(Branch branch, String key, Object entry) {
 		return concurrent ? sharedChildren(branch).putIfAbsent(key, entry) : localChildren(branch).putIfAbsent(key, entry);
 	}
 
+	/**
+	 * Simple helper to unlink a child from a branch. This only removes the entry if it's still {@code entry}.
+	 * Must be called under the lock.
+	 *
+	 * @param branch The branch to remove from
+	 * @param key    The child's key
+	 * @param entry  The entry we expect to remove
+	 */
 	private void childRemove(Branch branch, String key, Object entry) {
 		if (concurrent) {
 			sharedChildren(branch).remove(key, entry);
@@ -340,12 +481,18 @@ public final class VariableMap {
 
 	// ================ Locks ================
 
+	/**
+	 * Takes the lock that guards the tree. Does nothing for local maps.
+	 */
 	private void lock() {
 		if (lock != null) {
 			lock.lock();
 		}
 	}
 
+	/**
+	 * Releases the lock that guards the tree. Does nothing for local maps.
+	 */
 	private void unlock() {
 		if (lock != null) {
 			lock.unlock();
@@ -354,6 +501,12 @@ public final class VariableMap {
 
 	// ============= Public API ==============
 
+	/**
+	 * Gets the value of a variable.
+	 *
+	 * @param name The full name of the variable, or a list name ending in {@code ::*}
+	 * @return The value, a {@link VariableList} view for a list name, or null if the variable isn't set
+	 */
 	public @Nullable Object getVariable(String name) {
 		if (name.endsWith(LIST_SUFFIX)) {
 			// TODO:
@@ -362,6 +515,16 @@ public final class VariableMap {
 		return valueGet(name);
 	}
 
+	/**
+	 * Sets or deletes a variable. Overwriting a value that's already there is lock-free and never touches the tree.
+	 * Lists can't be set to a value, they can only be cleared by setting them to null.
+	 *
+	 * @param name  The full name of the variable, or a list name ending in {@code ::*}
+	 * @param value The value to set, or null to delete the variable or clear the list.
+	 *              (If {@code name} ends in {@code ::*}, {@code value} must be null.)
+	 * @return The previous value, or null if there was none. Always null for lists.
+	 * @throws IllegalArgumentException If {@code name} is a list name and {@code value} isn't null
+	 */
 	public @Nullable Object setVariable(String name, @Nullable Object value) {
 		if (name.endsWith(LIST_SUFFIX)) {
 			if (value != null)
@@ -377,14 +540,31 @@ public final class VariableMap {
 		return previous;
 	}
 
+	/**
+	 * Gets the number of variables in this map. Lists aren't counted, only the values inside them.
+	 * This is only an estimate for concurrent maps if writes are happening at the same time.
+	 *
+	 * @return The number of variables with a value.
+	 */
 	public long size() {
 		return concurrent ? sharedValues().mappingCount() : localValues().size();
 	}
 
+	/**
+	 * @return Whether this map has no variables.
+	 */
 	public boolean isEmpty() {
 		return concurrent ? sharedValues().isEmpty() : localValues().isEmpty();
 	}
 
+	/**
+	 * Finds the separator that splits a name into its parent and its key.
+	 * This has to scan left to right, not use {@link String#lastIndexOf(String)}, so that it matches
+	 * {@link ch.njol.skript.variables.Variables#splitVariableName}. The two disagree on names like {@code a:::b}.
+	 *
+	 * @param string The full variable name
+	 * @return The index of the last separator, or -1 if there are none
+	 */
 	static int lastSeparator(String string) {
 		int index = -1;
 		int nextIndex = 0;
@@ -395,23 +575,45 @@ public final class VariableMap {
 		return index;
 	}
 
+	/**
+	 * The structure of one name that has children.
+	 * <p>
+	 * Each child entry is the child's full name if it's a leaf, or the child's own branch if it has children.
+	 * Storing the full name means iterating a list doesn't have to build a string for every element.
+	 * <p>
+	 * Everything here is written under the lock, but list views read these fields without it, so they're volatile.
+	 * That also means the non-atomic increments are fine, since there's only ever one writer.
+	 */
 	private static final class Branch {
-		final String fullName;
-		final @Nullable Branch parent;
-		volatile NavigableMap<String, Object> children;
-		volatile int childCount;
-		volatile int valueChildren;
-		volatile int freeIndexHint = 1;
-		volatile int maxIntKey;
-		volatile boolean hasValue;
-		boolean removed;
+		final String fullName; // the name of this branch, without the list suffix
+		final @Nullable Branch parent; // null for root-level names
+		volatile NavigableMap<String, Object> children; // key -> child's full name or Branch. Swapped out by bulk list sets.
+		volatile int childCount; // all children
+		volatile int valueChildren; // children that hold a value, which is what the size of a list counts
+		volatile int freeIndexHint = 1; // the lowest index that might be free. Can be too low, but never skips a free index.
+		volatile int maxIntKey; // upper bound of the integer keys. Can be too high, which only costs a probe.
+		volatile boolean hasValue; // whether this name is counted in parent.valueChildren
+		boolean removed; // whether this branch has been pruned, so stale references can tell
 
+		/**
+		 * Creates a new branch with no counted children.
+		 *
+		 * @param fullName the name of this branch, without the list suffix
+		 * @param parent   the parent branch, or null for root-level names
+		 * @param children the children map, which is passed in since only the owning map knows which type to use
+		 */
 		Branch(String fullName, @Nullable Branch parent, NavigableMap<String, Object> children) {
 			this.fullName = fullName;
 			this.parent = parent;
 			this.children = children;
 		}
 
+		/**
+		 * Records a new child for the index tracking. If it's the index the hint was pointing at, the hint moves up.
+		 * Appending keeps the hint past {@link #maxIntKey}, which is how appends avoid probing for a free index.
+		 *
+		 * @param key The key of the new child. Non-integer keys are ignored.
+		 */
 		void added(String key) {
 			int index;
 			if ((index = positiveInt(key)) != -1) {
@@ -422,6 +624,11 @@ public final class VariableMap {
 			}
 		}
 
+		/**
+		 * Records a removed child for the index tracking, moving the hint down if this index is now the lowest free one.
+		 *
+		 * @param key The key of the removed child. Non-integer keys are ignored.
+		 */
 		void freed(String key) {
 			int index;
 			if ((index = positiveInt(key)) != -1) {
@@ -430,6 +637,14 @@ public final class VariableMap {
 			}
 		}
 
+		/**
+		 * Parses a canonical positive integer key. Leading zeroes aren't canonical, since {@code 01} and {@code 1}
+		 * are different keys. Keys over 9 digits are treated as non-integers, which both avoids overflow
+		 * and avoids paying for it with exceptions on number-heavy keys, like timestamps.
+		 *
+		 * @param string The key to parse
+		 * @return The value of the key, or -1 if it isn't a canonical positive integer of at most 9 digits
+		 */
 		static int positiveInt(String string) {
 			int length = string.length();
 			if (length == 0 || length > 9 || string.charAt(0) == '0')
@@ -445,6 +660,16 @@ public final class VariableMap {
 			return value;
 		}
 
+	}
+
+	/**
+	 * Simple helper for the comparator and {@link Branch#positiveInt}.
+	 *
+	 * @param c The character to check
+	 * @return Whether {@code c} is an ASCII digit
+	 */
+	private static boolean isDigit(char c) {
+		return '0' <= c && c <= '9';
 	}
 	
 }
