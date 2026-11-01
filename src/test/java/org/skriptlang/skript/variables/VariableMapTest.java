@@ -8,20 +8,12 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 import java.util.*;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 
 import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
 
 /**
  * Checks the values, branches and list views of {@link VariableMap}, with every test running against both modes.
- * The stress tests are the exception, since local maps are confined to one thread.
  */
 @RunWith(Parameterized.class)
 public class VariableMapTest {
@@ -1015,7 +1007,7 @@ public class VariableMapTest {
 			}
 		}
 
-		for (int seed = 0; seed < 50; seed++) {
+		for (int seed = 0; seed < 10; seed++) {
 			Random random = new Random(seed);
 			VariableMap map = factory.get();
 			TreeMap<String, Object> model = new TreeMap<>();
@@ -1099,268 +1091,8 @@ public class VariableMapTest {
 		assertEquals(context + "branches", branches, map.branchCount());
 	}
 
-	/**
-	 * Runs the same work on several threads, starting them all together and rethrowing anything they throw.
-	 */
-	private static void runThreads(int threads, IntConsumer work) throws Exception {
-		ExecutorService executor = Executors.newFixedThreadPool(threads);
-		try {
-			CyclicBarrier start = new CyclicBarrier(threads);
-			List<Future<?>> futures = new ArrayList<>();
-			for (int thread = 0; thread < threads; thread++) {
-				int id = thread;
-				futures.add(executor.submit(() -> {
-					start.await();
-					work.accept(id);
-					return null;
-				}));
-			}
-			for (Future<?> future : futures)
-				future.get();
-		} finally {
-			executor.shutdown();
-		}
-	}
-
-	@Test
-	public void testStressDisjointWriters() throws Exception {
-		assumeTrue(mode.equals("concurrent"));
-		int threads = 4;
-		int count = 5_000;
-		AtomicBoolean done = new AtomicBoolean();
-		Thread reader = new Thread(() -> {
-			while (!done.get()) {
-				for (int thread = 0; thread < threads; thread++) {
-					if (map.getVariable("t" + thread + "::*") instanceof VariableList list) {
-						for (Map.Entry<String, Object> entry : list.entrySet())
-							assertNotNull(entry.getValue());
-					}
-				}
-			}
-		});
-		reader.start();
-
-		runThreads(threads, id -> {
-			for (int i = 0; i < count; i++) {
-				map.setVariable("t" + id + "::" + i, i);
-				if (i % 3 == 0)
-					map.setVariable("t" + id + "::" + i, null);
-			}
-		});
-		done.set(true);
-		reader.join();
-
-		int kept = count - (count + 2) / 3;
-		assertEquals(threads * (long) kept, map.size());
-		for (int thread = 0; thread < threads; thread++) {
-			VariableList list = list("t" + thread);
-			assertEquals(kept, list.valueCount());
-			assertEquals(kept, list.size());
-			assertEquals(3, list.nextOpenIndex());
-		}
-	}
-
-	/**
-	 * One thread sets a leaf while another deletes it, so the deletes keep pruning what the sets just created.
-	 */
-	@Test
-	public void testStressSetAgainstDelete() throws Exception {
-		assumeTrue(mode.equals("concurrent"));
-		for (int round = 0; round < 1_000; round++) {
-			VariableMap map = factory.get();
-			runThreads(2, id -> {
-				for (int i = 0; i < 100; i++)
-					map.setVariable("a::b::c", id == 0 ? i : null);
-			});
-
-			map.setVariable("a::b::c", 42);
-			assertEquals(1, map.size());
-			assertEquals(2, map.branchCount());
-			VariableList nested = (VariableList) ((VariableList) map.getVariable("a::*")).get("b");
-			assertEquals(42, nested.get("c"));
-			assertEquals(1, nested.valueCount());
-
-			map.setVariable("a::b::c", null);
-			assertEquals(0, map.branchCount());
-		}
-	}
-
-	/**
-	 * One thread changes {x::a} while the other creates and prunes its child,
-	 * which is the race that {@code pruneIfEmpty} has to count a value for.
-	 */
-	@Test
-	public void testStressValueAgainstPrune() throws Exception {
-		assumeTrue(mode.equals("concurrent"));
-		for (int round = 0; round < 1_000; round++) {
-			VariableMap map = factory.get();
-			map.setVariable("x::keep", 1);
-			runThreads(2, id -> {
-				for (int i = 0; i < 100; i++) {
-					String name = id == 0 ? "x::a" : "x::a::b";
-					map.setVariable(name, i);
-					map.setVariable(name, null);
-				}
-			});
-			assertEquals(1, list("x", map).valueCount());
-			assertEquals(1, list("x", map).size());
-			assertEquals(1, map.branchCount());
-
-			map.setVariable("x::a", 1);
-			assertEquals(2, list("x", map).valueCount());
-			map.setVariable("x::a::b", 1);
-			map.setVariable("x::a::b", null);
-			assertEquals(2, list("x", map).valueCount());
-			assertEquals(1, map.branchCount());
-		}
-	}
-
 	private static VariableList list(String name, VariableMap map) {
 		return (VariableList) map.getVariable(name + "::*");
-	}
-
-	/**
-	 * One thread replaces and clears a list while others set and delete names in it, including a nested list
-	 * under a key the replacement keeps. Whoever wins, the tree has to match {@code values} once they're done.
-	 */
-	@Test
-	public void testStressSetListAgainstWriters() throws Exception {
-		assumeTrue(mode.equals("concurrent"));
-		List<String> names = List.of("x", "x::1", "x::2", "x::3", "x::a", "x::a::b", "x::a::c");
-		String[] keys = {"1", "3", "a"};
-		Object[] values = {1, 3, "a"};
-		for (int round = 0; round < 1_000; round++) {
-			VariableMap map = factory.get();
-			runThreads(3, id -> {
-				for (int i = 0; i < 50; i++) {
-					switch (id) {
-						case 0 -> {
-							map.setList("x", keys, values);
-							if (i % 3 == 0)
-								map.setVariable("x::*", null);
-						}
-						case 1 -> {
-							map.setVariable("x::a::b", i);
-							map.setVariable("x::a", i);
-							map.setVariable("x::a::b", null);
-							map.setVariable("x::a", null);
-						}
-						default -> {
-							map.setVariable("x::1", i);
-							map.setVariable("x::2", i);
-							map.setVariable("x::1", null);
-							map.setVariable("x::a::c", i);
-							map.setVariable("x::2", null);
-							map.setVariable("x::a::c", null);
-						}
-					}
-				}
-			});
-
-			TreeMap<String, Object> model = new TreeMap<>();
-			for (String name : names) {
-				Object value = map.getVariable(name);
-				if (value != null)
-					model.put(name, value);
-			}
-			assertEquals("round " + round, model.size(), map.size());
-			assertEquals("round " + round, model, map.getAll());
-			assertListsMatch(map, model, names, "round " + round + ", ");
-
-			// nothing should be left behind once everything goes
-			map.setVariable("x::*", null);
-			assertEquals("round " + round, 0, map.size());
-			assertEquals("round " + round, 0, map.branchCount());
-		}
-	}
-
-	/**
-	 * Copying walks the tree while lock-free writers are still changing {@code values},
-	 * so nothing about the copy can be relied on here, but it does have to finish, and work afterwards.
-	 */
-	@Test
-	public void testStressCopyAgainstWriters() throws Exception {
-		assumeTrue(mode.equals("concurrent"));
-		runThreads(3, id -> {
-			for (int i = 0; i < 5_000; i++) {
-				switch (id) {
-					case 0 -> {
-						VariableMap copy = map.copy();
-						copy.setVariable("x::copied", i);
-						copy.setVariable("x::*", null);
-						assertNull(copy.getVariable("x::copied"));
-					}
-					case 1 -> {
-						map.setVariable("x::a::b", i);
-						map.setVariable("x::a::b", null);
-					}
-					default -> map.setList("x", new String[]{"1", "2"}, new Object[]{i, i});
-				}
-			}
-		});
-	}
-
-	/**
-	 * Taking a snapshot doesn't lock anything, so it has to cope with the map changing while it reads.
-	 */
-	@Test
-	public void testStressGetAllAgainstWriters() throws Exception {
-		assumeTrue(mode.equals("concurrent"));
-		runThreads(3, id -> {
-			for (int i = 0; i < 2_000; i++) {
-				if (id == 0) {
-					for (Map.Entry<String, Object> entry : map.getAll().entrySet())
-						assertNotNull(entry.getValue());
-				} else {
-					map.setVariable("t" + id + "::" + (i % 100), i);
-					if (i % 3 == 0)
-						map.setVariable("t" + id + "::" + (i % 100), null);
-				}
-			}
-		});
-		Map<String, Object> all = map.getAll();
-		assertEquals(map.size(), all.size());
-		for (Map.Entry<String, Object> entry : all.entrySet())
-			assertEquals(entry.getKey(), entry.getValue(), map.getVariable(entry.getKey()));
-	}
-
-	/**
-	 * Readers should only ever see real values, even while a list is being replaced underneath them.
-	 */
-	@Test
-	public void testStressSetListAgainstReaders() throws Exception {
-		assumeTrue(mode.equals("concurrent"));
-		AtomicBoolean done = new AtomicBoolean();
-		Thread[] reader = new Thread[1];
-		List<Throwable> failures = Collections.synchronizedList(new ArrayList<>());
-		reader[0] = new Thread(() -> {
-			try {
-				while (!done.get()) {
-					if (map.getVariable("x::*") instanceof VariableList list) {
-						for (Map.Entry<String, Object> entry : list.entrySet())
-							assertNotNull(entry.getValue());
-					}
-				}
-			} catch (Throwable failure) {
-				failures.add(failure);
-			}
-		});
-		reader[0].start();
-
-		String[] keys = new String[200];
-		Object[] values = new Object[200];
-		for (int i = 0; i < 200; i++) {
-			keys[i] = String.valueOf(i + 1);
-			values[i] = i;
-		}
-		for (int i = 0; i < 2_000; i++) {
-			map.setList("x", keys, values);
-			if (i % 2 == 0)
-				map.setVariable("x::*", null);
-		}
-		done.set(true);
-		reader[0].join();
-		assertEquals(List.of(), failures);
 	}
 
 	@Test

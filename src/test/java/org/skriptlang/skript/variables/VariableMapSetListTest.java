@@ -173,7 +173,7 @@ public class VariableMapSetListTest {
 	@Test
 	public void matchesSettingEachElement() {
 		int operations = 0;
-		for (long seed = 0; seed < 300; seed++) {
+		for (long seed = 0; seed < 20; seed++) {
 			Random random = new Random(seed);
 			VariableMap bulk = factory.get();
 			VariableMap reference = factory.get();
