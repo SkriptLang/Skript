@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -79,6 +80,11 @@ final class ConcurrentVariableMap extends VariableMap {
 	@Override
 	NavigableMap<String, Object> newChildren() {
 		return new ConcurrentSkipListMap<>(VariableNameComparator.INSTANCE);
+	}
+
+	@Override
+	NavigableMap<String, Object> newChildren(SortedMap<String, Object> sorted) {
+		return new ConcurrentSkipListMap<>(sorted);
 	}
 
 	@Override

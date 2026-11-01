@@ -98,6 +98,32 @@ final class VariableBranch {
 	}
 
 	/**
+	 * Rebuilds the index tracking from scratch, for when all the children were replaced at once.
+	 * The tracked range is sized to always hold {@link #nextIndex}, so this never needs to grow.
+	 *
+	 * @param keys The keys of the new children. Non-integer keys are ignored.
+	 */
+	void trackAll(String[] keys) {
+		int limit = MIN_TRACKED;
+		while (limit <= keys.length)
+			limit *= 2;
+
+		BitSet tracked = null;
+		for (String key : keys) {
+			int index = positiveInt(key);
+			if (index != -1 && index <= limit) {
+				if (tracked == null)
+					tracked = new BitSet(limit + 1);
+				tracked.set(index);
+			}
+		}
+
+		trackedLimit = limit;
+		trackedIndices = tracked;
+		nextIndex = tracked == null ? 1 : tracked.nextClearBit(1);
+	}
+
+	/**
 	 * Moves {@link #nextIndex} to the first index after it that is not a key,
 	 * growing the tracked range whenever every tracked index is in use.
 	 */
