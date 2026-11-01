@@ -5,6 +5,7 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
+import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import static org.junit.Assert.*;
@@ -15,7 +16,7 @@ public class EventValueRegistryTest {
 
 	@Before
 	public void setUp() {
-		registry = EventValueRegistry.empty(null);
+		registry = EventValueRegistry.empty(Skript.of(EventValueRegistryTest.class, "EventValueRegistryTest"));
 	}
 
 	private static class TestEvent extends Event {

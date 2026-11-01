@@ -1,13 +1,17 @@
 package org.skriptlang.skript.bukkit.particles.registration;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import com.destroystokyo.paper.MaterialTags;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import org.bukkit.Axis;
 import org.bukkit.Effect;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -80,28 +84,59 @@ public class DataGameEffects {
 	 * Game effects without data are automatically handled by the enum parser.
 	 */
 	private static void registerAll() {
+		boolean isRunning26_2 = Skript.isRunningMinecraft(26, 2);
+		boolean isRunning26_3 = Skript.isRunningMinecraft(26, 3);
+
 		registerEffect(Effect.RECORD_PLAY, "[record] song (of|using) %itemtype%",
 			//<editor-fold desc="Material data supplier that only accepts music discs" defaultstate="collapsed">
 			(event, expressions, parseResult) -> {
-				Material material = DataSupplier.getMaterialData(event, expressions, parseResult);
-				if (material == null || !MaterialTags.MUSIC_DISCS.isTagged(material))
-					return null;
-				return material;
+				if (!isRunning26_2) {
+					Material material = DataSupplier.getMaterialData(event, expressions, parseResult);
+					if (material == null || !MaterialTags.MUSIC_DISCS.isTagged(material))
+						return null;
+					return material;
+				}
+				ItemType itemType = (ItemType) expressions[0].getSingle(event);
+				ItemStack stack = itemType == null ? null : itemType.getRandom();
+				var component = stack == null ? null : stack.getData(DataComponentTypes.JUKEBOX_PLAYABLE);
+				return component == null ? null: component.jukeboxSong();
 			},
 			//</editor-fold>
 			(exprs, parseResult, builder) -> builder.append("record song of", exprs[0]));
 
-		registerEffect(Effect.SMOKE, "[dispenser] black smoke effect [(in|with|using) [the] direction] %direction%",
+		Effect smokeEffect = isRunning26_2 ? Effect.SMOKE_SHOOT : Effect.SMOKE;
+		registerEffect(smokeEffect, "[dispenser] black smoke effect [(in|with|using) [the] direction] %direction%",
 			DataSupplier::getBlockFaceData,
 			(exprs, parseResult, builder) -> builder.append("black smoke effect in direction", exprs[0]));
 
-		registerEffect(Effect.SHOOT_WHITE_SMOKE, "[dispenser] white smoke effect [(in|with|using) [the] direction] %direction%",
+		Effect whiteSmokeEffect = isRunning26_2 ? Effect.WHITE_SMOKE_SHOOT : Effect.SHOOT_WHITE_SMOKE;
+		registerEffect(whiteSmokeEffect, "[dispenser] white smoke effect [(in|with|using) [the] direction] %direction%",
 			DataSupplier::getCartesianBlockFaceData,
 			(exprs, parseResult, builder) -> builder.append("white smoke effect in direction", exprs[0]));
 
 		registerEffect(Effect.STEP_SOUND, "%itemtype/blockdata% [foot]step[s] sound [effect]",
 			DataSupplier::getBlockData,
-			(exprs, parseResult, builder) -> builder.append(exprs[0], "footstep sound")); // handle version changes
+			(exprs, parseResult, builder) -> builder.append(exprs[0], "footstep sound"));
+
+		if (isRunning26_2) {
+			registerEffect(Effect.DESTROY_BLOCK, "%itemtype/blockdata% (break|destroy) effect",
+				DataSupplier::getBlockData,
+				(exprs, parseResult, builder) -> builder.append(exprs[0], "destroy effect"));
+		}
+
+		if (isRunning26_3) {
+			registerEffect(Effect.DESTROY_BLOCK_WITH_SOUND, "%itemtype/blockdata% (break|destroy) effect with sound",
+				DataSupplier::getBlockData,
+				(exprs, parseResult, builder) -> builder.append(exprs[0], "destroy effect with sound"));
+
+			registerEffect(Effect.DESTROY_PROGRESS, "destroy progress effect on the %direction% [side|face]",
+				DataSupplier::getCartesianBlockFaceData,
+				(exprs, parseResult, builder) -> builder.append("destroy progress effect on the", exprs[0], "face"));
+
+			registerEffect(Effect.DESTROY_PROGRESS_WITH_SOUND, "destroy progress effect on the %direction% [side|face] with sound",
+				DataSupplier::getCartesianBlockFaceData,
+				(exprs, parseResult, builder) -> builder.append("destroy progress effect on the", exprs[0], "face with sound"));
+		}
 
 		registerEffect(Effect.POTION_BREAK, "%color% [splash] potion break effect",
 			DataSupplier::getColorData,
@@ -138,10 +173,31 @@ public class DataGameEffects {
 		// of 7, based on wiki max charge of 1000 and the formula `floor(ln(1 + charge of the block) ) + 1`.
 		// there's more to it with how the particles roll and how often the sound plays, but I can't be bothered to
 		// figure it out to a tee.
-		registerEffect(Effect.PARTICLES_SCULK_CHARGE, "sculk (charge|spread) effect [(with|using) data %integer%]",
+		Effect sculkChargeEffect = isRunning26_2 ? Effect.SCULK_CHARGE : Effect.PARTICLES_SCULK_CHARGE;
+		registerEffect(sculkChargeEffect, "sculk (charge|spread) effect [(with|using) data %integer%]",
 			(exprs, parseResult, builder) -> builder.append("sculk charge effect with data", exprs[0]));
 
-		registerEffect(Effect.PARTICLES_AND_SOUND_BRUSH_BLOCK_COMPLETE, "[finish] brush[ing] %itemtype/blockdata% effect",
+		if (isRunning26_3) {
+			// the radii passed to getPackedOffsetData are the shifts the client hardcodes for each of these effects,
+			registerEffect(Effect.ENDER_DRAGON_EGG_TELEPORT, "ender dragon egg teleport[ing] [to %-vector%] effect",
+				DataSupplier.getPackedOffsetData(16, 8, 16),
+				(exprs, parseResult, builder) -> builder.append("ender dragon egg teleporting").appendIf((exprs[0] != null), "to", exprs[0]).append("effect"));
+
+			registerEffect(Effect.SHULKER_TELEPORT, "shulker teleport[ing] [to %-vector%] effect",
+				DataSupplier.getPackedOffsetData(8, 8, 8),
+				(exprs, parseResult, builder) -> builder.append("shulker teleporting").appendIf((exprs[0] != null), "to", exprs[0]).append("effect"));
+
+			registerEffect(Effect.CONSUME_EFFECT_TELEPORT, "consumable teleport[ing] [to %-vector%] effect",
+				DataSupplier.getPackedOffsetData(127, 127, 127),
+				(exprs, parseResult, builder) -> builder.append("consumable teleporting").appendIf((exprs[0] != null), "to", exprs[0]).append("effect"));
+
+			registerEffect(Effect.ENDERMAN_TELEPORT, "enderman teleport[ing] [to %-vector%] effect",
+				DataSupplier.getPackedOffsetData(127, 127, 127),
+				(exprs, parseResult, builder) -> builder.append("enderman teleporting").appendIf((exprs[0] != null), "to", exprs[0]).append("effect"));
+		}
+
+		Effect brushEffect = isRunning26_2 ? Effect.BRUSH_BLOCK_COMPLETE : Effect.PARTICLES_AND_SOUND_BRUSH_BLOCK_COMPLETE;
+		registerEffect(brushEffect, "[finish] brush[ing] %itemtype/blockdata% effect",
 			DataSupplier::getBlockData,
 			(exprs, parseResult, builder) -> builder.append("brushing", exprs[0], "effect"));
 

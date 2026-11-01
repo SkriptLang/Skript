@@ -138,14 +138,8 @@ updater:
 
 # -- Commands --
 commands:
-	no permission message: このコマンドを使用するための権限がありません。
 	cooldown message: このコマンドを使用しすぎたため現在使用できません、時間を開けて再度お試しください。
-	executable by players: このコマンドはプレイヤーのみ実行できます。
-	executable by console: このコマンドはコンソールのみ実行できます。
-	correct usage: 使用方法:
 	invalid argument: 引数<gray>'%s<gray>'<reset>は使用できません。 使用可能な引数:
-	too many arguments: このコマンドは引数%2$sのみ使用できます。
-	internal error: このコマンドを実行中に内部エラーが発生しました。
 	no player starts with: '%s'で始まるプレイヤーが見つかりませんでした。
 	multiple players start with: '%s'で始まるプレイヤーが複数存在します。
 

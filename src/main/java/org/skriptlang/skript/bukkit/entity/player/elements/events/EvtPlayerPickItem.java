@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.entity.player.elements.events;
 
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.data.DefaultComparators;
-import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -21,8 +20,8 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.entity.EntityData;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 

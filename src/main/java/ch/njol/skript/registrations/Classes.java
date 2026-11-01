@@ -8,7 +8,7 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.PatternedParser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.command.Commands;
-import ch.njol.skript.entity.EntityData;
+import org.skriptlang.skript.bukkit.entity.EntityData;
 import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.localization.Language;

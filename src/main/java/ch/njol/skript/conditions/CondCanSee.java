@@ -1,6 +1,7 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
 import ch.njol.skript.doc.*;
@@ -11,6 +12,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Can See")
@@ -60,6 +62,33 @@ public class CondCanSee extends Condition {
 				player -> entities.check(event,
 						player::canSee
 				), isNegated());
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET || mode == ChangeMode.RESET;
+	}
+
+	@Override
+	public void change(Event event, boolean canSee, ChangeMode mode) {
+		if (mode == ChangeMode.RESET) {
+			canSee = true;
+		}
+		Plugin plugin = Skript.getInstance();
+		Entity[] entities = this.entities.getArray(event);
+		if (canSee) {
+			for (Player viewer : viewers.getArray(event)) {
+				for (Entity entity : entities) {
+					viewer.showEntity(plugin, entity);
+				}
+			}
+		} else {
+			for (Player viewer : viewers.getArray(event)) {
+				for (Entity entity : entities) {
+					viewer.hideEntity(plugin, entity);
+				}
+			}
+		}
 	}
 
 	@Override
