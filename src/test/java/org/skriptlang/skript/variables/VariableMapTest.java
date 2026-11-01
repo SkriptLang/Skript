@@ -765,6 +765,190 @@ public class VariableMapTest {
 	}
 
 	/**
+	 * Fills the map with a bit of everything that a copy has to keep.
+	 *
+	 * @return What the map should hold, for {@link #assertListsMatch}.
+	 */
+	private TreeMap<String, Object> fillForCopy() {
+		TreeMap<String, Object> model = new TreeMap<>();
+		model.put("x", "own");
+		model.put("x::a", "nested own");
+		model.put("x::a::b", 1);
+		model.put("y::c::d", 2);
+		model.put("z", 3);
+		for (int i = 1; i <= 200; i++) { // past the tracked limit, with a gap
+			if (i != 50)
+				model.put("x::" + i, i);
+		}
+		model.forEach(map::setVariable);
+		return model;
+	}
+
+	private static List<String> namesForCopy(TreeMap<String, Object> model) {
+		List<String> names = new ArrayList<>(model.keySet());
+		names.add("y");
+		names.add("y::c");
+		return names;
+	}
+
+	@Test
+	public void testCopyMatchesOriginal() {
+		TreeMap<String, Object> model = fillForCopy();
+		VariableMap copy = map.copy();
+
+		assertEquals(model.size(), copy.size());
+		assertEquals(map.branchCount(), copy.branchCount());
+		for (Map.Entry<String, Object> entry : model.entrySet())
+			assertEquals(entry.getKey(), entry.getValue(), copy.getVariable(entry.getKey()));
+		assertListsMatch(copy, model, namesForCopy(model), "copy, ");
+		assertEquals(50, list("x", copy).nextOpenIndex());
+		assertEquals("nested own", ((VariableList) list("x", copy).get("a")).ownValue());
+	}
+
+	@Test
+	public void testCopyOfEmptyMap() {
+		VariableMap copy = map.copy();
+		assertTrue(copy.isEmpty());
+		assertEquals(0, copy.branchCount());
+
+		copy.setVariable("x::a", 1);
+		assertEquals(1, copy.getVariable("x::a"));
+		assertTrue(map.isEmpty());
+		assertEquals(0, map.branchCount());
+	}
+
+	@Test
+	public void testCopyWithNoLists() {
+		map.setVariable("a", 1);
+		VariableMap copy = map.copy();
+		assertEquals(1, copy.getVariable("a"));
+		assertEquals(0, copy.branchCount());
+	}
+
+	@Test
+	public void testCopyIsSameType() {
+		assertEquals(map.getClass(), map.copy().getClass());
+	}
+
+	@Test
+	public void testCopySharesValueObjects() {
+		Object value = new Object();
+		map.setVariable("x::a", value);
+		assertSame(value, map.copy().getVariable("x::a"));
+	}
+
+	@Test
+	public void testChangingCopyLeavesOriginalAlone() {
+		TreeMap<String, Object> model = fillForCopy();
+		VariableMap copy = map.copy();
+
+		copy.setVariable("x::1", "changed");
+		copy.setVariable("x::2", null);
+		copy.setVariable("x::50", "new");
+		copy.setVariable("x::a::b", null);
+		copy.setVariable("z", null);
+		copy.setVariable("y::c::*", null);
+		copy.setVariable("new::list", 1);
+		copy.setList("x", new String[]{"only"}, new Object[]{1});
+
+		assertEquals(model.size(), map.size());
+		assertListsMatch(map, model, namesForCopy(model), "original, ");
+		assertNull(map.getVariable("new::list"));
+	}
+
+	@Test
+	public void testChangingOriginalLeavesCopyAlone() {
+		TreeMap<String, Object> model = fillForCopy();
+		VariableMap copy = map.copy();
+
+		map.setVariable("x::1", "changed");
+		map.setVariable("x::2", null);
+		map.setVariable("x::50", "new");
+		map.setVariable("x::a::b", null);
+		map.setVariable("z", null);
+		map.setVariable("y::c::*", null);
+		map.setVariable("new::list", 1);
+		map.setList("x", new String[]{"only"}, new Object[]{1});
+
+		assertEquals(model.size(), copy.size());
+		assertListsMatch(copy, model, namesForCopy(model), "copy, ");
+		assertNull(copy.getVariable("new::list"));
+	}
+
+	@Test
+	public void testCopyHasSeparateTracking() {
+		for (int i = 1; i <= 3; i++)
+			map.setVariable("x::" + i, i);
+		VariableMap copy = map.copy();
+
+		copy.setVariable("x::4", 4);
+		assertEquals(5, list("x", copy).nextOpenIndex());
+		assertEquals(4, list("x").nextOpenIndex());
+
+		copy.setVariable("x::1", null);
+		assertEquals(1, list("x", copy).nextOpenIndex());
+		assertEquals(4, list("x").nextOpenIndex());
+
+		map.setVariable("x::4", 4);
+		map.setVariable("x::5", 5);
+		assertEquals(6, list("x").nextOpenIndex());
+		assertEquals(1, list("x", copy).nextOpenIndex());
+
+		copy.setVariable("x::1", 1);
+		assertEquals(5, list("x", copy).nextOpenIndex()); // the original's 5 can't be counted here
+	}
+
+	@Test
+	public void testCopyPrunesWithinItself() {
+		map.setVariable("x::a::b", 1);
+		VariableMap copy = map.copy();
+
+		copy.setVariable("x::a::b", null);
+		assertEquals(0, copy.branchCount());
+		assertEquals(0, copy.size());
+		assertEquals(2, map.branchCount());
+		assertEquals(1, map.getVariable("x::a::b"));
+		assertEquals(1, list("x").size());
+	}
+
+	@Test
+	public void testCopyGrowsAndClears() {
+		fillForCopy();
+		VariableMap copy = map.copy();
+
+		copy.setVariable("x::50", 50);
+		assertEquals(201, list("x", copy).nextOpenIndex());
+		for (int i = 201; i <= 1000; i++)
+			copy.setVariable("x::" + i, i);
+		assertEquals(1001, list("x", copy).nextOpenIndex());
+
+		copy.setVariable("x::*", null);
+		copy.setVariable("y::*", null);
+		copy.setVariable("x", null);
+		copy.setVariable("z", null);
+		assertEquals(0, copy.size());
+		assertEquals(0, copy.branchCount());
+	}
+
+	@Test
+	public void testCopyOfCopy() {
+		TreeMap<String, Object> model = fillForCopy();
+		VariableMap second = map.copy().copy();
+		assertListsMatch(second, model, namesForCopy(model), "second copy, ");
+	}
+
+	@Test
+	public void testCopyViewsAreSeparate() {
+		map.setVariable("x::a", 1);
+		VariableList original = list("x");
+		VariableMap copy = map.copy();
+
+		copy.setVariable("x::b", 2);
+		assertEquals(1, original.size());
+		assertEquals(2, list("x", copy).size());
+	}
+
+	/**
 	 * Applies random changes, comparing every list against a plain sorted map of names after each one.
 	 */
 	@Test
@@ -812,6 +996,9 @@ public class VariableMapTest {
 					Object value = random.nextInt(100);
 					assertEquals(model.put(name, value), map.setVariable(name, value));
 				}
+				// carry on from a copy now and then, so the copied tree has to keep working
+				if (random.nextInt(25) == 0)
+					map = map.copy();
 				String context = "seed " + seed + ", step " + step + ", ";
 				assertEquals(context + "size", model.size(), map.size());
 				for (String checked : names)
@@ -1035,6 +1222,32 @@ public class VariableMapTest {
 			assertEquals("round " + round, 0, map.size());
 			assertEquals("round " + round, 0, map.branchCount());
 		}
+	}
+
+	/**
+	 * Copying walks the tree while lock-free writers are still changing {@code values},
+	 * so nothing about the copy can be relied on here, but it does have to finish, and work afterwards.
+	 */
+	@Test
+	public void testStressCopyAgainstWriters() throws Exception {
+		assumeTrue(mode.equals("concurrent"));
+		runThreads(3, id -> {
+			for (int i = 0; i < 5_000; i++) {
+				switch (id) {
+					case 0 -> {
+						VariableMap copy = map.copy();
+						copy.setVariable("x::copied", i);
+						copy.setVariable("x::*", null);
+						assertNull(copy.getVariable("x::copied"));
+					}
+					case 1 -> {
+						map.setVariable("x::a::b", i);
+						map.setVariable("x::a::b", null);
+					}
+					default -> map.setList("x", new String[]{"1", "2"}, new Object[]{i, i});
+				}
+			}
+		});
 	}
 
 	/**
