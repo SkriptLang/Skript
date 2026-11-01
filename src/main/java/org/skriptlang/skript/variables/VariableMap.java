@@ -1,7 +1,6 @@
 package org.skriptlang.skript.variables;
 
 import ch.njol.skript.lang.Variable;
-import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +18,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * <ul>
  *     <li>{@link #values} maps the full name of every variable to its value. This is the only place values are stored,
  *     so reading or overwriting a single variable is one hash operation, no matter how deep it is.</li>
- *     <li>{@link #branches} maps every name that has children to its {@link Branch}, together forming the tree.
+ *     <li>{@link #branches} maps every name that has children to its {@link VariableBranch}, together forming the tree.
  *     A branch stores no values. It only keeps its sorted child keys, each pointing to either the child's full name,
  *     which can then be looked up in {@link #values}, or the child's own branch if it has children too.</li>
  * </ul>
@@ -46,144 +45,6 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 @ApiStatus.Internal
 public final class VariableMap {
-
-	/**
-	 * The comparator for comparing variable names.
-	 */
-	public static final Comparator<String> VARIABLE_NAME_COMPARATOR = (s1, s2) -> {
-		//<editor-fold desc="variable name comparator" defaultstate="collapsed">
-		if (s1 == null)
-			return s2 == null ? 0 : -1;
-
-		if (s2 == null)
-			return 1;
-
-		int len1 = s1.length();
-		int len2 = s2.length();
-
-		// Fast path: assume both strings are pure positive integers without leading zeros.
-		// This is the dominant case for list indices (e.g. {list::1} through {list::1000}).
-		// For these, numeric order == length order, then lexicographic order.
-		// This does cause an extra partial loop over non-integer strings, but ints are much more common and it'll fail-fast.
-		char firstChar1 = len1 > 0 ? s1.charAt(0) : 0;
-		char firstChar2 = len2 > 0 ? s2.charAt(0) : 0;
-		if (firstChar1 >= '1' && firstChar1 <= '9' && firstChar2 >= '1' && firstChar2 <= '9') {
-			int i = 1;
-			// Check if the rest of the characters are digits as well
-			while (i < len1 && isDigit(s1.charAt(i))) {
-				i++;
-			}
-			if (i == len1) { // all of s1 are digits
-				i = 1;
-				// Check if the rest of the characters are digits as well
-				while (i < len2 && isDigit(s2.charAt(i))) {
-					i++;
-				}
-				if (i == len2) { // all of s2 are digits
-					if (len1 != len2)
-						return len1 - len2;
-					return s1.compareTo(s2);
-				}
-			}
-		}
-
-		int i = 0;
-		int j = 0;
-
-		boolean lastNumberNegative = false;
-		boolean afterDecimalPoint = false;
-		while (i < len1 && j < len2) {
-			char c1 = s1.charAt(i);
-			char c2 = s2.charAt(j);
-
-			if (isDigit(c1) && isDigit(c2)) {
-				// Numbers/digits are treated differently from other characters.
-
-				// The index after the last digit
-				int i2 = StringUtils.findLastDigit(s1, i);
-				int j2 = StringUtils.findLastDigit(s2, j);
-
-				// Amount of leading zeroes
-				int z1 = 0;
-				int z2 = 0;
-
-				// Skip leading zeroes (except for the last if all 0's)
-				if (!afterDecimalPoint) {
-					if (c1 == '0') {
-						while (i < i2 - 1 && s1.charAt(i) == '0') {
-							i++;
-							z1++;
-						}
-					}
-					if (c2 == '0') {
-						while (j < j2 - 1 && s2.charAt(j) == '0') {
-							j++;
-							z2++;
-						}
-					}
-				}
-				// Keep in mind that c1 and c2 may not have the right value (e.g. s1.charAt(i)) for the rest of this block
-
-				// If the number is prefixed by a '-', it should be treated as negative, thus inverting the order.
-				// If the previous number was negative, and the only thing separating them was a '.',
-				//  then this number should also be in inverted order.
-				boolean previousNegative = lastNumberNegative;
-
-				// i - z1 contains the first digit, so i - z1 - 1 may contain a `-` indicating this number is negative
-				lastNumberNegative = i - z1 > 0 && s1.charAt(i - z1 - 1) == '-';
-				int isPositive = (lastNumberNegative | previousNegative) ? -1 : 1;
-
-				// Different length numbers (99 > 9)
-				if (!afterDecimalPoint && i2 - i != j2 - j)
-					return ((i2 - i) - (j2 - j)) * isPositive;
-
-				// Iterate over the digits
-				while (i < i2 && j < j2) {
-					char d1 = s1.charAt(i);
-					char d2 = s2.charAt(j);
-
-					// If the digits differ, return a value dependent on the sign
-					if (d1 != d2)
-						return (d1 - d2) * isPositive;
-
-					i++;
-					j++;
-				}
-
-				// Different length numbers (1.99 > 1.9)
-				if (afterDecimalPoint && i2 - i != j2 - j)
-					return ((i2 - i) - (j2 - j)) * isPositive;
-
-				// If the numbers are equal, but either has leading zeroes,
-				//  more leading zeroes is a bigger number (01 > 1)
-				// The original intention was for them to be smaller, but the author wrote it wrong so they're bigger :/
-				// Best to just keep it like that than to change it and break existing variable orderings
-				if (z1 != z2)
-					return (z1 - z2) * isPositive;
-
-				afterDecimalPoint = true;
-			} else {
-				// Normal characters
-				if (c1 != c2)
-					return c1 - c2;
-
-				// Reset the last number flags if we're exiting a number.
-				if (c1 != '.') {
-					lastNumberNegative = false;
-					afterDecimalPoint = false;
-				}
-
-				i++;
-				j++;
-			}
-		}
-		if (i < len1)
-			return lastNumberNegative ? -1 : 1;
-		if (j < len2)
-			return lastNumberNegative ? 1 : -1;
-		return 0;
-		//</editor-fold>
-	};
 
 	/**
 	 * What the name of a list variable ends with.
@@ -215,7 +76,7 @@ public final class VariableMap {
 	 * A {@link ConcurrentHashMap} if {@link #concurrent} is true, otherwise a {@link HashMap}.
 	 * Only access this through the helpers below, so that each callsite sees one concrete type.
 	 */
-	private @Nullable Map<String, Branch> branches;
+	private @Nullable Map<String, VariableBranch> branches;
 
 	/**
 	 * Creates a thread-safe map, for global variables and storages.
@@ -317,7 +178,7 @@ public final class VariableMap {
 
 	/**
 	 * Simple helper to check if a variable is set right now. {@link #values} is the source of truth,
-	 * unlike {@link Branch#hasValue}, which can be briefly out of date.
+	 * unlike {@link VariableBranch#hasValue}, which can be briefly out of date.
 	 *
 	 * @param key The full name of the variable
 	 * @return Whether the variable has a value
@@ -335,9 +196,9 @@ public final class VariableMap {
 	 *
 	 * @return The branches map with a concrete type of {@link ConcurrentHashMap}.
 	 */
-	private ConcurrentHashMap<String, Branch> sharedBranches() {
+	private ConcurrentHashMap<String, VariableBranch> sharedBranches() {
 		assert concurrent;
-		return (ConcurrentHashMap<String, Branch>) branches;
+		return (ConcurrentHashMap<String, VariableBranch>) branches;
 	}
 
 	/**
@@ -347,9 +208,9 @@ public final class VariableMap {
 	 *
 	 * @return The branches map with a concrete type of {@link HashMap}. Will be null if {@link #branches} is null.
 	 */
-	private HashMap<String, Branch> localBranches() {
+	private HashMap<String, VariableBranch> localBranches() {
 		assert !concurrent;
-		return (HashMap<String, Branch>) branches;
+		return (HashMap<String, VariableBranch>) branches;
 	}
 
 	/**
@@ -358,7 +219,7 @@ public final class VariableMap {
 	 * @param name The full name of the branch, without the list suffix
 	 * @return The branch, or null if this name has no children
 	 */
-	private @Nullable Branch branchGet(String name) {
+	private @Nullable VariableBranch branchGet(String name) {
 		if (branches == null)
 			return null;
 		return concurrent ? sharedBranches().get(name) : localBranches().get(name);
@@ -370,7 +231,7 @@ public final class VariableMap {
 	 *
 	 * @param branch The branch to add, keyed by its full name
 	 */
-	private void branchPut(Branch branch) {
+	private void branchPut(VariableBranch branch) {
 		if (concurrent) {
 			sharedBranches().put(branch.fullName, branch);
 			return;
@@ -387,7 +248,7 @@ public final class VariableMap {
 	 *
 	 * @param branch The branch to remove
 	 */
-	private void branchRemove(Branch branch) {
+	private void branchRemove(VariableBranch branch) {
 		if (branches == null)
 			return;
 		if (concurrent) {
@@ -429,7 +290,7 @@ public final class VariableMap {
 		int sep = lastSeparator(name);
 		if (sep == -1) {
 			// not a list, so just update hasValue.
-			Branch branch = branchGet(name);
+			VariableBranch branch = branchGet(name);
 			if (branch != null)
 				branch.hasValue = present;
 			return;
@@ -437,14 +298,14 @@ public final class VariableMap {
 
 		// get the parent branch
 		String parentName = name.substring(0, sep);
-		Branch parent = present ? ensureBranch(parentName) : branchGet(parentName);
+		VariableBranch parent = present ? ensureBranch(parentName) : branchGet(parentName);
 		if (parent == null)
 			return;
 
 		// check existing value
 		String key = name.substring(sep + Variable.SEPARATOR.length());
 		Object oldEntry = present ? childPutIfAbsent(parent, key, name) : childGet(parent, key);
-		if (oldEntry instanceof Branch oldBranch && oldBranch.hasValue != present) {
+		if (oldEntry instanceof VariableBranch oldBranch && oldBranch.hasValue != present) {
 			// adding/removing a value when the list exists (set/delete {a::b} when {a::b::*} exists)
 			oldBranch.hasValue = present;
 			parent.valueChildren += present ? 1 : -1;
@@ -473,17 +334,17 @@ public final class VariableMap {
 	 * @return The existing or newly created branch
 	 */
 	@SuppressWarnings("NonAtomicOperationOnVolatileField")
-	private Branch ensureBranch(String name) {
+	private VariableBranch ensureBranch(String name) {
 		assert lock == null || lock.isHeldByCurrentThread();
 		// check for quick exit
-		Branch existing = branchGet(name);
+		VariableBranch existing = branchGet(name);
 		if (existing != null)
 			return existing;
 
 		// branch doesn't exist, create.
 		int sep = lastSeparator(name);
-		Branch parent = sep == -1 ? null : ensureBranch(name.substring(0, sep));
-		Branch branch = new Branch(name, parent, newChildren());
+		VariableBranch parent = sep == -1 ? null : ensureBranch(name.substring(0, sep));
+		VariableBranch branch = new VariableBranch(name, parent, newChildren());
 		branch.hasValue = valueIsSet(name);
 		branchPut(branch);
 
@@ -514,12 +375,12 @@ public final class VariableMap {
 	 * @param branch The branch that just lost a child
 	 */
 	@SuppressWarnings("NonAtomicOperationOnVolatileField")
-	private void pruneIfEmpty(Branch branch) {
+	private void pruneIfEmpty(VariableBranch branch) {
 		assert lock == null || lock.isHeldByCurrentThread();
 		while (branch != null && branch.childCount == 0) {
 			branchRemove(branch);
 			branch.removed = true;
-			Branch parent = branch.parent;
+			VariableBranch parent = branch.parent;
 			if (parent == null)
 				return;
 			String key = branch.fullName.substring(parent.fullName.length() + Variable.SEPARATOR.length());
@@ -550,7 +411,7 @@ public final class VariableMap {
 	 * @param branch The branch to get the children of
 	 * @return The children with a concrete type of {@link ConcurrentSkipListMap}.
 	 */
-	private ConcurrentSkipListMap<String, Object> sharedChildren(Branch branch) {
+	private ConcurrentSkipListMap<String, Object> sharedChildren(VariableBranch branch) {
 		assert concurrent;
 		return (ConcurrentSkipListMap<String, Object>) branch.children;
 	}
@@ -563,21 +424,21 @@ public final class VariableMap {
 	 * @param branch The branch to get the children of
 	 * @return The children with a concrete type of {@link TreeMap}.
 	 */
-	private TreeMap<String, Object> localChildren(Branch branch) {
+	private TreeMap<String, Object> localChildren(VariableBranch branch) {
 		assert !concurrent;
 		return (TreeMap<String, Object>) branch.children;
 	}
 
 	/**
 	 * Creates an empty children map of the right type for this map,
-	 * sorted by {@link #VARIABLE_NAME_COMPARATOR}.
+	 * sorted by {@link VariableNameComparator#INSTANCE}.
 	 *
 	 * @return A new, empty children map.
 	 */
 	private NavigableMap<String, Object> newChildren() {
 		return concurrent
-			? new ConcurrentSkipListMap<>(VARIABLE_NAME_COMPARATOR)
-			: new TreeMap<>(VARIABLE_NAME_COMPARATOR);
+			? new ConcurrentSkipListMap<>(VariableNameComparator.INSTANCE)
+			: new TreeMap<>(VariableNameComparator.INSTANCE);
 	}
 
 	/**
@@ -585,9 +446,9 @@ public final class VariableMap {
 	 *
 	 * @param branch The branch to read from
 	 * @param key    The child's key, which is the last part of its name. Must not be null.
-	 * @return The child's full name if it's a leaf, its {@link Branch} if it has children, or null if there's no child
+	 * @return The child's full name if it's a leaf, its {@link VariableBranch} if it has children, or null if there's no child
 	 */
-	private @Nullable Object childGet(Branch branch, String key) {
+	private @Nullable Object childGet(VariableBranch branch, String key) {
 		return concurrent ? sharedChildren(branch).get(key) : localChildren(branch).get(key);
 	}
 
@@ -597,10 +458,10 @@ public final class VariableMap {
 	 *
 	 * @param branch The branch to write to
 	 * @param key    The child's key
-	 * @param entry  The child's full name if it's a leaf, or its {@link Branch} if it has children
+	 * @param entry  The child's full name if it's a leaf, or its {@link VariableBranch} if it has children
 	 * @return The previous entry, or null if there was none
 	 */
-	private @Nullable Object childPut(Branch branch, String key, Object entry) {
+	private @Nullable Object childPut(VariableBranch branch, String key, Object entry) {
 		return concurrent ? sharedChildren(branch).put(key, entry) : localChildren(branch).put(key, entry);
 	}
 
@@ -610,10 +471,10 @@ public final class VariableMap {
 	 *
 	 * @param branch The branch to write to
 	 * @param key    The child's key
-	 * @param entry  The child's full name if it's a leaf, or its {@link Branch} if it has children
+	 * @param entry  The child's full name if it's a leaf, or its {@link VariableBranch} if it has children
 	 * @return The existing entry, or null if the new one was linked
 	 */
-	private @Nullable Object childPutIfAbsent(Branch branch, String key, Object entry) {
+	private @Nullable Object childPutIfAbsent(VariableBranch branch, String key, Object entry) {
 		return concurrent ? sharedChildren(branch).putIfAbsent(key, entry) : localChildren(branch).putIfAbsent(key, entry);
 	}
 
@@ -625,7 +486,7 @@ public final class VariableMap {
 	 * @param key    The child's key
 	 * @param entry  The entry we expect to remove
 	 */
-	private void childRemove(Branch branch, String key, Object entry) {
+	private void childRemove(VariableBranch branch, String key, Object entry) {
 		if (concurrent) {
 			sharedChildren(branch).remove(key, entry);
 		} else {
@@ -734,186 +595,4 @@ public final class VariableMap {
 		return index;
 	}
 
-	/**
-	 * The structure of one name that has children.
-	 * <p>
-	 * Each child entry is the child's full name if it's a leaf, or the child's own branch if it has children.
-	 * Storing the full name means iterating a list doesn't have to build a string for every element.
-	 * <p>
-	 * Everything here is written under the lock, but list views read most of these fields without it,
-	 * so they're volatile. That also means the non-atomic increments are fine, since there's only ever one writer.
-	 * <p>
-	 * The next available index can never exceed {@code childCount + 1}, so only small indices matter for finding it.
-	 * This means we can use a {@link BitSet} and avoid over-allocating even if the list contains very large indices.
-	 */
-	private static final class Branch {
-		final String fullName; // the name of this branch, without the list suffix, e.g. a::b for {a::b::*}
-		final @Nullable Branch parent;
-		volatile NavigableMap<String, Object> children; // key -> child's full name or Branch. e.g. 'c' -> 'a::b::c'
-		volatile int childCount;
-		volatile int valueChildren; // children that hold a value (not sublists), which is what the size of a list counts
-		volatile boolean hasValue; // whether this has a value e.g. branch is a::b, if {a::b} is set, it has value.
-		boolean removed; // whether this branch has been pruned, so stale references can tell
-
-		/**
-		 * The initial and minimum number of indices tracked.
-		 */
-		static final int MIN_TRACKED = 64;
-
-		/**
-		 * Bit {@code i} is set when positive integer key {@code i} exists,
-		 * for {@code 1 <= i <= trackedLimit}. Keys above the limit are not tracked.
-		 * Created on the first tracked index, so lists keyed only by other strings or large numbers never need it.
-		 * Only touched under the lock.
-		 */
-		@Nullable BitSet trackedIndices;
-		int trackedLimit = MIN_TRACKED; // only touched under the lock
-
-		/**
-		 * The smallest positive integer that is not a key. Every index below it is set,
-		 * so it never exceeds {@code childCount + 1}. Written under the lock, but list views read it without the lock.
-		 */
-		volatile int nextIndex = 1;
-
-		/**
-		 * Creates a new branch with no counted children.
-		 *
-		 * @param fullName the name of this branch, without the list suffix
-		 * @param parent   the parent branch, or null for root-level names
-		 * @param children the children map, which is passed in since only the owning map knows which type to use
-		 */
-		Branch(String fullName, @Nullable Branch parent, NavigableMap<String, Object> children) {
-			this.fullName = fullName;
-			this.parent = parent;
-			this.children = children;
-		}
-
-		/**
-		 * Handles bookkeeping when a child is added, allocating the BitSet if needed.
-		 * If this was the next available index, {@link #nextIndex} moves up to the next free one.
-		 * Must be called after {@link #childCount} is updated and the child is linked.
-		 *
-		 * @param key The key of the new child. Non-integer keys are ignored.
-		 */
-		void added(String key) {
-			int index = positiveInt(key);
-			if (index == -1)
-				return;
-			if (index <= trackedLimit) {
-				if (trackedIndices == null)
-					trackedIndices = new BitSet(MIN_TRACKED + 1);
-				trackedIndices.set(index);
-			}
-			if (index == nextIndex)
-				advanceNextIndex();
-		}
-
-		/**
-		 * Handles bookkeeping when a child is removed, moving {@link #nextIndex} down if this index
-		 * is now the lowest free one, and resizing the BitSet if needed.
-		 * Must be called after {@link #childCount} is updated.
-		 *
-		 * @param key The key of the removed child. Non-integer keys are ignored.
-		 */
-		void freed(String key) {
-			int index = positiveInt(key);
-			if (index != -1) {
-				if (index <= trackedLimit && trackedIndices != null)
-					trackedIndices.clear(index);
-				if (index < nextIndex)
-					nextIndex = index;
-			}
-			shrinkIfSparse();
-		}
-
-		/**
-		 * Moves {@link #nextIndex} to the first index after it that is not a key,
-		 * growing the tracked range whenever every tracked index is in use.
-		 */
-		private void advanceNextIndex() {
-			assert trackedIndices != null;
-			int next = trackedIndices.nextClearBit(nextIndex);
-			while (next > trackedLimit) {
-				grow();
-				next = trackedIndices.nextClearBit(next);
-			}
-			nextIndex = next;
-		}
-
-		/**
-		 * Grows the tracked range to the first power of two multiple of {@link #MIN_TRACKED} above {@link #childCount},
-		 * which always holds {@link #nextIndex}, so one call is enough. Keys inside the new range were not tracked
-		 * until now, so they are picked up with one pass over the children, skipped when every child is already tracked.
-		 * This only happens once every tracked index is in use, so the branch holds at least
-		 * {@link #trackedLimit} children and the pass is paid for by the inserts that filled it.
-		 */
-		private void grow() {
-			int oldLimit = trackedLimit;
-			int newLimit = oldLimit * 2;
-			while (newLimit <= childCount)
-				newLimit *= 2;
-			trackedLimit = newLimit;
-			assert trackedIndices != null;
-			if (trackedIndices.cardinality() == childCount)
-				return; // every child is a tracked index, so there's nothing new to pick up
-			for (String key : children.keySet()) {
-				int index = positiveInt(key);
-				if (index > oldLimit && index <= newLimit)
-					trackedIndices.set(index);
-			}
-		}
-
-		/**
-		 * Shrinks the tracked range once the branch holds fewer than an eighth of it, so a list that
-		 * grew large and was then mostly emptied does not keep its peak-sized tracking. Growing at
-		 * full and shrinking at an eighth keeps a list hovering around one size from resizing back
-		 * and forth. Indices dropped from tracking are picked up again by {@link #grow()} if needed.
-		 */
-		private void shrinkIfSparse() {
-			if (trackedLimit <= MIN_TRACKED || childCount >= trackedLimit / 8)
-				return;
-			int newLimit = MIN_TRACKED;
-			while (newLimit < childCount * 2)
-				newLimit *= 2;
-			// nextIndex <= childCount + 1 <= newLimit, so it stays within the tracked range
-			if (trackedIndices != null)
-				trackedIndices = trackedIndices.get(0, newLimit + 1);
-			trackedLimit = newLimit;
-		}
-
-		/**
-		 * Parses a canonical positive integer key. Leading zeroes aren't canonical, since {@code 01} and {@code 1}
-		 * are different keys. Keys over 9 digits are treated as non-integers, which both avoids overflow
-		 * and avoids paying for it with exceptions on number-heavy keys, like timestamps.
-		 *
-		 * @param string The key to parse
-		 * @return The value of the key, or -1 if it isn't a canonical positive integer of at most 9 digits
-		 */
-		static int positiveInt(String string) {
-			int length = string.length();
-			if (length == 0 || length > 9 || string.charAt(0) == '0')
-				return -1;
-
-			int value = 0;
-			for (int i = 0; i < length; i++) {
-				char c = string.charAt(i);
-				if (!isDigit(c))
-					return -1;
-				value = value * 10 + (c - '0');
-			}
-			return value;
-		}
-
-	}
-
-	/**
-	 * Simple helper for the comparator and {@link Branch#positiveInt}.
-	 *
-	 * @param c The character to check
-	 * @return Whether {@code c} is an ASCII digit
-	 */
-	private static boolean isDigit(char c) {
-		return '0' <= c && c <= '9';
-	}
-	
 }

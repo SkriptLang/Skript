@@ -5,12 +5,11 @@ import ch.njol.skript.lang.Variable;
 import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.util.IndexTrackingTreeMap;
-import org.skriptlang.skript.variables.VariableMap;
+import org.skriptlang.skript.variables.VariableNameComparator;
 
 import java.util.*;
 import java.util.Map.Entry;
 
-import static org.skriptlang.skript.variables.VariableMap.VARIABLE_NAME_COMPARATOR;
 
 /**
  * A map for storing variables in a sorted and efficient manner.
@@ -129,7 +128,7 @@ final class VariablesMap {
 				// Expected child node not found
 				if (value != null) {
 					// Create child node, add it to parent and continue iteration
-					childNode = new IndexTrackingTreeMap<>(VARIABLE_NAME_COMPARATOR);
+					childNode = new IndexTrackingTreeMap<>(VariableNameComparator.INSTANCE);
 
 					parent.put(childNodeName, childNode);
 					parent = (TreeMap<String, Object>) childNode;
@@ -166,7 +165,7 @@ final class VariablesMap {
 				// Ran into leaf node
 				if (value != null) {
 					// Need to continue iteration, create new child node and put old value in it
-					TreeMap<String, Object> newChildNodeMap = new IndexTrackingTreeMap<>(VARIABLE_NAME_COMPARATOR);
+					TreeMap<String, Object> newChildNodeMap = new IndexTrackingTreeMap<>(VariableNameComparator.INSTANCE);
 					newChildNodeMap.put(null, childNode);
 
 					// Add new child node to parent
@@ -205,7 +204,7 @@ final class VariablesMap {
 				continue;
 			}
 			// Nothing here yet, or a plain value in the way: make a sublist, keeping that value under its null key
-			TreeMap<String, Object> sublist = new IndexTrackingTreeMap<>(VARIABLE_NAME_COMPARATOR);
+			TreeMap<String, Object> sublist = new IndexTrackingTreeMap<>(VariableNameComparator.INSTANCE);
 			if (child != null)
 				sublist.put(null, child);
 			parent.put(split[i], sublist);
@@ -223,7 +222,7 @@ final class VariablesMap {
 		}
 
 		// Swap in the new list, then clean up whatever it replaced
-		IndexTrackingTreeMap<Object> list = IndexTrackingTreeMap.ofSorted(VARIABLE_NAME_COMPARATOR, keys, values);
+		IndexTrackingTreeMap<Object> list = IndexTrackingTreeMap.ofSorted(VariableNameComparator.INSTANCE, keys, values);
 		Object previous = parent.put(split[split.length - 1], list);
 		Object listValue = previous; // {listName}'s existing value, if it has one
 		if (previous instanceof TreeMap) {
@@ -244,12 +243,12 @@ final class VariablesMap {
 
 	/**
 	 * @param keys the keys to check
-	 * @return Whether the keys are in {@link VariableMap#VARIABLE_NAME_COMPARATOR} order with no repeats, as
+	 * @return Whether the keys are in {@link VariableNameComparator#INSTANCE} order with no repeats, as
 	 * {@link IndexTrackingTreeMap#ofSorted} requires.
 	 */
 	private static boolean isStrictlyIncreasing(String[] keys) {
 		for (int i = 1; i < keys.length; i++) {
-			if (VARIABLE_NAME_COMPARATOR.compare(keys[i - 1], keys[i]) >= 0)
+			if (VariableNameComparator.INSTANCE.compare(keys[i - 1], keys[i]) >= 0)
 				return false;
 		}
 		return true;
@@ -268,13 +267,13 @@ final class VariablesMap {
 		for (int i = 0; i < keys.length; i++)
 			entries[i] = new KeyedValue<>(keys[i], values[i]);
 		// stable, so entries with the same key stay in the order they were given
-		Arrays.sort(entries, Comparator.comparing(KeyedValue<?>::key, VARIABLE_NAME_COMPARATOR));
+		Arrays.sort(entries, Comparator.comparing(KeyedValue<?>::key, VariableNameComparator.INSTANCE));
 
 		// avoid duplicate keys.
 		int count = 0;
 		for (int i = 0; i < entries.length; i++) {
 			boolean writtenAgainLater = i + 1 < entries.length
-				&& VARIABLE_NAME_COMPARATOR.compare(entries[i].key(), entries[i + 1].key()) == 0;
+				&& VariableNameComparator.INSTANCE.compare(entries[i].key(), entries[i + 1].key()) == 0;
 			if (!writtenAgainLater)
 				entries[count++] = entries[i];
 		}
@@ -333,7 +332,7 @@ final class VariablesMap {
 	 */
 	@SuppressWarnings("unchecked")
 	private static TreeMap<String, Object> copyTreeMap(TreeMap<String, Object> original) {
-		TreeMap<String, Object> copy = new IndexTrackingTreeMap<>(VARIABLE_NAME_COMPARATOR);
+		TreeMap<String, Object> copy = new IndexTrackingTreeMap<>(VariableNameComparator.INSTANCE);
 
 		for (Entry<String, Object> child : original.entrySet()) {
 			String key = child.getKey();
