@@ -128,6 +128,19 @@ public class VariablesSetListTest extends SkriptJUnitTest {
 	}
 
 	@Test
+	public void settingAListNameToAValueDoesNothing() {
+		Variables.setVariable("l::1", "a", event, true);
+		Variables.setVariable("l::*", "value", event, true);
+		assertEquals("a", get("l::1"));
+		assertEquals(1, ((Map<?, ?>) get("l::*")).size());
+
+		Variables.setVariable(GLOBAL + "::1", "a", null, false);
+		Variables.setVariable(GLOBAL + "::*", "value", null, false);
+		assertEquals("a", getGlobal("1"));
+		assertEquals(1, ((Map<?, ?>) getGlobal("*")).size());
+	}
+
+	@Test
 	public void replacesTheOldList() {
 		Variables.setList("l", new String[] {"1", "2", "x::y"}, new Object[] {"a", "b", "xy"}, event, true);
 		Variables.setList("l", new String[] {"3"}, new Object[] {"c"}, event, true);
