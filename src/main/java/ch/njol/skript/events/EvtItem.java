@@ -126,7 +126,6 @@ public class EvtItem extends SkriptEvent {
 		if ((!entity && event instanceof EntityPickupItemEvent) || (entity && event instanceof PlayerPickupItemEvent))
 			return false;
 		if ((!entity && event instanceof EntityDropItemEvent) || (entity && event instanceof PlayerDropItemEvent))
-			return false;
 		if (types == null)
 			return true;
 		final ItemStack itemStack;

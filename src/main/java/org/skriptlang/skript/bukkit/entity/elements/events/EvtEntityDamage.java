@@ -84,7 +84,12 @@ public class EvtEntityDamage extends SkriptEvent {
 		if (byEntityData != null && event instanceof EntityDamageByEntityEvent entityEvent)
 			return byEntityData.check(event, data -> data.isInstance(entityEvent.getDamager()));
 		return true;
-	}
+		if (byEntityData != null) {
+			if (event instanceof EntityDamageByEntityEvent entityEvent)
+				return byEntityData.check(event, data -> data.isInstance(entityEvent.getDamager()));
+			return false;
+		}
+		return true;
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {

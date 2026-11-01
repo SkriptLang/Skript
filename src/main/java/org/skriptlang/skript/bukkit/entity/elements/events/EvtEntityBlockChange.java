@@ -129,7 +129,7 @@ public class EvtEntityBlockChange extends SkriptEvent {
 	public boolean check(Event event) {
 		EntityChangeBlockEvent entityEvent = (EntityChangeBlockEvent) event;
 		if (entityData != null)
-			return !entityData.check(event, data -> data.isInstance((entityEvent.getEntity())));
+			return entityData.check(event, data -> data.isInstance((entityEvent.getEntity())));
 		if (this.event.checker == null)
 			return true;
 		return this.event.checker.test(entityEvent);
