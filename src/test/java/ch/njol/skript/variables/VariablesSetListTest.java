@@ -196,39 +196,31 @@ public class VariablesSetListTest extends SkriptJUnitTest {
 	}
 
 	@Test
-	public void queuesAGlobalListWhileTheLockIsHeld() throws InterruptedException {
+	public void globalWritesWaitForTheSaveOrderLock() throws InterruptedException {
 		Variables.setList(GLOBAL, new String[] {"1", "old"}, new Object[] {"a", "old"}, null, false);
 
-		// hold the write lock on another thread, as the lock is reentrant for this one
+		// hold the lock on another thread, as it's reentrant for this one
 		CountDownLatch locked = new CountDownLatch(1);
-		CountDownLatch release = new CountDownLatch(1);
 		Thread holder = new Thread(() -> {
-			Variables.variablesLock.writeLock().lock();
+			Variables.saveOrderLock.lock();
 			try {
 				locked.countDown();
-				release.await();
+				Thread.sleep(100);
 			} catch (InterruptedException ignored) {
 			} finally {
-				Variables.variablesLock.writeLock().unlock();
+				Variables.saveOrderLock.unlock();
 			}
 		});
 		holder.start();
-		try {
-			assertTrue(locked.await(5, TimeUnit.SECONDS));
-			Variables.setList(GLOBAL, new String[] {"2", "1"}, new Object[] {"b", "c"}, null, false);
-			assertFalse("the changes weren't queued", Variables.changeQueue.isEmpty());
-		} finally {
-			release.countDown();
-			holder.join(5000);
-		}
+		assertTrue(locked.await(5, TimeUnit.SECONDS));
 
-		// the next write processes the queue first
-		Variables.setVariable(GLOBAL + "::3", "d", null, false);
-		assertTrue(Variables.changeQueue.isEmpty());
+		// nothing gets queued for later anymore, so this has to be done once it returns
+		Variables.setList(GLOBAL, new String[] {"2", "1"}, new Object[] {"b", "c"}, null, false);
+		holder.join(5000);
+
 		assertNull(getGlobal("old"));
 		assertEquals("c", getGlobal("1"));
 		assertEquals("b", getGlobal("2"));
-		assertEquals("d", getGlobal("3"));
 	}
 
 }

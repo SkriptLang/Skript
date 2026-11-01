@@ -37,11 +37,8 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Handles all things related to variables.
@@ -323,13 +320,16 @@ public class Variables {
 	}
 
 	/**
-	 * A lock for reading and writing variables.
+	 * Keeps {@link #saveQueue} in the same order as the changes made to {@link #variables}, by being held across
+	 * both, so that storages end up with the same final value as the map. It's not needed to read or write the map.
+	 * <p>
+	 * This is held by every writer, so nothing slow should happen under it. That includes serializing the value.
 	 */
-	static final ReadWriteLock variablesLock = new ReentrantReadWriteLock(true);
+	static final ReentrantLock saveOrderLock = new ReentrantLock();
 
 	/**
-	 * The {@link VariableMap} storing global variables,
-	 * must be locked with {@link #variablesLock}.
+	 * The {@link VariableMap} storing global variables. This is thread-safe, so reading it doesn't need a lock.
+	 * Writers should hold {@link #saveOrderLock} if the change has to be saved.
 	 */
 	static final VariableMap variables = VariableMap.concurrent();
 
@@ -348,17 +348,6 @@ public class Variables {
 	 */
 	static Map<String, Object> getVariables() {
 		return variables.getAll();
-	}
-
-	/**
-	 * Gets the lock for reading variables.
-	 *
-	 * @return the lock.
-	 *
-	 * @see #variablesLock
-	 */
-	static Lock getReadLock() {
-		return variablesLock.readLock();
 	}
 
 	/**
@@ -463,27 +452,7 @@ public class Variables {
 
 			return map.getVariable(n);
 		} else {
-			try {
-				variablesLock.readLock().lock();
-				// Prevent race conditions from returning variables with incorrect values
-				if (!changeQueue.isEmpty()) {
-					// Gets the last VariableChange made
-					VariableChange variableChange = changeQueue.stream()
-							.filter(change -> change.name.equals(n))
-							.reduce((first, second) -> second)
-									// Gets last value, as iteration is from head to tail,
-									//  and adding occurs at the tail (and we want the most recently added)
-							.orElse(null);
-
-					if (variableChange != null) {
-						return variableChange.value;
-					}
-				}
-
-				return variables.getVariable(n);
-			} finally {
-				variablesLock.readLock().unlock();
-			}
+			return variables.getVariable(n);
 		}
 	}
 
@@ -611,20 +580,14 @@ public class Variables {
 	 * @param value the value, or {@code null} to delete the variable.
 	 */
 	static void setVariable(String name, @Nullable Object value) {
-		if (variablesLock.writeLock().tryLock()) {
-			try {
-				if (!changeQueue.isEmpty()) { // Process older, queued changes if available
-					processChangeQueue();
-				}
-				// Process and save requested change
-				variables.setVariable(name, value);
-				saveVariableChange(name, value);
-			} finally {
-				variablesLock.writeLock().unlock();
-			}
-		} else {
-			// Couldn't acquire variable write lock, queue the change (blocking here is a bad idea)
-			queueVariableChange(name, value);
+		SerializedVariable serialized = serializeChange(name, value);
+		saveOrderLock.lock();
+		try {
+			variables.setVariable(name, value);
+			if (serialized != null)
+				saveQueue.add(serialized);
+		} finally {
+			saveOrderLock.unlock();
 		}
 	}
 
@@ -632,7 +595,7 @@ public class Variables {
 	 * Sets a list to the following keys and values, replacing the whole list at once.
 	 * This is two to three times as fast as deleting the list and calling
 	 * {@link #setVariable(String, Object, Event, boolean)} for each element.
-	 * For global variables, readers on other threads see either the old list or the new one, never a mix.
+	 * For global variables, readers on other threads can briefly see a mix of the old list and the new one.
 	 *
 	 * @param listName The full name of the list, without ::* on the end.
 	 * @param keys     The keys to use for the list's values, in any order. If a key repeats, the last value wins.
@@ -686,7 +649,7 @@ public class Variables {
 	}
 
 	/**
-	 * Sets the given global list to the given keys and values, taking the write lock once for the whole list.
+	 * Sets the given global list to the given keys and values, taking {@link #saveOrderLock} once for the whole list.
 	 * The changes saved are the same as deleting the list and setting each element would save.
 	 *
 	 * @param listName the list's name, without ::* on the end, already lowercased if needed.
@@ -695,22 +658,22 @@ public class Variables {
 	 */
 	private static void setGlobalList(String listName, String[] keys, Object[] values) {
 		String prefix = listName + Variable.SEPARATOR;
-		if (variablesLock.writeLock().tryLock()) {
-			try {
-				if (!changeQueue.isEmpty()) // Process older, queued changes first, to keep changes in order
-					processChangeQueue();
-				variables.setList(listName, keys, values);
-				saveVariableChange(prefix + "*", null);
-				for (int i = 0; i < keys.length; i++)
-					saveVariableChange(prefix + keys[i], values[i]);
-			} finally {
-				variablesLock.writeLock().unlock();
+		SerializedVariable clear = serializeChange(prefix + "*", null);
+		// these are all null together, since every name here starts the same way
+		SerializedVariable[] elements = new SerializedVariable[keys.length];
+		for (int i = 0; i < keys.length; i++)
+			elements[i] = serializeChange(prefix + keys[i], values[i]);
+
+		saveOrderLock.lock();
+		try {
+			variables.setList(listName, keys, values);
+			if (clear != null) {
+				saveQueue.add(clear);
+				for (SerializedVariable element : elements)
+					saveQueue.add(element);
 			}
-		} else {
-			// Couldn't acquire variable write lock, queue the changes (blocking here is a bad idea)
-			queueVariableChange(prefix + "*", null);
-			for (int i = 0; i < keys.length; i++)
-				queueVariableChange(prefix + keys[i], values[i]);
+		} finally {
+			saveOrderLock.unlock();
 		}
 	}
 
@@ -755,69 +718,6 @@ public class Variables {
 			map = localVariables.computeIfAbsent(event, e -> VariableMap.local());
 		}
 		return map;
-	}
-
-	/**
-	 * Changes to variables that have not yet been performed.
-	 */
-	static final Queue<VariableChange> changeQueue = new ConcurrentLinkedQueue<>();
-
-	/**
-	 * A variable change name-value pair.
-	 */
-	private static class VariableChange {
-
-		/**
-		 * The name of the changed variable.
-		 */
-		public final String name;
-
-		/**
-		 * The (possibly {@code null}) value of the variable change.
-		 */
-		@Nullable
-		public final Object value;
-
-		/**
-		 * Creates a new {@link VariableChange} with the given name and value.
-		 *
-		 * @param name the variable name.
-		 * @param value the new variable value.
-		 */
-		public VariableChange(String name, @Nullable Object value) {
-			this.name = name;
-			this.value = value;
-		}
-
-	}
-
-	/**
-	 * Queues a variable change. Only to be called when direct write is not
-	 * possible, but thread cannot be allowed to block.
-	 *
-	 * @param name the variable name.
-	 * @param value the new value.
-	 */
-	private static void queueVariableChange(String name, @Nullable Object value) {
-		changeQueue.add(new VariableChange(name, value));
-	}
-
-	/**
-	 * Processes all entries in variable change queue.
-	 * <p>
-	 * Note that caller must acquire write lock before calling this,
-	 * then release it.
-	 */
-	static void processChangeQueue() {
-		while (true) { // Run as long as we still have changes
-			VariableChange change = changeQueue.poll();
-			if (change == null)
-				break;
-
-			// Set and save variable
-			variables.setVariable(change.name, change.value);
-			saveVariableChange(change.name, change.value);
-		}
 	}
 
 	/**
@@ -910,11 +810,11 @@ public class Variables {
 			}
 		}
 
-		variablesLock.writeLock().lock();
+		saveOrderLock.lock();
 		try {
 			variables.setVariable(name, value);
 		} finally {
-			variablesLock.writeLock().unlock();
+			saveOrderLock.unlock();
 		}
 
 		// Move the variable to the right storage
@@ -964,7 +864,7 @@ public class Variables {
 			TEMP_VARIABLES.set(null);
 			assert tvs != null;
 
-			variablesLock.writeLock().lock();
+			saveOrderLock.lock();
 			try {
 				// Calculate the amount of variables that don't have a storage
 				int unstoredVariables = 0;
@@ -980,7 +880,7 @@ public class Variables {
 
 				return unstoredVariables;
 			} finally {
-				variablesLock.writeLock().unlock();
+				saveOrderLock.unlock();
 			}
 		}
 	}
@@ -1024,15 +924,17 @@ public class Variables {
 	}
 
 	/**
-	 * Serializes and adds the variable change to the {@link #saveQueue}.
+	 * Serializes a variable change, ready for the {@link #saveQueue}.
+	 * This should be done before taking {@link #saveOrderLock}, as it can be slow.
 	 *
 	 * @param name the variable name.
 	 * @param value the value of the variable.
+	 * @return the serialized change, or {@code null} if this variable doesn't get saved.
 	 */
-	private static void saveVariableChange(String name, @Nullable Object value) {
+	private static @Nullable SerializedVariable serializeChange(String name, @Nullable Object value) {
 		if (name.startsWith(Variable.EPHEMERAL_VARIABLE_TOKEN))
-			return;
-		saveQueue.add(serialize(name, value));
+			return null;
+		return serialize(name, value);
 	}
 
 	/**
@@ -1067,20 +969,9 @@ public class Variables {
 	}, "Skript variable save thread");
 
 	/**
-	 * Closes the variable systems:
-	 * <ul>
-	 *     <li>Process all changes left in the {@link #changeQueue}.</li>
-	 *     <li>Stops the {@link #saveThread}.</li>
-	 * </ul>
+	 * Closes the variable systems, by stopping the {@link #saveThread} once all changes have been passed on to storages.
 	 */
 	public static void close() {
-		try { // Ensure that all changes are to save soon
-			variablesLock.writeLock().lock();
-			processChangeQueue();
-		} finally {
-			variablesLock.writeLock().unlock();
-		}
-
 		// First, make sure all variables are saved
 		while (saveQueue.size() > 0) {
 			try {
@@ -1099,12 +990,7 @@ public class Variables {
 	 * @return the amount of variables.
 	 */
 	public static int numVariables() {
-		try {
-			variablesLock.readLock().lock();
-			return (int) variables.size();
-		} finally {
-			variablesLock.readLock().unlock();
-		}
+		return (int) variables.size();
 	}
 
 }
