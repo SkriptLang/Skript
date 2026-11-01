@@ -315,6 +315,17 @@ public final class VariableMap {
 		return concurrent ? sharedValues().remove(key) : localValues().remove(key);
 	}
 
+	/**
+	 * Simple helper to check if a variable is set right now. {@link #values} is the source of truth,
+	 * unlike {@link Branch#hasValue}, which can be briefly out of date.
+	 *
+	 * @param key The full name of the variable
+	 * @return Whether the variable has a value
+	 */
+	private boolean valueIsSet(String key) {
+		return concurrent ? sharedValues().containsKey(key) : localValues().containsKey(key);
+	}
+
 	// ============= Branches ===============
 
 	/**
@@ -383,6 +394,149 @@ public final class VariableMap {
 			sharedBranches().remove(branch.fullName, branch);
 		} else {
 			localBranches().remove(branch.fullName, branch);
+		}
+	}
+
+	/**
+	 * Gets the number of branches in the tree. There's no reason to use this outside of tests,
+	 * where it's a simple way to check that nothing is left behind.
+	 *
+	 * @return The number of names that currently have children.
+	 */
+	int branchCount() {
+		return branches == null ? 0 : branches.size();
+	}
+
+	/**
+	 * Updates the tree to match {@link #values} for one name, after that name was created or deleted.
+	 * This is the only way a single variable changes the tree, so overwrites never get here.
+	 * Must be called under the lock.
+	 * <p>
+	 * Writers change {@link #values} first and only then take the lock, so calls can run in a different order
+	 * than the writes they belong to. For concurrent maps this means {@code present} can't be trusted,
+	 * so it's read again from {@link #values}. The last call to run always sees the final state,
+	 * and calls that find there's nothing to do just do nothing, so racing writers end up correct in any order.
+	 *
+	 * @param name    The full name of the variable, which can't be a list name
+	 * @param present Whether the caller just set this name, rather than deleting it
+	 */
+	@SuppressWarnings("NonAtomicOperationOnVolatileField")
+	private void reconcile(String name, boolean present) {
+		assert lock == null || lock.isHeldByCurrentThread();
+		if (concurrent)
+			present = valueIsSet(name); // double check since caller may be out of date
+		// is it a list?
+		int sep = lastSeparator(name);
+		if (sep == -1) {
+			// not a list, so just update hasValue.
+			Branch branch = branchGet(name);
+			if (branch != null)
+				branch.hasValue = present;
+			return;
+		}
+
+		// get the parent branch
+		String parentName = name.substring(0, sep);
+		Branch parent = present ? ensureBranch(parentName) : branchGet(parentName);
+		if (parent == null)
+			return;
+
+		// check existing value
+		String key = name.substring(sep + Variable.SEPARATOR.length());
+		Object oldEntry = present ? childPutIfAbsent(parent, key, name) : childGet(parent, key);
+		if (oldEntry instanceof Branch oldBranch && oldBranch.hasValue != present) {
+			// adding/removing a value when the list exists (set/delete {a::b} when {a::b::*} exists)
+			oldBranch.hasValue = present;
+			parent.valueChildren += present ? 1 : -1;
+		} else if (present && oldEntry == null) {
+			// new leaf (set {a::b} when {a::b::*} doesn't exist)
+			parent.childCount++;
+			parent.valueChildren++;
+			parent.added(key);
+		} else if (!present && oldEntry instanceof String) {
+			// deleting leaf (delete {a::b} when {a::b::*} doesn't exist)
+			childRemove(parent, key, oldEntry);
+			parent.childCount--;
+			parent.valueChildren--;
+			parent.freed(key);
+			pruneIfEmpty(parent);
+		}
+		// anything else means another call already handled this, so there's nothing to do
+	}
+
+	/**
+	 * Gets the branch for a name, creating it and any missing ancestors, and linking each new branch into its parent.
+	 * If the name was a leaf, it gets swapped for the new branch in its parent.
+	 * Must be called under the lock.
+	 *
+	 * @param name The full name of the branch, without the list suffix
+	 * @return The existing or newly created branch
+	 */
+	@SuppressWarnings("NonAtomicOperationOnVolatileField")
+	private Branch ensureBranch(String name) {
+		assert lock == null || lock.isHeldByCurrentThread();
+		// check for quick exit
+		Branch existing = branchGet(name);
+		if (existing != null)
+			return existing;
+
+		// branch doesn't exist, create.
+		int sep = lastSeparator(name);
+		Branch parent = sep == -1 ? null : ensureBranch(name.substring(0, sep));
+		Branch branch = new Branch(name, parent, newChildren());
+		branch.hasValue = valueIsSet(name);
+		branchPut(branch);
+
+		// update parent
+		if (parent != null) {
+			String key = name.substring(sep + Variable.SEPARATOR.length());
+			Object previous = childPut(parent, key, branch);
+			if (previous != null) {
+				// leaf -> branch. It's already counted in the parent, so the counters stay as they are.
+				branch.hasValue = true;
+			} else {
+				// new branch
+				parent.childCount++;
+				if (branch.hasValue)
+					parent.valueChildren++;
+				parent.added(key);
+			}
+		}
+		return branch;
+	}
+
+	/**
+	 * Removes a branch if it has no children left, so that the tree never keeps anything empty.
+	 * If the name still has a value, it goes back to being a leaf in its parent.
+	 * Otherwise, it's removed from its parent as well, which may leave the parent empty, so this repeats up the tree.
+	 * Must be called under the lock.
+	 *
+	 * @param branch The branch that just lost a child
+	 */
+	@SuppressWarnings("NonAtomicOperationOnVolatileField")
+	private void pruneIfEmpty(Branch branch) {
+		assert lock == null || lock.isHeldByCurrentThread();
+		while (branch != null && branch.childCount == 0) {
+			branchRemove(branch);
+			branch.removed = true;
+			Branch parent = branch.parent;
+			if (parent == null)
+				return;
+			String key = branch.fullName.substring(parent.fullName.length() + Variable.SEPARATOR.length());
+			if (valueIsSet(branch.fullName)) {
+				// become leaf since value still exists. It's still one child, so childCount doesn't change.
+				childPut(parent, key, branch.fullName);
+				if (!branch.hasValue) // if it wasn't already marked as having value (it should have been, but races!)
+					parent.valueChildren++; // leaves always count, and the pending reconcile won't count an existing leaf
+				return;
+			}
+			// nothing left so remove and continue
+			childRemove(parent, key, branch);
+			parent.childCount--;
+			if (branch.hasValue)
+				parent.valueChildren--;
+			parent.freed(key);
+			branch = parent;
 		}
 	}
 
@@ -533,9 +687,14 @@ public final class VariableMap {
 			return null;
 		}
 		Object previous = value == null ? valueRemove(name) : valuePut(name, value);
-		// if we are adding/removing a value here, then we need to reconcile
+		// if we are adding/removing a value here, then we need to make sure the branch tree is up to date.
 		if ((previous == null) != (value == null)) {
-			// TODO:
+			lock();
+			try {
+				reconcile(name, value != null);
+			} finally {
+				unlock();
+			}
 		}
 		return previous;
 	}
