@@ -102,6 +102,32 @@ public class VariablesSetListTest extends SkriptJUnitTest {
 	}
 
 	@Test
+	public void listNameEndingInColonMatchesItsSplit() {
+		// a: + :: + b is a:::b, which is {a}'s child :b, not a child of {a:}
+		Variables.setList("a:", new String[] {"b", "c"}, new Object[] {"1", "2"}, event, true);
+
+		assertEquals("1", get("a:::b"));
+		assertEquals("2", get("a:::c"));
+		Map<?, ?> list = (Map<?, ?>) get("a::*");
+		assertNotNull("a:::b was stored under the wrong parent", list);
+		assertEquals(List.of(":b", ":c"), List.copyOf(list.keySet()));
+	}
+
+	@Test
+	public void keyStartingWithColonStaysInTheList() {
+		Variables.setList("l", new String[] {":a", "b"}, new Object[] {"1", "2"}, event, true);
+
+		assertEquals("1", get("l:::a"));
+		Map<?, ?> list = (Map<?, ?>) get("l::*");
+		assertNotNull(list);
+		assertEquals(2, list.size());
+
+		Variables.setVariable("l:::a", null, event, true);
+		assertEquals(1, list.size()); // the tree has to agree on where it was
+		assertNull(get("l:::a"));
+	}
+
+	@Test
 	public void replacesTheOldList() {
 		Variables.setList("l", new String[] {"1", "2", "x::y"}, new Object[] {"a", "b", "xy"}, event, true);
 		Variables.setList("l", new String[] {"3"}, new Object[] {"c"}, event, true);

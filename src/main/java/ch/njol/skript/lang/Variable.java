@@ -16,6 +16,7 @@ import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import com.google.common.base.Preconditions;
 import org.skriptlang.skript.util.IndexTrackingTreeMap;
+import org.skriptlang.skript.variables.VariableList;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Pair;
@@ -504,6 +505,9 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		if (map == null)
 			return 0;
 
+		if (map instanceof VariableList list)
+			return list.valueCount();
+
 		int size = map.size();
 		if (map.containsKey(null)) // if we're trying to get the size of {_list::*}, exclude {_list} from being counted
 			size--;
@@ -651,6 +655,11 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 						}
 					} else {
 						assert mode == ChangeMode.ADD;
+						if (map instanceof VariableList list) {
+							for (Object value : delta)
+								setIndex(event, String.valueOf(list.nextOpenIndex()), value);
+							return;
+						}
 						if (map instanceof IndexTrackingTreeMap<Object> indexTrackingMap) {
 							for (Object value : delta) {
 								int index = indexTrackingMap.nextOpenIndex();
