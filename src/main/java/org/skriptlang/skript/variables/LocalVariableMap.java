@@ -116,8 +116,9 @@ final class LocalVariableMap extends VariableMap {
 	}
 
 	@Override
-	void childRemove(VariableBranch branch, String key, Object entry) {
-		children(branch).remove(key, entry);
+	boolean childRemove(VariableBranch branch, String key, Object entry) {
+		// only one thread can be here, so entry can't have changed. TreeMap's remove(key, entry) would walk the tree twice
+		return children(branch).remove(key) != null;
 	}
 
 	@Override

@@ -381,7 +381,7 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 
 		// check existing value
 		String key = name.substring(sep + Variable.SEPARATOR.length());
-		Object oldEntry = present ? childPutIfAbsent(parent, key, name) : childGet(parent, key);
+		Object oldEntry = present ? childPutIfAbsent(parent, key, name) : childRemoveLeaf(parent, key, name);
 		if (oldEntry instanceof VariableBranch oldBranch && oldBranch.hasValue != present) {
 			// adding/removing a value when the list exists (set/delete {a::b} when {a::b::*} exists)
 			oldBranch.hasValue = present;
@@ -392,8 +392,7 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 			parent.valueChildren++;
 			parent.added(key);
 		} else if (!present && oldEntry instanceof String) {
-			// deleting leaf (delete {a::b} when {a::b::*} doesn't exist)
-			childRemove(parent, key, oldEntry);
+			// deleted leaf, which childRemoveLeaf already unlinked (delete {a::b} when {a::b::*} doesn't exist)
 			parent.childCount--;
 			parent.valueChildren--;
 			parent.freed(key);
@@ -570,8 +569,27 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 	 * @param branch The branch to remove from
 	 * @param key    The child's key
 	 * @param entry  The entry we expect to remove
+	 * @return Whether the entry was removed
 	 */
-	abstract void childRemove(VariableBranch branch, String key, Object entry);
+	abstract boolean childRemove(VariableBranch branch, String key, Object entry);
+
+	/**
+	 * Unlinks a child from a branch if it's a leaf, leaving it alone if it's a list.
+	 * Every list has a branch registered under its name, and a leaf's entry is always its full name,
+	 * so lists never touch the tree here, and leaves only walk it once to remove themselves.
+	 * Must be called under the lock.
+	 *
+	 * @param branch The branch to remove from
+	 * @param key    The child's key
+	 * @param name   The child's full name
+	 * @return The child's entry, whether it was removed or not, or null if there's no such child
+	 */
+	@Nullable Object childRemoveLeaf(VariableBranch branch, String key, String name) {
+		VariableBranch list = branchGet(name);
+		if (list != null)
+			return list;
+		return childRemove(branch, key, name) ? name : null;
+	}
 
 	/**
 	 * Simple helper to iterate the child entries of a branch, in sorted order.
@@ -835,14 +853,19 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 
 	/**
 	 * Finds the separator that splits a name into its parent and its key.
-	 * This has to scan left to right, not use {@link String#lastIndexOf(String)}, so that it matches
-	 * {@link ch.njol.skript.variables.Variables#splitVariableName}. The two disagree on names like {@code a:::b}.
+	 * This has to match {@link ch.njol.skript.variables.Variables#splitVariableName}, which pairs up colons
+	 * from left to right. {@link String#lastIndexOf(String)} only disagrees with that on runs of colons,
+	 * like {@code a:::b}, so those get a full scan, and everything else gets to avoid it.
 	 *
 	 * @param string The full variable name
 	 * @return The index of the last separator, or -1 if there are none
 	 */
 	static int lastSeparator(String string) {
-		int index = -1;
+		int index = string.lastIndexOf(Variable.SEPARATOR);
+		if (index <= 0 || string.charAt(index - 1) != ':')
+			return index;
+
+		index = -1;
 		int nextIndex = 0;
 		while ((nextIndex = string.indexOf(Variable.SEPARATOR, nextIndex)) != -1) {
 			index = nextIndex;
