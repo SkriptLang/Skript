@@ -7,10 +7,9 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -169,12 +168,19 @@ public final class VariableMap {
 	 * or to use plain hashmaps and treemaps, which are faster for local variables.
 	 */
 	private final boolean concurrent;
+	private final @Nullable ReentrantLock lock;
 
 	/**
 	 * This is the main value store
 	 */
 	private final Map<String, Object> values;
-	private final @Nullable ReentrantLock lock;
+
+	/**
+	 * Stores which indices correspond to values and which are lists.
+	 * Allocated up front for concurrent maps, as readers access it without the lock.
+	 * Lazily allocated for local maps, as most events never use a list.
+	 */
+	private @Nullable Map<String, Branch> branches;
 
 	@Contract(" -> new")
 	public static @NotNull VariableMap concurrent() {
@@ -196,11 +202,15 @@ public final class VariableMap {
 		if (this.concurrent) {
 			lock = new ReentrantLock();
 			values = new ConcurrentHashMap<>();
+			branches = new ConcurrentHashMap<>();
 		} else {
 			lock = null;
 			values = new HashMap<>();
 		}
 	}
+
+
+	// ========== Values ============
 
 	/**
 	 * Returns values as a {@link ConcurrentHashMap} in order to avoid the values callsites from being megamorphic,
@@ -238,6 +248,98 @@ public final class VariableMap {
 		return concurrent ? sharedValues().remove(key) : localValues().remove(key);
 	}
 
+	// ============= Branches ===============
+
+	/**
+	 * Returns branches as a {@link ConcurrentHashMap} in order to avoid the branches callsites from being megamorphic,
+	 * and instead so the JIT can optimize the concrete type calls.
+	 * Should only be called if {@link #concurrent} is true.
+	 *
+	 * @return The branches map with a concrete type of {@link ConcurrentHashMap}.
+	 */
+	private ConcurrentHashMap<String, Branch> sharedBranches() {
+		assert concurrent;
+		return (ConcurrentHashMap<String, Branch>) branches;
+	}
+
+	/**
+	 * Returns branches as a {@link HashMap} in order to avoid the branches callsites from being megamorphic,
+	 * and instead so the JIT can optimize the concrete type calls.
+	 * Should only be called if {@link #concurrent} is false.
+	 *
+	 * @return The branches map with a concrete type of {@link HashMap}. Will be null if {@link #branches} is null.
+	 */
+	private HashMap<String, Branch> localBranches() {
+		assert !concurrent;
+		return (HashMap<String, Branch>) branches;
+	}
+
+	private @Nullable Branch branchGet(String name) {
+		if (branches == null)
+			return null;
+		return concurrent ? sharedBranches().get(name) : localBranches().get(name);
+	}
+
+	private void branchPut(Branch branch) {
+		if (concurrent) {
+			sharedBranches().put(branch.fullName, branch);
+			return;
+		}
+		if (branches == null)
+			branches = new HashMap<>();
+		localBranches().put(branch.fullName, branch);
+	}
+
+	private void branchRemove(Branch branch) {
+		if (branches == null)
+			return;
+		if (concurrent) {
+			sharedBranches().remove(branch.fullName, branch);
+		} else {
+			localBranches().remove(branch.fullName, branch);
+		}
+	}
+
+	// ============= Branch Children =============
+
+	private ConcurrentSkipListMap<String, Object> sharedChildren(Branch branch) {
+		assert concurrent;
+		return (ConcurrentSkipListMap<String, Object>) branch.children;
+	}
+
+	private TreeMap<String, Object> localChildren(Branch branch) {
+		assert !concurrent;
+		return (TreeMap<String, Object>) branch.children;
+	}
+
+	private NavigableMap<String, Object> newChildren() {
+		return concurrent
+			? new ConcurrentSkipListMap<>(VARIABLE_NAME_COMPARATOR)
+			: new TreeMap<>(VARIABLE_NAME_COMPARATOR);
+	}
+
+	private @Nullable Object childGet(Branch branch, String key) {
+		return concurrent ? sharedChildren(branch).get(key) : localChildren(branch).get(key);
+	}
+
+	private @Nullable Object childPut(Branch branch, String key, Object entry) {
+		return concurrent ? sharedChildren(branch).put(key, entry) : localChildren(branch).put(key, entry);
+	}
+
+	private @Nullable Object childPutIfAbsent(Branch branch, String key, Object entry) {
+		return concurrent ? sharedChildren(branch).putIfAbsent(key, entry) : localChildren(branch).putIfAbsent(key, entry);
+	}
+
+	private void childRemove(Branch branch, String key, Object entry) {
+		if (concurrent) {
+			sharedChildren(branch).remove(key, entry);
+		} else {
+			localChildren(branch).remove(key, entry);
+		}
+	}
+
+	// ================ Locks ================
+
 	private void lock() {
 		if (lock != null) {
 			lock.lock();
@@ -249,6 +351,8 @@ public final class VariableMap {
 			lock.unlock();
 		}
 	}
+
+	// ============= Public API ==============
 
 	public @Nullable Object getVariable(String name) {
 		if (name.endsWith(LIST_SUFFIX)) {
@@ -281,4 +385,66 @@ public final class VariableMap {
 		return concurrent ? sharedValues().isEmpty() : localValues().isEmpty();
 	}
 
+	static int lastSeparator(String string) {
+		int index = -1;
+		int nextIndex = 0;
+		while ((nextIndex = string.indexOf(Variable.SEPARATOR, nextIndex)) != -1) {
+			index = nextIndex;
+			nextIndex += Variable.SEPARATOR.length();
+		}
+		return index;
+	}
+
+	private static final class Branch {
+		final String fullName;
+		final @Nullable Branch parent;
+		volatile NavigableMap<String, Object> children;
+		volatile int childCount;
+		volatile int valueChildren;
+		volatile int freeIndexHint = 1;
+		volatile int maxIntKey;
+		volatile boolean hasValue;
+		boolean removed;
+
+		Branch(String fullName, @Nullable Branch parent, NavigableMap<String, Object> children) {
+			this.fullName = fullName;
+			this.parent = parent;
+			this.children = children;
+		}
+
+		void added(String key) {
+			int index;
+			if ((index = positiveInt(key)) != -1) {
+				if (index > maxIntKey)
+					maxIntKey = index;
+				if (index == freeIndexHint)
+					freeIndexHint++;
+			}
+		}
+
+		void freed(String key) {
+			int index;
+			if ((index = positiveInt(key)) != -1) {
+				if (index < freeIndexHint)
+					freeIndexHint = index;
+			}
+		}
+
+		static int positiveInt(String string) {
+			int length = string.length();
+			if (length == 0 || length > 9 || string.charAt(0) == '0')
+				return -1;
+
+			int value = 0;
+			for (int i = 0; i < length; i++) {
+				char c = string.charAt(i);
+				if (!isDigit(c))
+					return -1;
+				value = value * 10 + (c - '0');
+			}
+			return value;
+		}
+
+	}
+	
 }
