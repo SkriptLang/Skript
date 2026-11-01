@@ -47,6 +47,11 @@ final class LocalVariableMap extends VariableMap {
 	}
 
 	@Override
+	Map<String, Object> allValues() {
+		return values;
+	}
+
+	@Override
 	@Nullable VariableBranch branchGet(String name) {
 		return branches == null ? null : branches.get(name);
 	}
