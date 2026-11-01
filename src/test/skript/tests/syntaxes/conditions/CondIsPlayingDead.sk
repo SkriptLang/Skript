@@ -1,0 +1,14 @@
+test "CondIsplaying dead":
+	spawn an axolotl at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} is playing dead to true
+	assert {_entity} is playing dead with "setting to true failed"
+	set whether {_entity} is playing dead to false
+	assert {_entity} is not playing dead with "setting to false failed"
+	set whether {_entity} is not playing dead to false
+	assert {_entity} is playing dead with "(negated) setting to true failed"
+	set whether {_entity} is not playing dead to true
+	assert {_entity} is not playing dead with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

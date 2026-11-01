@@ -1,0 +1,19 @@
+test "CondIsPersistent":
+	spawn a pig at the event-location:
+		set {_entity} to the event-entity
+	set {_old} to the block at the event-location
+	set the block at the event-location to oak leaves
+
+	loop {_entity} and the block at the event-location:
+		set {_holder} to loop-value
+		set whether {_holder} is persistent to true
+		assert {_holder} is persistent with "setting to true failed"
+		set whether {_holder} is persistent to false
+		assert {_holder} is not persistent with "setting to false failed"
+		set whether {_holder} is not persistent to false
+		assert {_holder} is persistent with "(negated) setting to true failed"
+		set whether {_holder} is not persistent to true
+		assert {_holder} is not persistent with "(negated) setting to false failed"
+
+	delete the entity within {_entity}
+	set the block at the event-location to {_old}

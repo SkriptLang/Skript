@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -21,7 +22,17 @@ public class CondIsSprinting extends PropertyCondition<Player> {
 	public boolean check(Player player) {
 		return player.isSprinting();
 	}
-	
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(Player player, boolean sprinting, ChangeMode mode) {
+		player.setSprinting(sprinting);
+	}
+
 	@Override
 	protected String getPropertyName() {
 		return "sprinting";

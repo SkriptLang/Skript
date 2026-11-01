@@ -1,28 +1,27 @@
 package org.skriptlang.skript.test.tests.classes;
 
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Date;
+import ch.njol.skript.util.Direction;
+import ch.njol.skript.util.Experience;
+import ch.njol.skript.util.SkriptColor;
+import ch.njol.skript.util.Time;
+import ch.njol.skript.util.Timeperiod;
+import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.TreeSpecies;
+import ch.njol.skript.util.WeatherType;
 import org.bukkit.GameMode;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryType;
 import org.junit.Test;
-
-import ch.njol.skript.entity.CreeperData;
-import ch.njol.skript.entity.EntityType;
-import ch.njol.skript.entity.SimpleEntityData;
-import ch.njol.skript.entity.ThrownPotionData;
-import ch.njol.skript.entity.WolfData;
-import ch.njol.skript.entity.XpOrbData;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.Date;
-import ch.njol.skript.util.Direction;
-import ch.njol.skript.util.Experience;
-import ch.njol.skript.util.SkriptColor;
-import ch.njol.skript.util.TreeSpecies;
-import ch.njol.skript.util.Time;
-import ch.njol.skript.util.Timeperiod;
-import ch.njol.skript.util.Timespan;
-import ch.njol.skript.util.WeatherType;
+import org.skriptlang.skript.bukkit.entity.EntityType;
+import org.skriptlang.skript.bukkit.entity.data.CreeperData;
+import org.skriptlang.skript.bukkit.entity.data.SimpleEntityData;
+import org.skriptlang.skript.bukkit.entity.data.ThrownPotionData;
+import org.skriptlang.skript.bukkit.entity.data.WolfData;
+import org.skriptlang.skript.bukkit.entity.data.XpOrbData;
 
 public class ClassesTest {
 

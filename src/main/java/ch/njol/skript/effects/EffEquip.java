@@ -41,17 +41,14 @@ import org.jetbrains.annotations.UnknownNullability;
 @Example("equip player with diamond leggings, diamond chestplate, and diamond boots")
 @Example("unequip diamond chestplate from player")
 @Example("unequip player's armor")
-@Since({
-	"1.0, 2.7 (multiple entities, unequip), 2.10 (wolves)",
-	"2.12.1 (happy ghasts)"
-})
+@Since({"1.0", "2.7 (multiple entities, unequip)"})
 public class EffEquip extends Effect {
 
-	private static final ItemType CHESTPLATE;
-	private static final ItemType LEGGINGS;
-	private static final ItemType BOOTS;
+	private static final ItemType CHESTPLATE = new ItemType(Tag.ITEMS_CHEST_ARMOR);
+	private static final ItemType LEGGINGS = new ItemType(Tag.ITEMS_LEG_ARMOR);
+	private static final ItemType BOOTS = new ItemType(Tag.ITEMS_FOOT_ARMOR);
 	private static final ItemType CARPET = new ItemType(Tag.WOOL_CARPETS);
-	private static final ItemType WOLF_ARMOR;
+	private static final ItemType WOLF_ARMOR = new ItemType(Material.WOLF_ARMOR);
 	private static final ItemType HORSE_ARMOR = new ItemType(Material.LEATHER_HORSE_ARMOR, Material.IRON_HORSE_ARMOR, Material.GOLDEN_HORSE_ARMOR, Material.DIAMOND_HORSE_ARMOR);
 	private static final ItemType SADDLE = new ItemType(Material.SADDLE);
 	private static final ItemType CHEST = new ItemType(Material.CHEST);
@@ -60,48 +57,6 @@ public class EffEquip extends Effect {
 	private static final Class<?> HAPPY_GHAST_CLASS;
 
 	static {
-		// added in 1.20.5
-		if (Skript.fieldExists(Material.class, "WOLF_ARMOR")) {
-			WOLF_ARMOR = new ItemType(Material.WOLF_ARMOR);
-		} else {
-			WOLF_ARMOR = new ItemType();
-		}
-
-		// added in 1.20.6
-		if (Skript.fieldExists(Tag.class, "ITEM_CHEST_ARMOR")) {
-			CHESTPLATE = new ItemType(Tag.ITEMS_CHEST_ARMOR);
-			LEGGINGS = new ItemType(Tag.ITEMS_LEG_ARMOR);
-			BOOTS = new ItemType(Tag.ITEMS_FOOT_ARMOR);
-		} else {
-			CHESTPLATE = new ItemType(
-				Material.LEATHER_CHESTPLATE,
-				Material.CHAINMAIL_CHESTPLATE,
-				Material.GOLDEN_CHESTPLATE,
-				Material.IRON_CHESTPLATE,
-				Material.DIAMOND_CHESTPLATE,
-				Material.NETHERITE_CHESTPLATE,
-				Material.ELYTRA
-			);
-
-			LEGGINGS = new ItemType(
-				Material.LEATHER_LEGGINGS,
-				Material.CHAINMAIL_LEGGINGS,
-				Material.GOLDEN_LEGGINGS,
-				Material.IRON_LEGGINGS,
-				Material.DIAMOND_LEGGINGS,
-				Material.NETHERITE_LEGGINGS
-			);
-
-			BOOTS = new ItemType(
-				Material.LEATHER_BOOTS,
-				Material.CHAINMAIL_BOOTS,
-				Material.GOLDEN_BOOTS,
-				Material.IRON_BOOTS,
-				Material.DIAMOND_BOOTS,
-				Material.NETHERITE_BOOTS
-			);
-		}
-
 		// added in 1.21.6
 		if (Skript.fieldExists(Tag.class, "ITEMS_HARNESSES")) {
 			HAPPY_GHAST_HARNESS = new ItemType(Tag.ITEMS_HARNESSES);
@@ -126,7 +81,6 @@ public class EffEquip extends Effect {
 				"unequip %livingentities%'[s] (armo[u]r|equipment)");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<LivingEntity> entities;
 	private @UnknownNullability Expression<ItemType> itemTypes;
 

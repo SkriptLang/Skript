@@ -1,0 +1,28 @@
+test "glowing sign blocks":
+	set {_loc} to spawn of "world"
+	set {_original block} to type of block at {_loc}
+	set block at {_loc} to oak wall sign
+	assert block at {_loc} doesn't have glowing text with "Sign had glowing text erroneously (1)"
+	assert the front side of block at {_loc} doesn't have glowing text with "Sign front had glowing text erroneously (1)"
+	assert the back side of block at {_loc} doesn't have glowing text with "Sign back had glowing text erroneously (1)"
+	make block at {_loc} have glowing text
+	assert block at {_loc} has glowing text with "Sign had normal text erroneously"
+	assert the front side of block at {_loc} has glowing text with "Sign front had normal text erroneously"
+	assert the back side of the block at {_loc} doesn't have glowing text with "Sign back had glowing text erroneously (2)"
+	make block at {_loc} have normal text
+	assert block at {_loc} doesn't have glowing text with "Sign had glowing text erroneously (2)"
+	assert the front side of block at {_loc} doesn't have glowing text with "Sign front had glowing text erroneously (2)"
+	set block at {_loc} to {_original block}
+
+test "glowing sign items":
+	set {_sign} to oak sign
+	assert {_sign} doesn't have glowing text with "Sign had glowing text erroneously (1)"
+	assert the front side of {_sign} doesn't have glowing text with "Sign front had glowing text erroneously (1)"
+	assert the back side of {_sign} doesn't have glowing text with "Sign back had glowing text erroneously (1)"
+	make {_sign} have glowing text
+	assert {_sign} has glowing text with "Sign had normal text erroneously"
+	assert the front side of {_sign} has glowing text with "Sign front had normal text erroneously"
+	assert the back side of {_sign} doesn't have glowing text with "Sign back had glowing text erroneously (2)"
+	make {_sign} have normal text
+	assert {_sign} doesn't have glowing text with "Sign had glowing text erroneously (2)"
+	assert the front side of {_sign} doesn't have glowing text with "Sign front had glowing text erroneously (2)"

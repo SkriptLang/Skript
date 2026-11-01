@@ -1,0 +1,14 @@
+test "CondIsDancing":
+	spawn an allay at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} is dancing to true
+	assert {_entity} is dancing with "setting to true failed"
+	set whether {_entity} is dancing to false
+	assert {_entity} is not dancing with "setting to false failed"
+	set whether {_entity} is not dancing to false
+	assert {_entity} is dancing with "(negated) setting to true failed"
+	set whether {_entity} is not dancing to true
+	assert {_entity} is not dancing with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

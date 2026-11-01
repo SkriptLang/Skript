@@ -38,7 +38,7 @@ public class ExprGameMode extends PropertyExpression<Player, GameMode> {
 			infoBuilder(
 				ExprGameMode.class,
 				GameMode.class,
-				"[the] game[ ]mode",
+				"game[ ]mode",
 				"players",
 				false
 			)

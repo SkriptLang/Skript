@@ -23,6 +23,13 @@ import java.util.regex.Pattern;
  */
 public class SectionNode extends Node implements Iterable<Node> {
 
+	// package-private for testing
+	static final String M_EMPTY_SECTION = """
+		Empty configuration section! \
+		You might want to indent one or more of the subsequent lines to make them belong to this section \
+		or remove the colon at the end of the line if you don't want this line to start a section.\
+		""";
+
 	private final ArrayList<Node> nodes = new ArrayList<>();
 
 	public SectionNode(final String key, final String comment, final SectionNode parent, final int lineNum) {
@@ -274,10 +281,15 @@ public class SectionNode extends Node implements Iterable<Node> {
 
 	private SectionNode load_i(final ConfigReader r) throws IOException {
 		boolean indentationSet = false;
-		String fullLine;
+
 		AtomicBoolean inBlockComment = new AtomicBoolean(false);
 		int blockCommentStartLine = -1;
-		while ((fullLine = r.readLine()) != null) {
+
+		String fullLine = r.readLine();
+		if (fullLine == null && parent != null && !config.allowEmptySections) {
+			Skript.warning(M_EMPTY_SECTION);
+		}
+		for (; fullLine != null; fullLine = r.readLine()) {
 			SkriptLogger.setNode(this);
 
 			if (!inBlockComment.get()) // this will be updated for the last time at the start of the comment
@@ -307,8 +319,7 @@ public class SectionNode extends Node implements Iterable<Node> {
 					continue;
 				} else {
 					if (parent != null && !config.allowEmptySections && isEmpty()) {
-						Skript.warning("Empty configuration section! You might want to indent one or more of the subsequent lines to make them belong to this section" +
-							" or remove the colon at the end of the line if you don't want this line to start a section.");
+						Skript.warning(M_EMPTY_SECTION);
 					}
 					r.reset();
 					return this;

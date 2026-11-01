@@ -1,7 +1,6 @@
 package org.skriptlang.skript.bukkit.enchantments.types;
 
 import ch.njol.skript.classes.registry.RegistryClassInfo;
-import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.enchantments.Enchantment;
 import org.jetbrains.annotations.ApiStatus;
@@ -10,7 +9,7 @@ import org.jetbrains.annotations.ApiStatus;
 public class EnchantmentClassInfo extends RegistryClassInfo<Enchantment> {
 
 	public EnchantmentClassInfo() {
-		super(Enchantment.class, RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT),
+		super(Enchantment.class, RegistryKey.ENCHANTMENT,
 			"enchantment", "enchantments");
 
 		user("enchantments?")
