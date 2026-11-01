@@ -187,6 +187,30 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 	}
 
 	/**
+	 * Creates a copy of this map of the same type, in linear time. Mainly used to hand local variables to sections.
+	 * The tree is rebuilt, so changing one map never affects the other,
+	 * but the value objects themselves are shared rather than cloned.
+	 * <p>
+	 * For concurrent maps this is only a best-effort snapshot. Writers change {@code values} before taking the lock,
+	 * so if writes are happening at the same time, the copy can hold a value that it doesn't show in any list.
+	 *
+	 * @return A new map with the same variables.
+	 */
+	public VariableMap copy() {
+		lock();
+		try {
+			VariableMap copy = copyValues();
+			for (VariableBranch branch : allBranches()) {
+				if (branch.parent == null)
+					copyBranch(copy, branch, null);
+			}
+			return copy;
+		} finally {
+			unlock();
+		}
+	}
+
+	/**
 	 * Gets the number of variables in this map. Lists aren't counted, only the values inside them.
 	 * This is only an estimate for concurrent maps if writes are happening at the same time.
 	 *
@@ -248,6 +272,14 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 	 */
 	abstract boolean isPresent(String name, boolean present);
 
+	/**
+	 * Creates a new map of the same type with a copy of {@code values}, for {@link #copyBranch} to build the tree in.
+	 * This only copies the references, so both maps share the same value objects.
+	 *
+	 * @return A new map with the same values, and no branches.
+	 */
+	abstract VariableMap copyValues();
+
 	// ============= Branches ===============
 
 	/**
@@ -281,6 +313,14 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 	 * @return The number of names that currently have children.
 	 */
 	abstract int branchCount();
+
+	/**
+	 * Gets every branch in the tree. There's nothing linking the root-level branches together,
+	 * so this is the only way to find them all.
+	 *
+	 * @return The branches, in no particular order.
+	 */
+	abstract Collection<VariableBranch> allBranches();
 
 	/**
 	 * Updates the tree to match {@code values} for one name, after that name was created or deleted.
@@ -412,6 +452,42 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 			parent.freed(key);
 			branch = parent;
 		}
+	}
+
+	/**
+	 * Copies a branch and everything below it into another map, in linear time.
+	 * Branches are mutable and point at their parents, so unlike the leaf entries, they can't be shared between maps.
+	 * Must be called under the lock, and {@code copy} must not be visible to anyone else yet.
+	 *
+	 * @param copy   The map to add the new branches to
+	 * @param source The branch to copy
+	 * @param parent The new branch's parent, in {@code copy}. This can't be the parent of {@code source}, since
+	 *               pruning the new branch would then walk up into this map. Null for root-level names.
+	 * @return The new branch
+	 */
+	private VariableBranch copyBranch(VariableMap copy, VariableBranch source, @Nullable VariableBranch parent) {
+		assert holdsLock();
+		// sub-branches need this as their parent, so it has to exist before its children do
+		VariableBranch branch = new VariableBranch(source.fullName, parent, null);
+		String[] keys = new String[source.childCount];
+		Object[] entries = new Object[source.childCount];
+		int i = 0;
+		for (Iterator<Map.Entry<String, Object>> it = childIterator(source); it.hasNext(); i++) {
+			Map.Entry<String, Object> entry = it.next();
+			keys[i] = entry.getKey();
+			// leaf entries are just full names, so those can be reused as they are
+			entries[i] = entry.getValue() instanceof VariableBranch child
+				? copyBranch(copy, child, branch)
+				: entry.getValue();
+		}
+		// source's children were already sorted, so this stays linear
+		branch.children = copy.newChildren(new SortedEntries<>(VariableNameComparator.INSTANCE, keys, entries));
+		branch.childCount = source.childCount;
+		branch.valueChildren = source.valueChildren;
+		branch.hasValue = source.hasValue;
+		branch.copyTrackingFrom(source);
+		copy.branchPut(branch);
+		return branch;
 	}
 
 	// ============= Branch Children =============

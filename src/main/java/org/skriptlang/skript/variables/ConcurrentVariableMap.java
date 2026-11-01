@@ -3,10 +3,7 @@ package org.skriptlang.skript.variables;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.SortedMap;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -47,6 +44,13 @@ final class ConcurrentVariableMap extends VariableMap {
 	}
 
 	@Override
+	VariableMap copyValues() {
+		ConcurrentVariableMap copy = new ConcurrentVariableMap();
+		copy.values.putAll(values);
+		return copy;
+	}
+
+	@Override
 	@Nullable VariableBranch branchGet(String name) {
 		return branches.get(name);
 	}
@@ -64,6 +68,11 @@ final class ConcurrentVariableMap extends VariableMap {
 	@Override
 	int branchCount() {
 		return branches.size();
+	}
+
+	@Override
+	Collection<VariableBranch> allBranches() {
+		return branches.values();
 	}
 
 	/**

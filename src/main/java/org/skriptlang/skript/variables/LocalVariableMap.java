@@ -40,6 +40,13 @@ final class LocalVariableMap extends VariableMap {
 	}
 
 	@Override
+	VariableMap copyValues() {
+		LocalVariableMap copy = new LocalVariableMap();
+		copy.values.putAll(values);
+		return copy;
+	}
+
+	@Override
 	@Nullable VariableBranch branchGet(String name) {
 		return branches == null ? null : branches.get(name);
 	}
@@ -60,6 +67,11 @@ final class LocalVariableMap extends VariableMap {
 	@Override
 	int branchCount() {
 		return branches == null ? 0 : branches.size();
+	}
+
+	@Override
+	Collection<VariableBranch> allBranches() {
+		return branches == null ? List.of() : branches.values();
 	}
 
 	/**
