@@ -138,6 +138,19 @@ final class VariableBranch {
 	}
 
 	/**
+	 * Copies the index tracking of another branch, which must have the same children as this one.
+	 * This is cheaper than {@link #trackAll}, since no keys have to be parsed.
+	 * The {@link BitSet} has to be cloned, or changing one branch would change the other's tracking as well.
+	 *
+	 * @param source The branch to copy from
+	 */
+	void copyTrackingFrom(VariableBranch source) {
+		trackedLimit = source.trackedLimit;
+		nextIndex = source.nextIndex;
+		trackedIndices = source.trackedIndices == null ? null : (BitSet) source.trackedIndices.clone();
+	}
+
+	/**
 	 * Grows the tracked range to the first power of two multiple of {@link #MIN_TRACKED} above {@link #childCount},
 	 * which always holds {@link #nextIndex}, so one call is enough. Keys inside the new range were not tracked
 	 * until now, so they are picked up with one pass over the children, skipped when every child is already tracked.
