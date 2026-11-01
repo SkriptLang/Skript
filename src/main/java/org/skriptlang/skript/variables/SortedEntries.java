@@ -1,6 +1,5 @@
 package org.skriptlang.skript.variables;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractMap;
@@ -19,13 +18,12 @@ import java.util.SortedMap;
  *
  * @param <V> The supertype of the values.
  */
-@ApiStatus.Internal
-public final class SortedEntries<V> extends AbstractMap<String, V> implements SortedMap<String, V> {
+final class SortedEntries<V> extends AbstractMap<String, V> implements SortedMap<String, V> {
 	private final Comparator<? super String> comparator;
 	private final String[] keys;
 	private final V[] values;
 
-	public SortedEntries(Comparator<? super String> comparator, String[] keys, V[] values) {
+	SortedEntries(Comparator<? super String> comparator, String[] keys, V[] values) {
 		this.comparator = comparator;
 		this.keys = keys;
 		this.values = values;

@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.*;
 
 /**
- * Tests {@link Variables#setList} for what it does around {@link VariablesMap#setList}:
+ * Tests {@link Variables#setList} for what it does around {@link org.skriptlang.skript.variables.VariableMap#setList}:
  * case folding and falling back for nested keys, which can't be reached from a script
  * as a script's keyed values come from variables, whose keys are already lowercase,
  * and locking and queueing for global lists.
