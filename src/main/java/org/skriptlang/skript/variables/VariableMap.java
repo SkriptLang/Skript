@@ -50,6 +50,9 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 	 */
 	private static final String LIST_SUFFIX = Variable.SEPARATOR + "*";
 
+	private static final String[] NO_KEYS = new String[0];
+	private static final Object[] NO_VALUES = new Object[0];
+
 	/**
 	 * Creates a thread-safe map, for global variables and storages.
 	 * Reads and overwrites are lock-free, and anything that changes the tree takes one lock.
@@ -103,7 +106,7 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 		if (name.endsWith(LIST_SUFFIX)) {
 			if (value != null)
 				throw new IllegalArgumentException("Cannot set list variable '" + name + "' to a single value (" + value + ").");
-			// TODO:
+			setList(name.substring(0, name.length() - LIST_SUFFIX.length()), NO_KEYS, NO_VALUES);
 			return null;
 		}
 		Object previous = value == null ? valueRemove(name) : valuePut(name, value);
@@ -117,6 +120,70 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 			}
 		}
 		return previous;
+	}
+
+	/**
+	 * Replaces all the direct children of a list at once, under one hold of the lock.
+	 * Children that aren't in {@code keys} are deleted, including any nested lists.
+	 * The list's own value is kept, so {@code {x}} isn't touched by replacing {@code {x::*}}.
+	 * <p>
+	 * The keys don't have to be sorted (but it's better if they are!), and if a key is repeated the last value wins.
+	 * For concurrent maps, readers see the change as weakly consistent rather than all at once.
+	 *
+	 * @param listName The full name of the list, without the list suffix
+	 * @param keys     The keys of the new children, which can't contain the separator. Empty clears the list.
+	 * @param values   The values of the new children, in the same order as {@code keys}. These can't be null.
+	 * @throws IllegalArgumentException If the arrays have different lengths
+	 */
+	public void setList(String listName, String[] keys, Object[] values) {
+		if (keys.length != values.length)
+			throw new IllegalArgumentException("Got " + keys.length + " keys but " + values.length + " values.");
+
+		// ensure ordering
+		if (!isStrictlyIncreasing(keys)) {
+			KeyedValue<?>[] entries = sortedWithoutRepeats(keys, values);
+			keys = new String[entries.length];
+			values = new Object[entries.length];
+			for (int i = 0; i < entries.length; i++) {
+				keys[i] = entries[i].key();
+				values[i] = entries[i].value();
+			}
+		}
+		// do as much as possible before locking, so big lists barely hold the lock
+		// verify inputs and setup fullnames
+		String prefix = listName + Variable.SEPARATOR;
+		String[] fullNames = new String[keys.length];
+		for (int i = 0; i < keys.length; i++) {
+			assert !keys[i].contains(Variable.SEPARATOR) : keys[i];
+			Objects.requireNonNull(values[i], "value");
+			fullNames[i] = prefix.concat(keys[i]);
+		}
+		NavigableMap<String, Object> children = keys.length == 0
+			? newChildren()
+			: newChildren(new SortedEntries<>(VariableNameComparator.INSTANCE, keys, fullNames));
+
+		lock();
+		try {
+			VariableBranch branch = keys.length == 0 ? branchGet(listName) : ensureBranch(listName);
+			if (branch == null)
+				return; // clearing a list that doesn't exist
+
+			// values first, so that anyone who finds a new child can also find its value
+			for (int i = 0; i < keys.length; i++)
+				valuePut(fullNames[i], values[i]);
+
+			NavigableMap<String, Object> old = branch.children;
+			branch.children = children;
+			branch.childCount = keys.length;
+			branch.valueChildren = keys.length;
+			branch.trackAll(keys);
+
+			removeMissing(old, keys);
+			if (keys.length == 0)
+				pruneIfEmpty(branch);
+		} finally {
+			unlock();
+		}
 	}
 
 	/**
@@ -456,6 +523,42 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 		}
 		return count == entries.length ? entries : Arrays.copyOf(entries, count);
 	}
+
+	/**
+	 * Removes everything in a replaced children map that isn't being kept from the values map, including any nested lists.
+	 * Must be called under the lock.
+	 *
+	 * @param old  The children that were replaced
+	 * @param kept The keys of the new children, in sorted order
+	 */
+	private void removeMissing(NavigableMap<String, Object> old, String[] kept) {
+		assert holdsLock();
+		int j = 0;
+		for (Map.Entry<String, Object> entry : old.entrySet()) {
+			// move j up to the first kept key that isn't before this entry
+			int cmp = 1;
+			while (j < kept.length && (cmp = VariableNameComparator.INSTANCE.compare(kept[j], entry.getKey())) < 0)
+				j++;
+			// loop ends when we either found a match (cmp == 0) or we went too far (cmp > 0 or j = kept.length)
+			// we only keep matches.
+			boolean isKept = j < kept.length && cmp == 0;
+
+			if (entry.getValue() instanceof VariableBranch child) {
+				// a nested list never survives, since the new children are all leaves, so remove them all
+				removeMissing(child.children, NO_KEYS);
+				branchRemove(child);
+				child.removed = true;
+				child.childCount = 0;
+				child.valueChildren = 0;
+				if (!isKept)
+					valueRemove(child.fullName);
+			} else if (!isKept) {
+				// remove any values that don't match kept
+				valueRemove((String) entry.getValue());
+			}
+		}
+	}
+
 
 	// ================ Locks ================
 
