@@ -3,11 +3,7 @@ package org.skriptlang.skript.variables;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * The {@link VariableMap} for local variables, which runs on plain collections with no lock.
@@ -80,6 +76,11 @@ final class LocalVariableMap extends VariableMap {
 	@Override
 	NavigableMap<String, Object> newChildren() {
 		return new TreeMap<>(VariableNameComparator.INSTANCE);
+	}
+
+	@Override
+	NavigableMap<String, Object> newChildren(SortedMap<String, Object> sorted) {
+		return new TreeMap<>(sorted);
 	}
 
 	@Override
