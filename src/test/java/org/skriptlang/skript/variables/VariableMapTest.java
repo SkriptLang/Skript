@@ -418,6 +418,352 @@ public class VariableMapTest {
 		assertEquals(1001, list("x").nextOpenIndex());
 	}
 
+	@Test
+	public void testSetListCreatesList() {
+		map.setList("x", new String[]{"a", "b"}, new Object[]{1, 2});
+		assertEquals(1, map.getVariable("x::a"));
+		assertEquals(2, map.getVariable("x::b"));
+		assertEquals(2, map.size());
+		assertEquals(1, map.branchCount());
+		assertEquals(List.of("a", "b"), new ArrayList<>(list("x").keySet()));
+		assertEquals(1, list("x").get("a"));
+	}
+
+	@Test
+	public void testSetListReplacesChildren() {
+		map.setVariable("x::a", 1);
+		map.setVariable("x::b", 2);
+		map.setVariable("x::c", 3);
+
+		map.setList("x", new String[]{"b", "d"}, new Object[]{20, 40});
+		assertNull(map.getVariable("x::a"));
+		assertEquals(20, map.getVariable("x::b"));
+		assertNull(map.getVariable("x::c"));
+		assertEquals(40, map.getVariable("x::d"));
+		assertEquals(2, map.size());
+		assertEquals(List.of("b", "d"), new ArrayList<>(list("x").keySet()));
+	}
+
+	@Test
+	public void testSetListLeavesOtherListsAlone() {
+		map.setVariable("x::a", 1);
+		map.setVariable("xy::a", 2);
+		map.setVariable("y", 3);
+		map.setList("x", new String[]{"b"}, new Object[]{4});
+		assertEquals(2, map.getVariable("xy::a"));
+		assertEquals(3, map.getVariable("y"));
+	}
+
+	@Test
+	public void testSetListViewIsLive() {
+		map.setVariable("x::a", 1);
+		VariableList list = list("x");
+		map.setList("x", new String[]{"b", "c"}, new Object[]{2, 3});
+		assertEquals(2, list.size());
+		assertEquals(2, list.valueCount());
+		assertNull(list.get("a"));
+		assertEquals(2, list.get("b"));
+	}
+
+	@Test
+	public void testSetListKeepsOwnValue() {
+		map.setVariable("x", "own");
+		map.setVariable("x::a", 1);
+		map.setList("x", new String[]{"b"}, new Object[]{2});
+		assertEquals("own", map.getVariable("x"));
+		assertEquals("own", list("x").ownValue());
+		assertEquals(1, list("x").valueCount()); // the own value is still not counted
+		assertEquals(2, list("x").size());
+	}
+
+	@Test
+	public void testSetListOnLeafKeepsItsValue() {
+		map.setVariable("x::a", "own");
+		map.setList("x::a", new String[]{"b"}, new Object[]{1});
+		assertEquals("own", map.getVariable("x::a"));
+		assertEquals(1, map.getVariable("x::a::b"));
+		assertEquals(1, list("x").valueCount()); // a was already counted as a leaf
+		assertEquals(1, list("x").children().size());
+		assertEquals("own", ((VariableList) list("x").get("a")).ownValue());
+	}
+
+	@Test
+	public void testSetListSortsKeys() {
+		map.setList("x", new String[]{"10", "b", "2", "1", "a"}, new Object[]{10, "b", 2, 1, "a"});
+		assertEquals(List.of("1", "2", "10", "a", "b"), new ArrayList<>(list("x").keySet()));
+		assertEquals(10, map.getVariable("x::10"));
+		assertEquals(5, list("x").valueCount());
+		assertEquals(3, list("x").nextOpenIndex());
+	}
+
+	@Test
+	public void testSetListLastRepeatWins() {
+		map.setList("x", new String[]{"b", "a", "b", "b"}, new Object[]{1, 2, 3, 4});
+		assertEquals(4, map.getVariable("x::b"));
+		assertEquals(2, map.getVariable("x::a"));
+		assertEquals(2, map.size());
+		assertEquals(2, list("x").valueCount());
+		assertEquals(2, list("x").size());
+	}
+
+	@Test
+	public void testSetListLeavesCallerArraysAlone() {
+		String[] keys = {"b", "a", "b"};
+		Object[] values = {1, 2, 3};
+		map.setList("x", keys, values);
+		assertArrayEquals(new String[]{"b", "a", "b"}, keys);
+		assertArrayEquals(new Object[]{1, 2, 3}, values);
+	}
+
+	@Test
+	public void testSetListRejectsBadInput() {
+		map.setVariable("x::a", 1);
+		assertThrows(IllegalArgumentException.class, () -> map.setList("x", new String[]{"a", "b"}, new Object[]{1}));
+		assertThrows(NullPointerException.class, () -> map.setList("x", new String[]{"a", "b"}, new Object[]{2, null}));
+
+		// nothing should have been written
+		assertEquals(1, map.getVariable("x::a"));
+		assertNull(map.getVariable("x::b"));
+		assertEquals(1, map.size());
+		assertEquals(1, list("x").valueCount());
+	}
+
+	@Test
+	public void testSetListKeptKeyThatWasList() {
+		map.setVariable("x::a", 1);
+		map.setVariable("x::a::b", 2);
+		map.setVariable("x::a::b::c", 3);
+		assertEquals(3, map.branchCount());
+
+		map.setList("x", new String[]{"a"}, new Object[]{10});
+		assertEquals(10, map.getVariable("x::a"));
+		assertNull(map.getVariable("x::a::b"));
+		assertNull(map.getVariable("x::a::b::c"));
+		assertNull(map.getVariable("x::a::*"));
+		assertEquals(1, map.size());
+		assertEquals(1, map.branchCount());
+		assertEquals(10, list("x").get("a")); // a leaf now, not a nested view
+		assertEquals(1, list("x").valueCount());
+
+		// the old branches are gone, so the name has to work like any other again
+		map.setVariable("x::a::b", 4);
+		assertEquals(4, ((VariableList) list("x").get("a")).get("b"));
+		assertEquals(10, ((VariableList) list("x").get("a")).ownValue());
+		assertEquals(1, list("x").valueCount());
+	}
+
+	@Test
+	public void testSetListRemovesNestedLists() {
+		map.setVariable("x::a", 1);
+		map.setVariable("x::a::b", 2);
+		map.setVariable("x::c::d::e", 3);
+		map.setList("x", new String[]{"z"}, new Object[]{4});
+		assertNull(map.getVariable("x::a"));
+		assertNull(map.getVariable("x::a::b"));
+		assertNull(map.getVariable("x::c::d::e"));
+		assertEquals(1, map.size());
+		assertEquals(1, map.branchCount());
+	}
+
+	@Test
+	public void testSetListCreatesAndPrunesParents() {
+		map.setList("a::b::c", new String[]{"d"}, new Object[]{1});
+		assertEquals(3, map.branchCount());
+		assertEquals(1, map.getVariable("a::b::c::d"));
+		assertEquals(0, list("a").valueCount()); // b only has children
+		assertEquals(1, list("a").size());
+
+		map.setVariable("a::b::c::*", null);
+		assertEquals(0, map.size());
+		assertEquals(0, map.branchCount());
+	}
+
+	@Test
+	public void testClearList() {
+		map.setVariable("x::a", 1);
+		map.setVariable("x::b::c", 2);
+		assertNull(map.setVariable("x::*", null));
+		assertNull(map.getVariable("x::*"));
+		assertNull(map.getVariable("x::a"));
+		assertNull(map.getVariable("x::b::c"));
+		assertEquals(0, map.size());
+		assertEquals(0, map.branchCount());
+	}
+
+	@Test
+	public void testClearMissingList() {
+		map.setVariable("x", 1);
+		assertNull(map.setVariable("x::*", null));
+		assertNull(map.setVariable("y::*", null));
+		assertEquals(1, map.getVariable("x"));
+		assertEquals(0, map.branchCount());
+	}
+
+	@Test
+	public void testSetListWithNoKeysClears() {
+		map.setVariable("x::a", 1);
+		map.setList("x", new String[0], new Object[0]);
+		assertNull(map.getVariable("x::*"));
+		assertEquals(0, map.size());
+		assertEquals(0, map.branchCount());
+	}
+
+	@Test
+	public void testClearKeepsOwnValue() {
+		map.setVariable("x", "own");
+		map.setVariable("x::a", 1);
+		map.setVariable("x::*", null);
+		assertEquals("own", map.getVariable("x"));
+		assertNull(map.getVariable("x::*"));
+		assertEquals(0, map.branchCount());
+	}
+
+	@Test
+	public void testClearTurnsBranchBackIntoLeaf() {
+		map.setVariable("x::a", "own");
+		map.setVariable("x::a::b", 1);
+		map.setVariable("x::a::*", null);
+		assertEquals("own", map.getVariable("x::a"));
+		assertEquals("own", list("x").get("a"));
+		assertEquals(1, list("x").valueCount());
+		assertEquals(1, list("x").size());
+		assertEquals(1, map.branchCount());
+	}
+
+	@Test
+	public void testClearPrunesOnlyUpToSharedAncestor() {
+		map.setVariable("x::a::b", 1);
+		map.setVariable("x::c", 2);
+		map.setVariable("x::a::*", null);
+		assertEquals(1, map.branchCount());
+		assertEquals(1, list("x").size());
+		assertEquals(1, list("x").valueCount());
+		assertEquals(2, map.getVariable("x::c"));
+	}
+
+	@Test
+	public void testRepeatedSetListDoesNotLeak() {
+		for (int i = 0; i < 1_000; i++) {
+			map.setVariable("x::" + i + "::nested::value", i);
+			map.setList("x", new String[]{String.valueOf(i)}, new Object[]{i});
+			assertEquals(1, map.size());
+			assertEquals(1, map.branchCount());
+		}
+		map.setVariable("x::*", null);
+		assertEquals(0, map.size());
+		assertEquals(0, map.branchCount());
+	}
+
+	@Test
+	public void testSetListCounters() {
+		map.setList("x", new String[]{"1", "2", "4"}, new Object[]{1, 2, 4});
+		assertEquals(3, list("x").valueCount());
+		assertEquals(3, list("x").nextOpenIndex());
+
+		map.setList("x", new String[]{"2", "3"}, new Object[]{2, 3});
+		assertEquals(2, list("x").valueCount());
+		assertEquals(1, list("x").nextOpenIndex());
+
+		map.setList("x", new String[]{"a", "0", "01"}, new Object[]{1, 2, 3});
+		assertEquals(1, list("x").nextOpenIndex());
+	}
+
+	@Test
+	public void testSetListKeepsTrackingUsable() {
+		map.setList("x", new String[]{"1", "2", "4"}, new Object[]{1, 2, 4});
+		map.setVariable("x::3", 3);
+		assertEquals(5, list("x").nextOpenIndex());
+		map.setVariable("x::2", null);
+		assertEquals(2, list("x").nextOpenIndex());
+		assertEquals(3, list("x").valueCount());
+	}
+
+	@Test
+	public void testSetListPastTrackedLimit() {
+		String[] keys = new String[200];
+		Object[] values = new Object[200];
+		for (int i = 0; i < 200; i++) {
+			keys[i] = String.valueOf(i + 1);
+			values[i] = i;
+		}
+		map.setList("x", keys, values);
+		assertEquals(201, list("x").nextOpenIndex());
+		assertEquals(200, list("x").valueCount());
+
+		map.setVariable("x::150", null);
+		assertEquals(150, list("x").nextOpenIndex());
+		map.setVariable("x::150", 1);
+		assertEquals(201, list("x").nextOpenIndex());
+
+		// a small replacement has to bring the tracking back down with it
+		map.setList("x", new String[]{"1"}, new Object[]{1});
+		assertEquals(2, list("x").nextOpenIndex());
+		map.setVariable("x::2", 2);
+		assertEquals(3, list("x").nextOpenIndex());
+	}
+
+	@Test
+	public void testSetListWithKeysAboveTrackedRange() {
+		map.setList("x", new String[]{"1", "100", "999999999"}, new Object[]{1, 2, 3});
+		assertEquals(2, list("x").nextOpenIndex());
+
+		// 100 wasn't tracked, so it has to be picked up once the list grows past it
+		for (int i = 2; i < 100; i++)
+			map.setVariable("x::" + i, i);
+		assertEquals(101, list("x").nextOpenIndex());
+	}
+
+	@Test
+	public void testNestedViewAfterSetList() {
+		map.setVariable("x::a::b", 1);
+		VariableList nested = (VariableList) list("x").get("a");
+		map.setList("x", new String[]{"c"}, new Object[]{2});
+
+		assertTrue(nested.isEmpty());
+		assertEquals(0, nested.size());
+		assertEquals(0, nested.valueCount());
+		assertNull(nested.get("b"));
+		assertFalse(nested.entrySet().iterator().hasNext());
+	}
+
+	@Test
+	public void testNestedViewWithOwnValueAfterSetList() {
+		map.setVariable("x::a", "own");
+		map.setVariable("x::a::b", 1);
+		VariableList nested = (VariableList) list("x").get("a");
+		map.setList("x", new String[]{"c"}, new Object[]{2});
+
+		assertNull(nested.ownValue());
+		assertTrue(nested.isEmpty());
+	}
+
+	/**
+	 * The old children aren't changed by a replace, so anything already iterating them just carries on.
+	 */
+	@Test
+	public void testIterationDuringSetList() {
+		map.setVariable("x::1", 1);
+		map.setVariable("x::2", 2);
+		map.setVariable("x::3", 3);
+		Iterator<Map.Entry<String, Object>> iterator = list("x").entrySet().iterator();
+		assertEquals(1, iterator.next().getValue());
+
+		map.setList("x", new String[]{"2"}, new Object[]{20});
+		assertEquals(20, iterator.next().getValue());
+		assertFalse(iterator.hasNext()); // 3 is gone
+	}
+
+	@Test
+	public void testIterationReachesReplacedSublist() {
+		map.setVariable("x::a", 1);
+		map.setVariable("x::a::b", 2);
+		Iterator<Map.Entry<String, Object>> iterator = list("x").entrySet().iterator();
+
+		map.setList("x", new String[]{"a"}, new Object[]{10});
+		assertEquals(10, iterator.next().getValue()); // the value, not an empty view of the old sublist
+		assertFalse(iterator.hasNext());
+	}
+
 	/**
 	 * Applies random changes, comparing every list against a plain sorted map of names after each one.
 	 */
@@ -425,10 +771,13 @@ public class VariableMapTest {
 	public void testAgainstModel() {
 		String[] parts = {"a", "b", "1", "2", "3", "10"};
 		List<String> names = new ArrayList<>();
+		List<String> listNames = new ArrayList<>(); // only these, so the children are all in names
 		for (String first : parts) {
 			names.add(first);
+			listNames.add(first);
 			for (String second : parts) {
 				names.add(first + "::" + second);
+				listNames.add(first + "::" + second);
 				for (String third : parts)
 					names.add(first + "::" + second + "::" + third);
 			}
@@ -440,7 +789,24 @@ public class VariableMapTest {
 			TreeMap<String, Object> model = new TreeMap<>();
 			for (int step = 0; step < 300; step++) {
 				String name = names.get(random.nextInt(names.size()));
-				if (random.nextInt(3) == 0) {
+				int action = random.nextInt(12);
+				if (action == 0) {
+					String listName = listNames.get(random.nextInt(listNames.size()));
+					model.keySet().removeIf(full -> full.startsWith(listName + "::"));
+					map.setVariable(listName + "::*", null);
+				} else if (action <= 2) {
+					String listName = listNames.get(random.nextInt(listNames.size()));
+					int length = random.nextInt(5);
+					String[] keys = new String[length];
+					Object[] values = new Object[length];
+					model.keySet().removeIf(full -> full.startsWith(listName + "::"));
+					for (int i = 0; i < length; i++) {
+						keys[i] = parts[random.nextInt(parts.length)];
+						values[i] = random.nextInt(100);
+						model.put(listName + "::" + keys[i], values[i]);
+					}
+					map.setList(listName, keys, values);
+				} else if (action <= 5) {
 					assertEquals(model.remove(name), map.setVariable(name, null));
 				} else {
 					Object value = random.nextInt(100);
@@ -615,6 +981,99 @@ public class VariableMapTest {
 
 	private static VariableList list(String name, VariableMap map) {
 		return (VariableList) map.getVariable(name + "::*");
+	}
+
+	/**
+	 * One thread replaces and clears a list while others set and delete names in it, including a nested list
+	 * under a key the replacement keeps. Whoever wins, the tree has to match {@code values} once they're done.
+	 */
+	@Test
+	public void testStressSetListAgainstWriters() throws Exception {
+		assumeTrue(mode.equals("concurrent"));
+		List<String> names = List.of("x", "x::1", "x::2", "x::3", "x::a", "x::a::b", "x::a::c");
+		String[] keys = {"1", "3", "a"};
+		Object[] values = {1, 3, "a"};
+		for (int round = 0; round < 1_000; round++) {
+			VariableMap map = factory.get();
+			runThreads(3, id -> {
+				for (int i = 0; i < 50; i++) {
+					switch (id) {
+						case 0 -> {
+							map.setList("x", keys, values);
+							if (i % 3 == 0)
+								map.setVariable("x::*", null);
+						}
+						case 1 -> {
+							map.setVariable("x::a::b", i);
+							map.setVariable("x::a", i);
+							map.setVariable("x::a::b", null);
+							map.setVariable("x::a", null);
+						}
+						default -> {
+							map.setVariable("x::1", i);
+							map.setVariable("x::2", i);
+							map.setVariable("x::1", null);
+							map.setVariable("x::a::c", i);
+							map.setVariable("x::2", null);
+							map.setVariable("x::a::c", null);
+						}
+					}
+				}
+			});
+
+			TreeMap<String, Object> model = new TreeMap<>();
+			for (String name : names) {
+				Object value = map.getVariable(name);
+				if (value != null)
+					model.put(name, value);
+			}
+			assertEquals("round " + round, model.size(), map.size());
+			assertListsMatch(map, model, names, "round " + round + ", ");
+
+			// nothing should be left behind once everything goes
+			map.setVariable("x::*", null);
+			assertEquals("round " + round, 0, map.size());
+			assertEquals("round " + round, 0, map.branchCount());
+		}
+	}
+
+	/**
+	 * Readers should only ever see real values, even while a list is being replaced underneath them.
+	 */
+	@Test
+	public void testStressSetListAgainstReaders() throws Exception {
+		assumeTrue(mode.equals("concurrent"));
+		AtomicBoolean done = new AtomicBoolean();
+		Thread[] reader = new Thread[1];
+		List<Throwable> failures = Collections.synchronizedList(new ArrayList<>());
+		reader[0] = new Thread(() -> {
+			try {
+				while (!done.get()) {
+					if (map.getVariable("x::*") instanceof VariableList list) {
+						for (Map.Entry<String, Object> entry : list.entrySet())
+							assertNotNull(entry.getValue());
+					}
+				}
+			} catch (Throwable failure) {
+				failures.add(failure);
+			}
+		});
+		reader[0].start();
+
+		String[] keys = new String[200];
+		Object[] values = new Object[200];
+		for (int i = 0; i < 200; i++) {
+			keys[i] = String.valueOf(i + 1);
+			values[i] = i;
+		}
+		for (int i = 0; i < 2_000; i++) {
+			map.setList("x", keys, values);
+			if (i % 2 == 0)
+				map.setVariable("x::*", null);
+		}
+		done.set(true);
+		reader[0].join();
+		assertEquals(List.of(), failures);
 	}
 
 	@Test
