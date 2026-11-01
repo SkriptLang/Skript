@@ -764,6 +764,54 @@ public class VariableMapTest {
 		assertFalse(iterator.hasNext());
 	}
 
+	@Test
+	public void testGetAllOfEmptyMap() {
+		assertTrue(map.getAll().isEmpty());
+	}
+
+	@Test
+	public void testGetAllIsSorted() {
+		for (String name : new String[]{"b", "a::10", "a::2", "a", "c::x", "10", "9"})
+			map.setVariable(name, 1);
+		List<String> names = new ArrayList<>(map.getAll().keySet());
+		List<String> sorted = new ArrayList<>(names);
+		sorted.sort(VariableNameComparator.INSTANCE);
+		assertEquals(sorted, names);
+		assertEquals(7, names.size());
+		assertTrue(names.indexOf("9") < names.indexOf("10")); // not plain string order
+		assertTrue(names.indexOf("a::2") < names.indexOf("a::10"));
+	}
+
+	@Test
+	public void testGetAllHasNoListEntries() {
+		map.setVariable("x", "own");
+		map.setVariable("x::a", 1);
+		map.setVariable("x::b::c", 2); // {x::b} only has children, so it isn't in here
+		assertEquals(Map.of("x", "own", "x::a", 1, "x::b::c", 2), map.getAll());
+	}
+
+	@Test
+	public void testGetAllIsUnmodifiable() {
+		map.setVariable("x", 1);
+		Map<String, Object> all = map.getAll();
+		assertThrows(UnsupportedOperationException.class, () -> all.put("y", 2));
+		assertThrows(UnsupportedOperationException.class, () -> all.remove("x"));
+		assertThrows(UnsupportedOperationException.class, all::clear);
+		assertEquals(1, map.getVariable("x"));
+	}
+
+	@Test
+	public void testGetAllIsASnapshot() {
+		map.setVariable("x", 1);
+		map.setVariable("y::a", 2);
+		Map<String, Object> all = map.getAll();
+
+		map.setVariable("x", 10);
+		map.setVariable("z", 3);
+		map.setVariable("y::*", null);
+		assertEquals(Map.of("x", 1, "y::a", 2), all);
+	}
+
 	/**
 	 * Fills the map with a bit of everything that a copy has to keep.
 	 *
@@ -1001,6 +1049,7 @@ public class VariableMapTest {
 					map = map.copy();
 				String context = "seed " + seed + ", step " + step + ", ";
 				assertEquals(context + "size", model.size(), map.size());
+				assertEquals(context + "getAll", model, map.getAll());
 				for (String checked : names)
 					assertEquals(context + checked, model.get(checked), map.getVariable(checked));
 				assertListsMatch(map, model, names, context);
@@ -1215,6 +1264,7 @@ public class VariableMapTest {
 					model.put(name, value);
 			}
 			assertEquals("round " + round, model.size(), map.size());
+			assertEquals("round " + round, model, map.getAll());
 			assertListsMatch(map, model, names, "round " + round + ", ");
 
 			// nothing should be left behind once everything goes
@@ -1248,6 +1298,30 @@ public class VariableMapTest {
 				}
 			}
 		});
+	}
+
+	/**
+	 * Taking a snapshot doesn't lock anything, so it has to cope with the map changing while it reads.
+	 */
+	@Test
+	public void testStressGetAllAgainstWriters() throws Exception {
+		assumeTrue(mode.equals("concurrent"));
+		runThreads(3, id -> {
+			for (int i = 0; i < 2_000; i++) {
+				if (id == 0) {
+					for (Map.Entry<String, Object> entry : map.getAll().entrySet())
+						assertNotNull(entry.getValue());
+				} else {
+					map.setVariable("t" + id + "::" + (i % 100), i);
+					if (i % 3 == 0)
+						map.setVariable("t" + id + "::" + (i % 100), null);
+				}
+			}
+		});
+		Map<String, Object> all = map.getAll();
+		assertEquals(map.size(), all.size());
+		for (Map.Entry<String, Object> entry : all.entrySet())
+			assertEquals(entry.getKey(), entry.getValue(), map.getVariable(entry.getKey()));
 	}
 
 	/**
