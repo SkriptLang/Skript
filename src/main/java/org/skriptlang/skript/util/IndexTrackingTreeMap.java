@@ -1,9 +1,9 @@
 package org.skriptlang.skript.util;
 
 import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
+import org.skriptlang.skript.variables.SortedEntries;
 
 import java.util.*;
 
@@ -68,7 +68,7 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 	 */
 	public static <V> IndexTrackingTreeMap<V> ofSorted(Comparator<? super String> comparator, String[] keys, V[] values) {
 		Preconditions.checkArgument(keys.length == values.length);
-		return new IndexTrackingTreeMap<>(new SortedEntries<>(comparator, keys, values));
+		return new IndexTrackingTreeMap<>(new SortedEntries<>(comparator, keys, values), keys, values);
 	}
 
 	public IndexTrackingTreeMap() {
@@ -79,9 +79,9 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 		super(comparator);
 	}
 
-	private IndexTrackingTreeMap(SortedEntries<V> sortedMap) {
+	private IndexTrackingTreeMap(SortedEntries<V> sortedMap, String[] keys, V[] values) {
 		super(sortedMap);
-		trackAll(sortedMap.keys, sortedMap.values);
+		trackAll(keys, values);
 	}
 
 	/**
@@ -366,83 +366,6 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 
 	private boolean isDigit(int codepoint) {
 		return codepoint >= '0' && codepoint <= '9';
-	}
-
-	/**
-	 * Lightweight SortedMap view of the key/value arrays for {@link #ofSorted(Comparator, String[], Object[])}.
-	 * Only implements what the buildFromSorted TreeMap impl needs, but since that's not fixed api we do have to be
-	 * mindful of any changes in future java versions. It's been stable from 8 to 25 though.
-	 *
-	 * @param <V> The supertype of the values.
-	 */
-	private static final class SortedEntries<V> extends AbstractMap<String, V> implements SortedMap<String, V> {
-		private final Comparator<? super String> comparator;
-		private final String[] keys;
-		private final V[] values;
-
-		public SortedEntries(Comparator<? super String> comparator, String[] keys, V[] values) {
-			this.comparator = comparator;
-			this.keys = keys;
-			this.values = values;
-		}
-
-
-		@Override
-		public Comparator<? super String> comparator() {
-			return comparator;
-		}
-
-		@Override
-		public @NotNull Set<Entry<String, V>> entrySet() {
-			return new AbstractSet<>() {
-				@Override
-				public int size() {
-					return keys.length;
-				}
-
-				@Override
-				public Iterator<Entry<String, V>> iterator() {
-					return new Iterator<>() {
-						int i = 0;
-
-						public boolean hasNext() {
-							return i < keys.length;
-						}
-
-						public Entry<String, V> next() {
-							return new SimpleImmutableEntry<>(keys[i], values[i++]);
-						}
-					};
-				}
-			};
-		}
-
-		//<editor-fold desc="unimplemented Set methods" defaultstate="collapsed">
-		@Override
-		public @NotNull SortedMap<String, V> subMap(String fromKey, String toKey) {
-			throw new UnsupportedOperationException("SortedEntries had unimpl method called!");
-		}
-
-		@Override
-		public @NotNull SortedMap<String, V> headMap(String toKey) {
-			throw new UnsupportedOperationException("SortedEntries had unimpl method called!");
-		}
-
-		@Override
-		public @NotNull SortedMap<String, V> tailMap(String fromKey) {
-			throw new UnsupportedOperationException("SortedEntries had unimpl method called!");
-		}
-
-		@Override
-		public String firstKey() {
-			throw new UnsupportedOperationException("SortedEntries had unimpl method called!");
-		}
-
-		@Override
-		public String lastKey() {
-			throw new UnsupportedOperationException("SortedEntries had unimpl method called!");
-		}
-		//</editor-fold>
 	}
 
 }
