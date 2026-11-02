@@ -18,7 +18,7 @@ jobs:
       - name: Checkout docs
         uses: actions/checkout@v7
         with:
-          repository: "Skriptlang/docs"
+          repository: "SkriptLang/docs"
           path: docs
           token: ${{ secrets.DOCS_TOKEN }}
       - name: Cleanup nightly documentation

@@ -51,4 +51,4 @@ jobs:
           docs_repo_branch: "main"
           git_name: Release Docs Bot
           git_email: releasedocs@skriptlang.org
-          git_commit_message: "Update release docs to ${{ steps.configuration.outputs.BRANCH_NAME }}"
+          git_commit_message: "Update release docs to ${{ steps.configuration.outputs.LATEST_TAG }}"
