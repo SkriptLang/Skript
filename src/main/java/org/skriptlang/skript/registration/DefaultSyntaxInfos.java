@@ -1,5 +1,6 @@
 package org.skriptlang.skript.registration;
 
+import ch.njol.skript.expressions.base.SectionExpression;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.docs.DocumentationAdapter;
@@ -70,6 +71,9 @@ public sealed interface DefaultSyntaxInfos permits SyntaxInfo {
 		default void write(DocumentationAdapter adapter) {
 			SyntaxInfo.super.write(adapter);
 			adapter.write("returnType", returnType());
+			if (SectionExpression.class.isAssignableFrom(type())) {
+				adapter.write("subType", "Section Expression");
+			}
 		}
 
 		/**

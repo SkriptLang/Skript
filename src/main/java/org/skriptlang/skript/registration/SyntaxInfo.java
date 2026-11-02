@@ -1,5 +1,6 @@
 package org.skriptlang.skript.registration;
 
+import ch.njol.skript.lang.EffectSection;
 import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
@@ -128,6 +129,9 @@ public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends Document
 				.mapUndocumentableTypes()
 				.build()))
 			.toList());
+		if (EffectSection.class.isAssignableFrom(type())) {
+			adapter.write("subType", "Effect Section");
+		}
 	}
 
 	/**
