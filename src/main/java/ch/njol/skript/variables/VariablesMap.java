@@ -250,10 +250,11 @@ final class VariablesMap {
 					// This is a performance hit, but a -25% to common case is worth a +30% to rare case.
 					TreeMap<String, Object> childNodeMap = (TreeMap<String, Object>) previous;
 					parent.put(childNodeName, childNodeMap);
-					if (value == null)
+					if (value == null) {
 						childNodeMap.remove(null);
-					else
+					} else {
 						childNodeMap.put(null, value);
+					}
 				}
 				break;
 			}

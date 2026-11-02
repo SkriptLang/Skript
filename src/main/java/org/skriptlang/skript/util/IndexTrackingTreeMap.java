@@ -420,27 +420,27 @@ public class IndexTrackingTreeMap<V> extends TreeMap<String, V> {
 		//<editor-fold desc="unimplemented Set methods" defaultstate="collapsed">
 		@Override
 		public @NotNull SortedMap<String, V> subMap(String fromKey, String toKey) {
-			throw new UnsupportedOperationException("SortedEntries had unimpl method called!");
+			throw new UnsupportedOperationException("SortedEntries had unimplemented method called!");
 		}
 
 		@Override
 		public @NotNull SortedMap<String, V> headMap(String toKey) {
-			throw new UnsupportedOperationException("SortedEntries had unimpl method called!");
+			throw new UnsupportedOperationException("SortedEntries had unimplemented method called!");
 		}
 
 		@Override
 		public @NotNull SortedMap<String, V> tailMap(String fromKey) {
-			throw new UnsupportedOperationException("SortedEntries had unimpl method called!");
+			throw new UnsupportedOperationException("SortedEntries had unimplemented method called!");
 		}
 
 		@Override
 		public String firstKey() {
-			throw new UnsupportedOperationException("SortedEntries had unimpl method called!");
+			throw new UnsupportedOperationException("SortedEntries had unimplemented method called!");
 		}
 
 		@Override
 		public String lastKey() {
-			throw new UnsupportedOperationException("SortedEntries had unimpl method called!");
+			throw new UnsupportedOperationException("SortedEntries had unimplemented method called!");
 		}
 		//</editor-fold>
 	}
