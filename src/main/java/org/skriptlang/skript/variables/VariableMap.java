@@ -290,6 +290,25 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 	abstract boolean isPresent(String name, boolean present);
 
 	/**
+	 * Checks whether a branch's name has a value, for when pruning it.
+	 * Must be called under the lock.
+	 *
+	 * @param branch The branch to check
+	 * @return Whether the branch has a value
+	 */
+	abstract boolean branchHasValue(VariableBranch branch);
+
+	/**
+	 * Checks whether the name of a new branch already has a value.
+	 * Must be called under the lock.
+	 *
+	 * @param name   The new branch's full name
+	 * @param parent The new branch's parent, or null for root-level names
+	 * @return Whether the name has a value
+	 */
+	abstract boolean newBranchHasValue(String name, @Nullable VariableBranch parent);
+
+	/**
 	 * Creates a new map of the same type with a copy of {@code values}, for {@link #copyBranch} to build the tree in.
 	 * This only copies the references, so both maps share the same value objects.
 	 *
@@ -420,13 +439,13 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 		// branch doesn't exist, create.
 		int sep = lastSeparator(name);
 		VariableBranch parent = sep == -1 ? null : ensureBranch(name.substring(0, sep));
-		VariableBranch branch = new VariableBranch(name, parent, newChildren());
-		branch.hasValue = valueIsSet(name);
+		String key = sep == -1 ? name : name.substring(sep + Variable.SEPARATOR.length());
+		VariableBranch branch = new VariableBranch(name, key, parent, newChildren());
+		branch.hasValue = newBranchHasValue(name, parent);
 		branchPut(branch);
 
 		// update parent
 		if (parent != null) {
-			String key = name.substring(sep + Variable.SEPARATOR.length());
 			Object previous = childPut(parent, key, branch);
 			if (previous != null) {
 				// leaf -> branch. It's already counted in the parent, so the counters stay as they are.
@@ -455,24 +474,22 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 		assert holdsLock();
 		while (branch != null && branch.childCount == 0) {
 			branchRemove(branch);
-			branch.removed = true;
 			VariableBranch parent = branch.parent;
 			if (parent == null)
 				return;
-			String key = branch.fullName.substring(parent.fullName.length() + Variable.SEPARATOR.length());
-			if (valueIsSet(branch.fullName)) {
+			if (branchHasValue(branch)) {
 				// become leaf since value still exists. It's still one child, so childCount doesn't change.
-				childPut(parent, key, branch.fullName);
+				childPut(parent, branch.key, branch.fullName);
 				if (!branch.hasValue) // if it wasn't already marked as having value (it should have been, but races!)
 					parent.valueChildren++; // leaves always count, and the pending reconcile won't count an existing leaf
 				return;
 			}
 			// nothing left so remove and continue
-			childRemove(parent, key, branch);
+			childRemove(parent, branch.key, branch);
 			parent.childCount--;
 			if (branch.hasValue)
 				parent.valueChildren--;
-			parent.freed(key);
+			parent.freed(branch.key);
 			branch = parent;
 		}
 	}
@@ -491,7 +508,7 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 	private VariableBranch copyBranch(VariableMap copy, VariableBranch source, @Nullable VariableBranch parent) {
 		assert holdsLock();
 		// sub-branches need this as their parent, so it has to exist before its children do
-		VariableBranch branch = new VariableBranch(source.fullName, parent, null);
+		VariableBranch branch = new VariableBranch(source.fullName, source.key, parent, null);
 		String[] keys = new String[source.childCount];
 		Object[] entries = new Object[source.childCount];
 		int i = 0;
@@ -569,14 +586,13 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 	 * @param branch The branch to remove from
 	 * @param key    The child's key
 	 * @param entry  The entry we expect to remove
-	 * @return Whether the entry was removed
 	 */
-	abstract boolean childRemove(VariableBranch branch, String key, Object entry);
+	abstract void childRemove(VariableBranch branch, String key, Object entry);
 
 	/**
 	 * Unlinks a child from a branch if it's a leaf, leaving it alone if it's a list.
-	 * Every list has a branch registered under its name, and a leaf's entry is always its full name,
-	 * so lists never touch the tree here, and leaves only walk it once to remove themselves.
+	 * Nearly every delete is a leaf, so this removes first and sorts out lists afterwards.
+	 * That's slower for lists, but it saves leaves a lookup.
 	 * Must be called under the lock.
 	 *
 	 * @param branch The branch to remove from
@@ -584,12 +600,7 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 	 * @param name   The child's full name
 	 * @return The child's entry, whether it was removed or not, or null if there's no such child
 	 */
-	@Nullable Object childRemoveLeaf(VariableBranch branch, String key, String name) {
-		VariableBranch list = branchGet(name);
-		if (list != null)
-			return list;
-		return childRemove(branch, key, name) ? name : null;
-	}
+	abstract @Nullable Object childRemoveLeaf(VariableBranch branch, String key, String name);
 
 	/**
 	 * Simple helper to iterate the child entries of a branch, in sorted order.
@@ -665,7 +676,6 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 				// a nested list never survives, since the new children are all leaves, so remove them all
 				removeMissing(child.children, NO_KEYS);
 				branchRemove(child);
-				child.removed = true;
 				child.childCount = 0;
 				child.valueChildren = 0;
 				if (!isKept) {

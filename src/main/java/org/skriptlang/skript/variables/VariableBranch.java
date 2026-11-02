@@ -19,12 +19,12 @@ import java.util.NavigableMap;
  */
 final class VariableBranch {
 	final String fullName; // the name of this branch, without the list suffix, e.g. a::b for {a::b::*}
+	final String key; // this branch's key in its parent, e.g. b for {a::b::*}
 	final @Nullable VariableBranch parent;
 	volatile NavigableMap<String, Object> children; // key -> child's full name or VariableBranch. e.g. 'c' -> 'a::b::c'
 	volatile int childCount;
 	volatile int valueChildren; // children that hold a value (not sublists), which is what the size of a list counts
 	volatile boolean hasValue; // whether this has a value e.g. branch is a::b, if {a::b} is set, it has value.
-	boolean removed; // whether this branch has been pruned, so stale references can tell
 
 	/**
 	 * The initial and minimum number of indices tracked.
@@ -50,11 +50,13 @@ final class VariableBranch {
 	 * Creates a new branch with no counted children.
 	 *
 	 * @param fullName the name of this branch, without the list suffix
+	 * @param key      this branch's key in its parent
 	 * @param parent   the parent branch, or null for root-level names
 	 * @param children the children map, which is passed in since only the owning map knows which type to use
 	 */
-	VariableBranch(String fullName, @Nullable VariableBranch parent, NavigableMap<String, Object> children) {
+	VariableBranch(String fullName, String key, @Nullable VariableBranch parent, NavigableMap<String, Object> children) {
 		this.fullName = fullName;
+		this.key = key;
 		this.parent = parent;
 		this.children = children;
 	}

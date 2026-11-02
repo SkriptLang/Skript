@@ -156,9 +156,15 @@ public class SecFilter extends Section implements InputSource {
 		// optimize by either removing or clearing + adding depending on which is fewer operations
 		// for instances where only a handful of values are removed from a large list, this can be a 400% speedup
 		if (toKeep.size() < initialSize / 2) {
-			Variables.deleteVariable(varName, event, local);
-			for (Pair<String, Object> pair : toKeep)
-				Variables.setVariable(varSubName + pair.getKey(), pair.getValue(), event, local);
+			String[] keys = new String[toKeep.size()];
+			Object[] values = new Object[keys.length];
+			for (int i = 0; i < keys.length; i++) {
+				Pair<String, Object> pair = toKeep.get(i);
+				keys[i] = pair.getKey();
+				values[i] = pair.getValue();
+			}
+			String listName = varSubName.substring(0, varSubName.length() - Variable.SEPARATOR.length());
+			Variables.setList(listName, keys, values, event, local);
 		} else {
 			for (String index : toRemove)
 				Variables.setVariable(varSubName + index, null, event, local);

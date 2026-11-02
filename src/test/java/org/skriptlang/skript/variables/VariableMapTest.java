@@ -1096,6 +1096,36 @@ public class VariableMapTest {
 	}
 
 	@Test
+	public void testDeletingValueKeepsListUnderIt() {
+		map.setVariable("a::b", 1);
+		map.setVariable("a::b::c", 2);
+		map.setVariable("a::b", null);
+		assertNull(map.getVariable("a::b"));
+		assertEquals(2, map.getVariable("a::b::c"));
+		assertEquals(0, ((VariableList) map.getVariable("a::*")).valueCount());
+		assertEquals(1, ((VariableList) map.getVariable("a::b::*")).valueCount());
+
+		map.setVariable("a::b::c", null);
+		assertNull(map.getVariable("a::*"));
+		assertTrue(map.isEmpty());
+	}
+
+	@Test
+	public void testPruningKeepsValueOfList() {
+		map.setVariable("a::b", 1);
+		map.setVariable("a::b::c", 2);
+		map.setVariable("a::b::c", null);
+		assertEquals(1, map.getVariable("a::b"));
+		assertEquals(1, ((VariableList) map.getVariable("a::*")).valueCount());
+
+		map.setVariable("root", 1);
+		map.setVariable("root::child", 2);
+		map.setVariable("root::child", null);
+		assertEquals(1, map.getVariable("root"));
+		assertNull(map.getVariable("root::*"));
+	}
+
+	@Test
 	public void testLastSeparator() {
 		assertEquals(-1, VariableMap.lastSeparator("abc"));
 		assertEquals(1, VariableMap.lastSeparator("a::b"));
