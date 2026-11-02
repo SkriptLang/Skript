@@ -4,18 +4,14 @@ import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.bukkitutil.block.BlockCompat;
 import ch.njol.skript.bukkitutil.block.BlockValues;
-import org.skriptlang.skript.bukkit.entity.EntityData;
 import com.google.gson.Gson;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.entity.EntityData;
+
+import java.util.*;
 
 /**
  * Provides aliases on Bukkit/Spigot platform.
@@ -220,7 +216,7 @@ public class AliasesProvider {
 	}
 
 	public AliasesMap.@Nullable AliasData getAliasData(ItemData item) {
-		AliasesMap.AliasData data = aliasesMap.matchAlias(item).getData();
+		AliasesMap.AliasData data = aliasesMap.matchAliasData(item);
 		if (data == null && parent != null) {
 			return parent.getAliasData(item);
 		}

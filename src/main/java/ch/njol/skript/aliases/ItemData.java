@@ -9,6 +9,8 @@ import ch.njol.skript.localization.Message;
 import ch.njol.skript.variables.Variables;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -241,12 +243,12 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	
 	public String toString(final boolean debug, final boolean plural) {
 		StringBuilder builder = new StringBuilder(Aliases.getMaterialName(this, plural));
-		ItemMeta meta = stack != null ? stack.getItemMeta() : null;
-		if (meta != null && meta.hasDisplayName()) {
+		Component name = stack != null ? stack.getData(DataComponentTypes.CUSTOM_NAME) : null;
+		if (name != null) {
 			builder.append(" ")
 				.append(m_named)
 				.append(" ")
-				.append(TextComponentParser.instance().toString(meta.displayName()));
+				.append(TextComponentParser.instance().toString(name));
 		}
 		return builder.toString();
 	}
