@@ -23,6 +23,13 @@ jobs:
         with:
           submodules: recursive
           path: skript
+      - name: Fetch latest Skript tag
+        run: |
+          # ensure tags are present
+          git fetch --tags
+          # fetch and output latest tag
+          LATEST_TAG=$(git tag --sort=-creatordate | head -n 1)
+          echo "LATEST_TAG=${LATEST_TAG}" >> $GITHUB_OUTPUT
       - name: Setup documentation environment
         uses: ./skript/.github/workflows/docs/setup-docs
         with:
@@ -34,7 +41,7 @@ jobs:
         with:
           docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
           docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
-          docs_file_name: "syntaxes"
+          docs_file_name: ${{ steps.configuration.outputs.LATEST_TAG }}
           skript_repo_dir: ${{ steps.configuration.outputs.SKRIPT_REPO_DIR }}
           is_release: true
       - name: Push release documentation
