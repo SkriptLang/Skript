@@ -48,7 +48,7 @@ public class TestTracker {
 	}
 
 	public static void runRegisteredTests() {
-		for (var entry : registeredTests.entrySet()) {
+		for (var entry : new LinkedHashMap<>(registeredTests).entrySet()) {
 			Skript.info("Running test case " + entry.getKey());
 			testStarted(entry.getKey());
 			try {
