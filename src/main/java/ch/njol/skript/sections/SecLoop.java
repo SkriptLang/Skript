@@ -79,7 +79,7 @@ public class SecLoop extends LoopSection {
 
 	protected @UnknownNullability Expression<?> expression;
 
-	private final transient Map<Event, RunState> states = new WeakHashMap<>();
+	private final Map<Event, RunState> states = new WeakHashMap<>();
 
 	protected @Nullable TriggerItem actualNext;
 	private boolean guaranteedToLoop;
