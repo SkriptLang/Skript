@@ -1096,6 +1096,30 @@ public class VariableMapTest {
 	}
 
 	@Test
+	public void testKeySetMatchesEntrySet() {
+		map.setVariable("a", 0);
+		map.setVariable("a::1", 1);
+		map.setVariable("a::2", 2);
+		map.setVariable("a::b::c", 3); // a sublist with no value of its own
+
+		VariableList list = (VariableList) map.getVariable("a::*");
+		List<String> entryKeys = new ArrayList<>();
+		for (Map.Entry<String, Object> entry : list.entrySet())
+			entryKeys.add(entry.getKey());
+		List<String> keys = new ArrayList<>(list.keySet());
+		assertEquals(entryKeys, keys);
+		assertNull(keys.getFirst()); // own value
+		assertEquals(4, keys.size());
+		assertTrue(list.keySet().contains("b"));
+		assertFalse(list.keySet().contains("c"));
+
+		// without the own value
+		map.setVariable("a", null);
+		assertEquals(entryKeys.subList(1, 4), new ArrayList<>(((VariableList) map.getVariable("a::*")).keySet()));
+		assertEquals(entryKeys.subList(1, 4), new ArrayList<>(list.children().keySet()));
+	}
+
+	@Test
 	public void testDeletingValueOfSublistDoesNotDisturbIterators() {
 		map.setVariable("a::b", 1);
 		map.setVariable("a::b::c", 2);

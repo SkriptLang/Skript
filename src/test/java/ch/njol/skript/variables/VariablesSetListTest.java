@@ -2,6 +2,7 @@ package ch.njol.skript.variables;
 
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
+import ch.njol.util.Pair;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
@@ -9,6 +10,7 @@ import org.junit.After;
 import org.junit.Assume;
 import org.junit.Test;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -22,6 +24,7 @@ import static org.junit.Assert.*;
  * case folding and falling back for nested keys, which can't be reached from a script
  * as a script's keyed values come from variables, whose keys are already lowercase,
  * and locking and queueing for global lists.
+ * Also covers removing through {@link Variables#getVariableIterator}, which writes through the same paths.
  */
 public class VariablesSetListTest extends SkriptJUnitTest {
 
@@ -195,6 +198,25 @@ public class VariablesSetListTest extends SkriptJUnitTest {
 
 		assertNull(getGlobal("1"));
 		assertNull(getGlobal("*"));
+	}
+
+	@Test
+	public void iteratorRemoveDeletesTheReturnedElement() {
+		for (boolean local : new boolean[] {true, false}) {
+			String list = local ? "l" : GLOBAL;
+			Event listEvent = local ? event : null;
+			Variables.setList(list, new String[] {"1", "2", "3"}, new Object[] {"a", "b", "c"}, listEvent, local);
+
+			Iterator<Pair<String, Object>> iterator = Variables.getVariableIterator(list + "::*", local, listEvent);
+			assertEquals("1", iterator.next().getKey());
+			assertTrue(iterator.hasNext()); // moves the iterator's lookahead onto 2
+			iterator.remove();
+
+			assertNull(Variables.getVariable(list + "::1", listEvent, local));
+			assertEquals("b", Variables.getVariable(list + "::2", listEvent, local));
+			assertEquals("c", Variables.getVariable(list + "::3", listEvent, local));
+			assertThrows(IllegalStateException.class, iterator::remove); // only once per next
+		}
 	}
 
 	@Test
