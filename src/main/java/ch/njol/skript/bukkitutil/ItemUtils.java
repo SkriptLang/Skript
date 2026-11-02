@@ -76,7 +76,7 @@ public class ItemUtils {
 	 * @return Damage.
 	 * @deprecated Use {@link #getDamage(ItemStack)}
 	 */
-	@Deprecated(since = "INSERT VERSION")
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static int getDamage(ItemMeta itemMeta) {
 		if (itemMeta instanceof Damageable)
 			return ((Damageable) itemMeta).getDamage();
