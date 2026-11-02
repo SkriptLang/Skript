@@ -1096,6 +1096,20 @@ public class VariableMapTest {
 	}
 
 	@Test
+	public void testDeletingValueOfSublistDoesNotDisturbIterators() {
+		map.setVariable("a::b", 1);
+		map.setVariable("a::b::c", 2);
+		map.setVariable("a::d", 3);
+
+		Iterator<?> iterator = ((VariableList) map.getVariable("a::*")).entrySet().iterator();
+		iterator.next();
+		map.setVariable("a::b", null); // the child entry for b stays, since it's still a list
+		assertTrue(iterator.hasNext());
+		iterator.next();
+		assertFalse(iterator.hasNext());
+	}
+
+	@Test
 	public void testDeletingValueKeepsListUnderIt() {
 		map.setVariable("a::b", 1);
 		map.setVariable("a::b::c", 2);
