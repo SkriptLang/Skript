@@ -44,6 +44,16 @@ final class ConcurrentVariableMap extends VariableMap {
 	}
 
 	@Override
+	boolean branchHasValue(VariableBranch branch) {
+		return values.containsKey(branch.fullName); // hasValue can be behind a pending reconcile
+	}
+
+	@Override
+	boolean newBranchHasValue(String name, @Nullable VariableBranch parent) {
+		return values.containsKey(name);
+	}
+
+	@Override
 	VariableMap copyValues() {
 		ConcurrentVariableMap copy = new ConcurrentVariableMap();
 		copy.values.putAll(values);
@@ -117,8 +127,15 @@ final class ConcurrentVariableMap extends VariableMap {
 	}
 
 	@Override
-	boolean childRemove(VariableBranch branch, String key, Object entry) {
-		return children(branch).remove(key, entry);
+	void childRemove(VariableBranch branch, String key, Object entry) {
+		children(branch).remove(key, entry);
+	}
+
+	@Override
+	@Nullable Object childRemoveLeaf(VariableBranch branch, String key, String name) {
+		if (children(branch).remove(key, name)) // a leaf's entry is always its full name
+			return name;
+		return childGet(branch, key);
 	}
 
 	@Override

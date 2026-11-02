@@ -40,6 +40,17 @@ final class LocalVariableMap extends VariableMap {
 	}
 
 	@Override
+	boolean branchHasValue(VariableBranch branch) {
+		return branch.hasValue; // there's only one thread, so this can't be out of date
+	}
+
+	@Override
+	boolean newBranchHasValue(String name, @Nullable VariableBranch parent) {
+		// a name with a value is already a leaf in its parent, which ensureBranch picks up when it replaces the leaf.
+		return parent == null && values.containsKey(name);
+	}
+
+	@Override
 	VariableMap copyValues() {
 		LocalVariableMap copy = new LocalVariableMap();
 		copy.values.putAll(values);
@@ -116,9 +127,17 @@ final class LocalVariableMap extends VariableMap {
 	}
 
 	@Override
-	boolean childRemove(VariableBranch branch, String key, Object entry) {
+	void childRemove(VariableBranch branch, String key, Object entry) {
 		// only one thread can be here, so entry can't have changed. TreeMap's remove(key, entry) would walk the tree twice
-		return children(branch).remove(key) != null;
+		children(branch).remove(key);
+	}
+
+	@Override
+	@Nullable Object childRemoveLeaf(VariableBranch branch, String key, String name) {
+		Object entry = children(branch).remove(key);
+		if (entry instanceof VariableBranch)
+			children(branch).put(key, entry); // it was a list, so it has to stay
+		return entry;
 	}
 
 	@Override
