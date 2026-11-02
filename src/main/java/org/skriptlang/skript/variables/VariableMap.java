@@ -816,6 +816,54 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 			};
 		}
 
+		/**
+		 * Gets the keys of this list, in variable name order. This only walks the child keys,
+		 * so unlike the default, it doesn't look up every value and build a view for every sublist just to drop them.
+		 * If this view includes the list's own value and it's set, the null key comes first.
+		 * <p>
+		 * Since values aren't checked, a child that's being pruned on another thread can still show up here,
+		 * where {@link #entrySet()} would hide it. So {@link #get(Object)} can return null for a key from this set.
+		 *
+		 * @return A view of the keys, which walks the live children on each iteration. It can't be changed.
+		 */
+		@Override
+		public @NotNull Set<String> keySet() {
+			return new AbstractSet<>() {
+				@Override
+				public Iterator<String> iterator() {
+					boolean hasOwn = includeOwnValue && ownValue() != null;
+					Iterator<Entry<String, Object>> children = childIterator(branch);
+					return new Iterator<>() {
+						private boolean ownPending = hasOwn; // own value comes first, as the null key
+
+						@Override
+						public boolean hasNext() {
+							return ownPending || children.hasNext();
+						}
+
+						@Override
+						public @Nullable String next() {
+							if (ownPending) {
+								ownPending = false;
+								return null;
+							}
+							return children.next().getKey();
+						}
+					};
+				}
+
+				@Override
+				public int size() {
+					return View.this.size();
+				}
+
+				@Override
+				public boolean contains(Object key) {
+					return containsKey(key);
+				}
+			};
+		}
+
 		@Override
 		public @Nullable Object ownValue() {
 			return valueGet(branch.fullName);

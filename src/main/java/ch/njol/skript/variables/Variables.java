@@ -482,6 +482,9 @@ public class Variables {
 			private String key;
 			@Nullable
 			private Object next = null;
+			// key moves ahead whenever hasNext is called, so remove needs its own copy of what next returned
+			@Nullable
+			private String lastReturned;
 
 			@Override
 			public boolean hasNext() {
@@ -504,15 +507,17 @@ public class Variables {
 				if (!hasNext())
 					throw new NoSuchElementException();
 				Pair<String, Object> n = new Pair<>(key, next);
+				lastReturned = key;
 				next = null;
 				return n;
 			}
 
 			@Override
 			public void remove() {
-				if (key == null)
+				if (lastReturned == null)
 					throw new IllegalStateException();
-				Variables.deleteVariable(key, event, local);
+				Variables.deleteVariable(subName + lastReturned, event, local);
+				lastReturned = null;
 			}
 		};
 	}
