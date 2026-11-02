@@ -51,7 +51,12 @@ public class TestTracker {
 		for (var entry : registeredTests.entrySet()) {
 			Skript.info("Running test case " + entry.getKey());
 			testStarted(entry.getKey());
-			entry.getValue().run();
+			try {
+				entry.getValue().run();
+			} catch (Throwable t) {
+				// Skript.exception will mark the test as failed
+				Skript.exception(t, "A severe error occurred while running test case: " + entry.getKey());
+			}
 		}
 	}
 

@@ -87,6 +87,7 @@ import org.skriptlang.skript.log.runtime.ErrorSource;
 import org.skriptlang.skript.log.runtime.Frame.FrameOutput;
 import org.skriptlang.skript.log.runtime.RuntimeError;
 import org.skriptlang.skript.log.runtime.RuntimeErrorConsumer;
+import org.skriptlang.skript.log.runtime.RuntimeErrorFilter;
 import org.skriptlang.skript.log.runtime.RuntimeErrorManager;
 import org.skriptlang.skript.log.runtime.RuntimeErrorProducer;
 import org.skriptlang.skript.registration.DefaultSyntaxInfos;
@@ -864,6 +865,10 @@ public final class Skript extends JavaPlugin implements Listener {
 				}
 				@Override
 				public void printFrameOutput(FrameOutput output, Level level) { }
+				@Override
+				public RuntimeErrorFilter getFilter() {
+					return RuntimeErrorFilter.NO_FILTER;
+				}
 			};
 			getRuntimeErrorManager().addConsumer(runtimeErrorConsumer);
 			TestTracker.runRegisteredTests();
@@ -871,10 +876,6 @@ public final class Skript extends JavaPlugin implements Listener {
 			if (errorCounter.getCount() > 0) {
 				TestTracker.testStarted("parse scripts");
 				TestTracker.testFailed(errorCounter.getCount() + " error(s) found");
-			}
-			if (errored) { // Check for exceptions thrown while script was executing
-				TestTracker.testStarted("run scripts");
-				TestTracker.testFailed("exception was thrown during execution");
 			}
 			if (runtimeErrorCount[0] > 0) {
 				TestTracker.testStarted("runtime errors");
@@ -1978,19 +1979,6 @@ public final class Skript extends JavaPlugin implements Listener {
 	private static boolean tainted = false;
 
 	/**
-	 * Set to true when an exception is thrown.
-	 */
-	private static boolean errored = false;
-
-	/**
-	 * Mark that an exception has occurred at some point during runtime.
-	 * Only used for Skript's testing system.
-	 */
-	public static void markErrored() {
-		errored = true;
-	}
-
-	/**
 	 * Used if something happens that shouldn't happen
 	 *
 	 * @param cause exception that shouldn't occur
@@ -1998,7 +1986,9 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @return an EmptyStacktraceException to throw if code execution should terminate.
 	 */
 	public static EmptyStacktraceException exception(@Nullable Throwable cause, @Nullable Thread thread, @Nullable TriggerItem item, String... info) {
-		errored = true;
+		if (testing()) { // needs to be here because TriggerItem catches exceptions
+			TestTracker.testFailed("A throwable was caught during execution.");
+		}
 
 		// Avoid re-throwing the same exception
 		if (cause instanceof EmptyStacktraceException) {
