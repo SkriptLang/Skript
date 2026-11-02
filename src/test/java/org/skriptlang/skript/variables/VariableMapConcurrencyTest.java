@@ -93,26 +93,53 @@ public class VariableMapConcurrencyTest {
 	}
 
 	/**
-	 * Views read without the lock, so this is here to catch anything they can't cope with mid-write.
+	 * Views, {@link VariableMap#copy()} and {@link VariableMap#getAll()} all run alongside writers,
+	 * so this is here to catch anything they can't cope with mid-write.
+	 * Copies take the lock, so their trees have to be whole, but their values can be off from their trees,
+	 * as writers change values before taking the lock.
 	 */
 	private static void read(VariableMap map, AtomicBoolean writing) {
 		while (writing.get()) {
 			for (String list : LISTS) {
 				if (map.getVariable(list + "::*") instanceof Map<?, ?> view) {
-					for (Map.Entry<?, ?> entry : view.entrySet())
-						assertNotNull(entry.getValue());
+					view.forEach((key, value) -> {});
 				}
 			}
+			map.getAll();
+			assertTreeIsConsistent(map.copy());
 		}
 	}
 
 	private static void assertTreeMatchesValues(VariableMap map) {
+		assertTreeIsConsistent(map);
+		for (VariableBranch branch : map.allBranches())
+			assertEquals(branch.fullName + " hasValue", map.valueGet(branch.fullName) != null, branch.hasValue);
+
+		for (String name : map.allValues().keySet()) {
+			int separator = VariableMap.lastSeparator(name);
+			if (separator == -1)
+				continue;
+			VariableBranch parent = map.branchGet(name.substring(0, separator));
+			assertNotNull(name + " has no parent", parent);
+			assertNotNull(name + " isn't in its parent", parent.children.get(name.substring(separator + 2)));
+		}
+		for (VariableBranch branch : map.allBranches()) {
+			for (Object child : branch.children.values()) {
+				if (child instanceof String leaf)
+					assertNotNull(leaf + " leaf value", map.valueGet(leaf));
+			}
+		}
+	}
+
+	/**
+	 * Checks the tree against itself, without looking at any values.
+	 */
+	private static void assertTreeIsConsistent(VariableMap map) {
 		for (VariableBranch branch : map.allBranches()) {
 			String name = branch.fullName;
 			assertEquals(name + " is registered", branch, map.branchGet(name));
 			assertEquals(name + " childCount", branch.children.size(), branch.childCount);
 			assertTrue(name + " is empty", branch.childCount > 0);
-			assertEquals(name + " hasValue", map.valueGet(name) != null, branch.hasValue);
 
 			int valueChildren = 0;
 			for (Map.Entry<String, Object> child : branch.children.entrySet()) {
@@ -125,7 +152,6 @@ public class VariableMapConcurrencyTest {
 						valueChildren++;
 				} else {
 					assertEquals(childName + " leaf name", childName, child.getValue());
-					assertNotNull(childName + " leaf value", map.valueGet(childName));
 					valueChildren++;
 				}
 			}
@@ -135,15 +161,6 @@ public class VariableMapConcurrencyTest {
 			while (branch.children.containsKey(String.valueOf(nextIndex)))
 				nextIndex++;
 			assertEquals(name + " nextIndex", nextIndex, branch.nextIndex);
-		}
-
-		for (String name : map.allValues().keySet()) {
-			int separator = VariableMap.lastSeparator(name);
-			if (separator == -1)
-				continue;
-			VariableBranch parent = map.branchGet(name.substring(0, separator));
-			assertNotNull(name + " has no parent", parent);
-			assertNotNull(name + " isn't in its parent", parent.children.get(name.substring(separator + 2)));
 		}
 	}
 

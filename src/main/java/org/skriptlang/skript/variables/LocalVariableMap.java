@@ -132,12 +132,15 @@ final class LocalVariableMap extends VariableMap {
 		children(branch).remove(key);
 	}
 
+	/**
+	 * Every list has a branch registered under its name, so a hash lookup can tell a leaf from a list.
+	 * Lists have to stay, and this way they don't get touched at all, so anything iterating them isn't disturbed.
+	 * Leaves still only walk the tree once, to remove themselves.
+	 */
 	@Override
 	@Nullable Object childRemoveLeaf(VariableBranch branch, String key, String name) {
-		Object entry = children(branch).remove(key);
-		if (entry instanceof VariableBranch)
-			children(branch).put(key, entry); // it was a list, so it has to stay
-		return entry;
+		VariableBranch list = branchGet(name);
+		return list != null ? list : children(branch).remove(key);
 	}
 
 	@Override
