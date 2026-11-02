@@ -1,5 +1,6 @@
 package ch.njol.skript.variables;
 
+import ch.njol.skript.lang.Variable;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.*;
 
@@ -193,6 +195,47 @@ public class VariablesSetListTest extends SkriptJUnitTest {
 
 		assertNull(getGlobal("1"));
 		assertNull(getGlobal("*"));
+	}
+
+	@Test
+	public void starKeysAreDropped() {
+		Variables.setList("l", new String[] {"*", "1"}, new Object[] {"a", "b"}, event, true);
+
+		Map<?, ?> list = (Map<?, ?>) get("l::*");
+		assertNotNull(list);
+		assertEquals(List.of("1"), List.copyOf(list.keySet()));
+	}
+
+	@Test
+	public void unsavedGlobalsDontWaitForTheSaveOrderLock() throws InterruptedException {
+		String name = Variable.EPHEMERAL_VARIABLE_TOKEN + GLOBAL;
+		CountDownLatch locked = new CountDownLatch(1);
+		CountDownLatch written = new CountDownLatch(1);
+		AtomicBoolean finishedWhileHeld = new AtomicBoolean();
+		Thread holder = new Thread(() -> {
+			Variables.saveOrderLock.lock();
+			try {
+				locked.countDown();
+				finishedWhileHeld.set(written.await(5, TimeUnit.SECONDS));
+			} catch (InterruptedException ignored) {
+			} finally {
+				Variables.saveOrderLock.unlock();
+			}
+		});
+		holder.start();
+		assertTrue(locked.await(5, TimeUnit.SECONDS));
+
+		Variables.setVariable(name + "::1", "a", null, false);
+		Variables.setList(name, new String[] {"2"}, new Object[] {"b"}, null, false);
+		written.countDown();
+		holder.join(5000);
+
+		try {
+			assertTrue(finishedWhileHeld.get());
+			assertEquals("b", Variables.getVariable(name + "::2", null, false));
+		} finally {
+			Variables.setVariable(name + "::*", null, null, false);
+		}
 	}
 
 	@Test

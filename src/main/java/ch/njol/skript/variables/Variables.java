@@ -323,7 +323,8 @@ public class Variables {
 	 * Keeps {@link #saveQueue} in the same order as the changes made to {@link #variables}, by being held across
 	 * both, so that storages end up with the same final value as the map. It's not needed to read or write the map.
 	 * <p>
-	 * This is held by every writer, so nothing slow should happen under it. That includes serializing the value.
+	 * This is held by every writer of a saved variable, so nothing slow should happen under it.
+	 * That includes serializing the value. Variables that don't get saved have no order to keep, so they skip it.
 	 */
 	static final ReentrantLock saveOrderLock = new ReentrantLock();
 
@@ -407,8 +408,8 @@ public class Variables {
 	}
 
 	/**
-	 * Copies local variables from provider to user, runs action, then copies variables back to provider.
-	 * Removes local variables from user after action is finished.
+	 * Copies local variables from provider to user, runs action, then moves the variables back to provider.
+	 * This leaves user with no local variables once action is finished.
 	 * @param provider The originator of the local variables.
 	 * @param user The event to copy the variables to and back from.
 	 * @param action The code to run while the variables are copied.
@@ -416,8 +417,7 @@ public class Variables {
 	public static void withLocalVariables(Event provider, Event user, @NotNull Runnable action) {
 		Variables.setLocalVariables(user, Variables.copyLocalVariables(provider));
 		action.run();
-		Variables.setLocalVariables(provider, Variables.copyLocalVariables(user));
-		Variables.removeLocals(user);
+		Variables.setLocalVariables(provider, Variables.removeLocals(user));
 	}
 
 	/**
@@ -581,11 +581,15 @@ public class Variables {
 	 */
 	static void setVariable(String name, @Nullable Object value) {
 		SerializedVariable serialized = serializeChange(name, value);
+		if (serialized == null) {
+			variables.setVariable(name, value);
+			return;
+		}
+
 		saveOrderLock.lock();
 		try {
 			variables.setVariable(name, value);
-			if (serialized != null)
-				saveQueue.add(serialized);
+			saveQueue.add(serialized);
 		} finally {
 			saveOrderLock.unlock();
 		}
@@ -605,7 +609,8 @@ public class Variables {
 		assert keys.length == values.length : keys.length + " keys, " + values.length + " values";
 		// keys like a::b (from keyed recursive lists) make nested lists, which the bulk path can't build.
 		// list names ending in : are the same, as a:: + b splits into a and :b, so that's really a different list.
-		if (containsSeparator(keys) || listName.endsWith(":")) {
+		// a key of * would be a value named like the list, which setVariable drops.
+		if (hasUnsupportedKey(keys) || listName.endsWith(":")) {
 			setVariable(listName + Variable.SEPARATOR + "*", null, event, local);
 			for (int i = 0; i < keys.length; i++)
 				setVariable(listName + Variable.SEPARATOR + keys[i], values[i], event, local);
@@ -659,7 +664,11 @@ public class Variables {
 	private static void setGlobalList(String listName, String[] keys, Object[] values) {
 		String prefix = listName + Variable.SEPARATOR;
 		SerializedVariable clear = serializeChange(prefix + "*", null);
-		// these are all null together, since every name here starts the same way
+		if (clear == null) { // every name here starts the same way, so none of them get saved
+			variables.setList(listName, keys, values);
+			return;
+		}
+
 		SerializedVariable[] elements = new SerializedVariable[keys.length];
 		for (int i = 0; i < keys.length; i++)
 			elements[i] = serializeChange(prefix + keys[i], values[i]);
@@ -667,19 +676,17 @@ public class Variables {
 		saveOrderLock.lock();
 		try {
 			variables.setList(listName, keys, values);
-			if (clear != null) {
-				saveQueue.add(clear);
-				for (SerializedVariable element : elements)
-					saveQueue.add(element);
-			}
+			saveQueue.add(clear);
+			for (SerializedVariable element : elements)
+				saveQueue.add(element);
 		} finally {
 			saveOrderLock.unlock();
 		}
 	}
 
-	private static boolean containsSeparator(String[] keys) {
+	private static boolean hasUnsupportedKey(String[] keys) {
 		for (String key : keys) {
-			if (key.contains(Variable.SEPARATOR))
+			if (key.equals("*") || key.contains(Variable.SEPARATOR))
 				return true;
 		}
 		return false;

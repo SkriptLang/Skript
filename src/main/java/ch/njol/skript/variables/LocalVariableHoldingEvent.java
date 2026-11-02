@@ -14,7 +14,7 @@ import org.skriptlang.skript.variables.VariableMap;
 @ApiStatus.Internal
 public abstract class LocalVariableHoldingEvent extends Event {
 
-	private @Nullable VariableMap map;
+	private volatile @Nullable VariableMap map;
 
 	/**
 	 * @return The current local variable map for this event instance. May be null.
