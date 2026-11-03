@@ -15,6 +15,7 @@ import org.skriptlang.skript.common.function.Parameter;
 import org.skriptlang.skript.common.function.Parameters;
 
 import java.util.Arrays;
+import java.util.SequencedCollection;
 
 public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
