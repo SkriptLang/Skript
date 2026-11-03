@@ -100,6 +100,7 @@ public class StructParse extends Structure {
 			getParser().setCurrentStructure(null);
 
 			logs = handler.getLog().stream()
+				.filter(entry -> entry.getLevel() != SkriptLogger.DEBUG)
 				.map(LogEntry::getMessage)
 				.toArray(String[]::new);
 		}

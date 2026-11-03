@@ -1,11 +1,13 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.effects.EffEnforceWhitelist;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -17,11 +19,9 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Is Whitelisted")
 @Description("Whether or not the server or a player is whitelisted, or the server is whitelist enforced.")
-@Examples({
-	"if the player is whitelisted:",
-	"if the server is whitelisted:",
-	"if the server whitelist is enforced:"
-})
+@Example("if the player is whitelisted:")
+@Example("if the server is whitelisted:")
+@Example("if the server whitelist is enforced:")
 @Since("2.5.2, 2.9.0 (enforce, offline players)")
 @RequiredPlugins("MC 1.17+ (enforce)")
 public class CondIsWhitelisted extends Condition {
@@ -55,6 +55,31 @@ public class CondIsWhitelisted extends Condition {
 		if (isServer)
 			return (isEnforce ? Bukkit.isWhitelistEnforced() : Bukkit.hasWhitelist()) ^ isNegated();
 		return players.check(event, OfflinePlayer::isWhitelisted, isNegated());
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	public void change(Event event, boolean whitelist, ChangeMode mode) {
+		if (isServer) {
+			if (isEnforce) {
+				Bukkit.setWhitelistEnforced(whitelist);
+			} else {
+				Bukkit.setWhitelist(whitelist);
+			}
+		} else {
+			// players
+			assert players != null;
+			for (OfflinePlayer player : players.getArray(event)) {
+				player.setWhitelisted(whitelist);
+			}
+		}
+		if (whitelist) {
+			EffEnforceWhitelist.reloadWhitelist();
+		}
 	}
 
 	@Override

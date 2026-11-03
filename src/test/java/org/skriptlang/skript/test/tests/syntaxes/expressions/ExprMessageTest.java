@@ -1,9 +1,13 @@
 package org.skriptlang.skript.test.tests.syntaxes.expressions;
 
 import ch.njol.skript.test.runner.SkriptJUnitTest;
+import io.papermc.paper.chat.ChatRenderer;
+import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.chat.SignedMessage;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.PluginManager;
@@ -25,11 +29,13 @@ public class ExprMessageTest extends SkriptJUnitTest {
 
 	@Test
 	public void test() {
-		Set<Player> viewers = new HashSet<>();
+		Set<Audience> viewers = new HashSet<>();
 		viewers.add(testPlayer);
 		PluginManager manager = Bukkit.getServer().getPluginManager();
-		manager.callEvent(new AsyncPlayerChatEvent(false, testPlayer, "hi", viewers));
-		manager.callEvent(new PlayerJoinEvent(testPlayer, "hi"));
-		manager.callEvent(new PlayerQuitEvent(testPlayer, "hi"));
+		Component message = Component.text("hi");
+		manager.callEvent(new AsyncChatEvent(false, testPlayer, viewers, ChatRenderer.defaultRenderer(), message, message, SignedMessage.system("hi", message)));
+		manager.callEvent(new PlayerJoinEvent(testPlayer, message));
+		manager.callEvent(new PlayerQuitEvent(testPlayer, message, PlayerQuitEvent.QuitReason.DISCONNECTED));
 	}
+
 }

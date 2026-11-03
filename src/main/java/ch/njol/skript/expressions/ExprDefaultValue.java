@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -23,7 +23,7 @@ import java.util.Set;
 
 @Name("Default Value")
 @Description("A shorthand expression for giving things a default value. If the first thing isn't set, the second thing will be returned.")
-@Examples({"broadcast {score::%player's uuid%} otherwise \"%player% has no score!\""})
+@Example("broadcast {score::%player's uuid%} otherwise \"%player% has no score!\"")
 @Since("2.2-dev36")
 public class ExprDefaultValue extends SimpleExpression<Object> {
 

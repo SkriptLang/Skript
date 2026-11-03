@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -22,22 +22,22 @@ import java.nio.file.Paths;
 @Description({"Loads server icons from the given files. You can get the loaded icon using the",
 		"<a href='#ExprLastLoadedServerIcon'>last loaded server icon</a> expression.",
 		"Please note that the image must be 64x64 and the file path starts from the server folder.",})
-@Examples({"on load:",
-		"	clear {server-icons::*}",
-		"	loop 5 times:",
-		"		load server icon from file \"icons/%loop-number%.png\"",
-		"		add the last loaded server icon to {server-icons::*}",
-		"",
-		"on server list ping:",
-		"	set the icon to a random server icon out of {server-icons::*}"})
+@Example("""
+	on load:
+		clear {server-icons::*}
+		loop 5 times:
+			load server icon from file "icons/%loop-number%.png"
+			add the last loaded server icon to {server-icons::*}
+
+	on server list ping:
+		set the icon to a random server icon out of {server-icons::*}
+	""")
 @Since("2.3")
 public class EffLoadServerIcon extends AsyncEffect {
 
 	static {
 		Skript.registerEffect(EffLoadServerIcon.class, "load [the] server icon (from|of) [the] [image] [file] %string%");
 	}
-
-	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
 
 	@SuppressWarnings("null")
 	private Expression<String> path;
@@ -49,10 +49,6 @@ public class EffLoadServerIcon extends AsyncEffect {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		getParser().setHasDelayBefore(Kleenean.TRUE);
-		if (!PAPER_EVENT_EXISTS) {
-			Skript.error("The load server icon effect requires Paper 1.12.2 or newer");
-			return false;
-		}
 		path = (Expression<String>) exprs[0];
 		return true;
 	}

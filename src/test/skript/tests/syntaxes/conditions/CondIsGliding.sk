@@ -1,0 +1,14 @@
+test "CondIsGliding":
+	spawn a zombie at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} is gliding to true
+	assert {_entity} is gliding with "setting to true failed"
+	set whether {_entity} is gliding to false
+	assert {_entity} is not gliding with "setting to false failed"
+	set whether {_entity} is not gliding to false
+	assert {_entity} is gliding with "(negated) setting to true failed"
+	set whether {_entity} is not gliding to true
+	assert {_entity} is not gliding with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

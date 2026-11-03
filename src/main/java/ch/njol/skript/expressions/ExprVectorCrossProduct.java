@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -20,7 +20,7 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Vectors - Cross Product")
 @Description("Gets the cross product between two vectors.")
-@Examples("send \"%vector 1, 0, 0 cross vector 0, 1, 0%\"")
+@Example("send \"%vector 1, 0, 0 cross vector 0, 1, 0%\"")
 @Since("2.2-dev28")
 public class ExprVectorCrossProduct extends SimpleExpression<Vector> {
 

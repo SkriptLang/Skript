@@ -1,0 +1,3 @@
+test "empty tags with colours of string expression":
+	# throws exception if not fixed
+	set {_} to string colour of "<>"

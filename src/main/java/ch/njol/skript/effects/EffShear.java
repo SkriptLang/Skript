@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -22,12 +22,12 @@ import org.jetbrains.annotations.Nullable;
 	"\nPlease note that..:",
 	"\n- Force-shearing or un-shearing on a sheared mushroom cow is not possible"
 })
-@Examples({
-	"on rightclick on a sheep holding a sword:",
-		"\tshear the clicked sheep",
-		"\tchance of 10%",
-		"\tforce shear the clicked sheep"
-})
+@Example("""
+	on rightclick on a sheep holding a sword:
+		shear the clicked sheep
+		chance of 10%
+		force shear the clicked sheep
+	""")
 @Since("2.0 (cows, sheep & snowmen), 2.8.0 (all shearable entities)")
 public class EffShear extends Effect {
 

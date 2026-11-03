@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -27,14 +27,14 @@ import org.jetbrains.annotations.Nullable;
 	"Checks whether living entities are pathfinding.",
 	"Can only be a living entity that is a Mob."
 })
-@Examples({
-	"make {_entity} pathfind to {_location} at speed 2",
-	"while {_entity} is pathfinding",
-		"\twait a second",
-	"launch flickering trailing burst firework colored red at location of {_entity}",
-	"subtract 10 from {defence::tower::health}",
-	"clear entity within {_entity}"
-})
+@Example("""
+	make {_entity} pathfind to {_location} at speed 2
+	while {_entity} is pathfinding
+		wait a second
+	launch flickering trailing burst firework colored red at location of {_entity}
+	subtract 10 from {defence::tower::health}
+	clear entity within {_entity}
+	""")
 @Since("2.9.0")
 public class CondIsPathfinding extends Condition {
 

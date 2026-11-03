@@ -1,11 +1,13 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.entity.EntityData;
 import io.papermc.paper.entity.Shearable;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.LivingEntity;
@@ -15,10 +17,10 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 
 @Name("Entity Is Sheared")
 @Description("Checks whether entities are sheared.")
-@Examples({
-	"if targeted entity of player is sheared:",
-		"\tsend \"This entity has nothing left to shear!\" to player"
-})
+@Example("""
+	if targeted entity of player is sheared:
+		send "This entity has nothing left to shear!" to player
+	""")
 @Since("2.8.0")
 public class CondIsSheared extends PropertyCondition<LivingEntity> {
 
@@ -42,6 +44,22 @@ public class CondIsSheared extends PropertyCondition<LivingEntity> {
 			return snowman.isDerp();
 		}
 		return false;
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(LivingEntity entity, boolean sheared, ChangeMode mode) {
+		if (entity instanceof Sheep sheep) {
+			sheep.setSheared(sheared);
+		} else if (entity instanceof Snowman snowman) {
+			snowman.setDerp(sheared);
+		} else if (entity instanceof Shearable || entity instanceof Cow) {
+			error("It is not possible to change whether a " + EntityData.toString(entity) + " is sheared.");
+		}
 	}
 
 	@Override

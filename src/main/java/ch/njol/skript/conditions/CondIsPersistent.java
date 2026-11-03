@@ -1,8 +1,9 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.block.Block;
@@ -20,11 +21,11 @@ import org.bukkit.entity.Entity;
 		+ "non-persistent chicken will become non-persistent. This does not apply to players.",
 	"By default, all entities are persistent."
 })
-@Examples({
-	"on spawn:",
-		"\tif event-entity is persistent:",
-			"\t\tmake event-entity not persistent"
-})
+@Example("""
+	on spawn:
+		if event-entity is persistent:
+			make event-entity not persistent
+	""")
 @Since("2.11")
 public class CondIsPersistent extends PropertyCondition<Object> {
 
@@ -40,6 +41,21 @@ public class CondIsPersistent extends PropertyCondition<Object> {
 			return leaves.isPersistent();
 		}
 		return false;
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(Object object, boolean persistent, ChangeMode mode) {
+		if (object instanceof Entity entity) {
+			entity.setPersistent(persistent);
+		} else if (object instanceof Block block && block.getBlockData() instanceof Leaves leaves) {
+			leaves.setPersistent(persistent);
+			block.setBlockData(leaves);
+		}
 	}
 
 	@Override

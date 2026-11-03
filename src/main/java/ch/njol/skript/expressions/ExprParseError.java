@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -19,12 +19,14 @@ import ch.njol.util.Kleenean;
  */
 @Name("Parse Error")
 @Description("The error which caused the last <a href='#ExprParse'>parse operation</a> to fail, which might not be set if a pattern was used and the pattern didn't match the provided text at all.")
-@Examples({"set {var} to line 1 parsed as integer",
-		"if {var} is not set:",
-		"	parse error is set:",
-		"		message \"&lt;red&gt;Line 1 is invalid: %last parse error%\"",
-		"	else:",
-		"		message \"&lt;red&gt;Please put an integer on line 1!\""})
+@Example("""
+	set {var} to line 1 parsed as integer
+	if {var} is not set:
+		parse error is set:
+			message "<red>Line 1 is invalid: %last parse error%"
+		else:
+			message "<red>Please put an integer on line 1!"
+	""")
 @Since("2.0")
 public class ExprParseError extends SimpleExpression<String> {
 	static {

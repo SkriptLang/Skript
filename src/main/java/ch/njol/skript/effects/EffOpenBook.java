@@ -10,7 +10,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -21,7 +21,7 @@ import ch.njol.util.Kleenean;
 
 @Name("Open Book")
 @Description("Opens a written book to a player.")
-@Examples("open book player's tool to player")
+@Example("open book player's tool to player")
 @RequiredPlugins("Minecraft 1.14.2+")
 @Since("2.5.1")
 public class EffOpenBook extends Effect {

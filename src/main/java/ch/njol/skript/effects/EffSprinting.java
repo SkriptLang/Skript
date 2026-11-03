@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -24,10 +24,8 @@ import org.jetbrains.annotations.Nullable;
 	" - The player pressing shift will stop them sprinting, and pressing sprint will re-assert normal sprinting behavior",
 	"Using this effect two or more consecutive times on a stationary player produces undefined behavior and should not be relied on."
 })
-@Examples({
-	"make player start sprinting",
-	"force player to start sprinting"
-})
+@Example("make player start sprinting")
+@Example("force player to start sprinting")
 @Since("2.11")
 public class EffSprinting extends Effect {
 

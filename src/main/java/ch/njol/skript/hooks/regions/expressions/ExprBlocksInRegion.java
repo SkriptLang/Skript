@@ -2,10 +2,11 @@ package ch.njol.skript.hooks.regions.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.hooks.regions.RegionsPlugin;
 import ch.njol.skript.hooks.regions.classes.Region;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -18,6 +19,7 @@ import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -31,10 +33,10 @@ import java.util.NoSuchElementException;
 	"All blocks in a <a href='#region'>region</a>.",
 	"This expression requires a supported regions plugin to be installed."
 })
-@Examples({
-	"loop all blocks in the region {arena.%{faction.%player%}%}:",
-	"\tclear the loop-block"
-})
+@Example("""
+	loop all blocks in the region {arena.%{faction.%player%}%}:
+		clear the loop-block
+	""")
 @Since("2.1")
 @RequiredPlugins("Supported regions plugin")
 public class ExprBlocksInRegion extends SimpleExpression<Block> {
@@ -50,6 +52,7 @@ public class ExprBlocksInRegion extends SimpleExpression<Block> {
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		regions = (Expression<Region>) exprs[0];
+		ScriptWarning.printDeprecationWarning(RegionsPlugin.DEPRECATION_MESSAGE);
 		return true;
 	}
 	

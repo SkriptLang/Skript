@@ -6,7 +6,7 @@ import ch.njol.util.Kleenean;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -23,14 +23,15 @@ import ch.njol.skript.util.slot.SlotWithIndex;
 	"",
 	"Raw index of slot is unique for the view, see <a href=\"https://wiki.vg/Inventory\">Minecraft Wiki</a>",
 })
-@Examples({
-	"if index of event-slot is 10:",
-	"\tsend \"You bought a pie!\"",
-	"",
-	"if display name of player's top inventory is \"Custom Menu\": # 3 rows inventory",
-	"\tif raw index of event-slot > 27: # outside custom inventory",
-	"\t\tcancel event",
-})
+@Example("""
+	if index of event-slot is 10:
+		send "You bought a pie!"
+	""")
+@Example("""
+	if display name of player's top inventory is "Custom Menu": # 3 rows inventory
+		if raw index of event-slot > 27: # outside custom inventory
+			cancel event
+	""")
 @Since("2.2-dev35, 2.8.0 (raw index)")
 public class ExprSlotIndex extends SimplePropertyExpression<Slot, Long> {
 	

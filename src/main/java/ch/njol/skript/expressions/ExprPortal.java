@@ -3,6 +3,8 @@ package ch.njol.skript.expressions;
 import java.util.Iterator;
 import java.util.List;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.event.Event;
@@ -12,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -23,12 +25,14 @@ import ch.njol.util.Kleenean;
 
 @Name("Portal")
 @Description("The blocks associated with a portal in the portal creation event.")
-@Examples({"on portal creation:",
-		"	loop portal blocks:",
-		"		broadcast \"%loop-block% is part of a portal!\""})
+@Example("""
+	on portal creation:
+		loop portal blocks:
+			broadcast "%loop-block% is part of a portal!"
+	""")
 @Since("2.4")
 @Events("portal_create")
-public class ExprPortal extends SimpleExpression<Block> {
+public class ExprPortal extends SimpleExpression<Block> implements EventRestrictedSyntax {
 
 	// 1.14+ returns List<BlockState>, 1.13.2 and below returns ArrayList<Block> 
 	private static final boolean USING_BLOCKSTATE = Skript.isRunningMinecraft(1, 14);
@@ -41,10 +45,12 @@ public class ExprPortal extends SimpleExpression<Block> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		if (getParser().isCurrentEvent(PortalCreateEvent.class))
-			return true;
-		Skript.error("The 'portal' expression may only be used in a portal creation event.");
-		return false;
+		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(PortalCreateEvent.class);
 	}
 
 	@Nullable

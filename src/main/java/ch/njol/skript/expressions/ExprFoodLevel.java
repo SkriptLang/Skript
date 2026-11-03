@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.Delay;
@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
  */
 @Name("Food Level")
 @Description("The food level of a player from 0 to 10. Has several aliases: food/hunger level/meter/bar. ")
-@Examples({"set the player's food level to 10"})
+@Example("set the player's food level to 10")
 @Since("1.0")
 public class ExprFoodLevel extends PropertyExpression<Player, Number> {
 	

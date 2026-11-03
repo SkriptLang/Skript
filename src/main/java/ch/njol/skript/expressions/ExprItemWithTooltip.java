@@ -19,10 +19,8 @@ import org.jetbrains.annotations.Nullable;
 	"If changing the 'entire' tooltip of an item, nothing will show up when a player hovers over it.",
 	"If changing the 'additional' tooltip, only specific parts (which change per item) will be hidden."
 })
-@Examples({
-	"set {_item with additional tooltip} to diamond with additional tooltip",
-	"set {_item without entire tooltip} to diamond without entire tooltip"
-})
+@Example("set {_item with additional tooltip} to diamond with additional tooltip")
+@Example("set {_item without entire tooltip} to diamond without entire tooltip")
 @RequiredPlugins("Minecraft 1.20.5+")
 @Since("2.11")
 public class ExprItemWithTooltip extends PropertyExpression<ItemType, ItemType> {

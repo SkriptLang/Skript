@@ -1,0 +1,4 @@
+test "apostrophes in specified literals":
+	parse:
+		set {_x} to dragon's breath (damage cause)
+	assert last parse logs are not set

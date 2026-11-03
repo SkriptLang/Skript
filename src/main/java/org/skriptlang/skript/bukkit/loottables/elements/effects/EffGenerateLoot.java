@@ -1,8 +1,7 @@
 package org.skriptlang.skript.bukkit.loottables.elements.effects;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -17,6 +16,8 @@ import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -27,16 +28,18 @@ import java.util.concurrent.ThreadLocalRandom;
 		+ "Not specifying a loot context will use a loot context with a location at the world's origin.",
 	"Note that if the inventory is full, it will cause warnings in the console due to over-filling the inventory."
 })
-@Examples({
-	"generate loot of loot table \"minecraft:chests/simple_dungeon\" using loot context at player in {_inventory}",
-	"generate loot using \"minecraft:chests/shipwreck_supply\" in {_inventory}"
-})
+@Example("generate loot of loot table \"minecraft:chests/simple_dungeon\" using loot context at player in {_inventory}")
+@Example("generate loot using \"minecraft:chests/shipwreck_supply\" in {_inventory}")
 @Since("2.10")
 public class EffGenerateLoot extends Effect {
 
-	static {
-		Skript.registerEffect(EffGenerateLoot.class,
-			"generate [the] loot (of|using) %loottable% [(with|using) %-lootcontext%] in %inventories%"
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EFFECT,
+			SyntaxInfo.builder(EffGenerateLoot.class)
+				.addPatterns("generate [the] loot (of|using) %loottable% [(with|using) %-lootcontext%] in %inventories%")
+				.supplier(EffGenerateLoot::new)
+				.build()
 		);
 	}
 

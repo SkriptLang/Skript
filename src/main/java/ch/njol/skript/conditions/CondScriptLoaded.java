@@ -2,28 +2,23 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptCommand;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.parser.ParserInstance;
-import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
+import org.skriptlang.skript.lang.script.Script;
 
 @Name("Is Script Loaded")
 @Description("Check if the current script, or another script, is currently loaded.")
-@Examples({
-	"script is loaded",
-	"script \"example.sk\" is loaded"
-})
+@Example("script is loaded")
+@Example("script \"example.sk\" is loaded")
 @Since("2.2-dev31")
 public class CondScriptLoaded extends Condition {
 
@@ -63,8 +58,8 @@ public class CondScriptLoaded extends Condition {
 		if (scripts == null)
 			return ScriptLoader.getLoadedScripts().contains(currentScript) ^ isNegated();
 		return scripts.check(event, scriptName -> {
-			File scriptFile = ScriptLoader.getScriptFromName(scriptName);
-			return scriptFile != null && ScriptLoader.getLoadedScripts().contains(ScriptLoader.getScript(scriptFile));
+			Script script = ScriptLoader.getLoadedScriptFromName(scriptName);
+			return script != null;
 		}, isNegated());
 	}
 

@@ -1,0 +1,2 @@
+test "PropCondContains conversion":
+	assert "%uuid of world "world"%" contains uuid of world "world" with "failed to convert uuid to string for contains"

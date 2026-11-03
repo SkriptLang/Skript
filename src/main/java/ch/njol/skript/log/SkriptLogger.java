@@ -13,6 +13,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.LogHandler.LogResult;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 /**
  * @author Peter Güttinger
@@ -150,7 +151,7 @@ public abstract class SkriptLogger {
 	public static void log(@Nullable LogEntry entry) {
 		if (entry == null)
 			return;
-		if (Skript.testing() && getNode() != null && getNode().debug())
+		if (Skript.debug() && getNode() != null && getNode().debug())
 			System.out.print("---> " + entry.level + "/" + ErrorQuality.get(entry.quality) + ": " + entry + " ::" + LogEntry.findCaller());
 		for (LogHandler h : getHandlers()) {
 			LogResult r = h.log(entry);
@@ -165,7 +166,15 @@ public abstract class SkriptLogger {
 			}
 		}
 		entry.logged();
-		sendFormatted(Bukkit.getConsoleSender(), "[Skript] " + entry.toFormattedString());
+
+		// In a testing environment, we do not want to pollute console with these debug messages.
+		// It is desirable that the logging process still runs to near completion, as it provides additional testing
+		//  for syntax implementations (e.g. toString functionality).
+		if (Skript.testing() && entry.getLevel() == DEBUG) {
+			return;
+		}
+
+		sendFormatted(Bukkit.getConsoleSender(), Skript.getSkriptPrefix() + entry.toFormattedString());
 	}
 	
 	public static void logAll(Collection<LogEntry> entries) {
@@ -191,10 +200,11 @@ public abstract class SkriptLogger {
 	 */
 	public static void sendFormatted(CommandSender commandSender, String message) {
 		if (commandSender instanceof ConsoleCommandSender) {
-			for (String s : message.split("\n"))
-				Bukkit.getConsoleSender().sendMessage(s);
+			for (String s : message.split("\n")) {
+				commandSender.sendMessage(TextComponentParser.instance().parse(s));
+			}
 		} else {
-			commandSender.sendMessage(message);
+			commandSender.sendMessage(TextComponentParser.instance().parse(message));
 		}
 	}
 

@@ -45,6 +45,7 @@ public class SecParse extends Section {
 			// only store logs if we're not in another parse section.
 			// this way you can access the parse logs of the outermost parse section
 			logs = handler.getLog().stream()
+					.filter(entry -> entry.getLevel() != SkriptLogger.DEBUG)
 					.map(LogEntry::getMessage)
 					.toArray(String[]::new);
 		}

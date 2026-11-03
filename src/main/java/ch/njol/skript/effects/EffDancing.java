@@ -25,15 +25,16 @@ import org.jetbrains.annotations.Nullable;
 	"Providing a timespan only applies for piglins. It determines the length of time they will dance for. "
 		+ "If no timespan is provided, they will dance indefinitely."
 })
-@Examples({
-	"if last spawned allay is not dancing:",
-		"\tmake last spawned allay start dancing",
-	"if block at location(0, 0, 0) is a jukebox:",
-		"\tmake all allays dance at location(0, 0, 0)",
-	"",
-	"make last spawned piglin start dancing",
-	"make all piglins dance for 5 hours"
-})
+@Example("""
+	if last spawned allay is not dancing:
+		make last spawned allay start dancing
+	""")
+@Example("""
+	if block at location(0, 0, 0) is a jukebox:
+		make all allays dance at location(0, 0, 0)
+	""")
+@Example("make last spawned piglin start dancing")
+@Example("make all piglins dance for 5 hours")
 @Since("2.11")
 public class EffDancing extends Effect {
 

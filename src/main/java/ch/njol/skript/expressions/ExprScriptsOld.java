@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -26,13 +26,13 @@ import java.util.stream.Collectors;
 
 @Name("All Scripts")
 @Description("Returns all of the scripts, or just the enabled or disabled ones.")
-@Examples({
-	"command /scripts:",
-	"\ttrigger:",
-	"\t\tsend \"All Scripts: %scripts%\" to player",
-	"\t\tsend \"Loaded Scripts: %enabled scripts%\" to player",
-	"\t\tsend \"Unloaded Scripts: %disabled scripts%\" to player"
-})
+@Example("""
+	command /scripts:
+		trigger:
+			send "All Scripts: %scripts%" to player
+			send "Loaded Scripts: %enabled scripts%" to player
+			send "Unloaded Scripts: %disabled scripts%" to player
+	""")
 @Since("2.5")
 public class ExprScriptsOld extends SimpleExpression<String> implements SimpleExperimentalSyntax {
 

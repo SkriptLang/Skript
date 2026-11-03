@@ -19,7 +19,7 @@ public class EntryContainer {
 	private final @Nullable Map<String, Collection<Node>> handledNodes;
 	private final List<Node> unhandledNodes;
 
-	EntryContainer(
+	protected EntryContainer(
 		SectionNode source, @Nullable EntryValidator entryValidator,
 		@Nullable Map<String, Collection<Node>> handledNodes, List<Node> unhandledNodes
 	) {
@@ -135,7 +135,7 @@ public class EntryContainer {
 		List<R> all = getAll(key, expectedType, useDefaultValue);
 		if (all.isEmpty())
 			throw new RuntimeException("Null value for asserted non-null value");
-		return all.get(0); // always present
+		return all.getFirst(); // always present
 	}
 
 	/**
@@ -154,7 +154,7 @@ public class EntryContainer {
 		List<Object> all = getAll(key, useDefaultValue);
 		if (all.isEmpty())
 			throw new RuntimeException("Null value for asserted non-null value");
-		return all.get(0); // always present
+		return all.getFirst(); // always present
 	}
 
 	/**
@@ -167,7 +167,7 @@ public class EntryContainer {
 	 */
 	public <E, R extends E> @Nullable R getOptional(String key, Class<E> expectedType, boolean useDefaultValue) {
 		List<R> all = getAll(key, expectedType, useDefaultValue);
-		return all.isEmpty() ? null : all.get(0);
+		return all.isEmpty() ? null : all.getFirst();
 	}
 
 	/**
@@ -178,7 +178,7 @@ public class EntryContainer {
 	 */
 	public @Nullable Object getOptional(String key, boolean useDefaultValue) {
 		List<Object> all = getAll(key, useDefaultValue);
-		return all.isEmpty() ? null : all.get(0);
+		return all.isEmpty() ? null : all.getFirst();
 	}
 
 	/**

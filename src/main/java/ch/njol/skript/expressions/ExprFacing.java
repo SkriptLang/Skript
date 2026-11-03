@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -24,9 +24,11 @@ import org.jetbrains.annotations.Nullable;
  */
 @Name("Facing")
 @Description("The facing of an entity or block, i.e. exactly north, south, east, west, up or down (unlike <a href='#ExprDirection'>direction</a> which is the exact direction, e.g. '0.5 south and 0.7 east')")
-@Examples({"# makes a bridge",
-		"loop blocks from the block below the player in the horizontal facing of the player:",
-		"\tset loop-block to cobblestone"})
+@Example("""
+	# makes a bridge
+	loop blocks from the block below the player in the horizontal facing of the player:
+		set loop-block to cobblestone
+	""")
 @Since("1.4")
 public class ExprFacing extends SimplePropertyExpression<Object, Direction> {
 

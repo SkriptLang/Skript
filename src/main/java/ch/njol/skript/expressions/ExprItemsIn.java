@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -30,12 +30,12 @@ import ch.njol.util.Kleenean;
 	"All items or specific type(s) of items in an inventory. Useful for looping or storing in a list variable.",
 	"Please note that the positions of the items in the inventory are not saved, only their order is preserved."
 })
-@Examples({
-	"loop all items in the player's inventory:",
-	"\tloop-item is enchanted",
-	"\tremove loop-item from the player",
-	"set {inventory::%uuid of player%::*} to items in the player's inventory"
-})
+@Example("""
+    loop all items in the player's inventory:
+    	loop-item is enchanted
+    	remove loop-item from the player
+    """)
+@Example("set {inventory::%uuid of player%::*} to items in the player's inventory")
 @Since("2.0, 2.8.0 (specific types of items)")
 public class ExprItemsIn extends SimpleExpression<Slot> {
 

@@ -1,21 +1,21 @@
 package org.skriptlang.skript.registration;
 
 import ch.njol.skript.lang.SyntaxElement;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfoImpl.BuilderImpl;
 import org.skriptlang.skript.util.Priority;
 
 import java.util.Collection;
+import java.util.SequencedCollection;
 import java.util.function.Supplier;
 
 /**
  * A syntax info contains the details of a syntax, including its origin and patterns.
  * @param <E> The class providing the implementation of the syntax this info represents.
  */
-@ApiStatus.Experimental
-public interface SyntaxInfo<E extends SyntaxElement> extends DefaultSyntaxInfos {
+public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends DefaultSyntaxInfos {
 
 	/**
 	 * A priority for infos with patterns that only match simple text (they do not have any {@link Expression}s).
@@ -38,6 +38,21 @@ public interface SyntaxInfo<E extends SyntaxElement> extends DefaultSyntaxInfos 
 	Priority PATTERN_MATCHES_EVERYTHING = Priority.after(COMBINED);
 
 	/**
+	 * Constructs a simple syntax info for a class from patterns.
+	 * @param type The syntax class the info will represent.
+	 * @param instanceSupplier A supplier for creating new instances of {@code type}.
+	 * @param patterns Patterns describing the syntax.
+	 * @return A syntax info representing {@code type}.
+	 */
+	@Contract("_, _, _ -> new")
+	static <E extends SyntaxElement> SyntaxInfo<E> simple(Class<E> type, Supplier<E> instanceSupplier, String... patterns) {
+		return builder(type)
+			.supplier(instanceSupplier)
+			.addPatterns(patterns)
+			.build();
+	}
+
+	/**
 	 * Constructs a builder for a syntax info.
 	 * @param type The syntax class the info will represent.
 	 * @return A builder for creating a syntax info representing <code>type</code>.
@@ -56,7 +71,7 @@ public interface SyntaxInfo<E extends SyntaxElement> extends DefaultSyntaxInfos 
 	/**
 	 * @return The origin of this syntax.
 	 */
-	SyntaxOrigin origin();
+	Origin origin();
 
 	/**
 	 * @return The class providing the implementation of this syntax.
@@ -72,7 +87,7 @@ public interface SyntaxInfo<E extends SyntaxElement> extends DefaultSyntaxInfos 
 	/**
 	 * @return The patterns of this syntax.
 	 */
-	@Unmodifiable Collection<String> patterns();
+	@Unmodifiable SequencedCollection<String> patterns();
 
 	/**
 	 * @return The priority of this syntax, which dictates its position for matching during parsing.
@@ -94,7 +109,7 @@ public interface SyntaxInfo<E extends SyntaxElement> extends DefaultSyntaxInfos 
 		 * @see SyntaxInfo#origin()
 		 */
 		@Contract("_ -> this")
-		B origin(SyntaxOrigin origin);
+		B origin(Origin origin);
 
 		/**
 		 * Sets the supplier the syntax info will use to create new instances of the implementing class.

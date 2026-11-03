@@ -1,6 +1,5 @@
 package org.skriptlang.skript.addon;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.localization.Localizer;
@@ -9,6 +8,7 @@ import org.skriptlang.skript.util.Registry;
 import org.skriptlang.skript.util.ViewProvider;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -16,7 +16,6 @@ import java.util.function.Supplier;
  * A Skript addon is an extension to Skript that expands its features.
  * Typically, an addon instance may be obtained through {@link Skript#registerAddon(Class, String)}.
  */
-@ApiStatus.Experimental
 public interface SkriptAddon extends ViewProvider<SkriptAddon> {
 
 	/**
@@ -73,6 +72,11 @@ public interface SkriptAddon extends ViewProvider<SkriptAddon> {
 	 * @param <R> The type of registry.
 	 */
 	<R extends Registry<?>> R registry(Class<R> registryClass, Supplier<R> putIfAbsent);
+
+	/**
+	 * @return A collection of all registries accessible through this addon.
+	 */
+	Collection<Registry<?>> registries();
 
 	/**
 	 * @return A syntax registry for this addon's syntax.

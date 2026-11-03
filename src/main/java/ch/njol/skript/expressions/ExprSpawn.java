@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.Delay;
@@ -21,10 +21,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Spawn")
 @Description("The spawn point of a world.")
-@Examples({
-	"teleport all players to spawn",
-	"set the spawn point of \"world\" to the player's location"
-})
+@Example("teleport all players to spawn")
+@Example("set the spawn point of \"world\" to the player's location")
 @Since("1.4.2")
 public class ExprSpawn extends PropertyExpression<World, Location> {
 

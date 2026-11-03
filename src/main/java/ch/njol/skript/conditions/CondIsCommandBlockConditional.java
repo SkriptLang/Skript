@@ -1,8 +1,9 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -13,10 +14,10 @@ import org.bukkit.block.data.type.CommandBlock;
 
 @Name("Is Conditional")
 @Description("Checks whether a command block is conditional or not.")
-@Examples({
-	"if {_block} is conditional:",
-		"\tmake {_block} unconditional"
-})
+@Example("""
+	if {_block} is conditional:
+		make {_block} unconditional
+	""")
 @Since("2.10")
 public class CondIsCommandBlockConditional extends PropertyCondition<Block> {
 
@@ -37,6 +38,19 @@ public class CondIsCommandBlockConditional extends PropertyCondition<Block> {
 		if (block.getBlockData() instanceof CommandBlock cmdBlock)
 			return cmdBlock.isConditional();
 		return false;
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(Block block, boolean conditional, ChangeMode mode) {
+		if (block.getBlockData() instanceof CommandBlock commandBlock) {
+			commandBlock.setConditional(conditional);
+			block.setBlockData(commandBlock);
+		}
 	}
 
 	@Override

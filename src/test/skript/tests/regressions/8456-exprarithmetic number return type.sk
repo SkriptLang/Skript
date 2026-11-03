@@ -1,0 +1,4 @@
+test "exprarithmetic number return types":
+	set {_num} to 1
+	set {_nums::*} to ({_num} + 1) and ({_num} + 1)
+	assert {_nums::*} is (2 and 2)

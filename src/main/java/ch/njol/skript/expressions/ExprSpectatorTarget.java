@@ -19,18 +19,19 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.base.types.EntityClassInfo;
+import org.skriptlang.skript.bukkit.types.EntityClassInfo;
 
 @Name("Spectator Target")
 @Description("Grabs the spectator target entity of the players.")
-@Examples({
-	"on player start spectating of player:",
-		"\tmessage \"&c%spectator target% currently has %{game::kills::%spectator target%}% kills!\" to the player",
-	"",
-	"on player stop spectating:",
-		"\tpast spectator target was a zombie",
-		"\tset spectator target to the nearest skeleton"
-})
+@Example("""
+	on player start spectating of player:
+		message "&c%spectator target% currently has %{game::kills::%spectator target%}% kills!" to the player
+	""")
+@Example("""
+	on player stop spectating:
+		past spectator target was a zombie
+		set spectator target to the nearest skeleton
+	""")
 @Since("2.4-alpha4, 2.7 (Paper Spectator Event)")
 public class ExprSpectatorTarget extends SimpleExpression<Entity> {
 

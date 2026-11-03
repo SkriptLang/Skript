@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Opened Inventory")
 @Description({"Return the currently opened inventory of a player.",
 	"If no inventory is open, it returns the own player's crafting inventory."})
-@Examples({"set slot 1 of player's current inventory to diamond sword"})
+@Example("set slot 1 of player's current inventory to diamond sword")
 @Since("2.2-dev24, 2.2-dev35 (Just 'current inventory' works in player events)")
 public class ExprOpenedInventory extends PropertyExpression<Player, Inventory> {
 

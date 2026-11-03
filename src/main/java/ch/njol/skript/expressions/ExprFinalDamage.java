@@ -1,5 +1,7 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.jetbrains.annotations.Nullable;
@@ -9,7 +11,7 @@ import ch.njol.skript.bukkitutil.HealthUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -21,10 +23,10 @@ import ch.njol.util.Kleenean;
 
 @Name("Final Damage")
 @Description("How much damage is done in a damage event, considering all types of damage reduction. Can NOT be changed.")
-@Examples({"send \"%final damage%\" to victim"})
+@Example("send \"%final damage%\" to victim")
 @Since("2.2-dev19")
 @Events("damage")
-public class ExprFinalDamage extends SimpleExpression<Number> {
+public class ExprFinalDamage extends SimpleExpression<Number> implements EventRestrictedSyntax {
 	
 	static {
 		Skript.registerExpression(ExprFinalDamage.class, Number.class, ExpressionType.SIMPLE, "[the] final damage");
@@ -32,11 +34,12 @@ public class ExprFinalDamage extends SimpleExpression<Number> {
 	
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EntityDamageEvent.class)) {
-			Skript.error("The expression 'final damage' can only be used in damage events", ErrorQuality.SEMANTIC_ERROR);
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EntityDamageEvent.class);
 	}
 	
 	@Override

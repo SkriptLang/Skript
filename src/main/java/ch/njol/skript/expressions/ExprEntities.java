@@ -2,10 +2,9 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
@@ -24,19 +23,26 @@ import org.bukkit.event.Event;
 import org.bukkit.util.BoundingBox;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.bukkit.entity.EntityData;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 @Name("Entities")
 @Description("All entities in all worlds, in a specific world, in a chunk, in a radius around a certain location or within two locations. " +
 		"e.g. <code>all players</code>, <code>all creepers in the player's world</code>, or <code>players in radius 100 of the player</code>.")
-@Examples({"kill all creepers in the player's world",
-		"send \"Psst!\" to all players within 100 meters of the player",
-		"give a diamond to all ops",
-		"heal all tamed wolves in radius 2000 around {town center}",
-		"delete all monsters in chunk at player",
-		"size of all players within {_corner::1} and {_corner::2}}"})
+@Example("kill all creepers in the player's world")
+@Example("send \"Psst!\" to all players within 100 meters of the player")
+@Example("give a diamond to all ops")
+@Example("heal all tamed wolves in radius 2000 around {town center}")
+@Example("delete all monsters in chunk at player")
+@Example("size of all players within {_corner::1} and {_corner::2}}")
 @Since("1.2.1, 2.5 (chunks), 2.10 (within)")
 public class ExprEntities extends SimpleExpression<Entity> {
 

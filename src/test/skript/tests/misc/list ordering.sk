@@ -1,0 +1,11 @@
+test "list ordering":
+
+	set {_expected_order::*} to "-100", "-99.99", "-99.9", "-2a", "-2", "-1a", "-1b", "-1", "-00", "-0", "0", "0.1", "0.100", "00", "00.1", "00.100", "1", "001", "200", "a-2", "a-1", "a1", "a2", "abc1abc", "abc1abcd", "abc01abc", "abc01abcd", "abc2abc", "abc2abcd", "b-2", "b-1a", "b-1", "b1", and "b1a"
+
+	loop shuffled {_expected_order::*}:
+		set {_test::%loop-value%} to loop-value
+
+	assert {_test::*} is {_expected_order::*} with "lists don't match"
+	loop {_test::*}:
+		assert loop-value is {_expected_order::%loop-counter%} with "element %loop-counter% (%loop-value%) doesn't match expected order"
+

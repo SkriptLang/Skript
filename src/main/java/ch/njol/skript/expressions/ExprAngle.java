@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -21,12 +21,10 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 	"If radians is specified, converts the passed value to degrees. This conversion may not be entirely accurate, " +
 	"due to floating point precision.",
 })
-@Examples({
-	"set {_angle} to 90 degrees",
-	"{_angle} is 90 # true",
-	"180 degrees is pi # true",
-	"pi radians is 180 degrees # true"
-})
+@Example("set {_angle} to 90 degrees")
+@Example("{_angle} is 90 # true")
+@Example("180 degrees is pi # true")
+@Example("pi radians is 180 degrees # true")
 @Since("2.10")
 public class ExprAngle extends SimpleExpression<Number> {
 

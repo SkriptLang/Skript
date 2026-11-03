@@ -1,9 +1,9 @@
 package ch.njol.skript.conditions;
 
-import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -18,29 +18,22 @@ import org.bukkit.inventory.MainHand;
 @Description({
 	"Checks if living entities or players are left or right-handed. Armor stands are neither right nor left-handed."
 })
-@Examples({
-	"on damage of player:",
-		"\tif victim is left handed:",
-			"\t\tcancel event"
-})
+@Example("""
+	on damage of player:
+		if victim is left handed:
+			cancel event
+	""")
 @Since("2.8.0")
 public class CondIsLeftHanded extends PropertyCondition<LivingEntity> {
 
-	// TODO - remove this when Spigot support is dropped
-	private static final boolean CAN_USE_ENTITIES = Skript.methodExists(Mob.class, "isLeftHanded");
-
 	static {
-		if (CAN_USE_ENTITIES) {
-			register(CondIsLeftHanded.class, "(:left|right)( |-)handed", "livingentities");
-		} else {
-			register(CondIsLeftHanded.class, "(:left|right)( |-)handed", "players");
-		}
+		register(CondIsLeftHanded.class, "(:left|right)( |-)handed", "livingentities");
 	}
 
 	private MainHand hand;
 
 	@Override
-	public boolean init(Expression[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		hand = parseResult.hasTag("left") ? MainHand.LEFT : MainHand.RIGHT;
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
@@ -48,7 +41,7 @@ public class CondIsLeftHanded extends PropertyCondition<LivingEntity> {
 	@Override
 	public boolean check(LivingEntity livingEntity) {
 		// check if entity is a mob and if the method exists
-		if (CAN_USE_ENTITIES && livingEntity instanceof Mob mob)
+		if (livingEntity instanceof Mob mob)
 			return mob.isLeftHanded() == (hand == MainHand.LEFT);
 
 		// check if entity is a player
@@ -57,6 +50,21 @@ public class CondIsLeftHanded extends PropertyCondition<LivingEntity> {
 
 		// invalid entity
 		return false;
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(LivingEntity livingEntity, boolean deltaValue, ChangeMode mode) {
+		deltaValue = deltaValue == (hand == MainHand.LEFT);
+		if (livingEntity instanceof Mob mob) {
+			mob.setLeftHanded(deltaValue);
+		} else if (livingEntity instanceof HumanEntity ignored) {
+			error("It is not possible to change the main hand of a player.");
+		}
 	}
 
 	@Override

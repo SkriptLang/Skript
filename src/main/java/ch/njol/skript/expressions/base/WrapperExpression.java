@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Iterator;
 
 /**
- * Represents an expression which is a wrapper of another one. Remember to set the wrapped expression in the constructor ({@link #WrapperExpression(SimpleExpression)})
+ * Represents an expression which is a wrapper of another one. Remember to set the wrapped expression in the constructor ({@link #WrapperExpression(Expression)})
  * or with {@link #setExpr(Expression)} in {@link SyntaxElement#init(Expression[], int, Kleenean, ParseResult) init()}.<br/>
  * If you override {@link #get(Event)} you must override {@link #iterator(Event)} as well.
  * 
@@ -27,7 +27,7 @@ public abstract class WrapperExpression<T> extends SimpleExpression<T> {
 	@SuppressWarnings("null")
 	protected WrapperExpression() {}
 
-	public WrapperExpression(SimpleExpression<? extends T> expr) {
+	public WrapperExpression(Expression<? extends T> expr) {
 		this.expr = expr;
 	}
 
@@ -89,6 +89,16 @@ public abstract class WrapperExpression<T> extends SimpleExpression<T> {
 	@Override
 	public int getTime() {
 		return expr.getTime();
+	}
+
+	@Override
+	public boolean returnNestedStructures(boolean nested) {
+		return expr.returnNestedStructures(nested);
+	}
+
+	@Override
+	public boolean returnsNestedStructures() {
+		return expr.returnsNestedStructures();
 	}
 
 	@Override

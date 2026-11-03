@@ -1,8 +1,9 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -12,7 +13,7 @@ import org.bukkit.entity.LivingEntity;
 
 @Name("Is Invisible")
 @Description("Checks whether a living entity is invisible.")
-@Examples("target entity is invisible")
+@Example("target entity is invisible")
 @Since("2.7")
 public class CondIsInvisible extends PropertyCondition<LivingEntity> {
 
@@ -31,6 +32,16 @@ public class CondIsInvisible extends PropertyCondition<LivingEntity> {
 	@Override
 	public boolean check(LivingEntity livingEntity) {
 		return livingEntity.isInvisible();
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(LivingEntity livingEntity, boolean invisible, ChangeMode mode) {
+		livingEntity.setInvisible(invisible);
 	}
 
 	@Override

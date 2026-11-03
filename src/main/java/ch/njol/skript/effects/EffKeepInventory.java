@@ -1,5 +1,7 @@
 package ch.njol.skript.effects;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -8,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -18,14 +20,14 @@ import ch.njol.util.Kleenean;
 
 @Name("Keep Inventory / Experience")
 @Description("Keeps the inventory or/and experiences of the dead player in a death event.")
-@Examples({
-	"on death of a player:",
-		"\tif the victim is an op:",
-			"\t\tkeep the inventory and experiences"
-})
+@Example("""
+	on death of a player:
+		if the victim is an op:
+			keep the inventory and experiences
+	""")
 @Since("2.4")
 @Events("death")
-public class EffKeepInventory extends Effect {
+public class EffKeepInventory extends Effect implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerEffect(EffKeepInventory.class,
@@ -39,15 +41,16 @@ public class EffKeepInventory extends Effect {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		keepItems = matchedPattern == 0 || parseResult.mark == 1;
 		keepExp = matchedPattern == 1 || parseResult.mark == 1;
-		if (!getParser().isCurrentEvent(EntityDeathEvent.class)) {
-			Skript.error("The keep inventory/experience effect can't be used outside of a death event");
-			return false;
-		}
 		if (isDelayed.isTrue()) {
 			Skript.error("Can't keep the inventory/experience anymore after the event has already passed");
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EntityDeathEvent.class);
 	}
 
 	@Override

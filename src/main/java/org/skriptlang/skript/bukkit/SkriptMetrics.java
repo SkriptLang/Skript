@@ -6,13 +6,13 @@ import ch.njol.skript.config.Option;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.update.Updater;
 import ch.njol.skript.util.Version;
-import ch.njol.skript.util.chat.ChatMessages;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.DrilldownPie;
 import org.bstats.charts.SimplePie;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -147,9 +147,6 @@ public class SkriptMetrics {
 		metrics.addCustomChart(new SimplePie("caseSensitiveVariables", () ->
 			String.valueOf(!SkriptConfig.caseInsensitiveVariables.value())
 		));
-		metrics.addCustomChart(new SimplePie("caseSensitiveCommands", () ->
-			String.valueOf(!SkriptConfig.caseInsensitiveCommands.value())
-		));
 
 		metrics.addCustomChart(new SimplePie("disableSaveWarnings", () ->
 			SkriptConfig.disableObjectCannotBeSavedWarnings.value().toString()
@@ -172,15 +169,11 @@ public class SkriptMetrics {
 		}));
 
 		metrics.addCustomChart(new SimplePie("parseLinks", () ->
-			ChatMessages.linkParseMode.name().toLowerCase(Locale.ENGLISH)
+			TextComponentParser.instance().linkParseMode().name().toLowerCase(Locale.ENGLISH)
 		));
 
 		metrics.addCustomChart(new SimplePie("colorResetCodes", () ->
 			SkriptConfig.colorResetCodes.value().toString()
-		));
-
-		metrics.addCustomChart(new SimplePie("keepLastUsage", () ->
-			SkriptConfig.keepLastUsageDates.value().toString()
 		));
 
 		metrics.addCustomChart(new DrilldownPie("drilldownParsetimeWarningThreshold", () ->

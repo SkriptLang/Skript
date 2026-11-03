@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -19,14 +19,15 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Vectors - Normalized")
 @Description("Returns the same vector but with length 1.")
-@Examples("set {_v} to normalized {_v}")
+@Example("set {_v} to normalized {_v}")
+@Example("set {_v} to normalised {_u}")
 @Since("2.2-dev28")
 public class ExprVectorNormalize extends SimpleExpression<Vector> {
 
 	static {
 		Skript.registerExpression(ExprVectorNormalize.class, Vector.class, ExpressionType.COMBINED,
-				"normalize[d] %vector%",
-				"%vector% normalized");
+				"normali(z|s)e[d] %vector%",
+				"%vector% normali(z|s)ed");
 	}
 
 	@SuppressWarnings("null")

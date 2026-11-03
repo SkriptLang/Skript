@@ -1,12 +1,14 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -17,10 +19,12 @@ import ch.njol.util.Kleenean;
 
 @Name("Hotbar Button")
 @Description("The hotbar button clicked in an <a href='#inventory_click'>inventory click</a> event.")
-@Examples({"on inventory click:",
-		"	send \"You clicked the hotbar button %hotbar button%!\""})
+@Example("""
+	on inventory click:
+		send "You clicked the hotbar button %hotbar button%!"
+	""")
 @Since("2.5")
-public class ExprHotbarButton extends SimpleExpression<Long> {
+public class ExprHotbarButton extends SimpleExpression<Long> implements EventRestrictedSyntax {
 	
 	static {
 		Skript.registerExpression(ExprHotbarButton.class, Long.class, ExpressionType.SIMPLE, "[the] hotbar button");
@@ -28,11 +32,12 @@ public class ExprHotbarButton extends SimpleExpression<Long> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		if (!getParser().isCurrentEvent(InventoryClickEvent.class)) {
-			Skript.error("The 'hotbar button' expression may only be used in an inventory click event.");
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(InventoryClickEvent.class);
 	}
 	
 	@Nullable

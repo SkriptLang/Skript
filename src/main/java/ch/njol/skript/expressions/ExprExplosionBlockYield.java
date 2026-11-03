@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.jetbrains.annotations.Nullable;
@@ -8,7 +9,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -23,11 +24,13 @@ import ch.njol.util.coll.CollectionUtils;
 @Description({"The percentage of exploded blocks dropped in an explosion event.",
 				"When changing the yield, a value greater than 1 will function the same as using 1.",
 				"Attempting to change the yield to a value less than 0 will have no effect."})
-@Examples({"on explode:",
-			"set the explosion's block yield to 10%"})
-@Events("explosion")
+@Example("""
+	on explode:
+		set the explosion's block yield to 10%
+	""")
+@Events("explode")
 @Since("2.5")
-public class ExprExplosionBlockYield extends SimpleExpression<Number> {
+public class ExprExplosionBlockYield extends SimpleExpression<Number> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprExplosionBlockYield.class, Number.class, ExpressionType.PROPERTY,
@@ -38,11 +41,12 @@ public class ExprExplosionBlockYield extends SimpleExpression<Number> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EntityExplodeEvent.class)) {
-			Skript.error("The 'explosion block yield' is only usable in an explosion event", ErrorQuality.SEMANTIC_ERROR);
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EntityExplodeEvent.class);
 	}
 
 	@Override

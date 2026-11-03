@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -17,10 +17,8 @@ import org.jetbrains.annotations.Nullable;
 @Description(
 	"Gets or sets the command associated with a command block or minecart with command block."
 )
-@Examples({
-	"send command of {_block}",
-	"set command of {_cmdMinecart} to \"say asdf\""
-})
+@Example("send command of {_block}")
+@Example("set command of {_cmdMinecart} to \"say asdf\"")
 @Since("2.10")
 public class ExprCommandBlockCommand extends SimplePropertyExpression<Object, String> {
 

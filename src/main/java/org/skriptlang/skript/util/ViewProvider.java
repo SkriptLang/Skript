@@ -1,6 +1,5 @@
 package org.skriptlang.skript.util;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -9,7 +8,6 @@ import org.jetbrains.annotations.Contract;
  * Since it is a view, it will reflect any changes made to the object it was created from.
  * @param <T> The type being viewed.
  */
-@ApiStatus.Experimental
 public interface ViewProvider<T> {
 
 	/**

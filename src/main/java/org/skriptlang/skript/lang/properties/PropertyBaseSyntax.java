@@ -7,6 +7,7 @@ import ch.njol.skript.util.LiteralUtils;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.properties.handlers.base.PropertyHandler;
 
 import java.util.ArrayList;
 import java.util.List;

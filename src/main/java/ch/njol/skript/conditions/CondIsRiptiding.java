@@ -1,15 +1,16 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.LivingEntity;
 
 @Name("Is Riptiding")
 @Description("Checks to see if an entity is currently using the Riptide enchantment.")
-@Examples("target entity is riptiding")
+@Example("target entity is riptiding")
 @Since("2.5")
 public class CondIsRiptiding extends PropertyCondition<LivingEntity> {
 	
@@ -21,7 +22,17 @@ public class CondIsRiptiding extends PropertyCondition<LivingEntity> {
 	public boolean check(LivingEntity entity) {
 		return entity.isRiptiding();
 	}
-	
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(LivingEntity entity, boolean riptiding, ChangeMode mode) {
+		entity.setRiptiding(riptiding);
+	}
+
 	@Override
 	protected String getPropertyName() {
 		return "riptiding";

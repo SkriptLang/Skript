@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -17,13 +17,11 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Percent of")
 @Description("Returns a percentage of one or more numbers.")
-@Examples({
-	"set damage to 10% of victim's health",
-	"set damage to 125 percent of damage",
-	"set {_result} to {_percent} percent of 999",
-	"set {_result::*} to 10% of {_numbers::*}",
-	"set experience to 50% of player's total experience"
-})
+@Example("set damage to 10% of victim's health")
+@Example("set damage to 125 percent of damage")
+@Example("set {_result} to {_percent} percent of 999")
+@Example("set {_result::*} to 10% of {_numbers::*}")
+@Example("set experience to 50% of player's total experience")
 @Since("2.8.0")
 public class ExprPercent extends SimpleExpression<Number> {
 

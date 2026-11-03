@@ -5,7 +5,7 @@ import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
@@ -29,22 +29,22 @@ import java.util.regex.Matcher;
 	"For example, an option may represent a message that appears in multiple locations.",
 	"Take a look at the example below that showcases this."
 })
-@Examples({
-	"options:",
-	"\tno_permission: You're missing the required permission to execute this command!",
-	"",
-	"command /ping:",
-	"\tpermission: command.ping",
-	"\tpermission message: {@no_permission}",
-	"\ttrigger:",
-	"\t\tmessage \"Pong!\"",
-	"",
-	"command /pong:",
-	"\tpermission: command.pong",
-	"\tpermission message: {@no_permission}",
-	"\ttrigger:",
-	"\t\tmessage \"Ping!\""
-})
+@Example("""
+	options:
+		no_permission: You're missing the required permission to execute this command!
+
+	command /ping:
+		permission: command.ping
+		permission message: {@no_permission}
+		trigger:
+			message "Pong!"
+
+	command /pong:
+		permission: command.pong
+		permission message: {@no_permission}
+		trigger:
+			message "Ping!"
+	""")
 @Since("1.0")
 public class StructOptions extends Structure {
 

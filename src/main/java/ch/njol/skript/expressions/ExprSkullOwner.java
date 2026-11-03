@@ -4,7 +4,7 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -25,11 +25,9 @@ import java.util.function.Consumer;
 
 @Name("Skull Owner")
 @Description("The skull owner of a player skull.")
-@Examples({
-	"set {_owner} to the skull owner of event-block",
-	"set skull owner of {_block} to \"Njol\" parsed as offlineplayer",
-	"set head owner of player's tool to {_player}"
-})
+@Example("set {_owner} to the skull owner of event-block")
+@Example("set skull owner of {_block} to \"Njol\" parsed as offlineplayer")
+@Example("set head owner of player's tool to {_player}")
 @Since("2.9.0, 2.10 (of items)")
 public class ExprSkullOwner extends SimplePropertyExpression<Object, OfflinePlayer> {
 

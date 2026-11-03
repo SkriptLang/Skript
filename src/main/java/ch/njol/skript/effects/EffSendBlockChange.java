@@ -31,7 +31,7 @@ public class EffSendBlockChange extends Effect {
 	static {
 		Skript.registerEffect(EffSendBlockChange.class,
 			"make %players% see %locations% as %itemtype/blockdata%",
-			"make %players% see %locations% as [the|its] (original|normal|actual) [block]"
+			"make %players% see %locations% as [the|its|their] (original|normal|actual) [block[s]]"
 		);
 	}
 

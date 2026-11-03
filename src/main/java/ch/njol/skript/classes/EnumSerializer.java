@@ -1,14 +1,14 @@
 package ch.njol.skript.classes;
 
-import java.io.StreamCorruptedException;
-
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.yggdrasil.ClassResolver;
 import ch.njol.yggdrasil.Fields;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.StreamCorruptedException;
 
 /**
  * Mainly kept for backwards compatibility, but also serves as {@link ClassResolver} for enums.
+ * This won't be used for saving to output stream, but is useful when saving to {@link Fields} representations.
  */
 public class EnumSerializer<T extends Enum<T>> extends Serializer<T> {
 	
@@ -39,21 +39,23 @@ public class EnumSerializer<T extends Enum<T>> extends Serializer<T> {
 	
 	@Override
 	public boolean canBeInstantiated() {
-		assert false;
 		return false;
 	}
 	
 	@Override
 	public Fields serialize(T e) {
 		Fields fields = new Fields();
-		fields.putPrimitive("name", e.name());
+		fields.putObject("name", e.name());
 		return fields;
 	}
 	
 	@Override
 	public T deserialize(Fields fields) {
 		try {
-			return Enum.valueOf(c, fields.getAndRemovePrimitive("name", String.class));
+			String name = fields.getAndRemoveObject("name", String.class);
+			if (name == null)
+				return null;
+			return Enum.valueOf(c, name);
 		} catch (IllegalArgumentException | StreamCorruptedException e) {
 			return null;
 		}

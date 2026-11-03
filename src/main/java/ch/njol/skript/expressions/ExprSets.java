@@ -13,7 +13,7 @@ import com.google.common.collect.Lists;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -26,11 +26,11 @@ import ch.njol.util.Kleenean;
 
 @Name("Sets")
 @Description("Returns a list of all the values of a type. Useful for looping.")
-@Examples({
-	"loop all attribute types:",
-		"\tset loop-value attribute of player to 10",
-		"\tmessage \"Set attribute %loop-value% to 10!\""
-})
+@Example("""
+	loop all attribute types:
+		set loop-value attribute of player to 10
+		message "Set attribute %loop-value% to 10!"
+	""")
 // Class history rename order: LoopItems.class -> ExprItems.class (renamed in 2.3-alpha1) -> ExprSets.class (renamed in 2.7.0)
 @Since("1.0 pre-5, 2.7 (classinfo)")
 public class ExprSets extends SimpleExpression<Object> {

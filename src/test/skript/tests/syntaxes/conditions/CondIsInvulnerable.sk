@@ -8,5 +8,15 @@ test "CondIsInvulnerable":
 		assert entity is invulnerable with "Entity should be invulnerable"
 		make entity vulnerable
 		assert entity is not invulnerable with "Entity should be vulnerable"
+
+		set whether entity is invulnerable to true
+		assert entity is invulnerable with "setting to true failed"
+		set whether entity is invulnerable to false
+		assert entity is not invulnerable with "setting to false failed"
+		set whether entity is not invulnerable to false
+		assert entity is invulnerable with "(negated) setting to true failed"
+		set whether entity is not invulnerable to true
+		assert entity is not invulnerable with "(negated) setting to false failed"
+
 		delete entity
 	assert {_none} is not invulnerable with "Empty variable should be vulnerable"

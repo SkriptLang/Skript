@@ -9,6 +9,7 @@ import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,13 +18,15 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-import java.lang.reflect.Array;
 import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 
 @Name("Indices of Value")
 @Description({
 	"Get the first, last or all positions of a character (or text) in another text using "
-		+ "'positions of %text% in %text%'. Nothing is returned when the value does not occur in the text. "
+		+ "'positions of %texts% in %text%'. Nothing is returned when the value does not occur in the text. "
 		+ "Positions range from 1 to the <a href='#ExprIndicesOf'>length</a> of the text (inclusive).",
 	"",
 	"Using 'indices/positions of %objects% in %objects%', you can get the indices or positions of "
@@ -77,15 +80,15 @@ public class ExprIndicesOfValue extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprIndicesOfValue.class, Object.class, ExpressionType.COMBINED,
-			"[the] [1:first|2:last|3:all] (position[mult:s]|mult:indices|index[mult:es]) of [[the] value] %string% in %string%",
-			"[the] [1:first|2:last|3:all] position[mult:s] of [[the] value] %object% in %~objects%",
-			"[the] [1:first|2:last|3:all] (mult:indices|index[mult:es]) of [[the] value] %object% in %~objects%"
+			"[the] [1:first|2:last|3:all] (position[mult:s]|mult:indices|index[mult:es]) of [[the] value] %strings% in %string%",
+			"[the] [1:first|2:last|3:all] position[mult:s] of [[the] value] %objects% in %~objects%",
+			"[the] [1:first|2:last|3:all] (mult:indices|index[mult:es]) of [[the] value] %objects% in %~objects%"
 		);
 	}
 
 	private IndexType indexType;
 	private boolean position, string;
-	private Expression<?> value, objects;
+	private Expression<?> needle, haystack;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -107,113 +110,144 @@ public class ExprIndicesOfValue extends SimpleExpression<Object> {
 
 		position = matchedPattern <= 1;
 		string = matchedPattern == 0;
-		value = LiteralUtils.defendExpression(exprs[0]);
-		objects = exprs[1];
+		needle = LiteralUtils.defendExpression(exprs[0]);
+		haystack = exprs[1];
 
-		return LiteralUtils.canInitSafely(value);
+		return LiteralUtils.canInitSafely(needle);
 	}
 
 	@Override
 	protected Object @Nullable [] get(Event event) {
-		Object value = this.value.getSingle(event);
-		if (value == null)
-			return (Object[]) Array.newInstance(getReturnType(), 0);
+		Object[] needle = this.needle.getAll(event);
+		if (needle.length == 0)
+			return position ? new Long[0] : new String[0];
 
-		if (this.position) {
-			if (string) {
-				String haystack = (String) objects.getSingle(event);
-				if (haystack == null)
-					return new Long[0];
-
-				return getStringPositions(haystack, (String) value);
-			}
-
-			return getListPositions(objects, value, event);
+		if (!this.position) {
+			assert haystack instanceof KeyProviderExpression<?>;
+			return getIndices((KeyProviderExpression<?>) haystack, needle, event);
 		}
 
-		assert objects instanceof KeyProviderExpression<?>;
+		if (!string)
+			return getListPositions(haystack, needle, event);
 
-		return getIndices((KeyProviderExpression<?>) objects, value, event);
+		String haystack = (String) this.haystack.getSingle(event);
+		if (haystack == null)
+			return new Long[0];
+
+		return getStringPositions(haystack, (String[]) needle);
 	}
 
-	private Long[] getStringPositions(String haystack, String needle) {
+	/**
+	 * Get the positions of needles in a haystack string
+	 * @param haystack the haystack
+	 * @param needles the needles
+	 * @return the found positions
+	 */
+	private Long[] getStringPositions(String haystack, String[] needles) {
 		boolean caseSensitive = SkriptConfig.caseSensitive.value();
 
 		List<Long> positions = new ArrayList<>();
-		long position = StringUtils.indexOf(haystack, needle, caseSensitive);
-
-		if (position == -1)
-			return new Long[0];
-
-		if (indexType == IndexType.ALL) {
-			while (position != -1) {
-				positions.add(position + 1);
-				position = StringUtils.indexOf(haystack, needle, (int) position + 1, caseSensitive);
-			}
-			return positions.toArray(Long[]::new);
-		}
-
-		if (indexType == IndexType.LAST)
-			position = StringUtils.lastIndexOf(haystack, needle, caseSensitive);
-
-		return new Long[]{position + 1};
-	}
-
-	private Long[] getListPositions(Expression<?> list, Object value, Event event) {
-		boolean caseSensitive = SkriptConfig.caseSensitive.value();
-
-		Iterator<?> iterator = list.iterator(event);
-		if (iterator == null)
-			return new Long[0];
-
-		List<Long> positions = new ArrayList<>();
-
-		long position = 0;
-		while (iterator.hasNext()) {
-			position++;
-
-			if (!equals(iterator.next(), value, caseSensitive))
+		for (String needle : needles) {
+			long position = StringUtils.indexOf(haystack, needle, caseSensitive);
+			if (position == -1)
 				continue;
 
-			if (indexType == IndexType.FIRST)
-				return new Long[]{position};
-
-			positions.add(position);
+			switch (indexType) {
+				case FIRST -> positions.add(position + 1);
+				case LAST -> positions.add((long) StringUtils.lastIndexOf(haystack, needle, caseSensitive));
+				case ALL -> {
+					do {
+						positions.add(position + 1);
+						position = StringUtils.indexOf(haystack, needle, (int) position + 1, caseSensitive);
+					} while (position != -1);
+				}
+			}
 		}
-
-		if (indexType == IndexType.LAST)
-			return new Long[]{positions.get(positions.size() - 1)};
-
 		return positions.toArray(Long[]::new);
 	}
 
-	private String[] getIndices(KeyProviderExpression<?> expression, Object value, Event event) {
+	/**
+	 * Generic method to get the positions/indices of needles in a haystack
+	 * @param haystackIterator the haystack
+	 * @param needles the values to look for in the haystack
+	 * @param valueMapper maps an item in the haystack to its value
+	 * @param indexMapper maps an item in the haystack to its index/position
+	 * @param arrayFactory factory to create the resulting array
+	 * @return the found indices/positions
+	 * @param <Item> the type of items in the haystack
+	 * @param <Index> the type of the resulting indices/positions
+	 * @param <Value> the type of values to look for
+	 */
+	private <Item, Index, Value> Index[] getMatches(
+		Iterator<Item> haystackIterator,
+		Value[] needles,
+		Function<Item, Value> valueMapper,
+		BiFunction<Item, Long, Index> indexMapper,
+		IntFunction<Index[]> arrayFactory
+	) {
 		boolean caseSensitive = SkriptConfig.caseSensitive.value();
 
-		Iterator<? extends KeyedValue<?>> iterator = expression.keyedIterator(event);
-		if (iterator == null)
-			return new String[0];
+		//noinspection unchecked
+		List<Index>[] results = new List[needles.length];
+		long index = 1;
+		boolean shouldBreak = false;
+		while (haystackIterator.hasNext()) {
+			Item item = haystackIterator.next();
+			for (int i = 0; i < needles.length; i++) {
+				Object needle = needles[i];
+				if (!equals(valueMapper.apply(item), needle, caseSensitive))
+					continue;
 
-		List<String> indices = new ArrayList<>();
-
-		while (iterator.hasNext()) {
-			var keyedValue = iterator.next();
-
-			if (!equals(keyedValue.value(), value, caseSensitive))
-				continue;
-			if (indexType == IndexType.FIRST)
-				return new String[]{keyedValue.key()};
-
-			indices.add(keyedValue.key());
+				Index mappedIndex = indexMapper.apply(item, index);
+				switch (indexType) {
+					case FIRST, LAST -> results[i] = Collections.singletonList(mappedIndex);
+					case ALL -> {
+						if (results[i] == null)
+							results[i] = new ArrayList<>();
+						results[i].add(mappedIndex);
+					}
+				}
+			}
+			// break early if all first indices were found
+			if (indexType == IndexType.FIRST && !ArrayUtils.contains(results, null))
+				break;
+			index++;
 		}
 
-		if (indices.isEmpty())
+		return Arrays.stream(results)
+			.filter(Objects::nonNull)
+			.flatMap(List::stream)
+			.toArray(arrayFactory);
+	}
+
+	/**
+	 * Get the positions of needles in a haystack list
+	 * @param haystack the haystack
+	 * @param needles the needles
+	 * @param event the event
+	 * @return the found positions
+	 */
+	private Long[] getListPositions(Expression<?> haystack, Object[] needles, Event event) {
+		Iterator<?> haystackIterator = haystack.iterator(event);
+		if (haystackIterator == null)
+			return new Long[0];
+
+		return getMatches(haystackIterator, needles, item -> item, (item, index) -> index, Long[]::new);
+	}
+
+	/**
+	 * Get the indices of needles in a haystack keyed list
+	 * @param haystack the haystack
+	 * @param needles the needles
+	 * @param event the event
+	 * @return the found indices
+	 */
+	private String[] getIndices(KeyProviderExpression<?> haystack, Object[] needles, Event event) {
+		Iterator<? extends KeyedValue<?>> haystackIterator = haystack.keyedIterator(event);
+		if (haystackIterator == null)
 			return new String[0];
 
-		if (indexType == IndexType.LAST)
-			return new String[]{indices.get(indices.size() - 1)};
-
-		return indices.toArray(String[]::new);
+		return getMatches(haystackIterator, needles, KeyedValue::value, (item, index) -> item.key(), String[]::new);
 	}
 
 	private boolean equals(Object key, Object value, boolean caseSensitive) {
@@ -224,7 +258,7 @@ public class ExprIndicesOfValue extends SimpleExpression<Object> {
 
 	@Override
 	public boolean isSingle() {
-		return indexType == IndexType.FIRST || indexType == IndexType.LAST;
+		return (indexType == IndexType.FIRST || indexType == IndexType.LAST) && needle.isSingle();
 	}
 
 	@Override
@@ -237,7 +271,7 @@ public class ExprIndicesOfValue extends SimpleExpression<Object> {
 	@Override
 	public Expression<?> simplify() {
 		if (this.position && this.string
-			&& value instanceof Literal<?> && objects instanceof Literal<?>
+			&& needle instanceof Literal<?> && haystack instanceof Literal<?>
 		) {
 			return SimplifiedLiteral.fromExpression(this);
 		}
@@ -254,7 +288,7 @@ public class ExprIndicesOfValue extends SimpleExpression<Object> {
 		} else {
 			builder.append("indices");
 		}
-		builder.append("of value", value, "in", objects);
+		builder.append("of value", needle, "in", haystack);
 
 		return builder.toString();
 	}

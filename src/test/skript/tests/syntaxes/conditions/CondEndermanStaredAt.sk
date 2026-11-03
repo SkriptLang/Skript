@@ -1,0 +1,14 @@
+test "CondEndermanStaredAt":
+	spawn an enderman at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} has been stared at to true
+	assert {_entity} has been stared at with "setting to true failed"
+	set whether {_entity} has been stared at to false
+	assert {_entity} does not have been stared at with "setting to false failed"
+	set whether {_entity} does not have been stared at to false
+	assert {_entity} has been stared at with "(negated) setting to true failed"
+	set whether {_entity} does not have been stared at to true
+	assert {_entity} does not have been stared at with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

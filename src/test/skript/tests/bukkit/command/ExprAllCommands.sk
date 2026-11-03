@@ -1,0 +1,9 @@
+command /exprallcommands:
+	trigger:
+		stop
+
+test "ExprAllCommands":
+	assert all commands contains "exprallcommands" with "script command not part of all commands"
+	assert all script commands contains "exprallcommands" with "script command not part of all script commands"
+	assert all commands contains "help" with "help command not part of all commands"
+	assert all script commands does not contain "help" with "help command part of all script commands"

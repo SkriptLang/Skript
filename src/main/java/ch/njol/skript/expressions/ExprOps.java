@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -23,7 +23,7 @@ import java.util.List;
 
 @Name("All Operators")
 @Description("The list of operators on the server.")
-@Examples("set {_ops::*} to all operators")
+@Example("set {_ops::*} to all operators")
 @Since("2.7")
 public class ExprOps extends SimpleExpression<OfflinePlayer> {
 	

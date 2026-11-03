@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -25,18 +25,18 @@ import java.util.List;
 @Description({"Gets the amount of rows/slots, viewers and holder of an inventory.",
 	"",
 	"NOTE: 'Viewers' expression returns a list of players viewing the inventory. Note that a player is considered to be viewing their own inventory and internal crafting screen even when said inventory is not open."})
-@Examples({"event-inventory's amount of rows",
-		   "holder of player's top inventory",
-		   "{_inventory}'s viewers"})
+@Example("event-inventory's amount of rows")
+@Example("holder of player's top inventory")
+@Example("{_inventory}'s viewers")
 @Since("2.2-dev34, 2.5 (slots)")
 public class ExprInventoryInfo extends SimpleExpression<Object> {
 	
-	private final static int HOLDER = 1, VIEWERS = 2, ROWS = 3, SLOTS = 4;
+	private final static int HOLDER = 1, ROWS = 2, SLOTS = 3;
 	
 	static {
 		Skript.registerExpression(ExprInventoryInfo.class, Object.class, ExpressionType.PROPERTY,
-				"(" + HOLDER + "¦holder[s]|" + VIEWERS + "¦viewers|" + ROWS + "¦[amount of] rows|" + SLOTS + "¦[amount of] slots)" + " of %inventories%",
-				"%inventories%'[s] (" + HOLDER + "¦holder[s]|" + VIEWERS + "¦viewers|" + ROWS + "¦[amount of] rows|" + SLOTS + "¦[amount of] slots)");
+				"(" + HOLDER + "¦holder[s]|" + ROWS + "¦[amount of] rows|" + SLOTS + "¦[amount of] slots)" + " of %inventories%",
+				"%inventories%'[s] (" + HOLDER + "¦holder[s]|" + ROWS + "¦[amount of] rows|" + SLOTS + "¦[amount of] slots)");
 	}
 	
 	@SuppressWarnings("null")
@@ -78,12 +78,6 @@ public class ExprInventoryInfo extends SimpleExpression<Object> {
 					sizes.add(inventory.getSize());
 				}
 				return sizes.toArray(new Number[0]);
-			case VIEWERS:
-				List<HumanEntity> viewers = new ArrayList<>();
-				for (Inventory inventory : inventories) {
-					viewers.addAll(inventory.getViewers());
-				}
-				return viewers.stream().filter(viewer -> viewer instanceof Player).toArray(Player[]::new);
 			default:
 				return (Object[]) Array.newInstance(getReturnType(), 0);
 		}
@@ -91,17 +85,19 @@ public class ExprInventoryInfo extends SimpleExpression<Object> {
 	
 	@Override
 	public boolean isSingle() {
-		return inventories.isSingle() && type != VIEWERS;
+		return inventories.isSingle();
 	}
 
 	@Override
 	public Class<?> getReturnType() {
-		return type == HOLDER ? InventoryHolder.class : (type == ROWS || type == SLOTS) ? Number.class : Player.class;
+		if (type == HOLDER)
+			return InventoryHolder.class;
+		return Number.class;
 	}
 	
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return (type == HOLDER ? "holder of " : type == ROWS ? "rows of " : type == SLOTS ? "slots of " : "viewers of ") + inventories.toString(e, debug);
+		return (type == HOLDER ? "holder of " : type == ROWS ? "rows of " : "slots of ") + inventories.toString(e, debug);
 	}
 
 }
