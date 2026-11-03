@@ -29,12 +29,12 @@ class ScriptCommandUtils {
 	private static final ArgsMessage INVALID_SCRIPT_MESSAGE = new ArgsMessage(SkriptCommand.CONFIG_NODE + ".invalid script");
 	private static final ArgsMessage INVALID_FOLDER_MESSAGE = new ArgsMessage(SkriptCommand.CONFIG_NODE + ".invalid folder");
 
-	public static @Nullable File getScriptFromName(CommandSender sender, String name) {
-		return getScriptFromName(sender, name, Skript.getInstance().getScriptsFolder());
+	public static @Nullable File getScriptFileFromName(CommandSender sender, String name) {
+		return getScriptFileFromName(sender, name, Skript.getInstance().getScriptsFolder());
 	}
 
-	public static @Nullable File getScriptFromName(CommandSender sender, String name, File directoryFile) {
-		File f = ScriptLoader.getScriptFromName(name, directoryFile);
+	public static @Nullable File getScriptFileFromName(CommandSender sender, String name, File directoryFile) {
+		File f = ScriptLoader.getScriptFileFromName(name, directoryFile);
 		if (f == null) {
 			// Always allow '/' and '\' regardless of OS
 			boolean isDirectory = name.endsWith("/") || name.endsWith("\\") || name.endsWith(File.separator);

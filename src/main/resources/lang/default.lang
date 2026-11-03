@@ -293,41 +293,44 @@ biomes:
 
 # -- Tree Types --
 tree types:
-	tree: tree, any tree
-	oak: oak tree, any oak tree, any normal tree, any regular tree
-	small_oak: small oak tree, small normal tree, small regular tree
-	big_oak: big oak tree, big normal tree, big regular tree
-	spruce: spruce tree, any spruce tree
-	small_spruce: small spruce tree
-	big_spruce: big spruce tree, tall spruce tree
-	mega_spruce: mega spruce tree, giant spruce tree
-	birch: birch tree, any birch tree
-	small_birch: small birch tree
-	tall_birch: tall birch tree
-	jungle: jungle tree, any jungle tree
-	small_jungle: small jungle tree
-	big_jungle: big jungle tree, tall jungle tree, giant jungle tree
-	cocoa_tree: cocoa tree, jungle cocoa tree, cocoa jungle tree
-	jungle_bush: jungle bush, jungle bush tree
-	acacia: acacia tree
-	dark_oak: dark oak tree
-	swamp: swamp tree, swamp oak, swamp oak tree
-	mushroom: huge mushroom, any huge mushroom
-	red_mushroom: huge red mushroom
-	brown_mushroom: huge brown mushroom
-	mangrove: mangrove tree, any mangrove tree
-	small_mangrove: small mangrove tree
-	big_mangrove: big mangrove tree
-	azalea: azalea tree
-	pale_oak: pale oak tree, any pale oak tree
-	pale_oak_normal: normal pale oak tree
-	pale_oak_creaking: creaking pale oak tree
-	cherry: cherry tree
-	crimson_fungus: crimson fungus, crimson tree, crimson fungus tree
-	warped_fungus: warped fungus, warped tree, warped fungus tree
-	chorus_plant: chorus plant
+	tree: tree @a, any tree
+	oak: oak tree @an, any oak tree, any normal tree, any regular tree
+	small_oak: small oak tree @a, small normal tree @a, small regular tree @a
+	big_oak: big oak tree @a, big normal tree @a, big regular tree @a
+	spruce: spruce tree @a, any spruce tree
+	small_spruce: small spruce tree @a
+	big_spruce: big spruce tree @a, tall spruce tree @a
+	mega_spruce: mega spruce tree @a, giant spruce tree @a
+	birch: birch tree @a, any birch tree
+	small_birch: small birch tree @a
+	tall_birch: tall birch tree @a
+	jungle: jungle tree @a, any jungle tree
+	small_jungle: small jungle tree @a
+	big_jungle: big jungle tree @a, tall jungle tree @a, giant jungle tree @a
+	cocoa_tree: cocoa tree @a, jungle cocoa tree @a, cocoa jungle tree @a
+	jungle_bush: jungle bush @a, jungle bush tree @a
+	acacia: acacia tree @a
+	dark_oak: dark oak tree @a
+	swamp: swamp tree @a, swamp oak @a, swamp oak tree @a
+	mushroom: huge mushroom @a, any huge mushroom
+	red_mushroom: huge red mushroom @a
+	brown_mushroom: huge brown mushroom @a
+	mangrove: mangrove tree @a, any mangrove tree
+	small_mangrove: small mangrove tree @a
+	big_mangrove: big mangrove tree @a
+	azalea: azalea tree @an
+	pale_oak: pale oak tree @a, any pale oak tree
+	pale_oak_normal: normal pale oak tree @a
+	pale_oak_creaking: creaking pale oak tree @a
+	cherry: cherry tree @a
+	crimson_fungus: crimson fungus @a, crimson tree @a, crimson fungus tree @a
+	warped_fungus: warped fungus @a, warped tree @a, warped fungus tree @a
+	chorus_plant: chorus plant @a
 	# 26.3
-	poplar: poplar tree, any poplar tree
+	poplar: poplar tree @a, any poplar tree
+	red_poplar: red poplar tree @a
+	orange_poplar: orange poplar tree @an
+	yellow_poplar: yellow poplar tree @a
 
 # -- Time --
 time:
