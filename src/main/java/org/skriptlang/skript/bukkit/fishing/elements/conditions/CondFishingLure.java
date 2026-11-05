@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.fishing.elements.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
@@ -51,6 +52,19 @@ public class CondFishingLure extends Condition {
 			return false;
 
 		return fishEvent.getHook().getApplyLure() ^ isNegated();
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET || mode == ChangeMode.RESET;
+	}
+
+	@Override
+	public void change(Event event, boolean applyLure, ChangeMode mode) {
+		applyLure = applyLure || mode == ChangeMode.RESET;
+		if (event instanceof PlayerFishEvent fishEvent) {
+			fishEvent.getHook().setApplyLure(applyLure);
+		}
 	}
 
 	@Override

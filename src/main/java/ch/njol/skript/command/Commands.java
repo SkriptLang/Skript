@@ -3,25 +3,32 @@ package ch.njol.skript.command;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Message;
+import ch.njol.skript.log.RetainingLogHandler;
+import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.variables.Variables;
 import com.google.common.base.Preconditions;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.help.HelpMap;
 import org.bukkit.help.HelpTopic;
 import org.bukkit.plugin.SimplePluginManager;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
@@ -43,10 +50,6 @@ import java.util.regex.Pattern;
  */
 @SuppressWarnings("deprecation")
 public abstract class Commands {
-
-	public final static ArgsMessage m_too_many_arguments = new ArgsMessage("commands.too many arguments");
-	public final static Message m_internal_error = new Message("commands.internal error");
-	public final static Message m_correct_usage = new Message("commands.correct usage");
 
 	/**
 	 * A Converter flag declaring that a Converter cannot be used for parsing command arguments.
@@ -117,45 +120,54 @@ public abstract class Commands {
 		return "" + unescape.matcher(string).replaceAll("$0");
 	}
 
-	private final static Listener commandListener = new Listener() {
+	static boolean handleEffectCommand(CommandSender sender, String command) {
+		if (!(Skript.testing() || sender instanceof ConsoleCommandSender || sender.hasPermission("skript.effectcommands") || SkriptConfig.allowOpsToUseEffectCommands.value() && sender.isOp()))
+			return false;
+		try {
+			command = "" + command.substring(SkriptConfig.effectCommandToken.value().length()).trim();
+			RetainingLogHandler log = SkriptLogger.startRetainingLog();
+			try {
+				// Call the event on the Bukkit API for addon developers.
+				EffectCommandEvent effectCommand = new EffectCommandEvent(sender, command);
+				Bukkit.getPluginManager().callEvent(effectCommand);
+				command = effectCommand.getCommand();
+				ParserInstance parserInstance = ParserInstance.get();
+				parserInstance.setCurrentEvent("effect command", EffectCommandEvent.class);
+				Effect effect = Effect.parse(command, null);
+				parserInstance.deleteCurrentEvent();
 
-		@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-		public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
-			// Spigot will simply report that the command doesn't exist if a player does not have permission to use it.
-			// This is good security but, well, it's a breaking change for Skript. So we need to check for permissions
-			// ourselves and handle those messages, for every command.
-
-			// parse command, see if it's a skript command
-			String[] cmd = event.getMessage().substring(1).split("\\s+", 2);
-			String label = cmd[0].toLowerCase(Locale.ENGLISH);
-			String arguments = cmd.length == 1 ? "" : "" + cmd[1];
-			ScriptCommand command = commands.get(label);
-
-			// is it a skript command?
-			if (command != null) {
-				// if so, check permissions to handle ourselves
-				if (!command.checkPermissions(event.getPlayer(), label, arguments))
-					event.setCancelled(true);
-
-				// we can also handle case sensitivity here:
-				if (SkriptConfig.caseInsensitiveCommands.value()) {
-					cmd[0] = event.getMessage().charAt(0) + label;
-					event.setMessage(String.join(" ", cmd));
+				TextComponentParser textParser = TextComponentParser.instance();
+				if (effect != null) {
+					log.clear(); // ignore warnings and stuff
+					log.printLog();
+					if (!effectCommand.isCancelled()) {
+						sender.sendMessage(textParser.parse("<gray>Executing '" + textParser.escape(command) + "'"));
+						if (SkriptConfig.logEffectCommands.value() && !(sender instanceof ConsoleCommandSender))
+							Skript.info(sender.getName() + " issued effect command: " + textParser.escape(command));
+						TriggerItem.walk(effect, effectCommand);
+						Variables.removeLocals(effectCommand);
+					} else {
+						sender.sendMessage(textParser.parse("<red>Your effect command '" + textParser.escape(command) + "' was cancelled."));
+					}
+				} else {
+					if (sender == Bukkit.getConsoleSender()) // log as SEVERE instead of INFO like printErrors below
+						// No need to escape command here, logger will do it
+						SkriptLogger.LOGGER.severe("Error in: " + command);
+					else
+						sender.sendMessage(textParser.parse("<red>Error in: <gray>" + textParser.escape(command)));
+					// TODO errors likely need to be escaped too
+					log.printErrors(sender, "(No specific information is available)");
 				}
+			} finally {
+				log.stop();
 			}
+			return true;
+		} catch (Exception e) {
+			Skript.exception(e, "Unexpected error while executing effect command '" + TextComponentParser.instance().escape(command) + "' by '" + sender.getName() + "'");
+			sender.sendRichMessage("<red>An internal error occurred while executing this effect. Please refer to the server log for details.");
+			return true;
 		}
-
-		@SuppressWarnings("null")
-		@EventHandler(priority = EventPriority.HIGHEST)
-		public void onServerCommand(ServerCommandEvent event) {
-			if (event.getCommand().isEmpty() || event.isCancelled())
-				return;
-			if (EffectCommandUtils.canUse(event.getCommand())) {
-				if (EffectCommandUtils.handleEffectCommand(event.getSender(), event.getCommand()))
-					event.setCancelled(true);
-			}
-		}
-	};
+	}
 
 	@Nullable
 	public static ScriptCommand getScriptCommand(String key) {
@@ -221,37 +233,45 @@ public abstract class Commands {
 	private static boolean registeredListeners = false;
 
 	public static void registerListeners() {
-		if (!registeredListeners) {
-			Bukkit.getPluginManager().registerEvents(commandListener, Skript.getInstance());
+		if (registeredListeners) {
+			return;
+		}
+		Bukkit.getPluginManager().registerEvents(new Listener() {
+			@EventHandler(priority = EventPriority.HIGHEST)
+			public void onServerCommand(ServerCommandEvent event) {
+				if (event.getCommand().isEmpty() || event.isCancelled())
+					return;
+				if ((Skript.testing() || SkriptConfig.enableEffectCommands.value()) && event.getCommand().startsWith(SkriptConfig.effectCommandToken.value())) {
+					if (handleEffectCommand(event.getSender(), event.getCommand()))
+						event.setCancelled(true);
+				}
+			}
 
-			Bukkit.getPluginManager().registerEvents(new Listener() {
-				@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-				public void onPlayerChat(AsyncPlayerChatEvent event) {
-					if (!EffectCommandUtils.canUse(event.getMessage()))
-						return;
-					if (!event.isAsynchronous()) {
-						if (EffectCommandUtils.handleEffectCommand(event.getPlayer(), event.getMessage()))
-							event.setCancelled(true);
-					} else {
-						Future<Boolean> f = Bukkit.getScheduler().callSyncMethod(Skript.getInstance(), () -> EffectCommandUtils.handleEffectCommand(event.getPlayer(), event.getMessage()));
-						try {
-							while (true) {
-								try {
-									if (f.get())
-										event.setCancelled(true);
-									break;
-								} catch (InterruptedException ignored) {
-								}
-							}
-						} catch (ExecutionException e) {
-							Skript.exception(e);
+			@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+			public void onPlayerChat(AsyncPlayerChatEvent event) {
+				if ((!SkriptConfig.enableEffectCommands.value() && !Skript.testing()) || !event.getMessage().startsWith(SkriptConfig.effectCommandToken.value()))
+					return;
+				if (!event.isAsynchronous()) {
+					if (handleEffectCommand(event.getPlayer(), event.getMessage()))
+						event.setCancelled(true);
+				} else {
+					Future<Boolean> f = Bukkit.getScheduler().callSyncMethod(Skript.getInstance(), () -> handleEffectCommand(event.getPlayer(), event.getMessage()));
+					try {
+						while (true) {
+							try {
+								if (f.get())
+									event.setCancelled(true);
+								break;
+							} catch (InterruptedException ignored) { }
 						}
+					} catch (ExecutionException e) {
+						Skript.exception(e);
 					}
 				}
-			}, Skript.getInstance());
+			}
+		}, Skript.getInstance());
 
-			registeredListeners = true;
-		}
+		registeredListeners = true;
 	}
 
 	/**

@@ -37,7 +37,6 @@ import java.util.List;
 
 import static org.skriptlang.skript.bukkit.bossbar.BossBarUtils.nearest;
 
-@SuppressWarnings("unchecked")
 @Name("Create Boss Bar")
 @Description("""
 	Creates a new boss bar.
@@ -57,6 +56,15 @@ import static org.skriptlang.skript.bukkit.bossbar.BossBarUtils.nearest;
 		wait 5 seconds
 		remove player from viewers of {_bar}
 	""")
+@Example("""
+	command /createkeyedbar:
+		trigger:
+			set {_bar} to a keyed red bossbar with title "<red>My persistent red bar":
+				set progress of event-bossbar to 14%
+				set style of event-bossbar to 20 notches
+			loop all operators:
+				add loop-value to viewers of {_bar}
+	""")
 @Since("2.16")
 public class ExprSecCreateBossBar extends SectionExpression<BossBar> {
 
@@ -69,6 +77,7 @@ public class ExprSecCreateBossBar extends SectionExpression<BossBar> {
 				.supplier(ExprSecCreateBossBar::new)
 				.build()
 		);
+
 		eventValueRegistry.register(EventValue.builder(CreateBossBarEvent.class, BossBar.class)
 			.getter(CreateBossBarEvent::getBossBar)
 			.build());
@@ -81,6 +90,7 @@ public class ExprSecCreateBossBar extends SectionExpression<BossBar> {
 	private boolean isKeyed;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
 		color = (Expression<Color>) expressions[0];
 		if (matchedPattern == 1) {
@@ -103,9 +113,9 @@ public class ExprSecCreateBossBar extends SectionExpression<BossBar> {
 		BossBar bar;
 		Color color = null;
 		if (this.color != null)
-		    color = this.color.getSingle(event);
+			color = this.color.getSingle(event);
 		BarColor barColor;
-		barColor = color != null && nearest(color) != null ? nearest(color) : BarColor.WHITE;
+		barColor = (color != null && nearest(color) != null) ? nearest(color) : BarColor.WHITE;
 		if (barColor == null)
 			return new BossBar[0];
 
@@ -118,7 +128,10 @@ public class ExprSecCreateBossBar extends SectionExpression<BossBar> {
 		}
 
 		if (isKeyed) {
-			NamespacedKey key = NamespacedUtils.checkValidationAndSend(this.key.getSingle(event), this);
+			String stringKey = this.key.getSingle(event);
+			if (stringKey == null)
+				return new BossBar[0];
+			NamespacedKey key = NamespacedUtils.checkValidationAndSend(stringKey, this);
 			if (key == null)
 				return new BossBar[0];
 			Bukkit.createBossBar(key, legacyTitle, barColor, BarStyle.SOLID);

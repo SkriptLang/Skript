@@ -16,13 +16,13 @@ import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.util.Executable;
 import org.skriptlang.skript.util.Validated;
 
-import java.io.File;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * A partial reference to a Skript function.
@@ -32,6 +32,12 @@ import java.util.Objects;
  */
 public class DynamicFunctionReference<Result>
 	implements Contract, Executable<Event, Result[]>, Validated, AnyNamed {
+
+	/**
+	 * Matches the argument list of a stringified function reference, e.g. the '(1, true)'
+	 * of 'myFunction(1, true)', along with anything following it.
+	 */
+	private static final Pattern ARGUMENTS_PATTERN = Pattern.compile("\\(.*\\).*");
 
 	private final @NotNull String name;
 	private final @Nullable Script source;
@@ -46,8 +52,7 @@ public class DynamicFunctionReference<Result>
 		this.function = new WeakReference<>(function);
 		this.name = function.getName();
 		this.signature = function.getSignature();
-		@Nullable File file = ScriptLoader.getScriptFromName(signature.namespace());
-		this.source = file != null ? ScriptLoader.getScript(file) : null;
+		this.source = ScriptLoader.getLoadedScriptFromName(signature.namespace());
 	}
 
 	public DynamicFunctionReference(@NotNull String name) {
@@ -71,8 +76,13 @@ public class DynamicFunctionReference<Result>
 		this.function = new WeakReference<>(function);
 		if (resolved) {
 			this.signature = function.getSignature();
-			@Nullable File file = ScriptLoader.getScriptFromName(signature.namespace());
-			this.source = file != null ? ScriptLoader.getScript(file) : null;
+			// A local lookup may still fall back to a global function from another script,
+			// so only reuse the provided script when the function actually came from it.
+			if (source != null && source.getConfig().getFileName().equals(signature.namespace())) {
+				this.source = source;
+			} else {
+				this.source = ScriptLoader.getLoadedScriptFromName(signature.namespace());
+			}
 		} else {
 			this.signature = null;
 			this.source = null;
@@ -134,8 +144,12 @@ public class DynamicFunctionReference<Result>
 	public boolean valid() {
 		return resolved && validator.valid()
 			&& function.get() != null // function was garbage-collected
-			&& (source == null || source.valid());
-		// if our source script has been reloaded our reference was invalidated
+			// Deliberately checks the config rather than calling Script#valid(),
+			// which additionally stats the script file on every call.
+			// We should revisit script validity in general since it's technically fine
+			// for the script to not have a File, but for this case all we care about is whether
+			// the config is still loaded and valid.
+			&& (source == null || source.getConfig().valid());
 	}
 
 	@Override
@@ -207,7 +221,7 @@ public class DynamicFunctionReference<Result>
 		if (name.contains(") from ")) {
 			// The user might be trying to resolve a local function by name only
 			String source = name.substring(name.lastIndexOf(" from ") + 6).trim();
-			Script script = getScript(source);
+			Script script = ScriptLoader.getLoadedScriptFromName(source);
 			return resolveFunction(name.substring(0, name.lastIndexOf(" from ")).trim(), script);
 		}
 		return resolveFunction(name, null);
@@ -221,22 +235,13 @@ public class DynamicFunctionReference<Result>
 	 */
 	public static @Nullable DynamicFunctionReference<?> resolveFunction(String name, @Nullable Script script) {
 		if (name.contains("(") && name.contains(")"))
-			name = name.replaceAll("\\(.*\\).*", "").trim();
+			name = ARGUMENTS_PATTERN.matcher(name).replaceAll("").trim();
 		// In the future, if function overloading is supported, we could even use the header
 		// to specify parameter types (e.g. "myFunction(text, player)"
 		DynamicFunctionReference<Object> reference = new DynamicFunctionReference<>(name, script);
 		if (!reference.valid())
 			return null;
 		return reference;
-	}
-
-	private static @Nullable Script getScript(@Nullable String source) {
-		if (source == null || source.isEmpty())
-			return null;
-		@Nullable File file = ScriptLoader.getScriptFromName(source);
-		if (file == null || file.isDirectory())
-			return null;
-		return ScriptLoader.getScript(file);
 	}
 
 	/**

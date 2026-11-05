@@ -45,8 +45,8 @@ public final class BossBarUtils {
 	 */
 	public static Color rgbFromBarColor(BarColor color) {
 		return Arrays.stream(BarColorRGB.values())
-			.filter(c -> c.barColor == color)
-			.map(c -> c.color)
+			.filter(barColor -> barColor.barColor == color)
+			.map(barColor -> barColor.color)
 			.findFirst()
 			.orElse(null);
 	}
@@ -57,14 +57,14 @@ public final class BossBarUtils {
 	 * @return the nearest bar color, or null if no close enough match is found
 	 */
 	public static @Nullable BarColor nearest(Color color) {
-		LabColor lab = LabColor.fromRGB(color.getRed(), color.getGreen(), color.getBlue());
+		LabColor labColor = LabColor.fromRGB(color.getRed(), color.getGreen(), color.getBlue());
 		var value = Arrays.stream(BarColorRGB.values())
-			.min(Comparator.comparingDouble(c -> lab.euclideanDistanceSquared(
-				LabColor.fromRGB(c.color.getRed(), c.color.getGreen(), c.color.getBlue()))));
+			.min(Comparator.comparingDouble(barColor -> labColor.euclideanDistanceSquared(
+				LabColor.fromRGB(barColor.color.getRed(), barColor.color.getGreen(), barColor.color.getBlue()))));
 		if (value.isEmpty())
 			return null;
 		LabColor bestLab = LabColor.fromRGB(value.get().color.getRed(), value.get().color.getGreen(), value.get().color.getBlue());
-		return lab.euclideanDistanceSquared(bestLab) < 2500 ? value.get().barColor : null;
+		return labColor.euclideanDistanceSquared(bestLab) < 2500 ? value.get().barColor : null;
 	}
 
 }

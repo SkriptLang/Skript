@@ -213,6 +213,10 @@ public class Noun extends Message {
 		int part = 3; // 1 = singular, 2 = plural, 3 = both
 		char marker = '¦';
 		int markerCount = StringUtils.count(input, marker);
+		if (markerCount == 0 && input.contains(":")) {
+			marker = ':';
+			markerCount = StringUtils.count(input, marker);
+		}
 		int last = 0, c = -1;
 		while ((c = input.indexOf(marker, c + 1)) != -1) {
 			String x = input.substring(last, c);

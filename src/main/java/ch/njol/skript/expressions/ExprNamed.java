@@ -68,16 +68,19 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 	@Override
 	protected Object[] get(Event event, Object[] source) {
 		Component name = this.name.getSingle(event);
-		if (name == null) {
-			return get(source, obj -> obj); // No name provided, do nothing
-		}
 		return get(source, object -> {
 			if (object instanceof InventoryType inventoryType) {
 				if (!inventoryType.isCreatable()) {
 					return null;
 				}
+				if (name == null) {
+					return Bukkit.createInventory(null, inventoryType);
+				}
 				return Bukkit.createInventory(null, inventoryType, name);
 			} else {
+				if (name == null) {
+					return object;
+				}
 				ItemType item = (ItemType) object;
 				item = item.clone();
 				ItemMeta meta = item.getItemMeta();

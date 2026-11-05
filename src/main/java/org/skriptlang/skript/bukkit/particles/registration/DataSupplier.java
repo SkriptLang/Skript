@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -149,6 +150,39 @@ public interface DataSupplier<D> {
 		if (!(input instanceof Number number))
 			return 1;
 		return number.intValue();
+	}
+
+	/**
+	 * Creates a supplier that packs a vector offset into the integer used by the teleportation trail effects.
+	 * The client reads three shifted, unsigned byte offsets packed as {@code 00000000XXXXXXXXYYYYYYYYZZZZZZZZ},
+	 * as {@code (X - xRadius, Y - yRadius, Z - zRadius)} blocks away from the location the effect is played at.
+	 * <p>
+	 * The radii are hardcoded per effect by the client, so they must match the effect this supplier is registered
+	 * for: 16, 8, 16 for the ender dragon egg, 8, 8, 8 for the shulker, and 127, 127, 127 for the consume effect
+	 * and the enderman. Offsets beyond the radius are clamped.
+	 *
+	 * @param xRadius the x shift the client expects, at most 127
+	 * @param yRadius the y shift the client expects, at most 127
+	 * @param zRadius the z shift the client expects, at most 127
+	 * @return a supplier of the packed offset data that assumes a single Vector expression is present at exprs[0]
+	 */
+	static DataSupplier<Integer> getPackedOffsetData(int xRadius, int yRadius, int zRadius) {
+		return (event, expressions, parseResult) -> {
+			Object input = expressions[0] != null ? expressions[0].getSingle(event) : null;
+			Vector offset = input instanceof Vector vector ? vector : new Vector();
+			return packOffset(offset.getX(), xRadius) << 16 | packOffset(offset.getY(), yRadius) << 8 | packOffset(offset.getZ(), zRadius);
+		};
+	}
+
+	/**
+	 * Shifts a single block offset into the unsigned byte the client expects, clamping it to the radius.
+	 *
+	 * @param offset the offset in blocks
+	 * @param radius the shift the client expects, at most 127
+	 * @return the shifted offset, within {@code [0, 2 * radius]}
+	 */
+	private static int packOffset(double offset, int radius) {
+		return Math.clamp((long) Math.floor(offset), -radius, radius) + radius;
 	}
 
 }

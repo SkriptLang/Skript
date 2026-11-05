@@ -1,0 +1,14 @@
+test "CondIsResponsive":
+	spawn an interaction entity at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} is responsive to true
+	assert {_entity} is responsive with "setting to true failed"
+	set whether {_entity} is responsive to false
+	assert {_entity} is not responsive with "setting to false failed"
+	set whether {_entity} is not responsive to false
+	assert {_entity} is responsive with "(negated) setting to true failed"
+	set whether {_entity} is not responsive to true
+	assert {_entity} is not responsive with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

@@ -1,0 +1,14 @@
+test "CondStriderIsShivering":
+	spawn a strider at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} is shivering to true
+	assert {_entity} is shivering with "setting to true failed"
+	set whether {_entity} is shivering to false
+	assert {_entity} is not shivering with "setting to false failed"
+	set whether {_entity} is not shivering to false
+	assert {_entity} is shivering with "(negated) setting to true failed"
+	set whether {_entity} is not shivering to true
+	assert {_entity} is not shivering with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

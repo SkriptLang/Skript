@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -27,6 +28,8 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -82,7 +85,7 @@ public final class TextComponentParser {
 		 */
 		STRICT(TextReplacementConfig.builder()
 			.match(Pattern.compile("https?://[-\\w.]+\\.\\w{2,}(?:/\\S*)?"))
-			.replacement(url -> url.clickEvent(ClickEvent.openUrl(url.content())))
+			.replacement(LinkParseMode::parseUrl)
 			.build()),
 
 		/**
@@ -90,8 +93,26 @@ public final class TextComponentParser {
 		 */
 		LENIENT(TextReplacementConfig.builder()
 			.match(Pattern.compile("(?:https?://)?[-\\w.]+\\.\\w{2,}(?:/\\S*)?"))
-			.replacement(url -> url.clickEvent(ClickEvent.openUrl(url.content())))
+			.replacement(LinkParseMode::parseUrl)
 			.build());
+
+		private static TextComponent.Builder parseUrl(TextComponent.Builder builder) {
+			String url = builder.content();
+			URI uri;
+			try {
+				uri = new URI(url);
+			} catch (URISyntaxException e) {
+				if (e.getIndex() == -1) { // no recovery possible
+					return builder;
+				}
+				try {
+					uri = new URI(url.substring(0, e.getIndex()));
+				} catch (URISyntaxException ignored) {
+					return builder;
+				}
+			}
+			return builder.clickEvent(ClickEvent.openUrl(uri.toString()));
+		}
 
 		private final TextReplacementConfig textReplacementConfig;
 

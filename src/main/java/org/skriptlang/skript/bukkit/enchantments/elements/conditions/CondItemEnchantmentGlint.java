@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.enchantments.elements.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import ch.njol.skript.aliases.ItemType;
@@ -61,6 +62,22 @@ public class CondItemEnchantmentGlint extends PropertyCondition<ItemType> {
 			return false;
 
 		return meta.getEnchantmentGlintOverride() == expectedGlintOverride;
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(ItemType itemType, boolean glint, ChangeMode mode) {
+		ItemMeta meta = itemType.getItemMeta();
+		if (override) {
+			meta.setEnchantmentGlintOverride(glint ? true : null);
+		} else {
+			meta.setEnchantmentGlintOverride(glint == expectedGlintOverride);
+		}
+		itemType.setItemMeta(meta);
 	}
 
 	@Override

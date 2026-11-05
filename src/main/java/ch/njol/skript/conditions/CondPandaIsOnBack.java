@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -24,6 +25,18 @@ public class CondPandaIsOnBack extends PropertyCondition<LivingEntity> {
 	@Override
 	public boolean check(LivingEntity entity) {
 		return entity instanceof Panda panda && panda.isOnBack();
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(LivingEntity entity, boolean onBack, ChangeMode mode) {
+		if (entity instanceof Panda panda) {
+			panda.setOnBack(onBack);
+		}
 	}
 
 	@Override

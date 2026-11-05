@@ -6,16 +6,11 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.entity.BoatChestData;
-import ch.njol.skript.entity.BoatData;
-import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.entity.RabbitData;
 import ch.njol.skript.util.*;
 import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.slot.SlotWithIndex;
 import ch.njol.util.StringUtils;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -30,6 +25,10 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.skriptlang.skript.bukkit.entity.EntityData;
+import org.skriptlang.skript.bukkit.entity.EntityItemTypeComparable;
+import org.bukkit.potion.PotionEffect;
+import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
@@ -270,23 +269,17 @@ public class DefaultComparators {
 	// EntityData - ItemType
 	public final static Comparator<EntityData, ItemType> entityItemComparator = new Comparator<EntityData, ItemType>() {
 		@Override
-		public Relation compare(EntityData e, ItemType i) {
+		public Relation compare(EntityData entityData, ItemType itemType) {
 			// TODO fix broken comparisions - will probably require updating potion API of Skript
 
-			if (e instanceof Item)
-				return Relation.get(i.isOfType(((Item) e).getItemStack()));
-//			if (Skript.classExists("org.bukkit.entity.WitherSkull") && e instanceof WitherSkull)
-//				return Relation.get(i.isOfType(Material.SKULL_ITEM.getId(), (short) 1));
-			if (e instanceof BoatData)
-				return Relation.get(((BoatData)e).isOfItemType(i));
-			if (e instanceof BoatChestData)
-				return Relation.get(((BoatChestData) e).isOfItemType(i));
-			if (e instanceof RabbitData)
-				return Relation.get(i.isOfType(Material.RABBIT));
-			for (ItemData data : i.getTypes()) {
+			if (entityData instanceof Item item)
+				return Relation.get(itemType.isOfType(item.getItemStack()));
+			if (entityData instanceof EntityItemTypeComparable entityItemTypeComparable)
+				return Relation.get(entityItemTypeComparable.isOfItemType(itemType));
+			for (ItemData data : itemType.getTypes()) {
 				assert data != null;
 				EntityData<?> entity = Aliases.getRelatedEntity(data);
-				if (entity != null && entity.getType().isAssignableFrom(e.getType()))
+				if (entity != null && entity.getType().isAssignableFrom(entityData.getType()))
 					return Relation.EQUAL;
 			}
 			return Relation.NOT_EQUAL;
@@ -446,16 +439,21 @@ public class DefaultComparators {
 		});
 		
 		// Object - ClassInfo
-		Comparators.registerComparator(Object.class, ClassInfo.class, new Comparator<Object, ClassInfo>() {
-			@Override
-			public Relation compare(Object o, ClassInfo c) {
-				return Relation.get(c.getC().isInstance(o) || o instanceof ClassInfo && c.getC().isAssignableFrom(((ClassInfo<?>) o).getC()));
+		Comparators.registerComparator(Object.class, ClassInfo.class, (object, classInfo) -> {
+			if (classInfo.getC().isInstance(object)) {
+				return Relation.EQUAL;
 			}
-
-			@Override
-			public boolean supportsOrdering() {
-				return false;
+			Class<?> objectClass;
+			// TODO this behavior should be provided via a dedicated API (for handling wrapper classes)
+			if (object instanceof ClassInfo<?> objectClassInfo) {
+				objectClass = objectClassInfo.getC();
+			} else if (object instanceof SkriptPotionEffect) { // compatibility: treat SkriptPotionEffect the same as PotionEffect
+				objectClass = PotionEffect.class;
+			} else {
+				return Relation.NOT_EQUAL;
 			}
+			//noinspection unchecked
+			return Relation.get(classInfo.getC().isAssignableFrom(objectClass));
 		});
 		
 		// DamageCause - ItemType

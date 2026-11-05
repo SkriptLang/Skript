@@ -1,0 +1,14 @@
+test "CondItemDespawn":
+	spawn a dropped diamond at the event-location:
+		set {_item} to the event-entity
+
+	set whether {_item} can naturally despawn to true
+	assert {_item} can naturally despawn with "setting to true failed"
+	set whether {_item} can naturally despawn to false
+	assert {_item} can not naturally despawn with "setting to false failed"
+	set whether {_item} can not naturally despawn to false
+	assert {_item} can naturally despawn with "(negated) setting to true failed"
+	set whether {_item} can not naturally despawn to true
+	assert {_item} can not naturally despawn with "(negated) setting to false failed"
+
+	delete the entity within {_item}

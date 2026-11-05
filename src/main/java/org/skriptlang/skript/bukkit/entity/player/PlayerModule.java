@@ -37,7 +37,8 @@ public class PlayerModule extends HierarchicalAddonModule {
 			ExprPlayerListHeaderFooter::register,
 			ExprPlayerListName::register,
 			ExprPlayerListPriority::register,
-			ExprQuitMessage::register
+			ExprQuitMessage::register,
+			ExprRespawnLocation::register
 		);
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerPickBlockEvent")) {
 			register(addon,
