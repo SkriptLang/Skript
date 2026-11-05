@@ -3,6 +3,7 @@ package org.skriptlang.skript.docs;
 /**
  * Describes something that can be written to a {@link DocumentationAdapter}.
  */
+@FunctionalInterface
 public interface Documentable {
 
 	/**

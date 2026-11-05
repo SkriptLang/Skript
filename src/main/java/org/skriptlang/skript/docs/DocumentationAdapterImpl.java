@@ -1,6 +1,5 @@
 package org.skriptlang.skript.docs;
 
-import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
@@ -93,7 +92,7 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 		//noinspection unchecked
 		Map<String, Object> existingScopes = (Map<String, Object>) scopes.getFirst().values().get(key);
 		if (existingScopes == null) {
-			throw new IllegalArgumentException("No scope with key '" + key + "' exists!");
+			throw new DocumentationException("No scope with key '" + key + "' exists!");
 		}
 		scopes.push((new Scope(key, existingScopes)));
 	}
@@ -114,7 +113,7 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 	@Override
 	public Map<String, Object> dataMap() {
 		if (scopes.size() != 1) {
-			throw new SkriptAPIException("Attempted to access data map before all scopes have been exited");
+			throw new DocumentationException("Attempted to access data map before all scopes have been exited");
 		}
 		//noinspection unchecked
 		return (Map<String, Object>) filter(resolveReferences(scopes.peek().values()));
@@ -140,7 +139,7 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 				var builder = ImmutableMap.builder();
 				String id = idMap.get(reference.referenced());
 				if (id == null) {
-					throw new SkriptAPIException("Failed to resolve reference (was it documented?) for " + reference.referenced());
+					throw new DocumentationException("Failed to resolve reference (was it documented?) for " + reference.referenced());
 				}
 				builder.put("id", id);
 				if (reference.referenced() instanceof DocumentationDocumentable documentationDocumentable) {

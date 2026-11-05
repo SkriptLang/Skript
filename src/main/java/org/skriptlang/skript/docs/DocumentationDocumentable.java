@@ -5,6 +5,7 @@ import ch.njol.skript.SkriptAPIException;
 /**
  * A {@link Documentable} that has a retrievable {@link Documentation}.
  */
+@FunctionalInterface
 public interface DocumentationDocumentable extends Documentable {
 
 	/**

@@ -7,6 +7,7 @@ import java.nio.file.Path;
 /**
  * Describes a generator capable of transforming the output of a {@link DocumentationAdapter}.
  */
+@FunctionalInterface
 public interface DocumentationGenerator {
 
 	/**
@@ -14,7 +15,7 @@ public interface DocumentationGenerator {
 	 */
 	@Contract("_, -> new")
 	static DocumentationGenerator json(DocumentationAdapter adapter) {
-		return new JSONGenerator(adapter);
+		return new JsonGenerator(adapter);
 	}
 
 	/**

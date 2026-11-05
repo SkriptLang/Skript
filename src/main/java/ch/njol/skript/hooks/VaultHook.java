@@ -42,9 +42,9 @@ public class VaultHook extends Hook<Plugin> {
 	protected void loadClasses() throws IOException {
 		if (economy != null || TestMode.canGenerateUnsafeDocs())
 			Skript.getAddonInstance().loadClasses(getClass().getPackage().getName() + ".economy");
-		if (chat != null || (TestMode.canGenerateUnsafeDocs()))
+		if (chat != null || TestMode.canGenerateUnsafeDocs())
 			Skript.getAddonInstance().loadClasses(getClass().getPackage().getName() + ".chat");
-		if (permission != null || (TestMode.canGenerateUnsafeDocs()))
+		if (permission != null || TestMode.canGenerateUnsafeDocs())
 			Skript.getAddonInstance().loadClasses(getClass().getPackage().getName() + ".permission");
 
 	}

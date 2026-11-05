@@ -12,7 +12,7 @@ import java.nio.file.Path;
 /**
  * Documentation generator for a JSON output.
  */
-class JSONGenerator implements DocumentationGenerator {
+class JsonGenerator implements DocumentationGenerator {
 
 	private static final Version JSON_VERSION = new Version(3, 0);
 
@@ -24,7 +24,7 @@ class JSONGenerator implements DocumentationGenerator {
 
 	private final DocumentationAdapter adapter;
 
-	JSONGenerator(DocumentationAdapter adapter) {
+	JsonGenerator(DocumentationAdapter adapter) {
 		this.adapter = adapter;
 	}
 
@@ -49,8 +49,7 @@ class JSONGenerator implements DocumentationGenerator {
 		try {
 			Files.writeString(path, GSON.toJson(docs));
 		} catch (IOException ex) {
-			// TODO better exception
-			throw ch.njol.skript.Skript.exception(ex, "An error occurred while trying to generate JSON documentation");
+			throw new DocumentationException("An error occurred while trying to generate JSON documentation", ex);
 		}
 	}
 
