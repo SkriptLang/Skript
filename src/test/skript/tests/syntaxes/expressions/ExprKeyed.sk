@@ -78,3 +78,22 @@ test "set list to keyed function":
 	assert {_h::2.bar} is "second" with "{_h::2.bar} should be 'second'"
 	assert {_h::3.baz} is "third" with "{_h::3.baz} should be 'third'"
 	assert {_h::number} is not set with "{_h::number} should not be set"
+
+local function literals() returns objects:
+	return "first", "second" and "third"
+
+local function forwardedLiterals() returns objects:
+	return literals()
+
+test "set list to keyed function returning values without keys":
+	set {_a::*} to keyed literals()
+	assert size of {_a::*} is 3 with "{_a::*} should have 3 items"
+	assert {_a::1} is "first" with "{_a::1} should be 'first'"
+	assert {_a::2} is "second" with "{_a::2} should be 'second'"
+	assert {_a::3} is "third" with "{_a::3} should be 'third'"
+
+	set {_b::*} to keyed forwardedLiterals()
+	assert size of {_b::*} is 3 with "{_b::*} should have 3 items"
+	assert {_b::1} is "first" with "{_b::1} should be 'first'"
+	assert {_b::2} is "second" with "{_b::2} should be 'second'"
+	assert {_b::3} is "third" with "{_b::3} should be 'third'"
