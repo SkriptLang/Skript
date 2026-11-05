@@ -101,24 +101,25 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 		} else {
 			namespaceId = GLOBAL_NAMESPACE;
 		}
-
 		Namespace ns = namespaces.computeIfAbsent(namespaceId, n -> new Namespace());
-		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
 		// register
 		// since we are getting a set and then updating it,
 		// avoid race conditions by ensuring only one thread can access this namespace for this operation
 		synchronized (ns) {
-			Set<FunctionIdentifier> identifiersWithName = ns.identifiers.computeIfAbsent(identifier.name, s -> new HashSet<>());
-			boolean exists = identifiersWithName.add(identifier);
-			if (!exists) {
-				alreadyRegisteredError(signature.getName(), identifier, namespaceId);
-			}
-		}
+			Set<FunctionIdentifier> identifiers = FunctionIdentifier.of(signature);
 
-		Signature<?> existing = ns.signatures.putIfAbsent(identifier, signature);
-		if (existing != null) {
-			alreadyRegisteredError(signature.getName(), identifier, namespaceId);
+			for (FunctionIdentifier identifier : identifiers) {
+				Set<FunctionIdentifier> identifiersWithName = ns.identifiers.computeIfAbsent(identifier.name, s -> new HashSet<>());
+				boolean existsInIdentifiers = identifiersWithName.add(identifier);
+				if (!existsInIdentifiers || ns.signatures.containsKey(identifier)) {
+					alreadyRegisteredError(identifier.name, identifier, namespaceId);
+				}
+			}
+
+			for (FunctionIdentifier identifier : identifiers) {
+				ns.signatures.put(identifier, signature);
+			}
 		}
 	}
 
@@ -162,17 +163,22 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 		} else {
 			namespaceId = GLOBAL_NAMESPACE;
 		}
-
-		FunctionIdentifier identifier = FunctionIdentifier.of(function.getSignature());
-		if (!signatureExists(namespaceId, identifier)) {
-			register(namespace, function.getSignature());
-		}
-
 		Namespace ns = namespaces.computeIfAbsent(namespaceId, n -> new Namespace());
 
-		Function<?> existing = ns.functions.putIfAbsent(identifier, function);
-		if (existing != null) {
-			alreadyRegisteredError(name, identifier, namespaceId);
+		Set<FunctionIdentifier> identifiers = FunctionIdentifier.of(function.getSignature());
+
+		for (FunctionIdentifier identifier : identifiers) {
+			if (ns.functions.containsKey(identifier)) {
+				alreadyRegisteredError(identifier.name, identifier, namespaceId);
+			}
+		}
+
+		for (FunctionIdentifier identifier : identifiers) {
+			if (!signatureExists(namespaceId, identifier)) {
+				register(namespace, function.getSignature());
+			}
+
+			ns.functions.put(identifier, function);
 		}
 	}
 
@@ -583,9 +589,6 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	public void remove(@NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature cannot be null");
 
-		String name = signature.getName();
-		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
-
 		Namespace namespace;
 		if (signature.isLocal()) {
 			namespace = namespaces.get(new NamespaceIdentifier(signature.namespace()));
@@ -597,13 +600,14 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 			return;
 		}
 
-		for (FunctionIdentifier other : namespace.identifiers.getOrDefault(name, Set.of())) {
-			if (!identifier.equals(other)) {
-				continue;
-			}
+		for (FunctionIdentifier identifier : FunctionIdentifier.of(signature)) {
+			for (FunctionIdentifier other : namespace.identifiers.getOrDefault(identifier.name, Set.of())) {
+				if (!identifier.equals(other)) {
+					continue;
+				}
 
-			removeUpdateMaps(namespace, other, name);
-			return;
+				removeUpdateMaps(namespace, other, identifier.name);
+			}
 		}
 	}
 
@@ -633,15 +637,6 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	 * An identifier for a function namespace.
 	 */
 	private record NamespaceIdentifier(@Nullable String name) {
-
-		/**
-		 * Returns whether this identifier is for local namespaces.
-		 *
-		 * @return Whether this identifier is for local namespaces.
-		 */
-		public boolean local() {
-			return name == null;
-		}
 
 	}
 
@@ -697,7 +692,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 		 * @param signature The signature to get the identifier for.
 		 * @return The identifier for the signature.
 		 */
-		static FunctionIdentifier of(@NotNull Signature<?> signature) {
+		static Set<FunctionIdentifier> of(@NotNull Signature<?> signature) {
 			Preconditions.checkNotNull(signature, "signature cannot be null");
 
 			Parameter<?>[] signatureParams = signature.parameters().all();
@@ -712,9 +707,15 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 
 				parameters[i] = param.type();
 			}
+			int minArgCount = parameters.length - optionalArgs;
 
-			return new FunctionIdentifier(signature.getName(), signature.isLocal(),
-				parameters.length - optionalArgs, parameters);
+			Set<FunctionIdentifier>	identifiers	= new HashSet<>();
+			identifiers.add(new FunctionIdentifier(signature.getName(), signature.isLocal(), minArgCount, parameters));
+			for (String alias : signature.aliases()) {
+				identifiers.add(new FunctionIdentifier(alias, signature.isLocal(), minArgCount, parameters));
+			}
+
+			return identifiers;
 		}
 
 		@Override

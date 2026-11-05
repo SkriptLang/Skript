@@ -10,6 +10,8 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 
+import java.util.Set;
+
 import static org.junit.Assert.*;
 
 public class FunctionRegistryTest {
@@ -369,8 +371,10 @@ public class FunctionRegistryTest {
 			}
 		};
 
-		FunctionIdentifier identifier = FunctionIdentifier.of(function.getSignature());
+		Set<FunctionIdentifier> identifiers = FunctionIdentifier.of(function.getSignature());
+		assertEquals(1, identifiers.size());
 
+		FunctionIdentifier identifier = identifiers.stream().findFirst().orElseThrow();
 		assertEquals(FUNCTION_NAME, identifier.name());
 		assertFalse(identifier.local());
 		assertEquals(1, identifier.minArgCount());
@@ -387,7 +391,7 @@ public class FunctionRegistryTest {
 			}
 		};
 
-		assertEquals(FunctionIdentifier.of(function2.getSignature()), identifier);
+		assertEquals(FunctionIdentifier.of(function2.getSignature()), identifiers);
 	}
 
 	// see https://github.com/SkriptLang/Skript/pull/8015
