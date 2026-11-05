@@ -108,7 +108,7 @@ public class EffSendTitle extends Effect {
 			if (stayTimespan == null) {
 				return;
 			}
-			stay = Duration.from(stayTimespan);
+			stay = stayTimespan.getDuration();
 			specifiesTimes = true;
 		}
 		Duration fadeIn;
@@ -119,7 +119,7 @@ public class EffSendTitle extends Effect {
 			if (fadeInTimespan == null) {
 				return;
 			}
-			fadeIn = Duration.from(fadeInTimespan);
+			fadeIn = fadeInTimespan.getDuration();
 			specifiesTimes = true;
 		}
 		Duration fadeOut;
@@ -130,7 +130,7 @@ public class EffSendTitle extends Effect {
 			if (fadeOutTimespan == null) {
 				return;
 			}
-			fadeOut = Duration.from(fadeOutTimespan);
+			fadeOut = fadeOutTimespan.getDuration();
 			specifiesTimes = true;
 		}
 

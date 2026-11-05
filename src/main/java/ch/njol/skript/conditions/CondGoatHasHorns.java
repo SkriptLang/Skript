@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.effects.EffGoatHorns.GoatHorn;
@@ -55,6 +56,23 @@ public class CondGoatHasHorns extends PropertyCondition<LivingEntity> {
 			case LEFT -> leftHorn;
 			case RIGHT -> rightHorn;
 		};
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return goatHorn != GoatHorn.ANY && mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(LivingEntity entity, boolean hasHorn, ChangeMode mode) {
+		if (entity instanceof Goat goat) {
+			if (goatHorn != GoatHorn.LEFT) {
+				goat.setRightHorn(hasHorn);
+			}
+			if (goatHorn != GoatHorn.RIGHT) {
+				goat.setLeftHorn(hasHorn);
+			}
+		}
 	}
 
 	@Override

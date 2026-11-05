@@ -14,6 +14,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.tag.DamageTypeTags;
 import org.jetbrains.annotations.Nullable;
 
 @Name("With Fire Resistance")
@@ -48,7 +49,7 @@ public class ExprWithFireResistance extends PropertyExpression<ItemType, ItemTyp
 	protected ItemType[] get(Event event, ItemType[] source) {
 		return get(source.clone(), item -> {
 			ItemMeta meta = item.getItemMeta();
-			meta.setFireResistant(!out);
+			meta.setDamageResistant(out ? null : DamageTypeTags.IS_FIRE);
 			item.setItemMeta(meta);
 			return item;
 		});

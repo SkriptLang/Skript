@@ -1,11 +1,13 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.effects.EffEnforceWhitelist;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -53,6 +55,31 @@ public class CondIsWhitelisted extends Condition {
 		if (isServer)
 			return (isEnforce ? Bukkit.isWhitelistEnforced() : Bukkit.hasWhitelist()) ^ isNegated();
 		return players.check(event, OfflinePlayer::isWhitelisted, isNegated());
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	public void change(Event event, boolean whitelist, ChangeMode mode) {
+		if (isServer) {
+			if (isEnforce) {
+				Bukkit.setWhitelistEnforced(whitelist);
+			} else {
+				Bukkit.setWhitelist(whitelist);
+			}
+		} else {
+			// players
+			assert players != null;
+			for (OfflinePlayer player : players.getArray(event)) {
+				player.setWhitelisted(whitelist);
+			}
+		}
+		if (whitelist) {
+			EffEnforceWhitelist.reloadWhitelist();
+		}
 	}
 
 	@Override

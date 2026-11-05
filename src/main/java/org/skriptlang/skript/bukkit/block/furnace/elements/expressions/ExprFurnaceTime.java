@@ -8,6 +8,7 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
@@ -109,20 +110,20 @@ public class ExprFurnaceTime extends PropertyExpression<Block, Timespan> {
 				return null;
 			switch (type) {
 				case COOKTIME -> {
-					return new Timespan(Timespan.TimePeriod.TICK, (int) furnace.getCookTime());
+					return new Timespan(TimePeriod.TICK, (int) furnace.getCookTime());
 				}
 				case TOTALCOOKTIME -> {
 					if (event instanceof FurnaceStartSmeltEvent startEvent && block.equals(startEvent.getBlock())) {
-						return new Timespan(Timespan.TimePeriod.TICK, startEvent.getTotalCookTime());
+						return new Timespan(TimePeriod.TICK, startEvent.getTotalCookTime());
 					} else {
-						return new Timespan(Timespan.TimePeriod.TICK, furnace.getCookTimeTotal());
+						return new Timespan(TimePeriod.TICK, furnace.getCookTimeTotal());
 					}
 				}
 				case BURNTIME -> {
 					if (event instanceof FurnaceBurnEvent burnEvent && block.equals(burnEvent.getBlock())) {
-						return new Timespan(Timespan.TimePeriod.TICK, burnEvent.getBurnTime());
+						return new Timespan(TimePeriod.TICK, burnEvent.getBurnTime());
 					} else {
-						return new Timespan(Timespan.TimePeriod.TICK, (int) furnace.getBurnTime());
+						return new Timespan(TimePeriod.TICK, (int) furnace.getBurnTime());
 					}
 				}
 			}
@@ -142,7 +143,7 @@ public class ExprFurnaceTime extends PropertyExpression<Block, Timespan> {
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		int providedTime = 0;
 		if (delta != null && delta[0] instanceof Timespan span)
-			providedTime = (int) span.get(Timespan.TimePeriod.TICK);
+			providedTime = (int) span.getAs(TimePeriod.TICK);
 		int finalTime = providedTime;
 
 		Function<Integer, Integer> calculateTime = switch (mode) {
@@ -186,9 +187,10 @@ public class ExprFurnaceTime extends PropertyExpression<Block, Timespan> {
 	 */
 	private void changeFurnaces(Event event, Consumer<Furnace> changer) {
 		for (Block block : getExpr().getArray(event)) {
-			Furnace furnace = (Furnace) block.getState();
-			changer.accept(furnace);
-			furnace.update(true);
+			if (block != null && block.getState() instanceof Furnace furnace) {
+				changer.accept(furnace);
+				furnace.update(true);
+			}
 		}
 	}
 

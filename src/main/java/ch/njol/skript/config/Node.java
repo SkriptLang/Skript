@@ -5,6 +5,7 @@ import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.util.Validated;
@@ -237,8 +238,8 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 		// Print the line caused the issue for diagnosing (will be very long most probably), in case of someone pasting this in an issue and not providing the code.
 		Skript.error(line);
 
-		// If testing (assertions enabled) - print the whole stack trace.
-		if (Skript.testing()) {
+		// If debugging, print the whole stack trace.
+		if (Skript.debug()) {
 			Skript.exception(e);
 		}
 
@@ -246,7 +247,7 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 	}
 
 	@Nullable
-	protected String getComment() {
+	public String getComment() {
 		return comment;
 	}
 
@@ -259,7 +260,7 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 		return Math.max(0, l - 1);
 	}
 
-	protected String getIndentation() {
+	public String getIndentation() {
 		return StringUtils.multiply(config.getIndentation(), getLevel());
 	}
 

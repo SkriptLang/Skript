@@ -1,0 +1,16 @@
+command /exprcommandinfo:
+	aliases: /exprcommandinfo2
+	description: This is the description
+	usage: This is the usage
+	permission: skript.exprcommandinfo
+	trigger:
+		stop
+
+test "ExprCommandInfo":
+	assert the main command name of the command "exprcommandinfo" is "exprcommandinfo"
+	assert the description of the command "exprcommandinfo" is "This is the description"
+	assert the label of the command "exprcommandinfo" is "exprcommandinfo"
+	assert the usage of the command "exprcommandinfo" is "This is the usage"
+	assert the aliases of the command "exprcommandinfo" are "exprcommandinfo2" and "skript:exprcommandinfo2"
+	assert the permission of the command "exprcommandinfo" is "skript.exprcommandinfo"
+	assert the plugin of the command "exprcommandinfo" is "Skript"

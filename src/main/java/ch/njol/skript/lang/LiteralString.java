@@ -3,8 +3,10 @@ package ch.njol.skript.lang;
 import ch.njol.skript.lang.util.ConvertedLiteral;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.coll.CollectionUtils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.Optional;
@@ -46,6 +48,13 @@ public class LiteralString extends VariableString implements Literal<String> {
 		if (CollectionUtils.containsSuperclass(to, String.class))
 			return (Literal<? extends R>) this;
 		Class<R> superType = (Class<R>) Utils.getSuperType(to);
+
+		// TODO would be better to not hardcode this here
+		// In case of converting literal strings to components, we want to allow ALL formatting as there is no risk
+		if (superType == Component.class) {
+			return new ConvertedLiteral<>(this, (R[]) new Component[]{TextComponentParser.instance().parse(original)}, superType);
+		}
+
 		R[] parsedData = Converters.convert(this.getArray(), to, superType);
 		if (parsedData.length != 1)
 			return null;
