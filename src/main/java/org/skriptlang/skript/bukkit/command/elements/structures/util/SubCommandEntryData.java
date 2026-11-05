@@ -55,10 +55,14 @@ import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.log.runtime.ErrorSource;
 import org.skriptlang.skript.util.Priority;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.EnumSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -461,7 +465,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 			List<Result> finalSubcommands = subcommands;
 			result = compilationResult.root().children().stream()
 				.map(child -> parse(child, executor, commandRequires, suggestionProvider,
-					suggestingArguments, finalSubcommands, usageExecutor))
+					suggestingArguments, finalSubcommands, usageExecutor, false))
 				.toList();
 		}
 
@@ -516,7 +520,8 @@ public class SubCommandEntryData extends EntryData<Result> {
 		@Nullable ScriptSuggestionProvider suggestionProvider,
 		List<ArgumentData<?>> suggestingArguments,
 		List<Result> subcommands,
-		@Nullable UsageExecutor usageExecutor
+		@Nullable UsageExecutor usageExecutor,
+		boolean skipPath
 	) {
 		Collection<CommandElement> children = commandElement.children();
 
@@ -534,8 +539,12 @@ public class SubCommandEntryData extends EntryData<Result> {
 				nativeType = nativeMapping.mapper().apply(data);
 			}
 			if (nativeType == null) {
-				if ((children.isEmpty() || (children.size() == 1 && children.contains(null))) && subcommands.isEmpty()) {
-					// last argument can be greedy
+				if (!skipPath && (children.isEmpty() || (children.size() == 1 && children.contains(null))) && subcommands.isEmpty()) {
+					// last argument can be greedy. skip-path occurrences must not be greedy:
+					//  they are siblings of the primary path, and Brigadier's parse prefers
+					//  whichever sibling consumed the most input. a greedy skip-path would
+					//  always win the parse context, preventing deeper arguments from being
+					//  reached for execution and suggestions.
 					nativeType = StringArgumentType.greedyString();
 				} else {
 					nativeType = StringArgumentType.string();
@@ -587,15 +596,62 @@ public class SubCommandEntryData extends EntryData<Result> {
 			argument.builder().executes(usageExecutor);
 		}
 
-		// we parse the children to append to this element
+		// we parse the children to append to this element.
+		// skip-path children (elements also reachable through a sibling, i.e. later optional
+		//  arguments) are parsed separately so that their parsing behavior can differ:
+		//  they must not be greedy, and they must be attached after primary children.
+		//  otherwise, skip-path siblings hijack the parse context, preventing deeper
+		//  arguments from being reached for execution and suggestions.
+		List<CommandElement> elements = new ArrayList<>();
 		for (CommandElement element : children) {
-			if (element == null) {
-				continue;
+			if (element != null) {
+				elements.add(element);
 			}
-			// we don't need to pass requirements down to children. just on the root is good enough.
-			possibleArguments.add(parse(element, executor, null, suggestionProvider,
-				suggestingArguments, subcommands, usageExecutor));
 		}
+		List<CommandElement> skipElements = new ArrayList<>();
+		List<CommandElement> normalElements = new ArrayList<>();
+		for (CommandElement element : elements) {
+			boolean skip = false;
+			for (CommandElement sibling : elements) {
+				if (sibling != element && isDescendant(sibling, element)) {
+					skip = true;
+					break;
+				}
+			}
+			(skip ? skipElements : normalElements).add(element);
+		}
+		List<ScriptArgumentBuilder> normalBuilders = new ArrayList<>();
+		for (CommandElement element : normalElements) {
+			// we don't need to pass requirements down to children. just on the root is good enough.
+			normalBuilders.add(parse(element, executor, null, suggestionProvider,
+				suggestingArguments, subcommands, usageExecutor, false));
+		}
+		List<ScriptArgumentBuilder> skipBuilders = new ArrayList<>();
+		for (CommandElement element : skipElements) {
+			skipBuilders.add(parse(element, executor, null, suggestionProvider,
+				suggestingArguments, subcommands, usageExecutor, true));
+		}
+
+		// clients only track a single pending server suggestion request, so sibling argument nodes
+		//  offering server-side suggestions would leave the earlier futures uncompletable.
+		// only the first non-skip argument child may keep a custom suggestion provider.
+		boolean providerAssigned = false;
+		for (ScriptArgumentBuilder possibleArgument : Stream.concat(Stream.concat(
+				possibleArguments.stream(), normalBuilders.stream()), skipBuilders.stream()).toList()) {
+			if (possibleArgument.builder() instanceof RequiredArgumentBuilder<?, ?> argumentBuilder
+					&& argumentBuilder.getSuggestionsProvider() != null) {
+				if (providerAssigned) {
+					argumentBuilder.suggests(null);
+				} else {
+					providerAssigned = true;
+				}
+			}
+		}
+
+		// attach primary children before skip-paths. when sibling parses tie, the earlier
+		//  child wins the parse context, so the primary path must come first.
+		possibleArguments.addAll(normalBuilders);
+		possibleArguments.addAll(skipBuilders);
 
 		// sort and append all children to this element
 		possibleArguments.sort(Comparator.comparing(SubCommandEntryData::getPriority));
@@ -604,6 +660,30 @@ public class SubCommandEntryData extends EntryData<Result> {
 		}
 
 		return argument;
+	}
+
+	/**
+	 * Whether {@code target} is reachable within {@code ancestor}'s subtree.
+	 * Used to identify skip-path elements, which are elements that appear at a level
+	 *  while also existing deeper within a sibling's subtree.
+	 */
+	private static boolean isDescendant(CommandElement ancestor, CommandElement target) {
+		Set<CommandElement> visited = Collections.newSetFromMap(new IdentityHashMap<>());
+		Deque<CommandElement> stack = new ArrayDeque<>();
+		stack.push(ancestor);
+		visited.add(ancestor);
+		while (!stack.isEmpty()) {
+			for (CommandElement child : stack.pop().children()) {
+				if (child == null || !visited.add(child)) {
+					continue;
+				}
+				if (child == target) {
+					return true;
+				}
+				stack.push(child);
+			}
+		}
+		return false;
 	}
 
 	private static final Priority LITERAL = Priority.base();

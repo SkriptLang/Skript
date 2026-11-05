@@ -204,9 +204,13 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 				strippedName = strippedName.substring(EPHEMERAL_VARIABLE_TOKEN.length());
 			}
 			if (strippedName.startsWith("%")) {
-				Skript.warning("Starting a variable's name with an expression is discouraged ({" + name + "}). " +
-					"You could prefix it with the script's name: " +
-					"{" + StringUtils.substring(currentScript.getConfig().getFileName(), 0, -3) + SEPARATOR + name + "}");
+				int firstExprEnd = strippedName.indexOf('%', 1);
+				String remainder = firstExprEnd >= 0 ? strippedName.substring(firstExprEnd + 1) : "";
+				if (!remainder.contains(SEPARATOR)) {
+					Skript.warning("Starting a variable's name with an expression is discouraged ({" + name + "}). " +
+						"You could prefix it with the script's name: " +
+						"{" + StringUtils.substring(currentScript.getConfig().getFileName(), 0, -3) + SEPARATOR + name + "}");
+				}
 			}
 		}
 
