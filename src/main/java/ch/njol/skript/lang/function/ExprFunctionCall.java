@@ -60,8 +60,10 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 			values = (Object[]) execute;
 		}
 
-		String[] keys = reference.function().returnedKeys();
-		reference.function().resetReturnValue();
+		org.skriptlang.skript.common.function.Function<?> function = reference.function();
+		String[] keys = function != null ? function.returnedKeys() : null;
+		if (function != null)
+			function.resetReturnValue();
 
 		//noinspection unchecked
 		T[] convertedValues = (T[]) Array.newInstance(returnType, values != null ? values.length : 0);
