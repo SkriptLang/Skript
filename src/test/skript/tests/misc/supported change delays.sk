@@ -1,0 +1,9 @@
+parse:
+	results: {SupportedChangeDelays::*}
+	code:
+		on quit:
+			wait a tick
+			set the quit message to "bye"
+
+test "supported change delays":
+	assert {SupportedChangeDelays::*} contains "'the quit message' cannot be changed after the event has passed" with "supported change delays message did not get sent correctly"
