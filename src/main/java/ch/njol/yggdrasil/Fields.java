@@ -53,7 +53,6 @@ public final class Fields implements Iterable<FieldContext> {
 			if (value == null)
 				return null;
 			Class<?> type = value.getClass();
-			assert type != null;
 			return isPrimitiveValue ? Tag.getPrimitiveFromWrapper(type).type : type;
 		}
 
@@ -134,9 +133,8 @@ public final class Fields implements Iterable<FieldContext> {
 				return true;
 			if (object == null)
 				return false;
-			if (!(object instanceof FieldContext))
+			if (!(object instanceof FieldContext other))
 				return false;
-			FieldContext other = (FieldContext) object;
 			return id.equals(other.id);
 		}
 		
@@ -198,7 +196,6 @@ public final class Fields implements Iterable<FieldContext> {
 	public Fields(Object object, @Nullable Yggdrasil yggdrasil) throws NotSerializableException {
 		this.yggdrasil = yggdrasil;
 		Class<?> type = object.getClass();
-		assert type != null;
 		for (Field field : getFields(type)) {
 			assert field != null;
 			try {
@@ -312,7 +309,6 @@ public final class Fields implements Iterable<FieldContext> {
 			throw new YggdrasilException("");
 		Set<FieldContext> excessive = new HashSet<>(fields.values());
 		Class<?> type = object.getClass();
-		assert type != null;
 		for (Field field : getFields(type)) {
 			assert field != null;
 			String id = Yggdrasil.getID(field);
