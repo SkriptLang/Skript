@@ -1,0 +1,329 @@
+# Raytracing tests.
+
+test "raytrace hitting a block":
+	set {_world} to world("world")
+	set {_start} to location(0.5, 100.5, 0.5, {_world})
+	set {_target} to location(10, 100, 0, {_world})
+	set block at location(5, 100, 0, {_world}) to air
+	set block at {_target} to stone
+
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters
+
+	assert {_hit} is set with "a raytrace at a stone block should hit it"
+	assert {_hit} hit a block with "the raytrace should report hitting a block"
+	assert {_hit} hit anything with "the raytrace should report hitting something"
+	assert {_hit} didn't hit an entity with "the raytrace should not report hitting an entity"
+	assert hit block of {_hit} is block at {_target} with "the hit block should be the stone block"
+	assert hit face of {_hit} is west face with "the ray travels east, so it should hit the west face"
+	assert hit location of {_hit} is location(10, 100.5, 0.5, {_world}) with "the hit location should be on the block's west face"
+
+	set block at {_target} to air
+
+test "raytrace hitting nothing":
+	set {_world} to world("world")
+	set {_start} to location(0.5, 100.5, 5.5, {_world})
+	set {_target} to location(10, 100, 5, {_world})
+	set block at location(5, 100, 5, {_world}) to air
+	set block at {_target} to stone
+
+	# the block is 10 blocks away, so a 5 block ray falls short
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 5 meters
+	assert {_hit} is not set with "a raytrace that reaches nothing should not return a result"
+
+	set block at {_target} to air
+
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters
+	assert {_hit} is not set with "a raytrace through empty air should not return a result"
+
+test "raytrace using the direction of its start":
+	set {_world} to world("world")
+	# yaw -90 faces +X, pitch 0 is level
+	set {_start} to location(0.5, 100.5, 10.5, {_world}, -90, 0)
+	set {_target} to location(10, 100, 10, {_world})
+	set block at location(5, 100, 10, {_world}) to air
+	set block at {_target} to stone
+
+	set {_hit} to the results of a raytrace from {_start} for 20 meters
+	assert {_hit} is set with "a raytrace without a direction should travel along the start's yaw and pitch"
+	assert hit block of {_hit} is block at {_target} with "the directionless raytrace should hit the stone block"
+
+	set block at {_target} to air
+
+test "raytrace from one location to another":
+	set {_world} to world("world")
+	set {_start} to location(0.5, 100.5, 15.5, {_world})
+	set {_target} to location(10, 100, 15, {_world})
+	set {_end} to location(20.5, 100.5, 15.5, {_world})
+	set block at location(5, 100, 15, {_world}) to air
+	set block at {_target} to stone
+
+	set {_hit} to the results of a raytrace from {_start} to {_end}
+	assert {_hit} is set with "a raytrace towards a location should hit a block in the way"
+	assert hit block of {_hit} is block at {_target} with "the hit block should be the stone block"
+
+	# the ray stops at the end location, so a block beyond it is out of reach
+	set {_short end} to location(5.5, 100.5, 15.5, {_world})
+	set {_hit} to the results of a raytrace from {_start} to {_short end}
+	assert {_hit} is not set with "a raytrace should not reach past its end location"
+
+	set block at {_target} to air
+
+test "raytrace hitting an entity":
+	set {_world} to world("world")
+	set {_start} to location(0.5, 100.5, 20.5, {_world})
+	set {_target} to location(10, 100, 20, {_world})
+	set block at location(5, 100, 20, {_world}) to air
+	set block at {_target} to stone
+
+	# the pig stands between the start and the block, so it is hit first
+	spawn a pig at location(5, 100, 20.5, {_world}):
+		set {_pig} to entity
+
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters
+	assert {_hit} is set with "a raytrace at a pig should hit it"
+	assert {_hit} hit an entity with "the raytrace should report hitting an entity"
+	assert {_hit} didn't hit a block with "the raytrace should not report hitting a block"
+	assert hit entity of {_hit} is {_pig} with "the hit entity should be the pig"
+	assert hit block of {_hit} is not set with "an entity hit should have no hit block"
+	assert hit location of {_hit} is set with "an entity hit should still have a hit location"
+	# an entity's hitbox has faces too, and the ray travels east into the pig's west side
+	assert hit face of {_hit} is west face with "an entity hit should report the face of the hitbox the ray entered"
+
+	clear entity within {_pig}
+	set block at {_target} to air
+
+test "raytrace ignoring entities and blocks":
+	set {_world} to world("world")
+	set {_start} to location(0.5, 100.5, 25.5, {_world})
+	set {_target} to location(10, 100, 25, {_world})
+	set block at location(5, 100, 25, {_world}) to air
+	set block at {_target} to stone
+
+	spawn a pig at location(5, 100, 25.5, {_world}):
+		set {_pig} to entity
+
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters:
+		ignore all entities
+	assert hit block of {_hit} is block at {_target} with "ignoring entities should let the ray reach the block"
+
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters:
+		ignore all blocks
+	assert hit entity of {_hit} is {_pig} with "ignoring blocks should still allow an entity hit"
+
+	# unignoring restores the default, so the pig is hit again
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters:
+		ignore all entities
+		unignore all entities
+	assert hit entity of {_hit} is {_pig} with "unignoring entities should let the ray hit the pig again"
+
+	clear entity within {_pig}
+	set block at {_target} to air
+
+test "raytrace ignoring passable blocks":
+	set {_world} to world("world")
+	set {_start} to location(0.5, 100.5, 30.5, {_world})
+	# a cobweb has no collision box, and unlike grass it doesn't need a block to support it
+	set {_web} to location(5, 100, 30, {_world})
+	set {_target} to location(10, 100, 30, {_world})
+	set block at {_web} to cobweb
+	set block at {_target} to stone
+
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters
+	assert hit block of {_hit} is block at {_web} with "by default a ray collides with passable blocks"
+
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters:
+		ignore passable blocks
+	assert hit block of {_hit} is block at {_target} with "ignoring passable blocks should skip the cobweb"
+
+	set block at {_web} to air
+	set block at {_target} to air
+
+test "raytrace ignoring fluids":
+	set {_world} to world("world")
+	set {_start} to location(0.5, 100.5, 35.5, {_world})
+	set {_water} to location(5, 100, 35, {_world})
+	set {_target} to location(10, 100, 35, {_world})
+	set block at {_water} to water
+	set block at {_target} to stone
+
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters
+	assert hit block of {_hit} is block at {_water} with "by default a ray collides with fluids"
+
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters:
+		ignore all fluids
+	assert hit block of {_hit} is block at {_target} with "ignoring fluids should skip the water"
+
+	set block at {_water} to air
+	set block at {_target} to air
+
+test "raytrace ignoring entities conditionally":
+	set {_world} to world("world")
+	set {_start} to location(0.5, 100.5, 40.5, {_world})
+	set {_target} to location(10, 100, 40, {_world})
+	set block at location(5, 100, 40, {_world}) to air
+	set block at {_target} to stone
+
+	spawn a pig at location(5, 100, 40.5, {_world}):
+		set {_pig} to entity
+
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters:
+		ignore entities if all:
+			event-entity is a pig
+	assert hit block of {_hit} is block at {_target} with "a matching entity filter should skip the pig"
+
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters:
+		ignore entities if all:
+			event-entity is a cow
+	assert hit entity of {_hit} is {_pig} with "a filter that doesn't match should leave the pig hittable"
+
+	# 'if any' skips when at least one condition matches
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters:
+		ignore entities if any:
+			event-entity is a cow
+			event-entity is a pig
+	assert hit block of {_hit} is block at {_target} with "'if any' should skip the pig when one condition matches"
+
+	clear entity within {_pig}
+	set block at {_target} to air
+
+test "raytrace ignoring blocks conditionally":
+	set {_world} to world("world")
+	set {_start} to location(0.5, 100.5, 45.5, {_world})
+	set {_first} to location(5, 100, 45, {_world})
+	set {_target} to location(10, 100, 45, {_world})
+	set block at {_first} to dirt
+	set block at {_target} to stone
+
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters:
+		ignore blocks if all:
+			type of event-block is dirt
+	assert hit block of {_hit} is block at {_target} with "a matching block filter should skip the dirt"
+
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters:
+		ignore blocks if any:
+			type of event-block is dirt
+			type of event-block is stone
+	assert {_hit} is not set with "ignoring both blocks should leave nothing to hit"
+
+	set block at {_first} to air
+	set block at {_target} to air
+
+test "raytrace with a ray size":
+	set {_world} to world("world")
+	set {_start} to location(0.5, 100.5, 50.5, {_world})
+	set block at location(5, 100, 50, {_world}) to air
+	set block at location(10, 100, 50, {_world}) to air
+
+	# the pig stands a block to the side of the ray, clear of a thin ray but well within a size 4 one
+	spawn a pig at location(5, 100, 51.5, {_world}):
+		set {_pig} to entity
+
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters
+	assert {_hit} is not set with "a thin ray should miss a pig standing to the side"
+
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters:
+		set the ray size to 4
+	assert hit entity of {_hit} is {_pig} with "a ray of size 4 should reach the pig to the side"
+
+	clear entity within {_pig}
+
+test "raytrace from an entity":
+	set {_world} to world("world")
+	set {_target} to location(10, 100, 55, {_world})
+	set block at location(5, 100, 55, {_world}) to air
+	set block at {_target} to stone
+
+	# the pig is the ray's origin, so it can never hit itself
+	spawn a pig at location(0.5, 100, 55.5, {_world}):
+		set {_pig} to entity
+
+	set {_hit} to the results of a raytrace from {_pig} along vector(1, 0, 0) for 20 meters
+	assert {_hit} is set with "a raytrace from an entity should still hit the block"
+	assert hit entity of {_hit} is not set with "a raytrace from an entity should never hit that entity"
+	assert hit block of {_hit} is block at {_target} with "the raytrace from the pig should hit the stone block"
+
+	clear entity within {_pig}
+	set block at {_target} to air
+
+test "raytrace result used as a location":
+	set {_world} to world("world")
+	set {_start} to location(0.5, 100.5, 60.5, {_world})
+	set {_target} to location(10, 100, 60, {_world})
+	set block at location(5, 100, 60, {_world}) to air
+	set block at {_target} to stone
+
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters
+
+	# a result converts to its hit location, so it works wherever a location is expected
+	assert distance between {_hit} and location(10, 100.5, 60.5, {_world}) is 0 with "a raytrace result should convert to its hit location"
+
+	set block at {_target} to air
+
+test "raytrace setting the max distance in its section":
+	set {_world} to world("world")
+	set {_start} to location(0.5, 100.5, 65.5, {_world})
+	set {_target} to location(10, 100, 65, {_world})
+	set block at location(5, 100, 65, {_world}) to air
+	set block at {_target} to stone
+
+	# the section starts out with the distance from the header, and may shorten it
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters:
+		assert the max distance is 20 with "the section should start with the distance given to the raytrace"
+		set the max distance to 5
+	assert {_hit} is not set with "shortening the max distance should stop the ray short of the block"
+
+	# it may also extend beyond what the header allowed
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 5 meters:
+		set the max distance to 20
+	assert hit block of {_hit} is block at {_target} with "extending the max distance should let the ray reach the block"
+
+	# the ray size defaults to 0 and is readable too
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters:
+		assert the ray size is 0 with "the ray size should default to 0"
+		set the ray size to 0.5
+		assert the ray size is 0.5 with "the ray size should be readable after being set"
+	assert hit block of {_hit} is block at {_target} with "setting the ray size should not stop the ray hitting the block"
+
+	set block at {_target} to air
+
+test "raytrace ignoring specific targets":
+	set {_world} to world("world")
+	set {_start} to location(0.5, 100.5, 70.5, {_world})
+	set {_first} to location(5, 100, 70, {_world})
+	set {_target} to location(10, 100, 70, {_world})
+	set block at {_first} to dirt
+	set block at {_target} to stone
+
+	# ignoring a type of block
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters:
+		ignore dirt
+	assert hit block of {_hit} is block at {_target} with "ignoring a block type should skip blocks of that type"
+
+	# ignoring one specific block
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters:
+		ignore block at {_first}
+	assert hit block of {_hit} is block at {_target} with "ignoring a specific block should skip it"
+
+	spawn a pig at location(7, 100, 70.5, {_world}):
+		set {_pig} to entity
+
+	# the pig stands beyond the dirt, so it is hit once the dirt is skipped
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters:
+		ignore dirt
+	assert hit entity of {_hit} is {_pig} with "the pig should be hit while it is not ignored"
+
+	# ignoring a type of entity
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters:
+		ignore dirt
+		ignore pigs
+	assert hit block of {_hit} is block at {_target} with "ignoring an entity type should skip entities of that type"
+
+	# ignoring one specific entity
+	set {_hit} to the results of a raytrace from {_start} along vector(1, 0, 0) for 20 meters:
+		ignore dirt
+		ignore {_pig}
+	assert hit block of {_hit} is block at {_target} with "ignoring a specific entity should skip it"
+
+	clear entity within {_pig}
+	set block at {_first} to air
+	set block at {_target} to air
