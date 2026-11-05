@@ -17,14 +17,14 @@ to keep in mind:
 Note: The test world generate as a default super flat. Bedrock, dirt, grass, air, air...+ A good practice is to be using `spawn of world "world"` as a homing location, or anywhere near 0, 0, 0 is reasonable.
 
 ## Test Categories
-Scripts under <code>tests</code> are run on environments. Most of them are
-stored in subdirectories to help keep them organized.
+Scripts under <code>tests</code> are run on environments.
+Tests are typically stored following the same location as their Java files.
+For examples, tests for syntax in the Common Module go in the "tests/common" directory.
+Tests should also be named after the specific syntax or module they are testing.
+For example, a script containing tests for the Potion Module could go in "tests/bukkit/potion/PotionModule.sk".
 
-### Syntax tests
-Under <code>syntaxes</code>, there are tests for individual expressions,
-effects and commands. Again, each in their own subdirectories. Names of files
-should follow names of respective syntax implementations in Java
-(e.g. <code>ExprTool.sk</code>).
+Note: The "misc" and "syntaxes" regressions exist for historical reasons.
+New tests should avoid these directories if possible.
 
 Contributors can add tests for expressions that do not yet have them, or
 improve existing tests.
@@ -41,17 +41,6 @@ their capitalization.
 
 Contributors should not add regression tests unless they also fix bugs in
 Skript. Those who do fix bugs *should* write regression tests.
-
-### Miscellaneous tests
-All other tests go in this subdirectory. Contributions for generic tests
-will need to meet a few criteria:
-
-* They must not be duplicates of other tests
-  * Similar tests are ok
-* They must currently pass
-* They should not rely on bugs in Skript to pass
-
-Aside these things, pretty much anything goes.
 
 ## Testing Syntaxes
 Test scripts have all normal Skript syntaxes available. In addition to that,

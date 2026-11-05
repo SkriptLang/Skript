@@ -43,8 +43,7 @@ public class TestMode {
 	/**
 	 * Overrides the logging verbosity in the config with the property.
 	 */
-	@Nullable
-	public static final String VERBOSITY = ENABLED ? System.getProperty(ROOT + "verbosity") : null;
+	public static final @Nullable String VERBOSITY = ENABLED ? System.getProperty(ROOT + "verbosity") : null;
 
 	/**
 	 * Path to file where to save results in JSON format.
@@ -59,8 +58,7 @@ public class TestMode {
 	/**
 	 * In development mode, file that was last run.
 	 */
-	@Nullable
-	public static File lastTestFile;
+	public static @Nullable File lastTestFile;
 
 	/**
 	 * If the docs failed due to templates or other exceptions. Only updates if TestMode.GEN_DOCS is set.

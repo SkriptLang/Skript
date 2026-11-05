@@ -4,7 +4,6 @@ import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.log.TestingLogHandler;
 import ch.njol.skript.skcommand.SkriptCommand.SubCommand;
-import ch.njol.skript.test.runner.SkriptTestEvent;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.test.runner.TestTracker;
 import ch.njol.skript.test.utils.TestResults;
@@ -63,7 +62,7 @@ class TestCommand extends SubCommand {
 			.thenAccept(scriptInfo ->
 				// Code should run on server thread
 				Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
-					Bukkit.getPluginManager().callEvent(new SkriptTestEvent()); // Run it
+					TestTracker.runRegisteredTests(); // Run it
 					ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
 
 					// Get results and show them

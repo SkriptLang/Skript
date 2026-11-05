@@ -1,12 +1,12 @@
 using script reflection
 
-test "node of":
+test "node of value":
 	set {_node} to the current script
 	set {_node} to the first element of nodes of {_node}
 	assert text value of {_node} does not exist with "simple node had value?"
 
 	set {_node} to the current script
-	set {_node} to node "test ""node of""" of {_node} # this :)
+	set {_node} to node "test ""node of value""" of {_node} # this :)
 	assert size of (nodes of {_node}) is greater than 0 with "section node was empty"
 
 	# root node

@@ -1,4 +1,4 @@
-test "amount of items":
+test "amount of items in inventory":
 	set {_inventory} to a hopper inventory named "test"
 	assert the amount of stone in {_inventory} is 0 with "default amount failed"
 	add stone to {_inventory}
