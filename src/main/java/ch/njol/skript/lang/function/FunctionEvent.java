@@ -1,9 +1,9 @@
 package ch.njol.skript.lang.function;
 
-import org.bukkit.event.Event;
+import ch.njol.skript.variables.LocalVariableHoldingEvent;
 import org.bukkit.event.HandlerList;
 
-public final class FunctionEvent<T> extends Event {
+public final class FunctionEvent<T> extends LocalVariableHoldingEvent {
 	
 	// Bukkit stuff
 	private final static HandlerList handlers = new HandlerList();

@@ -15,7 +15,7 @@ import ch.njol.skript.structures.StructVariables.DefaultVariables;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import com.google.common.base.Preconditions;
-import org.skriptlang.skript.util.IndexTrackingTreeMap;
+import org.skriptlang.skript.variables.VariableList;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Pair;
@@ -89,6 +89,8 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		this.list = list;
 
 		this.name = name;
+		if (local)
+			name.markLocalVariableName();
 
 		this.types = types;
 		this.superType = (Class<T>) Classes.getSuperClassInfo(types).getC();
@@ -342,7 +344,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	 * This method also checks against default variables.
 	 */
 	public @Nullable Object getRaw(Event event) {
-		DefaultVariables data = script == null ? null : script.getData(DefaultVariables.class);
+		DefaultVariables data = (script == null || local) ? null : script.getData(DefaultVariables.class);
 		if (data != null)
 			data.enterScope();
 		try {
@@ -458,31 +460,47 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		Variables.setVariable(name.substring(0, name.length() - 1) + index, value, event, local);
 	}
 
+	/**
+	 * Replaces this list's contents with the given values in one go, using {@link Variables#setList}.
+	 * Null values are skipped. Does nothing if any value is an array, since those become nested lists.
+	 *
+	 * @param keys the key for each value, or null to number the values from 1
+	 * @return whether the list was set
+	 */
+	private boolean setListInBulk(Event event, Object[] delta, String @Nullable [] keys) {
+		assert list;
+		int length = keys == null ? delta.length : Math.min(delta.length, keys.length);
+		for (int i = 0; i < length; i++) {
+			if (delta[i] instanceof Object[])
+				return false;
+		}
+
+		String[] bulkKeys = new String[length];
+		Object[] bulkValues = new Object[length];
+		int count = 0;
+		for (int i = 0; i < length; i++) {
+			Object value = delta[i];
+			if (value == null)
+				continue;
+			bulkKeys[count] = keys == null ? String.valueOf(i + 1) : keys[i];
+			bulkValues[count] = value;
+			count++;
+		}
+		if (count < length) {
+			bulkKeys = Arrays.copyOf(bulkKeys, count);
+			bulkValues = Arrays.copyOf(bulkValues, count);
+		}
+
+		String name = this.name.toString(event);
+		assert name.endsWith(SEPARATOR + "*") : name + "; " + this.name;
+		String listName = name.substring(0, name.length() - (SEPARATOR.length() + 1));
+		Variables.setList(listName, bulkKeys, bulkValues, event, local);
+		return true;
+	}
+
 	public int size(Event event) {
 		Preconditions.checkState(list, "Cannot get the size of a single variable");
-		Map<?, ?> map = (Map<?, ?>) getRaw(event);
-		if (map == null)
-			return 0;
-
-		int size = map.size();
-		if (map.containsKey(null)) // if we're trying to get the size of {_list::*}, exclude {_list} from being counted
-			size--;
-
-		if (!(map instanceof IndexTrackingTreeMap<?> indexTrackingMap)) {
-			for (Object value : map.values()) {
-				if (value instanceof Map<?, ?> sublist && !sublist.containsKey(null))
-					size--;
-			}
-			return size;
-		}
-
-		Collection<String> sublistIndices = indexTrackingMap.mapIndices();
-		for (String sublistIndex : sublistIndices) {
-			if (!((Map<?, ?>) map.get(sublistIndex)).containsKey(null))
-				size--;
-		}
-
-		return size;
+		return getRaw(event) instanceof VariableList variableList ? variableList.valueCount() : 0;
 	}
 
 	@Override
@@ -500,6 +518,8 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		}
 		if (mode == ChangeMode.SET) {
 			assert delta.length == keys.length;
+			if (setListInBulk(event, delta, keys))
+				return;
 			this.set(event, null);
 			int length = Math.min(delta.length, keys.length);
 			for (int index = 0; index < length; index++) {
@@ -528,6 +548,8 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 			case SET:
 				assert delta != null;
 				if (list) {
+					if (setListInBulk(event, delta, null))
+						break;
 					set(event, null);
 					int i = 1;
 					for (Object value : delta) {
@@ -607,18 +629,14 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 						}
 					} else {
 						assert mode == ChangeMode.ADD;
-						if (map instanceof IndexTrackingTreeMap<Object> indexTrackingMap) {
-							for (Object value : delta) {
-								int index = indexTrackingMap.nextOpenIndex();
-								setIndex(event, String.valueOf(index), value);
-							}
+						if (map instanceof VariableList variableList) {
+							for (Object value : delta)
+								setIndex(event, String.valueOf(variableList.nextOpenIndex()), value);
 							return;
 						}
+						// the list doesn't exist yet, so these can just be numbered from 1
 						int i = 1;
 						for (Object value : delta) {
-							if (map != null)
-								while (map.containsKey("" + i))
-									i++;
 							setIndex(event, "" + i, value);
 							i++;
 						}
