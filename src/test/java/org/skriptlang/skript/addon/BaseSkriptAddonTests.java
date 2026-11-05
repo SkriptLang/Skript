@@ -123,7 +123,7 @@ public abstract class BaseSkriptAddonTests {
 
 		var info = addon.syntaxRegistry().elements().iterator().next();
 		assertNotNull(info);
-		assertTrue(info.origin() instanceof AddonOrigin addonOrigin && addonOrigin.addon().name().equals(addon.name()));
+		assertTrue(info.documentation().origin() instanceof AddonOrigin addonOrigin && addonOrigin.addon().name().equals(addon.name()));
 	}
 
 }

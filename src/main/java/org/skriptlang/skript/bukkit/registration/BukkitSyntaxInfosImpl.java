@@ -34,7 +34,11 @@ final class BukkitSyntaxInfosImpl {
 			Collection<Class<? extends org.bukkit.event.Event>> events
 		) {
 			String name = defaultInfo.documentation().name();
-			name = name.startsWith("*") ? name.substring(1) : "On " + name;
+			if (name.startsWith("*")) {
+				name = name.substring(1);
+			} else if (!name.startsWith("On ")) {
+				name = "On " + name;
+			}
 			this.defaultInfo = defaultInfo.toBuilder()
 				.documentation(defaultInfo.documentation().toBuilder()
 					.name(name)
