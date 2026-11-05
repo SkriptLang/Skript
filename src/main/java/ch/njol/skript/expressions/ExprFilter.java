@@ -64,8 +64,13 @@ public class ExprFilter extends SimpleExpression<Object> implements InputSource,
 		InputData inputData = getParser().getData(InputData.class);
 		InputSource originalSource = inputData.getSource();
 		inputData.setSource(this);
-		filterCondition = Condition.parse(unparsedCondition, "Can't understand this condition: " + unparsedCondition);
-		inputData.setSource(originalSource);
+		try {
+			filterCondition = Condition.parse(unparsedCondition, "Can't understand this condition: " + unparsedCondition);
+		} finally {
+			// restored in a finally block so that the source is not left pointing at this
+			// element if parsing is aborted by an exception (e.g. a parse timeout or stack overflow)
+			inputData.setSource(originalSource);
+		}
 		return filterCondition != null;
 	}
 

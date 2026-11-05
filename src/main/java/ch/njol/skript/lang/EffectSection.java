@@ -48,13 +48,15 @@ public abstract class EffectSection extends Section {
 
 		//noinspection ConstantConditions - For an EffectSection, it may be null
 		hasSection = sectionContext.sectionNode != null;
-		boolean result = super.init(expressions, matchedPattern, isDelayed, parseResult);
-
-		if (!effectSectionContext.isNodeForEffectSection) {
-			sectionContext.sectionNode = sectionNode;
+		try {
+			return super.init(expressions, matchedPattern, isDelayed, parseResult);
+		} finally {
+			// restored in a finally block so that the context is not left mutated
+			// if parsing is aborted by an exception (e.g. a parse timeout or stack overflow)
+			if (!effectSectionContext.isNodeForEffectSection) {
+				sectionContext.sectionNode = sectionNode;
+			}
 		}
-
-		return result;
 	}
 
 	@Override
@@ -83,21 +85,24 @@ public abstract class EffectSection extends Section {
 		boolean wasNodeForEffectSection = effectSectionContext.isNodeForEffectSection;
 		effectSectionContext.isNodeForEffectSection = isNodeForEffectSection;
 
-		EffectSection effectSection = sectionContext.modify(sectionNode, triggerItems, () -> {
-			var iterator = Skript.instance().syntaxRegistry().syntaxes(org.skriptlang.skript.registration.SyntaxRegistry.SECTION).stream()
-				.filter(info -> EffectSection.class.isAssignableFrom(info.type()))
-				.iterator();
-			//noinspection unchecked,rawtypes
-			EffectSection parsed = (EffectSection) SkriptParser.parse(input, (Iterator) iterator, defaultError);
-			if (parsed != null && sectionNode != null && !sectionContext.claimed()) {
-				Skript.error("The line '" + input + "' is a valid statement but cannot function as a section (:) because there is no syntax in the line to manage it.");
-				return null;
-			}
-			return parsed;
-		});
-
-		effectSectionContext.isNodeForEffectSection = wasNodeForEffectSection;
-		return effectSection;
+		try {
+			return sectionContext.modify(sectionNode, triggerItems, () -> {
+				var iterator = Skript.instance().syntaxRegistry().syntaxes(org.skriptlang.skript.registration.SyntaxRegistry.SECTION).stream()
+					.filter(info -> EffectSection.class.isAssignableFrom(info.type()))
+					.iterator();
+				//noinspection unchecked,rawtypes
+				EffectSection parsed = (EffectSection) SkriptParser.parse(input, (Iterator) iterator, defaultError);
+				if (parsed != null && sectionNode != null && !sectionContext.claimed()) {
+					Skript.error("The line '" + input + "' is a valid statement but cannot function as a section (:) because there is no syntax in the line to manage it.");
+					return null;
+				}
+				return parsed;
+			});
+		} finally {
+			// restored in a finally block so that the context is not left mutated
+			// if parsing is aborted by an exception (e.g. a parse timeout or stack overflow)
+			effectSectionContext.isNodeForEffectSection = wasNodeForEffectSection;
+		}
 	}
 
 	private static class EffectSectionContext extends ParserInstance.Data {
