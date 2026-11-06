@@ -5,18 +5,12 @@ import ch.njol.skript.variables.SerializedVariable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A storage that saves nothing, for testing the change queue in {@link VariableStorage}.
  * Tests drain it with {@link #drain()} and can apply batches to a map standing in for the stored data.
  */
 class RecordingStorage extends VariableStorage {
-
-	/**
-	 * How often {@link #onPending()} was called.
-	 */
-	final AtomicInteger pendingCalls = new AtomicInteger();
 
 	RecordingStorage() {
 		super(null, "recording");
@@ -69,11 +63,6 @@ class RecordingStorage extends VariableStorage {
 	@Override
 	protected boolean requiresFile() {
 		return false;
-	}
-
-	@Override
-	protected void onPending() {
-		pendingCalls.incrementAndGet();
 	}
 
 	@Override
