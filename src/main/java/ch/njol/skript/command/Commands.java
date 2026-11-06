@@ -3,8 +3,6 @@ package ch.njol.skript.command;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.localization.ArgsMessage;
-import ch.njol.skript.localization.Message;
 import com.google.common.base.Preconditions;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -19,18 +17,13 @@ import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.help.HelpMap;
 import org.bukkit.help.HelpTopic;
 import org.bukkit.plugin.SimplePluginManager;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.regex.Pattern;
@@ -198,7 +191,7 @@ public abstract class Commands {
 					if (EffectCommandUtils.handleEffectCommand(event.getPlayer(), event.getMessage()))
 						event.setCancelled(true);
 				} else {
-					Future<Boolean> f = Bukkit.getScheduler().callSyncMethod(Skript.getInstance(), () -> handleEffectCommand(event.getPlayer(), event.getMessage()));
+					Future<Boolean> f = Bukkit.getScheduler().callSyncMethod(Skript.getInstance(), () -> EffectCommandUtils.handleEffectCommand(event.getPlayer(), event.getMessage()));
 					try {
 						while (true) {
 							try {
