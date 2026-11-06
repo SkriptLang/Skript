@@ -95,10 +95,7 @@ public class BlockClassInfo extends ClassInfo<Block> {
 				try {
 					colorable.setColor(dyeColor);
 				} catch (UnsupportedOperationException ex) {
-					// https://github.com/SkriptLang/Skript/issues/2931
-					Skript.error("Tried setting the color of a bed, but this isn't possible in your Minecraft version, " +
-						"since different colored beds are different materials. " +
-						"Instead, set the block to right material, such as a blue bed.");
+					// beds are Colorable on 1.21.x but their color can only be changed through the block type
 					return;
 				}
 			} else if (state instanceof Banner banner) {
