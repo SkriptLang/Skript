@@ -239,6 +239,32 @@ public abstract class EntityData<E extends Entity>
 	}
 
 	/**
+	 * The infos whose entity class covers a given class, in {@link #INFOS} order.
+	 * Only depends on the class, so it is cached once registration is over.
+	 */
+	private static final ClassValue<List<EntityDataInfo<EntityData<?>, ?>>> CANDIDATES = new ClassValue<>() {
+		@Override
+		protected List<EntityDataInfo<EntityData<?>, ?>> computeValue(Class<?> type) {
+			return findCandidates(type);
+		}
+	};
+
+	/**
+	 * Find candidate for a given type, in the order they show up in {@link #INFOS}.
+	 *
+	 * @param type the type to match.
+	 * @return A list of candidates, in order.
+	 */
+	private static List<EntityDataInfo<EntityData<?>, ?>> findCandidates(Class<?> type) {
+		List<EntityDataInfo<EntityData<?>, ?>> candidates = new ArrayList<>();
+		for (EntityDataInfo<EntityData<?>, ?> info : INFOS) {
+			if (info.entityClass() != Entity.class && info.entityClass().isAssignableFrom(type))
+				candidates.add(info);
+		}
+		return List.copyOf(candidates);
+	}
+
+	/**
 	 * Internally resolves and returns an {@link EntityData} instance that best represents either
 	 * a given {@link Entity} instance or its {@link Class}.
 	 * <p>
@@ -255,22 +281,24 @@ public abstract class EntityData<E extends Entity>
 	private static <E extends Entity> EntityData<? super E> getData(@Nullable Class<E> entityClass, @Nullable E entity) {
 		assert entityClass == null ^ entity == null;
 		assert entityClass == null || entityClass.isInterface();
+		Class<?> type = entity == null ? entityClass : entity.getClass();
+		// infos may still being registered; don't cache a candidate list that could change
+		List<EntityDataInfo<EntityData<?>, ?>> candidates = Skript.isAcceptRegistrations()
+			? findCandidates(type) : CANDIDATES.get(type);
+
 		EntityDataInfo<?, ?> closestInfo = null;
 		EntityData<E> closestData = null;
-		for (EntityDataInfo<?, ?> info : INFOS) {
-			if (info.entityClass() == Entity.class)
-				continue;
-			if (entity == null ? info.entityClass().isAssignableFrom(entityClass) : info.entityClass().isInstance(entity)) {
-				EntityData<E> entityData = null;
-				try {
-					//noinspection unchecked
-					entityData = (EntityData<E>) info.instance();
-				} catch (Exception ignored) {}
-				if (entityData != null && entityData.init(entityClass, entity)) {
-					if (closestInfo == null || closestInfo.entityClass().isAssignableFrom(info.entityClass())) {
-						closestInfo = info;
-						closestData = entityData;
-					}
+		for (EntityDataInfo<?, ?> info : candidates) {
+			EntityData<E> entityData = null;
+			try {
+				//noinspection unchecked
+				entityData = (EntityData<E>) info.instance();
+			} catch (Exception ignored) {
+			}
+			if (entityData != null && entityData.init(entityClass, entity)) {
+				if (closestInfo == null || closestInfo.entityClass().isAssignableFrom(info.entityClass())) {
+					closestInfo = info;
+					closestData = entityData;
 				}
 			}
 		}
