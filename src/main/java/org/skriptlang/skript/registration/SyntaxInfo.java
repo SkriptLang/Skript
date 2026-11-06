@@ -10,6 +10,7 @@ import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.docs.DocumentationDocumentable;
 import org.skriptlang.skript.docs.Origin;
+import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
 import org.skriptlang.skript.registration.SyntaxInfoImpl.BuilderImpl;
 import org.skriptlang.skript.util.Priority;
 
@@ -131,6 +132,9 @@ public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends Document
 			.toList());
 		if (EffectSection.class.isAssignableFrom(type())) {
 			adapter.write("subType", "Effect Section");
+		}
+		if (instance() instanceof SimpleExperimentalSyntax experimental) {
+			adapter.write(experimental.getExperimentData());
 		}
 	}
 
