@@ -175,12 +175,11 @@ public final class Yggdrasil {
 		return null;
 	}
 	
+	/** Returns a registered ID, including IDs for interfaces used as array component types. */
 	public String getID(Class<?> type) throws NotSerializableException {
 		String id = getIDNoError(type);
 		if (id == null)
 			throw new NotSerializableException("No ID found for " + type);
-		if (!isSerializable(type))
-			throw new NotSerializableException(type.getCanonicalName());
 		return id;
 	}
 	

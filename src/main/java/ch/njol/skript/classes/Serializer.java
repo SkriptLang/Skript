@@ -26,6 +26,14 @@ public abstract class Serializer<T> extends YggdrasilSerializer<T> {
 		this.info = info;
 	}
 	
+	/**
+	 * Whether the variable format reconstructs the Yggdrasil header from this class info.
+	 * Subtype serializers return false to preserve the concrete class header.
+	 */
+	public boolean usesClassInfoHeader() {
+		return true;
+	}
+
 	@Override
 	@Nullable
 	public Class<? extends T> getClass(final String id) {
