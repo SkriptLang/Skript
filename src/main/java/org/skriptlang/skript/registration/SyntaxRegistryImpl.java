@@ -19,12 +19,6 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 	private final Map<Key<?>, SyntaxRegister<?>> registers = new ConcurrentHashMap<>();
 
 	@Override
-	@Unmodifiable
-	public <I extends SyntaxInfo<?>> Collection<I> syntaxes(Key<I> key) {
-		return register(key).syntaxes();
-	}
-
-	@Override
 	public <I extends SyntaxInfo<?>> void register(Key<I> key, I info) {
 		register(key).add(info);
 		if (key instanceof ChildKey) {
@@ -50,7 +44,13 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 
 	@SuppressWarnings("unchecked")
 	private <I extends SyntaxInfo<?>> SyntaxRegister<I> register(Key<I> key) {
-		return (SyntaxRegister<I>) registers.computeIfAbsent(key, k -> new SyntaxRegister<>());
+		return (SyntaxRegister<I>) registers.computeIfAbsent(key, ignored -> new SyntaxRegister<>());
+	}
+
+	@Override
+	@Unmodifiable
+	public <I extends SyntaxInfo<?>> Collection<I> syntaxes(Key<I> key) {
+		return register(key).syntaxes();
 	}
 
 	@Override
@@ -65,8 +65,8 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 	}
 
 	@Override
-	public void write(DocumentationAdapter adapter) {
-		write(adapter, registers.keySet().stream().filter(key -> key != SyntaxRegistry.STATEMENT).toList());
+	public @Unmodifiable Collection<Key<?>> keys() {
+		return ImmutableSet.copyOf(registers.keySet());
 	}
 
 	static final class OriginApplyingRegistry implements SyntaxRegistry {
@@ -85,11 +85,6 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 			this.syntaxRegistry = syntaxRegistry;
 			this.origin = null;
 			this.originFactory = originFactory;
-		}
-
-		@Override
-		public @Unmodifiable <I extends SyntaxInfo<?>> Collection<I> syntaxes(Key<I> key) {
-			return syntaxRegistry.syntaxes(key);
 		}
 
 		@Override
@@ -121,18 +116,23 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 		}
 
 		@Override
+		public @Unmodifiable <I extends SyntaxInfo<?>> Collection<I> syntaxes(Key<I> key) {
+			return syntaxRegistry.syntaxes(key);
+		}
+
+		@Override
 		public @Unmodifiable Collection<SyntaxInfo<?>> elements() {
 			return syntaxRegistry.elements();
 		}
 
 		@Override
-		public void write(DocumentationAdapter adapter) {
-			syntaxRegistry.write(adapter);
+		public @Unmodifiable Collection<Key<?>> keys() {
+			return syntaxRegistry.keys();
 		}
 
 		@Override
-		public void write(DocumentationAdapter adapter, Iterable<Key<?>> keys) {
-			syntaxRegistry.write(adapter, keys);
+		public void write(DocumentationAdapter adapter) {
+			syntaxRegistry.write(adapter);
 		}
 
 	}
@@ -143,16 +143,6 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 
 		UnmodifiableRegistry(SyntaxRegistry registry) {
 			this.registry = registry;
-		}
-
-		@Override
-		public @Unmodifiable Collection<SyntaxInfo<?>> elements() {
-			return registry.elements();
-		}
-
-		@Override
-		public @Unmodifiable <I extends SyntaxInfo<?>> Collection<I> syntaxes(Key<I> key) {
-			return registry.syntaxes(key);
 		}
 
 		@Override
@@ -171,6 +161,21 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 		}
 
 		@Override
+		public @Unmodifiable <I extends SyntaxInfo<?>> Collection<I> syntaxes(Key<I> key) {
+			return registry.syntaxes(key);
+		}
+
+		@Override
+		public @Unmodifiable Collection<SyntaxInfo<?>> elements() {
+			return registry.elements();
+		}
+
+		@Override
+		public @Unmodifiable Collection<Key<?>> keys() {
+			return registry.keys();
+		}
+
+		@Override
 		public SyntaxRegistry unmodifiableView() {
 			return this;
 		}
@@ -178,11 +183,6 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 		@Override
 		public void write(DocumentationAdapter adapter) {
 			registry.write(adapter);
-		}
-
-		@Override
-		public void write(DocumentationAdapter adapter, Iterable<Key<?>> keys) {
-			registry.write(adapter, keys);
 		}
 
 	}

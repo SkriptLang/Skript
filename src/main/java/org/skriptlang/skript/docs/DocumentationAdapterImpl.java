@@ -27,7 +27,7 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 	private final BiConsumer<DocumentationAdapter, Documentable> writeHandler;
 
 	DocumentationAdapterImpl(SkriptAddon addon, boolean generate) {
-		this(addon, (a, b) -> { }, generate);
+		this(addon, (ignored1, ignored2) -> { }, generate);
 	}
 
 	DocumentationAdapterImpl(SkriptAddon addon, BiConsumer<DocumentationAdapter, Documentable> writeHandler, boolean generate) {
@@ -102,6 +102,13 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 		var scope = scopes.pop();
 		if (scope.values().isEmpty()) {
 			scopes.getFirst().values().remove(scope.name);
+		}
+	}
+
+	@Override
+	public void deleteScope(String key) {
+		if (scopes.getFirst().values().remove(key) == null) {
+			throw new DocumentationException("No scope with key '" + key + "' exists!");
 		}
 	}
 

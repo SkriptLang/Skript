@@ -28,7 +28,7 @@ public interface DocumentationAdapter {
 	 * @return A populated adapter.
 	 */
 	static DocumentationAdapter of(SkriptAddon addon) {
-		return of(addon, (a, b) -> { });
+		return of(addon, (ignored1, ignored2) -> { });
 	}
 
 	/**
@@ -77,13 +77,21 @@ public interface DocumentationAdapter {
 	 * Enters a new scope, which represents a new level of information.
 	 * For example, all {@link Expression}s may be represented within a scope,
 	 *  and each individual Expression within a scope.
+	 * This method does not guarantee that key of the entered scope will match {@code key}.
+	 * That is, if a scope under the key {@code key} already exists, the newly entered scope may have its key
+	 * only derived from {@code key} to avoid conflicts.
+	 * If it is necessary to enter an existing scope, use {@link #editScope(String)}.
 	 * @param key The name of the scope to enter.
+	 * @see #exitScope()
 	 */
 	void enterScope(String key);
 
 	/**
-	 * Enters an existing scope.
+	 * Enters an existing scope present at the current level.
+	 * This method should be preferred for cases where a guarantee that {@code key} is equal to
+	 *  the key of the entered scope is required.
 	 * @param key The name of the scope to edit.
+	 * @see #enterScope(String)
 	 */
 	void editScope(String key);
 
@@ -92,6 +100,12 @@ public interface DocumentationAdapter {
 	 * Must follow a {@link #enterScope(String)} call.
 	 */
 	void exitScope();
+
+	/**
+	 * Deletes a scope present at the current level.
+	 * @param key The name of the scope to delete.
+	 */
+	void deleteScope(String key);
 
 	/**
 	 * @return The name of the scope most recently entered through {@link #enterScope(String)}.

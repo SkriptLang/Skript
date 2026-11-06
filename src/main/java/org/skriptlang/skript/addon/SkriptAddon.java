@@ -135,7 +135,6 @@ public interface SkriptAddon extends ViewProvider<SkriptAddon>, Documentable {
 				adapter.write(documentable);
 			}
 		}
-
 		// TODO remove once these are both registries
 		Classes.write(adapter);
 		adapter.write(FunctionRegistry.getRegistry());

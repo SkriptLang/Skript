@@ -43,7 +43,10 @@ class GenDocsCommand extends SubCommand {
 
 		// generate
 		File outputDir = TestMode.getDocsOutputDirectory();
-		outputDir.mkdirs();
+		if (!outputDir.exists() && !outputDir.mkdirs()) {
+			Skript.error(sender, "Failed to create necessary directory: " + outputDir);
+			return;
+		}
 
 		Skript.info(sender, "Generating docs...");
 
@@ -65,6 +68,9 @@ class GenDocsCommand extends SubCommand {
 		});
 		// write Bukkit-specific registries
 		EntityData.write(documentationAdapter);
+
+		// exclude statements (not useful for our purposes)
+		documentationAdapter.deleteScope("statements");
 
 		DocumentationGenerator.json(documentationAdapter)
 			.generate(outputDir.toPath().resolve(addon.name() + "-docs.json"));

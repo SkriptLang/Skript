@@ -16,7 +16,6 @@ import org.skriptlang.skript.util.Registry;
 import org.skriptlang.skript.util.ViewProvider;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -88,14 +87,6 @@ public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<S
 	}
 
 	/**
-	 * A method to obtain all syntaxes registered under a certain key.
-	 * @param key The key to obtain syntaxes from.
-	 * @return An unmodifiable snapshot of all syntaxes registered under <code>key</code>.
-	 * @param <I> The syntax type.
-	 */
-	<I extends SyntaxInfo<?>> @Unmodifiable Collection<I> syntaxes(Key<I> key);
-
-	/**
 	 * Registers a new syntax under a provided key.
 	 * @param key The key to register <code>info</code> under.
 	 * @param info The syntax info to register.
@@ -120,6 +111,29 @@ public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<S
 	<I extends SyntaxInfo<?>> void unregister(Key<I> key, I info);
 
 	/**
+	 * A method to obtain all syntaxes registered under a certain key.
+	 * @param key The key to obtain syntaxes from.
+	 * @return An unmodifiable snapshot of all syntaxes registered under <code>key</code>.
+	 * @param <I> The syntax type.
+	 */
+	<I extends SyntaxInfo<?>> @Unmodifiable Collection<I> syntaxes(Key<I> key);
+
+	/**
+	 * {@inheritDoc}
+	 * There are no guarantees on the ordering of the returned collection.
+	 * @return An unmodifiable snapshot of all syntaxes registered.
+	 */
+	@Override
+	@Unmodifiable Collection<SyntaxInfo<?>> elements();
+
+	/**
+	 * A method to obtain all keys used to register syntax.
+	 * There are no guarantees on the ordering of the returned collection.
+	 * @return An unmodifiable snapshot of all keys registered.
+	 */
+	@Unmodifiable Collection<Key<?>> keys();
+
+	/**
 	 * Constructs an unmodifiable view of this syntax registry.
 	 * That is, the returned registry will not allow registrations.
 	 * @return An unmodifiable view of this syntax registry.
@@ -130,26 +144,9 @@ public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<S
 		return new SyntaxRegistryImpl.UnmodifiableRegistry(this);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * There are no guarantees on the ordering of the returned collection.
-	 * @return An unmodifiable snapshot of all syntaxes registered.
-	 */
-	@Override
-	@Unmodifiable Collection<SyntaxInfo<?>> elements();
-
 	@Override
 	default void write(DocumentationAdapter adapter) {
-		write(adapter, List.of(STRUCTURE, SECTION, EFFECT, CONDITION, EXPRESSION));
-	}
-
-	/**
-	 * Like {@link #write(DocumentationAdapter)}, but only writes specific keys.
-	 * @param adapter The adapter to write to.
-	 * @param keys The specific keys to write
-	 */
-	default void write(DocumentationAdapter adapter, Iterable<Key<?>> keys) {
-		for (var key : keys) {
+		for (var key : keys()) {
 			adapter.enterScope(Utils.toEnglishPlural(key.name()));
 			syntaxes(key).forEach(adapter::write);
 			adapter.exitScope();
