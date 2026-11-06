@@ -32,6 +32,19 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 	private final Class<? extends T> returnType;
 	private final @Nullable OperationInfo<? extends L, ? extends R, ? extends T> operationInfo;
 
+	// the last runtime lookup, used when the operation couldn't be resolved at parse time
+	private @Nullable CachedLookup lastLookup;
+
+	private record CachedLookup(Class<?> leftClass, Class<?> rightClass, boolean leftAnchor, boolean rightAnchor,
+	                            @Nullable OperationInfo<?, ?, ?> operationInfo) {
+
+		boolean matches(Class<?> leftClass, Class<?> rightClass, boolean leftAnchor, boolean rightAnchor) {
+			return this.leftClass == leftClass && this.rightClass == rightClass
+				&& this.leftAnchor == leftAnchor && this.rightAnchor == rightAnchor;
+		}
+
+	}
+
 	@SuppressWarnings("unchecked")
 	public ArithmeticChain(ArithmeticGettable<L> left, Operator operator,
 						   ArithmeticGettable<R> right,
@@ -66,12 +79,17 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 			return null;
 
 		OperationInfo<? extends L, ? extends R, ? extends T> operationInfo = this.operationInfo;
-		if (left == null && leftClass == Object.class) {
-			operationInfo = lookupOperationInfo(rightClass, OperationInfo::right);
-		} else if (right == null && rightClass == Object.class) {
-			operationInfo = lookupOperationInfo(leftClass, OperationInfo::left);
-		} else if (operationInfo == null) {
-			operationInfo = Arithmetics.lookupOperationInfo(operator, leftClass, rightClass, returnType);
+		boolean leftAnchor = left == null && leftClass == Object.class;
+		boolean rightAnchor = right == null && rightClass == Object.class;
+		if (operationInfo == null || leftAnchor || rightAnchor) {
+			// the operand types are almost always the same between evaluations, so remember the last lookup
+			CachedLookup cached = lastLookup;
+			if (cached != null && cached.matches(leftClass, rightClass, leftAnchor, rightAnchor)) {
+				operationInfo = (OperationInfo<? extends L, ? extends R, ? extends T>) cached.operationInfo();
+			} else {
+				operationInfo = resolveOperationInfo(leftClass, rightClass, leftAnchor, rightAnchor);
+				lastLookup = new CachedLookup(leftClass, rightClass, leftAnchor, rightAnchor, operationInfo);
+			}
 		}
 
 		if (operationInfo == null)
@@ -85,6 +103,15 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 			return null;
 
 		return ((Operation<L, R, T>) operationInfo.operation()).calculate(left, right);
+	}
+
+	private @Nullable OperationInfo<? extends L, ? extends R, ? extends T> resolveOperationInfo(
+		Class<? extends L> leftClass, Class<? extends R> rightClass, boolean leftAnchor, boolean rightAnchor) {
+		if (leftAnchor)
+			return lookupOperationInfo(rightClass, OperationInfo::right);
+		if (rightAnchor)
+			return lookupOperationInfo(leftClass, OperationInfo::left);
+		return Arithmetics.lookupOperationInfo(operator, leftClass, rightClass, returnType);
 	}
 
 	@Nullable

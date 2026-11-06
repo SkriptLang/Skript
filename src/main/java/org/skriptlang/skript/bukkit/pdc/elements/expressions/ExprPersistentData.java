@@ -395,7 +395,7 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 		Changer<?> changer;
 		Class<?>[] acceptedClasses;
 		// attempt to find arithmetic for each value in delta
-		if (clazz == null || !Arithmetics.getOperations(operator, clazz).isEmpty()) {
+		if (clazz == null || Arithmetics.hasOperations(operator, clazz)) {
 			boolean changed = false;
 			for (Object newValue : delta) {
 				var info = Arithmetics.getOperationInfo(operator, clazz != null ? (Class) clazz : newValue.getClass(), newValue.getClass());

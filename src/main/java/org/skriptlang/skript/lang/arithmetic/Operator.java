@@ -48,6 +48,14 @@ public record Operator(String sign, Priority priority, Noun node) implements Com
 		return sign;
 	}
 
+	// equal operators always share a sign, so this agrees with the generated equals
+	// and avoids hashing all three components on every lookup. We only really care about
+	// the sign for uniqueness/hash buckets.
+	@Override
+	public int hashCode() {
+		return sign.hashCode();
+	}
+
 	private static final Comparator<Operator> COMPARATOR = Comparator
 		.comparing(Operator::priority)
 		.thenComparing(Operator::sign);
