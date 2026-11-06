@@ -198,9 +198,9 @@ commands:
 
 # -- Effect Commands --
 effect commands:
-	executing: <grey>Executing:%n%s
-	log: %s issued effect command:%n%s
-	cancelled: <red>Your effect command was cancelled:%n%s
+	executing: <grey>Executing:
+	log: issued effect command:
+	cancelled: <red>Your effect command was cancelled:
 	exception: <red>An internal error occurred while executing this effect command. Please refer to the server log for details.
 
 # -- Hooks --
