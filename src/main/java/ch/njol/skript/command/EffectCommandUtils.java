@@ -161,6 +161,7 @@ public class EffectCommandUtils {
 		String tabbedCode = "  " + code.replace("\t", "  ").replace("\n", "\n  ");
 		ParserInstance parser = ParserInstance.get();
 		RetainingLogHandler log = SkriptLogger.startRetainingLog();
+		TextComponentParser textParser = TextComponentParser.instance();
 		try {
 			Config config = new Config(
 				new ByteArrayInputStream(code.getBytes(StandardCharsets.UTF_8)),
@@ -178,22 +179,22 @@ public class EffectCommandUtils {
 			parser.setCurrentEvent("effect command", eventClass);
 			List<TriggerItem> items = ScriptLoader.loadItems(sectionNode);
 
-			TextComponentParser textParser = TextComponentParser.instance();
 			if (log.hasErrors()) {
 				log.printErrors(sender, "(No specific information is available)");
 			} else {
 				if (!event.isCancelled()) {
 					log.clear();
 					log.printLog();
-					sender.sendMessage(Language.format("effect commands.executing", textParser.escape(tabbedCode)));
+					sender.sendMessage(textParser.parse(Language.get("effect commands.executing") + "\n" + textParser.escape(tabbedCode)));
+
 					if (SkriptConfig.logEffectCommands.value() && !(sender instanceof ConsoleCommandSender))
-						Skript.info(Language.format("effect commands.log", sender.getName(), textParser.escape(tabbedCode)));
+						Skript.info(sender.getName() + Language.get("effect commands.log") + "\n" + textParser.escape(tabbedCode));
 					Trigger trigger = new Trigger(DUMMY_SCRIPT, sectionNode.getKey(), null, items);
 					trigger.execute(event);
 					parser.deleteCurrentEvent();
 					parser.setInactive();
 				} else {
-					sender.sendMessage(Language.format("effect commands.cancelled", textParser.escape(tabbedCode)));
+					sender.sendMessage(textParser.parse(Language.get("effect commands.cancelled") + "\n" + textParser.escape(tabbedCode)));
 				}
 			}
 		} catch (Exception e) {

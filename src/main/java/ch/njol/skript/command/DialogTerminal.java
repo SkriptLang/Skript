@@ -22,7 +22,7 @@ import static ch.njol.skript.command.EffectCommandUtils.finalizeEffectCommand;
 
 public class DialogTerminal {
 
-	private static final Map<Player, String> SAVED_CODE = new HashMap<>();
+	private static final Map<Player, TerminalData> SAVED_DATA = new HashMap<>();
 	private static final String CODE_INPUT_KEY = "Skript_DialogEffectCommand_Code";
 	private static final String SAVE_INPUT_KEY = "Skript_DialogEffectCommand_Save";
 
@@ -45,22 +45,21 @@ public class DialogTerminal {
 	private static void openTerminal(Player player) {
 		TextComponentParser parser = TextComponentParser.instance();
 
-		boolean hasSave = SAVED_CODE.containsKey(player);
-		String initialCode = hasSave ? SAVED_CODE.remove(player) : "";
+		TerminalData data = SAVED_DATA.computeIfAbsent(player, p -> new TerminalData());
 
 		TextDialogInput codeInput = DialogInput.text(
 			CODE_INPUT_KEY,
 			500,
 			parser.parse("Code"),
 			true,
-			initialCode,
+			data.emptyCode(),
 			5000,
 			MultilineOptions.create(255, 200)
 		);
 		BooleanDialogInput saveInput = DialogInput.bool(
 			SAVE_INPUT_KEY,
 			parser.parse("Save Code on Execution/Close"),
-			hasSave,
+			data.doesSave(),
 			"True",
 			"False"
 		);
@@ -71,8 +70,11 @@ public class DialogTerminal {
 			.action(DialogAction.customClick((response, audience) -> {
 				String code = response.getText(CODE_INPUT_KEY);
 				Boolean toSave = response.getBoolean(SAVE_INPUT_KEY);
-				if (toSave != null && toSave)
-					SAVED_CODE.put(player, code);
+				if (toSave != null) {
+					data.setSave(toSave);
+					if (toSave)
+						data.setCode(code);
+				}
 				finalizeEffectCommand(player, code, true);
 			}, Options.builder().build()))
 			.build();
@@ -80,8 +82,11 @@ public class DialogTerminal {
 			.action(DialogAction.customClick((response, audience) -> {
 					String code = response.getText(CODE_INPUT_KEY);
 					Boolean toSave = response.getBoolean(SAVE_INPUT_KEY);
-					if (toSave != null && toSave)
-						SAVED_CODE.put(player, code);
+					if (toSave != null) {
+						data.setSave(toSave);
+						if (toSave)
+							data.setCode(code);
+					}
 				},
 				ClickCallback.Options.builder().build()))
 			.build();
@@ -91,6 +96,33 @@ public class DialogTerminal {
 			.type(DialogType.confirmation(executeButton, cancelButton)));
 
 		player.showDialog(dialog);
+	}
+
+	private static class TerminalData {
+
+		private String code = "";
+		private boolean save = true;
+
+		TerminalData() {}
+
+		public String emptyCode() {
+			String code = this.code;
+			this.code = "";
+			return code;
+		}
+
+		public boolean doesSave() {
+			return save;
+		}
+
+		public void setCode(String code) {
+			this.code = code;
+		}
+
+		public void setSave(boolean save) {
+			this.save = save;
+		}
+
 	}
 
 }
