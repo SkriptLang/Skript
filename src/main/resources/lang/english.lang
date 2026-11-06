@@ -51,6 +51,7 @@ skript command:
 		info: Prints a message with links to Skript's aliases and documentation
 		gen-docs: Generates documentation using docs/templates in plugin folder
 		test: Used for running internal Skript tests
+		terminal: Opens a virtual terminal allowing multiline effect commands to be executed. Requires MC 1.21.7 or newer.
 
 	invalid script: Can't find the script <grey>'<gold>%s<grey>'<red> in the scripts folder!
 	invalid folder: Can't find the folder <grey>'<gold>%s<grey>'<red> in the scripts folder!
@@ -135,6 +136,9 @@ skript command:
 		restoring: <white>Restoring scripts...
 		restored: <white>Restored all scripts and saved them inside the <gold>%s <white>directory
 		io error: <light red>Could not restore scripts: %s
+	terminal:
+		not supported: <light red>Minecraft version is not supported. Update to 1.21.7 or newer.
+		not allowed: <light red>Terminal can only be opened for players.
 
 # -- Log Messages --
 log:
@@ -191,6 +195,13 @@ commands:
 	too many values: Expected only one %s but got many.
 	argument too small: Expected a value greater than or equal to %s, but got %s.
 	argument too large: Expected a value less than or equal to %s, but got %s.
+
+# -- Effect Commands --
+effect commands:
+	executing: <grey>Executing:%n%s
+	log: %s issued effect command:%n%s
+	cancelled: <red>Your effect command was cancelled:%n%s
+	exception: <red>An internal error occurred while executing this effect command. Please refer to the server log for details.
 
 # -- Hooks --
 hooks:

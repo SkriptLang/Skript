@@ -57,6 +57,8 @@ public class Trigger extends TriggerSection {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
+		if (this.event == null)
+			return name;
 		return name + " (" + this.event.toString(event, debug) + ")";
 	}
 
