@@ -72,7 +72,6 @@ public abstract class VariableStorage implements Closeable {
 	// pending list clears in order
 	private ArrayList<Clear> clears = new ArrayList<>();
 	private long epoch; // used to drop changes made before a clear when draining. Increments every clear.
-	private boolean queuedWhileLocked; // whether onPending() should be called after unlocking exclusive, since a change was queued while the lock was held
 
 	protected VariableStorage(SkriptAddon registeringAddon, String type) {
 		this.registeringAddon = registeringAddon;
@@ -352,7 +351,6 @@ public abstract class VariableStorage implements Closeable {
 		} finally {
 			order.unlockRead(stamp);
 		}
-		onPending();
 	}
 
 	/**
@@ -367,16 +365,11 @@ public abstract class VariableStorage implements Closeable {
 
 	/**
 	 * Releases the exclusive lock taken by {@link #lockExclusive()}.
-	 * If anything to save was queued while it was held, calls {@link #onPending()} once, after unlocking.
 	 *
 	 * @param stamp the stamp returned by {@link #lockExclusive()}
 	 */
 	void unlockExclusive(long stamp) {
-		boolean queued = queuedWhileLocked;
-		queuedWhileLocked = false;
 		order.unlockWrite(stamp);
-		if (queued)
-			onPending();
 	}
 
 	/**
@@ -390,8 +383,6 @@ public abstract class VariableStorage implements Closeable {
 	void recordClearLocked(String prefix, boolean save) {
 		assert prefix.endsWith("::") : prefix;
 		clears.add(new Clear(prefix, epoch++, save));
-		if (save)
-			queuedWhileLocked = true;
 	}
 
 	/**
@@ -404,7 +395,6 @@ public abstract class VariableStorage implements Closeable {
 	 */
 	void putPendingLocked(String name, SerializedVariable.@Nullable Value value) {
 		pending.put(name, new Pending(name, value, epoch));
-		queuedWhileLocked = true;
 	}
 
 	/**
@@ -428,10 +418,7 @@ public abstract class VariableStorage implements Closeable {
 	}
 
 	/**
-	 * Takes every change queued since the last drain, for the storage to save.
-	 * <p>
-	 * Storages must save batches one at a time and in the order they were drained, so drain and save
-	 * under one lock. If saving a batch fails, keep it and retry it before draining again.
+	 * Takes every change queued since the last drain, for the saving thread to save.
 	 * <p>
 	 * The goal here is to minimize the time it takes for writers to queue changes, so that the main thread is blocked as little as possible.
 	 * The expensive work of filtering out changes made before a clear is done after the lock is released, in this method on the calling thread,
@@ -439,7 +426,7 @@ public abstract class VariableStorage implements Closeable {
 	 *
 	 * @return the changes to save, possibly empty
 	 */
-	protected final Batch drainPending() {
+	Batch drainPending() {
 		// swap the queue for an empty one while holding the exclusive lock, so writers are blocked only briefly
 		ConcurrentHashMap<String, Pending> drained;
 		ArrayList<Clear> drainedClears;
@@ -505,15 +492,6 @@ public abstract class VariableStorage implements Closeable {
 	private static String firstSegment(String name) {
 		int end = name.indexOf("::");
 		return end < 0 ? name : name.substring(0, end);
-	}
-
-	/**
-	 * Called on the writing thread after every queued change, and once after each list clear or list set
-	 * that has to be saved, outside the lock.
-	 * Must be cheap and must never block or do I/O, since it can run on the main thread;
-	 * use it to count changes or wake the thread that saves.
-	 */
-	protected void onPending() {
 	}
 
 	// ---------------------------- MISC ----------------------------
