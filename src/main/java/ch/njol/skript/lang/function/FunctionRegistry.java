@@ -11,6 +11,8 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.Parameter;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
+import org.skriptlang.skript.docs.Documentable;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.util.Registry;
 
@@ -23,7 +25,7 @@ import java.util.stream.Collectors;
  * A registry for functions.
  */
 @ApiStatus.Internal
-public final class FunctionRegistry implements Registry<Function<?>> {
+public final class FunctionRegistry implements Registry<Function<?>>, Documentable {
 
 	private static FunctionRegistry registry;
 
@@ -755,6 +757,17 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 				.toString();
 		}
 
+	}
+
+	@Override
+	public void write(DocumentationAdapter adapter) {
+		adapter.enterScope("functions");
+		for (var function : namespaces.get(GLOBAL_NAMESPACE).functions.values()) {
+			if (function instanceof Documentable documentable) {
+				adapter.write(documentable);
+			}
+		}
+		adapter.exitScope();
 	}
 
 }

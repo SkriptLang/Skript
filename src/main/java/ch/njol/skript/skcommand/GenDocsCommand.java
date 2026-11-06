@@ -1,15 +1,17 @@
 package ch.njol.skript.skcommand;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Documentation;
-import ch.njol.skript.doc.HTMLGenerator;
-import ch.njol.skript.doc.JSONGenerator;
 import ch.njol.skript.skcommand.SkriptCommand.SubCommand;
+import ch.njol.skript.test.runner.TestMode;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.docs.BukkitDocumentationAdapter;
+import org.skriptlang.skript.bukkit.entity.EntityData;
+import org.skriptlang.skript.docs.DocumentationAdapter;
+import org.skriptlang.skript.docs.DocumentationGenerator;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -23,33 +25,43 @@ class GenDocsCommand extends SubCommand {
 
 	@Override
 	public void execute(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
-		File templateDir = Documentation.getDocsTemplateDirectory();
-		File outputDir = Documentation.getDocsOutputDirectory();
-		outputDir.mkdirs();
-
-		Skript.info(sender, "Generating docs...");
-
-		try {
-			JSONGenerator.of(Skript.instance())
-				.generate(outputDir.toPath().resolve("docs.json"));
-		} catch (IOException e) {
-			// noinspection ThrowableNotThrown
-			Skript.exception(e, "Error while generating docs.");
+		// determine addon to generate for
+		SkriptAddon addon;
+		if (args.length == 2) {
+			addon = Skript.instance().addon(args[1]);
+			if (addon == null) {
+				Skript.error(sender, "No addon by that name exists!");
+				return;
+			}
+		} else {
+			addon = Skript.instance();
 		}
 
-		if (!templateDir.exists()) {
-			Skript.info(sender, "JSON-only documentation generated!");
+		// generate
+		File outputDir = TestMode.getDocsOutputDirectory();
+		if (!outputDir.exists() && !outputDir.mkdirs()) {
+			Skript.error(sender, "Failed to create necessary directory: " + outputDir);
 			return;
 		}
 
-		HTMLGenerator htmlGenerator = new HTMLGenerator(templateDir, outputDir);
-		htmlGenerator.generate(); // Try to generate docs... hopefully
+		Skript.info(sender, "Generating docs...");
+
+		DocumentationAdapter documentationAdapter = BukkitDocumentationAdapter.of(addon);
+		// write Bukkit-specific registries
+		EntityData.write(documentationAdapter);
+
+		// exclude statements (not useful for our purposes)
+		documentationAdapter.deleteScope("statements");
+
+		DocumentationGenerator.json(documentationAdapter)
+			.generate(outputDir.toPath().resolve(addon.name() + "-docs.json"));
+
 		Skript.info(sender, "All documentation generated!");
 	}
 
 	@Override
 	public List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
-		return List.of();
+		return List.of("gen-docs");
 	}
 
 }

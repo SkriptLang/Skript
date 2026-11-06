@@ -5,6 +5,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.docs.Documentable;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.util.Registry;
 import org.skriptlang.skript.util.ViewProvider;
@@ -15,7 +17,7 @@ import java.util.Set;
 /**
  * A manager for registering (and identifying) experimental feature flags.
  */
-public class ExperimentRegistry implements Registry<Experiment>, ViewProvider<ExperimentRegistry>, Experimented {
+public class ExperimentRegistry implements Registry<Experiment>, ViewProvider<ExperimentRegistry>, Experimented, Documentable {
 
 	private final Skript skript;
 	private final Set<Experiment> experiments;
@@ -208,6 +210,15 @@ public class ExperimentRegistry implements Registry<Experiment>, ViewProvider<Ex
 		if (set == null)
 			return false;
 		return set.hasExperiment(featureName);
+	}
+
+	@Override
+	public void write(DocumentationAdapter adapter) {
+		adapter.enterScope("experiments");
+		for (Experiment experiment : experiments) {
+			adapter.write(experiment);
+		}
+		adapter.exitScope();
 	}
 
 }

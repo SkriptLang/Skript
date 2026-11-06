@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.entity.EntityData;
 import org.skriptlang.skript.bukkit.entity.EntityItemTypeComparable;
+import org.skriptlang.skript.docs.Documentation;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
@@ -390,6 +391,7 @@ public class SimpleEntityData extends EntityData<Entity> implements EntityItemTy
 				.dataPatterns(GROUPS)
 				.entityClass(Entity.class)
 				.supplier(SimpleEntityData::new)
+				.documentation(Documentation.NONE)
 				.build()
 		);
 	}

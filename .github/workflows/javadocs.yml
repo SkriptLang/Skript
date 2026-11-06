@@ -1,0 +1,75 @@
+name: Generate Javadocs
+
+on:
+  release:
+    types: [ published ]
+  push:
+    branches:
+      - 'dev/feature'
+      - 'dev/patch'
+      - 'feature/**'
+    tags-ignore:
+      - '**'
+
+jobs:
+  javadocs:
+    if: "!contains(toJSON(github.event.commits.*.message), '[ci skip]')"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure workflow
+        id: configuration
+        run: |
+          BRANCH_NAME="${GITHUB_REF#refs/*/}"
+          echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+          echo "JAVADOCS_REPO_DIR=${GITHUB_WORKSPACE}/javadocs" >> $GITHUB_OUTPUT
+          echo "SKRIPT_REPO_DIR=${GITHUB_WORKSPACE}/skript" >> $GITHUB_OUTPUT
+      - name: Checkout Skript
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          path: skript
+      - name: Setup Java 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'adopt'
+          cache: gradle
+      - shell: bash
+        run: chmod +x ./skript/gradlew
+      - name: Checkout javadocs
+        uses: actions/checkout@v7
+        with:
+          repository: "Skriptlang/javadocs"
+          path: javadocs
+          token: ${{ secrets.DOCS_TOKEN }}
+      - name: Generate javadocs
+        id: generate
+        shell: bash
+        env:
+          JAVADOCS_OUTPUT_DIR: ${{ steps.configuration.outputs.JAVADOCS_REPO_DIR }}
+          SKRIPT_REPO_DIR: ${{ steps.configuration.outputs.SKRIPT_REPO_DIR }}
+          BRANCH_NAME: ${{ steps.configuration.outputs.BRANCH_NAME }}
+          IS_RELEASE: ${{ github.event_name == 'release' }}
+        run: |
+          cd "${SKRIPT_REPO_DIR}"
+          if [[ "${IS_RELEASE}" == "true" ]]; then
+            ./gradlew githubRelease javadoc
+          else
+            ./gradlew nightlyRelease javadoc
+          fi
+          loc_name="${BRANCH_NAME//\//-}"
+          dir_name="${JAVADOCS_OUTPUT_DIR}/skript/${loc_name}"
+          rm -rf "${dir_name}" || true
+          mkdir -p "${dir_name}" && cp -a "./build/docs/javadoc/." "$_"
+          if [[ "${IS_RELEASE}" == "true" ]]; then
+            cd "${JAVADOCS_OUTPUT_DIR}/skript"
+            sed -i "s/const latest.*/const latest = '${loc_name}';/" index.html
+          fi
+      - name: Push javadocs
+        uses: ./skript/.github/workflows/docs/push-docs
+        with:
+          docs_repo_dir: ${{ steps.configuration.outputs.JAVADOCS_REPO_DIR }}
+          docs_repo_branch: "main"
+          git_name: Javadocs Bot
+          git_email: javadocs@skriptlang.org
+          git_commit_message: "Add javadocs for ${{ steps.configuration.outputs.BRANCH_NAME }}"

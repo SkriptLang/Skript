@@ -1,9 +1,11 @@
 package org.skriptlang.skript.addon;
 
+import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.Skript;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.docs.Origin;
-import org.skriptlang.skript.docs.Origin.AddonOrigin;
+import org.skriptlang.skript.docs.Origin.ClassOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.SequencedCollection;
@@ -35,7 +37,7 @@ public interface AddonModule {
 	 * @return An origin from the provided information.
 	 */
 	static ModuleOrigin origin(SkriptAddon addon, AddonModule module) {
-		return new AddonModuleImpl.ModuleOriginImpl(addon, module);
+		return origin(addon, module.getClass(), module);
 	}
 
 	/**
@@ -45,18 +47,39 @@ public interface AddonModule {
 	 * @return An origin from the provided information.
 	 */
 	static ModuleOrigin origin(SkriptAddon addon, AddonModule... modules) {
-		return new AddonModuleImpl.ModuleOriginImpl(addon, modules);
+		Preconditions.checkState(modules.length > 0, "At least one module must be provided");
+		return origin(addon, modules[0].getClass(), modules);
+	}
+
+	/**
+	 * Constructs an origin from an addon, a class, and a module chain.
+	 * @param addon The addon providing the modules.
+	 * @param originClass The class of the thing this origin describes.
+	 * @param modules The module chain, from most specific to root.
+	 * @return An origin from the provided information.
+	 */
+	static ModuleOrigin origin(SkriptAddon addon, Class<?> originClass, AddonModule... modules) {
+		return new AddonModuleImpl.ModuleOriginImpl(addon, originClass, modules);
 	}
 
 	/**
 	 * An origin to be used for something provided by one or more modules of an addon.
 	 */
-	sealed interface ModuleOrigin extends AddonOrigin permits AddonModuleImpl.ModuleOriginImpl {
+	sealed interface ModuleOrigin extends ClassOrigin permits AddonModuleImpl.ModuleOriginImpl {
 
 		/**
 		 * @return The providing modules for this origin, in order from most specific to least.
 		 */
 		@Unmodifiable SequencedCollection<AddonModule> modules();
+
+		@Override
+		default void write(DocumentationAdapter adapter) {
+			ClassOrigin.super.write(adapter);
+			// write module names
+			adapter.write("modules", modules().stream()
+				.map(AddonModule::name)
+				.toList());
+		}
 
 		/**
 		 * @return The names of the modules providing this origin, in order from most specific to least.
@@ -110,12 +133,19 @@ public interface AddonModule {
 	}
 
 	/**
+	 * @return An origin representing this module a specific class within it.
+	 */
+	default Origin origin(SkriptAddon addon, Class<?> originClass) {
+		return AddonModule.origin(addon, originClass, this);
+	}
+
+	/**
 	 * Provides a syntax registry that auto-applies the origin of this module/addon.
 	 * @param addon The addon to register with
 	 * @return An origin-applying {@link SyntaxRegistry}.
 	 */
 	default SyntaxRegistry moduleRegistry(SkriptAddon addon) {
-		return SyntaxRegistry.withOrigin(addon.syntaxRegistry(), origin(addon));
+		return SyntaxRegistry.withOrigin(addon.syntaxRegistry(), syntaxInfo -> origin(addon, syntaxInfo.type()));
 	}
 
 	/**

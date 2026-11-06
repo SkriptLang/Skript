@@ -3,6 +3,7 @@ package org.skriptlang.skript.registration;
 import ch.njol.skript.lang.SyntaxElement;
 import org.junit.Test;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.docs.Origin.AddonOrigin;
 import org.skriptlang.skript.registration.SyntaxInfoTest.MockSyntaxElement;
 import org.skriptlang.skript.util.Priority;
@@ -33,16 +34,20 @@ public abstract class BaseSyntaxInfoTests<E extends SyntaxElement, T extends Syn
 	public abstract Supplier<E> supplier();
 
 	@Test
-	public void testOrigin() {
+	public void testDocumentation() {
 		var info = builder(true)
-			.origin(new MockOrigin("Hello World!"))
+			.documentation(Documentation.builder()
+				.id("Hello World!")
+				.origin(new MockOrigin("Hello World!"))
+				.build())
 			.build();
-		assertEquals("Hello World!", info.origin().name());
-		assertEquals("Hello World!", info.toBuilder().build().origin().name());
+		assertEquals("Hello World!", info.documentation().id());
+		assertEquals("Hello World!", info.documentation().origin().name());
+		assertEquals(info.documentation(), info.toBuilder().build().documentation());
 
 		var info2 = builder(true);
 		info.toBuilder().applyTo(info2);
-		assertEquals("Hello World!", info2.build().origin().name());
+		assertEquals(info.documentation(), info2.build().documentation());
 	}
 
 	@Test

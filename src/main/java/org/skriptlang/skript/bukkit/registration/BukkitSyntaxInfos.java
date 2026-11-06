@@ -2,14 +2,23 @@ package org.skriptlang.skript.bukkit.registration;
 
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
+import ch.njol.skript.log.BlockingLogHandler;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.block.BlockCanBuildEvent;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfosImpl.EventImpl;
+import org.skriptlang.skript.docs.Documentation;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.registration.SyntaxRegistry.Key;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.SequencedCollection;
 import java.util.function.Supplier;
 
@@ -36,14 +45,44 @@ public final class BukkitSyntaxInfos {
 		 * Constructs a simple {@link SkriptEvent} syntax info for a class from event information and patterns.
 		 * @param eventClass The SkriptEvent class the info will represent.
 		 * @param instanceSupplier A supplier for creating new instances of {@code type}.
-		 * @param name The name of the SkriptEvent.
 		 * @param bukkitEventClass The Bukkit event that should trigger the SkriptEvent.
 		 * @param patterns Patterns describing the syntax.
 		 * @return A syntax info representing {@code type}.
 		 */
-		@Contract("_, _, _, _, _ -> new")
+		@Contract("_, _, _, _ -> new")
 		static <E extends SkriptEvent> Event<E> simple(Class<E> eventClass, Supplier<E> instanceSupplier,
-			String name, Class<? extends org.bukkit.event.Event> bukkitEventClass, String... patterns) {
+			Class<? extends org.bukkit.event.Event> bukkitEventClass, String... patterns) {
+			return builder(eventClass)
+				.supplier(instanceSupplier)
+				.addEvent(bukkitEventClass)
+				.addPatterns(patterns)
+				.build();
+		}
+
+		/**
+		 * @param eventClass The SkriptEvent class the info will represent.
+		 * @return A SkriptEvent-specific builder for creating a syntax info representing <code>type</code>.
+		 */
+		@Contract("_ -> new")
+		static <E extends SkriptEvent> Builder<? extends Builder<?, E>, E> builder(Class<E> eventClass) {
+			return new EventImpl.BuilderImpl<>(eventClass);
+		}
+
+		/**
+		 * Constructs a simple {@link SkriptEvent} syntax info for a class from event information and patterns.
+		 * @param eventClass The SkriptEvent class the info will represent.
+		 * @param instanceSupplier A supplier for creating new instances of {@code type}.
+		 * @param name The name of the SkriptEvent.
+		 * @param bukkitEventClass The Bukkit event that should trigger the SkriptEvent.
+		 * @param patterns Patterns describing the syntax.
+		 * @return A syntax info representing {@code type}.
+		 * @deprecated {@code name} can be provided as part of the info's {@link #documentation()}.
+		 * Use {@link #builder(Class)} instead to supply a {@link Documentation}.
+		 */
+		@Contract("_, _, _, _, _ -> new")
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
+		static <E extends SkriptEvent> Event<E> simple(Class<E> eventClass, Supplier<E> instanceSupplier,
+		                                               String name, Class<? extends org.bukkit.event.Event> bukkitEventClass, String... patterns) {
 			return builder(eventClass, name)
 				.supplier(instanceSupplier)
 				.addEvent(bukkitEventClass)
@@ -54,8 +93,12 @@ public final class BukkitSyntaxInfos {
 		/**
 		 * @param eventClass The SkriptEvent class the info will represent.
 		 * @param name The name of the SkriptEvent.
-		 * @return A Structure-specific builder for creating a syntax info representing <code>type</code>.
+		 * @return A SkriptEvent-specific builder for creating a syntax info representing <code>type</code>.
+		 * @deprecated Use {@link #builder(Class)} instead.
+		 * {@code name} can be provided as part of the info's {@link #documentation()}.
 		 */
+		@Contract("_, _ -> new")
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
 		static <E extends SkriptEvent> Builder<? extends Builder<?, E>, E> builder(
 			Class<E> eventClass, String name
 		) {
@@ -76,54 +119,139 @@ public final class BukkitSyntaxInfos {
 
 		/**
 		 * @return The name of the {@link SkriptEvent}.
+		 * @deprecated Use {@link Documentation#name()} on {@link #documentation()}.
 		 */
-		String name();
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
+		default String name() {
+			return documentation().name();
+		}
 
 		/**
 		 * @return A documentation-friendly version of {@link #name()}.
+		 * @deprecated Use {@link Documentation#autoId()} on {@link #documentation()}.
 		 */
-		String id();
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
+		default String id() {
+			return documentation().autoId();
+		}
 
 		/**
 		 * @return Documentation data. Used for identifying specific syntaxes in documentation.
 		 * @see ch.njol.skript.doc.DocumentationId
+		 * @deprecated Use {@link Documentation#id()} on {@link #documentation()}.
 		 */
-		@Nullable String documentationId();
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
+		default @Nullable String documentationId() {
+			return documentation().id();
+		}
 
 		/**
 		 * @return Documentation data. Represents the versions of the plugin in which a syntax was added or modified.
 		 * @see ch.njol.skript.doc.Since
+		 * @deprecated Use {@link Documentation#since()} on {@link #documentation()}.
 		 */
-		SequencedCollection<String> since();
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
+		default SequencedCollection<String> since() {
+			return documentation().since();
+		}
 
 		/**
 		 * @return Documentation data. A description of a syntax.
 		 * @see ch.njol.skript.doc.Description
+		 * @deprecated Use {@link Documentation#description()} on {@link #documentation()}.
 		 */
-		SequencedCollection<String> description();
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
+		default SequencedCollection<String> description() {
+			String description = documentation().description();
+			if (description.isEmpty()) {
+				return List.of();
+			}
+			return List.of(description.split("\n"));
+		}
 
 		/**
 		 * @return Documentation data. Examples for using a syntax.
 		 * @see ch.njol.skript.doc.Examples
+		 * @deprecated Use {@link Documentation#examples()} on {@link #documentation()}.
 		 */
-		Collection<String> examples();
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
+		default Collection<String> examples() {
+			return documentation().examples();
+		}
 
 		/**
 		 * @return Documentation data. Keywords are used by the search engine to provide relevant results.
 		 * @see ch.njol.skript.doc.Keywords
+		 * @deprecated Use {@link Documentation#keywords()} on {@link #documentation()}.
 		 */
-		Collection<String> keywords();
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
+		default Collection<String> keywords() {
+			return documentation().keywords();
+		}
 
 		/**
 		 * @return Documentation data. Plugins other than Skript that are required by a syntax.
 		 * @see ch.njol.skript.doc.RequiredPlugins
+		 * @deprecated Use {@link Documentation#requirements()} on {@link #documentation()}.
 		 */
-		Collection<String> requiredPlugins();
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
+		default Collection<String> requiredPlugins() {
+			return documentation().requirements();
+		}
 
 		/**
 		 * @return A collection of the classes representing the Bukkit events the {@link SkriptEvent} listens for.
 		 */
 		Collection<Class<? extends org.bukkit.event.Event>> events();
+
+		@Override
+		default void preWrite(DocumentationAdapter adapter) {
+			String id = documentation().id();
+			if (id == null) {
+				id = documentation().autoId();
+				if (id.startsWith("On")) {
+					id = id.substring(2);
+				} else if (id.isEmpty()) {
+					id = type().getSimpleName(); // hope for the best
+				}
+				if (!id.startsWith("Evt")) {
+					id = "Evt" + id;
+				}
+			}
+			adapter.enterScope(id);
+		}
+
+		@Override
+		default void write(DocumentationAdapter adapter) {
+			// write defaults
+			SyntaxInfo.super.write(adapter);
+
+			// Cancellable
+			boolean cancellable = false;
+			for (Class<? extends org.bukkit.event.Event> event : events()) {
+				if (Cancellable.class.isAssignableFrom(event) || BlockCanBuildEvent.class.isAssignableFrom(event)) {
+					cancellable = true;
+					break;
+				}
+			}
+			adapter.write("cancellable", cancellable);
+
+			// Event Values
+			List<EventValue<?, ?>> values = new ArrayList<>();
+			EventValueRegistry registry = adapter.addon().registry(EventValueRegistry.class);
+			try (BlockingLogHandler ignored = new BlockingLogHandler().start()) { // block any validation errors
+				for (Class<? extends org.bukkit.event.Event> event : events()) {
+					var eventValues = registry.elements(event);
+					for (var eventValue : eventValues) {
+						if (eventValue.validate(event) != EventValue.Validation.VALID) {
+							continue;
+						}
+						values.add(eventValue);
+					}
+				}
+			}
+			adapter.write("eventValues", values);
+		}
 
 		/**
 		 * An Event-specific builder is used for constructing a new Event syntax info.
@@ -149,8 +277,10 @@ public final class BukkitSyntaxInfos {
 			 * @param documentationId The documentation identifier to use.
 			 * @return This builder.
 			 * @see Event#documentationId()
+			 * @deprecated Use {@link #documentation(Documentation) instead}.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B documentationId(String documentationId);
 
 			/**
@@ -158,8 +288,10 @@ public final class BukkitSyntaxInfos {
 			 * @param since The "since" value to use.
 			 * @return This builder.
 			 * @see Event#since()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addSince(String since);
 
 			/**
@@ -167,8 +299,10 @@ public final class BukkitSyntaxInfos {
 			 * @param since The "since" values to use.
 			 * @return This builder.
 			 * @see Event#since()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addSince(String ...since);
 
 
@@ -177,16 +311,20 @@ public final class BukkitSyntaxInfos {
 			 * @param since The "since" values to use.
 			 * @return This builder.
 			 * @see Event#since()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addSince(Collection<String> since);
 
 			/**
 			 * Removes all "since" values from the event's documentation
 			 * @return This builder.
 			 * @see Event#since()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("-> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B clearSince();
 
 			/**
@@ -194,8 +332,10 @@ public final class BukkitSyntaxInfos {
 			 * @param description The description line to add.
 			 * @return This builder.
 			 * @see Event#description()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addDescription(String description);
 
 			/**
@@ -203,8 +343,10 @@ public final class BukkitSyntaxInfos {
 			 * @param description The description lines to add.
 			 * @return This builder.
 			 * @see Event#description()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addDescription(String... description);
 
 			/**
@@ -212,16 +354,20 @@ public final class BukkitSyntaxInfos {
 			 * @param description The description lines to add.
 			 * @return This builder.
 			 * @see Event#description()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addDescription(Collection<String> description);
 
 			/**
 			 * Removes all description lines from the event's documentation.
 			 * @return This builder.
 			 * @see Event#description()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("-> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B clearDescription();
 
 			/**
@@ -229,8 +375,10 @@ public final class BukkitSyntaxInfos {
 			 * @param example The example to add.
 			 * @return This builder.
 			 * @see Event#examples()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addExample(String example);
 
 			/**
@@ -238,8 +386,10 @@ public final class BukkitSyntaxInfos {
 			 * @param examples The examples to add.
 			 * @return This builder.
 			 * @see Event#examples()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addExamples(String... examples);
 
 			/**
@@ -247,16 +397,20 @@ public final class BukkitSyntaxInfos {
 			 * @param examples The examples to add.
 			 * @return This builder.
 			 * @see Event#examples()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addExamples(Collection<String> examples);
 
 			/**
 			 * Removes all examples from the event's documentation.
 			 * @return This builder.
 			 * @see Event#examples()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("-> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B clearExamples();
 
 			/**
@@ -264,8 +418,10 @@ public final class BukkitSyntaxInfos {
 			 * @param keyword The keyword to add.
 			 * @return This builder.
 			 * @see Event#keywords()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addKeyword(String keyword);
 
 			/**
@@ -273,8 +429,10 @@ public final class BukkitSyntaxInfos {
 			 * @param keywords The keywords to add.
 			 * @return This builder.
 			 * @see Event#keywords()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addKeywords(String... keywords);
 
 			/**
@@ -282,16 +440,20 @@ public final class BukkitSyntaxInfos {
 			 * @param keywords The keywords to add.
 			 * @return This builder.
 			 * @see Event#keywords()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addKeywords(Collection<String> keywords);
 
 			/**
 			 * Removes all keywords from the event's documentation.
 			 * @return This builder.
 			 * @see Event#keywords()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("-> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B clearKeywords();
 
 			/**
@@ -299,8 +461,10 @@ public final class BukkitSyntaxInfos {
 			 * @param plugin The required plugin to add.
 			 * @return This builder.
 			 * @see Event#requiredPlugins()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addRequiredPlugin(String plugin);
 
 			/**
@@ -308,8 +472,10 @@ public final class BukkitSyntaxInfos {
 			 * @param plugins The required plugins to add.
 			 * @return This builder.
 			 * @see Event#requiredPlugins()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addRequiredPlugins(String... plugins);
 
 			/**
@@ -317,15 +483,20 @@ public final class BukkitSyntaxInfos {
 			 * @param plugins The required plugins to add.
 			 * @return This builder.
 			 * @see Event#requiredPlugins()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addRequiredPlugins(Collection<String> plugins);
 
 			/**
 			 * Removes all required plugins from the event's documentation.
 			 * @return This builder.
 			 * @see Event#requiredPlugins()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
+			@Contract("-> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B clearRequiredPlugins();
 
 			/**
