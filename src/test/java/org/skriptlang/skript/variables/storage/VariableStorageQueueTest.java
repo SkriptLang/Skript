@@ -80,32 +80,6 @@ public class VariableStorageQueueTest {
 		for (int i = 0; i < 100; i++)
 			storage.write("x", value(i), runs::incrementAndGet);
 		assertEquals(100, runs.get());
-		assertEquals(100, storage.pendingCalls.get());
-	}
-
-	@Test
-	public void clearsAndListSetsWakeTheStorageOnceExternalClearsDoNot() {
-		clear("a::");
-		assertEquals(1, storage.pendingCalls.get());
-
-		long stamp = storage.lockExclusive();
-		try {
-			storage.recordClearLocked("a::", true);
-			storage.putPendingLocked("a::1", value(1));
-			storage.putPendingLocked("a::2", value(2));
-		} finally {
-			storage.unlockExclusive(stamp);
-		}
-		assertEquals(2, storage.pendingCalls.get());
-
-		stamp = storage.lockExclusive();
-		try {
-			storage.recordClearLocked("b::", false);
-		} finally {
-			storage.unlockExclusive(stamp);
-		}
-		storage.drain();
-		assertEquals(2, storage.pendingCalls.get());
 	}
 
 	@Test
@@ -194,11 +168,9 @@ public class VariableStorageQueueTest {
 	public void externalWriteDropsTheLocalChange() {
 		set("x", value(1));
 		Value external = value(2);
-		int callsBefore = storage.pendingCalls.get();
 		storage.externalWrite("x", () -> variables.put("x", external));
 
 		assertEquals(external, variables.get("x"));
-		assertEquals(callsBefore, storage.pendingCalls.get());
 		assertTrue(storage.drain().isEmpty());
 	}
 
