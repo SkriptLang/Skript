@@ -34,4 +34,12 @@ public enum MatchQuality {
 	public boolean isAtLeast(MatchQuality another) {
 		return ordinal() <= another.ordinal();
 	}
+
+	public MatchQuality max(MatchQuality another) {
+		return this.isAtLeast(another) ? this : another;
+	}
+
+	public MatchQuality min(MatchQuality another) {
+		return this.isAtLeast(another) ? another : this;
+	}
 }
