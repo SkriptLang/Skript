@@ -1,5 +1,6 @@
 package ch.njol.skript.util;
 
+import ch.njol.skript.Skript;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Location;
 import org.bukkit.TreeType;
@@ -59,6 +60,9 @@ public enum TreeSpecies {
 
 	// 26.3
 	POPLAR("POPLAR"),
+	RED_POPLAR("RED_POPLAR"),
+	ORANGE_POPLAR("ORANGE_POPLAR"),
+	YELLOW_POPLAR("YELLOW_POPLAR"),
 	;
 
 	private final TreeType[] types;
@@ -67,14 +71,22 @@ public enum TreeSpecies {
 		this.types = types;
 	}
 
-	TreeSpecies(String string) {
-		TreeType[] types;
-		try {
-			types = new TreeType[]{TreeType.valueOf(string)};
-		} catch (IllegalArgumentException e) {
-			types = new TreeType[0];
+	TreeSpecies(String name) {
+		if (Skript.isRunningMinecraft(26, 3) && name.contains("POPLAR")) {
+			if (Skript.fieldExists(TreeType.class, "POPLAR")) { // Paper 26.3 build 210 or older
+				this.types = new TreeType[]{TreeType.valueOf("POPLAR")};
+			} else {
+				this.types = switch (name) {
+					case "POPLAR" -> new TreeType[]{TreeType.RED_POPLAR, TreeType.ORANGE_POPLAR, TreeType.YELLOW_POPLAR};
+					case "RED_POPLAR" -> new TreeType[]{TreeType.RED_POPLAR};
+					case "YELLOW_POPLAR" -> new TreeType[]{TreeType.YELLOW_POPLAR};
+					case "ORANGE_POPLAR" -> new TreeType[]{TreeType.ORANGE_POPLAR};
+					default -> throw new IllegalArgumentException("Unknown poplar type: " + name);
+				};
+			}
+		} else {
+			this.types = new TreeType[0];
 		}
-		this.types = types;
 	}
 
 	/**
