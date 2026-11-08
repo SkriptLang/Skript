@@ -1,4 +1,4 @@
-test "cross product":
+test "dot product":
 	set {_v} to vector(1, 0, 0)
 	set {_w} to vector(0, 1, 0)
 	set {_u} to {_v} dot {_w}

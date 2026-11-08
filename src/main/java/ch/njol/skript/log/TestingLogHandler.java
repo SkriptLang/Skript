@@ -2,7 +2,6 @@ package ch.njol.skript.log;
 
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.test.runner.EvtTestCase;
 import ch.njol.skript.test.runner.TestTracker;
 import org.skriptlang.skript.lang.structure.Structure;
 
@@ -29,7 +28,10 @@ public class TestingLogHandler extends LogHandler {
 			Structure struct = parser.getCurrentStructure();
 			Node node = parser.getNode();
 
-			String name = struct instanceof EvtTestCase test ? test.getTestName() : struct != null ? struct.getSyntaxTypeName() : null;
+			String name = struct == null ? null : struct.toString(null, true);
+			if (name != null && name.startsWith("test ")) {
+				name = name.substring(5);
+			}
 			TestTracker.parsingStarted(name);
 
 			if (node != null && parser.isActive()) {

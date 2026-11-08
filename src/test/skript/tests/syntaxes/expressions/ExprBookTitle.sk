@@ -1,5 +1,12 @@
 test "book title":
 	set {_i} to written book
-	assert {_i}'s book title is not set with "non-existent book title failed"
-	set {_i}'s book title to "aB1$😀"
-	assert case_equals({_i}'s book title, "aB1$😀") is true with "set book title failed"
+	assert {_i}'s title is not set with "non-existent book title failed"
+	set {_i}'s title to "aB1$😀"
+	assert case_equals({_i}'s title, "aB1$😀") is true with "set book title failed"
+
+	# test legacy syntax
+	set {_i} to written book
+	suppress deprecated syntax warnings:
+		assert {_i}'s book title is not set with "non-existent book title failed (legacy)"
+		set {_i}'s book title to "aB1$😀"
+		assert case_equals({_i}'s book title, "aB1$😀") is true with "set book title failed (legacy)"

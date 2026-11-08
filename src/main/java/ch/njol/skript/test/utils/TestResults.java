@@ -5,7 +5,7 @@ import java.util.Set;
 
 /**
  * Contains test results: successes, failures and doc failure. Will be serialized with Gson
- * for transfering it between processes of gradle/environment and the actual spigot server.
+ * for transferring it between processes of gradle/environment and the actual spigot server.
  */
 public class TestResults {
 
@@ -24,8 +24,8 @@ public class TestResults {
 	 */
 	private final boolean docsFailed;
 
-	public TestResults(Set<String> succeeded, Map<String, String> failed, boolean docs_failed) {
-		this.docsFailed = docs_failed;
+	public TestResults(Set<String> succeeded, Map<String, String> failed, boolean docsFailed) {
+		this.docsFailed = docsFailed;
 		this.succeeded = succeeded;
 		this.failed = failed;
 	}

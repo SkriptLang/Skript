@@ -1,4 +1,4 @@
-test "rotate around global axis":
+test "rotate around global axis effect":
 	set {_v::1} to vector(1, 1, 1)
 	set {_v::2} to quaternion(1, 0, 0, 0)
 
@@ -22,7 +22,7 @@ test "rotate around global axis":
 
 	delete entity within {_v::3}
 
-test "rotate around local axis":
+test "rotate around local axis effect":
 	set {_v::1} to vector(1, 1, 1)
 	set {_v::2} to quaternion(1, 0, 0, 0)
 	spawn block display at spawn of world "world":
@@ -45,7 +45,7 @@ test "rotate around local axis":
 
 	delete entity within {_v::3}
 
-test "vector rotate around vector":
+test "vector rotate around vector effect":
 	set {_x} to vector(1, 0, 0)
 	set {_y} to vector(0, 1, 0)
 	set {_z} to vector(0, 0, 1)
@@ -68,7 +68,7 @@ test "vector rotate around vector":
 	assert {_v} is vector(0, 0, -2) with "rotate around non-unit vector failed"
 
 
-test "quaternion rotate by ZYX rotation":
+test "quaternion rotate by ZYX rotation effect":
 	set {_q} to quaternion(1,0,0,0)
 	rotate {_q} by x 90, y 90, z 90
 	assert {_q} is quaternion(0.7071067094802856, 0, 0.7071067094802856, 0) with "failed to rotate quaternion by ZYX"

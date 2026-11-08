@@ -7,7 +7,7 @@ test "allay dancing":
 	assert {_entity} is not dancing with "Allay should not be dancing"
 	clear entity within {_entity}
 
-test "invalid entities":
+test "invalid entities for dancing":
 	spawn a villager and a zombie at test-location:
 		add entity to {_entities::*}
 	make {_entities::*} start dancing
