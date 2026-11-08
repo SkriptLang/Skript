@@ -3,6 +3,7 @@ package org.skriptlang.skript.variables.storage;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.variables.SerializedVariable;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,6 +59,15 @@ class RecordingStorage extends VariableStorage {
 
 	@Override
 	protected void load(StorageListener listener) {
+	}
+
+	final Map<String, SerializedVariable.Value> saved = new HashMap<>();
+
+	@Override
+	protected void save(Batch batch) throws IOException {
+		synchronized (saved) {
+			apply(batch, saved);
+		}
 	}
 
 	@Override
