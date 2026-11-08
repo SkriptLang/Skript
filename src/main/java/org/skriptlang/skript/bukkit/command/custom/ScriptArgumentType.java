@@ -115,7 +115,7 @@ public class ScriptArgumentType<T> implements CustomArgumentType<Object, String>
 				if (max == null) {
 					return DoubleArgumentType.doubleArg();
 				}
-				return DoubleArgumentType.doubleArg(Double.MIN_VALUE, max.doubleValue());
+				return DoubleArgumentType.doubleArg(-Double.MAX_VALUE, max.doubleValue());
 			} else if (max == null) {
 				return DoubleArgumentType.doubleArg(min.doubleValue());
 			}
@@ -232,14 +232,14 @@ public class ScriptArgumentType<T> implements CustomArgumentType<Object, String>
 			assert comparator != null;
 			for (T element : result.getAll()) {
 				//noinspection unchecked
-				if (hasMax && comparator.compare(element, argument.min()) == Relation.SMALLER) {
+				if (hasMin && comparator.compare(element, argument.min()) == Relation.SMALLER) {
 					reader.setCursor(prevCursor);
 					throw ERROR_ARGUMENT_TOO_SMALL.createWithContext(reader, argument.min(), element);
 				}
 				//noinspection unchecked
 				if (hasMax && comparator.compare(element, argument.max()) == Relation.GREATER) {
 					reader.setCursor(prevCursor);
-					throw ERROR_ARGUMENT_TOO_LARGE.createWithContext(reader, argument.min(), element);
+					throw ERROR_ARGUMENT_TOO_LARGE.createWithContext(reader, argument.max(), element);
 				}
 			}
 		}
