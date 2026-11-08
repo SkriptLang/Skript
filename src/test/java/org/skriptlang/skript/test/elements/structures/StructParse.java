@@ -27,6 +27,10 @@ import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+
 @Name("Parse Structure")
 @Description("Parses the code inside this structure as a structure and use 'parse logs' to grab any logs from it.")
 @NoDoc
@@ -42,9 +46,10 @@ public class StructParse extends Structure {
 		.addSection("code", false)
 		.build();
 
-	private Node structureNodeToParse;
-	private String[] logs;
+	private final List<String> logs = new ArrayList<>();
 	private Expression<?> resultsExpression;
+
+	private @Nullable Structure structure;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern,
@@ -73,45 +78,82 @@ public class StructParse extends Structure {
 			return false;
 		}
 
+		try (RetainingLogHandler handler = SkriptLogger.startRetainingLog()) {
+			Node structureNodeToParse = Iterables.getFirst(codeSectionNode, null);
+			assert structureNodeToParse != null;
+			String structureSectionNodeKey = ScriptLoader.replaceOptions(structureNodeToParse.getKey());
+			String error = "Can't understand this structure: " + structureSectionNodeKey;
+			structure = Structure.parse(structureSectionNodeKey, structureNodeToParse, error);
+			extractLogs(handler);
+		} finally {
+			getParser().setCurrentStructure(this);
+		}
+
 		resultsExpression = maybeResultsExpression;
-		structureNodeToParse = Iterables.getFirst(codeSectionNode, null);
+		return true;
+	}
+
+	@Override
+	public boolean preLoad() {
+		executeLoadMethod(Structure::preLoad);
 		return true;
 	}
 
 	@Override
 	public boolean load() {
-		try (RetainingLogHandler handler = SkriptLogger.startRetainingLog()) {
-			String structureSectionNodeKey = ScriptLoader.replaceOptions(structureNodeToParse.getKey());
-			String error = "Can't understand this structure: " + structureSectionNodeKey;
-			Structure structure = Structure.parse(structureSectionNodeKey, structureNodeToParse, error);
-
-			getParser().setCurrentStructure(structure);
-			if (structure != null && structure.preLoad() && structure.load()) {
-				structure.postLoad();
-			}
-
-			getParser().setCurrentStructure(null);
-
-			logs = handler.getLog().stream()
-				.filter(entry -> entry.getLevel() != SkriptLogger.DEBUG)
-				.map(LogEntry::getMessage)
-				.toArray(String[]::new);
-		}
+		executeLoadMethod(Structure::load);
 		return true;
 	}
 
 	@Override
 	public boolean postLoad() {
+		executeLoadMethod(Structure::postLoad);
 		Task.callSync(() -> {
-			resultsExpression.change(ContextlessEvent.get(), logs, ChangeMode.SET);
+			resultsExpression.change(ContextlessEvent.get(), logs.toArray(new String[0]), ChangeMode.SET);
 			return null;
 		});
 		return true;
 	}
 
 	@Override
+	public void unload() {
+		if (structure != null) {
+			structure.unload();
+		}
+	}
+
+	@Override
+	public void postUnload() {
+		if (structure != null) {
+			structure.postUnload();
+		}
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "parse";
+	}
+
+	private void executeLoadMethod(Function<Structure, Boolean> loadMethod) {
+		if (structure == null) {
+			return;
+		}
+		try (RetainingLogHandler handler = SkriptLogger.startRetainingLog()) {
+			getParser().setCurrentStructure(structure);
+			if (!loadMethod.apply(structure)) {
+				structure = null;
+			}
+			extractLogs(handler);
+		} finally {
+			getParser().setCurrentStructure(this);
+		}
+	}
+
+	private void extractLogs(RetainingLogHandler handler) {
+		handler.getLog().stream()
+			.filter(entry -> entry.getLevel() != SkriptLogger.DEBUG)
+			.map(LogEntry::getMessage)
+			.forEach(logs::add);
 	}
 
 }
