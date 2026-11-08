@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.skriptlang.skript.variables.storage.VariableStorage.Batch;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +49,7 @@ public class VariableStorageQueueTest {
 		long stamp = storage.lockExclusive();
 		try {
 			variables.keySet().removeIf(name -> name.startsWith(prefix));
-			storage.recordClearLocked(prefix, true);
+			storage.recordClear(prefix, true);
 		} finally {
 			storage.unlockExclusive(stamp);
 		}
@@ -136,11 +137,11 @@ public class VariableStorageQueueTest {
 		long stamp = storage.lockExclusive();
 		try {
 			variables.keySet().removeIf(name -> name.startsWith("a::"));
-			storage.recordClearLocked("a::", true);
+			storage.recordClear("a::", true);
 			variables.put("a::1", one);
-			storage.putPendingLocked("a::1", one);
+			storage.putPending("a::1", one);
 			variables.put("a::2", two);
-			storage.putPendingLocked("a::2", two);
+			storage.putPending("a::2", two);
 		} finally {
 			storage.unlockExclusive(stamp);
 		}
@@ -182,7 +183,7 @@ public class VariableStorageQueueTest {
 		long stamp = storage.lockExclusive();
 		try {
 			variables.keySet().removeIf(name -> name.startsWith("a::"));
-			storage.recordClearLocked("a::", false);
+			storage.recordClear("a::", false);
 		} finally {
 			storage.unlockExclusive(stamp);
 		}
@@ -222,6 +223,91 @@ public class VariableStorageQueueTest {
 		set("c", value(6));
 		RecordingStorage.apply(storage.drain(), stored);
 		assertEquals(variables, stored);
+	}
+
+	// ---- presizing the replacement map (decaying peak of drain sizes) ----
+
+	private int sizeHint() {
+		try {
+			Field field = VariableStorage.class.getDeclaredField("sizeHint");
+			field.setAccessible(true);
+			return field.getInt(storage);
+		} catch (ReflectiveOperationException e) {
+			throw new AssertionError(e);
+		}
+	}
+
+	private void writeMany(String prefix, int count) {
+		for (int i = 0; i < count; i++)
+			set(prefix + i, value(i));
+	}
+
+	@Test
+	public void drainAfterABigDrainHasExactlyTheNewChanges() {
+		writeMany("big::", 10_000);
+		assertEquals(10_000, storage.drain().changes().size());
+
+		// the next map was presized and had a dummy entry put in and removed again
+		Value overwritten = value(1);
+		set("big::5", overwritten);
+		writeMany("small::", 50);
+		Map<String, Value> changes = RecordingStorage.changes(storage.drain());
+		assertEquals(51, changes.size());
+		assertEquals(overwritten, changes.get("big::5"));
+		assertFalse("the allocation dummy leaked into a batch", changes.containsKey(""));
+	}
+
+	@Test
+	public void emptyDrainAfterABigDrainIsEmpty() {
+		writeMany("big::", 10_000);
+		storage.drain();
+		assertTrue(storage.drain().isEmpty());
+		// still empty, and still working, after the presized map was discarded unused
+		Value later = value(1);
+		set("later", later);
+		assertEquals(Map.of("later", later), RecordingStorage.changes(storage.drain()));
+	}
+
+	@Test
+	public void sizeHintRisesAtOnce() {
+		writeMany("a::", 1_000);
+		storage.drain();
+		assertEquals(1_000, sizeHint());
+
+		writeMany("b::", 5_000);
+		storage.drain();
+		assertEquals(5_000, sizeHint());
+	}
+
+	@Test
+	public void sizeHintFallsByAQuarterPerSmallDrain() {
+		writeMany("a::", 1_000);
+		storage.drain();
+		set("x", value(1));
+		storage.drain();
+		assertEquals(750, sizeHint());
+	}
+
+	@Test
+	public void sizeHintFallsDuringEmptyDrains() {
+		writeMany("a::", 1_000);
+		storage.drain();
+		for (int i = 0; i < 20; i++)
+			storage.drain(); // nothing queued
+		assertTrue("hint should have decayed on empty drains, but is " + sizeHint(), sizeHint() <= 64);
+	}
+
+	@Test
+	public void sizeHintDecaysToSmallWithinAMinuteOfQuietAfterABurst() {
+		writeMany("burst::", 100_000);
+		storage.drain();
+		int drains = 0;
+		while (sizeHint() > 64 && drains < 120) {
+			set("quiet", value(drains));
+			storage.drain();
+			drains++;
+		}
+		assertTrue("took " + drains + " one-second drains to decay", drains <= 60);
 	}
 
 }

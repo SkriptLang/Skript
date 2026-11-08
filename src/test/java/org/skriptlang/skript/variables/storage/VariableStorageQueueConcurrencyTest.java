@@ -136,7 +136,7 @@ public class VariableStorageQueueConcurrencyTest {
 		long stamp = storage.lockExclusive();
 		try {
 			variables.keySet().removeIf(name -> name.startsWith(prefix));
-			storage.recordClearLocked(prefix, true);
+			storage.recordClear(prefix, true);
 		} finally {
 			storage.unlockExclusive(stamp);
 		}
@@ -146,12 +146,12 @@ public class VariableStorageQueueConcurrencyTest {
 		long stamp = storage.lockExclusive();
 		try {
 			variables.keySet().removeIf(name -> name.startsWith(prefix));
-			storage.recordClearLocked(prefix, true);
+			storage.recordClear(prefix, true);
 			for (int i = 1; i <= 2; i++) {
 				String name = prefix + i;
 				Value value = new Value("test", new byte[] {(byte) random.nextInt()});
 				variables.put(name, value);
-				storage.putPendingLocked(name, value);
+				storage.putPending(name, value);
 			}
 		} finally {
 			storage.unlockExclusive(stamp);

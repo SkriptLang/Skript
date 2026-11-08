@@ -72,6 +72,8 @@ public abstract class VariableStorage implements Closeable {
 	// pending list clears in order
 	private ArrayList<Clear> clears = new ArrayList<>();
 	private long epoch; // used to drop changes made before a clear when draining. Increments every clear.
+	private int sizeHint; // decaying peak hint for drain size, to avoid resizing the pending map too often.
+	private static final Pending ALLOCATION_DUMMY = new Pending("", null, 0);
 
 	protected VariableStorage(SkriptAddon registeringAddon, String type) {
 		this.registeringAddon = registeringAddon;
@@ -271,6 +273,32 @@ public abstract class VariableStorage implements Closeable {
 	protected abstract void load(StorageListener listener) throws IOException;
 
 	/**
+	 * Saves a batch of changes. Called on this storage's saving thread, one batch at a time, in order.
+	 * <p>
+	 * Apply {@link Batch#clears()} first, then {@link Batch#changes()}.
+	 * When this returns, the batch must be stored durably, at least as far as the operating system:
+	 * a crash of the server process after it returns must not lose the batch.
+	 * <p>
+	 * Throw if the batch could not be saved. Skript keeps it and calls this again with the same batch later,
+	 * so saving the same batch twice must be harmless.
+	 *
+	 * @param batch the changes to save, never empty
+	 * @throws IOException if the batch could not be saved
+	 */
+	protected abstract void save(Batch batch) throws IOException;
+
+	/**
+	 * How often queued changes are saved, in milliseconds. Not user configurable by default, since storage performance depends on
+	 * ensuring drains are steady and relatively often.
+	 * A storage class may override this, e.g. to save more often when other servers wait on its writes.
+	 *
+	 * @return the time between saves. This is only read once, when saving starts, to set up thread timings.
+	 */
+	protected long saveIntervalMillis() {
+		return 1000;
+	}
+
+	/**
 	 * Flushes any pending changes to this storage. Called when Skript is saving variables.
 	 * Any pending changes should be saved before this method returns.
 	 *
@@ -355,7 +383,6 @@ public abstract class VariableStorage implements Closeable {
 
 	/**
 	 * Takes this storage's exclusive lock, which waits for every {@link #write} in progress and blocks new ones.
-	 * Needed for the {@code *Locked} methods.
 	 *
 	 * @return the stamp to pass to {@link #unlockExclusive(long)}
 	 */
@@ -380,20 +407,22 @@ public abstract class VariableStorage implements Closeable {
 	 * @param save   true if the storage has to delete the list,
 	 *               false if the clear came from the storage itself and only local changes should be dropped
 	 */
-	void recordClearLocked(String prefix, boolean save) {
+	void recordClear(String prefix, boolean save) {
+		assert order.isWriteLocked();
 		assert prefix.endsWith("::") : prefix;
 		clears.add(new Clear(prefix, epoch++, save));
 	}
 
 	/**
 	 * Queues a change while the exclusive lock is held, such as the new values of a list being set.
-	 * Call it after {@link #recordClearLocked(String, boolean)} for the same list,
+	 * Call it after {@link #recordClear(String, boolean)} for the same list,
 	 * so that the change is not dropped by that clear. The caller must hold {@link #lockExclusive()}.
 	 *
 	 * @param name  the variable's name
 	 * @param value the serialized new value, or null if the variable is deleted
 	 */
-	void putPendingLocked(String name, SerializedVariable.@Nullable Value value) {
+	void putPending(String name, SerializedVariable.@Nullable Value value) {
+		assert order.isWriteLocked();
 		pending.put(name, new Pending(name, value, epoch));
 	}
 
@@ -427,21 +456,37 @@ public abstract class VariableStorage implements Closeable {
 	 * @return the changes to save, possibly empty
 	 */
 	Batch drainPending() {
-		// swap the queue for an empty one while holding the exclusive lock, so writers are blocked only briefly
 		ConcurrentHashMap<String, Pending> drained;
 		ArrayList<Clear> drainedClears;
+		// get replacement map presized to the estimated right size
+		ConcurrentHashMap<String, Pending> replacement;
+		if (sizeHint > 64) {
+			replacement = new ConcurrentHashMap<>((int) Math.min(Integer.MAX_VALUE, sizeHint * 4L / 3 + 1)); // 33% extra to avoid resizing
+			// ConcurrentHashMap only allocates its table on the first insert.
+			// do that here, on the saving thread, rather than on the first writer
+			replacement.put("", ALLOCATION_DUMMY);
+			replacement.remove("");
+		} else {
+			replacement = new ConcurrentHashMap<>();
+		}
+		// swap the queue for an empty one while holding the exclusive lock, so writers are blocked only briefly
 		long stamp = lockExclusive();
 		try {
-			if (pending.isEmpty() && clears.isEmpty())
+			if (pending.isEmpty() && clears.isEmpty()) {
+				sizeHint -= sizeHint / 4;
 				return Batch.EMPTY;
+			}
 			drained = pending;
 			drainedClears = clears;
-			pending = new ConcurrentHashMap<>();
+			pending = replacement;
 			clears = new ArrayList<>();
 		} finally {
 			unlockExclusive(stamp);
 		}
 		// nothing can change the drained queue any more, so the rest needs no lock
+
+		// size hint update!
+		sizeHint = Math.max(drained.size(), sizeHint - sizeHint / 4); // 25% decay per drain
 
 		List<SerializedVariable> changes = new ArrayList<>(drained.size());
 		// if there are no clears, every change is saved, so we can just unwrap.
@@ -493,6 +538,8 @@ public abstract class VariableStorage implements Closeable {
 		int end = name.indexOf("::");
 		return end < 0 ? name : name.substring(0, end);
 	}
+
+	// ---------------------------- SAVING ----------------------------
 
 	// ---------------------------- MISC ----------------------------
 
