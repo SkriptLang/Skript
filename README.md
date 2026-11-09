@@ -15,6 +15,8 @@
 
 </div>
 
+---
+
 **Skript** is a scripting language for Minecraft [Paper](https://papermc.io/) servers, which allows server owners to modify their server using plain English.
 
 ```applescript
@@ -148,5 +150,6 @@ Contributors may additionally release their code under the MIT License. see [LIC
 
 Skript began as Njol's original plugin, continued through Mirreski's fork, and is now maintained by the SkriptLang team and [contributors](https://github.com/SkriptLang/Skript/graphs/contributors).
 
+---
 
-[![Avatars of Skript contributors](https://contrib.rocks/image?repo=SkriptLang/Skript&max=300&columns=50)](https://github.com/SkriptLang/Skript/graphs/contributors)
+[![Avatars of Skript contributors](https://contrib.rocks/image?repo=SkriptLang/Skript&max=300&columns=30)](https://github.com/SkriptLang/Skript/graphs/contributors)
