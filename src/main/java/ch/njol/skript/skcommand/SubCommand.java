@@ -2,11 +2,13 @@ package ch.njol.skript.skcommand;
 
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Represents a subcommand of the {@code /skript} command, such as {@code /skript reload}.
  */
-abstract class SubCommand {
+@ApiStatus.Internal
+public abstract class SubCommand {
 
 	private final String[] aliases;
 	private String[] args;
