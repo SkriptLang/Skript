@@ -38,17 +38,17 @@ command /home:
             send "You don't have a home." to player
 ```
 
-**Skript** comes with hundreds of built-in syntaxes for blocks, entities, inventories, particles, GUIs, commands and much more.\
+**Skript** comes with hundreds of built-in syntaxes for blocks, entities, inventories, particles, commands and much more.\
 If **Skript** can't do something, an [addon](#addons) probably can.
 
 ## Requirements
 
-**Skript** requires [Paper](https://papermc.io/downloads/paper) to run. Folia, Spigot, Bukkit are **not** supported.
+**Skript** requires [Paper](https://papermc.io/downloads/paper) to run. Folia, Spigot, and Bukkit are **not** supported.
 
 **Skript** supports the last 18 months of Minecraft versions, counting from the release date of **Skript**'s latest version.\
 For example, this means that 1.20.4 is supported, but 1.20.3 is not.
 
-New Minecraft versions will be supported as soon as possible.
+New Minecraft versions will usually work with existing versions of Skript, but with limited support for new content. Support for new versions will be added as soon as possible, according to the release schedule.
 
 ## Download
 
@@ -78,7 +78,7 @@ These communities are run independently of the Skript team. Please don't report 
 
 Plugins can add new syntaxes to **Skript** to extend it. You can find addons on [skUnity](https://forums.skunity.com/forums/addon-releases) and [Skript Hub](https://skripthub.net).
 
-Addons are maintained by their authors, not by the Skript team. When reporting a bug, try to reproduce it **without addons** first.
+Addons are maintained by their authors, not by the Skript team. When reporting a bug, try to reproduce it **without addons** first. If it is an issue with an addon, do not report it here.
 
 ## Using Skript as a dependency
 
