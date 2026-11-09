@@ -6,12 +6,13 @@
 
 <div align="center">
 
-[![Latest release](https://img.shields.io/github/v/release/SkriptLang/Skript?label=release&color=orange)](https://github.com/SkriptLang/Skript/releases)
-[![Docs](https://img.shields.io/badge/docs-docs.skriptlang.org-orange)](https://beta-docs.skriptlang.org/)
-[![Discord](https://img.shields.io/badge/chat-on%20Discord-5865F2?logo=discord&logoColor=white)](https://discord.gg/ZPsZAg6ygu)
-[![GitHub downloads](https://img.shields.io/github/downloads/SkriptLang/Skript/total?label=downloads&logo=github&logoColor=white)](https://github.com/SkriptLang/Skript/releases)
-[![Modrinth downloads](https://img.shields.io/modrinth/dt/xFNYAvMk?label=downloads&logo=modrinth&logoColor=white)](https://modrinth.com/plugin/skript)
-[![Servers](https://img.shields.io/bstats/servers/722)](https://bstats.org/plugin/bukkit/Skript/722)
+[![Latest release](https://img.shields.io/github/v/release/SkriptLang/Skript?label=Version&color=orange)](https://github.com/SkriptLang/Skript/releases)
+[![Docs](https://img.shields.io/badge/docs-docs.skriptlang.org-orange?label=Docs)](https://beta-docs.skriptlang.org/)
+[![Discord](https://img.shields.io/badge/chat-on%20Discord-5865F2?label=Chat&logo=discord&logoColor=white)](https://discord.gg/ZPsZAg6ygu)
+[![GitHub downloads](https://img.shields.io/github/downloads/SkriptLang/Skript/total?label=GitHub%20Downloads&logo=github&logoColor=white)](https://github.com/SkriptLang/Skript/releases)
+[![Modrinth downloads](https://img.shields.io/modrinth/dt/xFNYAvMk?label=Modrinth%20Downloads&logo=modrinth&logoColor=white)](https://modrinth.com/plugin/skript)
+[![Hangar downloads](https://img.shields.io/hangar/dt/Skript?label=Hangar%20Downloads&logo=data:image/svg%2Bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNDEgMjI0LjUiPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xNjMuNSAxMDMuMmMtOS43LTMuNi0yNCAxMC4yLTMxIDMxLjRhODMuOSA4My45IDAgMCAwLTMuNSAzNS45bC00LjUtMS45Yy04LjYtMjYuNy0zLjgtNTUuOSAxMS4xLTc3WiIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Im0xNjkuOCAxNDguOC0zMy4yLTEzLjdjNi4xLTE4LjUgMTcuNC0yOS42IDI0LjctMjkuNmE3LjggNy44IDAgMCAxIDIuMi40bC42LjNjMi42IDEuMiAxMC41IDggNS43IDQyLjZNMTU3LjkgNjYuN2E3My40IDczLjQgMCAwIDAtMjUuOCAyMy40Yy0xNC42IDIxLjItMTkuNiA0OS45LTEyIDc2LjdhODIuMiA4Mi4yIDAgMCAwIDMuMyA5LjVsLTQ0LjUtMTguNGMtMTYuOC00MS4yLTEuNC05MC4zIDM0LjUtMTA5LjdaIi8%2BPC9zdmc%2B)](https://hangar.papermc.io/SkriptLang/Skript)
+[![Servers](https://img.shields.io/bstats/servers/722?label=Servers&logo=hangar&logoColor=white)](https://bstats.org/plugin/bukkit/Skript/722)
 
 </div>
 
