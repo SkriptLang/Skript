@@ -26,7 +26,7 @@ import static org.junit.Assert.assertNull;
  * A small set of names keeps threads on the same keys, and checking every short round keeps later writes
  * from hiding a lost or misordered change.
  */
-public class VariableStorageQueueConcurrencyTest {
+public class ChangeQueueConcurrencyTest {
 
 	private static final int WRITERS = 4;
 	private static final int ROUNDS = 5_000;
@@ -37,7 +37,7 @@ public class VariableStorageQueueConcurrencyTest {
 
 	@Test(timeout = 180_000)
 	public void savedDataMatchesTheVariables() throws Exception {
-		RecordingStorage storage = new RecordingStorage();
+		ChangeQueue queue = new ChangeQueue();
 		Map<String, Value> variables = new ConcurrentHashMap<>();
 		// drained and applied under its own lock, so batches are saved one at a time and in order
 		Map<String, Value> stored = new HashMap<>();
@@ -48,7 +48,7 @@ public class VariableStorageQueueConcurrencyTest {
 			AtomicBoolean writing = new AtomicBoolean(true);
 			Future<?> drainer = executor.submit(() -> {
 				while (writing.get())
-					drainAndSave(storage, stored);
+					drainAndSave(queue, stored);
 				return null;
 			});
 
@@ -58,7 +58,7 @@ public class VariableStorageQueueConcurrencyTest {
 			int[] round = {0};
 			CyclicBarrier roundStart = new CyclicBarrier(WRITERS);
 			CyclicBarrier roundEnd = new CyclicBarrier(WRITERS, () -> {
-				drainAndSave(storage, stored);
+				drainAndSave(queue, stored);
 				synchronized (stored) {
 					Map<String, Value> expected = new HashMap<>(variables);
 					if (!expected.equals(stored) && mismatch.get() == null)
@@ -74,7 +74,7 @@ public class VariableStorageQueueConcurrencyTest {
 					for (int r = 0; r < ROUNDS && mismatch.get() == null; r++) {
 						roundStart.await(30, TimeUnit.SECONDS);
 						for (int op = 0; op < OPERATIONS_PER_ROUND; op++)
-							randomOperation(random, storage, variables);
+							randomOperation(random, queue, variables);
 						roundEnd.await(30, TimeUnit.SECONDS);
 					}
 					return null;
@@ -104,18 +104,18 @@ public class VariableStorageQueueConcurrencyTest {
 		return names;
 	}
 
-	private static void drainAndSave(RecordingStorage storage, Map<String, Value> stored) {
+	private static void drainAndSave(ChangeQueue queue, Map<String, Value> stored) {
 		synchronized (stored) {
-			RecordingStorage.apply(storage.drain(), stored);
+			RecordingStorage.apply(queue.drain(), stored);
 		}
 	}
 
-	private static void randomOperation(Random random, RecordingStorage storage, Map<String, Value> variables) {
+	private static void randomOperation(Random random, ChangeQueue queue, Map<String, Value> variables) {
 		int kind = random.nextInt(20);
 		if (kind < 15) {
 			String name = NAMES[random.nextInt(NAMES.length)];
 			Value value = kind == 0 ? null : new Value("test", new byte[] {(byte) random.nextInt()});
-			storage.write(name, value, () -> {
+			queue.write(name, value, () -> {
 				if (value == null) {
 					variables.remove(name);
 				} else {
@@ -126,35 +126,35 @@ public class VariableStorageQueueConcurrencyTest {
 					Thread.yield();
 			});
 		} else if (kind < 18) {
-			clear(storage, variables, PREFIXES[random.nextInt(PREFIXES.length)]);
+			clear(queue, variables, PREFIXES[random.nextInt(PREFIXES.length)]);
 		} else {
-			setList(storage, variables, PREFIXES[random.nextInt(PREFIXES.length)], random);
+			setList(queue, variables, PREFIXES[random.nextInt(PREFIXES.length)], random);
 		}
 	}
 
-	private static void clear(RecordingStorage storage, Map<String, Value> variables, String prefix) {
-		long stamp = storage.lockExclusive();
+	private static void clear(ChangeQueue queue, Map<String, Value> variables, String prefix) {
+		long stamp = queue.lockExclusive();
 		try {
 			variables.keySet().removeIf(name -> name.startsWith(prefix));
-			storage.recordClear(prefix, true);
+			queue.recordClear(prefix, true);
 		} finally {
-			storage.unlockExclusive(stamp);
+			queue.unlockExclusive(stamp);
 		}
 	}
 
-	private static void setList(RecordingStorage storage, Map<String, Value> variables, String prefix, Random random) {
-		long stamp = storage.lockExclusive();
+	private static void setList(ChangeQueue queue, Map<String, Value> variables, String prefix, Random random) {
+		long stamp = queue.lockExclusive();
 		try {
 			variables.keySet().removeIf(name -> name.startsWith(prefix));
-			storage.recordClear(prefix, true);
+			queue.recordClear(prefix, true);
 			for (int i = 1; i <= 2; i++) {
 				String name = prefix + i;
 				Value value = new Value("test", new byte[] {(byte) random.nextInt()});
 				variables.put(name, value);
-				storage.putPending(name, value);
+				queue.putPending(name, value);
 			}
 		} finally {
-			storage.unlockExclusive(stamp);
+			queue.unlockExclusive(stamp);
 		}
 	}
 
