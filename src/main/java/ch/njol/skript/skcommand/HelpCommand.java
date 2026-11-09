@@ -17,7 +17,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
  * /sk help
  * </pre>
  */
-public class HelpCommand extends SubCommand {
+class HelpCommand extends SubCommand {
 
 	HelpCommand() {
 		super("help");

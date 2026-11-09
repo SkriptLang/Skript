@@ -29,7 +29,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
  * /sk enable all
  * </pre>
  */
-public class EnableCommand extends SubCommand {
+class EnableCommand extends SubCommand {
 
 	EnableCommand() {
 		super("enable");

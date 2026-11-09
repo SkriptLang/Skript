@@ -27,7 +27,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
  * Symbolic links that point outside the scripts folder are saved in {@code dump/external/} instead<p>
  * Usage: <code>/sk restore</code>
  */
-public class RestoreCommand extends SubCommand {
+class RestoreCommand extends SubCommand {
 
 	private static final Path DUMP_FOLDER = Skript.getInstance().getDataFolder().toPath().resolve("dump");
 

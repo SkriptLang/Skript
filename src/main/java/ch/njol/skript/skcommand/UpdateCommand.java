@@ -13,7 +13,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
  * Checks if the installed Skript version is up to date<p>
  * Usage: {@code /sk update}
  */
-public class UpdateCommand extends SubCommand {
+class UpdateCommand extends SubCommand {
 
 	UpdateCommand() {
 		super("update");

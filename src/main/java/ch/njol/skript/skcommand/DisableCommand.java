@@ -29,7 +29,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
  * /sk disable all
  * </pre>
  */
-public class DisableCommand extends SubCommand {
+class DisableCommand extends SubCommand {
 
 	DisableCommand() {
 		super("disable");

@@ -31,7 +31,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 /**
  * Reloads a script, or a folder of scripts
  */
-public class ReloadCommand extends SubCommand {
+class ReloadCommand extends SubCommand {
 
 	private static String lastReloadedScriptName = null;
 

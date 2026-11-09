@@ -26,7 +26,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 /**
  * Internal command for running tests
  */
-public class TestCommand extends SubCommand {
+class TestCommand extends SubCommand {
 
 	TestCommand() {
 		super("test");

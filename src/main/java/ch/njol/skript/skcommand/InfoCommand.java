@@ -23,7 +23,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
  * Shows info about Skript, server, installed addons and dependencies<p>
  * Usage: <code>/sk info</code>
  */
-public class InfoCommand extends SubCommand {
+class InfoCommand extends SubCommand {
 
 	InfoCommand() {
 		super("info");

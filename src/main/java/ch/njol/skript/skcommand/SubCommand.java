@@ -6,7 +6,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 /**
  * Represents a subcommand of the {@code /skript} command, such as {@code /skript reload}.
  */
-public abstract class SubCommand {
+abstract class SubCommand {
 
 	private final String[] aliases;
 	private String[] args;

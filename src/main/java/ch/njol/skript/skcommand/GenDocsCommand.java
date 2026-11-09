@@ -17,7 +17,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 /**
  * Internal command for generating docs
  */
-public class GenDocsCommand extends SubCommand {
+class GenDocsCommand extends SubCommand {
 
 	GenDocsCommand() {
 		super("gen-docs");

@@ -18,7 +18,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
  * Lists all enabled and disabled scripts<p>
  * Usage: <code>/sk list</code>
  */
-public class ListCommand extends SubCommand {
+class ListCommand extends SubCommand {
 
 	ListCommand() {
 		super("list", "show");
