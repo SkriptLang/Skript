@@ -40,7 +40,7 @@ class ReloadCommand {
 		root.then(build("reload"));
 	}
 
-	static LiteralCommandNode<CommandSourceStack> build(String literal) {
+	private static LiteralCommandNode<CommandSourceStack> build(String literal) {
 		return Commands.literal(literal)
 			.executes(context -> {
 				SkriptCommand.sendHelp(context);

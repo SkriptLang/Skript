@@ -30,7 +30,7 @@ class InfoCommand {
 		root.then(build("info"));
 	}
 
-	static LiteralCommandNode<CommandSourceStack> build(String literal) {
+	private static LiteralCommandNode<CommandSourceStack> build(String literal) {
 		return Commands.literal(literal)
 			.executes(context -> {
 				CommandSender sender = context.getSource().getSender();

@@ -36,7 +36,7 @@ class DisableCommand {
 		root.then(build("disable"));
 	}
 
-	static LiteralCommandNode<CommandSourceStack> build(String literal) {
+	private static LiteralCommandNode<CommandSourceStack> build(String literal) {
 		return Commands.literal(literal)
 			.executes(context -> {
 				SkriptCommand.sendHelp(context);

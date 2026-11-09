@@ -28,7 +28,7 @@ class HelpCommand {
 		root.then(build("help"));
 	}
 
-	static LiteralCommandNode<CommandSourceStack> build(String literal) {
+	private static LiteralCommandNode<CommandSourceStack> build(String literal) {
 		return Commands.literal(literal)
 			.executes(context -> {
 				send(context.getSource().getSender());
