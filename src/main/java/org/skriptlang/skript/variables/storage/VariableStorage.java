@@ -18,6 +18,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.StampedLock;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -35,14 +38,23 @@ import java.util.regex.PatternSyntaxException;
  *     If it returns false, the storage is not used.</li>
  *     <li><b>Load:</b> {@link #load(StorageListener)} reads every stored variable and passes it to Skript.
  *     If it throws, Skript does not save to this storage, so that data which could not be read is not overwritten.</li>
- *     <li><b>Save:</b> while the server runs, changes to the storage's variables are queued for it,
- *     and the storage saves them on its own schedule, off the main thread.</li>
- *     <li><b>Close:</b> on shutdown, {@link #close()} saves what is left and releases the storage's resources.</li>
+ *     <li><b>Save:</b> while the server runs, changes to the storage's variables are queued for it.
+ *     The storage's own saving thread drains the queue about every {@link #saveIntervalMillis()} ms
+ *     and passes the changes to {@link #save(Batch)}. A batch that fails to save is retried, with backoff,
+ *     before anything newer is drained.</li>
+ *     <li><b>Stop:</b> on shutdown, the saving thread is stopped and what is left is saved one last time.</li>
+ *     <li><b>Close:</b> {@link #close()} releases the storage's resources.</li>
  * </ol>
  * <p>
+ * How a change flows: Skript's in-memory variables are for reading, the queue is for writing,
+ * and the batch is for saving. Setting a variable changes it in memory and queues the serialized change
+ * in the same step, keeping only the last change to each name. The saving thread swaps the queue for an empty one
+ * and saves its contents as one {@link Batch}, so writes never wait on I/O.
+ * <p>
  * Threads: Skript calls {@link #configure(SectionNode)}, {@link #load(StorageListener)} and {@link #close()}
- * once each and never concurrently. Changes are queued from any thread, and a storage must never do I/O
- * on the thread that made the change. {@link #flush()} may be called from any thread.
+ * once each and never concurrently. Changes are queued from any thread, and {@link #save(Batch)} is only ever
+ * called by one thread at a time, never the one that made the change. {@link #flush()} may be called from any
+ * thread, but blocks it until the save is done.
  * <p>
  * Storages are registered with {@code Variables.registerStorage} under one or more type names,
  * which users then pick with the {@code type} option of a storage's config section.
@@ -53,7 +65,7 @@ public abstract class VariableStorage implements Closeable {
 	/**
 	 * The files currently used by a storage, so that two storages can't write to the same file.
 	 */
-	protected static final Set<File> registeredFiles = ConcurrentHashMap.newKeySet();
+	private static final Set<File> registeredFiles = ConcurrentHashMap.newKeySet();
 
 	// core id data
 	private final SkriptAddon registeringAddon;
@@ -75,6 +87,16 @@ public abstract class VariableStorage implements Closeable {
 	private int sizeHint; // decaying peak hint for drain size, to avoid resizing the pending map too often.
 	private static final Pending ALLOCATION_DUMMY = new Pending("", null, 0);
 
+	// saving thread stuff
+	private final ReentrantLock saveLock = new ReentrantLock();
+	private @Nullable Batch failedBatch; // a batch whose save failed and needs to be retried before draining again. guarded by saveLock.
+	private int failures;                // number of saves failed in a row. guarded by saveLock.
+	private long intervalNanos;          // read once from saveIntervalMillis() in startSaving
+	private volatile boolean saving;     // whether the save loop should be running
+	private volatile @Nullable Thread saveThread;
+	private static final long STOP_TIMEOUT_MILLIS = 30_000; // how long stopSaving() waits for the saving thread
+	private static final int FINAL_SAVE_ATTEMPTS = 3;        // how often stopSaving() tries to save what is left
+
 	protected VariableStorage(SkriptAddon registeringAddon, String type) {
 		this.registeringAddon = registeringAddon;
 		this.type = type;
@@ -92,6 +114,7 @@ public abstract class VariableStorage implements Closeable {
 	 */
 	protected abstract boolean configure(SectionNode node);
 
+	//<editor-fold desc="config helpers">
 	/**
 	 * Loads the configuration of this storage from the given node and sets its name.
 	 * Calls {@link #configure(SectionNode)} to do the actual configuration.
@@ -259,6 +282,7 @@ public abstract class VariableStorage implements Closeable {
 			return value;
 		}
 	}
+	//</editor-fold>
 
 	// ---------------------------- LIFECYCLE ----------------------------
 
@@ -299,27 +323,38 @@ public abstract class VariableStorage implements Closeable {
 	}
 
 	/**
-	 * Flushes any pending changes to this storage. Called when Skript is saving variables.
-	 * Any pending changes should be saved before this method returns.
+	 * Saves every change queued so far, on the calling thread, without waiting for the saving thread's next cycle.
+	 * A batch that failed to save before is retried right away, ignoring the backoff.
+	 * <p>
+	 * Blocks until the save is done, which can take a while for a remote database,
+	 * so don't call it from the main thread outside of shutdown.
 	 *
-	 * @return true if the flush was successful, false if it could not confirm that the changes are stored,
-	 * or this storage doesn't support flushing
+	 * @return true if every change queued before the call is now saved, false if a save failed
 	 */
-	public boolean flush() {
-		return false;
+	public final boolean flush() {
+		saveLock.lock();
+		try {
+			saveCycle();
+			return failedBatch == null;
+		} finally {
+			saveLock.unlock();
+		}
 	}
 
 	/**
-	 * Closes this storage and releases any resources it holds. After this method is called, the storage should not be used again.
-	 * Any pending changes should be saved before this method returns.
+	 * Releases any resources this storage holds, such as files or connections.
+	 * After this method is called, the storage is not used again.
+	 * <p>
+	 * Saving has already stopped when this is called, and every change that could be saved has been passed to
+	 * {@link #save(Batch)}, so this must not save anything itself.
 	 * Called when Skript is shutting down, or if {@link #load(StorageListener)} fails.
 	 */
 	@Override
 	public abstract void close();
 
-
 	// ------------------------ CHANGE QUEUE ------------------------
 
+	//<editor-fold desc="change queue logic">
 	/**
 	 * A batch of changes to a storage's variables, to be saved together.
 	 * <p>
@@ -447,6 +482,25 @@ public abstract class VariableStorage implements Closeable {
 	}
 
 	/**
+	 * Counts the changes and clears queued but not yet drained, for reporting what is lost at shutdown.
+	 *
+	 * @return the number of queued changes and clears that have to be saved
+	 */
+	int countPending() {
+		long stamp = order.writeLock();
+		try {
+			int count = pending.size();
+			for (Clear clear : clears) {
+				if (clear.save())
+					count++;
+			}
+			return count;
+		} finally {
+			order.unlockWrite(stamp);
+		}
+	}
+
+	/**
 	 * Takes every change queued since the last drain, for the saving thread to save.
 	 * <p>
 	 * The goal here is to minimize the time it takes for writers to queue changes, so that the main thread is blocked as little as possible.
@@ -538,8 +592,194 @@ public abstract class VariableStorage implements Closeable {
 		int end = name.indexOf("::");
 		return end < 0 ? name : name.substring(0, end);
 	}
+	//</editor-fold>
 
 	// ---------------------------- SAVING ----------------------------
+
+	//<editor-fold desc="saving thread logic">
+
+	/**
+	 * Starts the saving thread, which calls {@link #drainPending()} and {@link #save(Batch)} on its own schedule.
+	 * Called once by the router after {@link #load(StorageListener)} succeeds. Storages must not call this themselves.
+	 * If {@link #load(StorageListener)} fails, this should never be called and the storage is closed.
+	 */
+	void startSaving() {
+		if (saveThread != null)
+			throw new IllegalStateException("Saving thread already started");
+		long millis = saveIntervalMillis();
+		if (millis <= 0)
+			throw new IllegalStateException(getClass().getName() + " returned a save interval of " + millis + " ms");
+		intervalNanos = millis * 1_000_000L;
+		saving = true;
+		saveThread = new Thread(this::saveLoop, "Skript variable storage " + getName() + " saving thread");
+		saveThread.setDaemon(true);
+		saveThread.start();
+	}
+
+	/**
+	 * Stops the saving thread, then saves what is left on the calling thread.
+	 * Called once by the router on shutdown, before {@link #close()}.
+	 * <p>
+	 * The router must stop sending changes to this storage before calling this:
+	 * a change queued after the final save is lost.
+	 * <p>
+	 * Waits up to {@value #STOP_TIMEOUT_MILLIS} ms for the saving thread to finish its current save.
+	 * Then makes up to {@value #FINAL_SAVE_ATTEMPTS} final save attempts, without backoff,
+	 * and reports how many changes are still unsaved if they all fail.
+	 */
+	void stopSaving() {
+		Thread thread = saveThread;
+		if (thread == null)
+			return;
+		saving = false;
+		LockSupport.unpark(thread);
+		try {
+			thread.join(STOP_TIMEOUT_MILLIS);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+		if (thread.isAlive()) {
+			// stuck inside save() and holding saveLock, so a final save would get stuck too
+			reportSaveFailure(null, "The saving thread of the database '" + getName() + "' did not finish after "
+				+ STOP_TIMEOUT_MILLIS / 1000 + " seconds; its unsaved changes are lost");
+			return;
+		}
+		saveThread = null;
+
+		// save thread is done, so we can save what is left on this thread. This is the last chance to save anything.
+		saveLock.lock();
+		try {
+			for (int attempt = 0; attempt < FINAL_SAVE_ATTEMPTS; attempt++) {
+				saveCycle();
+				if (failedBatch == null)
+					return;
+			}
+			int unsaved = failedBatch.clears().size() + failedBatch.changes().size() + countPending();
+			reportSaveFailure(null, "Could not save " + unsaved + " variable changes to the database '" + getName()
+				+ "' before shutting down; they are lost");
+		} finally {
+			saveLock.unlock();
+		}
+	}
+
+	/**
+	 * The save loop, which just keeps calling {@link #saveCycle()} and waiting for the next save time.
+	 * Exits when {@link #saving} is set to false.
+	 */
+	private void saveLoop() {
+		while (saving) {
+			long start = System.nanoTime();
+			long next = intervalNanos;
+			try {
+				next = saveCycle();
+			} catch (Throwable t) { // never let the thread die, or nothing is saved again
+				reportSaveFailure(t, "Unexpected error while saving variables to '" + getName() + "'");
+			}
+			long wait = next - (System.nanoTime() - start);
+			if (wait > 0)
+				LockSupport.parkNanos(this, wait);
+		}
+	}
+
+	/**
+	 * helper to prevent an exception escaping the saving thread would stop saving forever.
+	 * Package-private so tests can hijack this for their own purposes.
+	 *
+	 * @param t       the exception to report, or null to log only the message as an error
+	 * @param message the message to log
+	 */
+	void reportSaveFailure(@Nullable Throwable t, String message) {
+		try {
+			if (t == null) {
+				Skript.error(message);
+			} else {
+				Skript.exception(t, message);
+			}
+		} catch (Throwable logFailure) { // logging must never stop saving
+			System.err.println(message);
+			if (t != null)
+				t.printStackTrace();
+		}
+	}
+
+	/**
+	 * helper to prevent an exception escaping the saving thread would stop saving forever.
+	 * Package-private so tests can hijack this for their own purposes.
+	 *
+	 * @param failures how many saves in a row failed before this one succeeded
+	 */
+	void reportSaveRecovered(int failures) {
+		try {
+			Skript.info("Saving variables to '" + getName() + "' works again after " + failures + " failed attempts");
+		} catch (Throwable ignored) { // logging must never stop saving
+		}
+	}
+
+	/**
+	 * Does one cycle of saving: drains pending changes and saves them.
+	 * If a save fails, the batch is kept and retried on the next cycle.
+	 * <p>
+	 * Holds {@link #saveLock} while saving, so that only one save is in progress at a time.
+	 * Also called by {@link #flush()} to save pending changes immediately
+	 * and {@link #stopSaving()} to save pending changes before stopping the saving thread.
+	 *
+	 * @return how long until the next save cycle, in nanoseconds
+	 */
+	private long saveCycle() {
+		saveLock.lock();
+		try {
+			if (failedBatch != null) {
+				if (!trySave(failedBatch))
+					return backoffNanos();            // still failing: don't drain, keep at most one held batch
+				failedBatch = null;
+			}
+			// drain and save the next batch. If it fails, keep it for the next cycle.
+			failedBatch = drainPending();
+			if (!failedBatch.isEmpty() && !trySave(failedBatch))
+				return backoffNanos();
+			failedBatch = null;
+			backupIfDue();                   // empty until section 6; catches its own exceptions
+			return intervalNanos;
+		} finally {
+			saveLock.unlock();
+		}
+	}
+
+	/**
+	 * Tries to save a batch, catching any exception and logging it. If it fails, the batch should be kept for the next cycle.
+	 *
+	 * @param batch the batch to save
+	 * @return true if the save succeeded, false if it failed
+	 */
+	private boolean trySave(Batch batch) {
+		try {
+			save(batch);
+		} catch (IOException | RuntimeException e) {
+			failures++;
+			if (failures == 1 || failures % 10 == 0)
+				reportSaveFailure(e, "Could not save " + batch.changes().size() + " variable changes to '" + getName()
+					+ "' (attempt " + failures + "); retrying");
+			return false;
+		}
+		if (failures > 0) {
+			reportSaveRecovered(failures);
+			failures = 0;
+		}
+		return true;
+	}
+
+	/**
+	 * @return The backoff time for the next save cycle, in nanoseconds, based on the number of failures in a row.
+	 * The backoff time is capped at 60 seconds, and doubles for each failure up to 6 failures in a row.
+	 * This is used to avoid overwhelming the storage with save attempts when it is failing.
+	 */
+	private long backoffNanos() {
+		return TimeUnit.SECONDS.toNanos(Math.min(60, 1 << Math.min(failures - 1, 6)));
+	}
+
+	private void backupIfDue() {
+	}
+	//</editor-fold>
 
 	// ---------------------------- MISC ----------------------------
 
