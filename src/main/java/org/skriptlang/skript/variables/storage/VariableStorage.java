@@ -748,4 +748,24 @@ public abstract class VariableStorage implements Closeable {
 		return name;
 	}
 
+	/**
+	 * Whether a variable belongs in this storage, going by the {@code pattern} in its config.
+	 * The pattern has to match the whole name. Skript saves each variable to the first storage that accepts it.
+	 *
+	 * @param name the variable's name, such as {@code a::1}
+	 * @return whether the name matches this storage's pattern; always true if the pattern accepts every name
+	 */
+	public final boolean accept(String name) {
+		return pattern == null || pattern.matcher(name).matches();
+	}
+
+	/**
+	 * @return the pattern of the names this storage accepts, or null if it accepts every name
+	 * (configured as {@code .*} or {@code .+})
+	 * @see #accept(String)
+	 */
+	public final @Nullable Pattern getNamePattern() {
+		return pattern;
+	}
+
 }

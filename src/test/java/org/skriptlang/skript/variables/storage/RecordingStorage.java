@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 
 /**
  * A storage for testing {@link VariableStorage}: it saves batches into {@link #saved}, a map standing in for the
@@ -132,10 +133,23 @@ class RecordingStorage extends VariableStorage {
 	 * Sets the storage's name, which {@code loadConfig} would normally set from the config section.
 	 */
 	void setNameForTest(String name) {
+		setField("name", name);
+	}
+
+	/**
+	 * Sets the storage's name pattern, which {@code loadConfig} would normally compile from the config section.
+	 *
+	 * @param pattern the pattern, or null to accept every name
+	 */
+	void setPatternForTest(@Nullable String pattern) {
+		setField("pattern", pattern == null ? null : Pattern.compile(pattern));
+	}
+
+	private void setField(String name, @Nullable Object value) {
 		try {
-			Field field = VariableStorage.class.getDeclaredField("name");
+			Field field = VariableStorage.class.getDeclaredField(name);
 			field.setAccessible(true);
-			field.set(this, name);
+			field.set(this, value);
 		} catch (ReflectiveOperationException e) {
 			throw new AssertionError(e);
 		}
