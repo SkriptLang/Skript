@@ -54,8 +54,9 @@ class ScriptCommandUtils {
 	 */
 	public static SuggestionProvider<CommandSourceStack> suggestions(boolean testDirectory, boolean disabledScripts) {
 		return (context, builder) -> {
-			for (String option : getScriptSuggestions(builder.getRemaining(), testDirectory, disabledScripts))
+			for (String option : getScriptSuggestions(builder.getRemaining().trim(), testDirectory, disabledScripts)) {
 				builder.suggest(option);
+			}
 			return builder.buildFuture();
 		};
 	}
@@ -88,8 +89,12 @@ class ScriptCommandUtils {
 		try (Stream<Path> files = Files.walk(scripts.toPath(), FileVisitOption.FOLLOW_LINKS)) {
 			files.map(Path::toFile)
 				.forEach(file -> {
-					if (!fileFilter.accept(file))
-						return;
+					if (!fileFilter.accept(file)) {
+						// Folders are not prefixed with '-' when their scripts are disabled,
+						// but they still need to be suggested so a whole folder can be enabled.
+						if (!disabledScripts || !file.isDirectory())
+							return;
+					}
 
 					// Ignore hidden files like .git/ for users that use git source control.
 					if (file.isHidden())
@@ -117,8 +122,7 @@ class ScriptCommandUtils {
 						String name = file.getName();
 						if (name.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX)) {
 							int nameStart = fileString.length() - name.length();
-							options.add(fileString.substring(0, nameStart)
-								+ name.substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH));
+							options.add(fileString.substring(0, nameStart) + name.substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH));
 						}
 					}
 				});
