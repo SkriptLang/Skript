@@ -2,44 +2,40 @@ package ch.njol.skript.skcommand;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptUpdater;
-import ch.njol.skript.skcommand.SkriptCommand.SubCommand;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
 /**
  * Checks if the installed Skript version is up to date<p>
  * Usage: {@code /sk update}
  */
-class UpdateCommand extends SubCommand {
+class UpdateCommand {
 
-	public UpdateCommand() {
-		super("update");
-		//args("check", "changes");
+	static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
+		root.then(build("update"));
 	}
 
-	@Override
-	public void execute(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
-		SkriptUpdater updater = Skript.getInstance().getUpdater();
-		if (updater == null) { // Oh. That is bad
-			Skript.info(sender, "" + SkriptUpdater.m_internal_error);
-			return;
-		}
+	private static LiteralCommandNode<CommandSourceStack> build(String literal) {
+		return Commands.literal(literal)
+			.executes(context -> {
+				CommandSender sender = context.getSource().getSender();
+				SkriptUpdater updater = Skript.getInstance().getUpdater();
+				if (updater == null) { // Oh. That is bad
+					Skript.info(sender, "" + SkriptUpdater.m_internal_error);
+					return SINGLE_SUCCESS;
+				}
 
-		updater.updateCheck(sender);
+				updater.updateCheck(sender);
 
-		// TODO - add a dialog showing changes?
-		//if (args[1].equalsIgnoreCase("check")) {
-		//	updater.updateCheck(sender);
-		//} else if (args[1].equalsIgnoreCase("changes")) {
-		//	updater.changesCheck(sender);
-		//}
-	}
-
-	@Override
-	public List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
-		return List.of();
+				// TODO - add a dialog showing changes?
+				return SINGLE_SUCCESS;
+			})
+			.build();
 	}
 
 }

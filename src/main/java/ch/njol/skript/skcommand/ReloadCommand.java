@@ -10,38 +10,67 @@ import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RedirectingLogHandler;
 import ch.njol.skript.log.TimingLogHandler;
-import ch.njol.skript.skcommand.SkriptCommand.SubCommand;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
-import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-import static ch.njol.skript.skcommand.SkriptCommand.info;
+import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
 /**
  * Reloads a script, or a folder of scripts
  */
-class ReloadCommand extends SubCommand {
+class ReloadCommand {
 
 	private static String lastReloadedScriptName = null;
 
-	public ReloadCommand() {
-		super("reload");
-		args("all", "scripts", "config", "aliases", "last", "<script>");
+	static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
+		root.then(build("reload"));
 	}
 
-	@Override
-	public void execute(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
+	private static LiteralCommandNode<CommandSourceStack> build(String literal) {
+		return Commands.literal(literal)
+			.executes(context -> {
+				SkriptCommand.sendHelp(context);
+				return SINGLE_SUCCESS;
+			})
+			.then(Commands.literal("all")
+				.executes(context -> run(context.getSource().getSender(), ReloadCommand::reloadAll)))
+			.then(Commands.literal("scripts")
+				.executes(context -> run(context.getSource().getSender(), ReloadCommand::reloadScripts)))
+			.then(Commands.literal("config")
+				.executes(context -> run(context.getSource().getSender(), ReloadCommand::reloadConfig)))
+			.then(Commands.literal("aliases")
+				.executes(context -> run(context.getSource().getSender(), ReloadCommand::reloadAliases)))
+			.then(Commands.literal("last")
+				.executes(context -> run(context.getSource().getSender(), ReloadCommand::reloadLast)))
+			.then(Commands.argument("script", StringArgumentType.greedyString())
+				.suggests(ScriptCommandUtils.suggestions(false, false))
+				.executes(context -> {
+					CommandSender sender = context.getSource().getSender();
+					String scriptName = StringArgumentType.getString(context, "script").trim();
+					return run(sender, (source, logHandler, timingHandler) ->
+						reloadScript(source, scriptName, logHandler, timingHandler));
+				}))
+			.build();
+	}
+
+	/**
+	 * Runs a reload action with the appropriate log handlers.
+	 */
+	private static int run(CommandSender sender, ReloadAction action) {
 		Set<CommandSender> recipients = Bukkit.getOnlinePlayers().stream()
 			.filter(player -> player.hasPermission("skript.reloadnotify"))
 			.collect(Collectors.toSet());
@@ -51,45 +80,16 @@ class ReloadCommand extends SubCommand {
 			RedirectingLogHandler redirectingLogHandler = new RedirectingLogHandler(recipients, "").start();
 			TimingLogHandler timingLogHandler = new TimingLogHandler().start()
 		) {
-			switch (args[1].toLowerCase(Locale.ENGLISH)) {
-				case "all" -> reloadAll(sender, redirectingLogHandler, timingLogHandler);
-				case "scripts" -> reloadScripts(sender, redirectingLogHandler, timingLogHandler);
-				case "config" -> reloadConfig(sender, redirectingLogHandler, timingLogHandler);
-				case "aliases" -> reloadAliases(sender, redirectingLogHandler, timingLogHandler);
-				// Reloading an individual script or folder
-				default -> {
-					String scriptName;
-
-					if (args[1].equalsIgnoreCase("last")) {
-						if (lastReloadedScriptName == null) {
-							info(sender, "reload.no last file");
-							return;
-						} else {
-							scriptName = lastReloadedScriptName;
-						}
-					} else {
-						scriptName = StringUtils.join(args, " ", 1, args.length);
-						lastReloadedScriptName = scriptName;
-					}
-
-					File scriptFile = ScriptCommandUtils.getScriptFileFromName(sender, scriptName);
-					if (scriptFile == null) {
-						return;
-					}
-
-					if (scriptFile.isDirectory()) {
-						reloadFolder(sender, redirectingLogHandler, timingLogHandler, scriptFile);
-					} else {
-						reloadSpecificScript(sender, args, redirectingLogHandler, timingLogHandler, scriptFile);
-					}
-				}
-			}
+			action.run(sender, redirectingLogHandler, timingLogHandler);
 		}
+		return SINGLE_SUCCESS;
 	}
 
-	@Override
-	public List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
-		return ScriptCommandUtils.getScriptCommandTabCompletions(args);
+	@FunctionalInterface
+	private interface ReloadAction {
+
+		void run(CommandSender sender, RedirectingLogHandler redirectingLogHandler, TimingLogHandler timingLogHandler);
+
 	}
 
 	/**
@@ -153,15 +153,15 @@ class ReloadCommand extends SubCommand {
 	/**
 	 * For handling the {@code /sk reload /folder/} command
 	 */
-	private void reloadFolder(CommandSender sender, RedirectingLogHandler redirectingLogHandler,
-							  TimingLogHandler timingLogHandler, File scriptFolder) {
+	private static void reloadFolder(CommandSender sender, RedirectingLogHandler redirectingLogHandler,
+									 TimingLogHandler timingLogHandler, File scriptFolder) {
 		String fileName = scriptFolder.getName();
 		reloading(sender, "scripts in folder", redirectingLogHandler, fileName);
 		ScriptLoader.unloadScripts(ScriptLoader.getScripts(scriptFolder));
 		ScriptLoader.loadScripts(scriptFolder, OpenCloseable.combine(redirectingLogHandler, timingLogHandler))
 			.thenAccept(scriptInfo -> {
 				if (scriptInfo.files == 0) {
-					info(sender, "reload.empty folder", fileName);
+					SkriptCommand.info(sender, "reload.empty folder", fileName);
 					return;
 				}
 
@@ -174,14 +174,55 @@ class ReloadCommand extends SubCommand {
 	}
 
 	/**
+	 * For handling the {@code /sk reload last} command.
+	 */
+	private static void reloadLast(CommandSender sender, RedirectingLogHandler redirectingLogHandler,
+								   TimingLogHandler timingLogHandler) {
+		if (lastReloadedScriptName == null) {
+			SkriptCommand.info(sender, "reload.no last file");
+			return;
+		}
+
+		File scriptFile = ScriptCommandUtils.getScriptFileFromName(sender, lastReloadedScriptName);
+		if (scriptFile == null) {
+			return;
+		}
+
+		if (scriptFile.isDirectory()) {
+			reloadFolder(sender, redirectingLogHandler, timingLogHandler, scriptFile);
+		} else {
+			reloadSpecificScript(sender, "last", redirectingLogHandler, timingLogHandler, scriptFile);
+		}
+	}
+
+	/**
+	 * For handling reloading an individual script or folder.
+	 */
+	private static void reloadScript(CommandSender sender, String scriptName,
+									 RedirectingLogHandler redirectingLogHandler, TimingLogHandler timingLogHandler) {
+		lastReloadedScriptName = scriptName;
+
+		File scriptFile = ScriptCommandUtils.getScriptFileFromName(sender, scriptName);
+		if (scriptFile == null) {
+			return;
+		}
+
+		if (scriptFile.isDirectory()) {
+			reloadFolder(sender, redirectingLogHandler, timingLogHandler, scriptFile);
+		} else {
+			reloadSpecificScript(sender, scriptName, redirectingLogHandler, timingLogHandler, scriptFile);
+		}
+	}
+
+	/**
 	 * For handling the {@code /sk reload script.sk} command
 	 */
-	private void reloadSpecificScript(CommandSender sender, String[] args, RedirectingLogHandler redirectingLogHandler,
-									  TimingLogHandler timingLogHandler, File scriptFile) {
+	private static void reloadSpecificScript(CommandSender sender, String command,
+											 RedirectingLogHandler redirectingLogHandler,
+											 TimingLogHandler timingLogHandler, File scriptFile) {
 		if (ScriptLoader.getDisabledScriptsFilter().accept(scriptFile)) {
 			String scriptName = scriptFile.getName().substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH);
-			String command = StringUtils.join(args, " ", 1, args.length);
-			info(sender, "reload.script disabled", scriptName, command);
+			SkriptCommand.info(sender, "reload.script disabled", scriptName, command);
 			return;
 		}
 
