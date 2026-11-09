@@ -2,6 +2,7 @@ package ch.njol.skript.skcommand;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -18,14 +19,15 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
  * Lists all enabled and disabled scripts<p>
  * Usage: <code>/sk list</code>
  */
-class ListCommand extends SubCommand {
+class ListCommand {
 
-	ListCommand() {
-		super("list", "show");
+	static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
+		LiteralCommandNode<CommandSourceStack> node = build("list");
+		root.then(node);
+		SkriptCommand.registerAlias(root, "show", node);
 	}
 
-	@Override
-	public LiteralCommandNode<CommandSourceStack> build(String literal) {
+	static LiteralCommandNode<CommandSourceStack> build(String literal) {
 		return Commands.literal(literal)
 			.executes(context -> {
 				CommandSender sender = context.getSource().getSender();

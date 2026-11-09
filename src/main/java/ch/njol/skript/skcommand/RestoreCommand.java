@@ -3,6 +3,7 @@ package ch.njol.skript.skcommand;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Config;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -27,16 +28,17 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
  * Symbolic links that point outside the scripts folder are saved in {@code dump/external/} instead<p>
  * Usage: <code>/sk restore</code>
  */
-class RestoreCommand extends SubCommand {
+class RestoreCommand {
 
 	private static final Path DUMP_FOLDER = Skript.getInstance().getDataFolder().toPath().resolve("dump");
 
-	RestoreCommand() {
-		super("restore", "dump");
+	static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
+		LiteralCommandNode<CommandSourceStack> node = build("restore");
+		root.then(node);
+		SkriptCommand.registerAlias(root, "dump", node);
 	}
 
-	@Override
-	public LiteralCommandNode<CommandSourceStack> build(String literal) {
+	static LiteralCommandNode<CommandSourceStack> build(String literal) {
 		return Commands.literal(literal)
 			.executes(context -> {
 				CommandSender sender = context.getSource().getSender();

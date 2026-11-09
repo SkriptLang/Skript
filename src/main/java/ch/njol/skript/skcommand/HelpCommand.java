@@ -1,10 +1,15 @@
 package ch.njol.skript.skcommand;
 
 import ch.njol.skript.localization.Language;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.command.CommandSender;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
@@ -17,14 +22,13 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
  * /sk help
  * </pre>
  */
-class HelpCommand extends SubCommand {
+class HelpCommand {
 
-	HelpCommand() {
-		super("help");
+	static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
+		root.then(build("help"));
 	}
 
-	@Override
-	public LiteralCommandNode<CommandSourceStack> build(String literal) {
+	static LiteralCommandNode<CommandSourceStack> build(String literal) {
 		return Commands.literal(literal)
 			.executes(context -> {
 				send(context.getSource().getSender());
@@ -42,9 +46,20 @@ class HelpCommand extends SubCommand {
 		String usage = Language.get(SkriptCommand.CONFIG_NODE + ".usage");
 		sender.sendRichMessage(usage + " <gold>/skript <red>...");
 
-		for (SubCommand subCommand : SkriptCommand.getSubCommands()) {
-			String command = String.join("/", subCommand.getAliases());
-			String description = getDescription(subCommand.getAliases()[0]);
+		LiteralCommandNode<CommandSourceStack> root = SkriptCommand.rootNode();
+		for (CommandNode<CommandSourceStack> child : root.getChildren()) {
+			if (child.getRedirect() != null)
+				continue;
+
+			List<String> aliases = new ArrayList<>();
+			aliases.add(child.getName());
+			for (CommandNode<CommandSourceStack> sibling : root.getChildren()) {
+				if (sibling.getRedirect() == child)
+					aliases.add(sibling.getName());
+			}
+
+			String command = String.join("/", aliases);
+			String description = getDescription(child.getName());
 			sender.sendRichMessage("   <yellow>" + command + " <dark_gray>- <white>" + description);
 		}
 	}

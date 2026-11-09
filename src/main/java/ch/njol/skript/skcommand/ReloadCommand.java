@@ -14,6 +14,7 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -31,19 +32,18 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 /**
  * Reloads a script, or a folder of scripts
  */
-class ReloadCommand extends SubCommand {
+class ReloadCommand {
 
 	private static String lastReloadedScriptName = null;
 
-	ReloadCommand() {
-		super("reload");
+	static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
+		root.then(build("reload"));
 	}
 
-	@Override
-	public LiteralCommandNode<CommandSourceStack> build(String literal) {
+	static LiteralCommandNode<CommandSourceStack> build(String literal) {
 		return Commands.literal(literal)
 			.executes(context -> {
-				SkriptCommand.sendHelp(context.getSource().getSender(), this);
+				SkriptCommand.sendHelp(context);
 				return SINGLE_SUCCESS;
 			})
 			.then(Commands.literal("all")

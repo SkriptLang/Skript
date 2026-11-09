@@ -2,6 +2,7 @@ package ch.njol.skript.skcommand;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.update.Updater;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.ServerBuildInfo;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -23,14 +24,13 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
  * Shows info about Skript, server, installed addons and dependencies<p>
  * Usage: <code>/sk info</code>
  */
-class InfoCommand extends SubCommand {
+class InfoCommand {
 
-	InfoCommand() {
-		super("info");
+	static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
+		root.then(build("info"));
 	}
 
-	@Override
-	public LiteralCommandNode<CommandSourceStack> build(String literal) {
+	static LiteralCommandNode<CommandSourceStack> build(String literal) {
 		return Commands.literal(literal)
 			.executes(context -> {
 				CommandSender sender = context.getSource().getSender();

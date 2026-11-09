@@ -9,6 +9,7 @@ import ch.njol.skript.test.runner.TestTracker;
 import ch.njol.skript.test.utils.TestResults;
 import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -26,14 +27,13 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 /**
  * Internal command for running tests
  */
-class TestCommand extends SubCommand {
+class TestCommand {
 
-	TestCommand() {
-		super("test");
+	static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
+		root.then(build("test"));
 	}
 
-	@Override
-	public LiteralCommandNode<CommandSourceStack> build(String literal) {
+	static LiteralCommandNode<CommandSourceStack> build(String literal) {
 		return Commands.literal(literal)
 			.executes(context -> {
 				CommandSender sender = context.getSource().getSender();

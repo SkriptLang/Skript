@@ -6,6 +6,7 @@ import ch.njol.skript.log.RedirectingLogHandler;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.util.StringUtils;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -29,17 +30,16 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
  * /sk enable all
  * </pre>
  */
-class EnableCommand extends SubCommand {
+class EnableCommand {
 
-	EnableCommand() {
-		super("enable");
+	static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
+		root.then(build("enable"));
 	}
 
-	@Override
-	public LiteralCommandNode<CommandSourceStack> build(String literal) {
+	static LiteralCommandNode<CommandSourceStack> build(String literal) {
 		return Commands.literal(literal)
 			.executes(context -> {
-				SkriptCommand.sendHelp(context.getSource().getSender(), this);
+				SkriptCommand.sendHelp(context);
 				return SINGLE_SUCCESS;
 			})
 			.then(Commands.literal("all")

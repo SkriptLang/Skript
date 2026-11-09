@@ -4,6 +4,7 @@ import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.util.ExceptionUtils;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -29,17 +30,16 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
  * /sk disable all
  * </pre>
  */
-class DisableCommand extends SubCommand {
+class DisableCommand {
 
-	DisableCommand() {
-		super("disable");
+	static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
+		root.then(build("disable"));
 	}
 
-	@Override
-	public LiteralCommandNode<CommandSourceStack> build(String literal) {
+	static LiteralCommandNode<CommandSourceStack> build(String literal) {
 		return Commands.literal(literal)
 			.executes(context -> {
-				SkriptCommand.sendHelp(context.getSource().getSender(), this);
+				SkriptCommand.sendHelp(context);
 				return SINGLE_SUCCESS;
 			})
 			.then(Commands.literal("all")

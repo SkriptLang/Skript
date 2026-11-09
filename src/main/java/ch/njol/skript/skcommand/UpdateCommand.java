@@ -2,6 +2,7 @@ package ch.njol.skript.skcommand;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptUpdater;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -13,14 +14,13 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
  * Checks if the installed Skript version is up to date<p>
  * Usage: {@code /sk update}
  */
-class UpdateCommand extends SubCommand {
+class UpdateCommand {
 
-	UpdateCommand() {
-		super("update");
+	static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
+		root.then(build("update"));
 	}
 
-	@Override
-	public LiteralCommandNode<CommandSourceStack> build(String literal) {
+	static LiteralCommandNode<CommandSourceStack> build(String literal) {
 		return Commands.literal(literal)
 			.executes(context -> {
 				CommandSender sender = context.getSource().getSender();

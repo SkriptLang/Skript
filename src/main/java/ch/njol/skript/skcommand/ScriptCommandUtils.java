@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * Utilities for {@link SubCommand}s that involve scripts.
+ * Utilities for the {@code /skript} subcommands that involve scripts.
  */
 class ScriptCommandUtils {
 

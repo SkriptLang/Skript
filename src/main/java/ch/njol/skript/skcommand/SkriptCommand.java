@@ -7,6 +7,7 @@ import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.util.StringUtils;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -14,14 +15,12 @@ import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
+import org.jetbrains.annotations.Nullable;
 
 import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
 /**
- * The {@code /skript} command and its {@link SubCommand}s.
+ * The {@code /skript} command and its subcommands.
  */
 @ApiStatus.Internal
 public class SkriptCommand {
@@ -29,26 +28,7 @@ public class SkriptCommand {
 	public static final String CONFIG_NODE = "skript command";
 	public static final String PERMISSION = "skript.admin";
 
-	private static final Set<SubCommand> SUB_COMMANDS = new LinkedHashSet<>();
-
-	static {
-		SUB_COMMANDS.add(new HelpCommand());
-		SUB_COMMANDS.add(new ReloadCommand());
-		SUB_COMMANDS.add(new EnableCommand());
-		SUB_COMMANDS.add(new DisableCommand());
-		SUB_COMMANDS.add(new ListCommand());
-		SUB_COMMANDS.add(new InfoCommand());
-		SUB_COMMANDS.add(new UpdateCommand());
-		SUB_COMMANDS.add(new RestoreCommand());
-
-		if (TestMode.GEN_DOCS || Documentation.isDocsTemplateFound()) {
-			SUB_COMMANDS.add(new GenDocsCommand());
-		}
-
-		if (TestMode.DEV_MODE) {
-			SUB_COMMANDS.add(new TestCommand());
-		}
-	}
+	private static @Nullable LiteralCommandNode<CommandSourceStack> rootNode;
 
 	/**
 	 * Builds the {@code /skript} command node.
@@ -63,34 +43,62 @@ public class SkriptCommand {
 				return SINGLE_SUCCESS;
 			});
 
-		for (SubCommand subCommand : SUB_COMMANDS) {
-			for (String alias : subCommand.getAliases()) {
-				root.then(subCommand.build(alias));
-			}
-		}
+		HelpCommand.register(root);
+		ReloadCommand.register(root);
+		EnableCommand.register(root);
+		DisableCommand.register(root);
+		ListCommand.register(root);
+		InfoCommand.register(root);
+		UpdateCommand.register(root);
+		RestoreCommand.register(root);
 
-		return root.build();
+		if (TestMode.GEN_DOCS || Documentation.isDocsTemplateFound())
+			GenDocsCommand.register(root);
+
+		if (TestMode.DEV_MODE)
+			TestCommand.register(root);
+
+		rootNode = root.build();
+		return rootNode;
 	}
 
 	/**
-	 * @return All subcommands of {@code /skript}.
+	 * @return The last built {@code /skript} command node.
 	 */
-	protected static Set<SubCommand> getSubCommands() {
-		return SUB_COMMANDS;
+	static @NotNull LiteralCommandNode<CommandSourceStack> rootNode() {
+		LiteralCommandNode<CommandSourceStack> node = rootNode;
+		if (node == null)
+			node = build();
+		return node;
 	}
 
 	/**
-	 * Sends a message showing all arguments of a subcommand.
+	 * Registers an alias that redirects to a subcommand's primary node.
 	 *
-	 * @param sender Who to send it to.
-	 * @param subCommand The subcommand to show the arguments of.
+	 * @param root The root command builder.
+	 * @param alias The alias to register.
+	 * @param primary The primary node to redirect to.
 	 */
-	protected static void sendHelp(CommandSender sender, SubCommand subCommand) {
-		String command = subCommand.getAliases()[0];
+	static void registerAlias(LiteralArgumentBuilder<CommandSourceStack> root, String alias,
+							  LiteralCommandNode<CommandSourceStack> primary) {
+		LiteralArgumentBuilder<CommandSourceStack> builder = Commands.literal(alias).redirect(primary);
+		if (primary.getCommand() != null)
+			builder.executes(primary.getCommand());
+		root.then(builder.build());
+	}
+
+	/**
+	 * Sends a message showing all arguments of the subcommand being executed.
+	 *
+	 * @param context The command context.
+	 */
+	protected static void sendHelp(CommandContext<CommandSourceStack> context) {
+		CommandSender sender = context.getSource().getSender();
+		CommandNode<CommandSourceStack> node = context.getNodes().getLast().getNode();
+		String command = node.getName();
 		String usage = Language.get(CONFIG_NODE + ".usage");
 		Skript.message(sender, usage + " <gold>/skript <yellow>" + command + " <red>...");
 
-		LiteralCommandNode<CommandSourceStack> node = subCommand.build(command);
 		for (CommandNode<CommandSourceStack> child : node.getChildren()) {
 			String arg = child instanceof LiteralCommandNode<?>
 				? child.getName()

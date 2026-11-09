@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.doc.HTMLGenerator;
 import ch.njol.skript.doc.JSONGenerator;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -17,14 +18,13 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 /**
  * Internal command for generating docs
  */
-class GenDocsCommand extends SubCommand {
+class GenDocsCommand {
 
-	GenDocsCommand() {
-		super("gen-docs");
+	static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
+		root.then(build("gen-docs"));
 	}
 
-	@Override
-	public LiteralCommandNode<CommandSourceStack> build(String literal) {
+	static LiteralCommandNode<CommandSourceStack> build(String literal) {
 		return Commands.literal(literal)
 			.executes(context -> {
 				CommandSender sender = context.getSource().getSender();
