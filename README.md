@@ -37,7 +37,7 @@ command /home:
             send "You don't have a home." to player
 ```
 
-**Skript** comes with hundreds of built-in syntaxes for blocks, entities, inventories, particles, GUIs, commands and much more.\
+**Skript** comes with hundreds of built-in syntaxes for blocks, entities, inventories, particles, commands and much more.\
 If **Skript** can't do something, an [addon](#addons) probably can.
 
 ## Requirements
