@@ -31,13 +31,6 @@ main: ch.njol.skript.Skript
 version: @version@
 api-version: 1.21.5
 
-commands:
-    skript:
-        description: Skript's main command. Type '/skript help' for more information.
-        aliases: [sk]
-        permission: skript.admin
-        usage: /skript help
-
 softdepend: [SQLibrary, Vault, WorldGuard, Residence, PreciousStones, GriefPrevention]
 
 permissions:

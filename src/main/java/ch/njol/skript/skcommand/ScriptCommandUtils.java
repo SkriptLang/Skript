@@ -5,7 +5,8 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.util.FileUtils;
-import ch.njol.util.StringUtils;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,7 +23,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * Utilities for {@link ch.njol.skript.skcommand.SkriptCommand.SubCommand}s that involve scripts.
+ * Utilities for {@link SubCommand}s that involve scripts.
  */
 class ScriptCommandUtils {
 
@@ -45,24 +46,39 @@ class ScriptCommandUtils {
 	}
 
 	/**
-	 * Gets tab completions for script commands such as /sk enable|reload|disable
+	 * Creates a Brigadier suggestion provider for scripts and folders.
 	 *
-	 * @param args Args from tab complete event
+	 * @param testDirectory Whether to suggest scripts from the test directory.
+	 * @param disabledScripts Whether to suggest disabled scripts instead of loaded ones.
+	 * @return The suggestion provider.
+	 */
+	public static SuggestionProvider<CommandSourceStack> suggestions(boolean testDirectory, boolean disabledScripts) {
+		return (context, builder) -> {
+			for (String option : getScriptSuggestions(builder.getRemaining(), testDirectory, disabledScripts))
+				builder.suggest(option);
+			return builder.buildFuture();
+		};
+	}
+
+	/**
+	 * Gets tab completions for script commands such as {@code /sk enable|reload|disable}.
+	 *
+	 * @param scriptArg The argument currently being typed.
+	 * @param testDirectory Whether to suggest scripts from the test directory.
+	 * @param disabledScripts Whether to suggest disabled scripts instead of loaded ones.
 	 * @return A list of directories and Skript files.
 	 */
-	public static List<String> getScriptCommandTabCompletions(String[] args) {
+	private static List<String> getScriptSuggestions(String scriptArg, boolean testDirectory, boolean disabledScripts) {
 		List<String> options = new ArrayList<>();
 
-		boolean useTestDirectory = args[0].equalsIgnoreCase("test") && TestMode.DEV_MODE;
-		File scripts = useTestDirectory ? TestMode.TEST_DIR.toFile() : Skript.getInstance().getScriptsFolder();
+		File scripts = testDirectory ? TestMode.TEST_DIR.toFile() : Skript.getInstance().getScriptsFolder();
 		String scriptsPathString = scripts.toPath().toString();
 		int scriptsPathLength = scriptsPathString.length();
-
-		// support for scripts with spaces in them
-		String scriptArg = StringUtils.join(args, " ", 1, args.length);
 		String fs = File.separator;
 
-		boolean enable = args[0].equalsIgnoreCase("enable");
+		FileFilter fileFilter = disabledScripts
+			? ScriptLoader.getDisabledScriptsFilter()
+			: ScriptLoader.getLoadedScriptsFilter();
 
 		// Live update, this will get all old and new (even not loaded) scripts
 		// TODO Find a better way for caching, it isn't exactly ideal to be calling this method constantly
@@ -70,51 +86,38 @@ class ScriptCommandUtils {
 		try (Stream<Path> files = Files.walk(scripts.toPath(), FileVisitOption.FOLLOW_LINKS)) {
 			files.map(Path::toFile)
 				.forEach(file -> {
-					FileFilter fileFilter = enable
-						? ScriptLoader.getDisabledScriptsFilter()
-						: ScriptLoader.getLoadedScriptsFilter();
-
-					if (!fileFilter.accept(file)) {
+					if (!fileFilter.accept(file))
 						return;
-					}
 
 					// Ignore hidden files like .git/ for users that use git source control.
 					if (file.isHidden())
 						return;
 
 					String fileString = file.toString().substring(scriptsPathLength);
+					// Remove the leading file separator
+					if (fileString.startsWith(fs))
+						fileString = fileString.substring(1);
+
 					if (fileString.isEmpty())
 						return;
 
-					if (file.isDirectory()) {
-						fileString = fileString + fs; // Add file separator at the end of directories
-					} else if (file.getParentFile().toPath().toString().equals(scriptsPathString)) {
-						// Remove file separator from the beginning of files or directories in root only
-						fileString = fileString.substring(1);
-						if (fileString.isEmpty()) {
-							return;
-						}
-					}
+					if (file.isDirectory())
+						fileString += fs; // Add file separator at the end of directories
 
 					// Make sure the user's argument matches with the file's name or beginning of file path
-					if (!scriptArg.isEmpty() && !file.getName().startsWith(scriptArg) && !fileString.startsWith(scriptArg)) {
+					if (!scriptArg.isEmpty() && !fileString.startsWith(scriptArg) && !file.getName().startsWith(scriptArg))
 						return;
-					}
-
-					// Trim off previous arguments if needed
-					if (args.length > 2 && fileString.length() >= scriptArg.length()) {
-						fileString = fileString.substring(scriptArg.lastIndexOf(" ") + 1);
-					}
-
-					// Just in case
-					if (fileString.isEmpty()) {
-						return;
-					}
 
 					options.add(fileString);
 
-					if (fileString.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX)) {
-						options.add(fileString.substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH));
+					// Also suggest the name without the disabled prefix
+					if (file.isFile()) {
+						String name = file.getName();
+						if (name.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX)) {
+							int nameStart = fileString.length() - name.length();
+							options.add(fileString.substring(0, nameStart)
+								+ name.substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH));
+						}
 					}
 				});
 		} catch (Exception e) {
@@ -122,15 +125,6 @@ class ScriptCommandUtils {
 			Skript.exception(e, "An error occurred while trying to update the list of disabled scripts!");
 		}
 
-		// These will be added even if there are incomplete script arg
-		if (args.length == 2) {
-			options.add("all");
-			if (args[0].equalsIgnoreCase("reload")) {
-				options.add("config");
-				options.add("aliases");
-				options.add("scripts");
-			}
-		}
 		return options;
 	}
 

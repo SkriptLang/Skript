@@ -2,17 +2,19 @@ package ch.njol.skript.skcommand;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.skcommand.SkriptCommand.SubCommand;
 import ch.njol.skript.util.ExceptionUtils;
-import ch.njol.util.StringUtils;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
+
+import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
 /**
  * Disables a script, or a folder of scripts<p>
@@ -27,32 +29,42 @@ import java.util.Set;
  * /sk disable all
  * </pre>
  */
-class DisableCommand extends SubCommand {
+public class DisableCommand extends SubCommand {
 
-	public DisableCommand() {
+	DisableCommand() {
 		super("disable");
+		args("all", "<script>");
 	}
 
 	@Override
-	public void execute(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
-		if (args[1].equalsIgnoreCase("all")) {
-			disableAll(sender);
-		}
-		String scriptName = StringUtils.join(args, " ", 1, args.length);
-		File scriptFile = ScriptCommandUtils.getScriptFileFromName(sender, scriptName);
-		if (scriptFile == null) // TODO allow disabling deleted/renamed scripts
-			return;
+	public LiteralCommandNode<CommandSourceStack> build(String literal) {
+		return Commands.literal(literal)
+			.executes(context -> {
+				SkriptCommand.sendHelp(context.getSource().getSender(), this);
+				return SINGLE_SUCCESS;
+			})
+			.then(Commands.literal("all")
+				.executes(context -> {
+					disableAll(context.getSource().getSender());
+					return SINGLE_SUCCESS;
+				}))
+			.then(Commands.argument("script", StringArgumentType.greedyString())
+				.suggests(ScriptCommandUtils.suggestions(false, false))
+				.executes(context -> {
+					CommandSender sender = context.getSource().getSender();
+					String scriptName = StringArgumentType.getString(context, "script").trim();
+					File scriptFile = ScriptCommandUtils.getScriptFileFromName(sender, scriptName);
+					if (scriptFile == null) // TODO allow disabling deleted/renamed scripts
+						return SINGLE_SUCCESS;
 
-		if (scriptFile.isDirectory()) {
-			disableFolder(sender, scriptFile);
-		} else {
-			disableSpecificScript(sender, scriptFile);
-		}
-	}
-
-	@Override
-	public List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
-		return ScriptCommandUtils.getScriptCommandTabCompletions(args);
+					if (scriptFile.isDirectory()) {
+						disableFolder(sender, scriptFile);
+					} else {
+						disableSpecificScript(sender, scriptFile);
+					}
+					return SINGLE_SUCCESS;
+				}))
+			.build();
 	}
 
 	/**

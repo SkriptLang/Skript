@@ -3,16 +3,19 @@ package ch.njol.skript.skcommand;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.log.RedirectingLogHandler;
-import ch.njol.skript.skcommand.SkriptCommand.SubCommand;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.util.StringUtils;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
+
+import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
 /**
  * Enables a script, or a folder of scripts<p>
@@ -26,35 +29,47 @@ import java.util.Set;
  * /sk enable all
  * </pre>
  */
-class EnableCommand extends SubCommand {
+public class EnableCommand extends SubCommand {
 
-	public EnableCommand() {
+	EnableCommand() {
 		super("enable");
+		args("all", "<script>");
 	}
 
 	@Override
-	public void execute(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
-		try (RedirectingLogHandler redirectingLogHandler = new RedirectingLogHandler(sender, "").start()) {
-			if (args[1].equalsIgnoreCase("all")) {
-				enableAll(sender, redirectingLogHandler);
-				return;
-			}
-			String scriptName = StringUtils.join(args, " ", 1, args.length);
-			File scriptFile = ScriptCommandUtils.getScriptFileFromName(sender, scriptName);
-			if (scriptFile == null)
-				return;
+	public LiteralCommandNode<CommandSourceStack> build(String literal) {
+		return Commands.literal(literal)
+			.executes(context -> {
+				SkriptCommand.sendHelp(context.getSource().getSender(), this);
+				return SINGLE_SUCCESS;
+			})
+			.then(Commands.literal("all")
+				.executes(context -> {
+					CommandSender sender = context.getSource().getSender();
+					try (RedirectingLogHandler redirectingLogHandler = new RedirectingLogHandler(sender, "").start()) {
+						enableAll(sender, redirectingLogHandler);
+					}
+					return SINGLE_SUCCESS;
+				}))
+			.then(Commands.argument("script", StringArgumentType.greedyString())
+				.suggests(ScriptCommandUtils.suggestions(false, true))
+				.executes(context -> {
+					CommandSender sender = context.getSource().getSender();
+					try (RedirectingLogHandler redirectingLogHandler = new RedirectingLogHandler(sender, "").start()) {
+						String scriptName = StringArgumentType.getString(context, "script").trim();
+						File scriptFile = ScriptCommandUtils.getScriptFileFromName(sender, scriptName);
+						if (scriptFile == null)
+							return SINGLE_SUCCESS;
 
-			if (scriptFile.isDirectory()) {
-				enableFolder(sender, redirectingLogHandler, scriptFile);
-			} else {
-				enableSpecificScript(sender, redirectingLogHandler, scriptFile, args);
-			}
-		}
-	}
-
-	@Override
-	public List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
-		return ScriptCommandUtils.getScriptCommandTabCompletions(args);
+						if (scriptFile.isDirectory()) {
+							enableFolder(sender, redirectingLogHandler, scriptFile);
+						} else {
+							enableSpecificScript(sender, redirectingLogHandler, scriptFile, new String[]{"enable", scriptName});
+						}
+					}
+					return SINGLE_SUCCESS;
+				}))
+			.build();
 	}
 
 	/**
@@ -79,7 +94,6 @@ class EnableCommand extends SubCommand {
 	/**
 	 * For handling the {@code /sk enable script.sk} command
 	 */
-	// sk enable script_name
 	private static void enableSpecificScript(CommandSender sender, RedirectingLogHandler redirectingLogHandler,
 											 File scriptFile, String[] args) {
 		if (ScriptLoader.getLoadedScriptsFilter().accept(scriptFile)) {

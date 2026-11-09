@@ -3,51 +3,67 @@ package ch.njol.skript.skcommand;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.log.TestingLogHandler;
-import ch.njol.skript.skcommand.SkriptCommand.SubCommand;
 import ch.njol.skript.test.runner.SkriptTestEvent;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.test.runner.TestTracker;
 import ch.njol.skript.test.utils.TestResults;
-import ch.njol.util.StringUtils;
 import com.google.gson.GsonBuilder;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.List;
 import java.util.logging.Level;
+
+import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
 /**
  * Internal command for running tests
  */
-class TestCommand extends SubCommand {
+public class TestCommand extends SubCommand {
 
-	public TestCommand() {
+	TestCommand() {
 		super("test");
 	}
 
 	@Override
-	public void execute(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
-		File scriptFile;
-		if (args.length == 1) {
-			scriptFile = TestMode.lastTestFile;
-			if (scriptFile == null) {
-				Skript.error(sender, "No test script has been run yet!");
-				return;
-			}
-		} else {
-			if (args[1].equalsIgnoreCase("all")) {
-				scriptFile = TestMode.TEST_DIR.toFile();
-			} else {
-				String scriptName = StringUtils.join(args, " ", 1, args.length);
-				scriptFile = ScriptCommandUtils.getScriptFileFromName(sender, scriptName, TestMode.TEST_DIR.toFile());
-				TestMode.lastTestFile = scriptFile;
-			}
-		}
+	public LiteralCommandNode<CommandSourceStack> build(String literal) {
+		return Commands.literal(literal)
+			.executes(context -> {
+				CommandSender sender = context.getSource().getSender();
+				File scriptFile = TestMode.lastTestFile;
+				if (scriptFile == null) {
+					Skript.error(sender, "No test script has been run yet!");
+					return SINGLE_SUCCESS;
+				}
+				runTest(sender, scriptFile);
+				return SINGLE_SUCCESS;
+			})
+			.then(Commands.literal("all")
+				.executes(context -> {
+					runTest(context.getSource().getSender(), TestMode.TEST_DIR.toFile());
+					return SINGLE_SUCCESS;
+				}))
+			.then(Commands.argument("script", StringArgumentType.greedyString())
+				.suggests(ScriptCommandUtils.suggestions(true, false))
+				.executes(context -> {
+					CommandSender sender = context.getSource().getSender();
+					String scriptName = StringArgumentType.getString(context, "script").trim();
+					File scriptFile = ScriptCommandUtils.getScriptFileFromName(sender, scriptName, TestMode.TEST_DIR.toFile());
+					TestMode.lastTestFile = scriptFile;
+					runTest(sender, scriptFile);
+					return SINGLE_SUCCESS;
+				}))
+			.build();
+	}
 
+	private static void runTest(CommandSender sender, @Nullable File scriptFile) {
 		if (scriptFile == null || !scriptFile.exists()) {
 			Skript.error(sender, "Test script doesn't exist!");
 			return;
@@ -87,11 +103,6 @@ class TestCommand extends SubCommand {
 					}
 				})
 			);
-	}
-
-	@Override
-	public List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
-		return ScriptCommandUtils.getScriptCommandTabCompletions(args);
 	}
 
 }

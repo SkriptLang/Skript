@@ -1,59 +1,62 @@
 package ch.njol.skript.skcommand;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.skcommand.SkriptCommand.SubCommand;
 import ch.njol.skript.update.Updater;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.ServerBuildInfo;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.addon.SkriptAddon;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static ch.njol.skript.skcommand.SkriptCommand.info;
+import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
 /**
  * Shows info about Skript, server, installed addons and dependencies<p>
  * Usage: <code>/sk info</code>
  */
-class InfoCommand extends SubCommand {
+public class InfoCommand extends SubCommand {
 
-	public InfoCommand() {
+	InfoCommand() {
 		super("info");
 	}
 
 	@Override
-	public void execute(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
-		info(sender, "info.aliases");
-		info(sender, "info.documentation");
-		info(sender, "info.tutorials");
+	public LiteralCommandNode<CommandSourceStack> build(String literal) {
+		return Commands.literal(literal)
+			.executes(context -> {
+				CommandSender sender = context.getSource().getSender();
+				info(sender, "info.aliases");
+				info(sender, "info.documentation");
+				info(sender, "info.tutorials");
 
-		info(sender, "info.server", getServerVersion());
-		info(sender, "info.version", getSkriptVersion());
+				info(sender, "info.server", getServerVersion());
+				info(sender, "info.version", getSkriptVersion());
 
-		if (Skript.instance().addons().isEmpty()) {
-			info(sender, "info.addons", "None");
-		} else {
-			info(sender, "info.addons", "");
-			getAddonList().forEach(sender::sendRichMessage);
-		}
+				if (Skript.instance().addons().isEmpty()) {
+					info(sender, "info.addons", "None");
+				} else {
+					info(sender, "info.addons", "");
+					getAddonList().forEach(sender::sendRichMessage);
+				}
 
-		if (getDependencyList().isEmpty()) {
-			info(sender, "info.dependencies", "None");
-		} else {
-			info(sender, "info.dependencies", "");
-			getDependencyList().forEach(sender::sendRichMessage);
-		}
-	}
-
-	@Override
-	public List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
-		return List.of();
+				if (getDependencyList().isEmpty()) {
+					info(sender, "info.dependencies", "None");
+				} else {
+					info(sender, "info.dependencies", "");
+					getDependencyList().forEach(sender::sendRichMessage);
+				}
+				return SINGLE_SUCCESS;
+			})
+			.build();
 	}
 
 	private static String getServerVersion() {
