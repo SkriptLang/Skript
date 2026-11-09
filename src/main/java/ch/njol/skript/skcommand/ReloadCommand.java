@@ -55,15 +55,14 @@ class ReloadCommand {
 			.then(Commands.literal("aliases")
 				.executes(context -> run(context.getSource().getSender(), ReloadCommand::reloadAliases)))
 			.then(Commands.literal("last")
-				.executes(context -> run(context.getSource().getSender(), (sender, logHandler, timingHandler) ->
-					reloadScript(sender, new String[]{"reload", "last"}, logHandler, timingHandler))))
+				.executes(context -> run(context.getSource().getSender(), ReloadCommand::reloadLast)))
 			.then(Commands.argument("script", StringArgumentType.greedyString())
 				.suggests(ScriptCommandUtils.suggestions(false, false))
 				.executes(context -> {
 					CommandSender sender = context.getSource().getSender();
 					String scriptName = StringArgumentType.getString(context, "script").trim();
 					return run(sender, (source, logHandler, timingHandler) ->
-						reloadScript(source, new String[]{"reload", scriptName}, logHandler, timingHandler));
+						reloadScript(source, scriptName, logHandler, timingHandler));
 				}))
 			.build();
 	}
@@ -175,23 +174,33 @@ class ReloadCommand {
 	}
 
 	/**
+	 * For handling the {@code /sk reload last} command.
+	 */
+	private static void reloadLast(CommandSender sender, RedirectingLogHandler redirectingLogHandler,
+								   TimingLogHandler timingLogHandler) {
+		if (lastReloadedScriptName == null) {
+			SkriptCommand.info(sender, "reload.no last file");
+			return;
+		}
+
+		File scriptFile = ScriptCommandUtils.getScriptFileFromName(sender, lastReloadedScriptName);
+		if (scriptFile == null) {
+			return;
+		}
+
+		if (scriptFile.isDirectory()) {
+			reloadFolder(sender, redirectingLogHandler, timingLogHandler, scriptFile);
+		} else {
+			reloadSpecificScript(sender, "last", redirectingLogHandler, timingLogHandler, scriptFile);
+		}
+	}
+
+	/**
 	 * For handling reloading an individual script or folder.
 	 */
-	private static void reloadScript(CommandSender sender, String[] args,
+	private static void reloadScript(CommandSender sender, String scriptName,
 									 RedirectingLogHandler redirectingLogHandler, TimingLogHandler timingLogHandler) {
-		String scriptName;
-
-		if (args[1].equalsIgnoreCase("last")) {
-			if (lastReloadedScriptName == null) {
-				SkriptCommand.info(sender, "reload.no last file");
-				return;
-			} else {
-				scriptName = lastReloadedScriptName;
-			}
-		} else {
-			scriptName = StringUtils.join(args, " ", 1, args.length);
-			lastReloadedScriptName = scriptName;
-		}
+		lastReloadedScriptName = scriptName;
 
 		File scriptFile = ScriptCommandUtils.getScriptFileFromName(sender, scriptName);
 		if (scriptFile == null) {
@@ -201,19 +210,18 @@ class ReloadCommand {
 		if (scriptFile.isDirectory()) {
 			reloadFolder(sender, redirectingLogHandler, timingLogHandler, scriptFile);
 		} else {
-			reloadSpecificScript(sender, args, redirectingLogHandler, timingLogHandler, scriptFile);
+			reloadSpecificScript(sender, scriptName, redirectingLogHandler, timingLogHandler, scriptFile);
 		}
 	}
 
 	/**
 	 * For handling the {@code /sk reload script.sk} command
 	 */
-	private static void reloadSpecificScript(CommandSender sender, String[] args,
+	private static void reloadSpecificScript(CommandSender sender, String command,
 											 RedirectingLogHandler redirectingLogHandler,
 											 TimingLogHandler timingLogHandler, File scriptFile) {
 		if (ScriptLoader.getDisabledScriptsFilter().accept(scriptFile)) {
 			String scriptName = scriptFile.getName().substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH);
-			String command = StringUtils.join(args, " ", 1, args.length);
 			SkriptCommand.info(sender, "reload.script disabled", scriptName, command);
 			return;
 		}

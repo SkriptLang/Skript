@@ -4,7 +4,6 @@ import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.log.RedirectingLogHandler;
 import ch.njol.skript.util.ExceptionUtils;
-import ch.njol.util.StringUtils;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -63,7 +62,7 @@ class EnableCommand {
 						if (scriptFile.isDirectory()) {
 							enableFolder(sender, redirectingLogHandler, scriptFile);
 						} else {
-							enableSpecificScript(sender, redirectingLogHandler, scriptFile, new String[]{"enable", scriptName});
+							enableSpecificScript(sender, redirectingLogHandler, scriptFile, scriptName);
 						}
 					}
 					return SINGLE_SUCCESS;
@@ -94,17 +93,17 @@ class EnableCommand {
 	 * For handling the {@code /sk enable script.sk} command
 	 */
 	private static void enableSpecificScript(CommandSender sender, RedirectingLogHandler redirectingLogHandler,
-											 File scriptFile, String[] args) {
+											 File scriptFile, String scriptName) {
 		if (ScriptLoader.getLoadedScriptsFilter().accept(scriptFile)) {
-			SkriptCommand.info(sender, "enable.single.already enabled", scriptFile.getName(), StringUtils.join(args, " ", 1, args.length));
+			SkriptCommand.info(sender, "enable.single.already enabled", scriptFile.getName(), scriptName);
 			return;
 		}
 
 		try {
 			scriptFile = ScriptCommandUtils.toggleFile(scriptFile, true);
 		} catch (IOException e) {
-			String scriptName = scriptFile.getName().substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH);
-			SkriptCommand.error(sender, "enable.single.io error", scriptName, ExceptionUtils.toString(e));
+			String name = scriptFile.getName().substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH);
+			SkriptCommand.error(sender, "enable.single.io error", name, ExceptionUtils.toString(e));
 			return;
 		}
 
