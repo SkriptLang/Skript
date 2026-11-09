@@ -77,7 +77,7 @@ These communities are run independently of the Skript team. Please don't report 
 
 Plugins can add new syntaxes to **Skript** to extend it. You can find addons on [skUnity](https://forums.skunity.com/forums/addon-releases) and [Skript Hub](https://skripthub.net).
 
-Addons are maintained by their authors, not by the Skript team. When reporting a bug, try to reproduce it **without addons** first.
+Addons are maintained by their authors, not by the Skript team. When reporting a bug, try to reproduce it **without addons** first. If it is an issue with an addon, do not report it here.
 
 ## Using Skript as a dependency
 
