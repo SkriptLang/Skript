@@ -1,11 +1,13 @@
 package org.skriptlang.skript.variables.storage;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.SerializedVariable;
 import com.google.errorprone.annotations.ThreadSafe;
 import org.jetbrains.annotations.Nullable;
@@ -15,13 +17,15 @@ import org.skriptlang.skript.addon.SkriptAddon;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Clock;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.StampedLock;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -41,7 +45,8 @@ import java.util.regex.PatternSyntaxException;
  *     <li><b>Save:</b> while the server runs, changes to the storage's variables are queued for it.
  *     The storage's own saving thread drains the queue about every {@link #saveIntervalMillis()} ms
  *     and passes the changes to {@link #save(Batch)}. A batch that fails to save is retried, with backoff,
- *     before anything newer is drained.</li>
+ *     before anything newer is drained. If the storage {@link #supportsBackups() supports backups} and the config
+ *     sets a {@code backup interval}, the saving thread also writes a backup every interval.</li>
  *     <li><b>Stop:</b> on shutdown, the saving thread is stopped and what is left is saved one last time.</li>
  *     <li><b>Close:</b> {@link #close()} releases the storage's resources.</li>
  * </ol>
@@ -77,15 +82,8 @@ public abstract class VariableStorage implements Closeable {
 	private @Nullable File file;
 	private boolean ownsFile = false;
 
-	// change queue stuff
-	private final StampedLock order = new StampedLock(); // stamped lock since re-entry is not needed.
-	// the last unsaved change for each variable, with the epoch it was made in
-	private ConcurrentHashMap<String, Pending> pending = new ConcurrentHashMap<>();
-	// pending list clears in order
-	private ArrayList<Clear> clears = new ArrayList<>();
-	private long epoch; // used to drop changes made before a clear when draining. Increments every clear.
-	private int sizeHint; // decaying peak hint for drain size, to avoid resizing the pending map too often.
-	private static final Pending ALLOCATION_DUMMY = new Pending("", null, 0);
+	// the changes waiting to be saved
+	private final ChangeQueue queue = new ChangeQueue();
 
 	// saving thread stuff
 	private final ReentrantLock saveLock = new ReentrantLock();
@@ -96,6 +94,11 @@ public abstract class VariableStorage implements Closeable {
 	private volatile @Nullable Thread saveThread;
 	private static final long STOP_TIMEOUT_MILLIS = 30_000; // how long stopSaving() waits for the saving thread
 	private static final int FINAL_SAVE_ATTEMPTS = 3;        // how often stopSaving() tries to save what is left
+
+	// backup stuff
+	private long backupIntervalNanos; // 0 means backups are off. Set while configuring.
+	private int backupsToKeep = -1;   // -1 keeps every backup. Set while configuring.
+	private @Nullable StorageBackups backups; // created in startSaving. guarded by saveLock.
 
 	protected VariableStorage(SkriptAddon registeringAddon, String type) {
 		this.registeringAddon = registeringAddon;
@@ -150,10 +153,63 @@ public abstract class VariableStorage implements Closeable {
 				return false;
 		}
 
+		if (!loadBackupConfig(node)) {
+			releaseFile();
+			return false;
+		}
+
 		boolean success = configure(node);
 		if (!success)
 			releaseFile();
 		return success;
+	}
+
+	/**
+	 * Reads the {@code backup interval} and {@code backups to keep} options. Both are optional:
+	 * a missing or zero interval turns backups off, and a missing keep count keeps every backup.
+	 * A keep count of 0 also turns backups off, and deletes this storage's old backups when saving starts.
+	 *
+	 * @param node the configuration node
+	 * @return false if an option is invalid; an error is printed in that case
+	 */
+	private boolean loadBackupConfig(SectionNode node) {
+		long intervalMillis = 0;
+		String rawInterval = node.getValue("backup interval");
+		if (rawInterval != null && !rawInterval.trim().equals("0")) { // a plain 0 isn't a valid timespan
+			Timespan interval = parseConfigValue(rawInterval, "backup interval", Timespan.class);
+			if (interval == null)
+				return false;
+			intervalMillis = interval.getAs(Timespan.TimePeriod.MILLISECOND);
+		}
+
+		Integer toKeep = getConfigOptional(node, "backups to keep", Integer.class, -1);
+		if (toKeep == null)
+			return false;
+		if (toKeep < -1) {
+			Skript.error("The entry for 'backups to keep' in the database '" + getName() + "' must be -1 or more");
+			return false;
+		}
+
+		if (intervalMillis > 0 && toKeep != 0 && !supportsBackups()) {
+			Skript.warning("The database '" + getName() + "' has a backup interval, but databases of the type '"
+				+ type + "' can't make backups, so none will be made");
+			intervalMillis = 0;
+		}
+		setBackupOptions(intervalMillis, toKeep);
+		return true;
+	}
+
+	/**
+	 * Sets how often this storage is backed up and how many backups are kept. Called while configuring.
+	 * Package-private so tests can set the options without a config.
+	 *
+	 * @param intervalMillis the time between backups, or 0 for no backups
+	 * @param toKeep         how many backups to keep, -1 to keep all of them,
+	 *                       or 0 for no backups and to delete the old ones when saving starts
+	 */
+	void setBackupOptions(long intervalMillis, int toKeep) {
+		backupsToKeep = toKeep;
+		backupIntervalNanos = toKeep == 0 ? 0 : TimeUnit.MILLISECONDS.toNanos(intervalMillis);
 	}
 
 	/**
@@ -323,6 +379,31 @@ public abstract class VariableStorage implements Closeable {
 	}
 
 	/**
+	 * Whether this storage can write backups with {@link #writeBackup(OutputStream)}.
+	 * If false, a configured {@code backup interval} is ignored with a warning.
+	 *
+	 * @return true if {@link #writeBackup(OutputStream)} is implemented
+	 */
+	protected boolean supportsBackups() {
+		return false;
+	}
+
+	/**
+	 * Writes a full copy of the stored variables to {@code out}, as CSV.
+	 * Only called if {@link #supportsBackups()} returns true.
+	 * <p>
+	 * Called on the saving thread, right after a successful save, and nothing is saved while it runs,
+	 * so the stored data is complete and doesn't change. Skript handles the backup file itself:
+	 * it writes to a temporary file, compresses it if the config says so, and only keeps it if this returns.
+	 *
+	 * @param out where to write the backup; don't close it
+	 * @throws IOException if the backup could not be written
+	 */
+	protected void writeBackup(OutputStream out) throws IOException {
+		throw new UnsupportedOperationException(getClass().getName() + " does not support backups");
+	}
+
+	/**
 	 * Saves every change queued so far, on the calling thread, without waiting for the saving thread's next cycle.
 	 * A batch that failed to save before is retried right away, ignoring the backoff.
 	 * <p>
@@ -354,7 +435,7 @@ public abstract class VariableStorage implements Closeable {
 
 	// ------------------------ CHANGE QUEUE ------------------------
 
-	//<editor-fold desc="change queue logic">
+	//<editor-fold desc="change queue">
 	/**
 	 * A batch of changes to a storage's variables, to be saved together.
 	 * <p>
@@ -366,7 +447,7 @@ public abstract class VariableStorage implements Closeable {
 	 */
 	public record Batch(List<String> clears, Collection<SerializedVariable> changes) {
 
-		private static final Batch EMPTY = new Batch(List.of(), List.of());
+		static final Batch EMPTY = new Batch(List.of(), List.of());
 
 		public boolean isEmpty() {
 			return clears.isEmpty() && changes.isEmpty();
@@ -375,222 +456,10 @@ public abstract class VariableStorage implements Closeable {
 	}
 
 	/**
-	 * An unsaved change to one variable.
-	 *
-	 * @param epoch the value of {@link #epoch} when the change was made; the change was made before every clear
-	 *              whose epoch is equal or higher
+	 * @return the queue of changes waiting to be saved to this storage, which the router writes to
 	 */
-	private record Pending(String name, SerializedVariable.@Nullable Value value, long epoch) {
-	}
-
-	/**
-	 * An undrained list clear.
-	 *
-	 * @param prefix the list prefix, ending in {@code ::}
-	 * @param epoch  the value of {@link #epoch} when the list was cleared
-	 * @param save   whether the storage has to delete the list; false for clears that came from the storage itself
-	 */
-	private record Clear(String prefix, long epoch, boolean save) {
-	}
-
-	/**
-	 * Queues a change to one variable, and runs {@code mapWrite} to change it in Skript's variables.
-	 * <p>
-	 * {@code mapWrite} runs while the name is locked, so changes to one name reach Skript's variables
-	 * and this storage in the same order. It must not call into any storage.
-	 *
-	 * @param name     the variable's name
-	 * @param value    the serialized new value, or null if the variable is deleted
-	 * @param mapWrite changes the variable in Skript's variables
-	 */
-	void write(String name, SerializedVariable.@Nullable Value value, Runnable mapWrite) {
-		long stamp = order.readLock();
-		try {
-			long epoch = this.epoch; // can't change while the shared lock is held
-			pending.compute(name, (key, old) -> {
-				mapWrite.run();
-				return new Pending(key, value, epoch);
-			});
-		} finally {
-			order.unlockRead(stamp);
-		}
-	}
-
-	/**
-	 * Takes this storage's exclusive lock, which waits for every {@link #write} in progress and blocks new ones.
-	 *
-	 * @return the stamp to pass to {@link #unlockExclusive(long)}
-	 */
-	long lockExclusive() {
-		return order.writeLock();
-	}
-
-	/**
-	 * Releases the exclusive lock taken by {@link #lockExclusive()}.
-	 *
-	 * @param stamp the stamp returned by {@link #lockExclusive()}
-	 */
-	void unlockExclusive(long stamp) {
-		order.unlockWrite(stamp);
-	}
-
-	/**
-	 * Records that a list was cleared. Pending changes under the prefix made before now are dropped when draining.
-	 * O(1), whatever the number of pending changes. The caller must hold {@link #lockExclusive()}.
-	 *
-	 * @param prefix the list prefix, ending in {@code ::}, such as {@code a::} for {@code {a::*}}
-	 * @param save   true if the storage has to delete the list,
-	 *               false if the clear came from the storage itself and only local changes should be dropped
-	 */
-	void recordClear(String prefix, boolean save) {
-		assert order.isWriteLocked();
-		assert prefix.endsWith("::") : prefix;
-		clears.add(new Clear(prefix, epoch++, save));
-	}
-
-	/**
-	 * Queues a change while the exclusive lock is held, such as the new values of a list being set.
-	 * Call it after {@link #recordClear(String, boolean)} for the same list,
-	 * so that the change is not dropped by that clear. The caller must hold {@link #lockExclusive()}.
-	 *
-	 * @param name  the variable's name
-	 * @param value the serialized new value, or null if the variable is deleted
-	 */
-	void putPending(String name, SerializedVariable.@Nullable Value value) {
-		assert order.isWriteLocked();
-		pending.put(name, new Pending(name, value, epoch));
-	}
-
-	/**
-	 * Applies a change that came from this storage itself, such as another server writing to the same database.
-	 * Runs {@code mapWrite} while the name is locked, and drops any unsaved local change to it,
-	 * so that the storage's newer value is not overwritten. Does not queue anything.
-	 *
-	 * @param name     the variable's name
-	 * @param mapWrite changes the variable in Skript's variables; must not call into any storage
-	 */
-	void externalWrite(String name, Runnable mapWrite) {
-		long stamp = order.readLock();
-		try {
-			pending.compute(name, (key, old) -> {
-				mapWrite.run();
-				return null;
-			});
-		} finally {
-			order.unlockRead(stamp);
-		}
-	}
-
-	/**
-	 * Counts the changes and clears queued but not yet drained, for reporting what is lost at shutdown.
-	 *
-	 * @return the number of queued changes and clears that have to be saved
-	 */
-	int countPending() {
-		long stamp = order.writeLock();
-		try {
-			int count = pending.size();
-			for (Clear clear : clears) {
-				if (clear.save())
-					count++;
-			}
-			return count;
-		} finally {
-			order.unlockWrite(stamp);
-		}
-	}
-
-	/**
-	 * Takes every change queued since the last drain, for the saving thread to save.
-	 * <p>
-	 * The goal here is to minimize the time it takes for writers to queue changes, so that the main thread is blocked as little as possible.
-	 * The expensive work of filtering out changes made before a clear is done after the lock is released, in this method on the calling thread,
-	 * since the storage's thread doesn't have the pressing business of running a server tick.
-	 *
-	 * @return the changes to save, possibly empty
-	 */
-	Batch drainPending() {
-		ConcurrentHashMap<String, Pending> drained;
-		ArrayList<Clear> drainedClears;
-		// get replacement map presized to the estimated right size
-		ConcurrentHashMap<String, Pending> replacement;
-		if (sizeHint > 64) {
-			replacement = new ConcurrentHashMap<>((int) Math.min(Integer.MAX_VALUE, sizeHint * 4L / 3 + 1)); // 33% extra to avoid resizing
-			// ConcurrentHashMap only allocates its table on the first insert.
-			// do that here, on the saving thread, rather than on the first writer
-			replacement.put("", ALLOCATION_DUMMY);
-			replacement.remove("");
-		} else {
-			replacement = new ConcurrentHashMap<>();
-		}
-		// swap the queue for an empty one while holding the exclusive lock, so writers are blocked only briefly
-		long stamp = lockExclusive();
-		try {
-			if (pending.isEmpty() && clears.isEmpty()) {
-				sizeHint -= sizeHint / 4;
-				return Batch.EMPTY;
-			}
-			drained = pending;
-			drainedClears = clears;
-			pending = replacement;
-			clears = new ArrayList<>();
-		} finally {
-			unlockExclusive(stamp);
-		}
-		// nothing can change the drained queue any more, so the rest needs no lock
-
-		// size hint update!
-		sizeHint = Math.max(drained.size(), sizeHint - sizeHint / 4); // 25% decay per drain
-
-		List<SerializedVariable> changes = new ArrayList<>(drained.size());
-		// if there are no clears, every change is saved, so we can just unwrap.
-		if (drainedClears.isEmpty()) {
-			for (Pending change : drained.values())
-				changes.add(new SerializedVariable(change.name(), change.value()));
-			return new Batch(List.of(), changes);
-		}
-
-		// we have clears, so we have to drop changes made before a clear that covers them
-		List<String> saved = new ArrayList<>(drainedClears.size());
-		// group clears by first name segment, so each change only checks the clears that could cover it
-		Map<String, List<Clear>> clearsByFirstSegment = new HashMap<>();
-		long lastClearEpoch = -1;
-		for (Clear clear : drainedClears) {
-			if (clear.save())
-				saved.add(clear.prefix());
-			clearsByFirstSegment.computeIfAbsent(firstSegment(clear.prefix()), key -> new ArrayList<>(2)).add(clear);
-			lastClearEpoch = Math.max(lastClearEpoch, clear.epoch());
-		}
-
-		for (Pending change : drained.values()) {
-			// a change made after every clear can't be covered by one
-			if (change.epoch() > lastClearEpoch || !isCleared(change, clearsByFirstSegment))
-				changes.add(new SerializedVariable(change.name(), change.value()));
-		}
-		return new Batch(saved, changes);
-	}
-
-	/**
-	 * @return whether a clear made after the change covers its name
-	 */
-	private static boolean isCleared(Pending change, Map<String, List<Clear>> clearsByFirstSegment) {
-		// TODO: the substring in firstSegment is most of the remaining drain cost; hash the segment in place if needed
-		List<Clear> candidates = clearsByFirstSegment.get(firstSegment(change.name()));
-		if (candidates == null)
-			return false;
-		for (Clear clear : candidates) {
-			if (clear.epoch() >= change.epoch() && change.name().startsWith(clear.prefix()))
-				return true;
-		}
-		return false;
-	}
-
-	/**
-	 * @return the part of the name before the first {@code ::}, or the whole name if there is none
-	 */
-	private static String firstSegment(String name) {
-		int end = name.indexOf("::");
-		return end < 0 ? name : name.substring(0, end);
+	ChangeQueue queue() {
+		return queue;
 	}
 	//</editor-fold>
 
@@ -599,7 +468,7 @@ public abstract class VariableStorage implements Closeable {
 	//<editor-fold desc="saving thread logic">
 
 	/**
-	 * Starts the saving thread, which calls {@link #drainPending()} and {@link #save(Batch)} on its own schedule.
+	 * Starts the saving thread, which calls {@link ChangeQueue#drain()} and {@link #save(Batch)} on its own schedule.
 	 * Called once by the router after {@link #load(StorageListener)} succeeds. Storages must not call this themselves.
 	 * If {@link #load(StorageListener)} fails, this should never be called and the storage is closed.
 	 */
@@ -610,6 +479,16 @@ public abstract class VariableStorage implements Closeable {
 		if (millis <= 0)
 			throw new IllegalStateException(getClass().getName() + " returned a save interval of " + millis + " ms");
 		intervalNanos = millis * 1_000_000L;
+		if (backupIntervalNanos > 0 || backupsToKeep == 0) { // keeping none still deletes the old ones
+			saveLock.lock();
+			try {
+				backups = new StorageBackups(getName(), backupFolder(), compressBackups(), backupIntervalNanos,
+					backupsToKeep, System.nanoTime(), Clock.systemDefaultZone(), this::writeBackup, this::reportSaveFailure);
+				backups.start(); // deletes old backups if none are to be kept
+			} finally {
+				saveLock.unlock();
+			}
+		}
 		saving = true;
 		saveThread = new Thread(this::saveLoop, "Skript variable storage " + getName() + " saving thread");
 		saveThread.setDaemon(true);
@@ -654,7 +533,7 @@ public abstract class VariableStorage implements Closeable {
 				if (failedBatch == null)
 					return;
 			}
-			int unsaved = failedBatch.clears().size() + failedBatch.changes().size() + countPending();
+			int unsaved = failedBatch.clears().size() + failedBatch.changes().size() + queue.count();
 			reportSaveFailure(null, "Could not save " + unsaved + " variable changes to the database '" + getName()
 				+ "' before shutting down; they are lost");
 		} finally {
@@ -663,8 +542,11 @@ public abstract class VariableStorage implements Closeable {
 	}
 
 	/**
-	 * The save loop, which just keeps calling {@link #saveCycle()} and waiting for the next save time.
-	 * Exits when {@link #saving} is set to false.
+	 * The save loop, which just keeps calling {@link #saveCycle()} and {@link #backupIfDue()},
+	 * and waiting for the next save time. Exits when {@link #saving} is set to false.
+	 * <p>
+	 * Backups are only made here, not in {@link #saveCycle()}, so that {@link #flush()} and {@link #stopSaving()}
+	 * never make the calling thread wait for a backup.
 	 */
 	private void saveLoop() {
 		while (saving) {
@@ -672,6 +554,7 @@ public abstract class VariableStorage implements Closeable {
 			long next = intervalNanos;
 			try {
 				next = saveCycle();
+				backupIfDue();
 			} catch (Throwable t) { // never let the thread die, or nothing is saved again
 				reportSaveFailure(t, "Unexpected error while saving variables to '" + getName() + "'");
 			}
@@ -732,17 +615,28 @@ public abstract class VariableStorage implements Closeable {
 				if (!trySave(failedBatch))
 					return backoffNanos();            // still failing: don't drain, keep at most one held batch
 				failedBatch = null;
+				batchSaved();
 			}
 			// drain and save the next batch. If it fails, keep it for the next cycle.
-			failedBatch = drainPending();
-			if (!failedBatch.isEmpty() && !trySave(failedBatch))
-				return backoffNanos();
+			failedBatch = queue.drain();
+			if (!failedBatch.isEmpty()) {
+				if (!trySave(failedBatch))
+					return backoffNanos();
+				batchSaved();
+			}
 			failedBatch = null;
-			backupIfDue();                   // empty until section 6; catches its own exceptions
 			return intervalNanos;
 		} finally {
 			saveLock.unlock();
 		}
+	}
+
+	/**
+	 * Notes that a batch was saved, so the next backup has something new in it. The caller must hold {@link #saveLock}.
+	 */
+	private void batchSaved() {
+		if (backups != null)
+			backups.changed();
 	}
 
 	/**
@@ -777,7 +671,39 @@ public abstract class VariableStorage implements Closeable {
 		return TimeUnit.SECONDS.toNanos(Math.min(60, 1 << Math.min(failures - 1, 6)));
 	}
 
+	//</editor-fold>
+
+	//<editor-fold desc="backups">
+	/**
+	 * Writes a backup if one is due, unless a batch is failing to save, since the stored data is then behind.
+	 * Called by the save loop only. Holds {@link #saveLock}, so nothing is saved while the backup is written.
+	 * Never throws.
+	 */
 	private void backupIfDue() {
+		saveLock.lock();
+		try {
+			if (backups != null && backups.isOn() && failedBatch == null)
+				backups.backupIfDue(System.nanoTime());
+		} finally {
+			saveLock.unlock();
+		}
+	}
+
+	/**
+	 * @return the folder this storage's backups go in, {@code plugins/Skript/backups/variables/<name>/}.
+	 * Package-private so tests can use a temporary folder.
+	 */
+	Path backupFolder() {
+		return Skript.getInstance().getDataFolder().toPath()
+			.resolve("backups").resolve("variables").resolve(StorageBackups.safeName(getName()));
+	}
+
+	/**
+	 * @return whether backups are compressed with gzip, from the {@code compress backups} config option.
+	 * Package-private so tests don't need the config.
+	 */
+	boolean compressBackups() {
+		return SkriptConfig.compressBackups.value();
 	}
 	//</editor-fold>
 
