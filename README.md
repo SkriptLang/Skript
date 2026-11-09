@@ -47,7 +47,7 @@ If **Skript** can't do something, an [addon](#addons) probably can.
 **Skript** supports the last 18 months of Minecraft versions, counting from the release date of **Skript**'s latest version.\
 For example, this means that 1.20.4 is supported, but 1.20.3 is not.
 
-New Minecraft versions will be supported as soon as possible.
+New Minecraft versions will usually work with existing versions of Skript, but with limited support for new content. Support for new versions will be added as soon as possible, according to the release schedule.
 
 ## Download
 
