@@ -5,18 +5,21 @@ import ch.njol.skript.variables.SerializedVariable;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A storage for testing {@link VariableStorage}: it saves batches into {@link #saved}, a map standing in for the
  * stored data, and records each saved batch, each save attempt and each reported failure.
- * Queue tests drain it directly with {@link #drain()}; save loop tests let its saving thread do the work.
  */
 class RecordingStorage extends VariableStorage {
 
@@ -65,15 +68,29 @@ class RecordingStorage extends VariableStorage {
 	 */
 	long intervalMillis = 10;
 
-	RecordingStorage() {
-		super(null, "recording");
-	}
+	/**
+	 * Returned by {@link #backupFolder()}. Must be set before backups are turned on.
+	 */
+	volatile @Nullable Path backupFolder;
 
 	/**
-	 * Drains the queue, as the saving thread would.
+	 * Returned by {@link #compressBackups()}.
 	 */
-	Batch drain() {
-		return drainPending();
+	volatile boolean compress;
+
+	/**
+	 * While above 0, {@link #writeBackup(OutputStream)} throws an {@link IOException}, after writing some data,
+	 * and decrements it.
+	 */
+	final AtomicInteger failBackups = new AtomicInteger();
+
+	/**
+	 * How often {@link #writeBackup(OutputStream)} was called, including failed calls.
+	 */
+	final AtomicInteger backupAttempts = new AtomicInteger();
+
+	RecordingStorage() {
+		super(null, "recording");
 	}
 
 	/**
@@ -160,6 +177,40 @@ class RecordingStorage extends VariableStorage {
 	@Override
 	protected long saveIntervalMillis() {
 		return intervalMillis;
+	}
+
+	@Override
+	protected boolean supportsBackups() {
+		return true;
+	}
+
+	/**
+	 * Writes the names of the saved variables, one per line, in order.
+	 */
+	@Override
+	protected void writeBackup(OutputStream out) throws IOException {
+		backupAttempts.incrementAndGet();
+		StringBuilder lines = new StringBuilder();
+		synchronized (saved) {
+			for (String name : new TreeSet<>(saved.keySet()))
+				lines.append(name).append('\n');
+		}
+		out.write(lines.toString().getBytes(StandardCharsets.UTF_8));
+		if (failBackups.getAndUpdate(n -> n > 0 ? n - 1 : 0) > 0)
+			throw new IOException("failing the backup on purpose");
+	}
+
+	@Override
+	Path backupFolder() {
+		Path folder = backupFolder;
+		if (folder == null)
+			throw new IllegalStateException("set backupFolder before turning backups on");
+		return folder;
+	}
+
+	@Override
+	boolean compressBackups() {
+		return compress;
 	}
 
 	@Override

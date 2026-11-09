@@ -39,7 +39,7 @@ public class VariableStorageSaveLoopTest {
 	}
 
 	private void set(String name, Value value) {
-		storage.write(name, value, () -> variables.put(name, value));
+		storage.queue().write(name, value, () -> variables.put(name, value));
 	}
 
 	private static Value value(int id) {
@@ -215,7 +215,7 @@ public class VariableStorageSaveLoopTest {
 		storage.failSaves.set(1);
 		set("y", value(2));
 		assertFalse(storage.flush());
-		assertEquals("the newer change should stay queued", 1, storage.countPending());
+		assertEquals("the newer change should stay queued", 1, storage.queue().count());
 	}
 
 	@Test(timeout = 20_000)
