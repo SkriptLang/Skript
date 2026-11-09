@@ -75,6 +75,8 @@ class ScriptCommandUtils {
 		String scriptsPathString = scripts.toPath().toString();
 		int scriptsPathLength = scriptsPathString.length();
 		String fs = File.separator;
+		// Accept both '/' and '\' regardless of the OS
+		String normalizedArg = scriptArg.replace('/', File.separatorChar).replace('\\', File.separatorChar);
 
 		FileFilter fileFilter = disabledScripts
 			? ScriptLoader.getDisabledScriptsFilter()
@@ -105,7 +107,7 @@ class ScriptCommandUtils {
 						fileString += fs; // Add file separator at the end of directories
 
 					// Make sure the user's argument matches with the file's name or beginning of file path
-					if (!scriptArg.isEmpty() && !fileString.startsWith(scriptArg) && !file.getName().startsWith(scriptArg))
+					if (!normalizedArg.isEmpty() && !fileString.startsWith(normalizedArg) && !file.getName().startsWith(normalizedArg))
 						return;
 
 					options.add(fileString);
