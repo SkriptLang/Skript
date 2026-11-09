@@ -1,0 +1,14 @@
+test "CondIncendiary":
+	spawn a tnt at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} is incendiary to true
+	assert {_entity} is incendiary with "setting to true failed"
+	set whether {_entity} is incendiary to false
+	assert {_entity} is not incendiary with "setting to false failed"
+	set whether {_entity} is not incendiary to false
+	assert {_entity} is incendiary with "(negated) setting to true failed"
+	set whether {_entity} is not incendiary to true
+	assert {_entity} is not incendiary with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

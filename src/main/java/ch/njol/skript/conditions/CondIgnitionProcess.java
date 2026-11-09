@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.LivingEntity;
 
@@ -13,6 +14,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
 
 @Name("Ignition Process")
 @Description("Checks if a creeper is going to explode.")
@@ -44,6 +46,18 @@ public class CondIgnitionProcess extends PropertyCondition<LivingEntity> {
 	@Override
 	public boolean check(LivingEntity entity) {
 		return entity instanceof Creeper creeper && creeper.isIgnited();
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(LivingEntity entity, boolean ignited, ChangeMode mode) {
+		if (entity instanceof Creeper creeper) {
+			creeper.setIgnited(ignited);
+		}
 	}
 
 	@Override

@@ -1,0 +1,14 @@
+test "CondIsDashing":
+	spawn a camel at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} is dashing to true
+	assert {_entity} is dashing with "setting to true failed"
+	set whether {_entity} is dashing to false
+	assert {_entity} is not dashing with "setting to false failed"
+	set whether {_entity} is not dashing to false
+	assert {_entity} is dashing with "(negated) setting to true failed"
+	set whether {_entity} is not dashing to true
+	assert {_entity} is not dashing with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

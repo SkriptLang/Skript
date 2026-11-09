@@ -118,8 +118,17 @@ public abstract class HierarchicalAddonModule implements AddonModule {
 	protected abstract void loadSelf(SkriptAddon addon);
 
 	@Override
-	public final void load(SkriptAddon addon) {
+	public void load(SkriptAddon addon) {
 		loadSelf(addon);
+		loadChildren(addon);
+	}
+
+	/**
+	 * Loads the children provided via {@link #children()}.
+	 * By default, the children are automatically loaded after the execution of {@link #loadSelf(SkriptAddon)}.
+	 * @param addon The addon this module belongs to.
+	 */
+	public final void loadChildren(SkriptAddon addon) {
 		for (AddonModule child : loadableChildren) {
 			child.load(addon);
 		}
