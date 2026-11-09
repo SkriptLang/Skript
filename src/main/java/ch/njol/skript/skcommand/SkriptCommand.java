@@ -7,6 +7,7 @@ import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.util.StringUtils;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -89,7 +90,11 @@ public class SkriptCommand {
 		String usage = Language.get(CONFIG_NODE + ".usage");
 		Skript.message(sender, usage + " <gold>/skript <yellow>" + command + " <red>...");
 
-		for (String arg : subCommand.args()) {
+		LiteralCommandNode<CommandSourceStack> node = subCommand.build(command);
+		for (CommandNode<CommandSourceStack> child : node.getChildren()) {
+			String arg = child instanceof LiteralCommandNode<?>
+				? child.getName()
+				: "<" + child.getName() + ">";
 			String description = Language.get(CONFIG_NODE + ".help." + command + "." + arg);
 			Skript.message(sender, "   <yellow>" + arg + " <gray>- <white>" + description);
 		}

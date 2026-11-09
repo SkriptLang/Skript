@@ -33,7 +33,6 @@ class DisableCommand extends SubCommand {
 
 	DisableCommand() {
 		super("disable");
-		args("all", "<script>");
 	}
 
 	@Override

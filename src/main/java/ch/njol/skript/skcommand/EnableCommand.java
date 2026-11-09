@@ -33,7 +33,6 @@ class EnableCommand extends SubCommand {
 
 	EnableCommand() {
 		super("enable");
-		args("all", "<script>");
 	}
 
 	@Override

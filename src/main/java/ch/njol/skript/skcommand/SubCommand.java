@@ -11,7 +11,6 @@ import org.jetbrains.annotations.ApiStatus;
 public abstract class SubCommand {
 
 	private final String[] aliases;
-	private String[] args;
 
 	protected SubCommand(String... aliases) {
 		this.aliases = aliases;
@@ -22,23 +21,6 @@ public abstract class SubCommand {
 	 */
 	public String[] getAliases() {
 		return aliases;
-	}
-
-	/**
-	 * Sets the arguments shown when this subcommand is executed without arguments.
-	 *
-	 * @param args The arguments to show in the help message.
-	 */
-	protected void args(String... args) {
-		this.args = args;
-	}
-
-	/**
-	 * @return The arguments shown when this subcommand is executed without arguments,
-	 *         or {@code null} if this subcommand does not have any.
-	 */
-	public String[] args() {
-		return args;
 	}
 
 	/**

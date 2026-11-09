@@ -37,7 +37,6 @@ class ReloadCommand extends SubCommand {
 
 	ReloadCommand() {
 		super("reload");
-		args("all", "scripts", "config", "aliases", "last", "<script>");
 	}
 
 	@Override
