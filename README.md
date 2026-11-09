@@ -42,7 +42,7 @@ If **Skript** can't do something, an [addon](#addons) probably can.
 
 ## Requirements
 
-**Skript** requires [Paper](https://papermc.io/downloads/paper) to run. Folia, Spigot, Bukkit are **not** supported.
+**Skript** requires [Paper](https://papermc.io/downloads/paper) to run. Folia, Spigot, and Bukkit are **not** supported.
 
 **Skript** supports the last 18 months of Minecraft versions, counting from the release date of **Skript**'s latest version.\
 For example, this means that 1.20.4 is supported, but 1.20.3 is not.
