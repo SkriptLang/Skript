@@ -14,6 +14,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Knockback")
 @Description("Apply the same velocity as a knockback to living entities in a direction. " +
@@ -21,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 @Example("knockback player north")
 @Example("knock victim (vector from attacker to victim) with strength 10")
 @Since("2.7")
-public class EffKnockback extends Effect {
+public class EffKnockback extends Effect implements SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerEffect(EffKnockback.class,
@@ -54,6 +55,7 @@ public class EffKnockback extends Effect {
 		double strength = this.strength != null ? this.strength.getOptionalSingle(event).orElse(1).doubleValue() : 1.0;
 
 		if (strength <= 0) {
+			error("Knockback strength must be larger than 0");
 			return;
 		}
 
