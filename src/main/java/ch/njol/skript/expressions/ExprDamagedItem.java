@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,11 +13,10 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 
 @Name("Damaged Item")
-@Description("Directly damages an item. In MC versions 1.12.2 and lower, this can be used to apply data values to items/blocks")
+@Description("Directly damages an item.")
 @Example("give player diamond sword with damage value 100")
 @Example("set player's tool to diamond hoe damaged by 250")
 @Example("give player diamond sword with damage 700 named \"BROKEN SWORD\"")
@@ -35,20 +35,22 @@ public class ExprDamagedItem extends PropertyExpression<ItemType, ItemType> {
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		setExpr((Expression<ItemType>) exprs[0]);
-		damage = (Expression<Number>) exprs[1];
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		setExpr((Expression<ItemType>) expressions[0]);
+		damage = (Expression<Number>) expressions[1];
 		return true;
 	}
 	
 	@Override
-	protected ItemType[] get(Event e, ItemType[] source) {
-		Number damage = this.damage.getSingle(e);
+	protected ItemType[] get(Event event, ItemType[] source) {
+		Number damage = this.damage.getSingle(event);
 		if (damage == null)
 			return source;
-		return get(source.clone(), item -> {
-			item.iterator().forEachRemaining(i -> i.setDurability(damage.intValue()));
-			return item;
+
+		return get(source, item -> {
+			ItemType newItem = item.clone();
+			newItem.iterator().forEachRemaining(i -> i.setDurability(damage.intValue()));
+			return newItem;
 		});
 	}
 	
@@ -58,8 +60,8 @@ public class ExprDamagedItem extends PropertyExpression<ItemType, ItemType> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, boolean debug) {
-		return getExpr().toString(e, debug) + " with damage value " + damage.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return getExpr().toString(event, debug) + " with damage value " + damage.toString(event, debug);
 	}
 	
 }
