@@ -703,7 +703,7 @@ public abstract class EntityData<E extends Entity>
 						list.add((E) player);
 				}
 			}
-			return (E[]) list.toArray(new Player[list.size()]);
+			return (E[]) list.toArray(new Entity[0]);
 		}
 		for (World world : worlds) {
 			for (E entity : world.getEntitiesByClass(getType())) {
@@ -778,7 +778,11 @@ public abstract class EntityData<E extends Entity>
 		World world = location.getWorld();
 		if (world == null)
 			return null;
-		return world.spawn(location, type, consumer);
+		try {
+			return world.spawn(location, type, consumer);
+		} catch (IllegalStateException ignored) { // couldn't spawn the mob
+			return null;
+		}
 	}
 
 	/**
@@ -787,7 +791,7 @@ public abstract class EntityData<E extends Entity>
 	 * @return The created entity
 	 */
 	public @Nullable E create() {
-		Location location = Bukkit.getWorlds().get(0).getSpawnLocation();
+		Location location = Bukkit.getWorlds().getFirst().getSpawnLocation();
 		return create(location);
 	}
 
