@@ -84,9 +84,13 @@ public class EffWakeupSleep extends Effect {
 					continue;
 				}
 				if (!sleep) {
-					villager.wakeup();
+					if (villager.isSleeping()) {
+						villager.wakeup();
+					}
 				} else {
-					villager.sleep(location);
+					if (villager.getWorld().equals(location.getWorld())) {
+						villager.sleep(location);
+					}
 				}
 			} else if (entity instanceof Fox fox) {
 				fox.setSleeping(sleep);
