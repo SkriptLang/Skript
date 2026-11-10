@@ -158,6 +158,10 @@ command /test-args-choice (a|b) [c|d]:
 	trigger:
 		set {-test-args-choice::*} to the first choice argument and the 2nd choice argument
 
+command /test-root-choice (test-root-choice|b):
+	trigger:
+		set {-test-root-choice} to the choice argument
+
 command /test-optional-subcommand:
 	subcommand [subcommand]:
 		trigger:
@@ -267,6 +271,11 @@ test "StructCommand":
 	assert {-test-args-choice::*} is "a"
 	execute command "test-args-choice b c"
 	assert {-test-args-choice::*} is "b" and "c"
+
+	execute command "test-root-choice test-root-choice"
+	assert {-test-root-choice} is "test-root-choice"
+	execute command "test-root-choice b"
+	assert {-test-root-choice} is "b"
 
 	execute command "test-optional-subcommand subcommand"
 	assert {-test-optional-subcommand} is 1 with "executing with subcommand should have added 1 (total 1)"
