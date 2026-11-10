@@ -190,7 +190,6 @@ public class ExprIndicesOfValue extends SimpleExpression<Object> {
 		//noinspection unchecked
 		List<Index>[] results = new List[needles.length];
 		long index = 1;
-		boolean shouldBreak = false;
 		while (haystackIterator.hasNext()) {
 			Item item = haystackIterator.next();
 			for (int i = 0; i < needles.length; i++) {
