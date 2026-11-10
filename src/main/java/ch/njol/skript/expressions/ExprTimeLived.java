@@ -8,7 +8,6 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
-import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
@@ -48,7 +47,7 @@ public class ExprTimeLived extends SimplePropertyExpression<Entity, Timespan> {
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		long newTicks = 1;
 		if (delta != null && delta[0] instanceof Timespan timespan) {
-			newTicks = (int) timespan.get(Timespan.TimePeriod.TICK);
+			newTicks = (int) timespan.getAs(TimePeriod.TICK);
 		}
 
 		for (Entity entity : getExpr().getArray(event)) {
@@ -60,7 +59,7 @@ public class ExprTimeLived extends SimplePropertyExpression<Entity, Timespan> {
 				default -> currentTicks;
 			};
 
-			entity.setTicksLived((int) Math2.fit(1, valueToSet, Integer.MAX_VALUE));
+			entity.setTicksLived(Math.clamp(valueToSet, 1, Integer.MAX_VALUE));
 		}
 	}
 
