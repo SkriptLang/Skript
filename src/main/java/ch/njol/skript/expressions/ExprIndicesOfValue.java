@@ -154,7 +154,7 @@ public class ExprIndicesOfValue extends SimpleExpression<Object> {
 
 			switch (indexType) {
 				case FIRST -> positions.add(position + 1);
-				case LAST -> positions.add((long) StringUtils.lastIndexOf(haystack, needle, caseSensitive));
+				case LAST -> positions.add((long) StringUtils.lastIndexOf(haystack, needle, caseSensitive) + 1);
 				case ALL -> {
 					do {
 						positions.add(position + 1);
@@ -190,7 +190,6 @@ public class ExprIndicesOfValue extends SimpleExpression<Object> {
 		//noinspection unchecked
 		List<Index>[] results = new List[needles.length];
 		long index = 1;
-		boolean shouldBreak = false;
 		while (haystackIterator.hasNext()) {
 			Item item = haystackIterator.next();
 			for (int i = 0; i < needles.length; i++) {
