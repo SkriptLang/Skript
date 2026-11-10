@@ -1,0 +1,9 @@
+test "color parsers":
+  assert "%rgb(1,2,3)%" parsed as color = rgb(1, 2, 3) with "parsing valid RGB failed"
+  assert "%rgb(1,2,3,4)%" parsed as color = rgb(1, 2, 3, 4) with "parsing valid RGBA failed"
+
+  assert "rgb 1, 0, 300" parsed as color = rgb(1, 0, 255) with "clamping RGB failed"
+  assert "rgba 1, 0, 300, 500" parsed as color = rgb(1, 0, 255, 255) with "clamping RGBA failed"
+
+  assert "rgb 1, a, 3" parsed as color isn't set
+  assert "rgba 1, a, 3, 4" parsed as color isn't set
