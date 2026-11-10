@@ -13,18 +13,18 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Maximum Double Value")
-@Description("A number representing the maximum value of a double number type.")
-@Example("if {_number} >= maximum double value:")
+@Name("Minimum Positive Double Value")
+@Description("A number representing the minimum positive value of the double number type.")
+@Example("set {_min} to the minimum double value")
 @Since("2.13")
-public class LitDoubleMaxValue extends SimpleLiteral<Double> {
+public class LitDoubleMinPositiveValue extends SimpleLiteral<Double> {
 
 	static {
-		Skript.registerExpression(LitDoubleMaxValue.class, Double.class, ExpressionType.SIMPLE, "[the] max[imum] double value");
+		Skript.registerExpression(LitDoubleMinPositiveValue.class, Double.class, ExpressionType.SIMPLE, "[the] min[imum] [positive] double value");
 	}
 
-	public LitDoubleMaxValue() {
-		super(Double.MAX_VALUE, false);
+	public LitDoubleMinPositiveValue() {
+		super(Double.MIN_VALUE, false);
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public class LitDoubleMaxValue extends SimpleLiteral<Double> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "max double value";
+		return "minimum positive double value";
 	}
 
 }

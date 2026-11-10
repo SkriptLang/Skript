@@ -1,5 +1,6 @@
 package ch.njol.skript.literals;
 
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -13,18 +14,18 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Maximum Float Value")
-@Description("A number representing the maximum value of a float number type.")
-@Example("if {_number} >= maximum float value:")
-@Since("2.13")
-public class LitFloatMaxValue extends SimpleLiteral<Float> {
+@Name("Minimum Negative Float Value")
+@Description("A number representing the minimum negative value of the float number type.")
+@Example("set {_min} to the minimum negative float value")
+@Since("INSERT VERSION")
+public class LitFloatMinNegativeValue extends SimpleLiteral<Float> {
 
 	static {
-		Skript.registerExpression(LitFloatMaxValue.class, Float.class, ExpressionType.SIMPLE, "[the] max[imum] float value");
+		Skript.registerExpression(LitFloatMinNegativeValue.class, Float.class, ExpressionType.SIMPLE, "[the] min[imum] negative float value");
 	}
 
-	public LitFloatMaxValue() {
-		super(Float.MAX_VALUE, false);
+	public LitFloatMinNegativeValue() {
+		super(-Float.MAX_VALUE, false);
 	}
 
 	@Override
@@ -34,7 +35,7 @@ public class LitFloatMaxValue extends SimpleLiteral<Float> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "max float value";
+		return "minimum negative float value";
 	}
 
 }
