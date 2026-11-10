@@ -17,7 +17,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 @Description("The velocity of a minecart as soon as it starts flying.")
 @Example("""
 	spawn minecart at player:
-	    set flying velocity of event-entity to vector(1, 5, 1)
+	    set flying velocity of entity to vector(1, 5, 1)
 	""")
 @Since("2.5.1")
 public class ExprMinecartFlyingVelocity extends SimplePropertyExpression<Entity, Vector> {
