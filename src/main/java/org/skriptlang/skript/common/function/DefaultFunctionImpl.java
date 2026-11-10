@@ -252,8 +252,8 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 
 		@Override
 		public Builder<T> requires(@NotNull String @NotNull ... requires) {
-			Preconditions.checkNotNull(keywords, "requires cannot be null");
-			checkNotNull(keywords, "requires contents cannot be null");
+			Preconditions.checkNotNull(requires, "requires cannot be null");
+			checkNotNull(requires, "requires contents cannot be null");
 
 			this.requires = requires;
 			return this;
