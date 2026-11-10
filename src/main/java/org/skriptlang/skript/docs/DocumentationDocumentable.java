@@ -1,7 +1,5 @@
 package org.skriptlang.skript.docs;
 
-import ch.njol.skript.SkriptAPIException;
-
 /**
  * A {@link Documentable} that has a retrievable {@link Documentation}.
  */
@@ -14,7 +12,7 @@ public interface DocumentationDocumentable extends Documentable {
 	Documentation documentation();
 
 	/**
-	 * @return Can be overriden so that the automatically generated ID of this documentable is prefixed.
+	 * @return Can be overridden so that the automatically generated ID of this documentable is prefixed.
 	 * If an ID is explicitly set on this documentable's {@link #documentation()}, this method is unused.
 	 */
 	default String documentationIdPrefix() {
@@ -32,7 +30,7 @@ public interface DocumentationDocumentable extends Documentable {
 		if (id == null) {
 			id = documentation().autoId();
 			if (id.isEmpty()) {
-				throw new SkriptAPIException(
+				throw new DocumentationException(
 					"Method preWrite must be overridden for DocumentationDocumentable if documentation may not have an ID or autoID"
 				);
 			}

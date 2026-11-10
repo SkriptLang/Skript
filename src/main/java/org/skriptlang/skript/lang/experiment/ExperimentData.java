@@ -147,12 +147,10 @@ public class ExperimentData implements Documentable {
 	@Override
 	public void write(DocumentationAdapter adapter) {
 		adapter.write("required", required.stream()
-			.filter(experiment -> experiment instanceof Documentable)
-			.map(experiment -> adapter.reference((Documentable) experiment))
+			.map(adapter::reference)
 			.toList());
 		adapter.write("disallowed", disallowed.stream()
-			.filter(experiment -> experiment instanceof Documentable)
-			.map(experiment -> adapter.reference((Documentable) experiment))
+			.map(adapter::reference)
 			.toList());
 	}
 
