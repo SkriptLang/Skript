@@ -32,9 +32,10 @@ public class ColorRGB implements Color {
 	@ApiStatus.Internal
 	public ColorRGB(int red, int green, int blue) {
 		this(org.bukkit.Color.fromRGB(
-			Math2.fit(0, red, 255),
-			Math2.fit(0, green, 255),
-			Math2.fit(0, blue, 255)));
+			Math.clamp(red, 0, 255),
+			Math.clamp(green, 0, 255),
+			Math.clamp(blue, 0, 255))
+		);
 	}
 
 	/**
@@ -59,7 +60,12 @@ public class ColorRGB implements Color {
 	 */
 	@Contract("_,_,_,_ -> new")
 	public static @NotNull ColorRGB fromRGBA(int red, int green, int blue, int alpha) {
-		return new ColorRGB(org.bukkit.Color.fromARGB(alpha, red, green, blue));
+		return new ColorRGB(org.bukkit.Color.fromARGB(
+			Math.clamp(alpha, 0, 255),
+			Math.clamp(red, 0, 255),
+			Math.clamp(green, 0, 255),
+			Math.clamp(blue, 0, 255)
+		));
 	}
 
 	/**
