@@ -39,19 +39,20 @@ public class ExprWithFireResistance extends PropertyExpression<ItemType, ItemTyp
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		setExpr((Expression<ItemType>) exprs[0]);
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		setExpr((Expression<ItemType>) expressions[0]);
 		out = parseResult.hasTag("out");
 		return true;
 	}
 
 	@Override
 	protected ItemType[] get(Event event, ItemType[] source) {
-		return get(source.clone(), item -> {
-			ItemMeta meta = item.getItemMeta();
+		return get(source, item -> {
+			ItemType newItem = item.clone();
+			ItemMeta meta = newItem.getItemMeta();
 			meta.setDamageResistant(out ? null : DamageTypeTags.IS_FIRE);
-			item.setItemMeta(meta);
-			return item;
+			newItem.setItemMeta(meta);
+			return newItem;
 		});
 	}
 
