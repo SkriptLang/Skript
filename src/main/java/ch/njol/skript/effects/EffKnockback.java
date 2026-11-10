@@ -16,15 +16,17 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Knockback")
-@Description("Apply the same velocity as a knockback to living entities in a direction. Mechanics such as knockback resistance will be factored in.")
+@Description("Apply the same velocity as a knockback to living entities in a direction. " +
+	"Mechanics such as knockback resistance will be factored in.")
 @Example("knockback player north")
 @Example("knock victim (vector from attacker to victim) with strength 10")
 @Since("2.7")
 public class EffKnockback extends Effect {
 
 	static {
-		if (Skript.methodExists(LivingEntity.class, "knockback", double.class, double.class, double.class))
-			Skript.registerEffect(EffKnockback.class, "(apply knockback to|knock[back]) %livingentities% [%direction%] [with (strength|force) %-number%]");
+		Skript.registerEffect(EffKnockback.class,
+			"(apply knockback to|knock[back]) %livingentities% [%direction%] [with (strength|force) %-number%]"
+		);
 	}
 
 	private Expression<LivingEntity> entities;
@@ -33,10 +35,13 @@ public class EffKnockback extends Effect {
 	private Expression<Number> strength;
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		entities = (Expression<LivingEntity>) exprs[0];
-		direction = (Expression<Direction>) exprs[1];
-		strength = (Expression<Number>) exprs[2];
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		// noinspection unchecked
+		entities = (Expression<LivingEntity>) expressions[0];
+		// noinspection unchecked
+		direction = (Expression<Direction>) expressions[1];
+		// noinspection unchecked
+		strength = (Expression<Number>) expressions[2];
 		return true;
 	}
 
@@ -47,6 +52,10 @@ public class EffKnockback extends Effect {
 			return;
 
 		double strength = this.strength != null ? this.strength.getOptionalSingle(event).orElse(1).doubleValue() : 1.0;
+
+		if (strength <= 0) {
+			return;
+		}
 
 		for (LivingEntity livingEntity : entities.getArray(event)) {
 			Vector directionVector = direction.getDirection(livingEntity);
@@ -61,7 +70,8 @@ public class EffKnockback extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "knockback " + entities.toString(event, debug) + " " + direction.toString(event, debug) + " with strength " + (strength != null ? strength.toString(event, debug) : "1");
+		return "knockback " + entities.toString(event, debug) + " " + direction.toString(event, debug) +
+			" with strength " + (strength != null ? strength.toString(event, debug) : "1");
 	}
 
 }
