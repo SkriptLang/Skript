@@ -43,10 +43,10 @@ public class EndermanData extends EntityData<Enderman> {
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
-		if (exprs[0] != null) {
+	protected boolean init(Literal<?>[] expressions, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+		if (expressions[0] != null) {
 			//noinspection unchecked
-			hand = ((Literal<ItemType>) exprs[0]).getAll();
+			hand = ((Literal<ItemType>) expressions[0]).getAll();
 		}
 		return true;
 	}
@@ -79,9 +79,13 @@ public class EndermanData extends EntityData<Enderman> {
 
 	@Override
 	public boolean match(Enderman enderman) {
-		return hand == null || SimpleExpression.check(hand, type -> {
+		if (hand == null) {
+			return true;
+		}
+
+		return SimpleExpression.check(hand, type -> {
 			// TODO {Block/Material}Data -> Material conversion is not 100% accurate, needs a better solution
-			return type != null && type.isOfType(enderman.getCarriedBlock().getMaterial());
+			return type != null && enderman.getCarriedBlock() != null && type.isOfType(enderman.getCarriedBlock().getMaterial());
 		}, false, false);
 	}
 
