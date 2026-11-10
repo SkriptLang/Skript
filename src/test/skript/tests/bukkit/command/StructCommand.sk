@@ -244,12 +244,12 @@ test "StructCommand":
 	catch runtime errors:
 		execute command "test-args-ranged 4 5"
 	if running minecraft "1.21.6":
-		assert last caught runtime errors starts with "Failed to execute command: Double must not be less than 5.0: found 4.0"
+		assert last caught runtime errors partially matches "Failed to execute command: Double must not be less than 5.0[:,] found 4.0"
 	assert {-test-args-ranged::*} is 6 and 5 with "argument below range was accepted"
 	catch runtime errors:
 		execute command "test-args-ranged 5 11"
 	if running minecraft "1.21.6":
-		assert last caught runtime errors starts with "Failed to execute command: Double must not be more than 10.0: found 11.0"
+		assert last caught runtime errors partially matches "Failed to execute command: Double must not be more than 10.0[:,] found 11.0"
 	assert {-test-args-ranged::*} is 6 and 5 with "argument above range was accepted"
 	execute command "test-args-ranged 5 -1" # negative numbers should be accepted for implicit minimum
 	assert {-test-args-ranged::*} is 5 and -1 with "argument in range was not accepted"
