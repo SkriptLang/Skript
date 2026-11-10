@@ -95,27 +95,23 @@ public class ExprSkullOwner extends SimplePropertyExpression<Object, OfflinePlay
 	private Consumer<Skull> getBlockChanger(OfflinePlayer offlinePlayer) {
 		if (offlinePlayer.getName() != null) {
 			return skull -> skull.setOwningPlayer(offlinePlayer);
-		} else if (ItemUtils.CAN_CREATE_PLAYER_PROFILE) {
+		} else {
 			//noinspection deprecation
 			PlayerProfile profile = Bukkit.createPlayerProfile(offlinePlayer.getUniqueId(), "");
 			//noinspection deprecation
 			return skull -> skull.setOwnerProfile(profile);
 		}
-		//noinspection deprecation
-		return skull -> skull.setOwner("");
 	}
 
 	private Consumer<SkullMeta> getMetaChanger(OfflinePlayer offlinePlayer) {
 		if (offlinePlayer.getName() != null) {
 			return skullMeta -> skullMeta.setOwningPlayer(offlinePlayer);
-		} else if (ItemUtils.CAN_CREATE_PLAYER_PROFILE) {
+		} else {
 			//noinspection deprecation
 			PlayerProfile profile = Bukkit.createPlayerProfile(offlinePlayer.getUniqueId(), "");
 			//noinspection deprecation
 			return skullMeta -> skullMeta.setOwnerProfile(profile);
 		}
-		//noinspection deprecation
-		return skullMeta -> skullMeta.setOwner("");
 	}
 
 	@Override

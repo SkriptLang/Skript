@@ -25,20 +25,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
  * Miscellaneous static utility methods related to items.
  */
 public class ItemUtils {
-
-	public static final boolean HAS_MAX_DAMAGE = Skript.methodExists(Damageable.class, "getMaxDamage");
-	// Introduced in Paper 1.21
-	public static final boolean HAS_RESET = Skript.methodExists(Damageable.class, "resetDamage");
-	public static final boolean CAN_CREATE_PLAYER_PROFILE = Skript.methodExists(Bukkit.class, "createPlayerProfile", UUID.class, String.class);
-	// paper does not do texture lookups by default
-	public static final boolean REQUIRES_TEXTURE_LOOKUP = Skript.classExists("com.destroystokyo.paper.profile.PlayerProfile") && Skript.isRunningMinecraft(1, 19, 4);
 
 	/**
 	 * Applies string format of component data to an item stack.
@@ -70,14 +62,14 @@ public class ItemUtils {
 	}
 
 	/**
-	 * Gets damage/durability of an itemmeta, or 0 if it does not have damage.
+	 * Gets damage/durability of an item meta, or 0 if it does not have damage.
 	 * @param itemMeta ItemMeta.
 	 * @return Damage.
 	 */
 	public static int getDamage(ItemMeta itemMeta) {
 		if (itemMeta instanceof Damageable)
 			return ((Damageable) itemMeta).getDamage();
-		return 0; // Non damageable item
+		return 0; // Non-damageable item
 	}
 
 	/** Gets the max damage/durability of an item
@@ -87,8 +79,8 @@ public class ItemUtils {
 	 */
 	public static int getMaxDamage(ItemStack itemStack) {
 		ItemMeta meta = itemStack.getItemMeta();
-		if (HAS_MAX_DAMAGE && meta instanceof Damageable && ((Damageable) meta).hasMaxDamage())
-			return ((Damageable) meta).getMaxDamage();
+		if (meta instanceof Damageable damageable && damageable.hasMaxDamage())
+			return damageable.getMaxDamage();
 		return itemStack.getType().getMaxDurability();
 	}
 
@@ -100,11 +92,11 @@ public class ItemUtils {
 	 */
 	public static void setMaxDamage(ItemStack itemStack, int maxDamage) {
 		ItemMeta meta = itemStack.getItemMeta();
-		if (HAS_MAX_DAMAGE && meta instanceof Damageable damageable) {
-			if (HAS_RESET && maxDamage < 1) {
+		if (meta instanceof Damageable damageable) {
+			if (maxDamage < 1) {
 				damageable.setMaxDamage(null);
 			} else {
-				damageable.setMaxDamage(Math.max(1, maxDamage));
+				damageable.setMaxDamage(maxDamage);
 			}
 			itemStack.setItemMeta(damageable);
 		}
@@ -131,9 +123,9 @@ public class ItemUtils {
 	 */
 	public static int getDamage(ItemType itemType) {
 		ItemMeta meta = itemType.getItemMeta();
-		if (meta instanceof Damageable)
-			return ((Damageable) meta).getDamage();
-		return 0; // Non damageable item
+		if (meta instanceof Damageable damageable)
+			return damageable.getDamage();
+		return 0; // Non-damageable item
 	}
 
 	/** Gets the max damage/durability of an item
@@ -143,8 +135,8 @@ public class ItemUtils {
 	 */
 	public static int getMaxDamage(ItemType itemType) {
 		ItemMeta meta = itemType.getItemMeta();
-		if (HAS_MAX_DAMAGE && meta instanceof Damageable && ((Damageable) meta).hasMaxDamage())
-			return ((Damageable) meta).getMaxDamage();
+		if (meta instanceof Damageable damageable && damageable.hasMaxDamage())
+			return damageable.getMaxDamage();
 		return itemType.getMaterial().getMaxDurability();
 	}
 
@@ -169,24 +161,13 @@ public class ItemUtils {
 	 */
 	public static void setHeadOwner(ItemType skull, OfflinePlayer player) {
 		ItemMeta meta = skull.getItemMeta();
-		if (!(meta instanceof SkullMeta))
+		if (!(meta instanceof SkullMeta skullMeta))
 			return;
 
-		SkullMeta skullMeta = (SkullMeta) meta;
-
-		if (REQUIRES_TEXTURE_LOOKUP) {
-			PlayerProfile profile = player.getPlayerProfile();
-			if (!profile.hasTextures())
-				profile.complete(true); // BLOCKING MOJANG API CALL
-			skullMeta.setPlayerProfile(profile);
-		} else if (player.getName() != null) {
-			skullMeta.setOwningPlayer(player);
-		} else if (CAN_CREATE_PLAYER_PROFILE) {
-			//noinspection deprecation
-			skullMeta.setOwnerProfile(Bukkit.createPlayerProfile(player.getUniqueId(), ""));
-		} else {
-			skullMeta.setOwningPlayer(null);
-		}
+		PlayerProfile profile = player.getPlayerProfile();
+		if (!profile.hasTextures())
+			profile.complete(true); // BLOCKING MOJANG API CALL
+		skullMeta.setPlayerProfile(profile);
 
 		skull.setItemMeta(skullMeta);
 	}
@@ -240,8 +221,6 @@ public class ItemUtils {
 	/**
 	 * Tests whether two item stacks are of the same type, i.e. it ignores the amounts.
 	 *
-	 * @param itemStack1
-	 * @param itemStack2
 	 * @return Whether the item stacks are of the same type
 	 */
 	public static boolean itemStacksEqual(@Nullable ItemStack itemStack1, @Nullable ItemStack itemStack2) {
@@ -372,28 +351,13 @@ public class ItemUtils {
 	 * @return whether the material is a full glass block
 	 */
 	public static boolean isGlass(Material material) {
-		switch (material) {
-			case GLASS:
-			case RED_STAINED_GLASS:
-			case ORANGE_STAINED_GLASS:
-			case YELLOW_STAINED_GLASS:
-			case LIGHT_BLUE_STAINED_GLASS:
-			case BLUE_STAINED_GLASS:
-			case CYAN_STAINED_GLASS:
-			case LIME_STAINED_GLASS:
-			case GREEN_STAINED_GLASS:
-			case MAGENTA_STAINED_GLASS:
-			case PURPLE_STAINED_GLASS:
-			case PINK_STAINED_GLASS:
-			case WHITE_STAINED_GLASS:
-			case LIGHT_GRAY_STAINED_GLASS:
-			case GRAY_STAINED_GLASS:
-			case BLACK_STAINED_GLASS:
-			case BROWN_STAINED_GLASS:
-				return true;
-			default:
-				return false;
-		}
+		return switch (material) {
+			case GLASS, RED_STAINED_GLASS, ORANGE_STAINED_GLASS, YELLOW_STAINED_GLASS, LIGHT_BLUE_STAINED_GLASS,
+			     BLUE_STAINED_GLASS, CYAN_STAINED_GLASS, LIME_STAINED_GLASS, GREEN_STAINED_GLASS, MAGENTA_STAINED_GLASS,
+			     PURPLE_STAINED_GLASS, PINK_STAINED_GLASS, WHITE_STAINED_GLASS, LIGHT_GRAY_STAINED_GLASS,
+			     GRAY_STAINED_GLASS, BLACK_STAINED_GLASS, BROWN_STAINED_GLASS -> true;
+			default -> false;
+		};
 	}
 
 	/**
@@ -401,7 +365,6 @@ public class ItemUtils {
 	 *
 	 * @param itemStack the item whose meta is to be changed using the provided Consumer
 	 * @param metaChanger a consumer to update the meta of the provided ItemStack
-	 * @param <T>
 	 * @return the updated item
 	 */
 	public static <T extends ItemMeta> ItemStack changeItemMeta(@NotNull Class<T> metaClass, @NotNull ItemStack itemStack, @NotNull Consumer<T> metaChanger) {
@@ -423,18 +386,17 @@ public class ItemUtils {
 	 * @see #asItemStack(Object)
 	 */
 	public static void setItemMeta(Object object, @NotNull ItemMeta itemMeta) {
-		if (object instanceof Slot slot) {
-			ItemStack itemStack = slot.getItem();
-			if (itemStack == null)
-				return;
-			itemStack.setItemMeta(itemMeta);
-			slot.setItem(itemStack);
-		} else if (object instanceof ItemType itemType) {
-			itemType.setItemMeta(itemMeta);
-		} else if (object instanceof ItemStack itemStack) {
-			itemStack.setItemMeta(itemMeta);
-		} else {
-			throw new IllegalArgumentException("Object was not a Slot, ItemType or ItemStack.");
+		switch (object) {
+			case Slot slot -> {
+				ItemStack itemStack = slot.getItem();
+				if (itemStack == null)
+					return;
+				itemStack.setItemMeta(itemMeta);
+				slot.setItem(itemStack);
+			}
+			case ItemType itemType -> itemType.setItemMeta(itemMeta);
+			case ItemStack itemStack -> itemStack.setItemMeta(itemMeta);
+			case null, default -> throw new IllegalArgumentException("Object was not a Slot, ItemType or ItemStack.");
 		}
 	}
 

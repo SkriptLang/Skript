@@ -43,16 +43,12 @@ public class ExprMaxDurability extends SimplePropertyExpression<Object, Integer>
 
 	@Override
 	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
-		if (ItemUtils.HAS_MAX_DAMAGE) {
-			switch (mode) {
-				case SET, ADD, REMOVE, RESET -> {
-					return CollectionUtils.array(Number.class);
-				}
-				case DELETE -> {
-					if (ItemUtils.HAS_RESET) {
-						return CollectionUtils.array();
-					}
-				}
+		switch (mode) {
+			case SET, ADD, REMOVE, RESET -> {
+				return CollectionUtils.array(Number.class);
+			}
+			case DELETE -> {
+				return CollectionUtils.array();
 			}
 		}
 		return null;

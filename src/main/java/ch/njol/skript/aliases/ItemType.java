@@ -390,13 +390,11 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 					continue;
 				Skull skull = (Skull) block.getState();
 				if (offlinePlayer.getName() != null) {
-					skull.setOwningPlayer(offlinePlayer);
-				} else if (ItemUtils.CAN_CREATE_PLAYER_PROFILE) {
 					//noinspection deprecation
-					skull.setOwnerProfile(Bukkit.createPlayerProfile(offlinePlayer.getUniqueId(), ""));
+					skull.setOwningPlayer(offlinePlayer);
 				} else {
 					//noinspection deprecation
-					skull.setOwner("");
+					skull.setOwnerProfile(Bukkit.createPlayerProfile(offlinePlayer.getUniqueId(), ""));
 				}
 				skull.update(false, applyPhysics);
 			}
