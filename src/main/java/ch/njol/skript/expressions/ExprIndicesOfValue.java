@@ -154,7 +154,7 @@ public class ExprIndicesOfValue extends SimpleExpression<Object> {
 
 			switch (indexType) {
 				case FIRST -> positions.add(position + 1);
-				case LAST -> positions.add((long) StringUtils.lastIndexOf(haystack, needle, caseSensitive));
+				case LAST -> positions.add((long) StringUtils.lastIndexOf(haystack, needle, caseSensitive) + 1);
 				case ALL -> {
 					do {
 						positions.add(position + 1);
