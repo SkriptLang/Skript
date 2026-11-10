@@ -64,6 +64,7 @@ public class ExprCmdCooldownInfo extends SimpleExpression<Object> implements Eve
 		CommandParsingData data = getParser().getData(CommandParsingData.class);
 		if (!data.isParsingCooldownEntry && data.getExecutorData(ExecutorData::cooldownManager) == null) {
 			Skript.error("'" + toString(null, false) + "' can't be used because the command doesn't have a cooldown.");
+			return false;
 		}
 		return true;
 	}
