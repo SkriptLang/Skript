@@ -84,7 +84,9 @@ public class EffWakeupSleep extends Effect {
 					continue;
 				}
 				if (!sleep) {
-					villager.wakeup();
+					if (villager.isSleeping()) {
+						villager.wakeup();
+					}
 				} else {
 					villager.sleep(location);
 				}
