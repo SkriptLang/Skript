@@ -45,14 +45,14 @@ public class ExprMaxDurability extends SimplePropertyExpression<Object, Integer>
 	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
 		if (ItemUtils.HAS_MAX_DAMAGE) {
 			switch (mode) {
-				case SET:
-				case ADD:
-				case REMOVE:
-				case RESET:
+				case SET, ADD, REMOVE, RESET -> {
 					return CollectionUtils.array(Number.class);
-				case DELETE:
-					if (ItemUtils.HAS_RESET)
+				}
+				case DELETE -> {
+					if (ItemUtils.HAS_RESET) {
 						return CollectionUtils.array();
+					}
+				}
 			}
 		}
 		return null;
@@ -61,35 +61,24 @@ public class ExprMaxDurability extends SimplePropertyExpression<Object, Integer>
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		int change = delta == null ? 0 : ((Number) delta[0]).intValue();
-		if (mode == ChangeMode.REMOVE)
-			change = -change;
 
 		for (Object object : getExpr().getArray(event)) {
 			ItemStack itemStack = ItemUtils.asItemStack(object);
 			if (itemStack == null)
 				continue;
 
-			int newValue;
-			switch (mode) {
-				case ADD:
-				case REMOVE:
-					newValue = ItemUtils.getMaxDamage(itemStack) + change;
-					break;
-				case SET:
-					newValue = change;
-					break;
-				case DELETE:
-					newValue = 0;
-					break;
-				default:
-					newValue = itemStack.getType().getMaxDurability();
-			}
+			int newValue = switch (mode) {
+				case ADD -> ItemUtils.getMaxDamage(itemStack) + change;
+				case REMOVE -> Math.max(1, ItemUtils.getMaxDamage(itemStack) - change);
+				case SET -> change;
+				default -> 0;
+			};
 
 			ItemUtils.setMaxDamage(itemStack, newValue);
-			if (object instanceof Slot)
-				((Slot) object).setItem(itemStack);
-			if (object instanceof ItemType)
-				((ItemType) object).setItemMeta(itemStack.getItemMeta());
+			if (object instanceof Slot slot)
+				slot.setItem(itemStack);
+			if (object instanceof ItemType itemType)
+				itemType.setItemMeta(itemStack.getItemMeta());
 		}
 	}
 
