@@ -36,7 +36,7 @@ public class RabbitData extends EntityData<Rabbit> implements EntityItemTypeComp
 			"<age> " + prefix + "rabbit[plural:s]",
 			prefix + "<age> rabbit[plural:s]",
 			prefix + "rabbit <age>[plural:s]",
-			"baby:" + prefix + "(kid[plural:s]|child[plural:ren])"
+			"baby:" + prefix + "rabbit (kid[plural:s]|child[plural:ren])"
 		};
 	}
 
