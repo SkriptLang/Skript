@@ -1,0 +1,7 @@
+local function keys() :: ints:
+  return 1, 2 and 3
+
+test "regression 8956 - expr function call keys are 0 indexed":
+  loop keys():
+    add 1 to {_i}
+    assert loop-index = "%{_i}%" with "expr function call loop index is wrong"
