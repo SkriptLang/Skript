@@ -17,7 +17,8 @@ import java.util.regex.Pattern;
 
 public class ColorRGB implements Color {
 
-	private static final Pattern RGB_PATTERN = Pattern.compile("(?>rgb|RGB) (\\d+), (\\d+), (\\d+)");
+	private static final Pattern RGB_PATTERN = Pattern.compile("(?i)rgb (\\d+), (\\d+), (\\d+)");
+	private static final Pattern RGBA_PATTERN = Pattern.compile("(?i)rgba (\\d+), (\\d+), (\\d+), (\\d+)");
 
 	private org.bukkit.Color bukkit;
 
@@ -119,19 +120,31 @@ public class ColorRGB implements Color {
 	public String getName() {
 		String rgb = bukkit.getRed() + ", " + bukkit.getGreen() + ", " + bukkit.getBlue();
 		if (bukkit.getAlpha() != 255)
-			return "argb " + bukkit.getAlpha() + ", " + rgb;
+			return "rgba " + rgb + ", " + bukkit.getAlpha();
 		return "rgb " + rgb;
 	}
 
 	public static @Nullable ColorRGB fromString(String string) {
-		Matcher matcher = RGB_PATTERN.matcher(string);
-		if (!matcher.matches())
-			return null;
-		return new ColorRGB(
-			NumberUtils.toInt(matcher.group(1)),
-			NumberUtils.toInt(matcher.group(2)),
-			NumberUtils.toInt(matcher.group(3))
-		);
+		Matcher rgbMatcher = RGB_PATTERN.matcher(string);
+		if (rgbMatcher.matches()) {
+			return new ColorRGB(
+				NumberUtils.toInt(rgbMatcher.group(1)),
+				NumberUtils.toInt(rgbMatcher.group(2)),
+				NumberUtils.toInt(rgbMatcher.group(3))
+			);
+		}
+
+		Matcher rgbaMatcher = RGBA_PATTERN.matcher(string);
+		if (rgbaMatcher.matches()) {
+			return ColorRGB.fromRGBA(
+				NumberUtils.toInt(rgbaMatcher.group(1)),
+				NumberUtils.toInt(rgbaMatcher.group(2)),
+				NumberUtils.toInt(rgbaMatcher.group(3)),
+				NumberUtils.toInt(rgbaMatcher.group(4))
+			);
+		}
+
+		return null;
 	}
 
 	/**
