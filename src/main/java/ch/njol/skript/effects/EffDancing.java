@@ -11,6 +11,7 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Allay;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Piglin;
@@ -37,8 +38,6 @@ import org.jetbrains.annotations.Nullable;
 @Example("make all piglins dance for 5 hours")
 @Since("2.11")
 public class EffDancing extends Effect {
-
-	private static final boolean SUPPORTS_PIGLINS = Skript.methodExists(Piglin.class, "setDancing", boolean.class);
 
 	static {
 		Skript.registerEffect(EffDancing.class,
@@ -74,20 +73,21 @@ public class EffDancing extends Effect {
 		if (this.location != null)
 			location = this.location.getSingle(event);
 		if (timespan != null) {
-			Timespan timespan1 = timespan.getSingle(event);
-			if (timespan1 != null)
-				time = timespan1.getAs(TimePeriod.TICK);
+			Timespan timespan = this.timespan.getSingle(event);
+			if (timespan != null) {
+				time = timespan.getAs(TimePeriod.TICK);
+			}
 		}
 		for (LivingEntity entity : entities.getArray(event)) {
 			if (entity instanceof Allay allay) {
 				if (!start) {
 					allay.stopDancing();
-				} else if (location != null) {
+				} else if (location != null && allay.getWorld().getBlockAt(location).getType().equals(Material.JUKEBOX)) {
 					allay.startDancing(location);
 				} else {
 					allay.startDancing();
 				}
-			} else if (SUPPORTS_PIGLINS && entity instanceof Piglin piglin) {
+			} else if (entity instanceof Piglin piglin) {
 				if (!start) {
 					piglin.setDancing(false);
 				} else if (time > 0) {
