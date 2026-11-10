@@ -13,18 +13,18 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Minimum Float Value")
-@Description("A number representing the minimum value of a float number type.")
-@Example("if {_number} <= minimum float value:")
+@Name("Maximum Positive Double Value")
+@Description("A number representing the maximum positive value of the double number type.")
+@Example("set {_max} to the maximum double value")
 @Since("2.13")
-public class LitFloatMinValue extends SimpleLiteral<Float> {
+public class LitDoubleMaxPositiveValue extends SimpleLiteral<Double> {
 
 	static {
-		Skript.registerExpression(LitFloatMinValue.class, Float.class, ExpressionType.SIMPLE, "[the] min[imum] float value");
+		Skript.registerExpression(LitDoubleMaxPositiveValue.class, Double.class, ExpressionType.SIMPLE, "[the] max[imum] [positive] double value");
 	}
 
-	public LitFloatMinValue() {
-		super(Float.MIN_VALUE, false);
+	public LitDoubleMaxPositiveValue() {
+		super(Double.MAX_VALUE, false);
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public class LitFloatMinValue extends SimpleLiteral<Float> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "min float value";
+		return "maximum positive double value";
 	}
 
 }
