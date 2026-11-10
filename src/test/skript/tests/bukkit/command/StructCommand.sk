@@ -146,13 +146,21 @@ command /test-args-plural <x: numbers>:
 	trigger:
 		set {-test-args-plural::*} to {_x::*}
 
-command /test-args-ranged <x: number above 5 and below 10>:
+command /test-args-ranged <x: number above 5> <y: number below 10>:
 	trigger:
-		set {-test-args-ranged::*} to {_x}
+		set {-test-args-ranged::*} to {_x} and {_y}
+
+command /test-args-ranged-2 <x: timespan above 5s> <y: timespan below 10s>:
+	trigger:
+		set {-test-args-ranged-2::*} to {_x} and {_y}
 
 command /test-args-choice (a|b) [c|d]:
 	trigger:
 		set {-test-args-choice::*} to the first choice argument and the 2nd choice argument
+
+command /test-root-choice (test-root-choice|b):
+	trigger:
+		set {-test-root-choice} to the choice argument
 
 command /test-optional-subcommand:
 	subcommand [subcommand]:
@@ -167,8 +175,12 @@ command /test-optional-subcommand-in-group:
 
 command /test-double-optional [<number>] [<gamemode>]:
 	trigger:
-		set {test-double-optional-number} to arg-1
-		set {test-double-optional-gamemode} to arg-2
+		set {-test-double-optional-number} to arg-1
+		set {-test-double-optional-gamemode} to arg-2
+
+command /test-non-optional-default <number = 5>:
+	trigger:
+		set {-test-non-optional-default} to number argument
 
 command /test-player-restriction-in-group:
 	subcommands:
@@ -227,23 +239,43 @@ test "StructCommand":
 	execute command "test-args-plural 10 and 2"
 	assert {-test-args-plural::*} is 10 and 2 with "plural input to plural args did not work"
 
-	execute command "test-args-ranged 6"
-	assert {-test-args-ranged::*} is 6 with "argument in range was not accepted"
+	execute command "test-args-ranged 6 5"
+	assert {-test-args-ranged::*} is 6 and 5 with "argument in range was not accepted"
 	catch runtime errors:
-		execute command "test-args-ranged 4"
+		execute command "test-args-ranged 4 5"
 	if running minecraft "1.21.6":
-		assert last caught runtime errors start with "Failed to execute command: "
-	assert {-test-args-ranged::*} is 6 with "argument below range was accepted"
+		assert last caught runtime errors partially matches "Failed to execute command: Double must not be less than 5.0[:,] found 4.0"
+	assert {-test-args-ranged::*} is 6 and 5 with "argument below range was accepted"
 	catch runtime errors:
-		execute command "test-args-ranged 11"
+		execute command "test-args-ranged 5 11"
 	if running minecraft "1.21.6":
-		assert last caught runtime errors start with "Failed to execute command: "
-	assert {-test-args-ranged::*} is 6 with "argument above range was accepted"
+		assert last caught runtime errors partially matches "Failed to execute command: Double must not be more than 10.0[:,] found 11.0"
+	assert {-test-args-ranged::*} is 6 and 5 with "argument above range was accepted"
+	execute command "test-args-ranged 5 -1" # negative numbers should be accepted for implicit minimum
+	assert {-test-args-ranged::*} is 5 and -1 with "argument in range was not accepted"
+
+	execute command "test-args-ranged-2 6s 5s"
+	assert {-test-args-ranged-2::*} is (6 seconds) and (5 seconds) with "argument in range was not accepted"
+	catch runtime errors:
+		execute command "test-args-ranged-2 4s 5s"
+	if running minecraft "1.21.6":
+		assert last caught runtime errors starts with "Failed to execute command: Expected a value greater than or equal to 5 seconds, but got 4 seconds."
+	assert {-test-args-ranged-2::*} is (6 seconds) and (5 seconds) with "argument below range was accepted"
+	catch runtime errors:
+		execute command "test-args-ranged-2 5s 11s"
+	if running minecraft "1.21.6":
+		assert last caught runtime errors starts with "Failed to execute command: Expected a value less than or equal to 10 seconds, but got 11 seconds."
+	assert {-test-args-ranged-2::*} is (6 seconds) and (5 seconds) with "argument above range was accepted"
 
 	execute command "test-args-choice a"
 	assert {-test-args-choice::*} is "a"
 	execute command "test-args-choice b c"
 	assert {-test-args-choice::*} is "b" and "c"
+
+	execute command "test-root-choice test-root-choice"
+	assert {-test-root-choice} is "test-root-choice"
+	execute command "test-root-choice b"
+	assert {-test-root-choice} is "b"
 
 	execute command "test-optional-subcommand subcommand"
 	assert {-test-optional-subcommand} is 1 with "executing with subcommand should have added 1 (total 1)"
@@ -256,12 +288,17 @@ test "StructCommand":
 	assert {-test-optional-subcommand-in-group} is 2 with "executing as base should have added 1 (total 2)"
 
 	execute command "test-double-optional 5 creative"
-	assert {test-double-optional-number} is 5 with "executing with both arguments should have set to 5"
-	assert {test-double-optional-gamemode} is creative with "executing with both arguments should have set to 5"
+	assert {-test-double-optional-number} is 5 with "executing with both arguments should have set to 5"
+	assert {-test-double-optional-gamemode} is creative with "executing with both arguments should have set to 5"
 	execute command "test-double-optional survival"
-	assert {test-double-optional-gamemode} is survival with "executing with just a gamemode should have set to survival"
+	assert {-test-double-optional-gamemode} is survival with "executing with just a gamemode should have set to survival"
 	execute command "test-double-optional 10"
-	assert {test-double-optional-number} is 10 with "executing with just a number should have set to 10"
+	assert {-test-double-optional-number} is 10 with "executing with just a number should have set to 10"
+
+	execute command "test-non-optional-default 10"
+	assert {-test-non-optional-default} is 10 with "executing with argument did not use provided value"
+	execute command "test-non-optional-default"
+	assert {-test-non-optional-default} is 5 with "executing without argument did not use default value"
 
 	execute command "test-aliases"
 	assert {-command-test-aliases} is 1 with "executing with primary name should have added 1"
