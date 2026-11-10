@@ -536,17 +536,20 @@ public class SubCommandEntryData extends EntryData<Result> {
 					// last argument can be greedy
 					nativeType = StringArgumentType.greedyString();
 				} else {
-					nativeType = StringArgumentType.string();
+					nativeType = SkriptConfig.enableLenientStringArguments.value()
+						? new ScriptArgumentType.ScriptStringArgument() : StringArgumentType.string();
 				}
 				// we only want to override the suggestions method if we will actually provide them
 				if (data.type().getC() == OfflinePlayer.class) {
 					//noinspection unchecked - verified by type check
 					nativeType = ScriptArgumentType.OfflinePlayerArgument.create((ArgumentData<OfflinePlayer>) data,
-						(StringArgumentType) nativeType);
+						(ArgumentType<String>) nativeType);
 				} else if (data.type().getSupplier() == null) {
-					nativeType = new ScriptArgumentType<>(data, (StringArgumentType) nativeType);
+					//noinspection unchecked - can only be string from above
+					nativeType = new ScriptArgumentType<>(data, (ArgumentType<String>) nativeType);
 				} else {
-					nativeType = new ScriptArgumentType.Suggesting<>(data, (StringArgumentType) nativeType);
+					//noinspection unchecked - can only be string from above
+					nativeType = new ScriptArgumentType.Suggesting<>(data, (ArgumentType<String>) nativeType);
 				}
 			}
 

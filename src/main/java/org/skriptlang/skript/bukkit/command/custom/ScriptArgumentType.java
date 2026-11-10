@@ -191,17 +191,17 @@ public class ScriptArgumentType<T> implements CustomArgumentType<Object, String>
 		(expected, provided) -> new LiteralMessage(M_ARGUMENT_TOO_LARGE.toString(expected, provided)));
 
 	protected final ArgumentData<T> argument;
-	protected final StringArgumentType nativeType;
+	protected final ArgumentType<String> stringType;
 
-	public ScriptArgumentType(@NotNull ArgumentData<T> argument, @NotNull StringArgumentType nativeType) {
+	public ScriptArgumentType(@NotNull ArgumentData<T> argument, @NotNull ArgumentType<String> stringType) {
 		this.argument = argument;
-		this.nativeType = nativeType;
+		this.stringType = stringType;
 	}
 
 	@Override
 	public @NotNull Object parse(@NotNull StringReader reader) throws CommandSyntaxException {
 		int prevCursor = reader.getCursor();
-		String input = parseWithNativeType(reader);
+		String input = parseWithStringType(reader);
 		assert argument.type().getParser() != null;
 
 		Literal<T> result;
@@ -247,13 +247,13 @@ public class ScriptArgumentType<T> implements CustomArgumentType<Object, String>
 		return argument.isSingle() ? result.getSingle() : result.getArray();
 	}
 
-	protected String parseWithNativeType(StringReader reader) throws CommandSyntaxException {
-		return nativeType.parse(reader);
+	protected String parseWithStringType(StringReader reader) throws CommandSyntaxException {
+		return stringType.parse(reader);
 	}
 
 	@Override
 	public @NotNull ArgumentType<String> getNativeType() {
-		return nativeType;
+		return getNativeStringType(stringType);
 	}
 
 	/**
@@ -261,13 +261,13 @@ public class ScriptArgumentType<T> implements CustomArgumentType<Object, String>
 	 */
 	public static class Suggesting<T> extends ScriptArgumentType<T> {
 
-		public Suggesting(@NotNull ArgumentData<T> argument, @NotNull StringArgumentType nativeType) {
-			super(argument, nativeType);
+		public Suggesting(@NotNull ArgumentData<T> argument, @NotNull ArgumentType<String> stringType) {
+			super(argument, stringType);
 		}
 
 		@Override
-		protected String parseWithNativeType(StringReader reader) throws CommandSyntaxException {
-			return super.parseWithNativeType(reader).replace('_', ' ');
+		protected String parseWithStringType(StringReader reader) throws CommandSyntaxException {
+			return super.parseWithStringType(reader).replace('_', ' ');
 		}
 
 		@Override
@@ -288,6 +288,37 @@ public class ScriptArgumentType<T> implements CustomArgumentType<Object, String>
 			return builder.buildFuture();
 		}
 
+	}
+
+	/**
+	 * An alternative to {@link StringArgumentType#string()} that accepts all characters until reaching a whitespace character.
+	 * It is extremely important to note that, for this argument to be recognized by the client,
+	 *  it must be treated as a {@link StringArgumentType#greedyString()}.
+	 * Unfortunately, this comes at the cost of disabling real-time command validation for all subsequent arguments.
+	 */
+	public static class ScriptStringArgument implements CustomArgumentType<String, String> {
+
+		@Override
+		public @NotNull String parse(@NotNull StringReader reader) throws CommandSyntaxException {
+			final int start = reader.getCursor();
+			while (reader.canRead() && !Character.isWhitespace(reader.peek())) {
+				reader.skip();
+			}
+			return reader.getString().substring(start, reader.getCursor());
+		}
+
+		@Override
+		public @NotNull ArgumentType<String> getNativeType() {
+			return StringArgumentType.greedyString();
+		}
+
+	}
+
+	private static ArgumentType<String> getNativeStringType(ArgumentType<String> stringType) {
+		if (stringType instanceof ScriptStringArgument scriptStringType) {
+			return scriptStringType.getNativeType();
+		}
+		return stringType;
 	}
 
 	/**
@@ -313,14 +344,14 @@ public class ScriptArgumentType<T> implements CustomArgumentType<Object, String>
 	public static abstract sealed class OfflinePlayerArgument implements CustomArgumentType<Object, Object>
 		permits OfflinePlayerArgument.Single, OfflinePlayerArgument.Plural {
 
-		public static OfflinePlayerArgument create(ArgumentData<OfflinePlayer> argument, StringArgumentType nativeType) {
-			return argument.isSingle() ? new Single(nativeType) : new Plural(nativeType);
+		public static OfflinePlayerArgument create(ArgumentData<OfflinePlayer> argument, ArgumentType<String> stringType) {
+			return argument.isSingle() ? new Single(stringType) : new Plural(stringType);
 		}
 
-		protected final StringArgumentType nativeType;
+		protected final ArgumentType<String> stringType;
 
-		private OfflinePlayerArgument(StringArgumentType nativeType) {
-			this.nativeType = nativeType;
+		private OfflinePlayerArgument(ArgumentType<String> stringType) {
+			this.stringType = stringType;
 		}
 
 		@Override
@@ -332,7 +363,7 @@ public class ScriptArgumentType<T> implements CustomArgumentType<Object, String>
 		public <S> @NotNull Object parse(StringReader reader, @NotNull S source) throws CommandSyntaxException {
 			int cursor = reader.getCursor();
 			try {
-				var resolver = parseOfflinePlayer(nativeType.parse(reader, source));
+				var resolver = parseOfflinePlayer(stringType.parse(reader, source));
 				if (resolver != null) {
 					return resolver;
 				}
@@ -347,8 +378,8 @@ public class ScriptArgumentType<T> implements CustomArgumentType<Object, String>
 
 		private static final class Single extends OfflinePlayerArgument {
 
-			private Single(StringArgumentType nativeType) {
-				super(nativeType);
+			private Single(ArgumentType<String> stringType) {
+				super(stringType);
 			}
 
 			@Override
@@ -374,8 +405,8 @@ public class ScriptArgumentType<T> implements CustomArgumentType<Object, String>
 
 		private static final class Plural extends OfflinePlayerArgument {
 
-			Plural(StringArgumentType nativeType) {
-				super(nativeType);
+			Plural(ArgumentType<String> stringType) {
+				super(stringType);
 			}
 
 			@Override
@@ -414,7 +445,7 @@ public class ScriptArgumentType<T> implements CustomArgumentType<Object, String>
 			@Override
 			public @NotNull ArgumentType<Object> getNativeType() {
 				//noinspection rawtypes, unchecked
-				return (ArgumentType) nativeType;
+				return (ArgumentType) getNativeStringType(stringType);
 			}
 
 		}

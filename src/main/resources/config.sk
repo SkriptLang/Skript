@@ -203,6 +203,12 @@ color codes reset formatting: true
 # With JSON-based new chat protocol, this is not necessary, but can be done
 # manually for compatibility. This is done by default for compatibility.
 
+enable lenient text arguments: false
+# Minecraft restricts regular text arguments to only contain letters, numbers, '_', '-', '.', and '+' unless surrounded by quotes.
+# By enabling this configuration option, Skript will accept all characters except whitespace.
+# However, it comes at the cost of disabling real-time command validation and argument highlighting for all subsequent arguments (after the text argument).
+# Note that even after changing this option, you must also reload any scripts containing commands for it to take effect.
+
 enable legacy tab completion event compatibility: true
 # This version of Skript includes support for registering commands using Minecraft's native Brigadier command system.
 # However, this system is not compatible by default with custom tab completion systems provided by addons.

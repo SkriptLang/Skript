@@ -313,6 +313,7 @@ public class SkriptConfig {
 	public static final Option<Boolean> allowUnsafePlatforms = new Option<>("allow unsafe platforms", false)
 			.optional(true);
 
+	public static final Option<Boolean> enableLenientStringArguments = new Option<>("enable lenient text arguments", false);
 	public static final Option<Boolean> enableLegacyTabCompletion = new Option<>("enable legacy tab completion event compatibility", true)
 			.optional(true);
 
