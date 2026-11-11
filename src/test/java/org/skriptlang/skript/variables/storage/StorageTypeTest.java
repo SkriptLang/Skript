@@ -8,19 +8,19 @@ import java.util.function.BiFunction;
 import static org.junit.Assert.*;
 
 /**
- * Tests {@link UnloadedStorage}, the record a registered storage type is kept as.
+ * Tests {@link StorageType}, the record a registered storage type is kept as.
  */
-public class UnloadedStorageTest {
+public class StorageTypeTest {
 
 	private static final BiFunction<SkriptAddon, String, RecordingStorage> CONSTRUCTOR = (addon, type) -> new RecordingStorage();
 
-	private static UnloadedStorage<RecordingStorage> type(String... names) {
-		return new UnloadedStorage<>(null, RecordingStorage.class, CONSTRUCTOR, names);
+	private static StorageType<RecordingStorage> type(String... names) {
+		return new StorageType<>(null, RecordingStorage.class, CONSTRUCTOR, names);
 	}
 
 	@Test
 	public void namesMatchIgnoringCase() {
-		UnloadedStorage<RecordingStorage> type = type("csv", "file");
+		StorageType<RecordingStorage> type = type("csv", "file");
 		assertTrue(type.matches("CSV"));
 		assertTrue(type.matches("File"));
 		assertFalse(type.matches("sqlite"));
@@ -30,7 +30,7 @@ public class UnloadedStorageTest {
 	@Test
 	public void namesAreCopiedOnTheWayIn() {
 		String[] names = {"csv"};
-		UnloadedStorage<RecordingStorage> type = type(names);
+		StorageType<RecordingStorage> type = type(names);
 		names[0] = "changed";
 		assertTrue(type.matches("csv"));
 		assertFalse(type.matches("changed"));
@@ -38,7 +38,7 @@ public class UnloadedStorageTest {
 
 	@Test
 	public void namesAreCopiedOnTheWayOut() {
-		UnloadedStorage<RecordingStorage> type = type("csv");
+		StorageType<RecordingStorage> type = type("csv");
 		type.names()[0] = "changed";
 		assertArrayEquals(new String[] {"csv"}, type.names());
 		assertTrue(type.matches("csv"));
@@ -47,7 +47,7 @@ public class UnloadedStorageTest {
 	@Test
 	public void createPassesTheRegisteringAddonAndTheConfiguredType() {
 		Object[] received = new Object[2];
-		UnloadedStorage<RecordingStorage> type = new UnloadedStorage<>(null, RecordingStorage.class,
+		StorageType<RecordingStorage> type = new StorageType<>(null, RecordingStorage.class,
 			(addon, name) -> {
 				received[0] = addon;
 				received[1] = name;
@@ -60,7 +60,7 @@ public class UnloadedStorageTest {
 
 	@Test
 	public void createMakesANewStorageEachTime() {
-		UnloadedStorage<RecordingStorage> type = type("csv");
+		StorageType<RecordingStorage> type = type("csv");
 		assertNotSame(type.create("csv"), type.create("csv"));
 	}
 
@@ -82,7 +82,7 @@ public class UnloadedStorageTest {
 
 	@Test(expected = NullPointerException.class)
 	public void theClassIsRequired() {
-		new UnloadedStorage<>(null, null, CONSTRUCTOR, "csv");
+		new StorageType<>(null, null, CONSTRUCTOR, "csv");
 	}
 
 	@Test
