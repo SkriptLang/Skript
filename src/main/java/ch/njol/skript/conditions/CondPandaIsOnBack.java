@@ -1,8 +1,9 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.LivingEntity;
@@ -10,7 +11,7 @@ import org.bukkit.entity.Panda;
 
 @Name("Panda Is On Its Back")
 @Description("Whether a panda is on its back.")
-@Examples("""
+@Example("""
 	if last spawned panda is on its back:
 		make last spawned panda get off its back
 	""")
@@ -24,6 +25,18 @@ public class CondPandaIsOnBack extends PropertyCondition<LivingEntity> {
 	@Override
 	public boolean check(LivingEntity entity) {
 		return entity instanceof Panda panda && panda.isOnBack();
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(LivingEntity entity, boolean onBack, ChangeMode mode) {
+		if (entity instanceof Panda panda) {
+			panda.setOnBack(onBack);
+		}
 	}
 
 	@Override

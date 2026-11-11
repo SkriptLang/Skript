@@ -1,0 +1,31 @@
+
+using error catching
+
+test "colour hex codes":
+
+	assert hex code of black is "1D1D21" with "black hex code was not correct"
+	assert hex code of dark grey is "474F52" with "dark grey hex code was not correct"
+	assert hex code of grey is "9D9D97" with "grey hex code was not correct"
+	assert hex code of white is "F9FFFE" with "white hex code was not correct"
+	assert hex code of blue is "3C44AA" with "blue hex code was not correct"
+	assert hex code of brown is "835432" with "brown hex code was not correct"
+	assert hex code of cyan is "169C9C" with "cyan hex code was not correct"
+	assert hex code of light cyan is "3AB3DA" with "light cyan hex code was not correct"
+	assert hex code of green is "5E7C16" with "green hex code was not correct"
+	assert hex code of light green is "80C71F" with "light green hex code was not correct"
+	assert hex code of yellow is "FED83D" with "yellow hex code was not correct"
+	assert hex code of orange is "F9801D" with "orange hex code was not correct"
+	assert hex code of red is "B02E26" with "red hex code was not correct"
+	assert hex code of pink is "F38BAA" with "pink hex code was not correct"
+	assert hex code of purple is "8932B8" with "purple hex code was not correct"
+	assert hex code of magenta is "C74EBD" with "magenta hex code was not correct"
+
+	assert hex code of {_x} is not set with "hex code of an invalid type shouldn't return anything"
+	
+	assert color from hex code "#8932B8" is purple with "purple hex code was not correct"
+	assert colour of hexadecimal code "C74EBD" is magenta with "magenta hex code was not correct"
+
+	catch runtime errors:
+		set {_hello} to "hello!"
+		assert colour of hex code {_hello} is not set with "hello! should not be a valid hex code"
+	assert last caught errors is "Could not parse 'hello!' as a hex code!" with "hello! should error"

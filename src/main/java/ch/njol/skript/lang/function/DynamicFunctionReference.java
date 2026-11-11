@@ -6,21 +6,23 @@ import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Contract;
+import ch.njol.skript.util.Utils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.common.function.Parameter;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.util.Executable;
 import org.skriptlang.skript.util.Validated;
 
-import java.io.File;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * A partial reference to a Skript function.
@@ -30,6 +32,12 @@ import java.util.Objects;
  */
 public class DynamicFunctionReference<Result>
 	implements Contract, Executable<Event, Result[]>, Validated, AnyNamed {
+
+	/**
+	 * Matches the argument list of a stringified function reference, e.g. the '(1, true)'
+	 * of 'myFunction(1, true)', along with anything following it.
+	 */
+	private static final Pattern ARGUMENTS_PATTERN = Pattern.compile("\\(.*\\).*");
 
 	private final @NotNull String name;
 	private final @Nullable Script source;
@@ -44,8 +52,7 @@ public class DynamicFunctionReference<Result>
 		this.function = new WeakReference<>(function);
 		this.name = function.getName();
 		this.signature = function.getSignature();
-		@Nullable File file = ScriptLoader.getScriptFromName(signature.script);
-		this.source = file != null ? ScriptLoader.getScript(file) : null;
+		this.source = ScriptLoader.getLoadedScriptFromName(signature.namespace());
 	}
 
 	public DynamicFunctionReference(@NotNull String name) {
@@ -69,8 +76,13 @@ public class DynamicFunctionReference<Result>
 		this.function = new WeakReference<>(function);
 		if (resolved) {
 			this.signature = function.getSignature();
-			@Nullable File file = ScriptLoader.getScriptFromName(signature.script);
-			this.source = file != null ? ScriptLoader.getScript(file) : null;
+			// A local lookup may still fall back to a global function from another script,
+			// so only reuse the provided script when the function actually came from it.
+			if (source != null && source.getConfig().getFileName().equals(signature.namespace())) {
+				this.source = source;
+			} else {
+				this.source = ScriptLoader.getLoadedScriptFromName(signature.namespace());
+			}
 		} else {
 			this.signature = null;
 			this.source = null;
@@ -90,8 +102,8 @@ public class DynamicFunctionReference<Result>
 	public boolean isSingle(Expression<?>... arguments) {
 		if (!resolved)
 			return true;
-		return signature.contract != null
-				? signature.contract.isSingle(arguments)
+		return signature.getContract() != null
+				? signature.getContract().isSingle(arguments)
 				: signature.isSingle();
 	}
 
@@ -99,8 +111,8 @@ public class DynamicFunctionReference<Result>
 	public @Nullable Class<?> getReturnType(Expression<?>... arguments) {
 		if (!resolved)
 			return Object.class;
-		if (signature.contract != null)
-			return signature.contract.getReturnType(arguments);
+		if (signature.getContract() != null)
+			return signature.getContract().getReturnType(arguments);
 		Function<? extends Result> function = this.function.get();
 		if (function != null && function.getReturnType() != null)
 			return function.getReturnType().getC();
@@ -132,8 +144,12 @@ public class DynamicFunctionReference<Result>
 	public boolean valid() {
 		return resolved && validator.valid()
 			&& function.get() != null // function was garbage-collected
-			&& (source == null || source.valid());
-		// if our source script has been reloaded our reference was invalidated
+			// Deliberately checks the config rather than calling Script#valid(),
+			// which additionally stats the script file on every call.
+			// We should revisit script validity in general since it's technically fine
+			// for the script to not have a File, but for this case all we care about is whether
+			// the config is still loaded and valid.
+			&& (source == null || source.getConfig().valid());
 	}
 
 	@Override
@@ -162,31 +178,33 @@ public class DynamicFunctionReference<Result>
 		this.checkedInputs.put(input, null); // failure case
 		if (signature == null)
 			return null;
-		boolean varArgs = signature.getMaxParameters() == 1 && !signature.getParameter(0).single;
-		Expression<?>[] parameters = input.parameters();
+		boolean varArgs = signature.getMaxParameters() == 1 && !signature.parameters().getFirst().isSingle();
+		Expression<?>[] inputParameters = input.parameters();
 		// Too many parameters
-		if (parameters.length > signature.getMaxParameters() && !varArgs)
+		if (inputParameters.length > signature.getMaxParameters() && !varArgs)
 			return null;
 		// Not enough parameters
-		else if (parameters.length < signature.getMinParameters())
+		else if (inputParameters.length < signature.getMinParameters())
 			return null;
-		Expression<?>[] checked = new Expression[parameters.length];
+		Expression<?>[] checkedInputParameters = new Expression[inputParameters.length];
 
 		// Check parameter types
-		for (int i = 0; i < parameters.length; i++) {
-			Parameter<?> parameter = signature.parameters[varArgs ? 0 : i];
+		for (int i = 0; i < inputParameters.length; i++) {
+			Parameter<?> parameter = signature.parameters().all()[varArgs ? 0 : i];
+
+			Class<?> target = Utils.getComponentType(parameter.type());
 			//noinspection unchecked
-			Expression<?> expression = parameters[i].getConvertedExpression(parameter.type());
+			Expression<?> expression = inputParameters[i].getConvertedExpression(target);
 			if (expression == null) {
 				return null;
-			} else if (parameter.single && !expression.isSingle()) {
+			} else if (parameter.isSingle() && !expression.isSingle()) {
 				return null;
 			}
-			checked[i] = expression;
+			checkedInputParameters[i] = expression;
 		}
 
 		// if successful, replace with our known result
-		ExpressionList<?> result = new ExpressionList<>(checked, Object.class, true);
+		ExpressionList<?> result = new ExpressionList<>(checkedInputParameters, Object.class, true);
 		this.checkedInputs.put(input, result);
 		return result;
 	}
@@ -203,7 +221,7 @@ public class DynamicFunctionReference<Result>
 		if (name.contains(") from ")) {
 			// The user might be trying to resolve a local function by name only
 			String source = name.substring(name.lastIndexOf(" from ") + 6).trim();
-			Script script = getScript(source);
+			Script script = ScriptLoader.getLoadedScriptFromName(source);
 			return resolveFunction(name.substring(0, name.lastIndexOf(" from ")).trim(), script);
 		}
 		return resolveFunction(name, null);
@@ -217,22 +235,13 @@ public class DynamicFunctionReference<Result>
 	 */
 	public static @Nullable DynamicFunctionReference<?> resolveFunction(String name, @Nullable Script script) {
 		if (name.contains("(") && name.contains(")"))
-			name = name.replaceAll("\\(.*\\).*", "").trim();
+			name = ARGUMENTS_PATTERN.matcher(name).replaceAll("").trim();
 		// In the future, if function overloading is supported, we could even use the header
 		// to specify parameter types (e.g. "myFunction(text, player)"
 		DynamicFunctionReference<Object> reference = new DynamicFunctionReference<>(name, script);
 		if (!reference.valid())
 			return null;
 		return reference;
-	}
-
-	private static @Nullable Script getScript(@Nullable String source) {
-		if (source == null || source.isEmpty())
-			return null;
-		@Nullable File file = ScriptLoader.getScriptFromName(source);
-		if (file == null || file.isDirectory())
-			return null;
-		return ScriptLoader.getScript(file);
 	}
 
 	/**

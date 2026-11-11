@@ -8,12 +8,12 @@ import org.bukkit.entity.Player;
 
 @Name("Can See Chat Colors")
 @Description("Checks whether a player can see chat colors.")
-@Examples({
-	"if player can see chat colors:",
-		"\tsend \"Find the red word in <red>this<reset> message.\"",
-	"else:",
-		"\tsend \"You cannot partake in finding the colored word.\""
-})
+@Example("""
+	if player can see chat colors:
+		send "Find the red word in <red>this<reset> message."
+	else:
+		send "You cannot partake in finding the colored word."
+	""")
 @Since("2.10")
 public class CondChatColors extends PropertyCondition<Player> {
 

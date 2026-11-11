@@ -1,0 +1,20 @@
+test "CondIsCommandBlockConditional":
+	set {_old} to the block at the event-location
+	set the block at the event-location to a command block
+	set {_block} to the block at the event-location
+
+	set whether {_block} is conditional to true
+	assert {_block} is conditional with "setting to true failed"
+	set whether {_block} is conditional to false
+	assert {_block} is not conditional with "setting to false failed"
+	set whether {_block} is not conditional to false
+	assert {_block} is conditional with "(negated) setting to true failed"
+	set whether {_block} is not conditional to true
+	assert {_block} is not conditional with "(negated) setting to false failed"
+
+	set whether {_block} is unconditional to false
+	assert {_block} is not unconditional with "(un) setting to true failed"
+	set whether {_block} is not unconditional to false
+	assert {_block} is unconditional with "(un) (negated) setting to false failed"
+
+	set the block at the event-location to {_old}

@@ -37,7 +37,7 @@ public class EntryValidator {
 
 	private final Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
 
-	private EntryValidator(
+	protected EntryValidator(
 		List<EntryData<?>> entryData,
 		@Nullable Predicate<Node> unexpectedNodeTester,
 		@Nullable Function<String, String> unexpectedEntryMessage,
@@ -61,12 +61,34 @@ public class EntryValidator {
 	}
 
 	/**
+	 * @return A predicate that tests whether a node not explicitly handled by any {@link #getEntryData()}
+	 *  should be allowed to be present.
+	 */
+	public @Nullable Predicate<Node> getUnexpectedNodeTester() {
+		return unexpectedNodeTester;
+	}
+
+	/**
+	 * @return A function that creates an error message from the key of an unexpected
+	 *         entry when one is encountered during validation.
+	 */
+	public Function<String, String> getUnexpectedEntryMessage() {
+		return unexpectedEntryMessage;
+	}
+
+	/**
+	 * @return A function that creates an error message from the key of an entry
+	 *         missing during validation.
+	 */
+	public Function<String, String> getMissingRequiredEntryMessage() {
+		return missingRequiredEntryMessage;
+	}
+
+	/**
 	 * Validates a node using this entry validator.
 	 * @param sectionNode The node to validate.
-	 * @return A pair containing a map of handled nodes and a list of unhandled nodes
-	 *         (if this validator permits unhandled nodes)
-	 *         The returned map uses the matched entry data's key as a key and
-	 *         uses a pair containing the entry data and matching node
+	 * @return An entry container holding the validated nodes
+	 * 	        along with any additional nodes (if permitted by {@link #getUnexpectedNodeTester()}).
 	 *         Will return null if the provided node couldn't be validated.
 	 */
 	public @Nullable EntryContainer validate(SectionNode sectionNode) {
@@ -85,7 +107,7 @@ public class EntryValidator {
 				EntryData<?> data = iterator.next();
 				if (data.canCreateWith(node)) { // Determine if it's a match
 					Collection<Node> nodes = handledNodes.computeIfAbsent(
-						data.getKey(), k -> new LinkedList<>()
+						data.getKey(), ignored -> new LinkedList<>()
 					);
 					nodes.add(node);
 					// we do not expect this entry data anymore
@@ -125,7 +147,7 @@ public class EntryValidator {
 
 	/**
 	 * A utility builder for creating an entry validator that can be used to parse
-	 * and validate a {@link SectionNode}.
+	 *  and validate a {@link SectionNode}.
 	 * @see EntryValidator#builder()
 	 */
 	public static class EntryValidatorBuilder {
@@ -135,7 +157,7 @@ public class EntryValidator {
 		 */
 		public static final String DEFAULT_ENTRY_SEPARATOR = ": ";
 
-		private EntryValidatorBuilder() { }
+		protected EntryValidatorBuilder() { }
 
 		private final List<EntryData<?>> entryData = new ArrayList<>();
 		private String entrySeparator = DEFAULT_ENTRY_SEPARATOR;
@@ -144,10 +166,30 @@ public class EntryValidator {
 
 		private @Nullable Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
 
+		protected @Nullable Function<String, String> getMissingRequiredEntryMessage() {
+			return missingRequiredEntryMessage;
+		}
+
+		protected @Nullable Function<String, String> getUnexpectedEntryMessage() {
+			return unexpectedEntryMessage;
+		}
+
+		protected @Nullable Predicate<Node> getUnexpectedNodeTester() {
+			return unexpectedNodeTester;
+		}
+
+		protected List<EntryData<?>> getEntryData() {
+			return entryData;
+		}
+
+		protected String getEntrySeparator() {
+			return entrySeparator;
+		}
+
 		/**
-		 * Updates the separator to be used when creating KeyValue entries. Please note
-		 * that this will not update the separator for already registered KeyValue entries.
-		 * @param separator The new separator for KeyValue entries.
+		 * Updates the separator to be used when creating key/value entries.
+		 * Please note that this will not update the separator for already registered key/value entries.
+		 * @param separator The new separator for key/value entries.
 		 * @return The builder instance.
 		 */
 		public EntryValidatorBuilder entrySeparator(String separator) {
@@ -156,9 +198,9 @@ public class EntryValidator {
 		}
 
 		/**
-		 * A predicate to be supplied for checking whether a Node should be allowed
-		 *  even as an entry not declared in the entry data map.
-		 * The default behavior is that the predicate returns true for every Node tested.
+		 * A predicate to be supplied for checking whether a node not explicitly handled by any {@link #getEntryData()}
+		 *  should cause an error (not be permitted).
+		 * The default behavior is that the predicate returns true for every node tested (i.e., no unknown nodes are permitted).
 		 * @param unexpectedNodeTester The predicate to use.
 		 * @return The builder instance.
 		 */
@@ -168,9 +210,8 @@ public class EntryValidator {
 		}
 
 		/**
-		 * A function to be applied when an unexpected Node is encountered during validation.
-		 * A String representing the user input (the Node's key) goes in,
-		 *  and an error message to output comes out.
+		 * A function to create an error message from an unexpected node's key when an unexpected node is encountered during validation
+		 *  (i.e., the node is not allowed by {@link #unexpectedNodeTester}).
 		 * @param unexpectedEntryMessage The function to use.
 		 * @return The builder instance.
 		 */
@@ -180,9 +221,7 @@ public class EntryValidator {
 		}
 
 		/**
-		 * A function to be applied when a required Node is missing during validation.
-		 * A String representing the key of the missing entry goes in,
-		 *  and an error message to output comes out.
+		 * A function to create an error message from an expected node's key when that node is missing during validation.
 		 * @param message The function to use.
 		 * @return The builder instance.
 		 */
@@ -192,7 +231,7 @@ public class EntryValidator {
 		}
 
 		/**
-		 * Adds a new {@link KeyValueEntryData} to this validator that returns the raw, unhandled String value.
+		 * Adds a new {@link KeyValueEntryData} to this validator that returns the raw, unhandled string value.
 		 * The added entry is optional and will use the provided default value as a backup.
 		 * The entry data can be included only once within a single entry container.
 		 * @param key The key of the entry.
@@ -205,7 +244,7 @@ public class EntryValidator {
 		}
 
 		/**
-		 * Adds a new {@link KeyValueEntryData} to this validator that returns the raw, unhandled String value.
+		 * Adds a new {@link KeyValueEntryData} to this validator that returns the raw, unhandled string value.
 		 * The added entry is optional and will use the provided default value as a backup.
 		 * @param key The key of the entry.
 		 * @param defaultValue The default value of this entry to use if the user does not include this entry.
@@ -256,7 +295,7 @@ public class EntryValidator {
 		/**
 		 * A method to add custom {@link EntryData} to a validator.
 		 * Custom entry data should be preferred when the default methods included in
-		 * this builder are not expansive enough.
+		 *  this builder are not expansive enough.
 		 * Please note that for custom {@link KeyValueEntryData} implementations, the default entry separator
 		 *  value of this builder will not be used. Instead, {@link #DEFAULT_ENTRY_SEPARATOR} will be used.
 		 * @param entryData The custom entry data to include in this validator.

@@ -6,12 +6,14 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.localization.Localizer;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.Registry;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -25,7 +27,7 @@ final class SkriptImpl implements Skript {
 
 	SkriptImpl(Class<?> source, String name) {
 		addon = new SkriptAddonImpl(this, source, name, Localizer.of(this));
-		storeRegistry(SyntaxRegistry.class, SyntaxRegistry.empty());
+		storeRegistry(SyntaxRegistry.class, SyntaxRegistry.withOrigin(SyntaxRegistry.empty(), Origin.of(this)));
 	}
 
 	/*
@@ -64,6 +66,11 @@ final class SkriptImpl implements Skript {
 		return (R) registries.computeIfAbsent(registryClass, key -> putIfAbsent.get());
 	}
 
+	@Override
+	public Collection<Registry<?>> registries() {
+		return List.copyOf(registries.values());
+	}
+
 	/*
 	 * SkriptAddon Management
 	 */
@@ -72,6 +79,11 @@ final class SkriptImpl implements Skript {
 
 	@Override
 	public SkriptAddon registerAddon(Class<?> source, String name) {
+		if (addon.name().equals(name)) {
+			throw new SkriptAPIException(
+				"Registering an addon with the same name as the Skript instance is not possible"
+			);
+		}
 		// make sure an addon is not already registered with this name
 		SkriptAddon existing = addons.get(name);
 		if (existing != null) {
@@ -125,12 +137,14 @@ final class SkriptImpl implements Skript {
 		private final Class<?> source;
 		private final String name;
 		private final Localizer localizer;
+		private final Origin origin;
 
 		SkriptAddonImpl(Skript skript, Class<?> source, String name, @Nullable Localizer localizer) {
 			this.skript = skript;
 			this.source = source;
 			this.name = name;
 			this.localizer = localizer == null ? Localizer.of(this) : localizer;
+			this.origin = Origin.of(this);
 		}
 
 		@Override
@@ -160,7 +174,12 @@ final class SkriptImpl implements Skript {
 
 		@Override
 		public <R extends Registry<?>> R registry(Class<R> registryClass) {
-			return skript.registry(registryClass);
+			R registry = skript.registry(registryClass);
+			if (registryClass == SyntaxRegistry.class) {
+				//noinspection unchecked
+				return (R) SyntaxRegistry.withOrigin((SyntaxRegistry) registry, origin);
+			}
+			return registry;
 		}
 
 		@Override
@@ -169,8 +188,13 @@ final class SkriptImpl implements Skript {
 		}
 
 		@Override
+		public Collection<Registry<?>> registries() {
+			return skript.registries();
+		}
+
+		@Override
 		public SyntaxRegistry syntaxRegistry() {
-			return skript.syntaxRegistry();
+			return registry(SyntaxRegistry.class);
 		}
 
 		@Override
@@ -244,6 +268,11 @@ final class SkriptImpl implements Skript {
 		}
 
 		@Override
+		public Collection<Registry<?>> registries() {
+			return unmodifiableAddon.registries();
+		}
+
+		@Override
 		public SyntaxRegistry syntaxRegistry() {
 			return unmodifiableAddon.syntaxRegistry();
 		}
@@ -256,6 +285,11 @@ final class SkriptImpl implements Skript {
 		@Override
 		public void loadModules(AddonModule... modules) {
 			unmodifiableAddon.loadModules(modules);
+		}
+
+		@Override
+		public Skript unmodifiableView() {
+			return this;
 		}
 
 	}

@@ -4,11 +4,10 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.Delay;
-import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -28,6 +27,7 @@ import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.entity.EntityData;
 
 import java.util.function.Predicate;
 
@@ -41,15 +41,14 @@ import java.util.function.Predicate;
 	"so using the 'ray size' option can be helpful when targeting them.",
 	"May grab entities in unloaded chunks."
 })
-@Examples({
-	"on entity target:",
-		"\tif entity's target is a player:",
-			"\t\tsend \"You're being followed by an %entity%!\" to target of entity",
-	"",
-	"reset target of entity # Makes the entity target-less",
-	"delete targeted entity of player # for players it will delete the target",
-	"delete target of last spawned zombie # for entities it will make them target-less"
-})
+@Example("""
+	on entity target:
+		if entity's target is a player:
+			send "You're being followed by an %entity%!" to target of entity
+	""")
+@Example("reset target of entity # Makes the entity target-less")
+@Example("delete targeted entity of player # for players it will delete the target")
+@Example("delete target of last spawned zombie # for entities it will make them target-less")
 @Since("1.4.2, 2.7 (Reset), 2.8.0 (ignore blocks, ray size)")
 public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 

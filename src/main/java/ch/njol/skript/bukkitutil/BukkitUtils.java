@@ -7,6 +7,7 @@ import ch.njol.skript.util.PaperUtils;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Keyed;
 import org.bukkit.Registry;
 import org.bukkit.inventory.EquipmentSlot;
@@ -43,8 +44,10 @@ public class BukkitUtils {
 	 * <p>Paper/Bukkit have 2 different names for the same registry.</p>
 	 *
 	 * @return PotionEffectType Registry
+	 * @deprecated Use {@link Registry#MOB_EFFECT} or {@link Registry#EFFECT} depending on your version.
 	 */
 	@SuppressWarnings("NullableProblems")
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static @Nullable Registry<PotionEffectType> getPotionEffectTypeRegistry() {
 		if (registryExists("MOB_EFFECT")) { // Paper (1.21.4)
 			return Registry.MOB_EFFECT;
@@ -87,8 +90,25 @@ public class BukkitUtils {
 		String codeName,
 		String languageNode
 	) {
+		// validate class
 		if (!Skript.classExists(classPath))
 			return null;
+		Class<R> registryClass;
+		try {
+			//noinspection unchecked
+			registryClass = (Class<R>) Class.forName(classPath);
+		} catch (ClassNotFoundException e) {
+			Skript.debug("Could not retrieve the class with the path: '" + classPath + "'.");
+			throw new RuntimeException(e);
+		}
+
+		// first, try better RegistryKey
+		if (PaperUtils.registryExists(registryName)) {
+			RegistryKey<R> registryKey = PaperUtils.getBukkitRegistryKey(registryName);
+			return new RegistryClassInfo<>(registryClass, registryKey, codeName, languageNode);
+		}
+
+		// otherwise, standard Registry
 		Registry<R> registry = null;
 		if (BukkitUtils.registryExists(registryName)) {
 			try {
@@ -97,18 +117,8 @@ public class BukkitUtils {
 			} catch (NoSuchFieldException | IllegalAccessException e) {
 				throw new RuntimeException(e);
 			}
-		} else if (PaperUtils.registryExists(registryName)) {
-			registry = PaperUtils.getBukkitRegistry(registryName);
 		}
 		if (registry != null) {
-			Class<R> registryClass;
-			try {
-				//noinspection unchecked
-				registryClass = (Class<R>) Class.forName(classPath);
-			} catch (ClassNotFoundException e) {
-				Skript.debug("Could not retrieve the class with the path: '" + classPath + "'.");
-				throw new RuntimeException(e);
-			}
 			return new RegistryClassInfo<>(registryClass, registry, codeName, languageNode);
 		}
 		Skript.debug("There were no registries found for '" + registryName + "'.");

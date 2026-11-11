@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.Property.PropertyInfo;
-import org.skriptlang.skript.lang.properties.PropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.PropertyHandler;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -133,7 +133,6 @@ public class ClassInfo<T> implements Debuggable {
 	 * @see SimpleLiteral
 	 */
 	public ClassInfo<T> defaultExpression(final DefaultExpression<T> defaultExpression) {
-		assert this.defaultExpression == null;
 		if (!defaultExpression.isDefault())
 			throw new IllegalArgumentException("defaultExpression.isDefault() must return true for the default expression of a class");
 		this.defaultExpression = defaultExpression;

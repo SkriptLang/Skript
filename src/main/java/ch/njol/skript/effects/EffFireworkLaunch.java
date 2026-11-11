@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -21,7 +21,7 @@ import ch.njol.util.Kleenean;
 
 @Name("Launch firework")
 @Description("Launch firework effects at the given location(s).")
-@Examples("launch ball large colored red, purple and white fading to light green and black at player's location with duration 1")
+@Example("launch ball large colored red, purple and white fading to light green and black at player's location with duration 1")
 @Since("2.4")
 public class EffFireworkLaunch extends Effect {
 	

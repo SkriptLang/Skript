@@ -1,0 +1,9 @@
+command /exprcommand <text>:
+	trigger:
+		set {-exprcommand::full} to the full command
+		set {-exprcommand::command} to the command
+
+test "ExprCommand":
+	execute console command "/exprcommand skript is cool"
+	assert {-exprcommand::full} is "exprcommand skript is cool" with "full command did not match"
+	assert {-exprcommand::command} is "exprcommand" with "command did not match"

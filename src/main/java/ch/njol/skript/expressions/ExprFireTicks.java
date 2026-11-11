@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -18,10 +18,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Entity Fire Burn Duration")
 @Description("How much time an entity will be burning for.")
-@Examples({
-	"send \"You will stop burning in %fire time of player%\"",
-	"send the max burn time of target"
-})
+@Example("send \"You will stop burning in %fire time of player%\"")
+@Example("send the max burn time of target")
 @Since("2.7, 2.10 (maximum)")
 public class ExprFireTicks extends SimplePropertyExpression<Entity, Timespan> {
 

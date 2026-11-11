@@ -1,6 +1,5 @@
 package org.skriptlang.skript.localization;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
@@ -8,13 +7,13 @@ import org.skriptlang.skript.util.ViewProvider;
 
 /**
  * A Localizer is used for the localization of translatable strings.
- *
- * This API is highly experimental and will be subject to change due to pending localization reworks.
+ * <p><b>
+ * Note: This API is work-in-progress and subject to change due to pending localization reworks.
+ * However, the current methods are safe to use and will continue to function (even if deprecated) after any reworks.
  * In its current state, it acts as a bridge between old and new API.
- *
+ * </b></p>
  * @see ch.njol.skript.localization.Language
  */
-@ApiStatus.Experimental
 public interface Localizer extends ViewProvider<Localizer> {
 
 	/**

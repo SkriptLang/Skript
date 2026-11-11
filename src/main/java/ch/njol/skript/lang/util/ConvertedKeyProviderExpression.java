@@ -3,15 +3,17 @@ package ch.njol.skript.lang.util;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.lang.KeyProviderExpression;
 import ch.njol.skript.lang.KeyReceiverExpression;
+import ch.njol.skript.lang.KeyedValue;
+import com.google.common.collect.Iterators;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
-import java.util.Collection;
-import java.util.WeakHashMap;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -102,8 +104,26 @@ public class ConvertedKeyProviderExpression<F, T> extends ConvertedExpression<F,
 	}
 
 	@Override
+	public boolean isIndexLoop(String input) {
+		return getSource().isIndexLoop(input);
+	}
+
+	@Override
 	public boolean isLoopOf(String input) {
-		return getSource().isLoopOf(input);
+		return KeyProviderExpression.super.isLoopOf(input);
+	}
+
+	@Override
+	public Iterator<KeyedValue<T>> keyedIterator(Event event) {
+		Iterator<? extends KeyedValue<? extends F>> source = getSource().keyedIterator(event);
+		return Iterators.filter(
+			Iterators.transform(source, keyedValue -> {
+				assert keyedValue != null;
+				T convertedValue = converter.convert(keyedValue.value());
+				return convertedValue != null ? keyedValue.withValue(convertedValue) : null;
+			}),
+			Objects::nonNull
+		);
 	}
 
 }

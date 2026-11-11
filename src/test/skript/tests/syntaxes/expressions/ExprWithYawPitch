@@ -1,0 +1,12 @@
+test "location with yaw and pitch":
+	set {_original} to event-location
+
+	assert (event-location with yaw 20)'s yaw is 20
+	assert (event-location with pitch 30)'s pitch is 30
+
+	set {_location} to event-location with yaw 40 and pitch 50
+	assert {_location}'s yaw is 40
+	assert {_location}'s pitch is 50
+
+	assert event-location's yaw is {_original}'s yaw with "Location with yaw mutated the original object"
+	assert event-location's pitch is {_original}'s pitch with "Location with pitch mutated the original object"

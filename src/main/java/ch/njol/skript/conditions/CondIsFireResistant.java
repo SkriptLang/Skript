@@ -2,20 +2,20 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.tag.DamageTypeTags;
 
 @Name("Is Fire Resistant")
 @Description("Checks whether an item is fire resistant.")
-@Examples({
-	"if player's tool is fire resistant:",
-	"if {_items::*} aren't resistant to fire:"
-})
+@Example("if player's tool is fire resistant:")
+@Example("if {_items::*} aren't resistant to fire:")
 @RequiredPlugins("Spigot 1.20.5+")
 @Since("2.9.0")
 public class CondIsFireResistant extends PropertyCondition<ItemType> {
@@ -28,6 +28,18 @@ public class CondIsFireResistant extends PropertyCondition<ItemType> {
 	@Override
 	public boolean check(ItemType item) {
 		return item.getItemMeta().isFireResistant();
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(ItemType item, boolean fireResistant, ChangeMode mode) {
+		ItemMeta meta = item.getItemMeta();
+		meta.setDamageResistant(fireResistant ? DamageTypeTags.IS_FIRE : null);
+		item.setItemMeta(meta);
 	}
 
 	@Override

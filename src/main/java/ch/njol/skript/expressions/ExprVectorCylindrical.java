@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -19,11 +19,11 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Vectors - Cylindrical Shape")
 @Description("Forms a 'cylindrical shaped' vector using yaw to manipulate the current point.")
-@Examples({
-	"loop 360 times:",
-		"\tset {_v} to cylindrical vector radius 1, yaw loop-value, height 2",
-	"set {_v} to cylindrical vector radius 1, yaw 90, height 2"
-})
+@Example("""
+	loop 360 times:
+		set {_v} to cylindrical vector radius 1, yaw loop-value, height 2
+	""")
+@Example("set {_v} to cylindrical vector radius 1, yaw 90, height 2")
 @Since("2.2-dev28")
 public class ExprVectorCylindrical extends SimpleExpression<Vector> {
 

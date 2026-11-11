@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 	"The warden will not investigate if the warden is aggressive towards an entity.",
 	"This effect does not add anger to the warden."
 })
-@Examples("make last spawned warden sense a disturbance at location(0, 0, 0)")
+@Example("make last spawned warden sense a disturbance at location(0, 0, 0)")
 @Since("2.11")
 public class EffWardenDisturbance extends Effect {
 

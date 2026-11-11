@@ -31,7 +31,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprTablistedPlayers extends PropertyExpression<Player, Player> {
 
 	static {
-		registerDefault(ExprTablistedPlayers.class, Player.class, "[the] (tablist[ed]|listed) players", "players");
+		registerDefault(ExprTablistedPlayers.class, Player.class, "(tablist[ed]|listed) players", "players");
 	}
 
 	@Override

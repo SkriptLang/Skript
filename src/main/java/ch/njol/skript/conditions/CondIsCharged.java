@@ -1,8 +1,9 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Creeper;
@@ -11,11 +12,14 @@ import org.bukkit.entity.Wither;
 import org.bukkit.entity.WitherSkull;
 
 @Name("Is Charged")
-@Description("Checks if a creeper, wither, or wither skull is charged (powered).")
-@Examples({
-	"if the last spawned creeper is charged:",
-		"\tbroadcast \"A charged creeper is at %location of last spawned creeper%\""
-})
+@Description("""
+	Checks if a creeper, wither, or wither skull is charged (powered).
+	Please note that it is not possible to change whether a wither is charged.
+	""")
+@Example("""
+	if the last spawned creeper is charged:
+		broadcast "A charged creeper is at %location of last spawned creeper%"
+	""")
 @Since("2.5, 2.10 (withers, wither skulls)")
 public class CondIsCharged extends PropertyCondition<Entity> {
 
@@ -33,6 +37,21 @@ public class CondIsCharged extends PropertyCondition<Entity> {
 			return wither.isCharged();
 		}
 		return false;
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(Entity entity, boolean charged, ChangeMode mode) {
+		switch (entity) {
+			case Creeper creeper -> creeper.setPowered(charged);
+			case WitherSkull witherSkull -> witherSkull.setCharged(charged);
+			case Wither ignored -> error("It is not possible to change whether a wither is charged.");
+			default -> { }
+		}
 	}
 
 	@Override

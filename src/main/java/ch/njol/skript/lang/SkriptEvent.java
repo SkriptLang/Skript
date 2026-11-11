@@ -250,7 +250,7 @@ public abstract class SkriptEvent extends Structure {
 	public static SkriptEvent parse(String expr, SectionNode sectionNode, @Nullable String defaultError) {
 		ParserInstance.get().getData(StructureData.class).node = sectionNode;
 
-		var iterator = Skript.instance().syntaxRegistry().syntaxes(org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys.EVENT).iterator();
+		var iterator = Skript.instance().syntaxRegistry().syntaxes(BukkitSyntaxInfos.Event.KEY).iterator();
 		iterator = new ConsumingIterator<>(iterator, info ->
 			ParserInstance.get().getData(StructureData.class).structureInfo = (SkriptEventInfo<?>) SyntaxElementInfo.fromModern(info));
 

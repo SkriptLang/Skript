@@ -4,7 +4,7 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -24,13 +24,11 @@ import org.jetbrains.annotations.Nullable;
 	"Custom attributes such as NBT or names do not transfer over.",
 	"Blocks, blockdatas and items are acceptable objects to change the carrying block."
 })
-@Examples({
-	"broadcast the carrying blockdata of last spawned enderman",
-	"set the carried block of last spawned enderman to an oak log",
-	"set the carrying block data of {_enderman} to oak stairs[facing=north]",
-	"set the carried blockdata of {_enderman} to {_item}",
-	"clear the carried blockdata of {_enderman}"
-})
+@Example("broadcast the carrying blockdata of last spawned enderman")
+@Example("set the carried block of last spawned enderman to an oak log")
+@Example("set the carrying block data of {_enderman} to oak stairs[facing=north]")
+@Example("set the carried blockdata of {_enderman} to {_item}")
+@Example("clear the carried blockdata of {_enderman}")
 @Since("2.11")
 public class ExprCarryingBlockData extends SimplePropertyExpression<LivingEntity, BlockData> {
 

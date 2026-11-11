@@ -11,6 +11,7 @@ import org.skriptlang.skript.lang.converter.Converter;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * A {@link Parser} used for parsing and handling values representing an {@link Enum}
@@ -19,8 +20,10 @@ public class EnumParser<E extends Enum<E>> extends PatternedParser<E> implements
 
 	private final Class<E> enumClass;
 	private final String languageNode;
+	private final Consumer<E> parseCallback;
+
 	private String[] names;
-	private final Map<String, E> parseMap = new HashMap<>();
+	protected final Map<String, E> parseMap = new HashMap<>();
 	private String[] patterns;
 
 	/**
@@ -28,11 +31,21 @@ public class EnumParser<E extends Enum<E>> extends PatternedParser<E> implements
 	 * @param languageNode The {@link String} representing the languageNode for the {@link Enum}
 	 */
 	public EnumParser(Class<E> enumClass, String languageNode) {
+		this(enumClass, languageNode, ignored -> {});
+	}
+
+	/**
+	 * @param enumClass The {@link Enum} {@link Class} to be accessed.
+	 * @param languageNode The {@link String} representing the languageNode for the {@link Enum}
+	 * @param parseCallback A consumer to run on a successful parse.
+	 */
+	public EnumParser(Class<E> enumClass, String languageNode, Consumer<E> parseCallback) {
 		assert enumClass.isEnum() : enumClass;
 		assert !languageNode.isEmpty() && !languageNode.endsWith(".") : languageNode;
 
 		this.enumClass = enumClass;
 		this.languageNode = languageNode;
+		this.parseCallback = parseCallback;
 
 		refresh();
 		Language.addListener(this::refresh);
@@ -65,13 +78,19 @@ public class EnumParser<E extends Enum<E>> extends PatternedParser<E> implements
 				String first = strippedOption.getFirst();
 				Integer second = strippedOption.getSecond();
 
+				Noun.PluralPair singlePlural = Noun.parsePlural(first);
+				String single = singlePlural.singular();
+				String plural = singlePlural.plural();
+
 				if (names[ordinal] == null) { // Add to name array if needed
-					names[ordinal] = first;
+					names[ordinal] = single;
 				}
 
-				parseMap.put(first, constant);
+				parseMap.put(single, constant);
+				if (!plural.isEmpty())
+					parseMap.put(plural, constant);
 				if (second != -1) { // There is a gender present
-					parseMap.put(Noun.getArticleWithSpace(second, Language.F_INDEFINITE_ARTICLE) + first, constant);
+					parseMap.put(Noun.getArticleWithSpace(second, Language.F_INDEFINITE_ARTICLE) + single, constant);
 				}
 			}
 		}
@@ -80,7 +99,11 @@ public class EnumParser<E extends Enum<E>> extends PatternedParser<E> implements
 
 	@Override
 	public @Nullable E parse(String string, ParseContext context) {
-		return parseMap.get(string.toLowerCase(Locale.ENGLISH));
+		E element = parseMap.get(string.toLowerCase(Locale.ENGLISH));
+		if (element != null) {
+			parseCallback.accept(element);
+		}
+		return element;
 	}
 
 	@Override

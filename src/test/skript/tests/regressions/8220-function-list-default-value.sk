@@ -1,0 +1,9 @@
+local function test(xs: integers = (1, 7)) :: integers:
+    return {_xs::*}
+
+test "8220 function has list default value":
+    set {_xs::*} to test()
+
+    assert size of {_xs::*} = 2
+    assert {_xs::1} = 1
+    assert {_xs::2} = 7

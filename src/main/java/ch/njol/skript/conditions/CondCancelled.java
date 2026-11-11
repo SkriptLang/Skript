@@ -1,8 +1,9 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -15,10 +16,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Event Cancelled")
 @Description("Checks whether or not the event is cancelled.")
-@Examples({"on click:",
-		"\tif event is cancelled:",
-		"\t\tbroadcast \"no clicks allowed!\""
-})
+@Example("""
+	on click:
+		if event is cancelled:
+			broadcast "no clicks allowed!"
+	""")
 @Since("2.2-dev36")
 public class CondCancelled extends Condition {
 
@@ -38,6 +40,18 @@ public class CondCancelled extends Condition {
 	@Override
 	public boolean check(Event e) {
 		return (e instanceof Cancellable && ((Cancellable) e).isCancelled()) ^ isNegated();
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	public void change(Event event, boolean cancelled, ChangeMode mode) {
+		if (event instanceof Cancellable cancellable) {
+			cancellable.setCancelled(cancelled);
+		}
 	}
 
 	@Override

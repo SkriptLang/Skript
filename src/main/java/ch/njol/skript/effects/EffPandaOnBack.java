@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Force Panda On Back")
 @Description("Make a panda get on/off its back.")
-@Examples("""
+@Example("""
 	if last spawned panda is on its back:
 		make last spawned panda get off its back
 	""")

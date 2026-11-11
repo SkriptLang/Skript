@@ -1,29 +1,40 @@
 package ch.njol.skript.hooks.regions.expressions;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.hooks.regions.RegionsPlugin;
 import ch.njol.skript.hooks.regions.classes.Region;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Region")
 @Description({
 	"The <a href='#region'>region</a> involved in an event.",
 	"This expression requires a supported regions plugin to be installed."
 })
-@Examples({
-	"on region enter:",
-		"\tregion is {forbidden region}",
-		"\tcancel the event"
-})
+@Example("""
+	on region enter:
+		region is {forbidden region}
+		cancel the event
+	""")
 @Since("2.1")
 @RequiredPlugins("Supported regions plugin")
 public class ExprRegion extends EventValueExpression<Region> {
 
 	static {
 		register(ExprRegion.class, Region.class, "[event-]region");
+	}
+
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+		ScriptWarning.printDeprecationWarning(RegionsPlugin.DEPRECATION_MESSAGE);
+		return super.init(expressions, matchedPattern, isDelayed, parser);
 	}
 
 	public ExprRegion() {

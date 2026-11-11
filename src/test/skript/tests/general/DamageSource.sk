@@ -1,6 +1,4 @@
 
-using damage source
-
 test "custom damage source" when running minecraft "1.20.4":
 	set {_damageLoc} to test-location
 	set {_sourceLoc} to (test-location) ~ vector(10, 0, 0)

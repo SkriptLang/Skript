@@ -23,13 +23,11 @@ import java.util.*;
 	When using the full <code>sort %~objects% (by|based on) &lt;expression&gt;</code> pattern,
 	the input expression can be used to refer to the current item being sorted.
 	(See input expression for more information.)""")
-@Examples({
-	"set {_words::*} to \"pineapple\", \"banana\", \"yoghurt\", and \"apple\"",
-	"sort {_words::*} # alphabetical sort",
-	"sort {_words::*} by length of input # shortest to longest",
-	"sort {_words::*} in descending order by length of input # longest to shortest",
-	"sort {_words::*} based on {tastiness::%input%} # sort based on custom value"
-})
+@Example("set {_words::*} to \"pineapple\", \"banana\", \"yoghurt\", and \"apple\"")
+@Example("sort {_words::*} # alphabetical sort")
+@Example("sort {_words::*} by length of input # shortest to longest")
+@Example("sort {_words::*} in descending order by length of input # longest to shortest")
+@Example("sort {_words::*} based on {tastiness::%input%} # sort based on custom value")
 @Since("2.9.0, 2.10 (sort order)")
 @Keywords("input")
 public class EffSort extends Effect implements InputSource {

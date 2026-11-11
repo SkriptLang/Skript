@@ -1,6 +1,7 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.*;
 import org.bukkit.entity.Enderman;
@@ -11,7 +12,7 @@ import org.bukkit.entity.LivingEntity;
 	"Checks to see if an enderman has been stared at.",
 	"This will return true as long as the entity that stared at the enderman is still alive."
 })
-@Examples("if last spawned enderman has been stared at:")
+@Example("if last spawned enderman has been stared at:")
 @Since("2.11")
 public class CondEndermanStaredAt extends PropertyCondition<LivingEntity> {
 
@@ -25,6 +26,18 @@ public class CondEndermanStaredAt extends PropertyCondition<LivingEntity> {
 		if (entity instanceof Enderman enderman)
 			return enderman.hasBeenStaredAt();
 		return false;
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(LivingEntity entity, boolean hasBeenStaredAt, ChangeMode mode) {
+		if (entity instanceof Enderman enderman) {
+			enderman.setHasBeenStaredAt(hasBeenStaredAt);
+		}
 	}
 
 	@Override

@@ -1,0 +1,23 @@
+test "is leashed condition":
+	spawn a wolf at test-location
+	set {_wolf} to last spawned entity
+	assert {_wolf} is not leashed with "wolf should not be leashed initially"
+	assert {_wolf} isn't leashed with "wolf should not be leashed initially (alternate syntax)"
+	clear entity within {_wolf}
+
+	spawn an armor stand at test-location
+	set {_stand} to last spawned entity
+	assert {_stand} is not leashed with "non-leashable entity should return false for is leashed"
+	clear entity within {_stand}
+
+	spawn a wolf at test-location
+	set {_leash_holder} to last spawned entity
+	spawn a wolf at test-location
+	set {_wolf} to last spawned entity
+	assert {_wolf} is not leashed with "wolf should not be leashed initially"
+	leash {_wolf} to {_leash_holder}
+	assert {_wolf} is leashed with "wolf should be leashed after leashing"
+	unleash {_wolf}
+	assert {_wolf} is not leashed with "wolf should not be leashed after unleashing"
+	clear entity within {_wolf}
+	clear entity within {_leash_holder}

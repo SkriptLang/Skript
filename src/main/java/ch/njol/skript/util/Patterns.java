@@ -41,6 +41,24 @@ public class Patterns<T> {
 	}
 
 	/**
+	 * Creates a new {@link Patterns} with the provided paired inputs.
+	 * @param info Pattern-Value pairs, for example:
+	 * <code>
+	 * new Patterns("pattern1", value1, "pattern2", value2);
+	 * </code>
+	 */
+	public Patterns(Object... info) {
+		patterns = new String[info.length / 2];
+		types = new Object[info.length / 2];
+		for (int i = 0; i < info.length; i += 2) {
+			int pattern = i / 2;
+			patterns[pattern] = (String) info[i];
+			types[pattern] = info[i + 1];
+			matchedPatterns.computeIfAbsent(info[i + 1], list -> new ArrayList<>()).add(pattern);
+		}
+	}
+
+	/**
 	 * Returns an array of the registered patterns.
 	 * @return An {@link java.lang.reflect.Array} of {@link String}s.
 	 */

@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -19,12 +19,12 @@ import org.bukkit.entity.LivingEntity;
 		"or the time left for them to finish using an item.",
 	"If an entity is not using any item, this will return 0 seconds."
 })
-@Examples({
-	"on right click:",
-		"\tbroadcast player's remaining item use time",
-		"\twait 1 second",
-		"\tbroadcast player's item use time"
-})
+@Example("""
+	on right click:
+		broadcast player's remaining item use time
+		wait 1 second
+		broadcast player's item use time
+	""")
 @Since("2.8.0")
 public class ExprEntityItemUseTime extends SimplePropertyExpression<LivingEntity, Timespan> {
 

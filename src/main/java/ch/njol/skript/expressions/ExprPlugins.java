@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -19,12 +19,11 @@ import java.util.Arrays;
 
 @Name("Loaded Plugins")
 @Description("An expression to obtain a list of the names of the server's loaded plugins.")
-@Examples({
-	"if the loaded plugins contains \"Vault\":",
-	"\tbroadcast \"This server uses Vault plugin!\"",
-	"",
-	"send \"Plugins (%size of loaded plugins%): %plugins%\" to player"
-})
+@Example("""
+	if the loaded plugins contains "Vault":
+		broadcast "This server uses Vault plugin!"
+	""")
+@Example("send \"Plugins (%size of loaded plugins%): %plugins%\" to player")
 @Since("2.7")
 public class ExprPlugins extends SimpleExpression<String> {
 	

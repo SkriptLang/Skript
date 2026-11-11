@@ -2,18 +2,20 @@ package org.skriptlang.skript.bukkit.registration;
 
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfosImpl.EventImpl;
 import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.registration.SyntaxRegistry.Key;
 
 import java.util.Collection;
+import java.util.SequencedCollection;
+import java.util.function.Supplier;
 
 /**
  * A class containing the interfaces representing Bukkit-specific SyntaxInfo implementations.
  */
-@ApiStatus.Experimental
 public final class BukkitSyntaxInfos {
 
 	private BukkitSyntaxInfos() { }
@@ -26,7 +28,31 @@ public final class BukkitSyntaxInfos {
 	public interface Event<E extends SkriptEvent> extends SyntaxInfo<E> {
 
 		/**
-		 * @param eventClass The Structure class the info will represent.
+		 * A {@link SyntaxRegistry} key representing the Bukkit-specific {@link SkriptEvent} syntax element.
+		 */
+		Key<Event<?>> KEY = Key.of("event");
+
+		/**
+		 * Constructs a simple {@link SkriptEvent} syntax info for a class from event information and patterns.
+		 * @param eventClass The SkriptEvent class the info will represent.
+		 * @param instanceSupplier A supplier for creating new instances of {@code type}.
+		 * @param name The name of the SkriptEvent.
+		 * @param bukkitEventClass The Bukkit event that should trigger the SkriptEvent.
+		 * @param patterns Patterns describing the syntax.
+		 * @return A syntax info representing {@code type}.
+		 */
+		@Contract("_, _, _, _, _ -> new")
+		static <E extends SkriptEvent> Event<E> simple(Class<E> eventClass, Supplier<E> instanceSupplier,
+			String name, Class<? extends org.bukkit.event.Event> bukkitEventClass, String... patterns) {
+			return builder(eventClass, name)
+				.supplier(instanceSupplier)
+				.addEvent(bukkitEventClass)
+				.addPatterns(patterns)
+				.build();
+		}
+
+		/**
+		 * @param eventClass The SkriptEvent class the info will represent.
 		 * @param name The name of the SkriptEvent.
 		 * @return A Structure-specific builder for creating a syntax info representing <code>type</code>.
 		 */
@@ -68,13 +94,13 @@ public final class BukkitSyntaxInfos {
 		 * @return Documentation data. Represents the versions of the plugin in which a syntax was added or modified.
 		 * @see ch.njol.skript.doc.Since
 		 */
-		Collection<String> since();
+		SequencedCollection<String> since();
 
 		/**
 		 * @return Documentation data. A description of a syntax.
 		 * @see ch.njol.skript.doc.Description
 		 */
-		Collection<String> description();
+		SequencedCollection<String> description();
 
 		/**
 		 * @return Documentation data. Examples for using a syntax.
@@ -160,7 +186,7 @@ public final class BukkitSyntaxInfos {
 			 * @return This builder.
 			 * @see Event#since()
 			 */
-			@Contract("_ -> this")
+			@Contract("-> this")
 			B clearSince();
 
 			/**

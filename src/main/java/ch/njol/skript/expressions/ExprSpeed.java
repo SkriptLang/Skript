@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -22,8 +22,8 @@ import ch.njol.util.Math2;
 @Name("Speed")
 @Description({"A player's walking or flying speed. Both can be changed, but values must be between -1 and 1 (excessive values will be changed to -1 or 1 respectively). Negative values reverse directions.",
 		"Please note that changing a player's speed will change their FOV just like potions do."})
-@Examples({"set the player's walk speed to 1",
-		"increase the argument's fly speed by 0.1"})
+@Example("set the player's walk speed to 1")
+@Example("increase the argument's fly speed by 0.1")
 @Since("unknown (before 2.1)")
 public class ExprSpeed extends SimplePropertyExpression<Player, Number> {
 	

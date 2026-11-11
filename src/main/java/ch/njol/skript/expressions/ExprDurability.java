@@ -4,7 +4,7 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -19,11 +19,9 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Damage Value/Durability")
 @Description("The damage value/durability of an item.")
-@Examples({
-	"set damage value of player's tool to 10",
-	"reset the durability of {_item}",
-	"set durability of player's held item to 0"
-})
+@Example("set damage value of player's tool to 10")
+@Example("reset the durability of {_item}")
+@Example("set durability of player's held item to 0")
 @Since("1.2, 2.7 (durability reversed)")
 public class ExprDurability extends SimplePropertyExpression<Object, Integer> {
 

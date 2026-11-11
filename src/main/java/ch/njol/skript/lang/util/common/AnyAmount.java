@@ -1,7 +1,7 @@
 package ch.njol.skript.lang.util.common;
 
 import org.jetbrains.annotations.NotNull;
-import org.skriptlang.skript.common.properties.expressions.PropExprAmount;
+import org.skriptlang.skript.common.properties.elements.expressions.PropExprAmount;
 
 /**
  * A provider for anything with a (number) amount/size.

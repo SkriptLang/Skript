@@ -1,12 +1,10 @@
 package org.skriptlang.skript.bukkit.loottables.elements.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
@@ -15,19 +13,25 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Name("Loot Table from Key")
 @Description("Returns the loot table from a namespaced key.")
-@Examples("set {_table} to loot table \"minecraft:chests/simple_dungeon\"")
+@Example("set {_table} to loot table \"minecraft:chests/simple_dungeon\"")
 @Since("2.10")
 public class ExprLootTableFromString extends SimpleExpression<LootTable> {
 
-	static {
-		Skript.registerExpression(ExprLootTableFromString.class, LootTable.class, ExpressionType.COMBINED,
-			"[the] loot[ ]table[s] %strings%"
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprLootTableFromString.class, LootTable.class)
+				.addPatterns("[the] loot[ ]table[s] %strings%")
+				.supplier(ExprLootTableFromString::new)
+				.build()
 		);
 	}
 

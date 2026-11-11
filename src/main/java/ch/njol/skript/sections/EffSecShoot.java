@@ -3,10 +3,10 @@ package ch.njol.skript.sections;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.entity.EntityData;
+import org.skriptlang.skript.bukkit.entity.EntityData;
 import ch.njol.skript.lang.EffectSection;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -35,11 +35,11 @@ import java.util.function.Consumer;
 
 @Name("Shoot")
 @Description("Shoots a projectile (or any other entity) from a given entity or location.")
-@Examples({
-	"shoot arrow from all players at speed 2",
-	"shoot a pig from all players:",
-		"\tadd event-entity to {_projectiles::*}"
-})
+@Example("shoot arrow from all players at speed 2")
+@Example("""
+	shoot a pig from all players:
+		add event-entity to {_projectiles::*}
+	""")
 @Since("2.10")
 public class EffSecShoot extends EffectSection {
 

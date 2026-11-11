@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerItemMendEvent;
 import org.jetbrains.annotations.Nullable;
@@ -8,7 +9,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -22,10 +23,12 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Mending Repair Amount")
 @Description({"The number of durability points an item is to be repaired in a mending event.",
 			" Modifying the repair amount will affect how much experience is given to the player after mending."})
-@Examples({"on item mend:",
-		"\tset the mending repair amount to 100"})
+@Example("""
+	on item mend:
+		set the mending repair amount to 100
+	""")
 @Since("2.5.1")
-public class ExprMendingRepairAmount extends SimpleExpression<Long> {
+public class ExprMendingRepairAmount extends SimpleExpression<Long> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprMendingRepairAmount.class, Long.class, ExpressionType.SIMPLE, "[the] [mending] repair amount");
@@ -33,11 +36,12 @@ public class ExprMendingRepairAmount extends SimpleExpression<Long> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerItemMendEvent.class)) {
-			Skript.error("The 'mending repair amount' is only usable in item mend events", ErrorQuality.SEMANTIC_ERROR);
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(PlayerItemMendEvent.class);
 	}
 
 	@Override

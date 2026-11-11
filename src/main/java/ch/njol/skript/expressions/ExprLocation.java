@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -22,8 +22,8 @@ import ch.njol.util.Kleenean;
  */
 @Name("Location")
 @Description("The location where an event happened (e.g. at an entity or block), or a location <a href='#ExprDirection'>relative</a> to another (e.g. 1 meter above another location).")
-@Examples({"drop 5 apples at the event-location # exactly the same as writing 'drop 5 apples'",
-		"set {_loc} to the location 1 meter above the player"})
+@Example("drop 5 apples at the event-location # exactly the same as writing 'drop 5 apples'")
+@Example("set {_loc} to the location 1 meter above the player")
 @Since("2.0")
 public class ExprLocation extends WrapperExpression<Location> {
 	static {

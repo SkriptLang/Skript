@@ -12,8 +12,8 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
-import org.skriptlang.skript.lang.properties.PropertyHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.PropertyHandler;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
@@ -55,12 +55,7 @@ public class ScriptClassInfo extends ClassInfo<Script> {
 		@Override
 		public @Nullable Script parse(final String name, final ParseContext context) {
 			return switch (context) {
-				case PARSE, COMMAND -> {
-					@Nullable File file = ScriptLoader.getScriptFromName(name);
-					if (file == null || !file.isFile())
-						yield null;
-					yield ScriptLoader.getScript(file);
-				}
+				case PARSE, COMMAND -> ScriptLoader.getLoadedScriptFromName(name);
 				default -> null;
 			};
 		}

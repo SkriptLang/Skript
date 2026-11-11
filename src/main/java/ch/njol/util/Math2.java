@@ -1,10 +1,7 @@
 package ch.njol.util;
 
 import ch.njol.skript.Skript;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.ApiStatus;
-
-import java.util.Arrays;
 
 /**
  * This class is not to be used by addons. In the future methods may
@@ -150,6 +147,29 @@ public final class Math2 {
 		if (causedOverflow)
 			return Long.MAX_VALUE;
 		return result;
+	}
+
+	/**
+	 * @param x the first value
+	 * @param y the second value
+	 * @return the sum of x and y, or one of {@link Long#MIN_VALUE} or {@link Long#MAX_VALUE} in case of an overflow,
+	 * whichever is closer to the real result
+	 * */
+	public static long addSaturated(long x, long y) {
+		long result = x + y;
+		boolean causedOverflow = ((x ^ result) & (y ^ result)) < 0;
+		if (causedOverflow)
+			return x < 0 && y < 0 ? Long.MIN_VALUE : Long.MAX_VALUE;
+		return result;
+	}
+
+	/**
+	 * Clamps a long to fit into the representable range for integers
+	 * @return the value if it is between {@link Integer#MIN_VALUE} and {@link Integer#MAX_VALUE}, otherwise
+	 * whichever of the two is closest to the value
+	 * */
+	public static int clampToInt(long value) {
+		return Math.clamp(value, Integer.MIN_VALUE, Integer.MAX_VALUE);
 	}
 
 	public static long multiplyClamped(long x, long y) {

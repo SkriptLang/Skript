@@ -1,8 +1,9 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Ghast;
@@ -10,10 +11,10 @@ import org.bukkit.entity.LivingEntity;
 
 @Name("Is Charging Fireball")
 @Description("Check whether a ghast is charging a fireball.")
-@Examples({
-	"if last spawned ghast is charging fireball:",
-		"\tkill last spawned ghast"
-})
+@Example("""
+	if last spawned ghast is charging fireball:
+		kill last spawned ghast
+	""")
 @Since("2.11")
 public class CondIsChargingFireball extends PropertyCondition<LivingEntity> {
 
@@ -26,6 +27,18 @@ public class CondIsChargingFireball extends PropertyCondition<LivingEntity> {
 		if (entity instanceof Ghast ghast)
 			return ghast.isCharging();
 		return false;
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(LivingEntity entity, boolean charging, ChangeMode mode) {
+		if (entity instanceof Ghast ghast) {
+			ghast.setCharging(charging);
+		}
 	}
 
 	@Override

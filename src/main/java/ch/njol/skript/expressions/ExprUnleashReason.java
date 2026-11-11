@@ -1,5 +1,7 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityUnleashEvent;
 import org.bukkit.event.entity.EntityUnleashEvent.UnleashReason;
@@ -15,13 +17,13 @@ import ch.njol.util.Kleenean;
 
 @Name("Unleash Reason")
 @Description("The unleash reason in an unleash event.")
-@Examples({
-	"if the unleash reason is distance:",
-		"\tbroadcast \"The leash was snapped in half.\""
-})
-@Events("Unleash")
+@Example("""
+	if the unleash reason is distance:
+		broadcast "The leash was snapped in half."
+	""")
+@Events("Leash / Unleash")
 @Since("2.10")
-public class ExprUnleashReason extends EventValueExpression<UnleashReason> {
+public class ExprUnleashReason extends EventValueExpression<UnleashReason> implements EventRestrictedSyntax {
 
 	public ExprUnleashReason() {
 		super(UnleashReason.class);
@@ -33,11 +35,12 @@ public class ExprUnleashReason extends EventValueExpression<UnleashReason> {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EntityUnleashEvent.class)) {
-			Skript.error("The 'unleash reason' expression can only be used in an 'unleash' event");
-			return false;
-		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EntityUnleashEvent.class);
 	}
 
 	@Override

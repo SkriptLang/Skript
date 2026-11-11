@@ -1,0 +1,36 @@
+function cleanUpTree(loc: location):
+	set {_l1} to {_loc} ~ vector(7,20,7)
+	set {_l2} to {_loc} ~ vector(-7,-1,-7)
+	loop blocks within {_l1} and {_l2}:
+		if any:
+			loop-block is tagged as block tag "minecraft:mineable/axe"
+			loop-block is tagged as block tag "minecraft:leaves"
+			loop-block is creaking heart
+			loop-block is dirt
+		then:
+			set loop-block to air
+
+test "grow a tree":
+	set {_loc} to event-location
+	cleanUpTree({_loc}) # Pre cleanup to make sure we can grow a tree here
+	set block at {_loc} to dirt # Make sure our tree can grow here
+
+	# Attempt to grow an oak tree
+	grow oak tree above {_loc}
+	set {_verify} to block 2 above {_loc}
+	assert {_verify} is oak log with "The oak tree should have grown"
+	cleanUpTree({_loc})
+
+	# Attempt to grow a huge mushroom
+	set block at {_loc} to dirt # Make sure our tree can grow here
+	grow huge mushroom above {_loc}
+	set {_verify} to block 2 above {_loc}
+	assert {_verify} is mushroom stem with "The huge mushroom should have grown"
+	cleanUpTree({_loc})
+
+	# Attempt to grow a pale oak tree
+	set block at {_loc} to dirt # Make sure our tree can grow here
+	grow pale oak tree above {_loc}
+	set {_verify} to block 2 above {_loc}
+	assert {_verify} is pale oak log with "The pale oak tree should have grown"
+	cleanUpTree({_loc})

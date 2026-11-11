@@ -1,13 +1,13 @@
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.simplification.Simplifiable;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.condition.Conditional;
@@ -20,33 +20,38 @@ import java.util.function.Predicate;
 
 /**
  * A condition which must be fulfilled for the trigger to continue. If the condition is in a section the behaviour depends on the section.
- *
- * @see Skript#registerCondition(Class, String...)
  */
 public abstract class Condition extends Statement implements Conditional<Event>, SyntaxRuntimeErrorProducer, Simplifiable<Condition> {
 
+	/**
+	 * @deprecated This has been replaced by {@link Priority}.
+	 * See the documentation of each element to determine their replacements.
+	 */
+	@Deprecated(since = "2.14", forRemoval = true)
 	public enum ConditionType {
+
 		/**
 		 * Conditions that contain other expressions, e.g. "%properties% is/are within %expressions%"
 		 * 
 		 * @see #PROPERTY
+		 * @deprecated Use {@link SyntaxInfo#COMBINED}.
 		 */
 		COMBINED(SyntaxInfo.COMBINED),
 
 		/**
 		 * Property conditions, e.g. "%properties% is/are data value[s]"
+		 * @deprecated Use {@link PropertyCondition#DEFAULT_PRIORITY}.
 		 */
 		PROPERTY(PropertyCondition.DEFAULT_PRIORITY),
 
 		/**
 		 * Conditions whose pattern matches (almost) everything or should be last checked.
+		 * @deprecated Use {@link SyntaxInfo#PATTERN_MATCHES_EVERYTHING}.
 		 */
 		PATTERN_MATCHES_EVERYTHING(SyntaxInfo.PATTERN_MATCHES_EVERYTHING);
 
-		@ApiStatus.Experimental
 		private final Priority priority;
 
-		@ApiStatus.Experimental
 		ConditionType(Priority priority) {
 			this.priority = priority;
 		}
@@ -54,7 +59,6 @@ public abstract class Condition extends Statement implements Conditional<Event>,
 		/**
 		 * @return The Priority equivalent of this ConditionType.
 		 */
-		@ApiStatus.Experimental
 		public Priority priority() {
 			return this.priority;
 		}
@@ -93,6 +97,31 @@ public abstract class Condition extends Statement implements Conditional<Event>,
 	public final boolean run(Event event) {
 		return check(event);
 	}
+
+	/**
+	 * Checks whether this condition can be changed using a specific change mode.
+	 * The following change modes are not intended to be supported:
+	 * <ul>
+	 *     <li>{@link ChangeMode#ADD}</li>
+	 *     <li>{@link ChangeMode#REMOVE}</li>
+	 *     <li>{@link ChangeMode#REMOVE_ALL}</li>
+	 * </ul>
+	 * @param mode The change mode to consider.
+	 * @return Whether this condition can be changed using {@code mode}.
+	 */
+	public boolean acceptChange(ChangeMode mode) {
+		return false;
+	}
+
+	/**
+	 * Changes the value this condition checks for some holders (to be determined by the implementation).
+	 * @param event Event providing context.
+	 * @param deltaValue The new value.
+	 *  This is always false for {@link ChangeMode#DELETE} and {@link ChangeMode#RESET}.
+	 * @param mode The type of change to perform.
+	 *  See {@link #acceptChange(ChangeMode)} for further information about expected change modes.
+	 */
+	public void change(Event event, boolean deltaValue, ChangeMode mode) { }
 
 	/**
 	 * Sets the negation state of this condition. This will change the behaviour of {@link Expression#check(Event, Predicate, boolean)}.

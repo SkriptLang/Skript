@@ -2,7 +2,7 @@ package ch.njol.skript.lang.util.common;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.UnknownNullability;
-import org.skriptlang.skript.common.properties.conditions.PropCondContains;
+import org.skriptlang.skript.common.properties.elements.conditions.PropCondContains;
 
 /**
  * A provider for anything that contains other things.

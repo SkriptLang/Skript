@@ -1,18 +1,19 @@
 package ch.njol.skript.util;
 
+import ch.njol.skript.SkriptConfig;
 import org.skriptlang.skript.lang.converter.Converter;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.zip.Deflater;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * @author Peter Güttinger
@@ -28,7 +29,7 @@ public abstract class FileUtils {
 	 */
 	public static String getBackupSuffix() {
 		synchronized (backupFormat) {
-			return "" + backupFormat.format(System.currentTimeMillis());
+			return backupFormat.format(System.currentTimeMillis());
 		}
 	}
 
@@ -46,8 +47,8 @@ public abstract class FileUtils {
 		File backupDir = new File(varFile.getParentFile(), "backups" + File.separator);
 		if (!backupDir.exists() || !backupDir.isDirectory())
 			throw new IOException("Backup directory not found");
-		ArrayList<File> files = new ArrayList<File>(Arrays.asList(backupDir.listFiles()));
-		if (files == null || files.size() <= toKeep)
+		ArrayList<File> files = new ArrayList<>(Arrays.asList(backupDir.listFiles()));
+		if (files.size() <= toKeep)
 			return;
 		if (toKeep > 0)
 			files.sort(Comparator.comparingLong(File::lastModified));
@@ -57,23 +58,65 @@ public abstract class FileUtils {
 		}
 	}
 
-	public static File backup(final File f) throws IOException {
-		String name = f.getName();
-		final int c = name.lastIndexOf('.');
-		final String ext = c == -1 ? null : name.substring(c + 1);
-		if (c != -1)
-			name = name.substring(0, c);
-		final File backupFolder = new File(f.getParentFile(), "backups" + File.separator);
-		if (!backupFolder.exists() && !backupFolder.mkdirs())
-			throw new IOException("Cannot create backups folder");
-		final File backup = new File(backupFolder, name + "_" + getBackupSuffix() + (ext == null ? "" : "." + ext));
-		if (backup.exists())
-			throw new IOException("Backup file " + backup.getName() + " does already exist");
-		copy(f, backup);
-		return backup;
+	/**
+	 * Creates backup of the provided file in {@code backups} subdirectory.
+	 * <p>
+	 * If compression is enabled using {@link SkriptConfig#compressBackups}, the file is
+	 * compressed using GZIP.
+	 *
+	 * @param file file to create the backup for
+	 * @return the created backup file
+	 * @throws IOException If the backup folder cannot be created, if file with the backup filename
+	 * already exists, or if IO exception occurs during the copy/compress operation.
+	 */
+	public static File backup(File file) throws IOException {
+		Path source = file.toPath();
+		Path backupFolder = source.getParent().resolve("backups");
+		if (!Files.exists(backupFolder))
+			Files.createDirectories(backupFolder);
+
+		String originalName = file.getName();
+		String name;
+		String ext;
+
+		int dotIdx = originalName.lastIndexOf('.');
+		if (dotIdx != -1) {
+			name = originalName.substring(0, dotIdx);
+			ext = originalName.substring(dotIdx); // contains the '.' symbol
+		} else {
+			name = originalName;
+			ext = "";
+		}
+
+		String newFileName = name + "_" + getBackupSuffix() + ext;
+		boolean compress = SkriptConfig.compressBackups.value();
+		if (compress)
+			newFileName += ".gz";
+
+		Path backup = backupFolder.resolve(newFileName);
+		if (Files.exists(backup))
+			throw new IOException("Backup file " + backup.getFileName() + " already exists");
+
+		class GZIPOutputStreamWithLevel extends GZIPOutputStream {
+			public GZIPOutputStreamWithLevel(OutputStream out, int level) throws IOException {
+				super(out);
+				def.setLevel(level);
+			}
+		}
+
+		if (compress) {
+			try (OutputStream os = Files.newOutputStream(backup);
+				 var gzipOs = new GZIPOutputStreamWithLevel(os, Deflater.BEST_COMPRESSION)) {
+				Files.copy(source, gzipOs);
+			}
+		} else {
+			copy(source, backup);
+		}
+
+		return backup.toFile();
 	}
 
-	public static File move(final File from, final File to, final boolean replace) throws IOException {
+	public static File move(File from, File to, boolean replace) throws IOException {
 		if (!replace && to.exists())
 			throw new IOException("Can't rename " + from.getName() + " to " + to.getName() + ": The target file already exists");
 
@@ -85,29 +128,30 @@ public abstract class FileUtils {
 		return to;
 	}
 
-	public static void copy(final File from, final File to) throws IOException {
-		Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
+	public static void copy(File from, File to) throws IOException {
+		copy(from.toPath(), to.toPath());
+	}
+
+	public static void copy(Path from, Path to) throws IOException {
+		Files.copy(from, to, StandardCopyOption.COPY_ATTRIBUTES);
 	}
 
 	/**
-	 * @param directory
 	 * @param renamer   Renames files. Return null to leave a file as-is.
 	 * @return A collection of all changed files (with their new names)
 	 * @throws IOException If renaming one of the files caused an IOException. Some files might have been renamed already.
 	 */
-	public static Collection<File> renameAll(final File directory, final Converter<String, String> renamer) throws IOException {
-		final Collection<File> changed = new ArrayList<>();
-		for (final File f : directory.listFiles()) {
+	public static Collection<File> renameAll(File directory, Converter<String, String> renamer) throws IOException {
+		Collection<File> changed = new ArrayList<>();
+		for (File f : directory.listFiles()) {
 			if (f.isDirectory()) {
 				changed.addAll(renameAll(f, renamer));
 			} else {
-				final String name = f.getName();
-				if (name == null)
-					continue;
-				final String newName = renamer.convert(name);
+				String name = f.getName();
+				String newName = renamer.convert(name);
 				if (newName == null)
 					continue;
-				final File newFile = new File(f.getParent(), newName);
+				File newFile = new File(f.getParent(), newName);
 				move(f, newFile, false);
 				changed.add(newFile);
 			}
@@ -120,17 +164,35 @@ public abstract class FileUtils {
 	 *
 	 * @param in   The InputStream to read from. This stream will not be closed when this method returns.
 	 * @param file The file to save to. Will be replaced if it exists, or created if it doesn't.
-	 * @throws IOException
 	 */
-	public static void save(final InputStream in, final File file) throws IOException {
+	public static void save(InputStream in, File file) throws IOException {
 		file.getParentFile().mkdirs();
 		try (FileOutputStream out = new FileOutputStream(file)) {
-			final byte[] buffer = new byte[16 * 1024];
+			byte[] buffer = new byte[16 * 1024];
 			int read;
 			while ((read = in.read(buffer)) > 0) {
 				out.write(buffer, 0, read);
 			}
 		}
+	}
+
+	/**
+	 * Checks whether the given path or any of its parents is a symbolic link until the root is reached.
+	 *
+	 * @param path the path to check
+	 * @param root the root directory to stop at
+	 * @return true if a symbolic link is found, false otherwise
+	 */
+	public static boolean containsSymlink(Path path, Path root) {
+		path = path.toAbsolutePath();
+		root = root.toAbsolutePath();
+
+		while (path != null && !path.equals(root)) {
+			if (Files.isSymbolicLink(path))
+				return true;
+			path = path.getParent();
+		}
+		return false;
 	}
 
 }

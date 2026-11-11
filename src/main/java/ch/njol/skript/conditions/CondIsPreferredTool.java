@@ -3,7 +3,7 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -22,14 +22,14 @@ import org.jetbrains.annotations.Nullable;
 		"Checks whether an item is the preferred tool for a block. A preferred tool is one that will drop the block's item " +
 		"when used. For example, a wooden pickaxe is a preferred tool for grass and stone blocks, but not for iron ore."
 )
-@Examples({
-	"on left click:",
-		"\tevent-block is set",
-		"\tif player's tool is the preferred tool for event-block:",
-			"\t\tbreak event-block naturally using player's tool",
-		"\telse:",
-			"\t\tcancel event"
-})
+@Example("""
+	on left click:
+		event-block is set
+		if player's tool is the preferred tool for event-block:
+			break event-block naturally using player's tool
+		else:
+			cancel event
+	""")
 @Since("2.7")
 @RequiredPlugins("1.16.5+, Paper 1.19.2+ (blockdata)")
 public class CondIsPreferredTool extends Condition {

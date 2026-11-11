@@ -27,14 +27,14 @@ public abstract class AsyncEffect extends Effect {
 	@Nullable
 	protected TriggerItem walk(Event e) {
 		debug(e, true);
-		
-		Delay.addDelayedEvent(e); // Mark this event as delayed
+
 		Object localVars = Variables.removeLocals(e); // Back up local variables
 
 		if (!Skript.getInstance().isEnabled()) // See https://github.com/SkriptLang/Skript/issues/3702
 			return null;
 
 		Bukkit.getScheduler().runTaskAsynchronously(Skript.getInstance(), () -> {
+			Delay.addDelayedEvent(e); // Mark this event as delayed
 			// Re-set local variables
 			if (localVars != null)
 				Variables.setLocalVariables(e, localVars);

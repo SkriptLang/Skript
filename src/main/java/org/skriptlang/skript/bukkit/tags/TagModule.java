@@ -2,10 +2,8 @@ package org.skriptlang.skript.bukkit.tags;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
-import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.slot.Slot;
@@ -17,12 +15,22 @@ import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.entity.EntityData;
+import org.skriptlang.skript.bukkit.entity.EntityUtils;
+import org.skriptlang.skript.bukkit.tags.elements.conditions.CondIsTagged;
+import org.skriptlang.skript.bukkit.tags.elements.effects.EffRegisterTag;
+import org.skriptlang.skript.bukkit.tags.elements.expressions.ExprTag;
+import org.skriptlang.skript.bukkit.tags.elements.expressions.ExprTagContents;
+import org.skriptlang.skript.bukkit.tags.elements.expressions.ExprTagKey;
+import org.skriptlang.skript.bukkit.tags.elements.expressions.ExprTagsOf;
+import org.skriptlang.skript.bukkit.tags.elements.expressions.ExprTagsOfType;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 
-import java.io.IOException;
-
-public class TagModule {
+public class TagModule extends HierarchicalAddonModule {
 
 	// paper tags
 	public static final boolean PAPER_TAGS_EXIST = Skript.classExists("com.destroystokyo.paper.MaterialTags");
@@ -30,11 +38,17 @@ public class TagModule {
 	// tag object
 	public static TagRegistry tagRegistry;
 
-	public static void load() throws IOException {
-		// abort if no class exists
-		if (!Skript.classExists("org.bukkit.Tag"))
-			return;
+	public TagModule(AddonModule parentModule) {
+		super(parentModule);
+	}
 
+	@Override
+	protected boolean canLoadSelf(SkriptAddon addon) {
+		return Skript.classExists("org.bukkit.Tag");
+	}
+
+	@Override
+	protected void initSelf(SkriptAddon addon) {
 		// Classes
 		Classes.registerClass(new ClassInfo<>(Tag.class, "minecrafttag")
 			.user("minecraft ?tags?")
@@ -58,14 +72,24 @@ public class TagModule {
 				}
 			}));
 
-		// load classes (todo: replace with registering methods after registration api
-		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "tags");
-
 		// compare tags by keys, not by object instance.
 		Comparators.registerComparator(Tag.class, Tag.class, (a, b) -> Relation.get(a.getKey().equals(b.getKey())));
 
 		// init tags
 		tagRegistry = new TagRegistry();
+	}
+
+	@Override
+	protected void loadSelf(SkriptAddon addon) {
+		register(addon,
+			CondIsTagged::register,
+			EffRegisterTag::register,
+			ExprTag::register,
+			ExprTagContents::register,
+			ExprTagKey::register,
+			ExprTagsOf::register,
+			ExprTagsOfType::register
+		);
 	}
 
 	/**
@@ -104,6 +128,11 @@ public class TagModule {
 		if (value == null)
 			return values;
 		return new Keyed[]{value};
+	}
+
+	@Override
+	public String name() {
+		return "tags";
 	}
 
 }

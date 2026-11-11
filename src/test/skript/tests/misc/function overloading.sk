@@ -13,7 +13,7 @@ test "function overloading with 1 parameter":
 	parse:
 		overloaded1({_x})
 
-	assert first element of last parse logs contains "Skript cannot determine which function named 'overloaded1' to call."
+	assert first element of last parse logs contains "Cannot determine which function named 'overloaded1' to call"
 
 	set {_x} to 1
 
@@ -49,7 +49,7 @@ test "function overloading with 2 parameters":
 	parse:
 		overloaded2({_y}, {_x})
 
-	assert first element of last parse logs contains "Skript cannot determine which function named 'overloaded2' to call."
+	assert first element of last parse logs contains "Cannot determine which function named 'overloaded2' to call"
 
 function overloaded3() :: int:
 	return 1

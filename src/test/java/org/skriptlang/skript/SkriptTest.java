@@ -38,6 +38,7 @@ public class SkriptTest extends BaseSkriptAddonTests {
 		assertThrows(SkriptAPIException.class, () -> skript.registerAddon(SkriptAddon.class, "TestAddon"));
 
 		assertTrue(skript.addons().contains(addon));
+		assertNotNull(skript.addon("TestAddon"));
 		// unmodifiable addons list would contain an unmodifiable addon
 		assertEquals(1, skript.addons().size());
 		assertEquals(1, unmodifiable.addons().size());

@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -27,11 +27,13 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 @Description({"The biome at a certain location. Please note that biomes are only defined for x/z-columns",
 	"(i.e. the <a href='#ExprAltitude'>altitude</a> (y-coordinate) doesn't matter), up until Minecraft 1.15.x.",
 	"As of Minecraft 1.16, biomes are now 3D (per block vs column)."})
-@Examples({"# damage player in deserts constantly",
-		"every real minute:",
-		"	loop all players:",
-		"		biome at loop-player is desert",
-		"		damage the loop-player by 1"})
+@Example("""
+    # damage player in deserts constantly
+    every real minute:
+    	loop all players:
+    		biome at loop-player is desert
+    		damage the loop-player by 1
+    """)
 @Since("1.4.4, 2.6.1 (3D biomes)")
 public class ExprBiome extends PropertyExpression<Location, Biome> {
 

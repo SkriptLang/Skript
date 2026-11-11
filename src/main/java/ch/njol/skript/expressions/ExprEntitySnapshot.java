@@ -2,7 +2,6 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
-import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -12,6 +11,7 @@ import org.bukkit.entity.EntitySnapshot;
 import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.entity.EntityData;
 
 @Name("Entity Snapshot")
 @Description({
@@ -19,14 +19,14 @@ import org.jetbrains.annotations.Nullable;
 	    + "(name, health, attributes, etc.) at the time this expression is used.",
 	"Individual attributes of a snapshot cannot be modified or retrieved."
 })
-@Examples({
-	"spawn a pig at location(0, 0, 0):",
-		"\tset the max health of entity to 20",
-		"\tset the health of entity to 20",
-		"\tset {_snapshot} to the entity snapshot of entity",
-		"\tclear entity",
-	"spawn {_snapshot} at location(0, 0, 0)"
-})
+@Example("""
+	spawn a pig at location(0, 0, 0):
+		set the max health of entity to 20
+		set the health of entity to 20
+		set {_snapshot} to the entity snapshot of entity
+		clear entity
+	spawn {_snapshot} at location(0, 0, 0)
+	""")
 @RequiredPlugins("Minecraft 1.20.2+")
 @Since("2.10")
 public class ExprEntitySnapshot extends SimplePropertyExpression<Object, EntitySnapshot> {

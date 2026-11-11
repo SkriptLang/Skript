@@ -3,7 +3,7 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -16,12 +16,12 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Is Within Radius")
 @Description("Checks whether a location is within a certain radius of another location.")
-@Examples({
-	"on damage:",
-	"\tif attacker's location is within 10 blocks around {_spawn}:",
-	"\t\tcancel event",
-	"\t\tsend \"You can't PVP in spawn.\""
-})
+@Example("""
+	on damage:
+		if attacker's location is within 10 blocks around {_spawn}:
+			cancel event
+			send "You can't PVP in spawn."
+	""")
 @Since("2.7")
 public class CondWithinRadius extends Condition {
 

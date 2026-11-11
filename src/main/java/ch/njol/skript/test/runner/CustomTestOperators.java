@@ -8,7 +8,7 @@ import org.skriptlang.skript.util.Priority;
 public final class CustomTestOperators {
 
 	static {
-		if (TestMode.ENABLED) {
+		if (TestMode.ENABLED && !TestMode.GEN_DOCS) {
 			Arithmetics.registerOperation(
 				new Operator("bar!", Priority.base(), (Noun) null),
 				String.class,

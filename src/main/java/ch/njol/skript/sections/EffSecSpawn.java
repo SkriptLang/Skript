@@ -3,7 +3,7 @@ package ch.njol.skript.sections;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.*;
-import ch.njol.skript.entity.EntityType;
+import org.skriptlang.skript.bukkit.entity.EntityType;
 import ch.njol.skript.lang.EffectSection;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -38,15 +38,16 @@ import java.util.function.Consumer;
 	"",
 	"Note that when spawning an entity via entity snapshots, the code within the section will not run instantaneously as compared to spawning normally (via 'a zombie')."
 })
-@Examples({
-	"spawn 3 creepers at the targeted block",
-	"spawn a ghast 5 meters above the player",
-	"spawn a zombie at the player:",
-		"\tset name of the zombie to \"\"",
-	"",
-	"spawn a block display of a ladder[waterlogged=true] at location above player:",
-		"\tset billboard of event-display to center # allows the display to rotate around the center axis"
-})
+@Example("spawn 3 creepers at the targeted block")
+@Example("spawn a ghast 5 meters above the player")
+@Example("""
+	spawn a zombie at the player:
+		set name of the zombie to ""
+	""")
+@Example("""
+	spawn a block display of a ladder[waterlogged=true] at location above player:
+		set billboard of event-display to center # allows the display to rotate around the center axis
+	""")
 @RequiredPlugins("Minecraft 1.20.2+ (entity snapshots)")
 @Since("1.0, 2.6.1 (with section), 2.8.6 (dropped items), 2.10 (entity snapshots)")
 public class EffSecSpawn extends EffectSection {
@@ -138,9 +139,9 @@ public class EffSecSpawn extends EffectSection {
 						for (int i = 0; i < typeAmount; i++) {
 							if (consumer != null) {
 								//noinspection unchecked,rawtypes
-								entityType.data.spawn(location, (Consumer) consumer); // lastSpawned set within Consumer
+								entityType.getData().spawn(location, (Consumer) consumer); // lastSpawned set within Consumer
 							} else {
-								lastSpawned = entityType.data.spawn(location);
+								lastSpawned = entityType.getData().spawn(location);
 							}
 						}
 					} else if (type instanceof EntitySnapshot snapshot) {

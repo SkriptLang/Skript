@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -18,12 +18,12 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Readied Arrow/Bow")
 @Description("The bow or arrow in a <a href='#ready_arrow'>Ready Arrow event</a>.")
-@Examples({
-	"on player ready arrow:",
-		"\tselected bow's name is \"Spectral Bow\"",
-		"\tif selected arrow is not a spectral arrow:",
-			"\t\tcancel event"
-})
+@Example("""
+	on player ready arrow:
+		selected bow's name is "Spectral Bow"
+		if selected arrow is not a spectral arrow:
+			cancel event
+	""")
 @Since("2.8.0")
 @Events("ready arrow")
 public class ExprReadiedArrow extends SimpleExpression<ItemStack> {

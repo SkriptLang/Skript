@@ -4,6 +4,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockEvent;
@@ -41,6 +42,35 @@ public class EventSyntaxInfoTest extends BaseSyntaxInfoTests<MockSkriptEvent, Bu
 
 	}
 
+	public static final class KeyedMockSkriptEvent extends SkriptEvent {
+
+		private final String key;
+
+		public KeyedMockSkriptEvent(String key) {
+			this.key = key;
+		}
+
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean check(Event event) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public String toString(@Nullable Event event, boolean debug) {
+			throw new UnsupportedOperationException();
+		}
+
+	}
+
 	@Override
 	public Builder<?, MockSkriptEvent> builder(boolean addPattern) {
 		var info = BukkitSyntaxInfos.Event.builder(MockSkriptEvent.class, "mock event");
@@ -58,6 +88,16 @@ public class EventSyntaxInfoTest extends BaseSyntaxInfoTests<MockSkriptEvent, Bu
 	@Override
 	public Supplier<MockSkriptEvent> supplier() {
 		return MockSkriptEvent::new;
+	}
+
+	@Test
+	public void testNoNullaryConstructor() {
+		var info = BukkitSyntaxInfos.Event.builder(KeyedMockSkriptEvent.class, "keyed mock event")
+			.addPattern("default")
+			.supplier(() -> new KeyedMockSkriptEvent("Key"))
+			.build();
+		var legacy = SyntaxElementInfo.fromModern(info);
+		assertEquals(legacy.instance().key(), info.instance().key());
 	}
 
 	@Test

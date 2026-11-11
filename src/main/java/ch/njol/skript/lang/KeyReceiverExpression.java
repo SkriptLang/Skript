@@ -15,6 +15,15 @@ import org.jetbrains.annotations.NotNull;
 public interface KeyReceiverExpression<T> extends Expression<T> {
 
 	/**
+	 * Returns whether this expression's changer supports nested structures.
+	 *
+	 * @return true if nested structures are supported, false otherwise
+	 */
+	default boolean acceptsNestedStructures() {
+		return false;
+	}
+
+	/**
 	 * An alternative changer method that provides a set of keys as well as a set of values.
 	 * This is only ever called for {@link ChangeMode#supportsKeyedChange()} safe change modes,
 	 * where a set of values is provided.

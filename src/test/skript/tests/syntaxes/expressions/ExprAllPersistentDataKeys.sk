@@ -1,0 +1,68 @@
+
+test "all persistent data keys - empty":
+	set {_item} to a diamond sword
+	set {_keys::*} to persistent data keys of {_item}
+	assert size of {_keys::*} is 0 with "fresh item should have no persistent data keys"
+
+test "all persistent data keys - basic":
+	set {_item} to a diamond sword
+	set persistent data tag "skript:key1" of {_item} to "hello"
+	set {_keys::*} to persistent data keys of {_item}
+	assert {_keys::*} is "skript:key1" with "item should have one key: skript:key1"
+	delete persistent data tag "skript:key1" of {_item}
+
+test "all persistent data keys - multiple":
+	set {_item} to a diamond sword
+	set persistent data tag "skript:key1" of {_item} to "a"
+	set persistent data tag "skript:key2" of {_item} to "b"
+	set {_keys::*} to persistent data keys of {_item}
+	assert size of {_keys::*} is 2 with "item should have 2 keys"
+	assert {_keys::*} is "skript:key1" and "skript:key2" with "item should have both keys"
+	delete persistent data tag "skript:key1" of {_item}
+	delete persistent data tag "skript:key2" of {_item}
+
+test "all persistent data keys - after deletion":
+	set {_item} to a diamond sword
+	set persistent data tag "skript:key1" of {_item} to "a"
+	set persistent data tag "skript:key2" of {_item} to "b"
+	delete persistent data tag "skript:key1" of {_item}
+	set {_keys::*} to persistent data keys of {_item}
+	assert {_keys::*} is "skript:key2" with "only skript:key2 should remain after deleting skript:key1"
+	delete persistent data tag "skript:key2" of {_item}
+
+test "all persistent data keys - entity":
+	spawn a pig at test-location:
+		set {_pig} to entity
+	set persistent data tag "skript:pig_key" of {_pig} to true
+	set {_keys::*} to data keys of {_pig}
+	assert {_keys::*} is "skript:pig_key" with "entity keys should contain skript:pig_key"
+	delete persistent data tag "skript:pig_key" of {_pig}
+	delete entity within {_pig}
+
+test "all persistent data keys - block":
+	set block at test-location to a chest
+	set persistent data tag "skript:block_key" of block at test-location to "block"
+	set {_keys::*} to data keys of block at test-location
+	assert {_keys::*} is "skript:block_key" with "block keys should contain skript:block_key"
+	delete persistent data tag "skript:block_key" of block at test-location
+	set block at test-location to air
+
+test "all persistent data keys - world":
+	set persistent data tag "skript:world_key" of world "world" to 1
+	set {_keys::*} to persistent data keys of world "world"
+	assert {_keys::*} is "skript:world_key" with "world keys should contain skript:world_key"
+	delete persistent data tag "skript:world_key" of world "world"
+
+test "all persistent data keys - chunk":
+	set {_chunk} to chunk at test-location
+	set persistent data tag "skript:chunk_key" of {_chunk} to 99
+	set {_keys::*} to persistent data keys of {_chunk}
+	assert {_keys::*} is "skript:chunk_key" with "chunk keys should contain skript:chunk_key"
+	delete persistent data tag "skript:chunk_key" of {_chunk}
+
+test "all persistent data keys - possessive syntax":
+	set {_item} to a diamond sword
+	set persistent data tag "skript:poss_key" of {_item} to "value"
+	set {_keys::*} to {_item}'s persistent data keys
+	assert {_keys::*} is "skript:poss_key" with "possessive syntax should return key"
+	delete persistent data tag "skript:poss_key" of {_item}

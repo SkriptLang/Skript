@@ -5,7 +5,6 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
-import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.coll.CollectionUtils;
@@ -15,27 +14,27 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SpawnEggMeta;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.entity.EntityData;
 
 @Name("Spawn Egg Entity")
 @Description({
 	"Gets or sets the entity snapshot that the provided spawn eggs will spawn when used."
 })
-@Examples({
-	"set {_item} to a zombie spawn egg",
-	"broadcast the spawn egg entity of {_item}",
-	"",
-	"spawn a pig at location(0,0,0):",
-		"\tset the max health of entity to 20",
-		"\tset the health of entity to 20",
-		"\tset {_snapshot} to the entity snapshot of entity",
-		"\tclear entity",
-	"set the spawn egg entity of {_item} to {_snapshot}",
-	"if the spawn egg entity of {_item} is {_snapshot}: # Minecraft 1.20.5+",
-	"",
-	"set the spawn egg entity of {_item} to (random element out of all entities)",
-	"",
-	"set the spawn egg entity of {_item} to a zombie"
-})
+@Example("set {_item} to a zombie spawn egg")
+@Example("broadcast the spawn egg entity of {_item}")
+@Example("""
+	spawn a pig at location(0,0,0):
+		set the max health of entity to 20
+		set the health of entity to 20
+		set {_snapshot} to the entity snapshot of entity
+		clear entity
+	set the spawn egg entity of {_item} to {_snapshot}
+	""")
+@Example("""
+	if the spawn egg entity of {_item} is {_snapshot}: # Minecraft 1.20.5+
+		set the spawn egg entity of {_item} to (random element out of all entities)
+	""")
+@Example("set the spawn egg entity of {_item} to a zombie")
 @RequiredPlugins("Minecraft 1.20.2+, Minecraft 1.20.5+ (comparisons)")
 @Since("2.10")
 public class ExprSpawnEggEntity extends SimplePropertyExpression<Object, EntitySnapshot> {

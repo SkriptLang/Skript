@@ -1,10 +1,14 @@
 package ch.njol.skript.lang;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
 
 /**
  * Represents an expression's information, for use when creating new instances of expressions.
+ * @deprecated Use {@link SyntaxInfo.Expression} ({@link SyntaxInfo.Expression#builder(Class, Class)}) instead.
  */
+@Deprecated(since = "2.14", forRemoval = true)
 public class ExpressionInfo<E extends Expression<T>, T> extends SyntaxElementInfo<E> {
 
 	public @Nullable ExpressionType expressionType;
@@ -18,6 +22,13 @@ public class ExpressionInfo<E extends Expression<T>, T> extends SyntaxElementInf
 		super(patterns, expressionClass, originClassPath);
 		this.returnType = returnType;
 		this.expressionType = expressionType;
+	}
+
+	@ApiStatus.Internal
+	protected ExpressionInfo(SyntaxInfo.Expression<E, T> source) {
+		super(source);
+		this.returnType = source.returnType();
+		this.expressionType = ExpressionType.fromModern(source.priority());
 	}
 
 	/**
