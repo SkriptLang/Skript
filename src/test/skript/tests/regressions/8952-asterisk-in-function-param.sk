@@ -1,0 +1,5 @@
+test "asterisk in function parameter name does not throw StringIndexOutOfBoundsException":
+    parse:
+        function badParam(b*: integer):
+            stop
+    assert last parse logs contains "Invalid parameter name: b*"

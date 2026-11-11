@@ -135,7 +135,7 @@ public class FunctionParser {
 				return null;
 			}
 
-			String variableName = paramName.endsWith("*") ? paramName.substring(0, paramName.length() - 3) +
+			String variableName = paramName.endsWith("::*") ? paramName.substring(0, paramName.length() - 3) +
 					(!result.plural() ? "::1" : "") : paramName;
 
 			Class<?> type;

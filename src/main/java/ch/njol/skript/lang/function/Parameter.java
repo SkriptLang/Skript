@@ -234,7 +234,7 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 					Skript.error("Cannot recognise the type '" + n.group(2) + "'");
 					return null;
 				}
-				String rParamName = paramName.endsWith("*") ? paramName.substring(0, paramName.length() - 3) +
+				String rParamName = paramName.endsWith("::*") ? paramName.substring(0, paramName.length() - 3) +
 					(!pl.getSecond() ? "::1" : "") : paramName;
 				Parameter<?> p = Parameter.newInstance(rParamName, c, !pl.getSecond(), n.group(3));
 				if (p == null)
