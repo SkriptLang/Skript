@@ -39,7 +39,7 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 		Class<?> returnType = Utils.getComponentType(functionReturnType);
 		if (CollectionUtils.containsSuperclass(expectedReturnTypes, returnType)) {
 			// Function returns expected type already
-			this.returnTypes = new Class[] {returnType};
+			this.returnTypes = new Class[]{returnType};
 			this.returnType = (Class<T>) returnType;
 		} else {
 			// Return value needs to be converted
@@ -55,12 +55,12 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 		if (execute == null) {
 			values = null;
 		} else if (!execute.getClass().isArray()) {
-			values = new Object[] {execute};
+			values = new Object[]{execute};
 		} else {
 			values = (Object[]) execute;
 		}
 
-		String[] keys = reference.function().returnedKeys();
+		String[] keys = reference.function().getReturnedKeys().toArray(new String[0]);
 		reference.function().resetReturnValue();
 
 		//noinspection unchecked
@@ -71,7 +71,7 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 		}
 
 		Converters.convert(values, convertedValues, returnTypes);
-		if (keys != null) {
+		if (keys.length > 0) {
 			for (int i = 0; i < convertedValues.length; i++) {
 				if (convertedValues[i] == null)
 					keys[i] = null;
