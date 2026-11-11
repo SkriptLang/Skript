@@ -74,9 +74,9 @@ public class BukkitClasses {
 		Classes.registerClass(new ClassInfo<>(LivingEntity.class, "livingentity")
 				.user("living ?entit(y|ies)")
 				.name("Living Entity")
-				.description("A living <a href='#entity'>entity</a>, i.e. a mob or <a href='#player'>player</a>, " +
-						"not inanimate entities like <a href='#projectile'>projectiles</a> or dropped items.")
-				.usage("see <a href='#entity'>entity</a>, but ignore inanimate objects")
+				.description("A living [entity](docs:Skript/TypeEntity), i.e. a mob or [player](docs:Skript/TypePlayer), " +
+						"not inanimate entities like [projectiles](docs:Skript/TypeProjectile) or dropped items.")
+				.usage("see [entity](docs:Skript/TypeEntity), but ignore inanimate objects")
 				.examples("spawn 5 powered creepers",
 						"shoot a zombie from the creeper")
 				.since("1.0")
@@ -159,7 +159,7 @@ public class BukkitClasses {
 				.user("worlds?")
 				.name("World")
 				.description("One of the server's worlds. Worlds can be put into scripts by surrounding their name with double quotes, e.g. \"world_nether\", " +
-						"but this might not work reliably as <a href='#string'>text</a> uses the same syntax.")
+						"but this might not work reliably as [text](docs:Skript/TypeText) uses the same syntax.")
 				.usage("<code>\"world_name\"</code>, e.g. \"world\"")
 				.examples("broadcast \"Hello!\" to the world \"world_nether\"")
 				.since("1.0, 2.2 (alternate syntax)")
@@ -255,8 +255,8 @@ public class BukkitClasses {
 				.user("((commands?)? ?)?(sender|executor)s?")
 				.name("Command Sender")
 				.description("A player or the console.")
-				.usage("use <a href='#LitConsole'>the console</a> for the console",
-						"see <a href='#player'>player</a> for players.")
+				.usage("use [the console](docs:Skript/LitConsole) for the console",
+						"see [player](docs:Skript/TypePlayer) for players.")
 				.examples("command /push [<player>]:",
 						"\ttrigger:",
 						"\t\tif arg-1 is not set:",
@@ -349,7 +349,7 @@ public class BukkitClasses {
 		Classes.registerClass(new EnumClassInfo<>(DamageCause.class, "damagecause", "damage causes", new ExprDamageCause())
 				.user("damage ?causes?")
 				.name("Damage Cause")
-				.description("The cause/type of a <a href='#damage'>damage event</a>, e.g. lava, fall, fire, drowning, explosion, poison, etc.",
+				.description("The cause/type of a [damage event](docs:Skript/EvtDamage), e.g. lava, fall, fire, drowning, explosion, poison, etc.",
 						"Please note that support for this type is very rudimentary, e.g. lava, fire and burning, " +
 								"as well as projectile and attack are considered different types.")
 				.examples("")
@@ -392,7 +392,7 @@ public class BukkitClasses {
 		Classes.registerClass(new EnumClassInfo<>(TeleportCause.class, "teleportcause", "teleport causes")
 				.user("teleport ?(cause|reason|type)s?")
 				.name("Teleport Cause")
-				.description("The teleport cause in a <a href='#teleport'>teleport</a> event.")
+				.description("The teleport cause in a [teleport](docs:Skript/EvtTeleport) event.")
 				.since("2.2-dev35"));
 
 		Classes.registerClass(new EnumClassInfo<>(SpawnReason.class, "spawnreason", "spawn reasons")
@@ -404,14 +404,14 @@ public class BukkitClasses {
 		Classes.registerClass(new EnumClassInfo<>(RespawnReason.class, "respawnreason", "respawn reasons")
 				.user("respawn(ing)? ?reasons?")
 				.name("Respawn Reason")
-				.description("The respawn reason in a <a href='#respawn'>respawn</a> event.")
+				.description("The respawn reason in a [respawn](docs:Skript/EvtRespawn) event.")
 				.since("2.14"));
 
 		if (Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent")) {
 			Classes.registerClass(new ClassInfo<>(CachedServerIcon.class, "cachedservericon")
 					.user("server ?icons?")
 					.name("Server Icon")
-					.description("A server icon that was loaded using the <a href='#EffLoadServerIcon'>load server icon</a> effect.")
+					.description("A server icon that was loaded using the [load server icon](docs:Skript/EffLoadServerIcon) effect.")
 					.examples("")
 					.since("2.3")
 					.parser(new Parser<>() {
@@ -435,18 +435,18 @@ public class BukkitClasses {
 		Classes.registerClass(new EnumClassInfo<>(FireworkEffect.Type.class, "fireworktype", "firework types")
 				.user("firework ?types?")
 				.name("Firework Type")
-				.description("The type of a <a href='#fireworkeffect'>fireworkeffect</a>.")
+				.description("The type of a [firework effect](docs:Skript/TypeFireworkEffect).")
 				.since("2.4")
 				.documentationId("FireworkType"));
 
 		Classes.registerClass(new ClassInfo<>(FireworkEffect.class, "fireworkeffect")
 				.user("firework ?effects?")
 				.name("Firework Effect")
-				.usage("See <a href='/#FireworkType'>Firework Types</a>")
+				.usage("See [firework types](docs:Skript/FireworkType)")
 				.description(
 					"A configuration of effects that defines the firework when exploded",
-					"which can be used in the <a href='#EffFireworkLaunch'>launch firework</a> effect.",
-					"See the <a href='#ExprFireworkEffect'>firework effect</a> expression for detailed patterns."
+					"which can be used in the [launch firework](docs:Skript/EffFireworkLaunch) effect.",
+					"See the [firework effect](docs:Skript/ExprFireworkEffect) expression for detailed patterns."
 				).defaultExpression(new EventValueExpression<>(FireworkEffect.class))
 				.examples(
 					"launch flickering trailing burst firework colored blue and green at player",
@@ -473,26 +473,26 @@ public class BukkitClasses {
 		Classes.registerClass(new EnumClassInfo<>(Difficulty.class, "difficulty", "difficulties")
 				.user("difficult(y|ies)")
 				.name("Difficulty")
-				.description("The difficulty of a <a href='#world'>world</a>.")
+				.description("The difficulty of a [world](docs:Skript/TypeWorld).")
 				.since("2.3"));
 
 		Classes.registerClass(new EnumClassInfo<>(Status.class, "resourcepackstate", "resource pack states")
 				.user("resource ?pack ?states?")
 				.name("Resource Pack State")
-				.description("The state in a <a href='#resource_pack_request_action'>resource pack request response</a> event.")
+					.description("The state in a [resource pack request response](docs:Skript/EvtResourcePackRequestResponse) event.")
 				.since("2.4"));
 
 		Classes.registerClass(new EnumClassInfo<>(SoundCategory.class, "soundcategory", "sound categories")
 				.user("sound ?categor(y|ies)")
 				.name("Sound Category")
 				.description("The category of a sound, they are used for sound options of Minecraft. " +
-						"See the <a href='#EffPlaySound'>play sound</a> and <a href='#EffStopSound'>stop sound</a> effects.")
+						"See the [play sound](docs:Skript/EffPlaySound) and [stop sound](docs:Skript/EffStopSound) effects.")
 				.since("2.4"));
 
 		Classes.registerClass(new EnumClassInfo<>(RegainReason.class, "healreason", "heal reasons")
 				.user("(regen|heal) (reason|cause)")
 				.name("Heal Reason")
-				.description("The health regain reason in a <a href='#heal'>heal</a> event.")
+				.description("The health regain reason in a [heal](docs:Skript/EvtHeal) event.")
 				.since("2.5"));
 
 		//noinspection rawtypes
@@ -540,7 +540,7 @@ public class BukkitClasses {
 				.user("attribute ?types?")
 				.name("Attribute Type")
 				.description("Represents the type of an attribute. Note that this type does not contain any numerical values." +
-						"See <a href='https://minecraft.wiki/w/Attribute#Attributes'>attribute types</a> for more info.",
+						" See [attribute types](https://minecraft.wiki/w/Attribute#Attributes) for more info.",
 					"NOTE: Minecraft namespaces are supported, ex: 'minecraft:generic.attack_damage'.")
 				.since("2.5"));
 
@@ -561,20 +561,20 @@ public class BukkitClasses {
 			Classes.registerClass(new EnumClassInfo<>(QuitReason.class, "quitreason", "quit reasons")
 					.user("(quit|disconnect) ?(reason|cause)s?")
 					.name("Quit Reason")
-					.description("Represents a quit reason from a <a href='/#quit'>player quit server event</a>.")
+					.description("Represents a quit reason from a [player quit server event](docs:Skript/EvtQuit).")
 					.since("2.8.0"));
 
 		if (Skript.classExists("org.bukkit.event.inventory.InventoryCloseEvent$Reason"))
 			Classes.registerClass(new EnumClassInfo<>(InventoryCloseEvent.Reason.class, "inventoryclosereason", "inventory close reasons")
 					.user("inventory ?close ?reasons?")
 					.name("Inventory Close Reasons")
-					.description("The inventory close reason in an <a href='/#inventory_close'>inventory close event</a>.")
+					.description("The inventory close reason in an [inventory close event](docs:Skript/EvtInventoryClose).")
 					.since("2.8.0"));
 
 		Classes.registerClass(new EnumClassInfo<>(TransformReason.class, "transformreason", "transform reasons")
 				.user("(entity)? ?transform ?(reason|cause)s?")
 				.name("Transform Reason")
-				.description("Represents a transform reason of an <a href='#entity transform'>entity transform event</a>.")
+				.description("Represents a transform reason of an [entity transform event](docs:Skript/EvtEntityTransform).")
 				.since("2.8.0"));
 
 		Classes.registerClass(new EnumClassInfo<>(EntityUnleashEvent.UnleashReason.class, "unleashreason", "unleash reasons")
@@ -592,7 +592,7 @@ public class BukkitClasses {
 		Classes.registerClass(new EnumClassInfo<>(ChangeReason.class,  "experiencecooldownchangereason", "experience cooldown change reasons")
 				.user("(experience|[e]xp) cooldown change (reason|cause)s?")
 				.name("Experience Cooldown Change Reason")
-				.description("Represents a change reason of an <a href='#experience cooldown change event'>experience cooldown change event</a>.")
+				.description("Represents a change reason of an [experience cooldown change event](docs:Skript/EvtExperienceCooldownChange).")
 				.since("2.10"));
 
 		Classes.registerClass(new RegistryClassInfo<>(Villager.Type.class, RegistryKey.VILLAGER_TYPE, "villagertype", "villager types")
