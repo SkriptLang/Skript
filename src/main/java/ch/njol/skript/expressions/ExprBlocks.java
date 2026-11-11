@@ -1,16 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.util.Iterator;
-
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
-
-import com.google.common.collect.Lists;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.doc.Description;
@@ -26,6 +15,16 @@ import ch.njol.skript.util.BlockLineIterator;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
+import com.google.common.collect.Lists;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.misc.elements.expressions.ExprDirection;
+
+import java.util.Iterator;
 
 @Name("Blocks")
 @Description({"Blocks relative to other blocks or between other blocks.",
@@ -144,8 +143,8 @@ public class ExprBlocks extends SimpleExpression<Block> {
 					return null;
 				// start block + (max - 1) == max
 				int distance = SkriptConfig.maxTargetBlockDistance.value() - 1;
-				if (this.direction instanceof ExprDirection) {
-					Expression<Number> numberExpression = ((ExprDirection) this.direction).amount;
+				if (this.direction instanceof ExprDirection exprDirection) {
+					Expression<Number> numberExpression = exprDirection.getAmount();
 					if (numberExpression != null) {
 						Number number = numberExpression.getSingle(event);
 						if (number != null)
