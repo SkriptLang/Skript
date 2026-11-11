@@ -9,9 +9,11 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.SerializedVariable;
+import ch.njol.skript.variables.Variables;
 import com.google.errorprone.annotations.ThreadSafe;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
 
 import java.io.Closeable;
@@ -21,20 +23,25 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * Saves global variables somewhere where they survive a restart, such as a file or a database.
  * <p>
  * A storage does not hold variables. Skript keeps global variables in memory and serves all reads from there,
  * so a storage is only read once, at startup, and after that only receives the changes it has to save.
- * Which storage a variable is saved to is decided by the storage's name pattern in the config.
+ * Which storage a variable is saved to is decided by the storages' name prefixes in the config:
+ * the first storage with a prefix the name starts with saves it.
  * <p>
  * The lifecycle of a storage, in order:
  * <ol>
@@ -78,7 +85,7 @@ public abstract class VariableStorage implements Closeable {
 
 	// config stuff
 	private String name;
-	private @Nullable Pattern pattern;
+	private String @Nullable [] prefixes; // null accepts every name
 	private @Nullable File file;
 	private boolean ownsFile = false;
 
@@ -128,21 +135,8 @@ public abstract class VariableStorage implements Closeable {
 	final boolean loadConfig(SectionNode node) {
 		name = node.getKey();
 
-		// read pattern
-		String patternValue = getConfigValue(node, "pattern");
-		if (patternValue == null)
+		if (!loadPrefix(node))
 			return false;
-		if (patternValue.equals(".*") || patternValue.equals(".+")) {
-			pattern = null; // accepts every name
-		} else {
-			try {
-				pattern = Pattern.compile(patternValue);
-			} catch (PatternSyntaxException e) {
-				Skript.error("The config entry for 'pattern' in the database '" + getName() + "' is not a valid regex: "
-					+ e.getLocalizedMessage());
-				return false;
-			}
-		}
 
 		// read file if needed
 		if (requiresFile()) {
@@ -162,6 +156,173 @@ public abstract class VariableStorage implements Closeable {
 		if (!success)
 			releaseFile();
 		return success;
+	}
+
+	/**
+	 * Reads the {@code prefix} option, or translates the old {@code pattern} option if there is no prefix.
+	 * If neither exists, the storage matches every variable name.
+	 * Config files are updated from {@code pattern} to {@code prefix} once, when Skript updates the config,
+	 * so a {@code pattern} is only left here if that update was skipped or the pattern couldn't be translated.
+	 *
+	 * @param node the configuration node
+	 * @return false if the options are invalid; an error is printed in that case
+	 */
+	private boolean loadPrefix(SectionNode node) {
+		String configuredPrefix = node.getValue("prefix");
+		String configuredPattern = node.getValue("pattern");
+
+		List<String> translated = null;
+		if (configuredPattern != null) {
+			translated = patternToPrefixes(configuredPattern);
+			if (translated == null) {
+				Skript.error("The 'pattern' of the database '" + getName() + "' is '" + configuredPattern + "', "
+					+ "which must be replaced with a 'prefix' entry instead. Databases now pick their variables "
+					+ "by the start of their names only, such as 'prefix: kills::' or 'prefix: a_, b_'.");
+				return false;
+			}
+		}
+
+		if (configuredPrefix != null && translated != null
+			&& !Objects.equals(asSet(normalizePrefixes(splitPrefixes(configuredPrefix))), asSet(normalizePrefixes(translated)))) {
+			Skript.error("The database '" + getName() + "' has both a 'prefix' ('" + configuredPrefix + "') "
+				+ "and a 'pattern' ('" + configuredPattern + "') that don't match. Remove the 'pattern'.");
+			return false;
+		}
+
+		if (configuredPrefix != null) {
+			prefixes = normalizePrefixes(splitPrefixes(configuredPrefix));
+		} else {
+			prefixes = translated == null ? null : normalizePrefixes(translated);
+		}
+		return true;
+	}
+
+	/**
+	 * Splits a configured {@code prefix} value into its prefixes, which are separated by commas.
+	 *
+	 * @param configured the configured value, such as {@code bank::, tax::}
+	 * @return the prefixes, trimmed, without empty ones
+	 */
+	private static List<String> splitPrefixes(String configured) {
+		List<String> split = new ArrayList<>();
+		for (String part : configured.split(",")) {
+			String trimmed = part.trim();
+			if (!trimmed.isEmpty())
+				split.add(trimmed);
+		}
+		return split;
+	}
+
+	/**
+	 * @param configured prefixes from the config or a translated pattern
+	 * @return the prefixes to match names with, without duplicates, lowercased if variables are case-insensitive
+	 * since their names are lowercased too. Null if every name is accepted: when there are no prefixes, or one of them
+	 * is empty, {@code .*} or {@code .+}.
+	 */
+	private static String @Nullable [] normalizePrefixes(List<String> configured) {
+		Set<String> normalized = new LinkedHashSet<>();
+		for (String prefix : configured) {
+			if (prefix.isEmpty() || prefix.equals(".*") || prefix.equals(".+"))
+				return null; // accepts every name
+			normalized.add(Variables.caseInsensitiveVariables ? prefix.toLowerCase(Locale.ENGLISH) : prefix);
+		}
+		return normalized.isEmpty() ? null : normalized.toArray(new String[0]);
+	}
+
+	private static @Nullable Set<String> asSet(String @Nullable [] prefixes) {
+		return prefixes == null ? null : Set.of(prefixes);
+	}
+
+	/**
+	 * Translates an old regex {@code pattern} into prefixes, if the pattern only matched by fixed starts.
+	 * <ul>
+	 *     <li>{@code .*}, {@code .+} and {@code (?!-).*} matched every name ({@code -} names aren't saved anyway),
+	 *     so they become no prefixes, which accepts every name.</li>
+	 *     <li>A literal followed by {@code .*} or {@code .+} becomes that literal.
+	 *     Backslash escapes like {@code \.} are resolved.</li>
+	 *     <li>A group of literal alternatives followed by {@code .*} or {@code .+}, such as {@code (bank|tax).*},
+	 *     becomes one prefix per alternative.</li>
+	 *     <li>Both may start with {@code (?i)}.</li>
+	 *     <li>Anything else, such as {@code (?!x_).*}, {@code db[0-9]::.*} or {@code kills::(a|b).*},
+	 *     can't be translated.</li>
+	 * </ul>
+	 *
+	 * @param pattern the old pattern
+	 * @return the prefixes, empty for every name, or null if the pattern can't be translated
+	 */
+	static @Nullable List<String> patternToPrefixes(String pattern) {
+		String rest = pattern.trim();
+		if (rest.equals(".*") || rest.equals(".+") || rest.equals("(?!-).*") || rest.equals("(?!-).+"))
+			return List.of();
+		if (rest.startsWith("(?i)"))
+			rest = rest.substring(4);
+		if (!rest.endsWith(".*") && !rest.endsWith(".+"))
+			return null;
+		rest = rest.substring(0, rest.length() - 2);
+
+		List<String> alternatives;
+		if (rest.startsWith("(") && rest.endsWith(")") && !rest.endsWith("\\)")) {
+			String group = rest.substring(rest.startsWith("(?:") ? 3 : 1, rest.length() - 1);
+			alternatives = splitAlternatives(group);
+		} else {
+			alternatives = List.of(rest);
+		}
+
+		List<String> prefixes = new ArrayList<>(alternatives.size());
+		for (String alternative : alternatives) {
+			String literal = regexLiteral(alternative);
+			if (literal == null)
+				return null;
+			if (literal.isEmpty())
+				return List.of(); // an empty alternative matched every name
+			prefixes.add(literal);
+		}
+		return prefixes;
+	}
+
+	/**
+	 * Splits a group's contents at its unescaped {@code |}s, keeping escapes for {@link #regexLiteral(String)}.
+	 */
+	private static List<String> splitAlternatives(String group) {
+		List<String> alternatives = new ArrayList<>();
+		StringBuilder current = new StringBuilder();
+		for (int i = 0; i < group.length(); i++) {
+			char c = group.charAt(i);
+			if (c == '\\' && i + 1 < group.length()) {
+				current.append(c).append(group.charAt(++i));
+			} else if (c == '|') {
+				alternatives.add(current.toString());
+				current.setLength(0);
+			} else {
+				current.append(c);
+			}
+		}
+		alternatives.add(current.toString());
+		return alternatives;
+	}
+
+	/**
+	 * @param regex part of a pattern
+	 * @return the text it matches, if it only matches that one text, otherwise null
+	 */
+	private static @Nullable String regexLiteral(String regex) {
+		StringBuilder literal = new StringBuilder(regex.length());
+		for (int i = 0; i < regex.length(); i++) {
+			char c = regex.charAt(i);
+			if (c == '\\') {
+				if (++i == regex.length())
+					return null; // a lone backslash at the end
+				char escaped = regex.charAt(i);
+				if (Character.isLetterOrDigit(escaped))
+					return null; // \d, \w, \Q, back references and the like aren't literals
+				literal.append(escaped);
+			} else if ("[](){}|?+*^$.".indexOf(c) >= 0) {
+				return null; // has regex syntax, so it isn't just a literal
+			} else {
+				literal.append(c);
+			}
+		}
+		return literal.toString();
 	}
 
 	/**
@@ -749,23 +910,31 @@ public abstract class VariableStorage implements Closeable {
 	}
 
 	/**
-	 * Whether a variable belongs in this storage, going by the {@code pattern} in its config.
-	 * The pattern has to match the whole name. Skript saves each variable to the first storage that accepts it.
+	 * Whether a variable belongs in this storage, going by the {@code prefix} in its config.
+	 * The name has to start with one of the storage's prefixes. Skript saves each variable to the first storage
+	 * that accepts it. Called for every change, so it is kept cheap: usually a single {@link String#startsWith}.
 	 *
 	 * @param name the variable's name, such as {@code a::1}
-	 * @return whether the name matches this storage's pattern; always true if the pattern accepts every name
+	 * @return whether the name starts with one of this storage's prefixes; always true if it accepts every name
 	 */
 	public final boolean accept(String name) {
-		return pattern == null || pattern.matcher(name).matches();
+		String[] prefixes = this.prefixes;
+		if (prefixes == null)
+			return true;
+		for (String prefix : prefixes) {
+			if (name.startsWith(prefix))
+				return true;
+		}
+		return false;
 	}
 
 	/**
-	 * @return the pattern of the names this storage accepts, or null if it accepts every name
-	 * (configured as {@code .*} or {@code .+})
+	 * @return the prefixes of the names this storage accepts, lowercased if variables are case-insensitive,
+	 * or null if it accepts every name (no prefix configured, or an empty one)
 	 * @see #accept(String)
 	 */
-	public final @Nullable Pattern getNamePattern() {
-		return pattern;
+	public final @Nullable @Unmodifiable List<String> getPrefixes() {
+		return prefixes == null ? null : List.of(prefixes);
 	}
 
 }
