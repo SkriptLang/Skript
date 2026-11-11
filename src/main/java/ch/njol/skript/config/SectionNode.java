@@ -293,7 +293,7 @@ public class SectionNode extends Node implements Iterable<Node> {
 			SkriptLogger.setNode(this);
 
 			if (!inBlockComment.get()) // this will be updated for the last time at the start of the comment
-				blockCommentStartLine = this.getLine();
+				blockCommentStartLine = r.getLineNum();
 			final NonNullPair<String, String> line = Node.splitLine(fullLine, inBlockComment);
 			String value = line.getFirst();
 			final String comment = line.getSecond();

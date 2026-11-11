@@ -41,6 +41,18 @@ public class ConfigTest {
 			assertEquals(1, handler.size());
 			assertEquals(SectionNode.M_EMPTY_SECTION, handler.getLog().iterator().next().getMessage());
 			handler.clear();
+
+			// test unclosed block comment line reporting
+			createConfig("""
+				on load:
+					stop
+
+				###
+				unclosed
+				""");
+			assertEquals(1, handler.size());
+			assertEquals("A block comment (###) was opened on line 4 but never closed.", handler.getLog().iterator().next().getMessage());
+			handler.clear();
 		}
 	}
 
