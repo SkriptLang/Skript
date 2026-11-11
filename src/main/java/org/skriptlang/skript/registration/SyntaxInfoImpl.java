@@ -6,6 +6,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.util.ClassUtils;
 import org.skriptlang.skript.util.Priority;
@@ -46,15 +47,15 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 		return priority;
 	}
 
-	private final Origin origin;
 	private final Class<T> type;
 	private final @Nullable Supplier<T> supplier;
 	private final SequencedCollection<String> patterns;
 	private final Priority priority;
+	private final Documentation documentation;
 
 	protected SyntaxInfoImpl(
-		Origin origin, Class<T> type, @Nullable Supplier<T> supplier,
-		SequencedCollection<String> patterns, @Nullable Priority priority
+		Class<T> type, @Nullable Supplier<T> supplier, SequencedCollection<String> patterns,
+		@Nullable Priority priority, @Nullable Documentation documentation
 	) {
 		Preconditions.checkArgument(supplier != null || ClassUtils.isNormalClass(type),
 				"Failed to register a syntax info for '" + type.getName() + "'."
@@ -62,7 +63,6 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 		Preconditions.checkArgument(!patterns.isEmpty(),
 				"Failed to register a syntax info for '" + type.getName() + "'."
 				+ " There must be at least one pattern.");
-		this.origin = origin;
 		this.type = type;
 		this.supplier = supplier;
 		this.patterns = ImmutableList.copyOf(patterns);
@@ -70,23 +70,22 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 			priority = estimatePriority(patterns);
 		}
 		this.priority = priority;
+		if (documentation == null) {
+			documentation = Documentation.of(type);
+		}
+		this.documentation = documentation;
 	}
 
 	@Override
 	public Builder<? extends Builder<?, T>, T> toBuilder() {
 		var builder = new BuilderImpl<>(type);
-		builder.origin(origin);
 		if (supplier != null) {
 			builder.supplier(supplier);
 		}
 		builder.addPatterns(patterns);
 		builder.priority(priority);
+		builder.documentation(documentation);
 		return builder;
-	}
-
-	@Override
-	public Origin origin() {
-		return origin;
 	}
 
 	@Override
@@ -111,6 +110,11 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 	@Override
 	public Priority priority() {
 		return priority;
+	}
+
+	@Override
+	public Documentation documentation() {
+		return documentation;
 	}
 
 	@Override
@@ -139,10 +143,10 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(this)
-				.add("origin", origin())
 				.add("type", type())
 				.add("patterns", patterns())
 				.add("priority", priority())
+				.add("documentation", documentation())
 				.toString();
 	}
 
@@ -150,17 +154,22 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 	static class BuilderImpl<B extends Builder<B, E>, E extends SyntaxElement> implements Builder<B, E> {
 
 		final Class<E> type;
-		Origin origin = Origin.UNKNOWN;
 		@Nullable Supplier<E> supplier;
 		final List<String> patterns = new ArrayList<>();
 		@Nullable Priority priority;
+		@Nullable Documentation documentation = null;
 
 		BuilderImpl(Class<E> type) {
 			this.type = type;
 		}
 
 		public B origin(Origin origin) {
-			this.origin = origin;
+			if (documentation == null) {
+				documentation = Documentation.of(type);
+			}
+			documentation = documentation.toBuilder()
+				.origin(origin)
+				.build();
 			return (B) this;
 		}
 
@@ -196,13 +205,18 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 			return (B) this;
 		}
 
+		@Override
+		public B documentation(Documentation documentation) {
+			this.documentation = documentation;
+			return (B) this;
+		}
+
 		public SyntaxInfo<E> build() {
-			return new SyntaxInfoImpl<>(origin, type, supplier, patterns, priority);
+			return new SyntaxInfoImpl<>(type, supplier, patterns, priority, documentation);
 		}
 
 		@Override
 		public void applyTo(Builder<?, ?> builder) {
-			builder.origin(origin);
 			if (supplier != null) {
 				//noinspection rawtypes - Let's hope the user knows what they are doing...
 				builder.supplier((Supplier) supplier);
@@ -210,6 +224,9 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 			builder.addPatterns(patterns);
 			if (priority != null) {
 				builder.priority(priority);
+			}
+			if (documentation != null) {
+				builder.documentation(documentation);
 			}
 		}
 

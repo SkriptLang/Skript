@@ -2,6 +2,8 @@ package org.skriptlang.skript.registration;
 
 import com.google.common.collect.ImmutableSet;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.Skript;
+import org.skriptlang.skript.docs.Origin.AddonOrigin;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -15,10 +17,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 final class SyntaxRegister<I extends SyntaxInfo<?>> {
 
 	private static boolean isSkriptSyntax(SyntaxInfo<?> info) {
-		String originName = info.origin().name();
-		// name will either be generic Skript instance name or class name
-		// TODO something more reliable
-		return originName.equals("Skript") || originName.startsWith("org.skriptlang.skript");
+		return info.documentation().origin() instanceof AddonOrigin origin && origin.addon() instanceof Skript;
 	}
 
 	private static int calculateComplexityScore(SyntaxInfo<?> info) {

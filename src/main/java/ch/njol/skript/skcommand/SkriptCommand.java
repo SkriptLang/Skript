@@ -1,7 +1,6 @@
 package ch.njol.skript.skcommand;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.test.runner.TestMode;
@@ -35,7 +34,7 @@ public class SkriptCommand implements TabExecutor {
 			new RestoreCommand()
 		));
 
-		if (TestMode.GEN_DOCS || Documentation.isDocsTemplateFound()) {
+		if (TestMode.GEN_DOCS) {
 			SUB_COMMANDS.add(new GenDocsCommand());
 		}
 

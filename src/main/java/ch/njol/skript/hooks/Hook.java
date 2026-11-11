@@ -3,7 +3,7 @@ package ch.njol.skript.hooks;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
-import ch.njol.skript.doc.Documentation;
+import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.lang.SyntaxElement;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
@@ -30,7 +30,7 @@ public abstract class Hook<P extends Plugin> {
 		P plugin = (P) Bukkit.getPluginManager().getPlugin(getName());
 		this.plugin = plugin;
 		if (plugin == null || !plugin.isEnabled()) {
-			if (Documentation.canGenerateUnsafeDocs()) {
+			if (TestMode.canGenerateUnsafeDocs()) {
 				loadClasses();
 				if (Skript.logHigh())
 					Skript.info(m_hooked.toString(getName()));

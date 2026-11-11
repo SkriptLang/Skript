@@ -26,6 +26,7 @@ import org.skriptlang.skript.bukkit.command.custom.ScriptCommandExecutionEvent;
 import org.skriptlang.skript.bukkit.command.elements.structures.util.SubCommandEntryData;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValue;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
+import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.registration.SyntaxInfo;
@@ -67,6 +68,9 @@ public class StructCommand extends Structure {
 		syntaxRegistry.register(SyntaxRegistry.STRUCTURE,SyntaxInfo.Structure.builder(StructCommand.class)
 			.supplier(StructCommand::new)
 			.addPattern("command <.+>")
+			.documentation(Documentation.of(StructCommand.class).toBuilder()
+				.addData(SubCommandEntryData.SUB_COMMAND_VALIDATOR) // manually include
+				.build())
 			.build());
 
 		EventValueRegistry evRegistry = addon.registry(EventValueRegistry.class);
