@@ -148,11 +148,11 @@ public class SecLoop extends LoopSection {
 				iter = keyed
 					? ((KeyedIterableExpression<?>) expression).keyedIterator(event)
 					: expression.iterator(event);
-				if (iter != null && iter.hasNext()) {
-					iteratorMap.put(event, iter);
-				} else {
-					iter = null;
-				}
+			}
+			if (iter != null && iter.hasNext()) {
+				iteratorMap.put(event, iter);
+			} else {
+				iter = null;
 			}
 		}
 

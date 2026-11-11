@@ -1,0 +1,9 @@
+using queues
+
+test "looping single variable with queues experiment does not loop infinitely":
+	set {_x} to 1
+	set {_count} to 0
+	loop {_x}:
+		add 1 to {_count}
+		assert loop-value is 1 with "loop-value was %loop-value% instead of 1"
+	assert {_count} is 1 with "Loop ran %{_count}% times instead of 1"
