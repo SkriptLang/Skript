@@ -72,7 +72,7 @@ public sealed interface DefaultSyntaxInfos permits SyntaxInfo {
 			SyntaxInfo.super.write(adapter);
 			adapter.write("returnType", returnType());
 			if (SectionExpression.class.isAssignableFrom(type())) {
-				adapter.write("subType", "Section Expression");
+				adapter.write("subType", "section_expression");
 			}
 		}
 
