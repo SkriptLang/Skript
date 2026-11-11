@@ -13,25 +13,25 @@ import java.util.function.BiFunction;
  * Skript keeps one for each registered type, and creates a storage from it for every config section
  * whose {@code type} option matches one of its names.
  *
- * @param source      the addon that registered the type
- * @param storage     the class of the storages it creates
- * @param constructor creates a storage, given the registering addon and the type name the config used
- * @param names       the names users can give as the {@code type}, such as {@code csv}; matched ignoring case
- * @param <T>         the class of the storages it creates
+ * @param addon        the addon that registered the type
+ * @param storageClass the class of the storages it creates
+ * @param constructor  creates a storage, given the registering addon and the type name the config used
+ * @param names        the names users can give as the {@code type}, such as {@code csv}; matched ignoring case
+ * @param <T>          the class of the storages it creates
  */
 @ApiStatus.Internal
-record UnloadedStorage<T extends VariableStorage>(SkriptAddon source, Class<T> storage,
-												  BiFunction<SkriptAddon, String, T> constructor, String... names) {
+record StorageType<T extends VariableStorage>(SkriptAddon addon, Class<T> storageClass,
+											  BiFunction<SkriptAddon, String, T> constructor, String... names) {
 
-	UnloadedStorage {
-		Objects.requireNonNull(storage, "storage");
+	StorageType {
+		Objects.requireNonNull(storageClass, "storageClass");
 		Objects.requireNonNull(constructor, "constructor");
 		if (names.length == 0)
-			throw new IllegalArgumentException("A storage type needs at least one name: " + storage.getName());
+			throw new IllegalArgumentException("A storage type needs at least one name: " + storageClass.getName());
 		names = names.clone(); // so the caller's array can't change the names afterwards
 		for (String name : names) {
 			if (name == null || name.isBlank())
-				throw new IllegalArgumentException("A storage type's names must not be blank: " + storage.getName());
+				throw new IllegalArgumentException("A storage type's names must not be blank: " + storageClass.getName());
 		}
 	}
 
@@ -42,7 +42,7 @@ record UnloadedStorage<T extends VariableStorage>(SkriptAddon source, Class<T> s
 	 * @return a new, unconfigured storage
 	 */
 	T create(String type) {
-		return constructor.apply(source, type);
+		return constructor.apply(addon, type);
 	}
 
 	/**
@@ -70,7 +70,7 @@ record UnloadedStorage<T extends VariableStorage>(SkriptAddon source, Class<T> s
 	 * @param other another registered type
 	 * @return whether the two share a name, ignoring case, so a config's {@code type} couldn't tell them apart
 	 */
-	boolean sharesNameWith(UnloadedStorage<?> other) {
+	boolean sharesNameWith(StorageType<?> other) {
 		for (String name : names) {
 			if (other.matches(name))
 				return true;
@@ -80,18 +80,18 @@ record UnloadedStorage<T extends VariableStorage>(SkriptAddon source, Class<T> s
 
 	@Override
 	public boolean equals(Object o) {
-		return o instanceof UnloadedStorage<?> other && source == other.source && storage == other.storage
+		return o instanceof StorageType<?> other && addon == other.addon && storageClass == other.storageClass
 			&& constructor == other.constructor && Arrays.equals(names, other.names);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(source, storage, constructor, Arrays.hashCode(names));
+		return Objects.hash(addon, storageClass, constructor, Arrays.hashCode(names));
 	}
 
 	@Override
 	public String toString() {
-		return "UnloadedStorage[" + storage.getName() + " as " + Arrays.toString(names) + "]";
+		return "StorageType[" + storageClass.getName() + " as " + Arrays.toString(names) + "]";
 	}
 
 }

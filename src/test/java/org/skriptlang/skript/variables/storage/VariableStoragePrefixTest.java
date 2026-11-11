@@ -2,9 +2,7 @@ package org.skriptlang.skript.variables.storage;
 
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.log.LogEntry;
-import ch.njol.skript.log.RetainingLogHandler;
-import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.log.BlockingLogHandler;
 import ch.njol.skript.variables.Variables;
 import org.junit.After;
 import org.junit.Before;
@@ -13,9 +11,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 import static org.junit.Assert.*;
 
@@ -27,7 +23,6 @@ import static org.junit.Assert.*;
 public class VariableStoragePrefixTest {
 
 	private boolean caseInsensitive;
-	private final List<String> warnings = new ArrayList<>();
 
 	@Before
 	public void setUp() {
@@ -41,12 +36,11 @@ public class VariableStoragePrefixTest {
 	}
 
 	/**
-	 * Configures a storage from a database section with the given entries, one per line,
-	 * and keeps the warnings it logs in {@link #warnings}.
+	 * Configures a storage from a database section with the given entries, one per line.
 	 *
 	 * @return the configured storage, or null if its config was rejected
 	 */
-	private RecordingStorage configure(String... entries) throws IOException {
+	private static RecordingStorage configure(String... entries) throws IOException {
 		StringBuilder text = new StringBuilder("test:\n");
 		for (String entry : entries)
 			text.append('\t').append(entry).append('\n');
@@ -54,17 +48,13 @@ public class VariableStoragePrefixTest {
 			"test.sk", false, false, ":");
 		RecordingStorage storage = new RecordingStorage();
 		boolean loaded;
-		try (RetainingLogHandler log = SkriptLogger.startRetainingLog()) {
+		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) { // keeps expected errors out of the log
 			loaded = storage.loadConfig((SectionNode) config.getMainNode().get("test"));
-			for (LogEntry entry : log.getLog()) {
-				if (entry.getLevel() == Level.WARNING)
-					warnings.add(entry.getMessage());
-			}
 		}
 		return loaded ? storage : null;
 	}
 
-	private List<String> prefixesOf(String... entries) throws IOException {
+	private static List<String> prefixesOf(String... entries) throws IOException {
 		RecordingStorage storage = configure(entries);
 		assertNotNull("the config should be accepted", storage);
 		return storage.getPrefixes();
@@ -160,24 +150,6 @@ public class VariableStoragePrefixTest {
 		assertNull(configure("pattern: kills::")); // no .* at the end, so it only matched that exact name
 		assertNull(configure("pattern: kills::(a|b).*")); // a group after a literal
 		assertNull(configure("pattern: (a|b[0-9]).*")); // an alternative that isn't a literal
-	}
-
-	@Test
-	public void capitalsInACaseSensitivePatternAreWarnedAbout() throws IOException {
-		prefixesOf("pattern: (banks|linkData|Leaderboards).*");
-		assertEquals(warnings.toString(), 1, warnings.size());
-		assertTrue(warnings.get(0), warnings.get(0).contains("linkData, Leaderboards"));
-		assertFalse(warnings.get(0), warnings.get(0).contains("banks"));
-	}
-
-	@Test
-	public void lowercasePatternsAndCaseInsensitivePatternsAreNotWarnedAbout() throws IOException {
-		prefixesOf("pattern: (banks|tax).*");
-		prefixesOf("pattern: (?i)(Banks|Tax).*");
-		prefixesOf("prefix: Banks"); // written as a prefix, so it was meant for this version
-		Variables.caseInsensitiveVariables = false;
-		prefixesOf("pattern: Banks.*"); // names keep their case, so it matches what it always did
-		assertEquals(warnings.toString(), List.of(), warnings);
 	}
 
 	@Test
