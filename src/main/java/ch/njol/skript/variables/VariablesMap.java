@@ -26,6 +26,10 @@ final class VariablesMap {
 		if (s2 == null)
 			return 1;
 
+		//exit early if equal
+		if (s1.equals(s2))
+			return 0;
+
 		int len1 = s1.length();
 		int len2 = s2.length();
 

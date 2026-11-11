@@ -2,6 +2,8 @@ package ch.njol.util;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.function.Function;
@@ -107,15 +109,30 @@ public abstract class StringUtils {
 	 */
 	public static String toString(final double d, final int accuracy) {
 		assert accuracy >= 0;
-		if (accuracy <= 0)
+		if (accuracy == 0)
 			return "" + Math.round(d);
+		// whole numbers don't need to round (but ensure we keep -0)
+		if (d == (long) d && Math.abs(d) < 1e15 && (d != 0 || Double.doubleToRawLongBits(d) == 0))
+			return Long.toString((long) d);
+		// have nan/inf go to string.format
+		if (Double.isNaN(d) || Double.isInfinite(d))
+			return oldFormat(d, accuracy); // the current String.format implementation
+		// going all the way to bigdecimal does seem sketchy but it is a significant improvement over string.format!!
+		BigDecimal rounded = BigDecimal.valueOf(d).setScale(accuracy, RoundingMode.HALF_UP);
+		if (rounded.signum() == 0) // maintain -0 print
+			return Double.doubleToRawLongBits(d) < 0 ? "-0" : "0";
+		return rounded.stripTrailingZeros().toPlainString();
+	}
+
+	// keeping around just for nan/inf
+	private static String oldFormat(final double d, final int accuracy) {
 		final String s = String.format(Locale.ENGLISH, "%." + accuracy + "f", d);
 		int c = s.length() - 1;
 		while (s.charAt(c) == '0')
 			c--;
 		if (s.charAt(c) == '.')
 			c--;
-		return "" + s.substring(0, c + 1);
+		return s.substring(0, c + 1);
 	}
 
 	public static String firstToUpper(final String s) {

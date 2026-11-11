@@ -1,12 +1,11 @@
 package ch.njol.skript.aliases;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.bukkit.Material;
 import org.jetbrains.annotations.Nullable;
-
 import org.skriptlang.skript.bukkit.entity.EntityData;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Stores the aliases.
@@ -135,6 +134,20 @@ public class AliasesMap {
 		} else {
 			entry.items.add(data);
 		}
+	}
+
+	/**
+	 * Just gets the data of the closest alias match. Does not compute match quality for items without variants.
+	 *
+	 * @param item The item to find the alias data for.
+	 * @return The alias data for the item.
+	 */
+	public AliasData matchAliasData(ItemData item) {
+		MaterialEntry entry = getEntry(item);
+		// without variants, matchAlias returns the default item (or no data) regardless of quality
+		if (entry.items.isEmpty())
+			return entry.defaultItem;
+		return matchAlias(item).getData();
 	}
 	
 	/**
