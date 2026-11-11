@@ -131,7 +131,7 @@ public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends Document
 				.build()))
 			.toList());
 		if (EffectSection.class.isAssignableFrom(type())) {
-			adapter.write("subType", "Effect Section");
+			adapter.write("subType", "effect_section");
 		}
 		if (instance() instanceof SimpleExperimentalSyntax experimental) {
 			adapter.write(experimental.getExperimentData());
