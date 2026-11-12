@@ -1,0 +1,16 @@
+test "EvtEntityJUnit" when running JUnit:
+	set {_tests::1} to "generic - entity death fires"
+	set {_tests::2} to "specific - entity death fires"
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtEntityTest" completes {_tests::*}
+
+on death of an entity:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtEntityTest"
+	junit test is {_test}
+	if victim is a sheep:
+		complete objective "generic - entity death fires" for {_test}
+
+on death of a sheep:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtEntityTest"
+	junit test is {_test}
+	if victim is a sheep:
+		complete objective "specific - entity death fires" for {_test}
