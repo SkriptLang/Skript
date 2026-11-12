@@ -27,3 +27,10 @@ test "durability - custom" when running minecraft "1.20.5":
 	set max durability of {_i} to 1000
 	damage {_i} by 1
 	assert durability of {_i} = 999 with "durability of iron sword should be 999"
+
+test "durability - reset":
+	set {_i} to an iron sword
+	set {_max} to max durability of {_i}
+	set damage of {_i} to 1
+	reset durability of {_i}
+	assert durability of {_i} is {_max} with "durability of item should be max after resetting"
