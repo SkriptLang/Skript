@@ -27,6 +27,6 @@ public class EvtEntityTest extends SkriptJUnitTest {
 
 	@Test
 	public void test() {
-		sheep.kill();
+		sheep.setHealth(0);
 	}
 }
