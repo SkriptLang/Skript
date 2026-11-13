@@ -534,6 +534,48 @@ public final class VariableStorageManager {
 
 	}
 
+	// ---------------------------- SHUTDOWN ----------------------------
+
+	public synchronized void close() {
+		if (closed)
+			return;
+		closed = true; // routing only changes the map from now on, and reports are ignored
+		for (VariableStorage storage : storages) {
+			if (storage.loadFailed)
+				continue; // already closed when it failed
+			// one storage failing mustn't stop the others from saving
+			try {
+				storage.stopSaving(); // closes its queue first, so nothing racing this can be queued after the final save
+			} catch (RuntimeException e) {
+				//noinspection ThrowableNotThrown
+				Skript.exception(e, "Failed to save the database '" + storage.getName() + "' while shutting down");
+			}
+			try {
+				storage.close();
+			} catch (RuntimeException e) {
+				//noinspection ThrowableNotThrown
+				Skript.exception(e, "Failed to close the database '" + storage.getName() + "'");
+			} finally {
+				storage.releaseFile();
+			}
+		}
+	}
+
+	// saves every running storage's queued changes now, on this thread. true if they all saved.
+	// synchronized with close(), so it never saves to a storage that is closing
+	public synchronized boolean flushAll() {
+		if (closed)
+			return true; // close() already saved everything it could
+		boolean saved = true;
+		for (VariableStorage storage : storages) {
+			if (storage.loadFailed)
+				continue;
+			if (!storage.flush()) // keeps going, so every storage gets its chance
+				saved = false;
+		}
+		return saved;
+	}
+
 	// ---------------------------- MIGRATION ----------------------------
 
 	private static final Runnable NO_MAP_WRITE = () -> {
