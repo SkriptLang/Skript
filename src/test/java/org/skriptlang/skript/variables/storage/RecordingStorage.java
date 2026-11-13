@@ -91,7 +91,7 @@ class RecordingStorage extends VariableStorage {
 	final AtomicInteger backupAttempts = new AtomicInteger();
 
 	/**
-	 * If set, {@link #load(StorageListener)} throws it after reporting everything in {@link #saved}.
+	 * If set, {@link #load(LoadListener)} throws it after reporting everything in {@link #saved}.
 	 */
 	volatile @Nullable IOException failLoad;
 
@@ -102,6 +102,20 @@ class RecordingStorage extends VariableStorage {
 
 	RecordingStorage() {
 		super(null, "recording");
+	}
+
+	/**
+	 * Calls {@link #reportUpdated}, which is protected.
+	 */
+	void reportUpdatedForTest(String name, SerializedVariable.@Nullable Value value) {
+		reportUpdated(name, value);
+	}
+
+	/**
+	 * Calls {@link #reportCleared}, which is protected.
+	 */
+	void reportClearedForTest(String listName) {
+		reportCleared(listName);
 	}
 
 	/**
@@ -174,7 +188,7 @@ class RecordingStorage extends VariableStorage {
 	}
 
 	@Override
-	protected void load(StorageListener listener) throws IOException {
+	protected void load(LoadListener listener) throws IOException {
 		Map<String, SerializedVariable.Value> stored;
 		synchronized (saved) {
 			stored = new TreeMap<>(saved); // sorted, so loading order is predictable

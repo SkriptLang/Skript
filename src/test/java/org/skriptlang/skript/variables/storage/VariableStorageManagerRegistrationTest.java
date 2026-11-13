@@ -129,7 +129,7 @@ public class VariableStorageManagerRegistrationTest {
 		}
 
 		@Override
-		protected void load(StorageListener listener) {
+		protected void load(LoadListener listener) {
 		}
 
 		@Override
