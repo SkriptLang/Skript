@@ -176,6 +176,39 @@ public class ChangeQueueTest {
 	}
 
 	@Test
+	public void changesQueuedBeforeClosingAreStillDrained() {
+		Value before = value(1);
+		set("x", before);
+		clear("a::");
+		queue.close();
+		Batch batch = queue.drain();
+		assertEquals(List.of("a::"), batch.clears());
+		assertEquals(Map.of("x", before), RecordingStorage.changes(batch));
+		assertEquals(0, queue.count());
+	}
+
+	@Test
+	public void afterClosingChangesOnlyReachTheVariables() {
+		queue.close();
+		Value after = value(1);
+		set("x", after);
+		clear("a::");
+		long stamp = queue.lockExclusive();
+		try {
+			queue.putPending("y", value(2));
+		} finally {
+			queue.unlockExclusive(stamp);
+		}
+		Value external = value(3);
+		queue.externalWrite("z", () -> variables.put("z", external));
+
+		assertEquals(after, variables.get("x"));
+		assertEquals(external, variables.get("z"));
+		assertEquals(0, queue.count());
+		assertTrue(queue.drain().isEmpty());
+	}
+
+	@Test
 	public void externalClearDropsLocalChangesButSavesNothing() {
 		Value kept = value(2);
 		set("a::1", value(1));

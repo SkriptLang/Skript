@@ -18,7 +18,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Writes, clears and sets lists from several threads while another thread keeps draining and "saving",
@@ -86,6 +88,42 @@ public class ChangeQueueConcurrencyTest {
 			writing.set(false);
 			drainer.get();
 			assertNull(mismatch.get());
+		} finally {
+			executor.shutdownNow();
+		}
+	}
+
+	@Test(timeout = 60_000)
+	public void nothingIsQueuedAfterClosing() throws Exception {
+		ChangeQueue queue = new ChangeQueue();
+		Map<String, Value> variables = new ConcurrentHashMap<>();
+		AtomicBoolean running = new AtomicBoolean(true);
+		ExecutorService executor = Executors.newFixedThreadPool(WRITERS);
+		try {
+			List<Future<?>> writers = new ArrayList<>();
+			for (int i = 0; i < WRITERS; i++) {
+				writers.add(executor.submit(() -> {
+					Random random = ThreadLocalRandom.current();
+					while (running.get())
+						randomOperation(random, queue, variables);
+				}));
+			}
+			Thread.sleep(50);
+			queue.drain();
+			Thread.sleep(50);
+
+			queue.close(); // while the writers are busy
+			queue.drain(); // the final save
+			Thread.sleep(100); // the writers keep changing variables
+			boolean nothingLate = queue.drain().isEmpty();
+			int lateCount = queue.count();
+
+			running.set(false);
+			for (Future<?> writer : writers)
+				writer.get(10, TimeUnit.SECONDS);
+			assertTrue("changes were queued after closing", nothingLate);
+			assertEquals(0, lateCount);
+			assertTrue(queue.drain().isEmpty());
 		} finally {
 			executor.shutdownNow();
 		}
