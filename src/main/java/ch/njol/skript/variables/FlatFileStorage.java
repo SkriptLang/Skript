@@ -2,266 +2,70 @@ package ch.njol.skript.variables;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.Variable;
-import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
-import ch.njol.skript.util.Task;
-import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Version;
-import ch.njol.util.NotifyingReference;
+import ch.njol.skript.variables.SerializedVariable.Value;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.variables.storage.LoadListener;
+import org.skriptlang.skript.variables.storage.VariableStorage;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * A variable storage that stores its content in a
- * comma-separated value file (CSV file).
+ * Saves variables to a CSV file, one variable per line as {@code name, type, value in hex}.
+ * <p>
+ * Changes are appended to the end of the file, and a later line for a name replaces any earlier one.
+ * A line with the type {@code null} means the variable was deleted. Once the file holds as many replaced lines
+ * as current ones, it is rewritten with only the current ones.
  */
-/*
- * TODO use a database (SQLite) instead and only load a limited amount of variables into RAM - e.g. 2 GB (configurable).
- *  If more variables are available they will be loaded when
- *  accessed. (rem: print a warning when Skript starts)
- *  rem: store null variables (in memory) to prevent looking up the same variables over and over again
- */
-public class FlatFileStorage extends VariablesStorage {
+public class FlatFileStorage extends VariableStorage {
 
 	/**
 	 * The {@link Charset} used in the CSV storage file.
 	 */
 	public static final Charset FILE_CHARSET = StandardCharsets.UTF_8;
 
-	/**
-	 * The delay for the save task.
-	 */
-	private static final long SAVE_TASK_DELAY = 5 * 60 * 20;
+	// files older than this store values as text rather than hex
+	private static final Version V2_1 = new Version(2, 1);
+	// the file is rewritten once it has at least this many replaced lines, and at least as many as current ones
+	private static final int MIN_REPLACED_LINES_TO_REWRITE = 1000;
 
-	/**
-	 * The period for the save task, how long (in ticks) between each save.
-	 */
-	private static final long SAVE_TASK_PERIOD = 5 * 60 * 20;
+	// what the file holds: the last value of each name. Sorted, so a list's variables are next to each other.
+	private final TreeMap<String, Value> stored = new TreeMap<>();
+	// how many variable lines the file has, including replaced and deleted ones
+	private int lines;
+	// set when a write may have left the file incomplete, so the next save rewrites it
+	private boolean rewriteNeeded;
+	private @Nullable Writer writer;
 
-	/**
-	 * A reference to the {@link PrintWriter} that is used to write
-	 * to the {@link #file}.
-	 * <p>
-	 * A Lock on this object must be acquired after connectionLock
-	 * if that lock is used.
-	 */
-	private final NotifyingReference<PrintWriter> changesWriter = new NotifyingReference<>();
-
-	/**
-	 * Whether the storage has been loaded.
-	 */
-	private volatile boolean loaded = false;
-
-	/**
-	 * The amount of {@link #changes} needed
-	 * for a new {@link #saveVariables(boolean) save}.
-	 */
-	private static int REQUIRED_CHANGES_FOR_RESAVE = 1000;
-
-	/**
-	 * The amount of variable changes written since the last full save.
-	 *
-	 * @see #REQUIRED_CHANGES_FOR_RESAVE
-	 */
-	private final AtomicInteger changes = new AtomicInteger(0);
-
-	/**
-	 * The save task.
-	 *
-	 * @see #changes
-	 * @see #saveVariables(boolean)
-	 * @see #REQUIRED_CHANGES_FOR_RESAVE
-	 * @see #SAVE_TASK_DELAY
-	 * @see #SAVE_TASK_PERIOD
-	 */
-	@Nullable
-	private Task saveTask;
-
-	/**
-	 * Whether there was an error while loading variables.
-	 * <p>
-	 * Set back to {@code false} when a backup has been made
-	 * of the variable file that caused the error.
-	 */
-	private boolean loadError = false;
-
-	/**
-	 * Create a new CSV storage of the given name.
-	 *
-	 * @param type the databse type i.e. CSV.
-	 */
-	FlatFileStorage(String type) {
-		super(type);
-	}
-
-	/**
-	 * Loads the variables in the CSV file.
-	 * <p>
-	 * Doesn't lock the connection, as required by
-	 * {@link Variables#variableLoaded(String, Object, VariablesStorage)}.
-	 */
-	@SuppressWarnings("deprecation")
-	@Override
-	protected boolean load_i(SectionNode sectionNode) {
-		SkriptLogger.setNode(null);
-
-		if (file == null) {
-			assert false : this;
-			return false;
-		}
-
-		// Keep track of loading errors
-		IOException ioException = null;
-		int unsuccessfulVariableCount = 0;
-		StringBuilder invalid = new StringBuilder();
-
-		// The Skript version this CSV was created with
-		Version csvSkriptVersion;
-
-		// Some variables used to allow legacy CSV files to be loaded
-		Version v2_1 = new Version(2, 1);
-		boolean update2_1 = false;
-
-		try (BufferedReader reader = new BufferedReader(
-				new InputStreamReader(Files.newInputStream(file.toPath()), FILE_CHARSET))) {
-			String line;
-			int lineNum = 0;
-			while ((line = reader.readLine()) != null) {
-				lineNum++;
-
-				line = line.trim();
-
-				if (line.isEmpty() || line.startsWith("#")) {
-					// Line doesn't contain variable
-					if (line.startsWith("# version:")) {
-						// Update the version accordingly
-
-						try {
-							csvSkriptVersion = new Version(line.substring("# version:".length()).trim());
-							update2_1 = csvSkriptVersion.isSmallerThan(v2_1);
-						} catch (IllegalArgumentException ignored) {
-						}
-					}
-
-					continue;
-				}
-
-				String[] split = splitCSV(line);
-				if (split == null || split.length != 3) {
-					// Invalid CSV line
-
-					Skript.error("invalid amount of commas in line " + lineNum + " ('" + line + "')");
-					if (invalid.length() != 0)
-						invalid.append(", ");
-
-					invalid.append(split == null ? "<unknown>" : split[0]);
-					unsuccessfulVariableCount++;
-					continue;
-				}
-
-				if (split[1].equals("null")) {
-					Variables.variableLoaded(split[0], null, this);
-				} else {
-					Object deserializedValue;
-					if (update2_1) {
-						// Use old deserialization if variables come from old Skript version
-						deserializedValue = Classes.deserialize(split[1], split[2]);
-					} else {
-						deserializedValue = Classes.deserialize(split[1], decode(split[2]));
-					}
-
-					if (deserializedValue == null) {
-						// Couldn't deserialize variable
-						if (invalid.length() != 0)
-							invalid.append(", ");
-
-						invalid.append(split[0]);
-						unsuccessfulVariableCount++;
-						continue;
-					}
-
-					Variables.variableLoaded(split[0], deserializedValue, this);
-				}
-			}
-		} catch (IOException e) {
-			loadError = true;
-			ioException = e;
-		}
-
-		if (ioException != null || unsuccessfulVariableCount > 0 || update2_1) {
-			// Something's wrong (or just an old version)
-			if (unsuccessfulVariableCount > 0) {
-				Skript.error(unsuccessfulVariableCount + " variable" + (unsuccessfulVariableCount == 1 ? "" : "s") +
-						" could not be loaded!");
-				Skript.error("Affected variables: " + invalid.toString());
-			}
-
-			if (ioException != null) {
-				Skript.error("An I/O error occurred while loading the variables: " + ExceptionUtils.toString(ioException));
-				Skript.error("This means that some to all variables could not be loaded!");
-			}
-
-			try {
-				if (update2_1) {
-					Skript.info("[2.1] updating " + file.getName() + " to the new format...");
-				}
-
-				// Back up CSV file
-				File backupFile = FileUtils.backup(file);
-				Skript.info("Created a backup of " + file.getName() + " as " + backupFile.getName());
-
-				loadError = false;
-			} catch (IOException ex) {
-				Skript.error("Could not backup " + file.getName() + ": " + ex.getMessage());
-			}
-		}
-
-		if (update2_1) {
-			// Save variables in new format
-			saveVariables(false);
-			Skript.info(file.getName() + " successfully updated.");
-		}
-
-		connect();
-
-		// Start the save task
-		saveTask = new Task(Skript.getInstance(), SAVE_TASK_DELAY, SAVE_TASK_PERIOD, true) {
-			@Override
-			public void run() {
-				// Due to concurrency, the amount of changes may change between the get and set call
-				//  but that's not a big issue
-				if (changes.get() >= REQUIRED_CHANGES_FOR_RESAVE) {
-					saveVariables(false);
-					changes.set(0);
-				}
-			}
-		};
-
-		return ioException == null;
+	FlatFileStorage(SkriptAddon addon, String type) {
+		super(addon, type);
 	}
 
 	@Override
-	protected void allLoaded() {
-		// no transaction support
+	protected boolean configure(SectionNode node) {
+		return true;
 	}
 
 	@Override
@@ -270,196 +74,204 @@ public class FlatFileStorage extends VariablesStorage {
 	}
 
 	@Override
-	protected File getFile(String fileName) {
-		return new File(fileName);
-	}
-
-	@Override
-	protected final void disconnect() {
-		synchronized (connectionLock) {
-			clearChangesQueue();
-			synchronized (changesWriter) {
-				PrintWriter printWriter = changesWriter.get();
-
-				if (printWriter != null) {
-					printWriter.close();
-					changesWriter.set(null);
-				}
-			}
-		}
-	}
-
-	@Override
-	protected final boolean connect() {
-		synchronized (connectionLock) {
-			synchronized (changesWriter) {
-				assert file != null; // file should be non-null after load
-
-				if (changesWriter.get() != null)
-					return true;
-
-				// Open the file stream, and create the PrintWriter with it
-				try (FileOutputStream fos = new FileOutputStream(file, true)) {
-					changesWriter.set(new PrintWriter(new OutputStreamWriter(fos, FILE_CHARSET)));
-					loaded = true;
-					return true;
-				} catch (IOException e) { // close() might throw ANY IOException
-					//noinspection ThrowableNotThrown
-					Skript.exception(e);
-					return false;
-				}
-			}
-		}
-	}
-
-	@Override
-	public void close() {
-		clearChangesQueue();
-		super.close();
-		saveVariables(true); // also closes the writer
-	}
-
-	@Override
-	protected boolean save(String name, @Nullable String type, @Nullable byte[] value) {
-		synchronized (connectionLock) {
-			synchronized (changesWriter) {
-				if (!loaded && type == null) {
-					// deleting variables is not really required for this kind of storage,
-					//  as it will be completely rewritten every once in a while,
-					//  and at least once when the server stops.
-					return true;
-				}
-
-				// Get the PrintWriter, waiting for it to be available if needed
-				PrintWriter printWriter;
-				while ((printWriter = changesWriter.get()) == null) {
+	protected synchronized void load(LoadListener listener) throws IOException {
+		File file = file();
+		boolean hasHeader = false, legacy = false;
+		int invalid = 0;
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(file.toPath()), FILE_CHARSET))) {
+			String line;
+			int lineNumber = 0;
+			while ((line = reader.readLine()) != null) {
+				lineNumber++;
+				line = line.trim();
+				if (line.startsWith("# version:")) {
+					hasHeader = true;
 					try {
-						changesWriter.wait();
-					} catch (InterruptedException e) {
-						// Re-interrupt thread
-						Thread.currentThread().interrupt();
+						legacy = new Version(line.substring("# version:".length()).trim()).isSmallerThan(V2_1);
+					} catch (IllegalArgumentException ignored) {
 					}
 				}
+				if (line.isEmpty() || line.startsWith("#"))
+					continue;
 
-				writeCSV(printWriter, name, type, value == null ? "" : encode(value));
-				printWriter.flush();
-
-				changes.incrementAndGet();
+				String[] split = splitCSV(line);
+				if (split == null || split.length != 3) {
+					Skript.error("Invalid amount of commas in line " + lineNumber + " of " + file.getName() + " ('" + line + "')");
+					invalid++;
+					continue;
+				}
+				lines++;
+				String name = split[0], type = split[1];
+				if (type.equals("null")) {
+					stored.remove(name);
+				} else if (!legacy) {
+					stored.put(name, new Value(type, decode(split[2])));
+				} else {
+					// stored as text, so it has to be read and stored again
+					@SuppressWarnings("deprecation")
+					Object value = Classes.deserialize(type, split[2]);
+					Value serialized = value == null ? null : Classes.serialize(value);
+					if (serialized == null) {
+						Skript.error("Could not read the variable '" + name + "' in line " + lineNumber + " of " + file.getName());
+						invalid++;
+						stored.remove(name); // an older line for it is outdated
+					} else {
+						stored.put(name, serialized);
+					}
+				}
 			}
 		}
+
+		if (invalid > 0 || legacy) {
+			// the rewrite below drops what couldn't be read, so keep the file as it was
+			File backup;
+			try {
+				backup = FileUtils.backup(file);
+			} catch (IOException e) {
+				throw new IOException("Could not back up " + file.getName() + " before updating it: " + e.getMessage(), e);
+			}
+			if (invalid > 0)
+				Skript.error(invalid + " lines of " + file.getName() + " could not be read. A backup of the file was made as " + backup.getName());
+			if (legacy)
+				Skript.info("Updating " + file.getName() + " to the new format. A backup of the file was made as " + backup.getName());
+		}
+
+		for (Map.Entry<String, Value> entry : stored.entrySet())
+			listener.loaded(entry.getKey(), entry.getValue());
+
+		if (invalid > 0 || legacy || !hasHeader || shouldRewrite(0)) {
+			rewrite();
+		} else {
+			writer = openWriter(file, true);
+		}
+	}
+
+	@Override
+	protected synchronized void save(Batch batch) throws IOException {
+		// the changes are applied to what the file holds first: applying the same batch again changes nothing,
+		// so a retry can rewrite the file from it, no matter how much of the batch was written
+		StringBuilder appended = new StringBuilder();
+		int appendedLines = 0;
+		for (String prefix : batch.clears()) {
+			Iterator<String> names = stored.tailMap(prefix, true).keySet().iterator();
+			while (names.hasNext()) {
+				String name = names.next();
+				if (!name.startsWith(prefix))
+					break;
+				names.remove();
+				writeCSV(appended, name, null, "");
+				appendedLines++;
+			}
+		}
+		for (SerializedVariable change : batch.changes()) {
+			Value value = change.value;
+			if (value == null) {
+				if (stored.remove(change.name) == null)
+					continue; // the file doesn't have it
+				writeCSV(appended, change.name, null, "");
+			} else {
+				stored.put(change.name, value);
+				writeCSV(appended, change.name, value.type, encode(value.data));
+			}
+			appendedLines++;
+		}
+
+		if (rewriteNeeded || writer == null || shouldRewrite(appendedLines)) {
+			rewrite();
+			return;
+		}
+		try {
+			writer.write(appended.toString());
+			writer.flush();
+		} catch (IOException e) {
+			rewriteNeeded = true; // part of the batch may have been written
+			throw e;
+		}
+		lines += appendedLines;
+	}
+
+	/**
+	 * @param appendedLines how many lines are about to be appended
+	 * @return whether the file should be rewritten instead, since it has many lines that were replaced since
+	 */
+	private boolean shouldRewrite(int appendedLines) {
+		int replaced = lines + appendedLines - stored.size();
+		return replaced >= Math.max(MIN_REPLACED_LINES_TO_REWRITE, stored.size());
+	}
+
+	/**
+	 * Rewrites the file with only the current variables, through a temporary file,
+	 * so that the old file stays complete if the rewrite fails.
+	 */
+	private void rewrite() throws IOException {
+		rewriteNeeded = true; // until it's done
+		closeWriter();
+		File file = file();
+		File temp = new File(file.getParentFile(), file.getName() + ".temp");
+		try (Writer out = openWriter(temp, false)) {
+			writeAll(out);
+		}
+		try {
+			Files.move(temp.toPath(), file.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+		} catch (AtomicMoveNotSupportedException e) {
+			Files.move(temp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		}
+		writer = openWriter(file, true);
+		lines = stored.size();
+		rewriteNeeded = false;
+	}
+
+	@Override
+	protected boolean supportsBackups() {
 		return true;
 	}
 
-	/**
-	 * Completely rewrites the CSV file.
-	 * <p>
-	 * The {@code finalSave} argument is used to determine if
-	 * the {@link #saveTask save} and {@link #backupTask backup} tasks
-	 * should be cancelled, and if the storage should reconnect after saving.
-	 *
-	 * @param finalSave whether this is the last save in this session or not.
-	 */
-	public final void saveVariables(boolean finalSave) {
-		if (finalSave) {
-			// Cancel save and backup tasks, not needed with final save anyway
-			if (saveTask != null)
-				saveTask.cancel();
-			if (backupTask != null)
-				backupTask.cancel();
-		}
+	@Override
+	protected synchronized void writeBackup(OutputStream out) throws IOException {
+		Writer backup = new BufferedWriter(new OutputStreamWriter(out, FILE_CHARSET));
+		writeAll(backup);
+		backup.flush(); // not closed, since that would close out
+	}
 
-		// no lock on variables is held here, so writers carry on while the file is rewritten.
-		// the snapshot has to come after disconnect(), which drops any changes that haven't been written yet.
-		// those changes have all been made to the variables already, so the snapshot will include them,
-		// and anything it does miss hasn't been passed to this storage yet, so it's written after reconnecting.
-		synchronized (connectionLock) {
-			try {
-				if (file == null) {
-					// This storage requires a file, so file should be nonnull
-					assert false : this;
-					return;
-				}
-
-				disconnect();
-
-				if (loadError) {
-					// There was an error while loading the CSV file, create a backup of it
-					try {
-						File backup = FileUtils.backup(file);
-						Skript.info("Created a backup of the old " + file.getName() + " as " + backup.getName());
-						loadError = false;
-					} catch (IOException e) {
-						Skript.error("Could not backup the old " + file.getName() + ": " + ExceptionUtils.toString(e));
-						Skript.error("No variables are saved!");
-						return;
-					}
-				}
-
-				// Write the variables to a temporary file, giving less problems if saving fails
-				//  (if saving fails during writing to the actual file,
-				//  the data in the actual file may be partially lost)
-				File tempFile = new File(file.getParentFile(), file.getName() + ".temp");
-
-				try (PrintWriter pw = new PrintWriter(tempFile, "UTF-8")) {
-					pw.println("# === Skript's variable storage ===");
-					pw.println("# Please do not modify this file manually!");
-					pw.println("#");
-					pw.println("# version: " + Skript.getVersion());
-					pw.println();
-					save(pw, Variables.getVariables());
-					pw.println();
-					pw.flush();
-					pw.close();
-					FileUtils.move(tempFile, file, true);
-				} catch (IOException e) {
-					Skript.error("Unable to make a final save of the database '" + getUserConfigurationName() +
-							"' (no variables are lost): " + ExceptionUtils.toString(e));
-					// FIXME happens at random - check locks/threads
-				}
-			} finally {
-				// Reconnect if needed
-				if (!finalSave) {
-					connect();
-				}
-			}
+	private void writeAll(Writer out) throws IOException {
+		out.write("# === Skript's variable storage ===\n");
+		out.write("# Please do not modify this file manually!\n");
+		out.write("#\n");
+		out.write("# version: " + Skript.getVersion() + "\n");
+		out.write("\n");
+		StringBuilder line = new StringBuilder();
+		for (Map.Entry<String, Value> entry : stored.entrySet()) {
+			line.setLength(0);
+			writeCSV(line, entry.getKey(), entry.getValue().type, encode(entry.getValue().data));
+			out.write(line.toString());
 		}
 	}
 
-	/**
-	 * Saves the variables.
-	 *
-	 * @param pw the print writer to write the CSV lines too.
-	 * @param variables the variables to save, by full name.
-	 */
-	private void save(PrintWriter pw, Map<String, Object> variables) {
-		for (Entry<String, Object> entry : variables.entrySet()) {
-			String name = entry.getKey();
-
-			if (name.startsWith(Variable.EPHEMERAL_VARIABLE_TOKEN))
-				// Skip ephemeral variables
-				continue;
-
-			try {
-				// Loop over storages to make sure this variable is ours to store
-				for (VariablesStorage storage : Variables.STORAGES) {
-					if (storage.accept(name)) {
-						if (storage == this) {
-							// Serialize the value
-							SerializedVariable.Value serializedValue = Classes.serialize(entry.getValue());
-
-							// Write the CSV line
-							if (serializedValue != null)
-								writeCSV(pw, name, serializedValue.type, encode(serializedValue.data));
-						}
-
-						break;
-					}
-				}
-			} catch (Exception ex) {
-				//noinspection ThrowableNotThrown
-				Skript.exception(ex, "Error saving variable named " + name);
-			}
+	@Override
+	public synchronized void close() {
+		try {
+			closeWriter();
+		} catch (IOException e) {
+			Skript.warning("Could not close " + file().getName() + ": " + e.getMessage());
 		}
+	}
+
+	private static Writer openWriter(File file, boolean append) throws IOException {
+		return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, append), FILE_CHARSET));
+	}
+
+	private void closeWriter() throws IOException {
+		Writer writer = this.writer;
+		this.writer = null;
+		if (writer != null)
+			writer.close();
+	}
+
+	private File file() {
+		File file = getStorageFile();
+		if (file == null)
+			throw new IllegalStateException("The database '" + getName() + "' has no file");
+		return file;
 	}
 
 	/**
@@ -517,8 +329,7 @@ public class FlatFileStorage extends VariablesStorage {
 	 *
 	 * @see #CSV_LINE_PATTERN
 	 */
-	@Nullable
-	static String[] splitCSV(String line) {
+	static String @Nullable [] splitCSV(String line) {
 		Matcher matcher = CSV_LINE_PATTERN.matcher(line);
 
 		int lastEnd = 0;
@@ -553,47 +364,32 @@ public class FlatFileStorage extends VariablesStorage {
 	private static final Pattern CONTAINS_WHITESPACE = Pattern.compile("\\s");
 
 	/**
-	 * Writes the given 3 values as a CSV value to the given {@link PrintWriter}.
+	 * Writes a variable as a CSV line.
 	 *
-	 * @param printWriter the print writer.
-	 * @param values the values, must have a length of {@code 3}.
+	 * @param line  where to write the line, including its line break
+	 * @param name  the variable's name
+	 * @param type  the value's type, or null for a deleted variable
+	 * @param value the value in hex, or empty for a deleted variable
 	 */
-	private static void writeCSV(PrintWriter printWriter, String... values) {
-		assert values.length == 3; // name, type, value
-
-		for (int i = 0; i < values.length; i++) {
-			if (i != 0)
-				printWriter.print(", ");
-
-			String value = values[i];
-
-			// Check if the value should be escaped
-			boolean escapingNeeded = value != null
-				&& (value.contains(",")
-				|| value.contains("\"")
-				|| value.contains("#")
-				|| CONTAINS_WHITESPACE.matcher(value).find());
-			if (escapingNeeded) {
-				value = '"' + value.replace("\"", "\"\"") + '"';
-			}
-
-			printWriter.print(value);
-		}
-
-		printWriter.println();
+	private static void writeCSV(StringBuilder line, String name, @Nullable String type, String value) {
+		appendCSVValue(line, name);
+		line.append(", ");
+		appendCSVValue(line, type == null ? "null" : type);
+		line.append(", ");
+		appendCSVValue(line, value);
+		line.append('\n');
 	}
 
-	/**
-	 * Change the required amount of variable changes until variables are saved.
-	 * Cannot be zero or less.
-	 * @param value
-	 */
-	public static void setRequiredChangesForResave(int value) {
-		if (value <= 0) {
-			Skript.warning("Variable changes until save cannot be zero or less. Using default of 1000.");
-			value = 1000;
+	private static void appendCSVValue(StringBuilder line, String value) {
+		boolean escapingNeeded = value.contains(",")
+			|| value.contains("\"")
+			|| value.contains("#")
+			|| CONTAINS_WHITESPACE.matcher(value).find();
+		if (escapingNeeded) {
+			line.append('"').append(value.replace("\"", "\"\"")).append('"');
+		} else {
+			line.append(value);
 		}
-		REQUIRED_CHANGES_FOR_RESAVE = value;
 	}
 
 }
