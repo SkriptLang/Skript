@@ -89,6 +89,10 @@ public abstract class VariableStorage implements Closeable {
 	private @Nullable File file;
 	private boolean ownsFile = false;
 
+	// set by the manager if loading failed: the storage keeps its names, but nothing is saved to it.
+	// written before the storages are published, so it needs no volatile
+	boolean loadFailed;
+
 	// the changes waiting to be saved
 	private final ChangeQueue queue = new ChangeQueue();
 
@@ -508,7 +512,7 @@ public abstract class VariableStorage implements Closeable {
 	 * This is allowed to block for as long as necessary, though as always, faster is better.
 	 * Any variable loaded should be passed to {@link StorageListener#loaded(String, SerializedVariable.Value)} as it is loaded.
 	 *
-	 * @param listener the listener to pass the variables to
+	 * @param listener the listener to pass the variables to. Don't save this.
 	 * @throws IOException if the stored data could not be read completely
 	 */
 	protected abstract void load(StorageListener listener) throws IOException;

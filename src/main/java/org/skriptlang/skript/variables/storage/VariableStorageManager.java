@@ -1,6 +1,10 @@
 package org.skriptlang.skript.variables.storage;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
+import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Variable;
+import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.variables.SerializedVariable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -8,9 +12,15 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.variables.VariableMap;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringJoiner;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -43,6 +53,8 @@ public final class VariableStorageManager {
 	private volatile @Unmodifiable List<VariableStorage> storages = List.of();
 	// whether storages have been set up, after which no more types can be registered.
 	private boolean started;
+	// whether loading has begun, after which no more types can be registered either.
+	private boolean loading;
 	// whether the storages have been shut down, after which changes only reach the map
 	private volatile boolean closed;
 
@@ -81,7 +93,7 @@ public final class VariableStorageManager {
 	public synchronized <T extends VariableStorage> boolean register(SkriptAddon addon, Class<T> storage,
 																	 BiFunction<SkriptAddon, String, T> constructor,
 																	 String... names) {
-		if (started)
+		if (started || loading)
 			throw new IllegalStateException("Storage types must be registered before variables are loaded: " + storage.getName());
 		StorageType<T> type = new StorageType<>(addon, storage, constructor, names); // checks the names
 		for (StorageType<?> registered : types) {
@@ -156,7 +168,8 @@ public final class VariableStorageManager {
 			return null;
 		for (VariableStorage storage : storages) {
 			if (storage.accept(name)) {
-				return storage;
+				// a storage that failed to load still owns its names, so they don't end up saved somewhere else
+				return storage.loadFailed ? null : storage;
 			}
 		}
 		return null;
@@ -225,8 +238,10 @@ public final class VariableStorageManager {
 		}
 		underLocks(involvedStorages, () -> {
 			// clear each
-			for (VariableStorage storage : involvedStorages)
-				storage.queue().recordClear(listPrefix, true);
+			for (VariableStorage storage : involvedStorages) {
+				if (!storage.loadFailed)
+					storage.queue().recordClear(listPrefix, true);
+			}
 			globals.setVariable(listPrefix + "*", null);
 		});
 	}
@@ -267,6 +282,9 @@ public final class VariableStorageManager {
 					}
 				}
 			}
+			// owned by a storage that failed to load: not saved
+			if (owners[i] != null && owners[i].loadFailed)
+				owners[i] = null;
 			// don't serialize if we aren't gonna store it
 			if (owners[i] != null)
 				serialized[i] = serializer.apply(values[i]);
@@ -274,8 +292,10 @@ public final class VariableStorageManager {
 
 		underLocks(involvedStorages, () -> {
 			// clear first! the changes have to come after the clear, or draining drops them
-			for (VariableStorage storage : involvedStorages)
-				storage.queue().recordClear(listPrefix, true);
+			for (VariableStorage storage : involvedStorages) {
+				if (!storage.loadFailed)
+					storage.queue().recordClear(listPrefix, true);
+			}
 			globals.setList(listName, keys, values);
 			// in order, so a repeated key's last value wins, as in the map
 			for (int i = 0; i < names.length; i++) {
@@ -285,5 +305,231 @@ public final class VariableStorageManager {
 		});
 	}
 
+	// ---------------------------- STARTUP ----------------------------
+
+	public boolean load(SectionNode databases) {
+		synchronized (this) {
+			if (started || loading)
+				throw new IllegalStateException("Variables have already been loaded");
+			loading = true; // no more types can be registered
+		}
+
+		boolean successful = true;
+		List<VariableStorage> configured = new ArrayList<>();
+		// backup folders are named after the storage, so two names mapping to one folder would mix their backups.
+		// ignoring case, since some file systems do
+		Map<String, String> backupNames = new HashMap<>();
+		try {
+			for (Node node : databases) {
+				// parse each database
+				SkriptLogger.setNode(node);
+				if (!(node instanceof SectionNode section)) {
+					Skript.error("Invalid line in databases: databases must be defined as sections");
+					successful = false;
+					continue;
+				}
+				String name = section.getKey();
+				assert name != null;
+
+				// check type
+				String typeName = section.getValue("type");
+				if (typeName == null) {
+					Skript.error("Missing entry 'type' in database definition");
+					successful = false;
+					continue;
+				}
+				if (typeName.equalsIgnoreCase("disabled") || typeName.equalsIgnoreCase("none"))
+					continue;
+				StorageType<?> type = typeFor(typeName);
+				if (type == null) {
+					Skript.error("Invalid database type '" + typeName + "'");
+					successful = false;
+					continue;
+				}
+
+				// check for name repeats
+				String clash = backupNames.putIfAbsent(StorageBackups.safeName(name).toLowerCase(Locale.ENGLISH), name);
+				if (clash != null) {
+					Skript.error("The databases '" + clash + "' and '" + name + "' would share a backup folder. Please rename one of them.");
+					successful = false;
+					continue;
+				}
+
+				// create storage and loadConfig
+				VariableStorage storage;
+				try {
+					storage = type.create(typeName);
+				} catch (RuntimeException e) {
+					//noinspection ThrowableNotThrown
+					Skript.exception(e, "Failed to create the database '" + name + "' of type '" + typeName + "'");
+					successful = false;
+					continue;
+				}
+				if (!storage.loadConfig(section)) { // reports its own errors and releases its file
+					successful = false;
+					continue;
+				}
+				configured.add(storage);
+			}
+		} finally {
+			SkriptLogger.setNode(null);
+		}
+
+		// finish loading (intentional not to short-circuit)
+		return loadStorages(configured) && successful;
+	}
+
+	boolean loadStorages(List<VariableStorage> configured) {
+		synchronized (this) {
+			if (started)
+				throw new IllegalStateException("Variables have already been loaded");
+			loading = true;
+		}
+
+		// start loading variables
+		boolean successful = true;
+		LoadProgress progress = new LoadProgress();
+		for (VariableStorage storage : configured) {
+			long start = System.nanoTime();
+			if (Skript.logVeryHigh())
+				Skript.info("Loading database '" + storage.getName() + "'...");
+
+			LoadListener listener = new LoadListener(storage, progress);
+			try {
+				storage.load(listener);
+			} catch (IOException e) {
+				Skript.error("Failed to load the database '" + storage.getName() + "': " + e.getMessage()
+					+ ". Its variables won't be saved until it loads after a restart.");
+				failed(storage);
+				successful = false;
+				continue;
+			} catch (RuntimeException e) {
+				//noinspection ThrowableNotThrown
+				Skript.exception(e, "Failed to load the database '" + storage.getName() + "'."
+					+ " Its variables won't be saved until it loads after a restart.");
+				failed(storage);
+				successful = false;
+				continue;
+			}
+
+			if (listener.unreadable > 0) {
+				Skript.warning(listener.unreadable + " variables in the database '" + storage.getName() + "' couldn't be read,"
+					+ " probably because their type no longer exists. They are left in the database as they are.");
+			}
+			if (Skript.logVeryHigh()) {
+				Skript.info("Loaded " + listener.loaded + " variables from the database '" + storage.getName() + "' in "
+					+ (TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start) / 100) / 10.0 + " seconds");
+			}
+		}
+
+		// TODO (part E): resolve names loaded by more than one storage, and move names to the storage that owns them
+
+		// start saving threads for each successful storage
+		for (VariableStorage storage : configured) {
+			if (storage.loadFailed)
+				continue;
+			try {
+				storage.startSaving();
+			} catch (RuntimeException e) {
+				//noinspection ThrowableNotThrown
+				Skript.exception(e, "Failed to start saving the database '" + storage.getName() + "'."
+					+ " Its variables won't be saved until the server restarts.");
+				failed(storage);
+				successful = false;
+			}
+		}
+
+		// failed storages stay in the routing order, so the names they own aren't saved to a storage after them
+		setStorages(configured);
+
+		if (configured.isEmpty()) {
+			Skript.error("No databases to store variables are defined. Please enable at least the default database, even if you don't use variables at all.");
+			return false;
+		}
+		if (configured.stream().noneMatch(storage -> storage.getPrefixes() == null)) {
+			StringJoiner prefixes = new StringJoiner(", ");
+			for (VariableStorage storage : configured) {
+				assert storage.getPrefixes() != null;
+				storage.getPrefixes().forEach(prefixes::add);
+			}
+			Skript.warning("No database saves every variable, so variables whose names don't start with one of these"
+				+ " prefixes won't be saved: " + prefixes);
+		}
+		return successful;
+	}
+
+	private static void failed(VariableStorage storage) {
+		storage.loadFailed = true;
+		try {
+			storage.close();
+		} catch (RuntimeException e) {
+			//noinspection ThrowableNotThrown
+			Skript.exception(e, "Failed to close the database '" + storage.getName() + "'");
+		} finally {
+			storage.releaseFile();
+		}
+	}
+
+	// helper for printing the variable loading progress
+	private static final class LoadProgress {
+
+		private final long intervalNanos = TimeUnit.SECONDS.toNanos(Skript.logNormal() ? 1 : 5);
+		private long count;
+		private long lastLog = System.nanoTime();
+
+		void loaded() {
+			count++;
+			long now = System.nanoTime();
+			if (now - lastLog >= intervalNanos) {
+				lastLog = now;
+				Skript.info("Loaded " + count + " variables so far...");
+			}
+		}
+
+	}
+
+	// storages load one at a time, on the thread loading variables, which is the main thread while Skript enables.
+	// so this needs no locking, and can deserialize types that need the main thread
+	private final class LoadListener implements StorageListener {
+
+		private final VariableStorage source;
+		private final LoadProgress progress;
+		private int loaded;
+		private int unreadable;
+
+		LoadListener(VariableStorage source, LoadProgress progress) {
+			this.source = source;
+			this.progress = progress;
+		}
+
+		@Override
+		public void loaded(String name, SerializedVariable.Value value) {
+			// older versions could save values under list names, which can't exist
+			if (name.endsWith(Variable.SEPARATOR + "*")) {
+				Skript.warning("Skipping the stored variable '" + name + "', since variables can't have the same name as a list.");
+				return;
+			}
+			Object deserialized = deserializer.apply(value.type, value.data);
+			if (deserialized == null) {
+				unreadable++; // left in the storage, so it's back once the type is
+				return;
+			}
+			// TODO (part E): a name loaded by another storage too, and a name this storage doesn't own
+			globals.setVariable(name, deserialized);
+			loaded++;
+			progress.loaded();
+		}
+
+		@Override
+		public void updated(String name, SerializedVariable.@Nullable Value value) {
+			throw new IllegalStateException("The database '" + source.getName() + "' reported a change while loading");
+		}
+
+		@Override
+		public void cleared(String listName) {
+			throw new IllegalStateException("The database '" + source.getName() + "' reported a clear while loading");
+		}
+
+	}
 
 }

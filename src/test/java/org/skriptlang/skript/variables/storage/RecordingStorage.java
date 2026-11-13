@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -89,6 +90,16 @@ class RecordingStorage extends VariableStorage {
 	 */
 	final AtomicInteger backupAttempts = new AtomicInteger();
 
+	/**
+	 * If set, {@link #load(StorageListener)} throws it after reporting everything in {@link #saved}.
+	 */
+	volatile @Nullable IOException failLoad;
+
+	/**
+	 * How often {@link #close()} was called.
+	 */
+	final AtomicInteger closes = new AtomicInteger();
+
 	RecordingStorage() {
 		super(null, "recording");
 	}
@@ -163,7 +174,15 @@ class RecordingStorage extends VariableStorage {
 	}
 
 	@Override
-	protected void load(StorageListener listener) {
+	protected void load(StorageListener listener) throws IOException {
+		Map<String, SerializedVariable.Value> stored;
+		synchronized (saved) {
+			stored = new TreeMap<>(saved); // sorted, so loading order is predictable
+		}
+		for (Map.Entry<String, SerializedVariable.Value> entry : stored.entrySet())
+			listener.loaded(entry.getKey(), entry.getValue());
+		if (failLoad != null)
+			throw failLoad;
 	}
 
 	@Override
@@ -236,6 +255,7 @@ class RecordingStorage extends VariableStorage {
 
 	@Override
 	public void close() {
+		closes.incrementAndGet();
 	}
 
 }
