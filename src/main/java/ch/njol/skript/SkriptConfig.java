@@ -4,6 +4,7 @@ import ch.njol.skript.classes.EnumParser;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Option;
 import ch.njol.skript.config.OptionSection;
+import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.hooks.regions.GriefPreventionHook;
@@ -19,7 +20,6 @@ import ch.njol.skript.update.ReleaseChannel;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Version;
-import ch.njol.skript.variables.FlatFileStorage;
 import ch.njol.skript.variables.Variables;
 import co.aikar.timings.Timings;
 import org.bukkit.event.EventPriority;
@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.bukkit.text.TextComponentParser.LinkParseMode;
 import org.skriptlang.skript.util.event.EventRegistry;
+import org.skriptlang.skript.variables.storage.VariableStorageManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -395,9 +396,6 @@ public class SkriptConfig {
 	public static final Option<Integer> runtimeErrorTimeoutDuration = new Option<>("runtime errors.error timeout length", 10);
 	public static final Option<Integer> runtimeWarningTimeoutDuration = new Option<>("runtime errors.warning timeout length", 10);
 
-	public static final Option<Integer> variableChangesUntilSave = new Option<>("variable changes until save", 1000)
-		.setter(FlatFileStorage::setRequiredChangesForResave);
-
 	// intentionally not present in the config presented to the user. Users must manually add this option to disable it.
 	public static final Option<Boolean> simplifySyntaxesOnParse = new Option<>("simplify syntax on parse", true)
 		.optional(true);
@@ -449,7 +447,11 @@ public class SkriptConfig {
 					Config newConfig = new Config(stream, "Skript.jar/config.sk", false, false, ":");
 
 					File backup = FileUtils.backup(configFile);
-					boolean updated = mainConfig.updateNodes(newConfig);
+					boolean updated = false;
+					// databases now pick their variables by prefix instead of by a regex pattern
+					if (mainConfig.getMainNode().get("databases") instanceof SectionNode databases)
+						updated = VariableStorageManager.migratePatterns(databases);
+					updated |= mainConfig.updateNodes(newConfig);
 					mainConfig.getMainNode().set(version.key, Skript.getVersion().toString());
 					mainConfig.save(configFile);
 					SkriptConfig.mainConfig = mainConfig;
