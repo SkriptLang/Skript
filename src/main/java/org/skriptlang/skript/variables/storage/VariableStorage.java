@@ -114,6 +114,10 @@ public abstract class VariableStorage implements Closeable {
 	private int backupsToKeep = -1;   // -1 keeps every backup. Set while configuring.
 	private @Nullable StorageBackups backups; // created in startSaving. guarded by saveLock.
 
+	/**
+	 * @param registeringAddon the addon that registered this storage's type
+	 * @param type             the type name the config picked this storage with, such as {@code csv}
+	 */
 	protected VariableStorage(SkriptAddon registeringAddon, String type) {
 		this.registeringAddon = registeringAddon;
 		this.type = type;
@@ -609,13 +613,28 @@ public abstract class VariableStorage implements Closeable {
 	 */
 	interface ChangeHandler {
 
+		/**
+		 * Applies a change to a variable that a storage reported with {@link VariableStorage#reportUpdated}.
+		 *
+		 * @param source the storage that reported it
+		 * @param name   the variable's name, which isn't a list name
+		 * @param value  the new stored value, or null if the variable was deleted
+		 */
 		void updated(VariableStorage source, String name, SerializedVariable.@Nullable Value value);
 
+		/**
+		 * Applies a deletion of a list that a storage reported with {@link VariableStorage#reportCleared}.
+		 *
+		 * @param source   the storage that reported it
+		 * @param listName the list's full name, such as {@code a::*}
+		 */
 		void cleared(VariableStorage source, String listName);
 
 	}
 
-	// used once a storage has stopped, so late reports from its threads are dropped instead of failing
+	/**
+	 * Used once a storage has stopped, so late reports from its threads are dropped instead of failing.
+	 */
 	private static final ChangeHandler STOPPED = new ChangeHandler() {
 		@Override
 		public void updated(VariableStorage source, String name, SerializedVariable.@Nullable Value value) {
@@ -626,7 +645,9 @@ public abstract class VariableStorage implements Closeable {
 		}
 	};
 
-	// null until the storage is running
+	/**
+	 * Where reported changes go: null until the storage is running, and {@link #STOPPED} once it has stopped.
+	 */
 	private volatile @Nullable ChangeHandler changeHandler;
 
 	/**
@@ -669,6 +690,10 @@ public abstract class VariableStorage implements Closeable {
 		handler().cleared(this, listName);
 	}
 
+	/**
+	 * @return where reported changes go
+	 * @throws IllegalStateException if the storage isn't running yet
+	 */
 	private ChangeHandler handler() {
 		ChangeHandler handler = changeHandler;
 		if (handler == null)
@@ -711,6 +736,9 @@ public abstract class VariableStorage implements Closeable {
 
 		static final Batch EMPTY = new Batch(List.of(), List.of());
 
+		/**
+		 * @return whether the batch has no clears and no changes
+		 */
 		public boolean isEmpty() {
 			return clears.isEmpty() && changes.isEmpty();
 		}
