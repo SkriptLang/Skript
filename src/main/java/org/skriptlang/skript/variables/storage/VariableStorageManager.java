@@ -1,6 +1,7 @@
 package org.skriptlang.skript.variables.storage;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Variable;
@@ -305,6 +306,43 @@ public final class VariableStorageManager {
 					owners[i].queue().putPending(names[i], serialized[i]);
 			}
 		});
+	}
+
+	// ---------------------------- CONFIG UPDATE ----------------------------
+
+	/**
+	 * Rewrites the old {@code pattern} entries of the config's {@code databases} as {@code prefix} entries.
+	 * Called once, when Skript updates its config to a new version.
+	 * A pattern that matched every name is removed, and one that can't be written as prefixes is left
+	 * for loading to report. A database that already has a {@code prefix} is left alone.
+	 *
+	 * @param databases the {@code databases} section of the config
+	 * @return whether anything was changed
+	 */
+	public static boolean migratePatterns(SectionNode databases) {
+		List<Node> nodes = new ArrayList<>();
+		databases.forEach(nodes::add); // copied, since nodes are removed
+		boolean changed = false;
+		for (Node node : nodes) {
+			if (!(node instanceof SectionNode section) || section.get("prefix") != null)
+				continue;
+			if (!(section.get("pattern") instanceof EntryNode pattern))
+				continue;
+			List<String> prefixes = VariableStorage.patternToPrefixes(pattern.getValue());
+			if (prefixes == null)
+				continue;
+			// the prefix entry is split at commas and trimmed, so such prefixes can only stay patterns
+			if (prefixes.stream().anyMatch(prefix -> prefix.contains(",") || !prefix.equals(prefix.trim())))
+				continue;
+			if (prefixes.isEmpty()) {
+				pattern.remove();
+			} else {
+				pattern.rename("prefix");
+				pattern.setValue(String.join(", ", prefixes));
+			}
+			changed = true;
+		}
+		return changed;
 	}
 
 	// ---------------------------- STARTUP ----------------------------

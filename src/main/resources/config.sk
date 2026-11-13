@@ -247,15 +247,6 @@ long parse time warning threshold: 2 seconds
 #   stating that the statement has taken a long time to parse.
 # A value of 0 seconds means that this warning should be disabled.
 
-variable changes until save: 1000
-# This setting controls the total number of times that global variables need to be changed
-#   until saving variables to 'variables.csv'.
-# 'set {a} to 1' is one change, 'set {b} to 2' now makes it two.
-# You cannot provide a value of zero or less.
-# WARNING: This setting should be used at your own discretion.
-#          This setting can lag your server depending on how often variables get saved and
-#          the number of variables needing to be saved.
-
 # ==== Runtime Errors ====
 
 runtime errors:
@@ -296,9 +287,8 @@ runtime errors:
 # ==== Variables ====
 
 databases:
-	# Databases to store variables in. These can either be used as a simple one-server-storage
-	# where variables are written constantly but only read at server start,
-	# or as a connection between multiple servers by monitoring the database(s) for changes.
+	# Databases to store variables in. Variables are read from them once, when the server starts,
+	# and every change is saved to them shortly after it's made.
 	#
 	# You can define as many databases as you want, just make sure to choose a distinct name for each one, and don't forget to set all options correctly.
 	#
@@ -312,22 +302,18 @@ databases:
 		# The type of this database. Allowed values are 'CSV' and 'disabled'.
 		# CSV uses a text file to store the variables and 'disabled' makes Skript ignore the database as if it wasn't defined at all.
 
-		pattern: .*
-		# Defines which variables to save in this database.
-		# This pattern uses Regex syntax, e.g. use 'db_.*' (without the quotes) to store all variables prefixed with 'db_' in this database,
-		# or use '.*' (the default value) to store all variables here (recommended for the last database in this list, as otherwise some variables might not be saved).
+		# prefix: db_
+		# Defines which variables to save in this database, by how their names start.
+		# e.g. 'prefix: db_' (without the quotes) saves all variables whose names start with 'db_' in this database,
+		# and 'prefix: kills::, deaths::' saves the lists {kills::*} and {deaths::*}.
+		# A database without a prefix saves all variables (recommended for the last database in this list, as otherwise some variables might not be saved).
 		# Please note that variables are only stored in one database, and databases are checked from top to bottom,
-		# e.g. if a variable matches the topmost database's pattern it will be saved there and nowhere else.
-		# BTW: Patterns are checked in a separate thread, i.e. your server likely won't run slower when using complicated patterns.
-
-		monitor changes: false
-		monitor interval: 20 seconds
-		# If 'monitor changes' is set to true, variables will repeatedly be checked for updates in the database (in intervals set in 'monitor interval').
-		# ! Please note that you should set 'pattern', 'monitor changes' and 'monitor interval' to the same values on all servers that access the same database!
+		# e.g. if a variable's name starts with the topmost database's prefix it will be saved there and nowhere else.
+		# Older versions of Skript used a regex 'pattern' here instead. Skript replaces simple patterns, like 'db_.*', with prefixes when it updates this file.
 
 		# == CSV configuration ==
 		file: ./plugins/Skript/variables.db
-		# Where to save the variables to. For a CSV file, the file extension '.csv' is recommended, but not required, but SQLite database files must end in '.db' (SQLibrary forces this).
+		# Where to save the variables to. For a CSV file, the file extension '.csv' is recommended, but not required.
 		# The file path can either be absolute (e.g. 'C:\whatever\...' [Windows] or '/usr/whatever/...' [Unix]), or relative to the server directory (e.g. './plugins/Skript/...').
 
 		backup interval: 2 hours
@@ -336,10 +322,10 @@ databases:
 		# Set this to 0 to disable this feature.
 
 		backups to keep: -1
-		# if set to a value greater than -1, Skript will ensure only that many backups are kept.
+		# If set to a value greater than -1, Skript will ensure only that many backups of this database are kept.
 		# Backups are removed from oldest to newest.
 		# If disabled (set to -1), no backup files will be deleted.
-		# WARNING: Setting to 0 will delete all files located in the backup directory upon plugin start/reload
+		# WARNING: Setting this to 0 turns backups off and deletes all of this database's existing backups when the server starts.
 
 	default:
 		# The default "database" is a simple text file, with each variable on a separate line and the variable's name, type, and value separated by commas.
@@ -348,8 +334,6 @@ databases:
 
 		type: CSV
 
-		pattern: .*
-
 		file: ./plugins/Skript/variables.csv
 
 		backup interval: 2 hours
@@ -357,10 +341,8 @@ databases:
 		backups to keep: -1
 
 
-	# PS: If you don't want some variables to be saved in any database (e.g. variables that contain an %entity% which usually despawn when the server is shut down)
-	# you can modify the last database's pattern to not match all variables, e.g. use '(?!x_).*' to match all variables that don't start with 'x_'.
-	# Be very cautious when doing this however as unsaved variables cannot be recovered after the server has been stopped.
-	# I recommend to use a single character to denote unsaved variables (similar to local variables' '_'), e.g. '-', in which case the last database's pattern should be '(?!-).*'.
+	# PS: If you don't want some variables to be saved in any database (e.g. variables that contain an %entity% which usually despawn when the server is shut down),
+	# start their names with '-', e.g. {-cooldown::%player%}. Such variables are never saved, so they are gone after the server has been stopped.
 
 
 

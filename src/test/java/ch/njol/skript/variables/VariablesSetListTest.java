@@ -1,6 +1,5 @@
 package ch.njol.skript.variables;
 
-import ch.njol.skript.lang.Variable;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 import ch.njol.util.Pair;
 import org.bukkit.event.Event;
@@ -13,17 +12,14 @@ import org.junit.Test;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.*;
 
 /**
  * Tests {@link Variables#setList} for what it does around {@link org.skriptlang.skript.variables.VariableMap#setList}:
  * case folding and falling back for nested keys, which can't be reached from a script
- * as a script's keyed values come from variables, whose keys are already lowercase,
- * and locking and queueing for global lists.
+ * as a script's keyed values come from variables, whose keys are already lowercase.
+ * How global lists are saved is tested with the storages.
  * Also covers removing through {@link Variables#getVariableIterator}, which writes through the same paths.
  */
 public class VariablesSetListTest extends SkriptJUnitTest {
@@ -226,66 +222,6 @@ public class VariablesSetListTest extends SkriptJUnitTest {
 		Map<?, ?> list = (Map<?, ?>) get("l::*");
 		assertNotNull(list);
 		assertEquals(List.of("1"), List.copyOf(list.keySet()));
-	}
-
-	@Test
-	public void unsavedGlobalsDontWaitForTheSaveOrderLock() throws InterruptedException {
-		String name = Variable.EPHEMERAL_VARIABLE_TOKEN + GLOBAL;
-		CountDownLatch locked = new CountDownLatch(1);
-		CountDownLatch written = new CountDownLatch(1);
-		AtomicBoolean finishedWhileHeld = new AtomicBoolean();
-		Thread holder = new Thread(() -> {
-			Variables.saveOrderLock.lock();
-			try {
-				locked.countDown();
-				finishedWhileHeld.set(written.await(5, TimeUnit.SECONDS));
-			} catch (InterruptedException ignored) {
-			} finally {
-				Variables.saveOrderLock.unlock();
-			}
-		});
-		holder.start();
-		assertTrue(locked.await(5, TimeUnit.SECONDS));
-
-		Variables.setVariable(name + "::1", "a", null, false);
-		Variables.setList(name, new String[] {"2"}, new Object[] {"b"}, null, false);
-		written.countDown();
-		holder.join(5000);
-
-		try {
-			assertTrue(finishedWhileHeld.get());
-			assertEquals("b", Variables.getVariable(name + "::2", null, false));
-		} finally {
-			Variables.setVariable(name + "::*", null, null, false);
-		}
-	}
-
-	@Test
-	public void globalWritesWaitForTheSaveOrderLock() throws InterruptedException {
-		Variables.setList(GLOBAL, new String[] {"1", "old"}, new Object[] {"a", "old"}, null, false);
-
-		// hold the lock on another thread, as it's reentrant for this one
-		CountDownLatch locked = new CountDownLatch(1);
-		Thread holder = new Thread(() -> {
-			Variables.saveOrderLock.lock();
-			try {
-				locked.countDown();
-				Thread.sleep(100);
-			} catch (InterruptedException ignored) {
-			} finally {
-				Variables.saveOrderLock.unlock();
-			}
-		});
-		holder.start();
-		assertTrue(locked.await(5, TimeUnit.SECONDS));
-
-		// nothing gets queued for later anymore, so this has to be done once it returns
-		Variables.setList(GLOBAL, new String[] {"2", "1"}, new Object[] {"b", "c"}, null, false);
-		holder.join(5000);
-
-		assertNull(getGlobal("old"));
-		assertEquals("c", getGlobal("1"));
-		assertEquals("b", getGlobal("2"));
 	}
 
 }
