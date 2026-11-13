@@ -10,11 +10,13 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.variables.VariableList;
 import org.skriptlang.skript.variables.VariableMap;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -389,12 +391,13 @@ public final class VariableStorageManager {
 		// start loading variables
 		boolean successful = true;
 		LoadProgress progress = new LoadProgress();
+		Migration migration = new Migration(configured);
 		for (VariableStorage storage : configured) {
 			long start = System.nanoTime();
 			if (Skript.logVeryHigh())
 				Skript.info("Loading database '" + storage.getName() + "'...");
 
-			Loader listener = new Loader(storage, progress);
+			Loader listener = new Loader(storage, progress, migration);
 			try {
 				storage.load(listener);
 			} catch (IOException e) {
@@ -422,7 +425,8 @@ public final class VariableStorageManager {
 			}
 		}
 
-		// TODO (part E): resolve names loaded by more than one storage, and move names to the storage that owns them
+		// move variables to the storages that own them, before saving starts
+		migration.resolve();
 
 		// start saving threads for each successful storage
 		for (VariableStorage storage : configured) {
@@ -441,6 +445,11 @@ public final class VariableStorageManager {
 
 		// failed storages stay in the routing order, so the names they own aren't saved to a storage after them
 		setStorages(configured);
+		// only now, so a reported change is checked against the storages that are running
+		for (VariableStorage storage : configured) {
+			if (!storage.loadFailed)
+				storage.startReceiving(reports);
+		}
 
 		if (configured.isEmpty()) {
 			Skript.error("No databases to store variables are defined. Please enable at least the default database, even if you don't use variables at all.");
@@ -495,12 +504,14 @@ public final class VariableStorageManager {
 
 		private final VariableStorage source;
 		private final LoadProgress progress;
+		private final Migration migration;
 		private int loaded;
 		private int unreadable;
 
-		Loader(VariableStorage source, LoadProgress progress) {
+		Loader(VariableStorage source, LoadProgress progress, Migration migration) {
 			this.source = source;
 			this.progress = progress;
+			this.migration = migration;
 		}
 
 		@Override
@@ -515,12 +526,258 @@ public final class VariableStorageManager {
 				unreadable++; // left in the storage, so it's back once the type is
 				return;
 			}
-			// TODO (part E): a name loaded by another storage too, and a name this storage doesn't own
-			globals.setVariable(name, deserialized);
+			if (migration.keep(source, name, value))
+				globals.setVariable(name, deserialized);
 			loaded++;
 			progress.loaded();
 		}
 
+	}
+
+	// ---------------------------- MIGRATION ----------------------------
+
+	private static final Runnable NO_MAP_WRITE = () -> {
+	};
+
+	// a variable loaded from a storage that doesn't own it, or loaded by more than one storage
+	private static final class MisplacedVariable {
+
+		private final VariableStorage owner;
+		// the storage whose copy is in the map, null if the owner had its own copy
+		private @Nullable VariableStorage keeper;
+		private SerializedVariable.@Nullable Value value;
+		// other storages with a copy, which is deleted
+		private final List<VariableStorage> others = new ArrayList<>(1);
+
+		MisplacedVariable(VariableStorage owner, @Nullable VariableStorage keeper, SerializedVariable.@Nullable Value value) {
+			this.owner = owner;
+			this.keeper = keeper;
+			this.value = value;
+		}
+
+		void ownerHasIt() {
+			if (keeper != null) {
+				others.add(keeper);
+				keeper = null;
+				value = null;
+			}
+		}
+
+		void deleteCopies(String name) {
+			if (keeper != null && !keeper.loadFailed)
+				keeper.queue().write(name, null, NO_MAP_WRITE);
+			for (VariableStorage other : others) {
+				if (!other.loadFailed)
+					other.queue().write(name, null, NO_MAP_WRITE);
+			}
+		}
+
+	}
+
+	// only records the exceptions, so variables already in the storage they belong to cost nothing extra
+	private final class Migration {
+
+		private final List<VariableStorage> configured;
+		private final Map<String, MisplacedVariable> misplaced = new HashMap<>();
+		private int duplicates;
+		private int unowned;
+
+		Migration(List<VariableStorage> configured) {
+			this.configured = configured;
+		}
+
+		// the same rule as routing, against the configured storages, since routing isn't live yet
+		private @Nullable VariableStorage ownerOf(String name) {
+			if (name.startsWith(Variable.EPHEMERAL_VARIABLE_TOKEN))
+				return null;
+			for (VariableStorage storage : configured) {
+				if (storage.accept(name))
+					return storage;
+			}
+			return null;
+		}
+
+		// whether the loaded value goes in the map: the owner's copy wins, otherwise the first one loaded
+		boolean keep(VariableStorage source, String name, SerializedVariable.Value value) {
+			VariableStorage owner = ownerOf(name);
+			MisplacedVariable entry = misplaced.get(name);
+			if (owner == source) {
+				// we are the source of truth
+				if (entry != null) {
+					// if there's an imposter (sus) we overrule
+					entry.ownerHasIt();
+					duplicates++;
+				}
+				return true;
+			}
+			// we are not the owner atp
+			if (owner == null) {
+				// no real owner
+				if (globals.getVariable(name) != null) {
+					// if someone already loaded it, it's a duplicate and we leave the existing value be
+					duplicates++;
+					return false;
+				}
+				// no one loaded it, so we should load it and mark as unowned.
+				unowned++;
+				return true;
+			}
+			// there is an owner and it is not us
+			if (entry != null) {
+				// someone already marked this as misplaced, so just add ourselves to the list
+				entry.others.add(source);
+				duplicates++;
+				return false;
+			}
+			if (globals.getVariable(name) != null) {
+				// there is no entry but there is a value/owner, so we are the first misplaced copy
+				// therefore create entry
+				entry = new MisplacedVariable(owner, null, null);
+				entry.others.add(source);
+				misplaced.put(name, entry);
+				duplicates++;
+				return false;
+			}
+			// there is an owner but it did not load this var, so it's simply misplaced.
+			misplaced.put(name, new MisplacedVariable(owner, source, value));
+			return true;
+		}
+
+		// moves each misplaced variable to its owner, and deletes the other copies only once the owner has saved it
+		void resolve() {
+			Map<VariableStorage, List<String>> moves = new LinkedHashMap<>();
+			int ownerFailed = 0;
+			for (Map.Entry<String, MisplacedVariable> entry : misplaced.entrySet()) {
+				MisplacedVariable variable = entry.getValue();
+				if (variable.owner.loadFailed) {
+					ownerFailed++; // left where it is, since the owner can't save it
+				} else if (variable.keeper == null) {
+					variable.deleteCopies(entry.getKey()); // the owner has its own copy
+				} else {
+					moves.computeIfAbsent(variable.owner, owner -> new ArrayList<>()).add(entry.getKey());
+				}
+			}
+
+			int moved = 0;
+			int notMoved = 0;
+			for (Map.Entry<VariableStorage, List<String>> entry : moves.entrySet()) {
+				VariableStorage owner = entry.getKey();
+				List<String> names = entry.getValue();
+				for (String name : names)
+					owner.queue().write(name, misplaced.get(name).value, NO_MAP_WRITE); // reuses the stored bytes
+				if (owner.flush()) {
+					for (String name : names)
+						misplaced.get(name).deleteCopies(name);
+					moved += names.size();
+				} else {
+					// still queued for the owner, which keeps retrying. the copies stay until a later start
+					// finds the owner has the variable
+					notMoved += names.size();
+				}
+			}
+			misplaced.clear();
+
+			if (moved > 0)
+				Skript.info("Moved " + moved + " variables to the databases they belong to");
+			if (notMoved > 0) {
+				Skript.warning(notMoved + " variables couldn't be moved to the databases they belong to, since saving to"
+					+ " them failed. They're kept where they were, and are moved on a later start.");
+			}
+			if (ownerFailed > 0) {
+				Skript.warning(ownerFailed + " variables weren't moved to the databases they belong to,"
+					+ " since those failed to load.");
+			}
+			if (duplicates > 0)
+				Skript.warning("A total of " + duplicates + " variables were loaded more than once from different databases");
+			if (unowned > 0) {
+				Skript.warning(unowned + " variables were loaded from databases that don't save them, since their names"
+					+ " don't start with any database's prefix. They're left where they are, but changes to them won't be saved.");
+			}
+		}
+
+	}
+
+	// ---------------------------- REPORTED CHANGES ----------------------------
+
+	// changes storages report from outside this server. applied on the main thread, in the order they were reported,
+	// since some types can only be deserialized there
+	private final VariableStorage.ChangeHandler reports = new VariableStorage.ChangeHandler() {
+
+		@Override
+		public void updated(VariableStorage source, String name, SerializedVariable.@Nullable Value value) {
+			if (!closed)
+				mainThread.execute(() -> applyUpdate(source, name, value));
+		}
+
+		@Override
+		public void cleared(VariableStorage source, String listName) {
+			if (!closed)
+				mainThread.execute(() -> applyClear(source, listName));
+		}
+
+	};
+
+	private void applyUpdate(VariableStorage source, String name, SerializedVariable.@Nullable Value value) {
+		if (route(name) != source) { // closed, ephemeral, or saved by another storage here
+			if (!closed)
+				Skript.debug("Ignoring a change to '" + name + "' from the database '" + source.getName() + "', which doesn't save it");
+			return;
+		}
+		Object deserialized = null;
+		if (value != null) {
+			deserialized = deserializer.apply(value.type, value.data);
+			if (deserialized == null) {
+				Skript.debug("Ignoring a change to '" + name + "' from the database '" + source.getName() + "', which couldn't be read");
+				return;
+			}
+		}
+		Object newValue = deserialized;
+		// also drops any unsaved local change to it, so the storage's value isn't overwritten
+		source.queue().externalWrite(name, () -> globals.setVariable(name, newValue));
+	}
+
+	private void applyClear(VariableStorage source, String listName) {
+		String listPrefix = listName.substring(0, listName.length() - 1);
+		List<VariableStorage> involved = involvedIn(listPrefix); // empty if closed or ephemeral
+		if (!involved.contains(source)) {
+			if (!closed)
+				Skript.debug("Ignoring a clear of '" + listName + "' from the database '" + source.getName() + "', which doesn't save it");
+			return;
+		}
+		ChangeQueue queue = source.queue();
+		long stamp = queue.lockExclusive();
+		try {
+			// drops the unsaved local changes under the list, without asking the storage to delete it again
+			queue.recordClear(listPrefix, false);
+			if (involved.size() == 1 && source.accept(listPrefix)) {
+				globals.setVariable(listName, null); // the whole list is this storage's
+			} else {
+				// only delete what this storage saves, so other storages' parts of the list stay
+				List<String> owned = new ArrayList<>();
+				collectOwned(source, listPrefix, globals.getVariable(listName), owned);
+				for (String name : owned)
+					globals.setVariable(name, null);
+			}
+		} finally {
+			queue.unlockExclusive(stamp);
+		}
+	}
+
+	private void collectOwned(VariableStorage source, String listPrefix, @Nullable Object list, List<String> owned) {
+		if (!(list instanceof VariableList variables))
+			return;
+		for (Map.Entry<String, Object> child : variables.children().entrySet()) {
+			String name = listPrefix + child.getKey();
+			if (child.getValue() instanceof VariableList nested) {
+				if (nested.ownValue() != null && route(name) == source)
+					owned.add(name);
+				String nestedPrefix = name + Variable.SEPARATOR;
+				if (source.couldAccept(nestedPrefix))
+					collectOwned(source, nestedPrefix, nested, owned);
+			} else if (route(name) == source) {
+				owned.add(name);
+			}
+		}
 	}
 
 }
