@@ -166,6 +166,13 @@ public final class VariableStorageManager {
 
 	// ---------------------------- ROUTING ----------------------------
 
+	/**
+	 * Finds the storage a change to a variable is queued for.
+	 *
+	 * @param name the variable's name, which isn't a list name
+	 * @return the first storage, in config order, that accepts the name, or null if the change isn't saved:
+	 * the name is ephemeral, no storage accepts it, the storage that does failed to load, or the storages are closed
+	 */
 	private @Nullable VariableStorage route(String name) {
 		if (name.startsWith(Variable.EPHEMERAL_VARIABLE_TOKEN) || closed)
 			return null;
@@ -178,6 +185,17 @@ public final class VariableStorageManager {
 		return null;
 	}
 
+	/**
+	 * Sets a global variable in the map and queues the change for the storage that saves it, as one step,
+	 * so that the storage saves changes in the order the map got them.
+	 * Deleting a list, such as {@code a::*}, deletes everything in it, from every storage that saves part of it.
+	 * <p>
+	 * The value is serialized on the calling thread, before any lock is taken.
+	 *
+	 * @param name  the variable's name, lowercased if variables are case-insensitive
+	 * @param value the new value, already converted for saving, or null to delete the variable
+	 * @throws IllegalArgumentException if {@code name} is a list's name and {@code value} isn't null
+	 */
 	public void set(String name, @Nullable Object value) {
 		if (name.endsWith(Variable.SEPARATOR + "*")) {
 			if (value != null) {
@@ -199,6 +217,12 @@ public final class VariableStorageManager {
 		storage.queue().write(name, serialized, () -> globals.setVariable(name, value));
 	}
 
+	/**
+	 * @param listPrefix a list's name with {@code ::} instead of {@code ::*} at the end, such as {@code a::}
+	 * @return the storages that may save part of the list, in config order: every storage whose prefixes overlap it,
+	 * up to and including the first one that accepts the whole list. Storages that failed to load are included,
+	 * so they are locked too. Empty if the list is ephemeral or the storages are closed.
+	 */
 	private List<VariableStorage> involvedIn(String listPrefix) {
 		if (listPrefix.startsWith(Variable.EPHEMERAL_VARIABLE_TOKEN) || closed) {
 			return List.of();
@@ -215,6 +239,14 @@ public final class VariableStorageManager {
 		return involvedStorages;
 	}
 
+	/**
+	 * Runs an action while holding the exclusive lock of each storage's queue.
+	 * The locks are taken in the order given, which must be config order so that two callers can't deadlock,
+	 * and are released in reverse, even if the action throws.
+	 *
+	 * @param storages the storages to lock, in config order
+	 * @param action   what to do while they're locked
+	 */
 	private void underLocks(List<VariableStorage> storages, Runnable action) {
 		long[] stamps = new long[storages.size()];
 		int locked = 0;
@@ -231,6 +263,12 @@ public final class VariableStorageManager {
 		}
 	}
 
+	/**
+	 * Deletes a list from the map and records the clear for every running storage that may save part of it,
+	 * under all of their exclusive locks, so that no single write can land between the map and the queues.
+	 *
+	 * @param listPrefix the list's name with {@code ::} instead of {@code ::*} at the end, such as {@code a::}
+	 */
 	private void clearList(String listPrefix) {
 		// we have to find all storages that can hold parts of this list
 		// (e.g. clear a::*, storage 1 holds a::b::*, storage 2 holds a::c::*, both need to be involved here).
@@ -250,6 +288,10 @@ public final class VariableStorageManager {
 	}
 
 	/**
+	 * Replaces a global list with the given keys and values, and queues the same changes for saving as deleting
+	 * the list and setting each element would, under the exclusive locks of every storage involved.
+	 * The values are serialized on the calling thread, before any lock is taken.
+	 *
 	 * @param listName the list's name, without {@code ::*}, lowercased if variables are case-insensitive
 	 * @param keys     the keys, lowercased if needed, without separators; if a key repeats, the last value wins
 	 * @param values   the values, one per key, already converted for saving; none of them null
@@ -347,6 +389,16 @@ public final class VariableStorageManager {
 
 	// ---------------------------- STARTUP ----------------------------
 
+	/**
+	 * Creates, configures and loads the storages in the config's {@code databases} section, then starts them.
+	 * Called once, when Skript enables. Each problem is reported as an error, and loading carries on with
+	 * the other databases, so that as many variables as possible are loaded.
+	 *
+	 * @param databases the {@code databases} section of the config
+	 * @return true if every database loaded without problems
+	 * @throws IllegalStateException if variables have already been loaded
+	 * @see #loadStorages(List)
+	 */
 	public boolean load(SectionNode databases) {
 		synchronized (this) {
 			if (started || loading)
@@ -419,6 +471,17 @@ public final class VariableStorageManager {
 		return loadStorages(configured) && successful;
 	}
 
+	/**
+	 * Loads configured storages into the map, one at a time and in order. Then moves misplaced variables
+	 * to the storages that own them, starts saving, and makes the storages live for routing and reported changes.
+	 * <p>
+	 * A storage that fails to load is closed but keeps its place in the routing order, so its variables stay
+	 * in the map without being saved to another storage. Package-private so tests can load storages without a config.
+	 *
+	 * @param configured the configured storages, in config order
+	 * @return true if there was at least one storage, and every storage loaded and started
+	 * @throws IllegalStateException if storages have already been set up
+	 */
 	boolean loadStorages(List<VariableStorage> configured) {
 		synchronized (this) {
 			if (started)
@@ -505,6 +568,12 @@ public final class VariableStorageManager {
 		return successful;
 	}
 
+	/**
+	 * Marks a storage as failed: it keeps owning its names, but nothing is queued for it and its reported changes
+	 * are ignored. It's closed and its file is released right away.
+	 *
+	 * @param storage the storage that failed to load or start
+	 */
 	private static void failed(VariableStorage storage) {
 		storage.loadFailed = true;
 		storage.stopReceiving();
@@ -518,13 +587,19 @@ public final class VariableStorageManager {
 		}
 	}
 
-	// helper for printing the variable loading progress
+	/**
+	 * Counts the variables loaded across all storages, and logs the count every second, or every five seconds
+	 * at low verbosity, so it's clear that loading many variables is still going.
+	 */
 	private static final class LoadProgress {
 
 		private final long intervalNanos = TimeUnit.SECONDS.toNanos(Skript.logNormal() ? 1 : 5);
 		private long count;
 		private long lastLog = System.nanoTime();
 
+		/**
+		 * Counts one loaded variable, and logs the count if it's been long enough since the last time.
+		 */
 		void loaded() {
 			count++;
 			long now = System.nanoTime();
@@ -536,8 +611,13 @@ public final class VariableStorageManager {
 
 	}
 
-	// storages load one at a time, on the thread loading variables, which is the main thread while Skript enables.
-	// so this needs no locking, and can deserialize types that need the main thread
+	/**
+	 * Puts the variables one storage loads into the map, and passes each to the {@link Migration},
+	 * so misplaced and duplicate variables can be resolved once every storage has loaded.
+	 * <p>
+	 * Storages load one at a time, on the thread loading variables, which is the main thread while Skript enables.
+	 * So this needs no locking, and can deserialize types that need the main thread.
+	 */
 	private final class Loader implements LoadListener {
 
 		private final VariableStorage source;
@@ -546,6 +626,11 @@ public final class VariableStorageManager {
 		private int loaded;
 		private int unreadable;
 
+		/**
+		 * @param source    the storage that is loading
+		 * @param progress  the progress shared by all storages
+		 * @param migration the migration shared by all storages
+		 */
 		Loader(VariableStorage source, LoadProgress progress, Migration migration) {
 			this.source = source;
 			this.progress = progress;
@@ -574,6 +659,11 @@ public final class VariableStorageManager {
 
 	// ---------------------------- SHUTDOWN ----------------------------
 
+	/**
+	 * Saves what is left for each storage and closes it. Called once, when Skript disables; later calls do nothing.
+	 * From the moment this starts, changes only reach the map, and reported changes are ignored.
+	 * A storage that fails to save or close is reported, and doesn't stop the others.
+	 */
 	public synchronized void close() {
 		if (closed)
 			return;
@@ -599,8 +689,12 @@ public final class VariableStorageManager {
 		}
 	}
 
-	// saves every running storage's queued changes now, on this thread. true if they all saved.
-	// synchronized with close(), so it never saves to a storage that is closing
+	/**
+	 * Saves every running storage's queued changes now, on the calling thread, which waits until they are saved.
+	 * Synchronized with {@link #close()}, so it never saves to a storage that is closing.
+	 *
+	 * @return true if every storage saved, or the storages are already closed; false if a save failed
+	 */
 	public synchronized boolean flushAll() {
 		if (closed)
 			return true; // close() already saved everything it could
@@ -619,7 +713,10 @@ public final class VariableStorageManager {
 	private static final Runnable NO_MAP_WRITE = () -> {
 	};
 
-	// a variable loaded from a storage that doesn't own it, or loaded by more than one storage
+	/**
+	 * A variable loaded from a storage that doesn't own it, or loaded by more than one storage.
+	 * Records whose copy is in the map, and which storages hold copies to delete once it's resolved.
+	 */
 	private static final class MisplacedVariable {
 
 		private final VariableStorage owner;
@@ -629,12 +726,20 @@ public final class VariableStorageManager {
 		// other storages with a copy, which is deleted
 		private final List<VariableStorage> others = new ArrayList<>(1);
 
+		/**
+		 * @param owner  the storage that owns the variable
+		 * @param keeper the storage whose copy is in the map, or null if the owner's is
+		 * @param value  the stored value of the keeper's copy, or null if there's no keeper
+		 */
 		MisplacedVariable(VariableStorage owner, @Nullable VariableStorage keeper, SerializedVariable.@Nullable Value value) {
 			this.owner = owner;
 			this.keeper = keeper;
 			this.value = value;
 		}
 
+		/**
+		 * Notes that the owner loaded its own copy, which wins, so the keeper's copy becomes one to delete.
+		 */
 		void ownerHasIt() {
 			if (keeper != null) {
 				others.add(keeper);
@@ -643,6 +748,11 @@ public final class VariableStorageManager {
 			}
 		}
 
+		/**
+		 * Queues the deletion of every copy outside the owner, except in storages that failed to load.
+		 *
+		 * @param name the variable's name
+		 */
 		void deleteCopies(String name) {
 			if (keeper != null && !keeper.loadFailed)
 				keeper.queue().write(name, null, NO_MAP_WRITE);
@@ -654,7 +764,10 @@ public final class VariableStorageManager {
 
 	}
 
-	// only records the exceptions, so variables already in the storage they belong to cost nothing extra
+	/**
+	 * Finds the variables loaded from storages that don't own them, and moves them once every storage has loaded.
+	 * It only records these exceptions, so variables already in the storage they belong to cost nothing extra.
+	 */
 	private final class Migration {
 
 		private final List<VariableStorage> configured;
@@ -662,11 +775,21 @@ public final class VariableStorageManager {
 		private int duplicates;
 		private int unowned;
 
+		/**
+		 * @param configured the configured storages, in config order, which is the order owners are found in
+		 */
 		Migration(List<VariableStorage> configured) {
 			this.configured = configured;
 		}
 
-		// the same rule as routing, against the configured storages, since routing isn't live yet
+		/**
+		 * Finds the storage that saves a variable, by the same rule as routing. Routing only starts once loading
+		 * is done, so this goes through the configured storages instead, including any that failed to load.
+		 *
+		 * @param name the variable's name
+		 * @return the first storage, in config order, that accepts the name,
+		 * or null if the name is ephemeral or no storage accepts it
+		 */
 		private @Nullable VariableStorage ownerOf(String name) {
 			if (name.startsWith(Variable.EPHEMERAL_VARIABLE_TOKEN))
 				return null;
@@ -677,7 +800,15 @@ public final class VariableStorageManager {
 			return null;
 		}
 
-		// whether the loaded value goes in the map: the owner's copy wins, otherwise the first one loaded
+		/**
+		 * Records a loaded variable if it's misplaced or a duplicate, and decides whether its value goes in the map:
+		 * the owner's copy always wins, otherwise the first copy loaded does.
+		 *
+		 * @param source the storage that loaded the variable
+		 * @param name   the variable's name
+		 * @param value  its stored value, kept so it can be moved without serializing it again
+		 * @return whether the value should be put in the map
+		 */
 		boolean keep(VariableStorage source, String name, SerializedVariable.Value value) {
 			VariableStorage owner = ownerOf(name);
 			MisplacedVariable entry = misplaced.get(name);
@@ -723,7 +854,12 @@ public final class VariableStorageManager {
 			return true;
 		}
 
-		// moves each misplaced variable to its owner, and deletes the other copies only once the owner has saved it
+		/**
+		 * Moves each misplaced variable to its owner, reusing its stored value, and flushes each owner.
+		 * The other copies are deleted only once the owner has saved the variable, so a failed save loses nothing.
+		 * Variables whose owner failed to load stay where they are. Logs a summary of what was done.
+		 * Called once, after every storage has loaded and before saving starts.
+		 */
 		void resolve() {
 			Map<VariableStorage, List<String>> moves = new LinkedHashMap<>();
 			int ownerFailed = 0;
@@ -779,8 +915,10 @@ public final class VariableStorageManager {
 
 	// ---------------------------- REPORTED CHANGES ----------------------------
 
-	// changes storages report from outside this server. applied on the main thread, in the order they were reported,
-	// since some types can only be deserialized there
+	/**
+	 * Applies the changes storages report from outside this server. They are handed to the main thread,
+	 * in the order they were reported, since some types can only be deserialized there. Ignored once closed.
+	 */
 	private final VariableStorage.ChangeHandler reports = new VariableStorage.ChangeHandler() {
 
 		@Override
@@ -797,6 +935,15 @@ public final class VariableStorageManager {
 
 	};
 
+	/**
+	 * Applies a reported change to a variable, on the main thread. Ignored if the reporting storage doesn't save
+	 * the variable, or the value can't be read. Drops any unsaved local change to the variable, so the storage's value
+	 * isn't overwritten, and never queues the change for saving.
+	 *
+	 * @param source the storage that reported the change
+	 * @param name   the variable's name
+	 * @param value  the new stored value, or null if the variable was deleted
+	 */
 	private void applyUpdate(VariableStorage source, String name, SerializedVariable.@Nullable Value value) {
 		if (route(name) != source) { // closed, ephemeral, or saved by another storage here
 			if (!closed)
@@ -816,6 +963,15 @@ public final class VariableStorageManager {
 		source.queue().externalWrite(name, () -> globals.setVariable(name, newValue));
 	}
 
+	/**
+	 * Applies a reported deletion of a list, on the main thread, under the reporting storage's exclusive lock.
+	 * Only the variables in the list that the storage saves are deleted, so other storages' parts of the list stay.
+	 * Ignored if the storage saves no part of the list. Drops unsaved local changes under the list,
+	 * without queueing the deletion for saving.
+	 *
+	 * @param source   the storage that reported the deletion
+	 * @param listName the list's full name, such as {@code a::*}
+	 */
 	private void applyClear(VariableStorage source, String listName) {
 		String listPrefix = listName.substring(0, listName.length() - 1);
 		List<VariableStorage> involved = involvedIn(listPrefix); // empty if closed or ephemeral
@@ -843,6 +999,15 @@ public final class VariableStorageManager {
 		}
 	}
 
+	/**
+	 * Collects the names of the variables in a list, including nested lists, that a storage saves.
+	 * Skips nested lists the storage can't save any part of.
+	 *
+	 * @param source     the storage
+	 * @param listPrefix the list's name with {@code ::} instead of {@code ::*} at the end
+	 * @param list       the list from the map, or null if there is none
+	 * @param owned      where to add the names
+	 */
 	private void collectOwned(VariableStorage source, String listPrefix, @Nullable Object list, List<String> owned) {
 		if (!(list instanceof VariableList variables))
 			return;

@@ -131,6 +131,10 @@ public class Variables {
 
 	private static boolean builtInStoragesRegistered;
 
+	/**
+	 * Registers the storage types Skript comes with, the first time it's called. Called before anything else is
+	 * registered or variables are loaded, so the built-in names are always Skript's, and Skript has been enabled by then.
+	 */
 	private static synchronized void registerBuiltInStorages() {
 		if (builtInStoragesRegistered)
 			return;
