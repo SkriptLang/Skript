@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.Variable;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
@@ -47,13 +48,15 @@ import java.util.concurrent.locks.ReentrantLock;
  * <ol>
  *     <li><b>Configure:</b> Skript reads the storage's config section and calls {@link #configure(SectionNode)}.
  *     If it returns false, the storage is not used.</li>
- *     <li><b>Load:</b> {@link #load(StorageListener)} reads every stored variable and passes it to Skript.
+ *     <li><b>Load:</b> {@link #load(LoadListener)} reads every stored variable and passes it to Skript.
  *     If it throws, Skript does not save to this storage, so that data which could not be read is not overwritten.</li>
  *     <li><b>Save:</b> while the server runs, changes to the storage's variables are queued for it.
  *     The storage's own saving thread drains the queue about every {@link #saveIntervalMillis()} ms
  *     and passes the changes to {@link #save(Batch)}. A batch that fails to save is retried, with backoff,
  *     before anything newer is drained. If the storage {@link #supportsBackups() supports backups} and the config
  *     sets a {@code backup interval}, the saving thread also writes a backup every interval.</li>
+ *     A storage whose data can also be changed from outside this server reports those changes with
+ *     {@link #reportUpdated} and {@link #reportCleared}.</li>
  *     <li><b>Stop:</b> on shutdown, the saving thread is stopped and what is left is saved one last time.</li>
  *     <li><b>Close:</b> {@link #close()} releases the storage's resources.</li>
  * </ol>
@@ -63,7 +66,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * in the same step, keeping only the last change to each name. The saving thread swaps the queue for an empty one
  * and saves its contents as one {@link Batch}, so writes never wait on I/O.
  * <p>
- * Threads: Skript calls {@link #configure(SectionNode)}, {@link #load(StorageListener)} and {@link #close()}
+ * Threads: Skript calls {@link #configure(SectionNode)}, {@link #load(LoadListener)} and {@link #close()}
  * once each and never concurrently. Changes are queued from any thread, and {@link #save(Batch)} is only ever
  * called by one thread at a time, never the one that made the change. {@link #flush()} may be called from any
  * thread, but blocks it until the save is done.
@@ -120,7 +123,7 @@ public abstract class VariableStorage implements Closeable {
 
 	/**
 	 * Reads the configuration of this storage from the given node.
-	 * Do not do any reading of stored data here; that is done in {@link #load(StorageListener)}.
+	 * Do not do any reading of stored data here; that is done in {@link #load(LoadListener)}.
 	 * Log issues with {@link Skript#error(String)} and return false if the configuration is invalid.
 	 *
 	 * @param node the configuration node
@@ -510,12 +513,12 @@ public abstract class VariableStorage implements Closeable {
 	/**
 	 * Initially loads the variables from this storage and passes them to Skript. Called once after configuration.
 	 * This is allowed to block for as long as necessary, though as always, faster is better.
-	 * Any variable loaded should be passed to {@link StorageListener#loaded(String, SerializedVariable.Value)} as it is loaded.
+	 * Any variable loaded should be passed to {@link LoadListener#loaded(String, SerializedVariable.Value)} as it is loaded.
 	 *
-	 * @param listener the listener to pass the variables to. Don't save this.
+	 * @param listener the listener to pass the variables to; only valid until this returns, so don't keep it
 	 * @throws IOException if the stored data could not be read completely
 	 */
-	protected abstract void load(StorageListener listener) throws IOException;
+	protected abstract void load(LoadListener listener) throws IOException;
 
 	/**
 	 * Saves a batch of changes. Called on this storage's saving thread, one batch at a time, in order.
@@ -593,10 +596,104 @@ public abstract class VariableStorage implements Closeable {
 	 * <p>
 	 * Saving has already stopped when this is called, and every change that could be saved has been passed to
 	 * {@link #save(Batch)}, so this must not save anything itself.
-	 * Called when Skript is shutting down, or if {@link #load(StorageListener)} fails.
+	 * Called when Skript is shutting down, or if {@link #load(LoadListener)} fails.
 	 */
 	@Override
 	public abstract void close();
+
+	// ------------------------ EXTERNAL CHANGES ------------------------
+
+	/**
+	 * Applies the changes a storage reports with {@link #reportUpdated} and {@link #reportCleared}.
+	 * Implemented by the manager, which is the only one that sets it.
+	 */
+	interface ChangeHandler {
+
+		void updated(VariableStorage source, String name, SerializedVariable.@Nullable Value value);
+
+		void cleared(VariableStorage source, String listName);
+
+	}
+
+	// used once a storage has stopped, so late reports from its threads are dropped instead of failing
+	private static final ChangeHandler STOPPED = new ChangeHandler() {
+		@Override
+		public void updated(VariableStorage source, String name, SerializedVariable.@Nullable Value value) {
+		}
+
+		@Override
+		public void cleared(VariableStorage source, String listName) {
+		}
+	};
+
+	// null until the storage is running
+	private volatile @Nullable ChangeHandler changeHandler;
+
+	/**
+	 * Tells Skript that a variable in this storage was changed from outside this server,
+	 * for example by another server writing to the same SQL database.
+	 * Skript updates the variable and drops any change to it that this server has not saved yet,
+	 * so the stored value is kept. The change is never passed back to any storage,
+	 * so the storage must already hold it.
+	 * <p>
+	 * May be called from any thread, but only once loading has finished and the storage is running.
+	 * Ignored once the storage has stopped. Skript deserializes the value on the main thread.
+	 *
+	 * @param name  the name of the variable
+	 * @param value the new serialized value of the variable, or {@code null} if the variable was deleted
+	 * @throws IllegalStateException    if the storage isn't running yet
+	 * @throws IllegalArgumentException if {@code name} is a list, such as {@code a::*}
+	 */
+	protected final void reportUpdated(String name, SerializedVariable.@Nullable Value value) {
+		if (name.endsWith(Variable.SEPARATOR + "*"))
+			throw new IllegalArgumentException("Can't update a list as a single variable: " + name);
+		handler().updated(this, name, value);
+	}
+
+	/**
+	 * Tells Skript that a list in this storage was deleted from outside this server.
+	 * Skript deletes the list's variables that this storage holds, including those in nested lists,
+	 * and drops any changes to them that this server has not saved yet.
+	 * A variable with the list's name minus the {@code ::*}, such as {@code a} for {@code a::*}, is not affected.
+	 * <p>
+	 * May be called from any thread, but only once loading has finished and the storage is running.
+	 * Ignored once the storage has stopped.
+	 *
+	 * @param listName the full name of the list, including the {@code ::*} ending, such as {@code a::*}
+	 * @throws IllegalStateException    if the storage isn't running yet
+	 * @throws IllegalArgumentException if {@code listName} doesn't end with {@code ::*}
+	 */
+	protected final void reportCleared(String listName) {
+		if (!listName.endsWith(Variable.SEPARATOR + "*"))
+			throw new IllegalArgumentException("Not a list name: " + listName);
+		handler().cleared(this, listName);
+	}
+
+	private ChangeHandler handler() {
+		ChangeHandler handler = changeHandler;
+		if (handler == null)
+			throw new IllegalStateException("The database '" + getName() + "' reported a change before it was running");
+		return handler;
+	}
+
+	/**
+	 * Starts passing reported changes to the given handler. Called once by the manager, when the storage is running.
+	 *
+	 * @throws IllegalStateException if it was already called
+	 */
+	void startReceiving(ChangeHandler handler) {
+		if (changeHandler != null)
+			throw new IllegalStateException("The database '" + getName() + "' already receives changes");
+		changeHandler = handler;
+	}
+
+	/**
+	 * Stops passing reported changes on: any reported from now on are ignored.
+	 * Called by {@link #stopSaving()}, and by the manager if the storage fails.
+	 */
+	void stopReceiving() {
+		changeHandler = STOPPED;
+	}
 
 	// ------------------------ CHANGE QUEUE ------------------------
 
@@ -634,8 +731,8 @@ public abstract class VariableStorage implements Closeable {
 
 	/**
 	 * Starts the saving thread, which calls {@link ChangeQueue#drain()} and {@link #save(Batch)} on its own schedule.
-	 * Called once by the router after {@link #load(StorageListener)} succeeds. Storages must not call this themselves.
-	 * If {@link #load(StorageListener)} fails, this should never be called and the storage is closed.
+	 * Called once by the router after {@link #load(LoadListener)} succeeds. Storages must not call this themselves.
+	 * If {@link #load(LoadListener)} fails, this should never be called and the storage is closed.
 	 */
 	void startSaving() {
 		if (saveThread != null)
@@ -672,6 +769,7 @@ public abstract class VariableStorage implements Closeable {
 	 * and reports how many changes are still unsaved if they all fail.
 	 */
 	void stopSaving() {
+		stopReceiving(); // nothing reported from now on should change variables mid-shutdown
 		Thread thread = saveThread;
 		if (thread == null)
 			return;
