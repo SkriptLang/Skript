@@ -770,6 +770,7 @@ public abstract class VariableStorage implements Closeable {
 	 */
 	void stopSaving() {
 		stopReceiving(); // nothing reported from now on should change variables mid-shutdown
+		queue.close(); // nothing is queued after this, so the final save gets everything that will ever be queued
 		Thread thread = saveThread;
 		if (thread == null)
 			return;

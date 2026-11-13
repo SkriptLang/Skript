@@ -100,6 +100,11 @@ class RecordingStorage extends VariableStorage {
 	 */
 	final AtomicInteger closes = new AtomicInteger();
 
+	/**
+	 * If true, {@link #close()} throws, after counting the call.
+	 */
+	volatile boolean failClose;
+
 	RecordingStorage() {
 		super(null, "recording");
 	}
@@ -270,6 +275,8 @@ class RecordingStorage extends VariableStorage {
 	@Override
 	public void close() {
 		closes.incrementAndGet();
+		if (failClose)
+			throw new IllegalStateException("test failure closing " + getName());
 	}
 
 }
