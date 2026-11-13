@@ -135,6 +135,18 @@ class RecordingStorage extends VariableStorage {
 		setField("name", name);
 	}
 
+	/**
+	 * Sets the prefixes of the names the storage accepts, which {@code loadConfig} would normally read
+	 * from the config section. Taken as written, without lowercasing.
+	 *
+	 * @param prefixes the prefixes, or null to accept every name
+	 * @return this storage
+	 */
+	RecordingStorage setPrefixesForTest(String @Nullable ... prefixes) {
+		setField("prefixes", prefixes == null ? null : prefixes.clone());
+		return this;
+	}
+
 	private void setField(String name, @Nullable Object value) {
 		try {
 			Field field = VariableStorage.class.getDeclaredField(name);

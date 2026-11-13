@@ -929,6 +929,24 @@ public abstract class VariableStorage implements Closeable {
 	}
 
 	/**
+	 * Whether a variable *could* belong in this storage, based on {@code prefix}, if it continued to match.
+	 * Basically, if any prefix starts with this name. or vice versa!
+	 *
+	 * @param name the variable's name, such as {@code a::}
+	 * @return whether one of this storage's prefixes starts with this name; always true if it accepts every name
+	 */
+	final boolean couldAccept(String name) {
+		String[] prefixes = this.prefixes;
+		if (prefixes == null)
+			return true;
+		for (String prefix : prefixes) {
+			if (name.startsWith(prefix) || prefix.startsWith(name))
+				return true;
+		}
+		return false;
+	}
+
+	/**
 	 * @return the prefixes of the names this storage accepts, lowercased if variables are case-insensitive,
 	 * or null if it accepts every name (no prefix configured, or an empty one)
 	 * @see #accept(String)
