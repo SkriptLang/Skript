@@ -394,7 +394,7 @@ public final class VariableStorageManager {
 			if (Skript.logVeryHigh())
 				Skript.info("Loading database '" + storage.getName() + "'...");
 
-			LoadListener listener = new LoadListener(storage, progress);
+			Loader listener = new Loader(storage, progress);
 			try {
 				storage.load(listener);
 			} catch (IOException e) {
@@ -460,6 +460,7 @@ public final class VariableStorageManager {
 
 	private static void failed(VariableStorage storage) {
 		storage.loadFailed = true;
+		storage.stopReceiving();
 		try {
 			storage.close();
 		} catch (RuntimeException e) {
@@ -490,14 +491,14 @@ public final class VariableStorageManager {
 
 	// storages load one at a time, on the thread loading variables, which is the main thread while Skript enables.
 	// so this needs no locking, and can deserialize types that need the main thread
-	private final class LoadListener implements StorageListener {
+	private final class Loader implements LoadListener {
 
 		private final VariableStorage source;
 		private final LoadProgress progress;
 		private int loaded;
 		private int unreadable;
 
-		LoadListener(VariableStorage source, LoadProgress progress) {
+		Loader(VariableStorage source, LoadProgress progress) {
 			this.source = source;
 			this.progress = progress;
 		}
@@ -518,16 +519,6 @@ public final class VariableStorageManager {
 			globals.setVariable(name, deserialized);
 			loaded++;
 			progress.loaded();
-		}
-
-		@Override
-		public void updated(String name, SerializedVariable.@Nullable Value value) {
-			throw new IllegalStateException("The database '" + source.getName() + "' reported a change while loading");
-		}
-
-		@Override
-		public void cleared(String listName) {
-			throw new IllegalStateException("The database '" + source.getName() + "' reported a clear while loading");
 		}
 
 	}

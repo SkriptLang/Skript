@@ -64,7 +64,9 @@ public class VariableStorageBackupTest {
 		if (!Files.isDirectory(folder))
 			return List.of();
 		try (Stream<Path> files = Files.list(folder)) {
-			return files.map(path -> path.getFileName().toString()).sorted().toList();
+			return files.map(path -> path.getFileName().toString())
+				.filter(name -> !name.endsWith(".tmp")) // a backup being written; it only counts once renamed
+				.sorted().toList();
 		} catch (IOException e) {
 			throw new AssertionError(e);
 		}
