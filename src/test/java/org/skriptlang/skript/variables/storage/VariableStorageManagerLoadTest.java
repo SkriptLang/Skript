@@ -85,6 +85,25 @@ public class VariableStorageManagerLoadTest {
 		return manager.storages().stream().map(VariableStorage::getName).toList();
 	}
 
+	// stops the storage's saving, which saves everything left, and returns every batch it saved as one.
+	// reading the queue instead would race the saving thread, which saves once as soon as it starts
+	static Batch savedBy(RecordingStorage storage) {
+		storage.stopSaving();
+		List<String> clears = new ArrayList<>();
+		List<SerializedVariable> changes = new ArrayList<>();
+		synchronized (storage.saved) {
+			for (Batch batch : storage.savedBatches) {
+				clears.addAll(batch.clears());
+				changes.addAll(batch.changes());
+			}
+		}
+		return new Batch(clears, changes);
+	}
+
+	static List<String> namesOf(Batch batch) {
+		return batch.changes().stream().map(change -> change.name).toList();
+	}
+
 	private static void awaitSaved(RecordingStorage storage, String name) throws InterruptedException {
 		long deadline = System.nanoTime() + 5_000_000_000L;
 		while (System.nanoTime() < deadline) {
@@ -166,10 +185,10 @@ public class VariableStorageManagerLoadTest {
 		manager.setList("kills", new String[] {"bob"}, new Object[] {"3"});
 		manager.set("deaths::steve", "4");
 		assertEquals("3", globals.getVariable("kills::bob"));
-		assertTrue(kills.queue().drain().isEmpty());
-		Batch batch = all.queue().drain();
+		assertTrue(kills.queue().drain().isEmpty()); // never started saving, so nothing reads its queue
+		Batch batch = savedBy(all);
 		assertEquals(List.of(), batch.clears());
-		assertEquals(List.of("deaths::steve"), batch.changes().stream().map(change -> change.name).toList());
+		assertEquals(List.of("deaths::steve"), namesOf(batch));
 	}
 
 	@Test
@@ -180,9 +199,9 @@ public class VariableStorageManagerLoadTest {
 		assertFalse(loadStorages(partB, all));
 		manager.setList("a", new String[] {"b1", "c"}, new Object[] {"1", "2"});
 		assertTrue(partB.queue().drain().isEmpty());
-		Batch batch = all.queue().drain();
+		Batch batch = savedBy(all);
 		assertEquals(List.of("a::"), batch.clears());
-		assertEquals(List.of("a::c"), batch.changes().stream().map(change -> change.name).toList());
+		assertEquals(List.of("a::c"), namesOf(batch));
 	}
 
 	@Test
@@ -196,7 +215,7 @@ public class VariableStorageManagerLoadTest {
 		RecordingStorage kills = storage("kills", "kills::");
 		assertTrue(loadStorages(kills)); // only a warning
 		manager.set("deaths::steve", "1");
-		assertTrue(kills.queue().drain().isEmpty());
+		assertTrue(savedBy(kills).isEmpty());
 	}
 
 	@Test
