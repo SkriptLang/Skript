@@ -34,6 +34,7 @@ final class ChangeQueue {
 	private ArrayList<Clear> clears = new ArrayList<>();
 	private long epoch; // used to drop changes made before a clear when draining. Increments every clear.
 	private int sizeHint; // decaying peak hint for drain size, to avoid resizing the pending map too often.
+	private boolean closed; // nothing is queued once set. guarded by order: set under the exclusive lock
 	private static final Pending ALLOCATION_DUMMY = new Pending("", null, 0);
 
 	/**
@@ -68,6 +69,10 @@ final class ChangeQueue {
 	void write(String name, SerializedVariable.@Nullable Value value, Runnable mapWrite) {
 		long stamp = order.readLock();
 		try {
+			if (closed) { // the storage has stopped, so this only changes the map
+				mapWrite.run();
+				return;
+			}
 			long epoch = this.epoch; // can't change while the shared lock is held
 			pending.compute(name, (key, old) -> {
 				mapWrite.run();
@@ -107,6 +112,8 @@ final class ChangeQueue {
 	void recordClear(String prefix, boolean save) {
 		assert order.isWriteLocked();
 		assert prefix.endsWith("::") : prefix;
+		if (closed)
+			return;
 		clears.add(new Clear(prefix, epoch++, save));
 	}
 
@@ -120,6 +127,8 @@ final class ChangeQueue {
 	 */
 	void putPending(String name, SerializedVariable.@Nullable Value value) {
 		assert order.isWriteLocked();
+		if (closed)
+			return;
 		pending.put(name, new Pending(name, value, epoch));
 	}
 
@@ -134,12 +143,27 @@ final class ChangeQueue {
 	void externalWrite(String name, Runnable mapWrite) {
 		long stamp = order.readLock();
 		try {
+			if (closed) { // nothing is queued to drop
+				mapWrite.run();
+				return;
+			}
 			pending.compute(name, (key, old) -> {
 				mapWrite.run();
 				return null;
 			});
 		} finally {
 			order.unlockRead(stamp);
+		}
+	}
+
+	// stops queueing: changes from now on only reach the map. waits for the writes in progress, so everything
+	// queued before this is still drained. called when the storage stops saving, before its final save
+	void close() {
+		long stamp = order.writeLock();
+		try {
+			closed = true;
+		} finally {
+			order.unlockWrite(stamp);
 		}
 	}
 
