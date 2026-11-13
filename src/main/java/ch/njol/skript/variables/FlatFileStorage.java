@@ -73,6 +73,16 @@ public class FlatFileStorage extends VariableStorage {
 		return true;
 	}
 
+	/**
+	 * Reads the file into a copy of what it holds, a later line for a name replacing an earlier one, and passes the result on.
+	 * Files from before Skript 2.1 store values as text, so they're read and serialized again.
+	 * <p>
+	 * Lines that can't be read are reported and skipped. If there are any, or the file is from before 2.1,
+	 * the file is backed up and then rewritten without them. A file without a header, or with many replaced lines,
+	 * is rewritten too. Otherwise the file is opened for appending.
+	 *
+	 * @throws IOException if the file can't be read, or can't be backed up before it's rewritten
+	 */
 	@Override
 	protected synchronized void load(LoadListener listener) throws IOException {
 		File file = file();
@@ -146,6 +156,13 @@ public class FlatFileStorage extends VariableStorage {
 		}
 	}
 
+	/**
+	 * Applies the batch to the copy of what the file holds and appends a line for each change, or rewrites the whole file instead
+	 * if it would have too many replaced lines, or an earlier write failed. A clear appends a deletion line
+	 * for each saved variable it removes, and deleting a variable the file doesn't have writes nothing.
+	 *
+	 * @throws IOException if the file couldn't be written; the next save then rewrites it
+	 */
 	@Override
 	protected synchronized void save(Batch batch) throws IOException {
 		// the changes are applied to what the file holds first: applying the same batch again changes nothing,
@@ -380,6 +397,13 @@ public class FlatFileStorage extends VariableStorage {
 		line.append('\n');
 	}
 
+	/**
+	 * Appends one value of a CSV line, quoting it if it holds a comma, quote, {@code #} or whitespace,
+	 * and doubling any quotes in it.
+	 *
+	 * @param line  the line to append to
+	 * @param value the value
+	 */
 	private static void appendCSVValue(StringBuilder line, String value) {
 		boolean escapingNeeded = value.contains(",")
 			|| value.contains("\"")

@@ -156,8 +156,11 @@ final class ChangeQueue {
 		}
 	}
 
-	// stops queueing: changes from now on only reach the map. waits for the writes in progress, so everything
-	// queued before this is still drained. called when the storage stops saving, before its final save
+	/**
+	 * Stops queueing: from now on, changes only reach the map. Waits for the writes in progress,
+	 * so everything queued before this returns is still drained. Called when the storage stops saving,
+	 * before its final save, so that the final save gets every change that will ever be queued.
+	 */
 	void close() {
 		long stamp = order.writeLock();
 		try {
