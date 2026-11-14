@@ -249,8 +249,13 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 		private final Origin origin;
 
 		public ModernSkriptEventInfo(String name, String[] patterns, Class<E> eventClass, String originClassPath, Class<? extends Event>[] events) {
+			this(name, patterns, eventClass, originClassPath, events, Skript.getSyntaxOrigin(eventClass));
+		}
+
+		public ModernSkriptEventInfo(String name, String[] patterns, Class<E> eventClass, String originClassPath,
+				Class<? extends Event>[] events, Origin origin) {
 			super(name, patterns, eventClass, originClassPath, events);
-			this.origin = Skript.getSyntaxOrigin(eventClass);
+			this.origin = origin;
 		}
 
 		@Override
