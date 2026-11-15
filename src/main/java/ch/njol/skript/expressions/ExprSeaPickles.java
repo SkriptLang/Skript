@@ -39,20 +39,18 @@ public class ExprSeaPickles extends SimplePropertyExpression<Block, Integer> {
 	private boolean minimum, maximum;
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		minimum = parseResult.hasTag("min");
 		maximum = parseResult.hasTag("max");
-		return super.init(exprs, matchedPattern, isDelayed, parseResult);
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
 	@Nullable
 	public Integer convert(Block block) {
 		BlockData blockData = block.getBlockData();
-		if (!(blockData instanceof SeaPickle))
+		if (!(blockData instanceof SeaPickle pickleData))
 			return null;
-
-		SeaPickle pickleData = (SeaPickle) blockData;
 
 		if (maximum)
 			return pickleData.getMaximumPickles();
@@ -66,16 +64,11 @@ public class ExprSeaPickles extends SimplePropertyExpression<Block, Integer> {
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (minimum || maximum)
 			return null;
-		switch (mode) {
-			case SET:
-			case ADD:
-			case REMOVE:
-			case RESET:
-			case DELETE:
-				return CollectionUtils.array(Number.class);
-			default:
-				return null;
-		}
+
+		return switch (mode) {
+			case SET, ADD, REMOVE, RESET, DELETE -> CollectionUtils.array(Number.class);
+			default -> null;
+		};
 	}
 
 	@Override
@@ -90,9 +83,8 @@ public class ExprSeaPickles extends SimplePropertyExpression<Block, Integer> {
 		for (Block block : getExpr().getArray(event)) {
 			// Obtain pickle data
 			BlockData blockData = block.getBlockData();
-			if (!(blockData instanceof SeaPickle))
-				return;
-			SeaPickle pickleData = (SeaPickle) blockData;
+			if (!(blockData instanceof SeaPickle pickleData))
+				continue;
 
 			int newPickles = change;
 
