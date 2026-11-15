@@ -1,6 +1,5 @@
 package ch.njol.skript.lang;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
@@ -247,10 +246,6 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 			implements BukkitSyntaxInfos.Event<E> {
 
 		private final Origin origin;
-
-		public ModernSkriptEventInfo(String name, String[] patterns, Class<E> eventClass, String originClassPath, Class<? extends Event>[] events) {
-			this(name, patterns, eventClass, originClassPath, events, Skript.getSyntaxOrigin(eventClass));
-		}
 
 		public ModernSkriptEventInfo(String name, String[] patterns, Class<E> eventClass, String originClassPath,
 				Class<? extends Event>[] events, Origin origin) {
