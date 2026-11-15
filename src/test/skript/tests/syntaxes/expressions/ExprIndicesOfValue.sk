@@ -57,3 +57,5 @@ test "index of":
 	set {_position::*} to all positions of "nothing" in "abc"
 	assert {_position::*} is not set with "all positions of string is set"
 	assert all positions of ("nothing1" and "nothing2") in "abc" is not set with "all positions of multiple strings is set"
+
+	assert last position of "c" in "abc" is 3 with "last position of string failed"
