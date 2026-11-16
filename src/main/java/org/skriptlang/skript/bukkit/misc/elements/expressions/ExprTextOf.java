@@ -18,7 +18,7 @@ import java.util.Arrays;
 
 @Name("Text Of")
 @Description({
-	"Returns or changes the <a href='#string'>text/string</a> of <a href='#display'>displays</a>.",
+	"Returns or changes the [text](docs:Skript/TypeString) of [displays](docs:Skript/TypeDisplays).",
 	"Note that currently you can only use Skript chat codes when running Paper."
 })
 @Example("set text of the last spawned text display to \"example\"")

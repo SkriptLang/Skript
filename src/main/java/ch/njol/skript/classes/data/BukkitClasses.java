@@ -159,7 +159,7 @@ public class BukkitClasses {
 				.user("worlds?")
 				.name("World")
 				.description("One of the server's worlds. Worlds can be put into scripts by surrounding their name with double quotes, e.g. \"world_nether\", " +
-						"but this might not work reliably as [text](docs:Skript/TypeText) uses the same syntax.")
+						"but this might not work reliably as [text](docs:Skript/TypeString) uses the same syntax.")
 				.usage("<code>\"world_name\"</code>, e.g. \"world\"")
 				.examples("broadcast \"Hello!\" to the world \"world_nether\"")
 				.since("1.0, 2.2 (alternate syntax)")
@@ -398,7 +398,7 @@ public class BukkitClasses {
 		Classes.registerClass(new EnumClassInfo<>(SpawnReason.class, "spawnreason", "spawn reasons")
 				.user("spawn(ing)? ?reasons?")
 				.name("Spawn Reason")
-				.description("The spawn reason in a <a href='#spawn'>spawn</a> event.")
+				.description("The spawn reason in a [spawn](docs:Skript/EvtSpawn) event.")
 				.since("2.3"));
 
 		Classes.registerClass(new EnumClassInfo<>(RespawnReason.class, "respawnreason", "respawn reasons")

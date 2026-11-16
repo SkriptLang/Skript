@@ -16,7 +16,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Display Glow Color Override")
 @Description({
-	"Returns or changes the glowing color override of <a href='#display'>displays</a>.",
+	"Returns or changes the glowing color override of [displays](docs:Skript/TypeDisplay).",
 	"This overrides whatever color is already set for the scoreboard team of the displays."
 })
 @Example("set glow color override of the last spawned text display to blue")

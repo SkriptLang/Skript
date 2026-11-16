@@ -30,7 +30,7 @@ import java.time.Duration;
 	"If sending only the subtitle, it will only be shown if the audience currently has a title displayed. "
 		+ "Otherwise, it will be shown when the audience is next shown a title.",
 	"Additionally, if no input is given for the times, the previous times of the last sent title will be used (or default values). "
-		+ "Use the <a href='#EffResetTitle'>reset title</a> effect to restore the default values for the times."
+		+ "Use the [reset title](docs:Skript/EffResetTitle) effect to restore the default values for the times."
 })
 @Example("send title \"Competition Started\" with subtitle \"Have fun, Stay safe!\" to player for 5 seconds")
 @Example("send title \"Hi %player%\" to player")

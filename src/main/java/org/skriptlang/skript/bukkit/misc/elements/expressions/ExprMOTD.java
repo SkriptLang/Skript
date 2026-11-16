@@ -25,7 +25,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Name("Message of the Day")
 @Description({
 	"The message of the day in the server list.",
-	"This can be changed in a <a href='#server_list_ping'>server list ping</a> event only.",
+	"This can be changed in a [server list ping](docs:Skript/EvtServerListPing) event only.",
 	"Use 'default MOTD' to obtain the default MOTD set through the server configuration. This cannot be changed."
 })
 @Example("""

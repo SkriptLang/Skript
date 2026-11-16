@@ -146,7 +146,7 @@ public class SkriptClasses {
 				.user("times?")
 				.name("Time")
 				.description("A time is a point in a minecraft day's time (i.e. ranges from 0:00 to 23:59), which can vary per world.",
-						"See <a href='#date'>date</a> and <a href='#timespan'>timespan</a> for the other time types of Skript.")
+						"See [date](docs:Skript/TypeDate) and [timespan](docs:Skript/TypeTimespan) for the other time types of Skript.")
 				.usage("##:##",
 						"##[:##][ ]am/pm")
 				.examples("at 20:00:",
@@ -179,7 +179,7 @@ public class SkriptClasses {
 						"e.g '10 minutes'. Timespans are always displayed as real life time, but can be defined as minecraft time, " +
 						"e.g. '5 minecraft days and 12 hours'.",
 						"NOTE: Months always have the value of 30 days, and years of 365 days.",
-						"See <a href='#date'>date</a> and <a href='#time'>time</a> for the other time types of Skript.")
+						"See [date](docs:Skript/TypeDate) and [time](docs:Skript/TypeTime) for the other time types of Skript.")
 				.usage("<number> [minecraft/mc/real/rl/irl] ticks/seconds/minutes/hours/days/weeks/months/years [[,/and] <more...>]",
 						"[###:]##:##[.####] ([hours:]minutes:seconds[.milliseconds])")
 				.examples("every 5 minecraft days:",
@@ -214,7 +214,7 @@ public class SkriptClasses {
 		Classes.registerClass(new ClassInfo<>(Timeperiod.class, "timeperiod")
 				.user("time ?periods?", "durations?")
 				.name("Timeperiod")
-				.description("A period of time between two <a href='#time'>times</a>. Mostly useful since you can use this to test for whether it's day, night, dusk or dawn in a specific world.",
+				.description("A period of time between two [times](docs:Skript/TypeTime). Mostly useful since you can use this to test for whether it's day, night, dusk or dawn in a specific world.",
 						"This type might be removed in the future as you can use 'time of world is between x and y' as a replacement.")
 				.usage("##:## - ##:##",
 						"dusk/day/dawn/night")
@@ -263,8 +263,8 @@ public class SkriptClasses {
 		Classes.registerClass(new ClassInfo<>(Date.class, "date")
 				.user("dates?")
 				.name("Date")
-				.description("A date is a certain point in the real world's time which can be obtained with <a href='#ExprNow'>now expression</a>, <a href='#ExprUnixDate'>unix date expression</a> and <a href='#date'>date function</a>.",
-						"See <a href='#time'>time</a> and <a href='#timespan'>timespan</a> for the other time types of Skript.")
+				.description("A date is a certain point in the real world's time which can be obtained with [now expression](docs:Skript/ExprNow), [unix date expression](docs:Skript/ExprUnixDate) and [date function](docs:Skript/FuncDate).",
+						"See [time](docs:Skript/TypeTime) and [timespan](docs:Skript/TypeTimespan) for the other time types of Skript.")
 				.usage("")
 				.examples("set {_yesterday} to now",
 						"subtract a day from {_yesterday}",
@@ -311,9 +311,9 @@ public class SkriptClasses {
 				.user("directions?")
 				.name("Direction")
 				.description("A direction, e.g. north, east, behind, 5 south east, 1.3 meters to the right, etc.",
-						"<a href='#location'>Locations</a> and some <a href='#block'>blocks</a> also have a direction, but without a length.",
-						"Please note that directions have changed extensively in the betas and might not work perfectly. They can also not be used as command arguments.")
-				.usage("see <a href='#ExprDirection'>direction (expression)</a>")
+						"[Locations](docs:Skript/TypeLocation) and some [blocks](docs:Skript/TypeBlock) also have a direction, but without a length.",
+						"Please note that directions have changed extensively in the betas and might not work perfectly. They can also not be used as command arguments.",
+						"See the [direction expression](docs:Skript/ExprDirection) for further usage information.")
 				.examples("set the block below the victim to a chest",
 						"loop blocks from the block infront of the player to the block 10 below the player:",
 						"	set the block behind the loop-block to water")
@@ -377,7 +377,7 @@ public class SkriptClasses {
 		Classes.registerClass(new EnumClassInfo<>(TreeSpecies.class, "treetype", "tree types")
 				.user("tree ?types?", "trees?")
 				.name("Tree Type")
-				.description("A tree type represents a tree species or a huge mushroom species. These can be generated in a world with the <a href='#EffTree'>generate tree</a> effect.")
+				.description("A tree type represents a tree species or a huge mushroom species. These can be generated in a world with the [generate tree](docs:Skript/EffTree) effect.")
 				.examples("grow any regular tree at the block",
 						"grow a huge red mushroom above the block")
 				.since("1.0"));
@@ -386,7 +386,7 @@ public class SkriptClasses {
 				.user("experience ?(points?)?")
 				.name("Experience")
 				.description("Experience points. Please note that Bukkit only allows to give XP, but not remove XP from players. " +
-						"You can however change a player's <a href='#ExprLevel'>level</a> and <a href='./expressions/#ExprLevelProgress'>level progress</a> freely.")
+						"You can however change a player's [level](docs:Skript/ExprLevel) and [level progress](docs:Skript/ExprLevelProgress) freely.")
 				.usage("[<number>] ([e]xp|experience [point[s]])")
 				.examples("give 10 xp to the player")
 				.since("2.0")

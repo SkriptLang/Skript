@@ -32,7 +32,7 @@ import static org.skriptlang.skript.registration.DefaultSyntaxInfos.Expression.b
 	Setting distribution/velocity with this method may change the particle count to 1/0 respectively.
 	
 	More detailed information on particle behavior can be found at \
-	<a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
+	[Paper's particle documentation](https://docs.papermc.io/paper/dev/particles/#count-argument-behavior-).
 	""")
 @Example("draw an electric spark particle with a velocity of vector(1,2,3) at player")
 @Example("draw 12 red dust particles with a distribution of vector(1,2,1) at player's head location")

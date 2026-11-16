@@ -19,7 +19,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Description("""
 	The item model of an item. \
 	Accepts a Namespaced Key which takes the form of "namespace:key", e.g. "minecraft:dirt". \
-	See <a href='https://minecraft.wiki/w/Identifier'> this article</a> for more detail. \
+	See the [Minecraft wiki article on identifiers](https://minecraft.wiki/w/Identifier) for more detail. \
 	""")
 @Example("set the item model of player's held item to \"diamond\"")
 @Example("set the item model of {_item} to \"minecraft:dirt\"")

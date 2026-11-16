@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 @Name("Can Build")
 @Description({
 	"Tests whether a player is allowed to build at a certain location.",
-	"This condition requires a supported <a href='#region'>regions</a> plugin to be installed."
+	"This condition requires a supported [regions](docs:Skript/TypeRegion) plugin to be installed."
 })
 @Example("""
 	command /setblock <material>:

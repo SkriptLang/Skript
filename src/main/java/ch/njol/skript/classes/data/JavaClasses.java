@@ -226,7 +226,7 @@ public class JavaClasses {
 				.description("Text is simply text, i.e. a sequence of characters, which can optionally contain expressions which will be replaced with a meaningful representation " +
 						"(e.g. %player% will be replaced with the player's name).",
 						"Because scripts are also text, you have to put text into double quotes to tell Skript which part of the line is an effect/expression and which part is the text.",
-						"Please read the article on <a href='./text.html'>Texts and Variable Names</a> to learn more.")
+						"Please read the article on [text](https://docs.skriptlang.org/scripting/text/) to learn more.")
 				.usage("simple: \"...\"",
 						"quotes: \"...\"\"...\"",
 						"expressions: \"...%expression%...\"",
@@ -331,7 +331,7 @@ public class JavaClasses {
 				"UUIDs are unique identifiers that ensure things can be reliably distinguished from each other. "
 					+ "They are generated in a way that makes it practically impossible for duplicates to occur.",
 				"Read more about UUIDs and how they are used in Minecraft "
-					+ "in <a href='https://minecraft.wiki/w/UUID'>the wiki entry about UUIDs</a>.")
+					+ "in [the wiki entry about UUIDs](https://minecraft.wiki/w/UUID).")
 			.since("2.11")
 			.parser(new UUIDParser())
 			.serializer(new UUIDSerializer())

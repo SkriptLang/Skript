@@ -31,7 +31,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	If the particle count is 0, the offset is treated differently depending on the particle.
 	
 	More detailed information on particle behavior can be found at \
-	<a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
+	[Paper's particle documentation](https://docs.papermc.io/paper/dev/particles/#count-argument-behavior-).
 	""")
 @Example("set the particle distribution of {_my-particle} to vector(1, 2, 1)")
 @Since("2.14")

@@ -19,7 +19,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
 @Name("Resource Pack")
-@Description("Checks state of the resource pack in a <a href='#resource_pack_request_action'>resource pack request response</a> event.")
+@Description("Checks state of the resource pack in a [resource pack request response](docs:Skript/EvtResourcePackRequestResponse) event.")
 @Example("""
 	on resource pack response:
 		if the resource pack wasn't accepted:

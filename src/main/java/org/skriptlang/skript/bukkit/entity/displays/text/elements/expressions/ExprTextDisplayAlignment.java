@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Text Display Alignment")
-@Description("Returns or changes the <a href='#textalignment'>alignment</a> setting of <a href='#display'>text displays</a>.")
+@Description("Returns or changes the [alignment](docs:Skript/TypeTextAlignment) setting of [text displays](docs:Skript/TypeDisplay).")
 @Example("set text alignment of the last spawned text display to left aligned")
 @Since("2.10")
 public class ExprTextDisplayAlignment extends SimplePropertyExpression<Display, TextAlignment> {

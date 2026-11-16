@@ -16,7 +16,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Has Scoreboard Tag")
-@Description("Checks whether the given entities has the given <a href='#ExprScoreboardTags'>scoreboard tags</a>.")
+@Description("Checks whether the given entities has the given [scoreboard tags](docs:Skript/ExprScoreboardTags).")
 @Example("if the targeted armor stand has the scoreboard tag \"test tag\":")
 @Since("2.3")
 public class CondHasScoreboardTag extends Condition {

@@ -14,7 +14,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Minimum/Maximum Enchantment Level")
 @Description("""
-	The minimum or maximum allowed level in Minecraft of a particular <a href='#enchantment'>enchantment</a>.
+	The minimum or maximum allowed level in Minecraft of a particular [enchantment](docs:Skript/TypeEnchantment).
 	
 	The minimum starting level is 1 for all existing enchantments as of 26.1.2.
 	""")

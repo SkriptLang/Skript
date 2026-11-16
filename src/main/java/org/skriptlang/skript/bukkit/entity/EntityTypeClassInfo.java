@@ -12,7 +12,7 @@ public class EntityTypeClassInfo extends ClassInfo<EntityType> {
 		super(EntityType.class, "entitytype");
 
 		this.name("Entity Type with Amount")
-			.description("An <a href='#entitydata'>entity type</a> with an amount, e.g. '2 zombies'.")
+			.description("An [entity type](docs:Skript/TypeEntityData) with an amount, e.g. '2 zombies'.")
 			.usage("<number> <entity type>")
 			.examples("spawn 5 creepers behind the player")
 			.since("1.3")

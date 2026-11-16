@@ -22,7 +22,7 @@ public class EvtPlayerGameModeChange extends SkriptEvent {
 			.addEvent(PlayerGameModeChangeEvent.class)
 			.addPatterns("[player] game[ ]mode change [to %-gamemodes%]")
 			.addDescription("""
-				Called when a player's gamemode is changed. See <a href='#gamemode'>gamemode</a>.
+				Called when a player's gamemode is changed. See [gamemode](docs:Skript/TypeGamemode).
 				""")
 			.addExample("""
 				on game mode change:
