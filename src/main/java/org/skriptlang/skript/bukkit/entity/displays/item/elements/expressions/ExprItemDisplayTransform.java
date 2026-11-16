@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Item Display Transform")
-@Description("Returns or changes the [item display transformation](docs:Skript/TypeItemDisplayTransformation) of [item displays](docs:Skript/TypeDisplay).")
+@Description("Returns or changes the [item display transformation](docs:Skript/TypeItemdisplaytransform) of [item displays](docs:Skript/TypeDisplay).")
 @Example("set the item transform of the last spawned item display to first person left handed")
 @Example("set the item transform of the last spawned item display to no transform # Reset to default")
 @Since("2.10")

@@ -24,7 +24,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Item Enchantments")
-@Description("All the enchantments an [item type](docs:Skript/TypeItemType) has.")
+@Description("All the enchantments an [item type](docs:Skript/TypeItemtype) has.")
 @Example("clear enchantments of event-item")
 @Since("2.2-dev36")
 public class ExprEnchantments extends PropertyExpression<ItemType, EnchantmentType> {

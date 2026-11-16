@@ -14,7 +14,7 @@ public class EnchantmentClassInfo extends RegistryClassInfo<Enchantment> {
 
 		user("enchantments?")
 			.name("Enchantment")
-			.description("An enchantment, e.g. 'sharpness' or 'fortune'. Unlike [enchantment type](docs:Skript/TypeEnchantmentType) " +
+			.description("An enchantment, e.g. 'sharpness' or 'fortune'. Unlike [enchantment type](docs:Skript/TypeEnchantmenttype) " +
 					"this type has no level, but you usually don't need to use this type anyway.",
 					"NOTE: Minecraft namespaces are supported, ex: 'minecraft:basalt_deltas'.",
 					"This also supports custom enchantments using namespaces, ex: 'myenchants:explosive'.")

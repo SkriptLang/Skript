@@ -435,7 +435,7 @@ public class BukkitClasses {
 		Classes.registerClass(new EnumClassInfo<>(FireworkEffect.Type.class, "fireworktype", "firework types")
 				.user("firework ?types?")
 				.name("Firework Type")
-				.description("The type of a [firework effect](docs:Skript/TypeFireworkEffect).")
+				.description("The type of a [firework effect](docs:Skript/TypeFireworkeffect).")
 				.since("2.4")
 				.documentationId("FireworkType"));
 
