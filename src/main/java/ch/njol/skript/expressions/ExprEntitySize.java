@@ -6,6 +6,9 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.LivingEntity;
@@ -13,6 +16,7 @@ import org.bukkit.entity.Phantom;
 import org.bukkit.entity.Slime;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Entity Size")
 @Description({
@@ -27,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 		set name of event-entity to "King Slime Jorg"
 	""")
 @Since("2.11")
+@Deprecated(forRemoval = true, since = "INSERT VERSION")
 public class ExprEntitySize extends SimplePropertyExpression<LivingEntity, Integer> {
 
 	private static final int MAXIMUM_SLIME_SIZE = 127;
@@ -34,6 +39,12 @@ public class ExprEntitySize extends SimplePropertyExpression<LivingEntity, Integ
 
 	static {
 		register(ExprEntitySize.class, Integer.class, "entity size", "livingentities");
+	}
+
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		ScriptWarning.printDeprecationWarning("The expression 'entity size' has been deprecated and will no longer be updated to support new entities. Consider using 'size' instead.");
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override

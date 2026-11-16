@@ -1,11 +1,7 @@
 package ch.njol.skript.classes.data;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.EnumClassInfo;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.PatternedParser;
-import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -26,12 +22,7 @@ import org.bukkit.block.DoubleChest;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.EntitySnapshot;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Vehicle;
-import org.bukkit.entity.Villager;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
@@ -71,18 +62,6 @@ public class BukkitClasses {
 	public BukkitClasses() {}
 
 	static {
-		Classes.registerClass(new ClassInfo<>(LivingEntity.class, "livingentity")
-				.user("living ?entit(y|ies)")
-				.name("Living Entity")
-				.description("A living <a href='#entity'>entity</a>, i.e. a mob or <a href='#player'>player</a>, " +
-						"not inanimate entities like <a href='#projectile'>projectiles</a> or dropped items.")
-				.usage("see <a href='#entity'>entity</a>, but ignore inanimate objects")
-				.examples("spawn 5 powered creepers",
-						"shoot a zombie from the creeper")
-				.since("1.0")
-				.defaultExpression(new EventValueExpression<>(LivingEntity.class))
-				.changer(new EntityChanger()));
-
 		Classes.registerClass(new ClassInfo<>(Projectile.class, "projectile")
 				.user("projectiles?")
 				.name("Projectile")
