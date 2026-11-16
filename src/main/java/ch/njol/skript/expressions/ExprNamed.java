@@ -27,7 +27,7 @@ import java.util.List;
 
 @Name("Named Item/Inventory")
 @Description("Directly names an item/inventory, useful for defining a named item/inventory in a script. " +
-		"If you want to (re)name existing items/inventories you can either use this expression or use `[set name of <item/inventory> to <text>](docs:Skript/PropExprName)`.")
+		"If you want to (re)name existing items/inventories you can either use this expression or use: [set name of <item/inventory> to <text>](docs:Skript/PropExprName)")
 @Example("give a diamond sword of sharpness 100 named \"<gold>Excalibur\" to the player")
 @Example("set tool of player to the player's tool named \"<gold>Wand\"")
 @Example("set the name of the player's tool to \"<gold>Wand\"")

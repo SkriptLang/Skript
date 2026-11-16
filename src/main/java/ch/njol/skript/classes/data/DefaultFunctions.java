@@ -207,7 +207,7 @@ public class DefaultFunctions {
 			public Number[] executeSimple(Object[][] params) {
 				return new Double[] {Math.tan(Math.toRadians(((Number) params[0][0]).doubleValue()))};
 			}
-		}.description("The tangent function. This is basically `[sin](docs:Skript/FuncSin)(arg)/[cos](docs:Skript/FuncCos)(arg)`. Uses degrees, not radians.")
+		}.description("The tangent function. This is basically [sin](docs:Skript/FuncSin)(arg)/[cos](docs:Skript/FuncCos)(arg). Uses degrees, not radians.")
 			.examples("tan(0) = 0", "tan(45) = 1", "tan(89.99) = " + str(Math.tan(Math.toRadians(89.99))))
 			.since("2.2"));
 
