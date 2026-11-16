@@ -39,8 +39,12 @@ public class BlockClassInfo extends ClassInfo<Block> {
 		super(Block.class, "block");
 		this.user("blocks?")
 			.name("Block")
-			.description("A block in a <a href='#world'>world</a>. It has a <a href='#location'>location</a> and a <a href='#itemstack'>type</a>, " +
-				"and can also have a <a href='#direction'>direction</a> (mostly a <a href='#ExprFacing'>facing</a>), an <a href='#inventory'>inventory</a>, or other special properties.")
+			.description("""
+				A block in a [world](docs:Skript/TypeWorld). \
+				It has a [location](docs:Skript/TypeLocation) and a [type](docs:Skript/TypeItemstack). \
+				It can also have a [direction](docs:Skript/TypeDirection) (mostly a [facing](docs:Skript/ExprFacing)), \
+				an [inventory](docs:Skript/TypeInventory), or other special properties.
+				""")
 			.usage("")
 			.examples("")
 			.since("1.0")

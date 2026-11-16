@@ -48,7 +48,7 @@ public class OfflinePlayerClassInfo extends ClassInfo<OfflinePlayer> {
 		this.user("offline ?players?")
 			.name("Offline Player")
 			.description(
-				"A player that is possibly offline. See <a href='#player'>player</a> for more information. " +
+				"A player that is possibly offline. See [player](docs:Skript/TypePlayer) for more information. " +
 					"Please note that while all effects and conditions that require a player can be used with an " +
 					"offline player as well, they will not work if the player is not actually online."
 			).usage(

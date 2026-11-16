@@ -36,8 +36,12 @@ public class LocationClassInfo extends ClassInfo<Location> {
 		super(Location.class, "location");
 		this.user("locations?")
 			.name("Location")
-			.description("A location in a <a href='#world'>world</a>. Locations are world-specific and even store a <a href='#direction'>direction</a>, " +
-				"e.g. if you save a location and later teleport to it you will face the exact same direction you did when you saved the location.")
+			.description("""
+				A location in a [world](docs:Skript/TypeWorld). \
+				Locations are world-specific and even store a [direction](docs:Skript/TypeDirection). \
+				For example, if you save a location and later teleport to it, you will face the exact same direction \
+				as you did when you saved the location.
+				""")
 			.usage("")
 			.examples("teleport player to location at 0, 69, 0",
 				"set {home::%uuid of player%} to location of the player")

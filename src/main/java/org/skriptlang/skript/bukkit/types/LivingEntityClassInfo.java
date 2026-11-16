@@ -19,9 +19,10 @@ public class LivingEntityClassInfo extends ClassInfo<LivingEntity> {
 		super(LivingEntity.class, "livingentity");
 		this.user("living ?entit(y|ies)")
 			.name("Living Entity")
-			.description("A living <a href='#entity'>entity</a>, i.e. a mob or <a href='#player'>player</a>, " +
-					"not inanimate entities like <a href='#projectile'>projectiles</a> or dropped items.")
-			.usage("see <a href='#entity'>entity</a>, but ignore inanimate objects")
+			.description("""
+				A living [entity](docs:Skript/TypeEntity), such as a mob or [player](docs:Skript/TypePlayer), \
+				not inanimate entities like [projectiles](docs:Skript/TypeProjectile) or dropped items.
+				""")
 			.examples("spawn 5 powered creepers",
 					"shoot a zombie from the creeper")
 			.since("1.0")

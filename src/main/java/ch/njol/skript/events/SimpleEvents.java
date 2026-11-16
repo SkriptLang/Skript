@@ -35,8 +35,7 @@ public class SimpleEvents {
 		// TODO - remove unncessary classExists checks when Spigot support is dropped
 
 		Skript.registerEvent("Can Build Check", SimpleEvent.class, BlockCanBuildEvent.class, "[block] can build check")
-				.description("Called when a player rightclicks on a block while holding a block or a placeable item. You can either cancel the event to prevent the block from being built, or uncancel it to allow it.",
-						"Please note that the <a href='#ExprDurability'>data value</a> of the block to be placed is not available in this event, only its <a href='#ExprIdOf'>ID</a>.")
+				.description("Called when a player rightclicks on a block while holding a block or a placeable item. You can either cancel the event to prevent the block from being built, or uncancel it to allow it.")
 				.examples("on block can build check:",
 						"\tcancel event")
 				.since("1.0 (basic), 2.0 ([un]cancellable)");
@@ -54,7 +53,7 @@ public class SimpleEvents {
 				.since("1.0");
 		Skript.registerEvent("Ignition", SimpleEvent.class, BlockIgniteEvent.class, "[block] ignit(e|ion)")
 				.description("Called when a block starts burning, i.e. a fire block is placed next to it and this block is flammable.",
-						"The <a href='#burn'>burn event</a> will be called when the block is about do be destroyed by the fire.")
+						"The [burn](docs:Skript/EvtBurn) event will be called when the block is about do be destroyed by the fire.")
 				.examples("on block ignite:",
 						"\tif event-block is a ladder:",
 						"\t\tcancel event")
@@ -84,7 +83,7 @@ public class SimpleEvents {
 						"\tsend \"someone is using redstone\" to console")
 				.since("1.0");
 		Skript.registerEvent("Spread", SimpleEvent.class, BlockSpreadEvent.class, "spread[ing]")
-				.description("Called when a new block <a href='#form'>forms</a> as a result of a block that can spread, e.g. water or mushrooms.")
+				.description("Called when a new block [forms](docs:Skript/EvtForm) as a result of a block that can spread, e.g. water or mushrooms.")
 				.examples("on spread:")
 				.since("1.0");
 		Skript.registerEvent("Chunk Load", SimpleEvent.class, ChunkLoadEvent.class, "chunk load[ing]")
@@ -154,7 +153,7 @@ public class SimpleEvents {
 				.examples("on player leaving a bed:")
 				.since("1.0");
 		Skript.registerEvent("Bucket Empty", SimpleEvent.class, PlayerBucketEmptyEvent.class, "bucket empty[ing]", "[player] empty[ing] [a] bucket")//TODO , "emptying bucket [of %itemtype%]", "emptying %itemtype% bucket") -> place of water/lava)
-		.description("Called when a player empties a bucket. You can also use the <a href='#place'>place event</a> with a check for water or lava.")
+		.description("Called when a player empties a bucket. You can also use the [place](docs:Skript/EvtPlace) event with a check for water or lava.")
 				.examples("on bucket empty:")
 				.since("1.0");
 		Skript.registerEvent("Bucket fill", SimpleEvent.class, PlayerBucketFillEvent.class, "bucket fill[ing]", "[player] fill[ing] [a] bucket")//TODO , "filling bucket [(with|of) %itemtype%]", "filling %itemtype% bucket");)
@@ -163,7 +162,7 @@ public class SimpleEvents {
 				.since("1.0");
 		Skript.registerEvent("Egg Throw", SimpleEvent.class, PlayerEggThrowEvent.class, "throw[ing] [of] [an] egg", "[player] egg throw")
 				.description(
-						"Called when a player throws an egg and it lands. You can just use the <a href='#shoot'>shoot event</a> in most cases." +
+						"Called when a player throws an egg and it lands. You can just use the [shoot](docs:Skript/EvtShoot) event in most cases." +
 						" However, this event allows modification of properties like the hatched entity type and the number of entities to hatch."
 				)
 				.examples("on throw of an egg:")
@@ -183,20 +182,20 @@ public class SimpleEvents {
 				.examples("on player's held item change:")
 				.since("1.0");
 		Skript.registerEvent("Join", SimpleEvent.class, PlayerJoinEvent.class, "[player] (login|logging in|join[ing])")
-				.description("Called when the player joins the server. The player is already in a world when this event is called, so if you want to prevent players from joining you should prefer <a href='#connect'>on connect</a> over this event.")
+				.description("Called when the player joins the server. The player is already in a world when this event is called, so if you want to prevent players from joining you should prefer [on connect](docs:Skript/EvtConnect) over this event.")
 				.examples("on join:",
 						"	message \"Welcome on our awesome server!\"",
 						"	broadcast \"%player% just joined the server!\"")
 				.since("1.0");
 		Skript.registerEvent("Connect", SimpleEvent.class, PlayerLoginEvent.class, "[player] connect[ing]")
-				.description("Called when the player connects to the server. This event is called before the player actually joins the server, so if you want to prevent players from joining you should prefer this event over <a href='#join'>on join</a>.")
+				.description("Called when the player connects to the server. This event is called before the player actually joins the server, so if you want to prevent players from joining you should prefer this event over [on join](docs:Skript/EvtJoin).")
 				.examples("on connect:",
 						"	player doesn't have permission \"VIP\"",
 						"	number of players is greater than 15",
 						"	kick the player due to \"The last 5 slots are reserved for VIP players.\"")
 				.since("2.0");
 		Skript.registerEvent("Kick", SimpleEvent.class, PlayerKickEvent.class, "[player] (kick|being kicked)")
-				.description("Called when a player is kicked from the server. You can change the <a href='#ExprMessage'>kick message</a> or <a href='#EffCancelEvent'>cancel the event</a> entirely.")
+				.description("Called when a player is kicked from the server. You can change the [kick message](docs:Skript/ExprKickMessage) or [cancel the event](docs:Skript/EffCancelEvent) entirely.")
 				.examples("on kick:")
 				.since("1.0");
 		Skript.registerEvent("Quit", SimpleEvent.class, PlayerQuitEvent.class, "(quit[ting]|disconnect[ing]|log[ ]out|logging out|leav(e|ing))")
@@ -205,25 +204,25 @@ public class SimpleEvents {
 						"on disconnect:")
 				.since("1.0 (simple disconnection)");
 		Skript.registerEvent("Respawn", SimpleEvent.class, PlayerRespawnEvent.class, "[player] respawn[ing]")
-				.description("Called when a player respawns via death or entering the end portal in the end. You should prefer this event over the <a href='#death'>death event</a> as the player is technically alive when this event is called.")
+				.description("Called when a player respawns via death or entering the end portal in the end. You should prefer this event over the [death](docs:Skript/EvtDeath) event as the player is technically alive when this event is called.")
 				.examples("on respawn:")
 				.since("1.0");
 		Skript.registerEvent("Sneak Toggle", SimpleEvent.class, PlayerToggleSneakEvent.class, "[player] toggl(e|ing) sneak", "[player] sneak toggl(e|ing)")
-				.description("Called when a player starts or stops sneaking. Use <a href='#CondIsSneaking'>is sneaking</a> to get whether the player was sneaking before the event was called.")
+				.description("Called when a player starts or stops sneaking. Use the [is sneaking](docs:Skript/CondIsSneaking) condition to get whether the player was sneaking before the event was called.")
 				.examples("# make players that stop sneaking jump",
 						"on sneak toggle:",
 						"	player is sneaking",
 						"	push the player upwards at speed 0.5")
 				.since("1.0");
 		Skript.registerEvent("Sprint Toggle", SimpleEvent.class, PlayerToggleSprintEvent.class, "[player] toggl(e|ing) sprint", "[player] sprint toggl(e|ing)")
-				.description("Called when a player starts or stops sprinting. Use <a href='#CondIsSprinting'>is sprinting</a> to get whether the player was sprinting before the event was called.")
+				.description("Called when a player starts or stops sprinting. Use the [is sprinting](docs:Skript/CondIsSprinting) condition to get whether the player was sprinting before the event was called.")
 				.examples("on sprint toggle:",
 						"	player is not sprinting",
 						"	send \"Run!\"")
 				.since("1.0");
 		Skript.registerEvent("Portal Create", SimpleEvent.class, PortalCreateEvent.class, "portal creat(e|ion)")
 				.description("Called when a portal is created, either by a player or mob lighting an obsidian frame on fire, or by a nether portal creating its teleportation target in the nether/overworld.",
-						"In Minecraft 1.14+, you can use <a href='#ExprEntity'>the player</a> in this event.", "Please note that there may not always be a player (or other entity) in this event.")
+						"In Minecraft 1.14+, you can use [the player](docs:Skript/ExprEntity) in this event.", "Please note that there may not always be a player (or other entity) in this event.")
 				.examples("on portal create:")
 				.requiredPlugins("Minecraft 1.14+ (event-entity support)")
 				.since("1.0, 2.5.3 (event-entity support)");
@@ -240,7 +239,7 @@ public class SimpleEvents {
 				"\tteleport shooter of event-projectile to event-entity")
 			.since("2.5");
 		Skript.registerEvent("Shoot", SimpleEvent.class, ProjectileLaunchEvent.class, "[projectile] (shoot|launch)")
-				.description("Called whenever a <a href='#projectile'>projectile</a> is shot. Use the <a href='#ExprShooter'>shooter expression</a> to get who shot the projectile.")
+				.description("Called whenever a [projectile](docs:Skript/TypeProjectile) is shot. Use the [shooter](docs:Skript/ExprShooter) expression to get who shot the projectile.")
 				.examples("on shoot:",
 						"\tif projectile is an arrow:",
 						"\t\tsend \"you shot an arrow!\" to shooter")
@@ -255,16 +254,16 @@ public class SimpleEvents {
 				.examples("on vehicle create:")
 				.since("1.0");
 		Skript.registerEvent("Vehicle Damage", SimpleEvent.class, VehicleDamageEvent.class, "vehicle damage", "damag(e|ing) [a] vehicle")
-				.description("Called when a vehicle gets damage. Too much damage will <a href='#vehicle_destroy'>destroy</a> the vehicle.")
+				.description("Called when a vehicle gets damage. Too much damage will [destroy](docs:Skript/EvtVehicleDestroy) the vehicle.")
 				.examples("on vehicle damage:")
 				.since("1.0");
 		Skript.registerEvent("Vehicle Destroy", SimpleEvent.class, VehicleDestroyEvent.class, "vehicle destroy", "destr(oy[ing]|uction of) [a] vehicle")
-				.description("Called when a vehicle is destroyed. Any <a href='#ExprPassenger'>passenger</a> will be ejected and the vehicle might drop some item(s).")
+				.description("Called when a vehicle is destroyed. Any [passengers](docs:Skript/ExprPassenger) will be ejected and the vehicle might drop some item(s).")
 				.examples("on vehicle destroy:",
 						"\tcancel event")
 				.since("1.0");
 		Skript.registerEvent("Vehicle Enter", SimpleEvent.class, VehicleEnterEvent.class, "vehicle enter", "enter[ing] [a] vehicle")
-				.description("Called when an <a href='#entity'>entity</a> enters a vehicle, either deliberately (players) or by falling into them (mobs).")
+				.description("Called when an [entity](docs:Skript/TypeEntity) enters a vehicle, either deliberately (players) or by falling into them (mobs).")
 				.examples("on vehicle enter:",
 						"\tentity is a player",
 						"\tcancel event")
@@ -357,7 +356,7 @@ public class SimpleEvents {
 						"		cancel event")
 				.since("2.2-dev36");
 		Skript.registerEvent("Language Change", SimpleEvent.class, PlayerLocaleChangeEvent.class, "[player] (language|locale) chang(e|ing)", "[player] chang(e|ing) (language|locale)")
-				.description("Called after a player changed their language in the game settings. You can use the <a href='#ExprLanguage'>language</a> expression to get the current language of the player.")
+				.description("Called after a player changed their language in the game settings. You can use the [language](docs:Skript/ExprLanguage) expression to get the current language of the player.")
 				.examples("on language change:",
 					"	if player's language starts with \"en\":",
 					"		send \"Hello!\"")
@@ -388,13 +387,13 @@ public class SimpleEvents {
 			? PaperServerListPingEvent.class : ServerListPingEvent.class);
 		Skript.registerEvent("Server List Ping", SimpleEvent.class, serverListPingEventClass, "server [list] ping")
 				.description("Called when a server list ping is coming in, generally when a Minecraft client pings the server to show its information in the server list.",
-						"The <a href='#ExprIP'>IP</a> expression can be used to get the IP adress of the pinger.",
+						"The [IP](docs:Skript/ExprIP) expression can be used to get the IP address of the pinger.",
 						"This event can be cancelled on PaperSpigot 1.12.2+ only and this means the player will see the server as offline (but still can join).",
 						"",
-						"Also you can use <a href='#ExprMOTD'>MOTD</a>, <a href='#ExprMaxPlayers'>Max Players</a>, " +
-						"<a href='#ExprOnlinePlayersCount'>Online Players Count</a>, <a href='#ExprProtocolVersion'>Protocol Version</a>, " +
-						"<a href='#ExprVersionString'>Version String</a>, <a href='#ExprHoverList'>Hover List</a> and <a href='#ExprServerIcon'>Server Icon</a> " +
-						"expressions, and <a href='#EffPlayerInfoVisibility'>Player Info Visibility</a> and <a href='#EffHidePlayerFromServerList'>Hide Player from Server List</a> effects to modify the server list.")
+						"Also you can use [MOTD](docs:Skript/ExprMOTD), [max players](docs:Skript/ExprMaxPlayers), " +
+						"[online player count](docs:Skript/ExprOnlinePlayersCount), [protocol version](docs:Skript/ExprProtocolVersion), " +
+						"[version string](docs:Skript/ExprVersionString), [hover list](docs:Skript/ExprHoverList), and [server icon](docs:Skript/ExprServerIcon) " +
+						"expressions, and [player info visibility](docs:Skript/EffPlayerInfoVisibility) and [hide player from server list](docs:Skript/EffHidePlayerFromServerList) effects to modify the server list.")
 				.examples("on server list ping:",
 						"	set the motd to \"Welcome %{player-by-IP::%ip%}%! Join now!\" if {player-by-IP::%ip%} is set, else \"Join now!\"",
 						"	set the fake max players count to (online players count + 1)",
@@ -423,14 +422,14 @@ public class SimpleEvents {
 				.since("2.5");
 		Skript.registerEvent("Enchant Prepare", SimpleEvent.class, PrepareItemEnchantEvent.class, "[item] enchant prepare")
 			.description("Called when a player puts an item into enchantment table. This event may be called multiple times.",
-				" To get the enchant item, see the <a href='#ExprEnchantEventsEnchantItem'>enchant item expression</a>")
+				" To get the enchant item, see the [enchanted item](docs:Skript/ExprEnchantItem) expression.")
 			.examples("on enchant prepare:",
 				"\tset enchant offer 1 to sharpness 1",
 				"\tset the cost of enchant offer 1 to 10 levels")
 			.since("2.5");
 		Skript.registerEvent("Enchant", SimpleEvent.class, EnchantItemEvent.class, "[item] enchant")
 		.description("Called when a player successfully enchants an item.",
-			" To get the enchanted item, see the <a href='#ExprEnchantEventsEnchantItem'>enchant item expression</a>")
+			" To get the enchanted item, see the [enchanted item](docs:Skript/ExprEnchantItem) expression.")
 		.examples("on enchant:",
 			"\tif the clicked button is 1: # offer 1",
 			"\t\tset the applied enchantments to sharpness 10 and unbreaking 10")

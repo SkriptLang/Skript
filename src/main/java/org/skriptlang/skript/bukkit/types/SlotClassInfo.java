@@ -29,12 +29,17 @@ public class SlotClassInfo extends ClassInfo<Slot> {
 		super(Slot.class, "slot");
 		this.user("(inventory )?slots?")
 			.name("Slot")
-			.description("Represents a single slot of an <a href='#inventory'>inventory</a>. " +
-					"Notable slots are the <a href='#ExprArmorSlot'>armour slots</a> and <a href='./expressions/#ExprFurnaceSlot'>furnace slots</a>. ",
-				"The most important property that distinguishes a slot from an <a href='#itemstack'>item</a> is its ability to be changed, e.g. it can be set, deleted, enchanted, etc. " +
-					"(Some item expressions can be changed as well, e.g. items stored in variables. " +
-					"For that matter: slots are never saved to variables, only the items they represent at the time when the variable is set).",
-				"Please note that <a href='#ExprTool'>tool</a> can be regarded a slot, but it can actually change it's position, i.e. doesn't represent always the same slot.")
+			.description("""
+				Represents a single slot of an [inventory](docs:Skript/TypeInventory). \
+				Notable slots are the [armor slots](docs:Skript/ExprArmorSlot) and [furnace slots](docs:Skript/ExprFurnaceSlot).
+				The most importance property that distinguishes a slot from an [item](docs:Skript/TypeItemstack) is its ability \
+				to be changed (some item expressions change be changed as well, such as items stored in variables). \
+				For example, it can be set, deleted, enchanted, or even more.
+				It is important to note that slots are never saved to variables, only the items they represent at the \
+				time of the variable being set. \
+				Also note that the [tool](docs:Skript/ExprTool) expression is represented as a slot, but it can actually \
+				change its position (i.e., it doesn't always represent the same slot).
+				""")
 			.usage("")
 			.examples("set tool of player to dirt",
 				"delete helmet of the victim",

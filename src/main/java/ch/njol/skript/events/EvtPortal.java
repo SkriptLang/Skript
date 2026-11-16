@@ -17,7 +17,7 @@ public class EvtPortal extends SkriptEvent {
 		Skript.registerEvent("Portal", EvtPortal.class, CollectionUtils.array(PlayerPortalEvent.class, EntityPortalEvent.class), "[player] portal", "entity portal")
 				.description(
 					"Called when a player or an entity uses a nether or end portal. Note that 'on entity portal' event does not apply to players.",
-					"<a href='#EffCancelEvent'>Cancel the event</a> to prevent the entity from teleporting."
+					"[Cancel the event](docs:Skript/EffCancelEvent) to prevent the entity from teleporting."
 				).keywords(
 					"player", "entity"
 				).examples(

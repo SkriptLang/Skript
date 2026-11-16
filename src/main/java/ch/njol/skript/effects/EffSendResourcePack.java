@@ -22,10 +22,10 @@ import ch.njol.util.StringUtils;
 		"",
 		"The hash is used for caching, the player won't have to re-download the resource pack that way. ",
 		"The hash must be SHA-1, you can get SHA-1 hash of your resource pack using ",
-		"<a href=\"https://emn178.github.io/online-tools/sha1_checksum.html\">this online tool</a>.",
+		"[this online tool](https://emn178.github.io/online-tools/sha1_checksum.html).",
 		"",
-		"The <a href='#resource_pack_request_action'>resource pack request action</a> can be used to check ",
-		"status of the sent resource pack request."})
+		"The [last resource pack response](docs:Skript/ExprLastResourcePackResponse) expression can be used to check ",
+		"the status of the sent resource pack request."})
 @Example("""
 	on join:
 		send the resource pack from "URL" with hash "hash" to the player

@@ -29,11 +29,12 @@ public class ItemStackClassInfo extends ClassInfo<ItemStack> {
 		super(ItemStack.class, "itemstack");
 		this.user("items?", "item ?stacks?")
 			.name("Item")
-			.description("An item, e.g. a stack of torches, a furnace, or a wooden sword of sharpness 2. " +
-					"Unlike <a href='#itemtype'>item type</a> an item can only represent exactly one item (e.g. an upside-down cobblestone stair facing west), " +
-					"while an item type can represent a whole range of items (e.g. any cobble stone stairs regardless of direction).",
-				"You don't usually need this type except when you want to make a command that only accepts an exact item.",
-				"Please note that currently 'material' is exactly the same as 'item', i.e. can have an amount & enchantments.")
+			.description("""
+				An item, such as a stack of torches, a furnace, or a wooden sword of sharpness 2. \
+				Unlike [item type](docs:Skript/TypeItemtype), an item can only represent a specific item, \
+				such as a diamond sword, while an item type can represent a whole range of items (e.g., any sword).
+				You don't usually need this type except when you want to make a command that only accepts an exact item.
+				""")
 			.usage("<code>[<number> [of]] <alias> [of <enchantment> <level>]</code>, Where <alias> must be an alias that represents exactly one item " +
 				"(i.e cannot be a general alias like 'sword' or 'plant')")
 			.examples("set {_item} to type of the targeted block",
