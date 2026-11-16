@@ -1,4 +1,4 @@
-package ch.njol.skript.effects;
+package org.skriptlang.skript.bukkit.entity.player.elements.effects;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -46,6 +46,7 @@ public class EffFeed extends Effect {
 			Number n = beefs.getSingle(event);
 			if (n != null)
 				foodAmount = n.intValue();
+			else return;
 		}
 		for (Player player : players.getArray(event)) {
 			player.setFoodLevel(beefs == null ? 20 : player.getFoodLevel() + foodAmount);
@@ -56,6 +57,5 @@ public class EffFeed extends Effect {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "feed " + players.toString(event, debug) + (beefs != null ? " by " + beefs.toString(event, debug) : "");
 	}
-
 
 }

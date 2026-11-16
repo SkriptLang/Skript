@@ -1,7 +1,7 @@
 package org.skriptlang.skript.bukkit.entity.player;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.effects.EffFeed;
+import org.skriptlang.skript.bukkit.entity.player.elements.effects.EffFeed;
 import ch.njol.skript.lang.util.SimpleEvent;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import org.skriptlang.skript.addon.AddonModule;
@@ -23,8 +23,8 @@ public class PlayerModule extends HierarchicalAddonModule {
 	protected void loadSelf(SkriptAddon addon) {
 		register(addon,
 			EffBan::register,
-			EffKick::register,
 			EffFeed::register,
+			EffKick::register,
 			ExprChatFormat::register,
 			ExprChatMessage::register,
 			ExprChatRecipients::register,
