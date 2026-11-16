@@ -17,6 +17,11 @@ test "size property - living entities":
 		assert size of entity is 1 with "Size of slime should cap at min 1"
 		clear entity
 
+	# Magma Cube max size seems to change?
+	set {_magmaMax} to 126
+	if running minecraft "26.2":
+		set {_magmaMax} to 127
+
 	spawn a magma cube at test-location:
 		set size of entity to 10
 		assert size of entity is 10 with "Size of magma cube should be 10"
