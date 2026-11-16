@@ -85,14 +85,17 @@ public class Events implements Documentable {
 			boolean found = false;
 			for (String eventName : eventNames) {
 				for (BukkitSyntaxInfos.Event<?> info : addon.syntaxRegistry().syntaxes(BukkitSyntaxInfos.Event.KEY)) {
-					String infoName = info.name().toLowerCase(Locale.ENGLISH);
+					String infoName = info.documentation().name().toLowerCase(Locale.ENGLISH);
 					if (infoName.startsWith("on ")) {
 						infoName = infoName.substring(3);
 					}
 					if (infoName.equals(eventName.toLowerCase(Locale.ENGLISH).replace("_", " "))) {
 						found = true;
 						candidates.add(info);
-					} else if (eventName.equals(info.documentationId())) { // should be unique, this is an exact match
+						continue;
+					}
+					String id = info.documentation().id();
+					if (eventName.equals(id) || (id == null && eventName.equals(info.documentationAutoId()))) { // should be unique, this is an exact match
 						found = true;
 						candidates.clear();
 						candidates.add(info);

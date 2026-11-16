@@ -12,11 +12,12 @@ public interface DocumentationDocumentable extends Documentable {
 	Documentation documentation();
 
 	/**
-	 * @return Can be overridden so that the automatically generated ID of this documentable is prefixed.
-	 * If an ID is explicitly set on this documentable's {@link #documentation()}, this method is unused.
+	 * @return An automatically generated ID for this documentable.
+	 * By default, this method simply wraps {@link Documentation#autoId()}.
+	 * However, it can be overridden for additional functionality, such as enforcing an automatic prefix.
 	 */
-	default String documentationIdPrefix() {
-		return "";
+	default String documentationAutoId() {
+		return documentation().autoId();
 	}
 
 	@Override
@@ -28,13 +29,12 @@ public interface DocumentationDocumentable extends Documentable {
 	default void preWrite(DocumentationAdapter adapter) {
 		String id = documentation().id();
 		if (id == null) {
-			id = documentation().autoId();
+			id = documentationAutoId();
 			if (id.isEmpty()) {
 				throw new DocumentationException(
 					"Method preWrite must be overridden for DocumentationDocumentable if documentation may not have an ID or autoID"
 				);
 			}
-			id = documentationIdPrefix() + id;
 		}
 		adapter.enterScope(id);
 	}

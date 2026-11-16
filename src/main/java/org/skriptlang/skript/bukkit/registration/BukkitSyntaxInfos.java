@@ -205,20 +205,17 @@ public final class BukkitSyntaxInfos {
 		Collection<Class<? extends org.bukkit.event.Event>> events();
 
 		@Override
-		default void preWrite(DocumentationAdapter adapter) {
-			String id = documentation().id();
-			if (id == null) {
-				id = documentation().autoId();
-				if (id.startsWith("On")) {
-					id = id.substring(2);
-				} else if (id.isEmpty()) {
-					id = type().getSimpleName(); // hope for the best
-				}
-				if (!id.startsWith("Evt")) {
-					id = "Evt" + id;
-				}
+		default String documentationAutoId() {
+			String id = documentation().autoId();
+			if (id.startsWith("On")) {
+				id = id.substring(2);
+			} else if (id.isEmpty()) {
+				id = type().getSimpleName(); // hope for the best
 			}
-			adapter.enterScope(id);
+			if (!id.startsWith("Evt")) {
+				id = "Evt" + id;
+			}
+			return id;
 		}
 
 		@Override

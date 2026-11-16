@@ -231,6 +231,11 @@ public abstract class JavaFunction<T> extends Function<T>
 	}
 
 	@Override
+	public String documentationAutoId() {
+		return "Func" + DocumentationDocumentable.super.documentationAutoId();
+	}
+
+	@Override
 	public boolean canWrite(DocumentationAdapter adapter) {
 		return DocumentationDocumentable.super.canWrite(adapter);
 	}
@@ -239,11 +244,6 @@ public abstract class JavaFunction<T> extends Function<T>
 	public void write(DocumentationAdapter adapter) {
 		DocumentationDocumentable.super.write(adapter);
 		super.write(adapter);
-	}
-
-	@Override
-	public String documentationIdPrefix() {
-		return "Func";
 	}
 
 }

@@ -489,6 +489,11 @@ public record Property<Handler extends PropertyHandler<?>>(
 	}
 
 	@Override
+	public String documentationAutoId() {
+		return "Prop" + DocumentationDocumentable.super.documentationAutoId();
+	}
+
+	@Override
 	public void write(DocumentationAdapter adapter) {
 		DocumentationDocumentable.super.write(adapter);
 
@@ -508,11 +513,6 @@ public record Property<Handler extends PropertyHandler<?>>(
 			})
 			.map(adapter::reference)
 			.toList());
-	}
-
-	@Override
-	public String documentationIdPrefix() {
-		return "Prop";
 	}
 
 	/**

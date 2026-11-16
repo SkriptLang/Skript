@@ -99,7 +99,7 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 		documentation = Documentation.builder()
 			.origin(Origin.of(source, caller))
 			.name(name.getSingular())
-			.id(documentationIdPrefix() + Character.toUpperCase(codeName.charAt(0)) + codeName.substring(1))
+			.id(documentationAutoId())
 			.build();
 	}
 
@@ -481,6 +481,11 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 	}
 
 	@Override
+	public String documentationAutoId() {
+		return "Type" + Character.toUpperCase(codeName.charAt(0)) + codeName.substring(1);
+	}
+
+	@Override
 	public void write(DocumentationAdapter adapter) {
 		DocumentationDocumentable.super.write(adapter);
 
@@ -499,11 +504,6 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 				propAdapter.write("description", docs.description());
 			})
 			.toList());
-	}
-
-	@Override
-	public String documentationIdPrefix() {
-		return "Type";
 	}
 
 	/**

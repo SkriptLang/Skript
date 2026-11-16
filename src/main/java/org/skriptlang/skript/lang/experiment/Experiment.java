@@ -80,6 +80,11 @@ public interface Experiment extends DocumentationDocumentable {
 	}
 
 	@Override
+	default String documentationAutoId() {
+		return "Exp" + DocumentationDocumentable.super.documentationAutoId();
+	}
+
+	@Override
 	default void write(DocumentationAdapter adapter) {
 		DocumentationDocumentable.super.write(adapter);
 		adapter.write("phase", phase().name());
@@ -88,11 +93,6 @@ public interface Experiment extends DocumentationDocumentable {
 			.excludeTypeFlags()
 			.mapUndocumentableTypes()
 			.build()));
-	}
-
-	@Override
-	default String documentationIdPrefix() {
-		return "Exp";
 	}
 
 }
