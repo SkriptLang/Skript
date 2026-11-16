@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 import static org.skriptlang.skript.registration.DefaultSyntaxInfos.Expression.builder;
 
 @Name("Enchantment Level")
-@Description("The level of a particular <a href='#enchantment'>enchantment</a> on an item.")
+@Description("The level of a particular [enchantment](docs:Skript/TypeEnchantment) on an item.")
 @Example("""
 	player's tool is a sword of sharpness:
 		message "You have a sword of sharpness %level of sharpness of the player's tool% equipped"

@@ -11,7 +11,7 @@ import ch.njol.skript.registrations.EventValues;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 
 @Name("Heal Reason")
-@Description("The <a href='#healreason'>heal reason</a> of a <a href='#heal'>heal event</a>.")
+@Description("The [heal reason](docs:Skript/TypeHealreason) of a [heal](docs:Skript/EvtHeal) event.")
 @Example("""
 	on heal:
 		heal reason is satiated

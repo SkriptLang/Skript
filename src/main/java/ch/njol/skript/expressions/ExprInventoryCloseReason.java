@@ -14,7 +14,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Inventory Close Reason")
-@Description("The <a href='/#inventoryclosereason'>inventory close reason</a> of an <a href='/#inventory_close'>inventory close event</a>.")
+@Description("The [close reason](docs:Skript/TypeInventoryclosereason) of an [inventory close](docs:Skript/EvtInventoryClose) event.")
 @Example("""
 	on inventory close:
 		inventory close reason is teleport

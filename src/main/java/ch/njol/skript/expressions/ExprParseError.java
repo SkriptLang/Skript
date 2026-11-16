@@ -18,7 +18,7 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Parse Error")
-@Description("The error which caused the last <a href='#ExprParse'>parse operation</a> to fail, which might not be set if a pattern was used and the pattern didn't match the provided text at all.")
+@Description("The error which caused the last [parse operation](docs:Skript/ExprParse) to fail, which might not be set if a pattern was used and the pattern didn't match the provided text at all.")
 @Example("""
 	set {var} to line 1 parsed as integer
 	if {var} is not set:

@@ -41,11 +41,12 @@ public class InventoryClassInfo extends ClassInfo<Inventory> {
 		super(Inventory.class, "inventory");
 		this.user("inventor(y|ies)")
 			.name("Inventory")
-			.description("An inventory of a <a href='#player'>player</a> or <a href='#block'>block</a>. " +
-					"Inventories have many effects and conditions regarding the items contained.",
-				"An inventory has a fixed amount of <a href='#slot'>slots</a> which represent a specific place in the inventory, " +
-					"e.g. the <a href='#ExprArmorSlot'>helmet slot</a> for players " +
-					"(Please note that slot support is still very limited but will be improved eventually).")
+			.description("""
+				An inventory of something like a [player](docs:Skript/TypePlayer) or a [block](docs:Skript/TypeBlock). \
+				Inventories have many effects and conditions regarding the items contained. \
+				An inventory has a fixed amount of [slots](docs:Skript/TypeSlot) which represent a specific place \
+				in the inventory, such as the [helmet slot](docs:Skript/ExprArmorSlot) for players.
+				""")
 			.usage("")
 			.examples("")
 			.since("1.0")

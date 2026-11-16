@@ -35,7 +35,7 @@ public class EvtRegionBorder extends SkriptEvent {
 				"(:enter[ing]|leav(e|ing)|exit[ing]) [of] ([a] region|[[the] region] %-regions%)",
 				"region (:enter[ing]|leav(e|ing)|exit[ing])")
 				.description(
-					"Called when a player enters or leaves a <a href='#region'>region</a>.",
+					"Called when a player enters or leaves a [region](docs:Skript/TypeRegion).",
 					"This event requires a supported regions plugin to be installed."
 				).examples(
 					"on region exit:",

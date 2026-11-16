@@ -18,7 +18,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Description("""
 	Returns a copy of an item with a custom item model. \
 	Accepts a Namespaced Key which takes the form of "namespace:key", e.g. "minecraft:dirt". \
-	See <a href='https://minecraft.wiki/w/Identifier'> this article</a> for more detail. \
+	See the [Minecraft wiki article on identifiers](https://minecraft.wiki/w/Identifier) for more detail. \
 	""")
 @Example("""
 	set {_item} to emerald with model "minecraft:diamond" named "fake diamond"'

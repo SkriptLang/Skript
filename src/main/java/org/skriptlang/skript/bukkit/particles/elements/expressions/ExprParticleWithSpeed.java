@@ -27,7 +27,7 @@ import static org.skriptlang.skript.registration.DefaultSyntaxInfos.Expression.b
 	* acts as a multiplier to the particle's offset if the particle count is 0.
 	
 	More detailed information on particle behavior can be found at \
-	<a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
+	[Paper's particle documentation](https://docs.papermc.io/paper/dev/particles/#count-argument-behavior-).
 	""")
 @Example("draw an electric spark particle with a particle speed of 0 at player")
 @Example("draw 12 red dust particles with an extra value of 0.4 at player's head location")

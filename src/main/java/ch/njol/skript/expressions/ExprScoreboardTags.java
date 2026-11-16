@@ -21,11 +21,11 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
 @Name("Scoreboard Tags")
-@Description({"Scoreboard tags are simple list of texts stored directly in the data of an <a href='#entity'>entity</a>.",
+@Description({"Scoreboard tags are simple list of texts stored directly in the data of an [entity](docs:Skript/TypeEntity).",
 		"So this is a Minecraft related thing, not Bukkit, so the tags will not get removed when the server stops. " +
-		"You can visit <a href='https://minecraft.wiki/w/Scoreboard#Tags'>visit Minecraft Wiki</a> for more info.",
+		"You can [visit the Minecraft Wiki](https://minecraft.wiki/w/Scoreboard#Tags) for further information.",
 		"This is changeable and valid for any type of entity. " +
-		"Also you can use use the <a href='#CondHasScoreboardTag'>Has Scoreboard Tag</a> condition to check whether an entity has the given tags.",
+		"Also you can use use the [has scoreboard tag](docs:Skript/CondHasScoreboardTag) condition to check whether an entity has the given tags.",
 		"",
 		"Requires Minecraft 1.11+ (actually added in 1.9 to the game, but added in 1.11 to Spigot)."})
 @Example("""

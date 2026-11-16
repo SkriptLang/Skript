@@ -25,7 +25,7 @@ import ch.njol.util.Math2;
  * @author Peter Güttinger
  */
 @Name("Direction")
-@Description("A helper expression for the <a href='#direction'>direction type</a>.")
+@Description("A helper expression for the [direction](docs:Skript/TypeDirection) type.")
 @Example("thrust the player upwards")
 @Example("set the block behind the player to water")
 @Example("""

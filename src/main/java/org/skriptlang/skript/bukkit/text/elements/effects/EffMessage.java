@@ -20,7 +20,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Name("Message")
 @Description({
 	"Sends a message to an audience, such as a player or the console.",
-	"Only styles written in given string or in <a href=#ExprColored>formatted expressions</a> will be parsed.",
+	"Only styles written in given string or in [formatted expressions](docs:Skript/ExprColored) will be parsed.",
 })
 @Example("message \"A wild %player% appeared!\"")
 @Example("message \"This message is a distraction. Mwahaha!\"")

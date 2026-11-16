@@ -22,7 +22,7 @@ import java.util.function.Predicate;
 
 @Name("Region Contains")
 @Description({
-	"Checks whether a location is contained in a particular <a href='#region'>region</a>.",
+	"Checks whether a location is contained in a particular [region](docs:Skript/TypeRegion).",
 	"This condition requires a supported regions plugin to be installed."
 })
 @Example("player is in the region {regions::3}")

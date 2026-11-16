@@ -19,7 +19,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Display Transformation Rotation")
 @Description({
-        "Returns or changes the transformation rotation of <a href='#display'>displays</a>.",
+        "Returns or changes the transformation rotation of [displays](docs:Skript/TypeDisplay).",
         "The left rotation is applied first, with the right rotation then being applied based on the rotated axis."
 })
 @Example("set left transformation rotation of last spawned block display to quaternion(1, 0, 0, 0) # reset block display")

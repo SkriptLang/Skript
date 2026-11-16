@@ -26,7 +26,7 @@ import org.skriptlang.skript.lang.script.ScriptWarning;
 @Description({
 	"Hashes the given text using the MD5 or SHA algorithms. Each algorithm is suitable for different use cases.",
 		"These hashing algorithms are not suitable for hashing passwords.",
-		"If handling passwords, use a <a href='https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#password-hashing-algorithms'>hashing algorithm specifically designed for passwords</a>.",
+		"If handling passwords, use a [hashing algorithm specifically designed for passwords](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#password-hashing-algorithms).",
 		"MD5 is deprecated and may be removed in a future release. It is provided mostly for backwards compatibility, as it is outdated and not secure. ",
 		"SHA is more secure, but is not suitable for hashing passwords (even with salting). ",
 		"When hashing data, you <strong>must</strong> specify algorithms that will be used for security reasons! ",

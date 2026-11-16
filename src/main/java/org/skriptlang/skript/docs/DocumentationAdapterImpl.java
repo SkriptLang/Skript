@@ -1,5 +1,6 @@
 package org.skriptlang.skript.docs;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
@@ -14,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 class DocumentationAdapterImpl implements DocumentationAdapter {
@@ -133,6 +135,8 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 		return new ReferenceImpl(documentable);
 	}
 
+	private static final Pattern MARKDOWN_REFERENCE_PATTERN = Pattern.compile("\\[.+?]\\(docs:.+?/(.+?)\\)");
+
 	private Object resolveReferences(Object value) {
 		/*
 		 * The goal of this method is to resolve any references within the data map.
@@ -161,7 +165,15 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 			case Map<?, ?> map -> map.entrySet()
 				.stream()
 				.collect(Collectors.toMap(Map.Entry::getKey,
-					entry -> resolveReferences(entry.getValue()),
+					entry -> {
+						if (entry.getKey().equals("description") && entry.getValue() instanceof String description) {
+							MARKDOWN_REFERENCE_PATTERN.matcher(description).results()
+								.filter(result -> !idMap.containsValue(result.group(1)))
+								.forEach(result ->
+									Skript.warning("Failed documentation reference '" + result.group(1) + "' for documentation with ID: " + map.get("id")));
+						}
+						return resolveReferences(entry.getValue());
+					},
 					(ignored, newValue) -> newValue,
 					LinkedHashMap::new));
 			case null, default -> value;

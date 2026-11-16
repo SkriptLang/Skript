@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Fishing Hook")
-@Description("The <a href='#entity'>fishing hook</a> in a fishing event.")
+@Description("The [fishing hook](docs:Skript/TypeEntity) in a fishing event.")
 @Example("""
 	on fish line cast:
 		wait a second

@@ -17,7 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Amount of Items")
-@Description("Counts how many of a particular <a href='#itemtype'>item type</a> are in a given inventory.")
+@Description("Counts how many of a particular [item type](docs:Skript/TypeItemtype) are in a given inventory.")
 @Example("message \"You have %number of tag values of minecraft tag \"diamond_ores\" in the player's inventory% diamond ores in your inventory.\"")
 @Since("2.0")
 public class ExprAmountOfItems extends SimpleExpression<Long> {

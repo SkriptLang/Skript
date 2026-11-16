@@ -21,7 +21,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	This means that setting the particle count may change how your particle behaves. Be careful!
 	
 	More detailed information on particle behavior can be found at \
-	<a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
+	[Paper's particle documentation](https://docs.papermc.io/paper/dev/particles/#count-argument-behavior-).
 	""")
 @Example("draw 7 blue dust particles at player")
 @Since("2.14")

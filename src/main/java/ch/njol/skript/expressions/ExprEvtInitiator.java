@@ -19,7 +19,7 @@ import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Initiator Inventory")
-@Description("Returns the initiator inventory in an on <a href=\"?search=#inventory_item_move\">inventory item move</a> event.")
+@Description("Returns the initiator inventory in an on [inventory item move](docs:Skript/EvtInventoryItemMove) event.")
 @Example("""
 	on inventory item move:
 		holder of event-initiator-inventory is a chest

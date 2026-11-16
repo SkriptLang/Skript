@@ -24,9 +24,8 @@ import java.util.OptionalLong;
 @Name("Play Sound")
 @Description({
 	"Plays a sound at given location for everyone or just for given players, or plays a sound to specified players. " +
-	"Both Minecraft sound names and " +
-	"<a href=\"https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html\">Spigot sound names</a> " +
-	"are supported. Playing resource pack sounds are supported too. The sound category is 'master' by default. ",
+	"This expression expects Minecraft sound names. " +
+	"Playing resource pack sounds are supported too. The sound category is 'master' by default.",
 	"",
 	"When running 1.19+, playing a sound from an entity directly will result in the sound coming from said entity, even while moving.",
 	"If the sound is custom, a location emitter will follow the entity. Do note that pitch and volume ",

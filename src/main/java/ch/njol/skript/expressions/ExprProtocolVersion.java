@@ -16,16 +16,16 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Protocol Version")
 @Description({"The protocol version that will be sent as the protocol version of the server in a server list ping event. " +
-		"For more information and list of protocol versions <a href='https://wiki.vg/Protocol_version_numbers'>visit wiki.vg</a>.",
-		"If this protocol version doesn't match with the protocol version of the client, the client will see the <a href='#ExprVersionString'>version string</a>.",
+		"For more information and list of protocol versions, see [the Minecraft wiki](https://minecraft.wiki/w/Protocol_version#List_of_protocol_versions).",
+		"If this protocol version doesn't match with the protocol version of the client, the client will see the [version string](docs:Skript/ExprVersionString).",
 		"But please note that, this expression has no visual effect over the version string. " +
 		"For example if the server uses PaperSpigot 1.12.2, and you make the protocol version 107 (1.9),",
 		"the version string will not be \"Paper 1.9\", it will still be \"Paper 1.12.2\".",
-		"But then you can customize the <a href='#ExprVersionString'>version string</a> as you wish.",
+		"But then you can customize the [version string](docs:Skript/ExprVersionString) as you wish.",
 		"Also if the protocol version of the player is higher than protocol version of the server, it will say",
 		"\"Server out of date!\", and if vice-versa \"Client out of date!\" when you hover on the ping bars.",
 		"",
-		"This can be set in a <a href='#server_list_ping'>server list ping</a> event only",
+		"This can be set in a [server list ping](docs:Skript/EvtServerListPing) event only",
 		"(increase and decrease effects cannot be used because that wouldn't make sense).",})
 @Example("""
 	on server list ping:

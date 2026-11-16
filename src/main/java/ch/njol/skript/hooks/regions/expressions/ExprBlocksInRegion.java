@@ -30,7 +30,7 @@ import java.util.NoSuchElementException;
  */
 @Name("Blocks in Region")
 @Description({
-	"All blocks in a <a href='#region'>region</a>.",
+	"All blocks in a [region](docs:Skript/TypeRegion).",
 	"This expression requires a supported regions plugin to be installed."
 })
 @Example("""

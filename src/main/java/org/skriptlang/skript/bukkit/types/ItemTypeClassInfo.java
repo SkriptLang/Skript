@@ -32,10 +32,14 @@ public class ItemTypeClassInfo extends ClassInfo<ItemType> {
 		super(ItemType.class, "itemtype");
 		this.user("item ?types?", "materials?")
 			.name("Item Type")
-			.description("An item type is an alias that can result in different items when added to an inventory, " +
-					"and unlike <a href='#itemstack'>items</a> they are well suited for checking whether an inventory contains a certain item or whether a certain item is of a certain type.",
-				"An item type can also have one or more <a href='#enchantmenttype'>enchantments</a> with or without a specific level defined, " +
-					"and can optionally start with 'all' or 'every' to make this item type represent <i>all</i> types that the alias represents, including data ranges.")
+			.description("""
+				An item type is an alias that can represent multiple items, such as every type of sword or every type of slab. \
+				Unlike [items](docs:Skript/TypeItemstack), they are well suited for checking whether any inventory contains \
+				a certain item or whether a certain item is of a certain type.
+				An item type can also have one or more [enchantments](docs:Skript/TypeEnchantmenttype) with or without \
+				a specific level defined, and can optionally start with `all` or `every` to make this item type represent \
+				*all* types that the alias represents, including data ranges.
+				""")
 			.usage("[<number> [of]] [all/every] <alias> [of <enchantment> [<level>] [,/and <more enchantments...>]]")
 			.examples("give 4 torches to the player",
 				"add oak slab to the inventory of the block",

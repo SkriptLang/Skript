@@ -14,7 +14,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Display View Range")
 @Description({
-	"Returns or changes the view range of <a href='#display'>displays</a>.",
+	"Returns or changes the view range of [displays](docs:Skript/TypeDisplay).",
 	"Default value is 1.0. This value is then multiplied by 64 and the player's entity view distance setting to determine the actual range.",
 	"For example, a player with 150% entity view distance will see a block display with a view range of 1.2 at 1.2 * 64 * 150% = 115.2 blocks away."
 })

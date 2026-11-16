@@ -17,9 +17,9 @@ import java.util.regex.Pattern;
 
 @Name("Stop Sound")
 @Description({
-	"Stops specific or all sounds from playing to a group of players. Both Minecraft sound names and " +
-	"<a href=\"https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html\">Spigot sound names</a> " +
-	"are supported. Resource pack sounds are supported too. The sound category is 'master' by default. " +
+	"Stops specific or all sounds from playing to a group of players. " +
+	"This expression expects Minecraft sound names. " +
+	"Resource pack sounds are supported too. The sound category is 'master' by default. " +
 	"A sound can't be stopped from a different category. ",
 	"",
 	"Please note that sound names can get changed in any Minecraft or Spigot version, or even removed from Minecraft itself."

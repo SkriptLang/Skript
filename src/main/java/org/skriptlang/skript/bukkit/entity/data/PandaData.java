@@ -36,7 +36,7 @@ public class PandaData extends EntityData<Panda> {
 			.user("(panda )?genes?")
 			.name("Gene")
 			.description("Represents a Panda's main or hidden gene. " +
-				"See <a href='https://minecraft.wiki/w/Panda#Genetics'>genetics</a> for more info.")
+				"See [the Minecraft wiki page on panda genetics](https://minecraft.wiki/w/Panda#Genetics) for more info.")
 			.since("2.4")
 			.requiredPlugins("Minecraft 1.14 or newer"));
 	}

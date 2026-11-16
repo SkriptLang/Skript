@@ -26,7 +26,7 @@ public class Money {
 		Classes.registerClass(new ClassInfo<>(Money.class, "money")
 				.user("money")
 				.name("Money")
-				.description("A certain amount of money. Please note that this differs from <a href='#number'>numbers</a> as it includes a currency symbol or name, but usually the two are interchangeable, e.g. you can both <code>add 100$ to the player's balance</code> and <code>add 100 to the player's balance</code>.")
+				.description("A certain amount of money. Please note that this differs from [numbers](docs:Skript/TypeNumber) as it includes a currency symbol or name, but usually the two are interchangeable, e.g. you can both <code>add 100$ to the player's balance</code> and <code>add 100 to the player's balance</code>.")
 				.usage("&lt;number&gt; $ or $ &lt;number&gt;, where '$' is your server's currency, e.g. '10 rupees' or '£5.00'")
 				.examples("add 10£ to the player's account",
 						"remove Fr. 9.95 from the player's money",

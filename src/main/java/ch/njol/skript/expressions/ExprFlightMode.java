@@ -12,7 +12,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Flight Mode")
-@Description("Whether the player(s) are allowed to fly. Use <a href=#EffMakeFly>Make Fly</a> effect to force player(s) to fly.")
+@Description("Whether the player(s) are allowed to fly. Use the [make fly](docs:Skript/EffMakeFly) effect to force player(s) to fly.")
 @Example("set flight mode of player to true")
 @Example("send \"%flying state of all players%\"")
 @Since("2.2-dev34")

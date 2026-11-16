@@ -19,8 +19,8 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 @Name("Characters Between")
 @Description({
 	"All characters between two given characters, useful for generating random strings. This expression uses the Unicode numerical code " +
-	"of a character to determine which characters are between the two given characters. The <a href=\"https://www.asciitable.com/\">ASCII table linked here</a> " +
-	"shows this ordering for the first 256 characters.",
+	"of a character to determine which characters are between the two given characters. The [ASCII table linked here](https://en.wikipedia.org/wiki/ASCII#Table_of_codes) " +
+	"shows this ordering for the first 128 characters.",
 	"If you would like only alphanumeric characters you can use the 'alphanumeric' option in the expression.",
 	"If strings of more than one character are given, only the first character of each is used."
 })

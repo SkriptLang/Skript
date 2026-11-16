@@ -20,8 +20,8 @@ import java.util.List;
  * @author Peter Güttinger
  */
 @Name("Substring")
-@Description("Extracts part of a text. You can either get the first &lt;x&gt; characters, the last &lt;x&gt; characters, the character at index &lt;x&gt;, or the characters between indices &lt;x&gt; and &lt;y&gt;."
-		+ " The indices &lt;x&gt; and &lt;y&gt; should be between 1 and the <a href='#ExprLength'>length</a> of the text (other values will be fit into this range).")
+@Description("Extracts part of a text. You can either get the first <x> characters, the last <x> characters, the character at index <x>, or the characters between indices <x> and <y>."
+		+ " The indices <x> and <y> should be between 1 and the [length](docs:Skript/ExprLength) of the text (other values will be fit into this range).")
 @Keywords({"substring", "subtext"})
 @Example("set {_s} to the first 5 characters of the text argument")
 @Example("message \"%subtext of {_s} from characters 2 to (the length of {_s} - 1)%\" # removes the first and last character from {_s} and sends it to the player or console")

@@ -23,7 +23,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
 @Name("Affected Entities")
-@Description("The affected entities in the <a href='#aoe_cloud_effect'>area cloud effect</a> event.")
+@Description("The affected entities in the [area cloud effect](docs:Skript/EvtAoeCloudEffect) event.")
 @Example("""
 	on area cloud effect:
 		loop affected entities:

@@ -23,9 +23,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import java.util.List;
 
 @Name("Game Mode")
-@Description("""
-	The gamemode of a player. See <a href="#gamemode">Gamemodes</a>
-	""")
+@Description("The [gamemode](docs:Skript/TypeGamemode) of a player.")
 @Example("player's gamemode is survival")
 @Example("set the player's gamemode to creative")
 @Example("set gamemode of player to adventure")

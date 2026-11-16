@@ -11,7 +11,7 @@ import org.bukkit.Chunk;
 @Description({
 	"Tests whether a chunk is a so-called slime chunk.",
 	"Slimes can generally spawn in the swamp biome and in slime chunks.",
-	"For more info, see <a href='https://minecraft.wiki/w/Slime#.22Slime_chunks.22'>the Minecraft wiki</a>."
+	"For more info, see [the Minecraft wiki](https://minecraft.wiki/w/Slime#Slime_chunks)."
 })
 @Example("""
 	command /slimey:

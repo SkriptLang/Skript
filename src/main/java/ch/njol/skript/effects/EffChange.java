@@ -31,7 +31,7 @@ import java.util.logging.Level;
 
 @Name("Change: Set/Add/Remove/Remove All/Delete/Reset")
 @Description({
-	"A general effect that can be used for changing many <a href='./expressions'>expressions</a>.",
+	"A general effect that can be used for changing many [expressions](https://docs.skriptlang.org/api/syntax/expressions/).",
 	"Some expressions can only be set and/or deleted, while others can also have things added to or removed from them."
 })
 @Example("""
@@ -39,7 +39,7 @@ import java.util.logging.Level;
 	set the block above the victim to lava
 	""")
 @Example("""
-	add 2 to the player's health # preferably use '<a href='#EffHealth'>heal</a>' for this
+	add 2 to the player's health # alternatively use the heal effect for this
 	add argument to {blacklist::*}
 	give a diamond pickaxe of efficiency 5 to the player
 	increase the data value of the clicked block by 1

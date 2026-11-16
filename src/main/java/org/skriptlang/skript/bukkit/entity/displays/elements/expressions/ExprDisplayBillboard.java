@@ -15,7 +15,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Display Billboard")
 @Description({
-	"Returns or changes the <a href='#billboard'>billboard</a> setting of <a href='#display'>displays</a>.",
+	"Returns or changes the [billboard](docs:Skript/TypeBillboard) setting of [displays](docs:Skript/TypeDisplay).",
 	"This describes the axes/points around which the display can pivot.",
 	"Displays spawn with the 'fixed' billboard by default. Resetting this expression will also set it to 'fixed'."
 })
