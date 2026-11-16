@@ -135,6 +135,18 @@ parse:
 			trigger:
 				set {_a::*} to {_x::*} in lowercase
 
+# expect only 1 error for 'a', its data should not leak into 'b'
+parse:
+	results: {-StructCommand::leakage::1::*}
+	code:
+		command /test-leakage-1:
+			subcommand a:
+				executable by: console
+			subcommand b:
+				executable by: players
+				trigger:
+					stop
+
 command /test-subcommand <number>:
 	subcommand <number>:
 		trigger:
@@ -227,6 +239,8 @@ test "StructCommand":
 	# parsing type hints
 	assert {-StructCommand::hints::1::*} is "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::1::*}%)"
 	assert {-StructCommand::hints::2::*} is "Expected variable '{_x::*}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::2::*}%)"
+	# data cleanup validation
+	assert {-StructCommand::leakage::1::*} is "You must have a 'trigger' entry if there are no subcommands!"
 
 	# execution
 	execute command "test-subcommand 10"

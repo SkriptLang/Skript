@@ -370,6 +370,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 		boolean hasExecute = execute != null;
 		if (isSubcommandGroupEntry && hasExecute) {
 			Skript.error("A subcommand group cannot have a trigger!");
+			popScopes(parsingData);
 			return null;
 		}
 
@@ -421,6 +422,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 			} else {
 				Skript.error("You must have a 'trigger' entry if there are no subcommands!");
 			}
+			popScopes(parsingData);
 			return null;
 		}
 
@@ -430,9 +432,11 @@ public class SubCommandEntryData extends EntryData<Result> {
 		if (optionalSubcommands != 0) {
 			if (hasExecute) {
 				Skript.error("It is not possible to have a 'trigger' entry if an optional subcommand is present!");
+				popScopes(parsingData);
 				return null;
 			} else if (optionalSubcommands > 1) {
 				Skript.error("It is not possible to have more than one optional subcommand at the same level.");
+				popScopes(parsingData);
 				return null;
 			}
 		}
@@ -463,9 +467,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 				.toList();
 		}
 
-		parsingData.popExecutorData();
-		parsingData.popChoices();
-		parsingData.popArguments();
+		popScopes(parsingData);
 
 		if (isRoot && SkriptConfig.enableLegacyTabCompletion.value()) { // compatibility measure: insert legacy tab completion providers
 			SuggestingArgumentData suggestingArgumentData = parser.getData(SuggestingArgumentData.class);
@@ -477,6 +479,12 @@ public class SubCommandEntryData extends EntryData<Result> {
 		}
 
 		return new Result(rootExecutor, result, aliases, description, usage, prefix, permission);
+	}
+
+	private void popScopes(CommandParsingData parsingData) {
+		parsingData.popExecutorData();
+		parsingData.popChoices();
+		parsingData.popArguments();
 	}
 
 	@Override
