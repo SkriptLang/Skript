@@ -17,7 +17,7 @@ import org.bukkit.util.CachedServerIcon;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Last Loaded Server Icon")
-@Description({"Returns the last loaded server icon with the <a href='#EffLoadServerIcon'>load server icon</a> effect."})
+@Description("Returns the last loaded server icon with the [load server icon](docs:Skript/EffLoadServerIcon) effect.")
 @Example("set {server-icon} to the last loaded server icon")
 @Since("2.3")
 public class ExprLastLoadedServerIcon extends SimpleExpression<CachedServerIcon> {

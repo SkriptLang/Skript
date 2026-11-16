@@ -31,7 +31,7 @@ import java.util.List;
 @Name("Passenger")
 @Description({"The passenger of a vehicle, or the rider of a mob.",
 		"For 1.11.2 and above, it returns a list of passengers and you can use all changers in it.",
-		"See also: <a href='#ExprVehicle'>vehicle</a>"})
+		"See also: [vehicle](docs:Skript/ExprVehicle) expression"})
 @Example("""
 	passengers of the minecart contains a creeper or a cow
 	the boat's passenger contains a pig

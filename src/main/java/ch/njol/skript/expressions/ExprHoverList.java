@@ -25,9 +25,9 @@ import java.util.UUID;
 @Name("Hover List")
 @Description({
 	"The list when you hover on the player counts of the server in the server list.",
-	"This can be changed using texts or players in a <a href='#server_list_ping'>server list ping</a> event only. " +
+	"This can be changed using texts or players in a [server list ping](docs:Skript/EvtServerListPing) event only. " +
 		"Adding players to the list means adding the name of the players.",
-	"And note that, for example if there are 5 online players (includes <a href='#ExprOnlinePlayersCount'>fake online count</a>) " +
+	"And note that, for example if there are 5 online players (includes [fake online count](docs:Skript/ExprOnlinePlayersCount)) " +
 		"in the server and the hover list is set to 3 values, Minecraft will show \"... and 2 more ...\" at end of the list."
 })
 @Example("""

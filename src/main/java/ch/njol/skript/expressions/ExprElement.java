@@ -36,7 +36,7 @@ import java.util.stream.IntStream;
 @Description({
 		"The first, last, range or a random element of a set, e.g. a list variable, or a queue.",
 		"Asking for elements from a queue will also remove them from the queue, see the new queue expression for more information.",
-		"See also: <a href='#ExprRandom'>random expression</a>"
+		"See also: [random](docs:Skript/ExprRandom) expression"
 })
 @Example("broadcast the first 3 elements of {top players::*}")
 @Example("set {_last} to last element of {top players::*}")

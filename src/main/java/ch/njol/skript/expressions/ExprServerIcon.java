@@ -20,8 +20,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Server Icon")
 @Description({"Icon of the server in the server list. Can be set to an icon that loaded using the",
-		"<a href='#EffLoadServerIcon'>load server icon</a> effect,",
-		"or can be reset to the default icon in a <a href='#server_list_ping'>server list ping</a>.",
+		"[load server icon](docs:Skript/EffLoadServerIcon) effect,",
+		"or can be reset to the default icon in a [server list ping](docs:Skript/EvtServerListPing) event.",
 		"'default server icon' returns the default server icon (server-icon.png) always and cannot be changed.",})
 @Example("""
 	on script load:

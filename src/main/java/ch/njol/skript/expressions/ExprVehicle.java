@@ -27,7 +27,7 @@ import java.util.function.Predicate;
 @Description({
 	"The vehicle an entity is in, if any.",
 	"This can actually be any entity, e.g. spider jockeys are skeletons that ride on a spider, so the spider is the 'vehicle' of the skeleton.",
-	"See also: <a href='#ExprPassenger'>passenger</a>"
+	"See also: [passengers](docs:Skript/ExprPassenger) expression"
 })
 @Example("""
 	set the vehicle of {game::players::*} to a saddled pig

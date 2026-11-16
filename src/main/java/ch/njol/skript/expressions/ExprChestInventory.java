@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Custom Chest Inventory")
 @Description({
 	"Returns a chest inventory with the given amount of rows and the name.",
-	"Use the <a href=#EffOpenInventory>open inventory</a> effect to open it."
+	"Use the [open inventory](docs:Skript/EffOpenInventory) effect to open it."
 })
 @Example("open chest inventory with 1 row named \"test\" to player")
 @Example("""

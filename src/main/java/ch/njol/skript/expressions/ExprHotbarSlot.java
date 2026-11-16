@@ -20,8 +20,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Hotbar Slot")
 @Description({
-	"The currently selected hotbar <a href='#slot'>slot</a>.",
-	"To retrieve its number use <a href='#ExprSlotIndex'>Slot Index</a> expression.",
+	"The currently selected hotbar [slot](docs:Skript/TypeSlot).",
+	"To retrieve its number use the [slot index](docs:Skript/ExprSlotIndex) expression.",
 	"Use future and past tense to grab the previous slot in an item change event, see example."
 })
 @Example("message \"%player's current hotbar slot%\"")

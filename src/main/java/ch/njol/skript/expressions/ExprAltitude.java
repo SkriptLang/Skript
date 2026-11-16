@@ -11,7 +11,7 @@ import org.bukkit.Location;
 import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Altitude")
-@Description("Effectively an alias of 'y-<a href='#ExprCoordinate'>coordinate</a> of …', it represents the height of some location within the world.")
+@Description("Effectively an alias of '[y-coordinate of ...](docs:Skript/PropExprWXYZ)', it represents the height of some location within the world.")
 @Example("""
 	on damage:
 		altitude of the attacker is higher than the altitude of the victim

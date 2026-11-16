@@ -38,9 +38,9 @@ import java.util.List;
 @Description({"Parses text as a given type, or as a given pattern.",
 		"This expression can be used in two different ways: One which parses the entire text as a single instance of a type, e.g. as a number, " +
 				"and one that parses the text according to a pattern.",
-		"If the given text could not be parsed, this expression will return nothing and the <a href='#ExprParseError'>parse error</a> will be set if some information is available.",
+		"If the given text could not be parsed, this expression will return nothing and the [parse error](docs:Skript/ExprParseError) expression will be set if some information is available.",
 		"Some notes about parsing with a pattern:",
-		"- The pattern must be a <a href='./patterns/'>Skript pattern</a>, " +
+		"- The pattern must be a [Skript pattern](https://docs.skriptlang.org/api/syntax/writing-syntax/#patterns), " +
 				"e.g. percent signs are used to define where to parse which types, e.g. put a %number% or %items% in the pattern if you expect a number or some items there.",
 		"- You <i>have to</i> save the expression's value in a list variable, e.g. <code>set {parsed::*} to message parsed as \"...\"</code>.",
 		"- The list variable will contain the parsed values from all %types% in the pattern in order. If a type was plural, e.g. %items%, the variable's value at the respective index will be a list variable," +

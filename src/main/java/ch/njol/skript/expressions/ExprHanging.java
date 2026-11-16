@@ -21,7 +21,7 @@ import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Hanging Entity/Remover")
-@Description("Returns the hanging entity or remover in hanging <a href='#break_mine'>break</a> and <a href='#place'>place</a> events.")
+@Description("Returns the hanging entity or remover in hanging [break](docs:Skript/EvtBreakMine) and [place](docs:Skript/EvtPlace) events.")
 @Example("""
 	on break of item frame:
 		if item of hanging entity is diamond pickaxe:

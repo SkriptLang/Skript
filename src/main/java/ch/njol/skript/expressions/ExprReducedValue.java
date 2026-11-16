@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Reduced Value")
 @Description({
-	"Returns the current accumulated/reduced value within a <a href='#ExprReduce'>reduce expression</a>.",
+	"Returns the current accumulated/reduced value within a [reduce](docs:Skript/ExprReduce) expression.",
 	"This represents the result of all previous reduction operations.",
 	"Can only be used inside the reduce expression's operation block."
 })
