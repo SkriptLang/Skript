@@ -2,6 +2,7 @@ package ch.njol.skript.classes;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Debuggable;
 import ch.njol.skript.lang.DefaultExpression;
@@ -82,19 +83,23 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 
 		// questionably obtain source...
 		SkriptAddon source;
-		try {
-			Class<?> caller = Class.forName(Thread.currentThread().getStackTrace()[2].getClassName());
-			JavaPlugin callerPlugin = JavaPlugin.getProvidingPlugin(caller);
-			source = Skript.instance().addons().stream()
-				.filter(addon -> JavaPlugin.getProvidingPlugin(addon.source()) == callerPlugin)
+		//noinspection rawtypes, unchecked, removal
+		Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE)
+			.walk(frames -> frames
+				.map(StackWalker.StackFrame::getDeclaringClass)
+				.filter(clazz -> clazz != Classes.class && clazz != ClassInfo.class &&
+					clazz != EnumClassInfo.class && clazz != RegistryClassInfo.class && clazz != AnyInfo.class)
 				.findFirst()
-				.orElse(Skript.instance());
-		} catch (ClassNotFoundException ignored) {
-			source = Skript.instance();
-		}
+				.orElse((Class) ClassInfo.class) /* fallback to Skript */);
+		JavaPlugin callerPlugin = JavaPlugin.getProvidingPlugin(caller);
+		source = Skript.instance().addons().stream()
+			.filter(addon -> JavaPlugin.getProvidingPlugin(addon.source()) == callerPlugin)
+			.findFirst()
+			.orElse(Skript.instance());
 		documentation = Documentation.builder()
-			.origin(Origin.of(source))
+			.origin(Origin.of(source, caller))
 			.name(name.getSingular())
+			.id(documentationIdPrefix() + Character.toUpperCase(codeName.charAt(0)) + codeName.substring(1))
 			.build();
 	}
 
