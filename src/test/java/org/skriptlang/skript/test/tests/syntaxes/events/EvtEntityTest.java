@@ -29,4 +29,5 @@ public class EvtEntityTest extends SkriptJUnitTest {
 	public void test() {
 		sheep.setHealth(0);
 	}
+
 }
