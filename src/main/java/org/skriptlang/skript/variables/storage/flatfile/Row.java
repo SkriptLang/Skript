@@ -7,7 +7,7 @@ import org.skriptlang.skript.variables.storage.CsvFormat;
 import java.io.IOException;
 
 /**
- * One row of a variable file, split but not decoded yet.
+ * One row of a variable file, split but not decoded or deserialized yet.
  *
  * @param name The variable's or list's name
  * @param type The value's type, or {@link CsvFormat#DELETED} if the row deletes something
@@ -53,6 +53,8 @@ record Row(String name, String type, String hex, String line) {
 	/**
 	 * Checks what's wrong with the row, if anything. Deletions are always fine, but a row that sets a value
 	 * can't be for a list, and its value has to be valid hex.
+	 * <p>
+	 * Problem? :troll_face:
 	 *
 	 * @return The kind of problem, as {@link LoadReport} names them, or null if the row is fine
 	 */
