@@ -36,8 +36,11 @@ import java.util.concurrent.TimeUnit;
  * and that its compacted rows still end where we left them. Compacting also checks that every row we read back is one
  * we could have written. If the file was changed, we say so, then read it again as it is now and carry on from there.
  * <p>
- * This class decides when to do what. {@link VariableFile} handles the file itself, {@link Changes} reading and
- * merging rows, and {@link LoadReport} the problems found while loading.
+ * This class decides when to do what and interfaces with the storage api.<br>
+ * {@link VariableFile} handles the file itself, like IO and file system details.<br>
+ * {@link CsvFormat} is responsible for the format of the file / its text.<br>
+ * {@link Changes} handles interpreting and merging the rows, with {@link Row} being the representation of each row.<br>
+ * {@link LoadReport} is a nice helper for storing and printing the problems found while loading.
  */
 public class FlatFileStorage extends VariableStorage {
 
@@ -63,11 +66,9 @@ public class FlatFileStorage extends VariableStorage {
 	 */
 	private static final int MAX_APPENDED_ROWS = 250_000;
 
-	// the file, once loading starts
 	private @Nullable VariableFile file;
-	// how many rows the base holds: the sorted, compact start of the file
+	// details about the base compacted section
 	private long baseRows;
-	// where the base ends in the file, in bytes
 	private long baseEnd;
 	// how many rows were appended after the base
 	private long appendedRows;
@@ -75,9 +76,7 @@ public class FlatFileStorage extends VariableStorage {
 	private long fileLength;
 	// whether a write may have left the file incomplete, so the next save rewrites it
 	private boolean rewriteRequired;
-	// when the file was last rewritten, from System.nanoTime(). starts far enough back that the first rewrite needn't wait
 	private long lastRewrite = System.nanoTime() - MIN_REWRITE_INTERVAL_NANOS;
-	// whether loading succeeded, after which the file may be rewritten
 	private boolean loaded;
 
 	/**
@@ -119,6 +118,7 @@ public class FlatFileStorage extends VariableStorage {
 	 * {@link CsvFormat#COMPACTED_END} line. If that holds, we read the rows after it first, then stream the compacted rows
 	 * through and merge them in. Any other file, like one from an older version or one with rows deleted by hand before
 	 * that line, is read as if it had no compacted rows at all: every row is read first, then the file is rewritten.
+	 * This takes more memory/cpu, but is more reliable for files we aren't sure about.
 	 * <p>
 	 * Rows that can't be read, and a last row cut off by a crash, are skipped and reported in one summary.
 	 * If there are any, the file is backed up and then rewritten without them.
@@ -190,19 +190,23 @@ public class FlatFileStorage extends VariableStorage {
 	 */
 	@Override
 	protected synchronized void save(Batch batch) throws IOException {
+		// handle possible grimy fingers touching our precious files
 		if (changedOutside())
 			reopenChanged();
 		StringBuilder rows = new StringBuilder();
 		int added = 0;
+		// append clears to buffer
 		for (String prefix : batch.clears()) {
 			CsvFormat.appendRow(rows, prefix + "*", null);
 			added++;
 		}
+		// append changes to buffer
 		for (SerializedVariable change : batch.changes()) {
 			CsvFormat.appendRow(rows, change.name, change.value);
 			added++;
 		}
 
+		// compact from buffer if needed, otherwise append buffer.
 		if (rewriteRequired || !file().isOpen() || shouldRewrite(added)) {
 			compact(rows); // the batch is merged in as if it had been appended
 			return;

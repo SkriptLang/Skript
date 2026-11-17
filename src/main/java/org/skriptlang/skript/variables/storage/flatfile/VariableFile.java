@@ -225,7 +225,7 @@ final class VariableFile {
 		FileChannel channel = FileChannel.open(path, StandardOpenOption.READ);
 		try {
 			channel.position(from);
-			InputStream in = new Limited(Channels.newInputStream(channel), to - from);
+			InputStream in = new LimitedInputStream(Channels.newInputStream(channel), to - from);
 			return new BufferedReader(new InputStreamReader(in, CsvFormat.CHARSET), WRITE_CHUNK);
 		} catch (IOException | RuntimeException e) {
 			channel.close();
@@ -324,14 +324,12 @@ final class VariableFile {
 	 */
 	void closeAppend() throws IOException {
 		FileChannel appender = this.appender;
-		this.appender = null;
-		appenderKey = null;
-		if (appender == null)
-			return;
-		try {
+		try (appender) {
+			this.appender = null;
+			appenderKey = null;
+			if (appender == null)
+				return;
 			appender.force(false);
-		} finally {
-			appender.close();
 		}
 	}
 
@@ -518,7 +516,7 @@ final class VariableFile {
 	/**
 	 * An input stream that stops after a number of bytes.
 	 */
-	private static final class Limited extends FilterInputStream {
+	private static final class LimitedInputStream extends FilterInputStream {
 
 		// how many bytes are left to read
 		private long left;
@@ -527,7 +525,7 @@ final class VariableFile {
 		 * @param in    The stream to read from
 		 * @param limit How many bytes to read at most
 		 */
-		Limited(InputStream in, long limit) {
+		LimitedInputStream(InputStream in, long limit) {
 			super(in);
 			left = limit;
 		}

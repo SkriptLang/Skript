@@ -85,7 +85,7 @@ public final class CsvFormat {
 		out.append("#\n");
 		out.append(VERSION_HEADER).append(' ').append(Skript.getVersion()).append('\n');
 		if (compacted) {
-			out.append(COMPACTED_HEADER).append(' ').append("0".repeat(OFFSET_DIGITS)).append('\n');
+			out.append(COMPACTED_HEADER).append(' ').repeat("0", OFFSET_DIGITS).append('\n');
 			out.append("#\n");
 			out.append("# The rows down to '").append(COMPACTED_END).append("' hold each variable once, sorted by name.\n");
 			out.append("# The rows after it are changes made since, applied in order.\n");
