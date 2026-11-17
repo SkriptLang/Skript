@@ -11,8 +11,10 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
- * The changes made after a file's compacted rows, as they apply to them: the last row for each name,
- * and the deleted lists.
+ * This class represents non-compacted changes in a flat file storage. The file is organized into two regions,
+ * the compacted base and the non-compacted changes, appended over time. These include changes to a single
+ * variable, `rows`, or list clears, `cleared`. We make sure to only keep the last change to a variable and any
+ * clears remove previously changed rows, so the order of the changes is important.
  * <p>
  * Both loading and compacting work the same way: read the changes into this, then stream the compacted rows
  * through {@link #applyTo} to get the current variables in order. Only the changes are ever held in memory,
@@ -23,8 +25,7 @@ final class Changes {
 	// the last row for each name, or null if it was deleted last. Sorted, to be merged with the compacted rows.
 	// only the row's line is kept, since that's a lot smaller than a split row. it's split again when passed on
 	private final TreeMap<String, @Nullable String> rows = new TreeMap<>();
-	// the prefixes of deleted lists, none of which starts with another, so the one that could cover a name
-	// is the greatest one not greater than it
+	// the prefixes of deleted lists, only keeping the superset of lists (a::* clear means a::b::* clear doesn't need tracking)
 	private final TreeSet<String> cleared = new TreeSet<>();
 	// how many valid rows were read
 	private long count;
