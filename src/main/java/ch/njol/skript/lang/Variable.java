@@ -679,7 +679,8 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 						}
 
 						ChangerUtils.change(changer, originalValueArray, convertedDelta.toArray(), mode);
-
+						// the changer changed the value itself, so set it again for the change to be saved.
+						set(event, originalValue);
 					}
 				}
 				break;

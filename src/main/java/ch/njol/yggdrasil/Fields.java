@@ -10,6 +10,7 @@ import java.io.StreamCorruptedException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 @NotThreadSafe
@@ -209,7 +210,7 @@ public final class Fields implements Iterable<FieldContext> {
 		}
 	}
 	
-	private static final Map<Class<?>, Collection<Field>> cache = new HashMap<>();
+	private static final Map<Class<?>, Collection<Field>> cache = new ConcurrentHashMap<>();
 
 	/**
 	 * Creates a Fields object with a single object field.
