@@ -43,7 +43,8 @@ public class ExprEntitySize extends SimplePropertyExpression<LivingEntity, Integ
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		ScriptWarning.printDeprecationWarning("The expression 'entity size' has been deprecated and will no longer be updated to support new entities. Consider using 'size' instead.");
+		ScriptWarning.printDeprecationWarning("The expression 'entity size' is deprecated and scheduled for removal in a future release. " +
+			"Consider using 'size of " + expressions[0].toString(null, false) + "' instead.");
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 

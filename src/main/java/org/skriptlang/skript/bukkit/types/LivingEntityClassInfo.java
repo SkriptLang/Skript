@@ -31,12 +31,14 @@ public class LivingEntityClassInfo extends ClassInfo<LivingEntity> {
 			.defaultExpression(new EventValueExpression<>(LivingEntity.class))
 			.changer(new EntityChanger())
 			.property(Property.SIZE,
-				"The size of a slime type or phantom entity.",
+				"The size of a slime type or phantom entity. Minimum and maximum size differ for each entity and newer Minecraft versions.",
 				Skript.instance(),
 				new LivingEntitySizeHandler());
 	}
 
+
 	private static class LivingEntitySizeHandler implements ExpressionPropertyHandler<LivingEntity, Integer> {
+		//<editor-fold desc="living entity size handler" defaultstate="collapsed">
 
 		// TODO: Remove 'Slime" usage in favor of 'AbstractCubeMob' when MC 26.2+ is minimum supported version.
 		private static final boolean CUBE_MOB_EXISTS = Skript.classExists("org.bukkit.entity.AbstractCubeMob");
@@ -48,10 +50,9 @@ public class LivingEntityClassInfo extends ClassInfo<LivingEntity> {
 			if (entity instanceof Phantom phantom) {
 				return phantom.getSize();
 			} else if (entity instanceof Slime slime) {
-				// Skript follows the nbt format of 0-126 for slimes, as bukkit uses a 1-127 value
-				return slime.getSize() - 1;
+				return slime.getSize();
 			} else if (CUBE_MOB_EXISTS && entity instanceof AbstractCubeMob cubeMob) {
-				return cubeMob.getSize() - 1;
+				return cubeMob.getSize();
 			}
 			return null;
 		}
@@ -59,7 +60,7 @@ public class LivingEntityClassInfo extends ClassInfo<LivingEntity> {
 		@Override
 		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 			return switch (mode) {
-				case ADD, REMOVE, SET -> CollectionUtils.array(Number.class);
+				case ADD, REMOVE, SET -> CollectionUtils.array(Integer.class);
 				case RESET -> CollectionUtils.array();
 				default -> null;
 			};
@@ -70,45 +71,31 @@ public class LivingEntityClassInfo extends ClassInfo<LivingEntity> {
 			if (delta == null && mode != ChangeMode.RESET)
 				return;
 
-			double deltaSizeDouble = delta != null ? ((Number) delta[0]).doubleValue() : 0;
-			if (Double.isNaN(deltaSizeDouble) || Double.isInfinite(deltaSizeDouble))
-				return;
-			// Due to how double to int conversions happen, we are required to reassign from delta to prevent integer overflows
-			int sizeDelta = delta != null ? ((Number) delta[0]).intValue() : 0;
+			int sizeDelta = delta != null ? ((Integer) delta[0]) : 0;
 			if (mode == ChangeMode.REMOVE)
 				sizeDelta = -sizeDelta;
 
-			switch (mode) {
-				case ADD, REMOVE -> {
-					if (entity instanceof Phantom phantom) {
-						int newSize = Math2.fit(0, (phantom.getSize() + sizeDelta), MAXIMUM_PHANTOM_SIZE);
-						phantom.setSize(newSize);
-					} else if (entity instanceof Slime slime) {
-						int newSize = Math2.fit(1, (slime.getSize() + sizeDelta), MAXIMUM_SLIME_SIZE);
-						slime.setSize(newSize);
-					} else if (CUBE_MOB_EXISTS && entity instanceof AbstractCubeMob cubeMob) {
-						int newSize = Math2.fit(1, (cubeMob.getSize() + sizeDelta), MAXIMUM_SLIME_SIZE);
-						cubeMob.setSize(newSize);
-					}
-				}
-				case SET, RESET -> {
-					if (entity instanceof Phantom phantom) {
-						phantom.setSize(Math2.fit(0, sizeDelta, MAXIMUM_PHANTOM_SIZE));
-					} else if (entity instanceof Slime slime) {
-						// Skript follows the nbt format of 0-126 for slimes, as bukkit uses a 1-127 value
-						slime.setSize(Math2.fit(1, sizeDelta+1, MAXIMUM_SLIME_SIZE));
-					} else if (CUBE_MOB_EXISTS && entity instanceof AbstractCubeMob cubeMob) {
-						// Skript follows the nbt format of 0-126 for slimes, as bukkit uses a 1-127 value
-						cubeMob.setSize(Math2.fit(1, sizeDelta+1, MAXIMUM_SLIME_SIZE));
-					}
-				}
+			if (entity instanceof Phantom phantom) {
+				phantom.setSize(getNewSize(mode, sizeDelta, phantom.getSize(), MAXIMUM_PHANTOM_SIZE));
+			} else if (entity instanceof Slime slime) {
+				slime.setSize(getNewSize(mode, sizeDelta, slime.getSize(), MAXIMUM_SLIME_SIZE));
+			} else if (CUBE_MOB_EXISTS && entity instanceof AbstractCubeMob cubeMob) {
+				cubeMob.setSize(getNewSize(mode, sizeDelta, cubeMob.getSize(), MAXIMUM_SLIME_SIZE));
 			}
+		}
+
+		private int getNewSize(ChangeMode mode, int delta, int current, int max) {
+			if (mode == ChangeMode.SET)
+				current = 0;
+			return Math2.fit(0, current + delta, max);
 		}
 
 		@Override
 		public @NotNull Class<Integer> returnType() {
 			return Integer.class;
 		}
+
+		//</editor-fold>
 	}
 
 }

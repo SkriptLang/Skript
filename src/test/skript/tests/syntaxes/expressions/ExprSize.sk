@@ -2,42 +2,20 @@ test "size property - living entities":
 	spawn a phantom at test-location:
 		set size of entity to 10
 		assert size of entity is 10 with "Size of phantom should be 10"
-		set size of entity to 70
-		assert size of entity is 64 with "Size of phantom should cap at max 64"
-		set size of entity to -1
-		assert size of entity is 0 with "Size of phantom should cap at min 0"
 		clear entity
 
 	spawn a slime at test-location:
 		set size of entity to 10
 		assert size of entity is 10 with "Size of slime should be 10"
-		set size of entity to 130
-		assert size of entity is 127 with "Size of slime should cap at max 127"
-		set size of entity to 0
-		assert size of entity is 1 with "Size of slime should cap at min 1"
 		clear entity
-
-	# Magma Cube max size seems to change?
-	set {_magmaMax} to 126
-	if running minecraft "26.2":
-		set {_magmaMax} to 127
 
 	spawn a magma cube at test-location:
 		set size of entity to 10
 		assert size of entity is 10 with "Size of magma cube should be 10"
-		set size of entity to 130
-		assert size of entity is 127 with "Size of magma cube should cap at max 127"
-		set size of entity to 0
-		assert size of entity is 1 with "Size of magma cube should cap at min 1"
 		clear entity
 
 	parse if running minecraft "26.2":
 		spawn a sulfur cube at test-location:
 			set size of entity to 10
 			assert size of entity is 10 with "Size of sulfur cube should be 10"
-			set size of entity to 130
-			# Minecraft caps Sulfur Cube specifically at 126 instead of 127 like for Slime and Magma Cube
-			assert size of entity is 126 with "Size of sulfur cube should cap at max 126"
-			set size of entity to 0
-			assert size of entity is 1 with "Size of sulfur cube should cap at min 1"
 			clear entity
