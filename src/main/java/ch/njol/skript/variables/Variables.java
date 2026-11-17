@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.variables.VariableMap;
+import org.skriptlang.skript.variables.storage.VariableRefreshTicker;
 import org.skriptlang.skript.variables.storage.VariableStorage;
 import org.skriptlang.skript.variables.storage.VariableStorageManager;
 
@@ -162,7 +163,9 @@ public class Variables {
 
 		Skript.closeOnDisable(Variables::close);
 		registerBuiltInStorages();
-		return STORAGE_MANAGER.load(section);
+		boolean loaded = STORAGE_MANAGER.load(section);
+		Bukkit.getPluginManager().registerEvents(new VariableRefreshTicker(STORAGE_MANAGER), Skript.getInstance());
+		return loaded;
 	}
 
 	/**

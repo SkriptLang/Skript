@@ -21,6 +21,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Yggdrasil is a simple data format to store object graphs.
@@ -70,6 +73,10 @@ public final class Yggdrasil {
 	private final List<FieldHandler> fieldHandlers = new ArrayList<>();
 	
 	private final SimpleClassResolver simpleClassResolver = new SimpleClassResolver();
+
+	private final Map<Class<?>, Boolean> serializableCache = new ConcurrentHashMap<>();
+	private final Map<Class<?>, Optional<YggdrasilSerializer<?>>> serializerCache = new ConcurrentHashMap<>();
+	private final Map<Class<?>, Optional<String>> idCache = new ConcurrentHashMap<>();
 	
 	public Yggdrasil() {
 		this(LATEST_VERSION);
@@ -94,10 +101,12 @@ public final class Yggdrasil {
 	public void registerClassResolver(ClassResolver resolver) {
 		if (!classResolvers.contains(resolver))
 			classResolvers.add(resolver);
+		clearCaches();
 	}
-	
+
 	public void registerSingleClass(Class<?> type, String id) {
 		simpleClassResolver.registerClass(type, id);
+		clearCaches();
 	}
 	
 	/**
@@ -108,6 +117,13 @@ public final class Yggdrasil {
 		if (id == null)
 			throw new IllegalArgumentException(type.toString());
 		simpleClassResolver.registerClass(type, id.value());
+		clearCaches();
+	}
+
+	private void clearCaches() {
+		serializableCache.clear();
+		serializerCache.clear();
+		idCache.clear();
 	}
 	
 	public void registerFieldHandler(FieldHandler handler) {
@@ -116,6 +132,15 @@ public final class Yggdrasil {
 	}
 	
 	public boolean isSerializable(Class<?> type) {
+		Boolean cached = serializableCache.get(type);
+		if (cached == null) {
+			cached = findIsSerializable(type);
+			serializableCache.put(type, cached);
+		}
+		return cached;
+	}
+
+	private boolean findIsSerializable(Class<?> type) {
 		try {
 			return type.isPrimitive() || type == Object.class || (Enum.class.isAssignableFrom(type) ||
 					PseudoEnum.class.isAssignableFrom(type)) && getIDNoError(type) != null ||
@@ -129,6 +154,15 @@ public final class Yggdrasil {
 	
 	@Nullable
 	YggdrasilSerializer<?> getSerializer(Class<?> type) {
+		Optional<YggdrasilSerializer<?>> cached = serializerCache.get(type);
+		if (cached == null) {
+			cached = Optional.ofNullable(findSerializer(type));
+			serializerCache.put(type, cached);
+		}
+		return cached.orElse(null);
+	}
+
+	private @Nullable YggdrasilSerializer<?> findSerializer(Class<?> type) {
 		for (ClassResolver resolver : classResolvers) {
 			if (resolver instanceof YggdrasilSerializer && resolver.getID(type) != null)
 				return (YggdrasilSerializer<?>) resolver;
@@ -150,9 +184,19 @@ public final class Yggdrasil {
 		throw new StreamCorruptedException("No class found for ID " + id);
 	}
 	
-	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Nullable
 	private String getIDNoError(Class<?> type) {
+		Optional<String> cached = idCache.get(type);
+		if (cached == null) {
+			cached = Optional.ofNullable(findID(type));
+			idCache.put(type, cached);
+		}
+		return cached.orElse(null);
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	@Nullable
+	private String findID(Class<?> type) {
 		if (type == Object.class)
 			return "Object";
 		assert Tag.getType(type) == Tag.T_OBJECT || Tag.getType(type) == Tag.T_ENUM;
