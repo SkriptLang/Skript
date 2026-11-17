@@ -49,6 +49,7 @@ public final class VariableStorageManager {
 	private final Function<@Nullable Object, SerializedVariable.@Nullable Value> serializer;
 	private final BiFunction<String, byte[], @Nullable Object> deserializer;
 	private final Executor mainThread;
+	private final VariableRefresher refresher;
 
 	// registered storage types, in registration order.
 	private final List<StorageType<?>> types = new ArrayList<>();
@@ -75,6 +76,7 @@ public final class VariableStorageManager {
 		this.serializer = serializer;
 		this.deserializer = deserializer;
 		this.mainThread = mainThread;
+		this.refresher = new VariableRefresher(globals, serializer, this::route);
 	}
 
 	// ---------------------------- REGISTRATION ----------------------------
@@ -215,6 +217,7 @@ public final class VariableStorageManager {
 		SerializedVariable.Value serialized = value == null ? null : serializer.apply(value);
 		// write it to the storage (it will be put in the map under the storage lock to maintain coherence
 		storage.queue().write(name, serialized, () -> globals.setVariable(name, value));
+		refresher.invalidate(name);
 	}
 
 	/**
@@ -348,6 +351,10 @@ public final class VariableStorageManager {
 					owners[i].queue().putPending(names[i], serialized[i]);
 			}
 		});
+		for (int i = 0; i < names.length; i++) {
+			if (owners[i] != null)
+				refresher.invalidate(names[i]);
+		}
 	}
 
 	// ---------------------------- CONFIG UPDATE ----------------------------
@@ -649,8 +656,10 @@ public final class VariableStorageManager {
 				unreadable++; // left in the storage, so it's back once the type is
 				return;
 			}
-			if (migration.keep(source, name, value))
+			if (migration.keep(source, name, value)) {
 				globals.setVariable(name, deserialized);
+				refresher.recordSaved(name, value); // what's stored is what's in memory now, so the refresh needn't save it
+			}
 			loaded++;
 			progress.loaded();
 		}
@@ -667,6 +676,13 @@ public final class VariableStorageManager {
 	public synchronized void close() {
 		if (closed)
 			return;
+		// before closing, since routing stops once closed, and the queues must still take the refreshed values
+		try {
+			refresher.refreshAll();
+		} catch (RuntimeException e) {
+			//noinspection ThrowableNotThrown
+			Skript.exception(e, "Failed to save variables that changed in memory while shutting down");
+		}
 		closed = true; // routing only changes the map from now on, and reports are ignored
 		for (VariableStorage storage : storages) {
 			if (storage.loadFailed)
@@ -687,6 +703,18 @@ public final class VariableStorageManager {
 				storage.releaseFile();
 			}
 		}
+	}
+
+	/**
+	 * Runs this tick's share of the refresh, which saves values that changed in memory without being set again.
+	 * Called on the main thread at the end of every tick, by {@link VariableRefreshTicker}.
+	 *
+	 * @param now      {@link System#nanoTime()} now
+	 * @param deadline the {@link System#nanoTime()} to stop by
+	 */
+	void refreshTick(long now, long deadline) {
+		if (!closed)
+			refresher.tick(now, deadline);
 	}
 
 	/**
@@ -961,6 +989,8 @@ public final class VariableStorageManager {
 		Object newValue = deserialized;
 		// also drops any unsaved local change to it, so the storage's value isn't overwritten
 		source.queue().externalWrite(name, () -> globals.setVariable(name, newValue));
+		if (value != null) // the storage has this value already, so the refresh mustn't save it back
+			refresher.recordSaved(name, value);
 	}
 
 	/**
