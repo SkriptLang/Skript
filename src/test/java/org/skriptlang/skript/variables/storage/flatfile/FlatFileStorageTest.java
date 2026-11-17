@@ -15,6 +15,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -218,6 +220,29 @@ public class FlatFileStorageTest {
 		List<String> rows = rows();
 		assertEquals(before + 1, rows.size());
 		assertEquals(deletion("l::*").trim(), rows.get(before));
+	}
+
+	@Test
+	public void namesWithLineBreaksSurviveARestart() throws IOException {
+		VariableStorageManager manager = load(VariableMap.concurrent());
+		manager.set("line\nbreak", "1");
+		manager.set("carriage\rreturn", "2");
+		manager.set("broken\nlist::x", "3");
+		manager.set("broken\nlist::y", "4");
+		manager.set("gone\nsoon", "5");
+		manager.set("literal \\n", "6");
+		assertTrue(manager.flushAll());
+		manager.set("broken\nlist::*", null);
+		manager.set("broken\nlist::z", "7");
+		manager.set("gone\nsoon", null);
+		assertTrue(manager.flushAll());
+		Map<String, Object> expected = Map.of("line\nbreak", "1", "carriage\rreturn", "2", "broken\nlist::z", "7",
+			"literal \\n", "6");
+		// read the appended rows, as after a crash
+		assertEquals(expected, loadedFromFileOf(manager));
+		// and the compacted rows, which compacting reads back too, so it would notice an unreadable one
+		assertEquals(expected, reloaded(manager));
+		assertTrue("nothing had to be left out, so there's no backup", backups().isEmpty());
 	}
 
 	@Test
@@ -635,6 +660,35 @@ public class FlatFileStorageTest {
 		for (int i = 0; i < count; i++)
 			manager.set("churn::" + i, null);
 		assertTrue(manager.flushAll());
+	}
+
+	/**
+	 * Closes the channel the storage appends with, so its next append fails, as if a write had failed.
+	 */
+	private static void breakAppender(VariableStorageManager manager) throws ReflectiveOperationException, IOException {
+		Field file = FlatFileStorage.class.getDeclaredField("file");
+		file.setAccessible(true);
+		Field appender = VariableFile.class.getDeclaredField("appender");
+		appender.setAccessible(true);
+		((FileChannel) appender.get(file.get(storage(manager)))).close();
+	}
+
+	@Test
+	public void aFailedAppendIsSavedAgainByCompacting() throws Exception {
+		VariableStorageManager manager = load(VariableMap.concurrent());
+		manager.set("a", "1");
+		assertTrue(manager.flushAll());
+		breakAppender(manager);
+		manager.set("b", "2");
+		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
+			assertFalse("the append fails", manager.flushAll());
+			assertTrue("the retry compacts the file instead", manager.flushAll());
+		}
+		assertEquals(List.of(row("a", "1").trim(), row("b", "2").trim()), rows());
+		// and it's open for appending again
+		manager.set("c", "3");
+		assertTrue(manager.flushAll());
+		assertEquals(Map.of("a", "1", "b", "2", "c", "3"), loadedFromFileOf(manager));
 	}
 
 	@Test
