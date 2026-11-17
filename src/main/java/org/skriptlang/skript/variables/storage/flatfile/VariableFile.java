@@ -350,7 +350,8 @@ final class VariableFile {
 	 * Replaces the file with one holding exactly the given rows, as compacted rows.
 	 * <p>
 	 * They're written to a temporary file first, which is synced and then moved over the file, so the old file
-	 * stays complete if anything fails. The file is closed for appending once it's replaced, and left closed.
+	 * stays complete if anything fails. The folder is synced after the move too, so the move survives a power cut,
+	 * not just a crash. The file is closed for appending once it's replaced, and left closed.
 	 *
 	 * @param rows The rows, in the order of their names. They may read from the file, which is only replaced after
 	 * @return What was written
@@ -367,13 +368,48 @@ final class VariableFile {
 			fillInCompactedEnd(out, writer.bytes);
 			out.force(true);
 		}
-		closeAppend();
+		discardAppend();
 		try {
 			Files.move(temp, path, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
 		} catch (AtomicMoveNotSupportedException e) {
 			Files.move(temp, path, StandardCopyOption.REPLACE_EXISTING);
 		}
+		syncFolder();
 		return new Written(writer.rows, writer.bytes);
+	}
+
+	/**
+	 * Closes the file for appending before it's replaced, without syncing it and ignoring any failure:
+	 * every append was synced already, and the new file holds everything the old one does.
+	 * That way a broken channel, like one an append failed on, can't stop the rewrite that recovers from it.
+	 */
+	private void discardAppend() {
+		FileChannel appender = this.appender;
+		this.appender = null;
+		appenderKey = null;
+		if (appender == null)
+			return;
+		try {
+			appender.close();
+		} catch (IOException ignored) {
+			// it's being replaced anyway
+		}
+	}
+
+	/**
+	 * Syncs the folder the file is in, so that the move which replaced the file is on disk too. Otherwise, after
+	 * a power cut, some systems can bring back the old file, and everything appended since the move is lost.
+	 * Some systems, like Windows, can't open a folder this way, in which case this does nothing.
+	 */
+	private void syncFolder() {
+		Path folder = path.toAbsolutePath().getParent();
+		if (folder == null)
+			return;
+		try (FileChannel channel = FileChannel.open(folder, StandardOpenOption.READ)) {
+			channel.force(true);
+		} catch (IOException ignored) {
+			// not possible here. the file was still replaced
+		}
 	}
 
 	/**

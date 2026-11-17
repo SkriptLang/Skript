@@ -53,6 +53,13 @@ public final class CsvFormat {
 	 */
 	public static final int OFFSET_DIGITS = 16;
 
+	/**
+	 * The start of a quoted value with escapes in it, which is how values with line breaks are written,
+	 * like {@code E"a\nb"}. Inside it, {@code \n}, {@code \r} and {@code \\} stand for a line feed,
+	 * a carriage return and a backslash, and quotes are doubled as in any quoted value.
+	 */
+	public static final String ESCAPED_START = "E\"";
+
 	// writes uppercase, and reads either case
 	private static final HexFormat HEX = HexFormat.of().withUpperCase();
 
@@ -113,12 +120,17 @@ public final class CsvFormat {
 
 	/**
 	 * Appends one value of a row. It's quoted if it holds a comma, quote, {@code #} or whitespace,
-	 * with any quotes in it doubled.
+	 * with any quotes in it doubled. A value with a line break in it is written in the {@link #ESCAPED_START} form
+	 * instead, since files are read line by line.
 	 *
 	 * @param out   Where to append it
 	 * @param value The value
 	 */
 	private static void appendValue(StringBuilder out, String value) {
+		if (value.indexOf('\n') >= 0 || value.indexOf('\r') >= 0) {
+			appendEscaped(out, value);
+			return;
+		}
 		boolean escapingNeeded = value.contains(",")
 			|| value.contains("\"")
 			|| value.contains("#")
@@ -128,6 +140,60 @@ public final class CsvFormat {
 		} else {
 			out.append(value);
 		}
+	}
+
+	/**
+	 * Appends a value in the {@link #ESCAPED_START} form: quoted, with quotes doubled, and line breaks
+	 * and backslashes escaped.
+	 *
+	 * @param out   Where to append it
+	 * @param value The value
+	 */
+	private static void appendEscaped(StringBuilder out, String value) {
+		out.append(ESCAPED_START);
+		for (int i = 0; i < value.length(); i++) {
+			char c = value.charAt(i);
+			switch (c) {
+				case '\n' -> out.append("\\n");
+				case '\r' -> out.append("\\r");
+				case '\\' -> out.append("\\\\");
+				case '"' -> out.append("\"\"");
+				default -> out.append(c);
+			}
+		}
+		out.append('"');
+	}
+
+	/**
+	 * Undoes the escapes of a value read in the {@link #ESCAPED_START} form, after its quotes were undone.
+	 *
+	 * @param value The value, between its quotes
+	 * @return The value, or null if it has a backslash that isn't one of the escapes
+	 */
+	private static @Nullable String unescape(String value) {
+		int backslash = value.indexOf('\\');
+		if (backslash < 0)
+			return value;
+		StringBuilder out = new StringBuilder(value.length());
+		out.append(value, 0, backslash);
+		for (int i = backslash; i < value.length(); i++) {
+			char c = value.charAt(i);
+			if (c != '\\') {
+				out.append(c);
+				continue;
+			}
+			if (++i == value.length())
+				return null;
+			switch (value.charAt(i)) {
+				case 'n' -> out.append('\n');
+				case 'r' -> out.append('\r');
+				case '\\' -> out.append('\\');
+				default -> {
+					return null;
+				}
+			}
+		}
+		return out.toString();
 	}
 
 	/**
@@ -209,6 +275,7 @@ public final class CsvFormat {
 	 * <p>
 	 * A value is either unquoted, in which case it can't hold a comma or quote and is trimmed,
 	 * or quoted, in which case it's kept exactly, with {@code ""} standing for one quote.
+	 * A quoted value in the {@link #ESCAPED_START} form also has its escapes undone.
 	 * Whitespace around a quoted value is ignored. We do this by hand rather than with a regex,
 	 * since it runs for every row of a variable file while loading.
 	 *
@@ -223,6 +290,9 @@ public final class CsvFormat {
 			int start = position;
 			while (position < length && isSpace(line.charAt(position)))
 				position++;
+			boolean escaped = line.startsWith(ESCAPED_START, position);
+			if (escaped)
+				position++; // to the quote
 			if (position < length && line.charAt(position) == '"') {
 				StringBuilder value = null; // only needed if the value has escaped quotes
 				int from = ++position;
@@ -238,7 +308,10 @@ public final class CsvFormat {
 						continue;
 					}
 					String last = line.substring(from, quote);
-					result.add(value == null ? last : value.append(last).toString());
+					String quoted = value == null ? last : value.append(last).toString();
+					if (escaped && (quoted = unescape(quoted)) == null)
+						return null; // a backslash that isn't an escape
+					result.add(quoted);
 					position = quote + 1;
 					break;
 				}
