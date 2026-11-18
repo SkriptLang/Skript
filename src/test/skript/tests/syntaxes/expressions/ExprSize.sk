@@ -1,0 +1,21 @@
+test "size property - living entities":
+	spawn a phantom at test-location:
+		set size of entity to 10
+		assert size of entity is 10 with "Size of phantom should be 10"
+		clear entity
+
+	spawn a slime at test-location:
+		set size of entity to 10
+		assert size of entity is 10 with "Size of slime should be 10"
+		clear entity
+
+	spawn a magma cube at test-location:
+		set size of entity to 10
+		assert size of entity is 10 with "Size of magma cube should be 10"
+		clear entity
+
+	parse if running minecraft "26.2":
+		spawn a sulfur cube at test-location:
+			set size of entity to 10
+			assert size of entity is 10 with "Size of sulfur cube should be 10"
+			clear entity

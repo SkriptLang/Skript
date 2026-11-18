@@ -70,6 +70,7 @@ public class BukkitModule extends HierarchicalAddonModule {
 		Classes.registerClass(new InventoryClassInfo());
 		Classes.registerClass(new ItemStackClassInfo());
 		Classes.registerClass(new ItemTypeClassInfo());
+		Classes.registerClass(new LivingEntityClassInfo());
 		Classes.registerClass(new LocationClassInfo());
 		Classes.registerClass(new NameableClassInfo());
 		Classes.registerClass(new OfflinePlayerClassInfo());
