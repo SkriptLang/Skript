@@ -1488,6 +1488,23 @@ public final class Skript extends JavaPlugin implements Listener {
 		return Origin.UNKNOWN;
 	}
 
+	private static final StackWalker STACK_WALKER =
+			StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
+
+	/**
+	 * Finds the first class outside of {@link Skript} in the current call stack,
+	 * which is the class that invoked a legacy registration method.
+	 * @param fallback The class to return if no such class is found.
+	 * @return The registering class, or {@code fallback}.
+	 */
+	private static Class<?> getRegisteringClass(Class<?> fallback) {
+		return STACK_WALKER.walk(frames -> frames
+				.map(StackWalker.StackFrame::getDeclaringClass)
+				.filter(declaringClass -> declaringClass != Skript.class)
+				.findFirst()
+				.orElse(fallback));
+	}
+
 	/**
 	 * Registers a {@link Condition}.
 	 *
@@ -1711,7 +1728,16 @@ public final class Skript extends JavaPlugin implements Listener {
 		checkAcceptRegistrations();
 		for (int i = 0; i < patterns.length; i++)
 			patterns[i] = BukkitSyntaxInfos.fixPattern(patterns[i]);
-		var legacy = new SkriptEventInfo.ModernSkriptEventInfo<>(name, patterns, eventClass, "", events);
+
+		// Event classes may be shared between addons (e.g. SimpleEvent), so the origin is
+		// determined from the class that registered the event rather than the event class.
+		Class<?> registeringClass = getRegisteringClass(eventClass);
+		Origin origin = getSyntaxOrigin(registeringClass);
+		if (origin == Origin.UNKNOWN)
+			origin = getSyntaxOrigin(eventClass);
+
+		var legacy = new SkriptEventInfo.ModernSkriptEventInfo<>(
+				name, patterns, eventClass, registeringClass.getName(), events, origin);
 		skript.syntaxRegistry().register(BukkitSyntaxInfos.Event.KEY, legacy);
 		return legacy;
 	}

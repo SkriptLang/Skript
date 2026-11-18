@@ -42,10 +42,10 @@ public class CondIsDivisibleBy extends Condition implements SyntaxRuntimeErrorPr
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		dividend = (Expression<Number>) exprs[0];
-		divisor = (Expression<Number>) exprs[1];
-		epsilon = (Expression<Number>) exprs[2];
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		dividend = (Expression<Number>) expressions[0];
+		divisor = (Expression<Number>) expressions[1];
+		epsilon = (Expression<Number>) expressions[2];
 		setNegated(matchedPattern == 1 || matchedPattern == 3);
 		node = getParser().getNode();
 		return true;
@@ -73,7 +73,7 @@ public class CondIsDivisibleBy extends Condition implements SyntaxRuntimeErrorPr
 			return isNegated();
 		}
 
-		if (divisor < epsilon) {
+		if (Math.abs(divisor) < epsilon) {
 			// If the divisor is smaller than the tolerance, we consider it to be 0
 			return isNegated();
 		}
