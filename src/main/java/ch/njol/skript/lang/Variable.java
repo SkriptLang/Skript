@@ -629,7 +629,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 					Operator operator = mode == ChangeMode.ADD ? Operator.ADDITION : Operator.SUBTRACTION;
 					Changer<?> changer;
 					Class<?>[] classes;
-					if (clazz == null || !Arithmetics.getOperations(operator, clazz).isEmpty()) {
+					if (clazz == null || Arithmetics.hasOperations(operator, clazz)) {
 						boolean changed = false;
 						for (Object newValue : delta) {
 							OperationInfo info = Arithmetics.getOperationInfo(operator, clazz != null ? (Class) clazz : newValue.getClass(), newValue.getClass());

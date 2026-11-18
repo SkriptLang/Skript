@@ -7,6 +7,9 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -15,22 +18,14 @@ import java.util.stream.Collectors;
  */
 public final class Arithmetics {
 
-	private static final Map<Operator, List<OperationInfo<?, ?, ?>>> OPERATIONS
-		= Collections.synchronizedMap(new HashMap<>());
-	private static final Map<Operator, Map<OperandTypes, OperationInfo<?, ?, ?>>> CACHED_OPERATIONS
-		= Collections.synchronizedMap(new HashMap<>());
-	private static final Map<Operator, Map<OperandTypes, OperationInfo<?, ?, ?>>> CACHED_CONVERTED_OPERATIONS
-		= Collections.synchronizedMap(new HashMap<>());
+	/**
+	 * Cached marker for a lookup that found nothing, since {@link ConcurrentHashMap} can't hold null values.
+	 */
+	private static final Object NONE = new Object();
 
-	private static final Map<Class<?>, DifferenceInfo<?, ?>> DIFFERENCES
-		= Collections.synchronizedMap(new HashMap<>());
-	private static final Map<Class<?>, DifferenceInfo<?, ?>> CACHED_DIFFERENCES
-		= Collections.synchronizedMap(new HashMap<>());
-
-	private static final Map<Class<?>, Supplier<?>> DEFAULT_VALUES
-		= Collections.synchronizedMap(new HashMap<>());
-	private static final Map<Class<?>, Supplier<?>> CACHED_DEFAULT_VALUES
-		= Collections.synchronizedMap(new HashMap<>());
+	private static final Map<Operator, OperatorEntry> OPERATORS = new ConcurrentHashMap<>();
+	private static final TypeRegistry<DifferenceInfo<?, ?>> DIFFERENCES = new TypeRegistry<>();
+	private static final TypeRegistry<Supplier<?>> DEFAULT_VALUES = new TypeRegistry<>();
 
 	/**
 	 * Registers a binary operation where both left and right operands are of the same type,
@@ -113,11 +108,10 @@ public final class Arithmetics {
 	public static <L, R, T> void registerOperation(Operator operator, Class<L> leftClass, Class<R> rightClass,
 			Class<T> returnType, Operation<L, R, T> operation) {
 		Skript.checkAcceptRegistrations();
-		if (exactOperationExists(operator, leftClass, rightClass))
+		if (!entry(operator).add(new OperationInfo<>(leftClass, rightClass, returnType, operation)))
 			throw new SkriptAPIException("There's already a " + operator.getName() +
 				" operation registered for types '" + leftClass.getName() + "' and '" +
 				rightClass.getName() + "'");
-		getRawOperations(operator).add(new OperationInfo<>(leftClass, rightClass, returnType, operation));
 	}
 
 	/**
@@ -130,11 +124,7 @@ public final class Arithmetics {
 	 * @return {@code true} if an exact match is found, else {@code false}
 	 */
 	public static boolean exactOperationExists(Operator operator, Class<?> leftClass, Class<?> rightClass) {
-		for (OperationInfo<?, ?, ?> info : getRawOperations(operator)) {
-			if (info.left() == leftClass && info.right() == rightClass)
-				return true;
-		}
-		return false;
+		return entry(operator).exactExists(leftClass, rightClass);
 	}
 
 	/**
@@ -150,8 +140,10 @@ public final class Arithmetics {
 		return getOperationInfo(operator, leftClass, rightClass) != null;
 	}
 
-	private static List<OperationInfo<?, ?, ?>> getRawOperations(Operator operator) {
-		return OPERATIONS.computeIfAbsent(operator, o -> Collections.synchronizedList(new ArrayList<>()));
+	private static OperatorEntry entry(Operator operator) {
+		// plain get first, as computeIfAbsent may lock even when the key is present
+		OperatorEntry entry = OPERATORS.get(operator);
+		return entry != null ? entry : OPERATORS.computeIfAbsent(operator, o -> new OperatorEntry());
 	}
 
 	/**
@@ -161,7 +153,7 @@ public final class Arithmetics {
 	 * @return all registered operations for the given operator
 	 */
 	public static @UnmodifiableView List<OperationInfo<?, ?, ?>> getOperations(Operator operator) {
-		return Collections.unmodifiableList(getRawOperations(operator));
+		return entry(operator).view;
 	}
 
 	/**
@@ -176,9 +168,20 @@ public final class Arithmetics {
 	 */
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static <T> @Unmodifiable List<OperationInfo<T, ?, ?>> getOperations(Operator operator, Class<T> type) {
-		return (List) getOperations(operator).stream()
-			.filter(info -> info.left().isAssignableFrom(type))
-			.collect(Collectors.toList());
+		return (List) entry(operator).byLeft(type);
+	}
+
+	/**
+	 * Checks whether any operation is registered for a given operator
+	 * where the left operand type is assignable from the specified {@code type}.
+	 * This does not consider type conversions, but does consider type assignability.
+	 *
+	 * @param operator the operator
+	 * @param type left operand type
+	 * @return whether {@link #getOperations(Operator, Class)} would return a non-empty list
+	 */
+	public static boolean hasOperations(Operator operator, Class<?> type) {
+		return !entry(operator).byLeft(type).isEmpty();
 	}
 
 	/**
@@ -193,7 +196,7 @@ public final class Arithmetics {
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static <L> @Unmodifiable List<OperationInfo<L, ?, ?>> lookupLeftOperations(Operator operator,
 			Class<L> leftClass) {
-		return (List) getOperations(operator).stream()
+		return (List) entry(operator).operations.stream()
 			.map(info -> {
 				if (info.left().isAssignableFrom(leftClass)) {
 					return info;
@@ -216,7 +219,7 @@ public final class Arithmetics {
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static <R> @Unmodifiable List<OperationInfo<?, R, ?>> lookupRightOperations(Operator operator,
 			Class<R> rightClass) {
-		return (List) getOperations(operator).stream()
+		return (List) entry(operator).operations.stream()
 			.map(info -> {
 				if (info.right().isAssignableFrom(rightClass)) {
 					return info;
@@ -264,25 +267,7 @@ public final class Arithmetics {
 	public static <L, R> @Nullable OperationInfo<L, R, ?> getOperationInfo(Operator operator,
 			Class<L> leftClass, Class<R> rightClass) {
 		assertIsOperationsDoneLoading();
-		OperandTypes operandTypes = new OperandTypes(leftClass, rightClass);
-		Map<OperandTypes, OperationInfo<?, ?, ?>> operations = CACHED_OPERATIONS
-			.computeIfAbsent(operator, o -> Collections.synchronizedMap(new HashMap<>()));
-		OperationInfo<L, R, ?> operationInfo = (OperationInfo<L, R, ?>) operations.get(operandTypes);
-		// we also cache null values for non-existing operations
-		if (operations.containsKey(operandTypes))
-			return operationInfo;
-
-		operationInfo = (OperationInfo<L, R, ?>) getOperations(operator).stream()
-			.filter(info ->
-				info.left().isAssignableFrom(leftClass) && info.right().isAssignableFrom(rightClass))
-			.reduce((info, info2) -> {
-				if (info2.left() == leftClass && info2.right() == rightClass)
-					return info2;
-				return info;
-			})
-			.orElse(null);
-		operations.put(operandTypes, operationInfo);
-		return operationInfo;
+		return (OperationInfo<L, R, ?>) entry(operator).exact(leftClass, rightClass);
 	}
 
 	/**
@@ -354,29 +339,8 @@ public final class Arithmetics {
 	@SuppressWarnings("unchecked")
 	public static <L, R> @Nullable OperationInfo<L, R, ?> lookupOperationInfo(Operator operator,
 			Class<L> leftClass, Class<R> rightClass) {
-		OperationInfo<L, R, ?> operationInfo = getOperationInfo(operator, leftClass, rightClass);
-		if (operationInfo != null)
-			return operationInfo;
-
-		OperandTypes operandTypes = new OperandTypes(leftClass, rightClass);
-		Map<OperandTypes, OperationInfo<?, ?, ?>> operations = CACHED_CONVERTED_OPERATIONS
-			.computeIfAbsent(operator, o -> Collections.synchronizedMap(new HashMap<>()));
-		operationInfo = (OperationInfo<L, R, ?>) operations.get(operandTypes);
-		// we also cache null values for non-existing operations
-		if (operations.containsKey(operandTypes))
-			return operationInfo;
-
-		for (OperationInfo<?, ?, ?> info : getOperations(operator)) {
-			OperationInfo<L, R, ?> convertedInfo = info.getConverted(
-				leftClass, rightClass, info.returnType());
-			if (convertedInfo == null)
-				continue;
-			operations.put(operandTypes, convertedInfo);
-			return convertedInfo;
-		}
-
-		operations.put(operandTypes, null);
-		return null;
+		assertIsOperationsDoneLoading();
+		return (OperationInfo<L, R, ?>) entry(operator).lookup(leftClass, rightClass);
 	}
 
 	/**
@@ -443,9 +407,8 @@ public final class Arithmetics {
 	 */
 	public static <T, R> void registerDifference(Class<T> type, Class<R> returnType, Operation<T, T, R> operation) {
 		Skript.checkAcceptRegistrations();
-		if (exactDifferenceExists(type))
+		if (!DIFFERENCES.register(type, new DifferenceInfo<>(type, returnType, operation)))
 			throw new SkriptAPIException("There's already a difference registered for type '" + type + "'");
-		DIFFERENCES.put(type, new DifferenceInfo<>(type, returnType, operation));
 	}
 
 	/**
@@ -455,7 +418,7 @@ public final class Arithmetics {
 	 * @return if a difference operation for exactly given type exists
 	 */
 	public static boolean exactDifferenceExists(Class<?> type) {
-		return DIFFERENCES.containsKey(type);
+		return DIFFERENCES.containsExact(type);
 	}
 
 	/**
@@ -498,27 +461,7 @@ public final class Arithmetics {
 		if (Skript.isAcceptRegistrations())
 			throw new SkriptAPIException("Differences cannot be retrieved until Skript " +
 				"has finished registrations.");
-		// we also cache null values
-		if (CACHED_DIFFERENCES.containsKey(type))
-			return (DifferenceInfo<T, ?>) CACHED_DIFFERENCES.get(type);
-
-		DifferenceInfo<T, ?> difference = null;
-
-		if (DIFFERENCES.containsKey(type)) {
-			difference = (DifferenceInfo<T, ?>) DIFFERENCES.get(type);
-			CACHED_DIFFERENCES.put(type, difference);
-			return difference;
-		}
-
-		for (Map.Entry<Class<?>, DifferenceInfo<?, ?>> entry : DIFFERENCES.entrySet()) {
-			if (!entry.getKey().isAssignableFrom(type))
-				continue;
-			difference = (DifferenceInfo<T, ?>) entry.getValue();
-			break;
-		}
-
-		CACHED_DIFFERENCES.put(type, difference);
-		return difference;
+		return (DifferenceInfo<T, ?>) DIFFERENCES.resolve(type);
 	}
 
 	/**
@@ -592,10 +535,9 @@ public final class Arithmetics {
 	 */
 	public static <T> void registerDefaultValue(Class<T> type, Supplier<T> supplier) {
 		Skript.checkAcceptRegistrations();
-		if (DEFAULT_VALUES.containsKey(type))
+		if (!DEFAULT_VALUES.register(type, supplier))
 			throw new SkriptAPIException("There's already a default value registered for type '" +
 				type.getName() + "'");
-		DEFAULT_VALUES.put(type, supplier);
 	}
 
 	/**
@@ -611,27 +553,7 @@ public final class Arithmetics {
 		if (Skript.isAcceptRegistrations())
 			throw new SkriptAPIException("Default values cannot be retrieved until Skript has " +
 				"finished registrations.");
-
-		Supplier<R> supplier = null;
-
-		if (CACHED_DEFAULT_VALUES.containsKey(type)) {
-			supplier = (Supplier<R>) CACHED_DEFAULT_VALUES.get(type);
-			return supplier != null ? supplier.get() : null;
-		}
-
-		if (DEFAULT_VALUES.containsKey(type)) {
-			supplier = (Supplier<R>) DEFAULT_VALUES.get(type);
-			CACHED_DEFAULT_VALUES.put(type, supplier);
-			return supplier.get();
-		}
-
-		for (Map.Entry<Class<?>, Supplier<?>> entry : DEFAULT_VALUES.entrySet()) {
-			if (!entry.getKey().isAssignableFrom(type)) continue;
-			supplier = (Supplier<R>) entry.getValue();
-			break;
-		}
-
-		CACHED_DEFAULT_VALUES.put(type, supplier);
+		Supplier<R> supplier = (Supplier<R>) DEFAULT_VALUES.resolve(type);
 		return supplier != null ? supplier.get() : null;
 	}
 
@@ -650,7 +572,7 @@ public final class Arithmetics {
 	 */
 	public static Collection<Class<?>> getAllReturnTypes(Operator operator) {
 		Set<Class<?>> types = new HashSet<>();
-		for (OperationInfo<?, ?, ?> info : getRawOperations(operator)) {
+		for (OperationInfo<?, ?, ?> info : entry(operator).operations) {
 			types.add(info.returnType());
 		}
 		return types;
@@ -666,7 +588,7 @@ public final class Arithmetics {
 	 * @return registered operators
 	 */
 	public static Set<Operator> getAllOperators() {
-		List<Operator> operators = new LinkedList<>(OPERATIONS.keySet());
+		List<Operator> operators = new LinkedList<>(OPERATORS.keySet());
 		Collections.sort(operators);
 		return new LinkedHashSet<>(operators);
 	}
@@ -675,6 +597,171 @@ public final class Arithmetics {
 		throw new UnsupportedOperationException();
 	}
 
-	private record OperandTypes(Class<?> left, Class<?> right) {}
+	/**
+	 * The operations registered for one {@link Operator}, along with the lookup caches derived from them.
+	 * Registering an operation clears the caches.
+	 */
+	private static final class OperatorEntry {
+
+		final List<OperationInfo<?, ?, ?>> operations = new CopyOnWriteArrayList<>();
+		final List<OperationInfo<?, ?, ?>> view = Collections.unmodifiableList(operations);
+
+		// only filled once registrations have closed
+		private final ConcurrentHashMap<Class<?>, List<OperationInfo<?, ?, ?>>> byLeftCache = new ConcurrentHashMap<>();
+		private final PairCache exactCache = new PairCache(this::findExact);
+		private final PairCache convertedCache = new PairCache(this::findConverted);
+
+		/**
+		 * @return false if an operation with the exact same operand types is already registered
+		 */
+		synchronized boolean add(OperationInfo<?, ?, ?> info) {
+			if (exactExists(info.left(), info.right()))
+				return false;
+			operations.add(info);
+			// tests can register operations after registrations have closed, so drop anything cached from the old list
+			byLeftCache.clear();
+			exactCache.clear();
+			convertedCache.clear();
+			return true;
+		}
+
+		boolean exactExists(Class<?> left, Class<?> right) {
+			for (OperationInfo<?, ?, ?> info : operations) {
+				if (info.left() == left && info.right() == right)
+					return true;
+			}
+			return false;
+		}
+
+		@Nullable OperationInfo<?, ?, ?> exact(Class<?> left, Class<?> right) {
+			return (OperationInfo<?, ?, ?>) exactCache.get(left, right);
+		}
+
+		/**
+		 * Assignable operations first, then converted ones.
+		 */
+		@Nullable OperationInfo<?, ?, ?> lookup(Class<?> left, Class<?> right) {
+			OperationInfo<?, ?, ?> info = exact(left, right);
+			return info != null ? info : (OperationInfo<?, ?, ?>) convertedCache.get(left, right);
+		}
+
+		List<OperationInfo<?, ?, ?>> byLeft(Class<?> type) {
+			// can be called during parsing (Changer#getArithmeticChangeTypes), so don't cache while registering
+			if (Skript.isAcceptRegistrations())
+				return filterByLeft(type);
+			List<OperationInfo<?, ?, ?>> cached = byLeftCache.get(type);
+			return cached != null ? cached : byLeftCache.computeIfAbsent(type, this::filterByLeft);
+		}
+
+		private @Nullable Object findExact(Class<?> left, Class<?> right) {
+			return operations.stream()
+				.filter(info -> info.left().isAssignableFrom(left) && info.right().isAssignableFrom(right))
+				// prefer an exact match over one that is only assignable
+				.reduce((info, info2) -> {
+					if (info2.left() == left && info2.right() == right)
+						return info2;
+					return info;
+				})
+				.orElse(null);
+		}
+
+		private @Nullable Object findConverted(Class<?> left, Class<?> right) {
+			for (OperationInfo<?, ?, ?> info : operations) {
+				OperationInfo<?, ?, ?> convertedInfo = info.getConverted(left, right, info.returnType());
+				if (convertedInfo != null)
+					return convertedInfo;
+			}
+			return null;
+		}
+
+		private List<OperationInfo<?, ?, ?>> filterByLeft(Class<?> type) {
+			return operations.stream()
+				.filter(info -> info.left().isAssignableFrom(type))
+				.toList();
+		}
+
+	}
+
+	/**
+	 * A lock-free cache keyed by a pair of classes, which computes and stores (including misses) on first lookup.
+	 */
+	private static final class PairCache {
+
+		private final ConcurrentHashMap<Class<?>, ConcurrentHashMap<Class<?>, Object>> map = new ConcurrentHashMap<>();
+		private final BiFunction<Class<?>, Class<?>, Object> finder;
+
+		PairCache(BiFunction<Class<?>, Class<?>, Object> finder) {
+			this.finder = finder;
+		}
+
+		@Nullable Object get(Class<?> left, Class<?> right) {
+			ConcurrentHashMap<Class<?>, Object> inner = map.get(left);
+			Object cached = inner != null ? inner.get(right) : null;
+			if (cached == null) {
+				cached = finder.apply(left, right);
+				// we also cache null values for non-existing operations
+				if (cached == null)
+					cached = NONE;
+				map.computeIfAbsent(left, k -> new ConcurrentHashMap<>()).putIfAbsent(right, cached);
+			}
+			return cached == NONE ? null : cached;
+		}
+
+		void clear() {
+			map.clear();
+		}
+
+	}
+
+	/**
+	 * Values registered per class, resolved by exact class first and then by the first registered supertype.
+	 * Resolutions, including misses, are cached until the next registration.
+	 */
+	private static final class TypeRegistry<V> {
+
+		private final Map<Class<?>, V> registered = new LinkedHashMap<>();
+		private final ConcurrentHashMap<Class<?>, Object> resolved = new ConcurrentHashMap<>();
+
+		synchronized boolean containsExact(Class<?> type) {
+			return registered.containsKey(type);
+		}
+
+		/**
+		 * @return false if a value is already registered for exactly this type
+		 */
+		synchronized boolean register(Class<?> type, V value) {
+			if (registered.containsKey(type))
+				return false;
+			registered.put(type, value);
+			resolved.clear();
+			return true;
+		}
+
+		@SuppressWarnings("unchecked")
+		@Nullable V resolve(Class<?> type) {
+			Object cached = resolved.get(type);
+			if (cached == null) {
+				cached = find(type);
+				// we also cache null values
+				if (cached == null)
+					cached = NONE;
+				resolved.putIfAbsent(type, cached);
+			}
+			return cached == NONE ? null : (V) cached;
+		}
+
+		private synchronized @Nullable V find(Class<?> type) {
+			V exact = registered.get(type);
+			if (exact != null)
+				return exact;
+			// fall back to the first registered supertype
+			for (Map.Entry<Class<?>, V> entry : registered.entrySet()) {
+				if (entry.getKey().isAssignableFrom(type))
+					return entry.getValue();
+			}
+			return null;
+		}
+
+	}
 
 }
