@@ -26,7 +26,6 @@ import ch.njol.skript.test.runner.SkriptJUnitTest;
 import ch.njol.skript.test.runner.SkriptTestEvent;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.test.runner.TestTracker;
-import ch.njol.skript.test.runner.*;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
@@ -42,10 +41,10 @@ import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -111,7 +110,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -536,11 +534,14 @@ public final class Skript extends JavaPlugin implements Listener {
 			updater.updateCheck(console);
 		}
 
-		PluginCommand skriptCommand = getCommand("skript");
-		assert skriptCommand != null; // It is defined, unless the build is corrupted or something like that
-		SkriptCommand commandHandler = new SkriptCommand();
-		skriptCommand.setExecutor(commandHandler);
-		skriptCommand.setTabCompleter(commandHandler);
+		getLifecycleManager().registerEventHandler(
+			LifecycleEvents.COMMANDS,
+			event -> event.registrar().register(
+				SkriptCommand.build(),
+				"Skript's main command. Type '/skript help' for more information.",
+				List.of("sk")
+			)
+		);
 
 		final AddonModule legacyModule = new AddonModule() {
 

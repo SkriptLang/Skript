@@ -6,80 +6,106 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.util.StringUtils;
-import org.bukkit.command.Command;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.tree.CommandNode;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
+/**
+ * The {@code /skript} command and its subcommands.
+ */
 @ApiStatus.Internal
-public class SkriptCommand implements TabExecutor {
+public class SkriptCommand {
 
 	public static final String CONFIG_NODE = "skript command";
+	public static final String PERMISSION = "skript.admin";
 
-	private static final Set<SubCommand> SUB_COMMANDS;
-	private static final List<String> ALIASES;
+	private static @Nullable LiteralCommandNode<CommandSourceStack> rootNode;
 
-	static {
-		SUB_COMMANDS = new HashSet<>(Arrays.asList(
-			new HelpCommand(),
-			new ReloadCommand(),
-			new EnableCommand(),
-			new DisableCommand(),
-			new ListCommand(),
-			new InfoCommand(),
-			new UpdateCommand(),
-			new RestoreCommand()
-		));
+	/**
+	 * Builds the {@code /skript} command node.
+	 *
+	 * @return The built command node.
+	 */
+	public static @NotNull LiteralCommandNode<CommandSourceStack> build() {
+		LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("skript")
+			.requires(source -> source.getSender().hasPermission(PERMISSION))
+			.executes(context -> {
+				HelpCommand.send(context.getSource().getSender());
+				return SINGLE_SUCCESS;
+			});
 
-		if (TestMode.GEN_DOCS || Documentation.isDocsTemplateFound()) {
-			SUB_COMMANDS.add(new GenDocsCommand());
-		}
+		HelpCommand.register(root);
+		ReloadCommand.register(root);
+		EnableCommand.register(root);
+		DisableCommand.register(root);
+		ListCommand.register(root);
+		InfoCommand.register(root);
+		UpdateCommand.register(root);
+		RestoreCommand.register(root);
 
-		if (TestMode.DEV_MODE) {
-			SUB_COMMANDS.add(new TestCommand());
-		}
+		if (TestMode.GEN_DOCS || Documentation.isDocsTemplateFound())
+			GenDocsCommand.register(root);
 
-		// cache subcommand aliases for tab completions
-		ALIASES = new ArrayList<>();
+		if (TestMode.DEV_MODE)
+			TestCommand.register(root);
 
-		for (SubCommand subCommand : SUB_COMMANDS) {
-			ALIASES.addAll(Arrays.asList(subCommand.getAliases()));
-		}
+		rootNode = root.build();
+		return rootNode;
 	}
 
 	/**
-	 * Gets a SubCommand by its alias, or the help command if it's not found
-	 * @param alias The alias
-	 * @return The SubCommand or null if no such alias exists
+	 * @return The last built {@code /skript} command node.
 	 */
-	private @NotNull SubCommand findSubCommand(String alias) {
-		for (SubCommand subCommand : SUB_COMMANDS) {
-			for (String subCommandAlias : subCommand.getAliases()) {
-				if (subCommandAlias.equalsIgnoreCase(alias)) {
-					return subCommand;
-				}
-			}
+	static @NotNull LiteralCommandNode<CommandSourceStack> rootNode() {
+		LiteralCommandNode<CommandSourceStack> node = rootNode;
+		if (node == null)
+			node = build();
+		return node;
+	}
+
+	/**
+	 * Registers an alias that redirects to a subcommand's primary node.
+	 *
+	 * @param root The root command builder.
+	 * @param alias The alias to register.
+	 * @param primary The primary node to redirect to.
+	 */
+	static void registerAlias(LiteralArgumentBuilder<CommandSourceStack> root, String alias,
+							  LiteralCommandNode<CommandSourceStack> primary) {
+		LiteralArgumentBuilder<CommandSourceStack> builder = Commands.literal(alias).redirect(primary);
+		if (primary.getCommand() != null)
+			builder.executes(primary.getCommand());
+		root.then(builder.build());
+	}
+
+	/**
+	 * Sends a message showing all arguments of the subcommand being executed.
+	 *
+	 * @param context The command context.
+	 */
+	protected static void sendHelp(CommandContext<CommandSourceStack> context) {
+		CommandSender sender = context.getSource().getSender();
+		CommandNode<CommandSourceStack> node = context.getNodes().getLast().getNode();
+		String command = node.getName();
+		String usage = Language.get(CONFIG_NODE + ".usage");
+		Skript.message(sender, usage + " <gold>/skript <yellow>" + command + " <red>...");
+
+		for (CommandNode<CommandSourceStack> child : node.getChildren()) {
+			String arg = child instanceof LiteralCommandNode<?>
+				? child.getName()
+				: "<" + child.getName() + ">";
+			String description = Language.get(CONFIG_NODE + ".help." + command + "." + arg);
+			Skript.message(sender, "   <yellow>" + arg + " <gray>- <white>" + description);
 		}
-		return findSubCommand("help");
-	}
-
-	/**
-	 * @return All aliases of all subcommands.
-	 */
-	protected static List<String> getAllAliases() {
-		return ALIASES;
-	}
-
-	/**
-	 * @see SubCommand
-	 * @return All SubCommands
-	 */
-	protected static Set<SubCommand> getSubCommands() {
-		return SUB_COMMANDS;
 	}
 
 	protected static void info(CommandSender sender, String what, Object... args) {
@@ -94,96 +120,6 @@ public class SkriptCommand implements TabExecutor {
 			? Language.get(CONFIG_NODE + "." + what)
 			: PluralizingArgsMessage.format(Language.format(CONFIG_NODE + "." + what, args));
 		Skript.error(sender, StringUtils.fixCapitalization(what));
-	}
-
-	/**
-	 * Sends a message showing all arguments of a SubCommand
-	 * @param sender Who to send it to
-	 * @param subCommand The command to show the arguments of
-	 */
-	private static void sendHelp(CommandSender sender, SubCommand subCommand) {
-		String command = subCommand.getAliases()[0];
-		String usage = Language.get(CONFIG_NODE + ".usage");
-		Skript.message(sender, usage + " <gold>/skript <yellow>" + command + " <red>...");
-
-		for (String arg : subCommand.args()) {
-			String description = Language.get(CONFIG_NODE + ".help." + command + "." + arg);
-			Skript.message(sender, "   <yellow>" + arg + " <gray>- <white>" + description);
-		}
-	}
-
-	@Override
-	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
-	                         @NotNull String @NotNull [] args) {
-		String firstArg = args.length > 0 ? args[0] : "help";
-		SubCommand subCommand = findSubCommand(firstArg);
-
-		// sub command requires args but none was given
-		if (args.length == 1 && subCommand.args() != null) {
-			sendHelp(sender, subCommand);
-			return true;
-		}
-
-		subCommand.execute(sender, args);
-		return true;
-	}
-
-	@Override
-	public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
-												@NotNull String label, @NotNull String @NotNull [] args) {
-		if (args.length == 0 || args[0].isEmpty()) {
-			return getAllAliases();
-		}
-
-		if (args.length == 1) {
-			return getAllAliases().stream()
-				.filter(alias -> alias.startsWith(args[0]))
-				.toList();
-		}
-
-		SubCommand subCommand = findSubCommand(args[0]);
-		return subCommand.getTabCompletions(sender, args);
-	}
-
-	/**
-	 * Represents a subcommand of the /sk command, like /sk reload
-	 */
-	protected static abstract class SubCommand {
-
-		private final String[] aliases;
-		private String[] args;
-
-		public SubCommand(String... aliases) {
-			this.aliases = aliases;
-		}
-
-		public String[] getAliases() {
-			return aliases;
-		}
-
-		public void args(String... args) {
-			this.args = args;
-		}
-
-		public String[] args() {
-			return args;
-		}
-
-		/**
-		 * Executes this SubCommand
-		 * @param sender Source of the command
-		 * @param args The arguments
-		 */
-		public abstract void execute(@NotNull CommandSender sender, @NotNull String @NotNull [] args);
-
-		/**
-		 * Returns the tab completions for this SubCommand
-		 * @param sender Source of the command
-		 * @param args The arguments
-		 * @return The tab completions
-		 */
-		public abstract List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String @NotNull [] args);
-
 	}
 
 }

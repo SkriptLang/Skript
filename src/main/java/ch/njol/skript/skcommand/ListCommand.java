@@ -2,55 +2,60 @@ package ch.njol.skript.skcommand;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.skcommand.SkriptCommand.SubCommand;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
+
 /**
  * Lists all enabled and disabled scripts<p>
  * Usage: <code>/sk list</code>
  */
-class ListCommand extends SubCommand {
+class ListCommand {
 
-	public ListCommand() {
-		super("list", "show");
+	static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
+		LiteralCommandNode<CommandSourceStack> node = build("list");
+		root.then(node);
+		SkriptCommand.registerAlias(root, "show", node);
 	}
 
-	@Override
-	public void execute(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
-		SkriptCommand.info(sender, "list.enabled.header");
-		ScriptLoader.getLoadedScripts().stream()
-			.map(script -> script.getConfig().getFileName())
-			.forEach(name -> SkriptCommand.info(sender, "list.enabled.element", name));
+	private static LiteralCommandNode<CommandSourceStack> build(String literal) {
+		return Commands.literal(literal)
+			.executes(context -> {
+				CommandSender sender = context.getSource().getSender();
+				SkriptCommand.info(sender, "list.enabled.header");
+				ScriptLoader.getLoadedScripts().stream()
+					.map(script -> script.getConfig().getFileName())
+					.forEach(name -> SkriptCommand.info(sender, "list.enabled.element", name));
 
-		SkriptCommand.info(sender, "list.disabled.header");
-		ScriptLoader.getDisabledScripts().stream()
-			.flatMap(file -> {
-				if (file.isDirectory()) {
-					return getSubFiles(file).stream();
-				}
-				return Arrays.stream(new File[]{file});
+				SkriptCommand.info(sender, "list.disabled.header");
+				ScriptLoader.getDisabledScripts().stream()
+					.flatMap(file -> {
+						if (file.isDirectory()) {
+							return getSubFiles(file).stream();
+						}
+						return Arrays.stream(new File[]{file});
+					})
+					.map(File::getPath)
+					.map(path -> path.substring(Skript.getInstance().getScriptsFolder().getPath().length() + 1))
+					.forEach(path -> SkriptCommand.info(sender, "list.disabled.element", path));
+				return SINGLE_SUCCESS;
 			})
-			.map(File::getPath)
-			.map(path -> path.substring(Skript.getInstance().getScriptsFolder().getPath().length() + 1))
-			.forEach(path -> SkriptCommand.info(sender, "list.disabled.element", path));
-	}
-
-	@Override
-	public List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
-		return List.of();
+			.build();
 	}
 
 	private static List<File> getSubFiles(File folder) {
 		List<File> files = new ArrayList<>();
-		if (!folder.isDirectory()) {
+		if (!folder.isDirectory())
 			return files;
-		}
 
 		// noinspection ConstantConditions - we know 'folder' is a folder
 		for (File listFile : folder.listFiles(f -> !f.isHidden())) {
