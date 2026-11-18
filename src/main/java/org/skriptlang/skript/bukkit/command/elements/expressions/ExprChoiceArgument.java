@@ -118,7 +118,8 @@ public class ExprChoiceArgument extends SimpleExpression<String> implements Even
 		// challenge: this is hard to do because of optionals that make the tree incredibly complex
 		// for now, this works good enough!
 		for (var node : ((ScriptCommandEvent) event).getContext().getNodes()) {
-			if (!(node.getNode() instanceof LiteralCommandNode<?> literalNode)) {
+			// start check is to skip the first node we iterate as it is the root
+			if (node.getRange().getStart() == 0 || !(node.getNode() instanceof LiteralCommandNode<?> literalNode)) {
 				continue;
 			}
 			if (choices.contains(literalNode.getLiteral())) {
