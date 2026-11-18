@@ -14,6 +14,7 @@ test "is divisible":
 	assert {_num} can be divided by 5 to fail with "You cannot divide by a string!"
 	set {_numlist::*} to "5", "10", and "15"
 	assert {_numlist::*} can be divided by 5 to fail with "You cannot divide by a string!"
+	assert 4 is evenly divisible by -2 with "4 can be evenly divided by -2"
 
 test "tolerances":
 	assert 0.3 can be evenly divided by 0.1 with "floating point error with 0.3 / 0.1"

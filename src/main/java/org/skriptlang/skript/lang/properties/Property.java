@@ -335,6 +335,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 		TITLE.register();
 		TYPED_VALUE.register();
 		VIEWERS.register();
+		WXYZ.register();
 	}
 
 }
