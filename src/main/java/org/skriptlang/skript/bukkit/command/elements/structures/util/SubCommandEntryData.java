@@ -63,7 +63,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -80,9 +79,6 @@ public class SubCommandEntryData extends EntryData<Result> {
 	) { }
 
 	private static final Predicate<CommandSender> TRUE_PREDICATE = ignored -> true;
-
-	private static final Pattern COMMAND_PATTERN =
-		Pattern.compile("(?i)^\\s*/?\\s*(.+)?$");
 
 	private static final Pattern SIMPLE_LIST_PATTERN = Pattern.compile("\\s*,(?:\\s+(?:and|or)\\s+)?\\s*|\\s+(?:and|or)\\s+");
 
@@ -191,14 +187,16 @@ public class SubCommandEntryData extends EntryData<Result> {
 			if (key == null)
 				throw new IllegalArgumentException("EntryData#getValue() called with invalid node.");
 			input = ScriptLoader.replaceOptions(key)
-				.substring(getKey().length() + 1);
-			Matcher commandMatcher = COMMAND_PATTERN.matcher(input);
-			boolean matches = commandMatcher.matches();
-			if (!matches) {
-				Skript.error("Invalid command structure pattern");
+				.substring(getKey().length() + 1)
+				.strip();
+			if (!input.isEmpty() && input.charAt(0) == '/') {
+				input = input.substring(1);
+			}
+			input = input.stripLeading();
+			if (input.isEmpty()) {
+				Skript.error("A command cannot be blank.");
 				return null;
 			}
-			input = commandMatcher.group(1);
 		}
 
 		// validate entries
@@ -372,6 +370,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 		boolean hasExecute = execute != null;
 		if (isSubcommandGroupEntry && hasExecute) {
 			Skript.error("A subcommand group cannot have a trigger!");
+			popScopes(parsingData);
 			return null;
 		}
 
@@ -423,6 +422,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 			} else {
 				Skript.error("You must have a 'trigger' entry if there are no subcommands!");
 			}
+			popScopes(parsingData);
 			return null;
 		}
 
@@ -432,9 +432,11 @@ public class SubCommandEntryData extends EntryData<Result> {
 		if (optionalSubcommands != 0) {
 			if (hasExecute) {
 				Skript.error("It is not possible to have a 'trigger' entry if an optional subcommand is present!");
+				popScopes(parsingData);
 				return null;
 			} else if (optionalSubcommands > 1) {
 				Skript.error("It is not possible to have more than one optional subcommand at the same level.");
+				popScopes(parsingData);
 				return null;
 			}
 		}
@@ -465,9 +467,7 @@ public class SubCommandEntryData extends EntryData<Result> {
 				.toList();
 		}
 
-		parsingData.popExecutorData();
-		parsingData.popChoices();
-		parsingData.popArguments();
+		popScopes(parsingData);
 
 		if (isRoot && SkriptConfig.enableLegacyTabCompletion.value()) { // compatibility measure: insert legacy tab completion providers
 			SuggestingArgumentData suggestingArgumentData = parser.getData(SuggestingArgumentData.class);
@@ -479,6 +479,12 @@ public class SubCommandEntryData extends EntryData<Result> {
 		}
 
 		return new Result(rootExecutor, result, aliases, description, usage, prefix, permission);
+	}
+
+	private void popScopes(CommandParsingData parsingData) {
+		parsingData.popExecutorData();
+		parsingData.popChoices();
+		parsingData.popArguments();
 	}
 
 	@Override
@@ -538,17 +544,20 @@ public class SubCommandEntryData extends EntryData<Result> {
 					// last argument can be greedy
 					nativeType = StringArgumentType.greedyString();
 				} else {
-					nativeType = StringArgumentType.string();
+					nativeType = SkriptConfig.enableLenientStringArguments.value()
+						? new ScriptArgumentType.ScriptStringArgument() : StringArgumentType.string();
 				}
 				// we only want to override the suggestions method if we will actually provide them
 				if (data.type().getC() == OfflinePlayer.class) {
 					//noinspection unchecked - verified by type check
 					nativeType = ScriptArgumentType.OfflinePlayerArgument.create((ArgumentData<OfflinePlayer>) data,
-						(StringArgumentType) nativeType);
+						(ArgumentType<String>) nativeType);
 				} else if (data.type().getSupplier() == null) {
-					nativeType = new ScriptArgumentType<>(data, (StringArgumentType) nativeType);
+					//noinspection unchecked - can only be string from above
+					nativeType = new ScriptArgumentType<>(data, (ArgumentType<String>) nativeType);
 				} else {
-					nativeType = new ScriptArgumentType.Suggesting<>(data, (StringArgumentType) nativeType);
+					//noinspection unchecked - can only be string from above
+					nativeType = new ScriptArgumentType.Suggesting<>(data, (ArgumentType<String>) nativeType);
 				}
 			}
 

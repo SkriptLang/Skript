@@ -261,7 +261,7 @@ final class CommandCompiler {
 				if (toAppend.stream().anyMatch(element -> element instanceof ArgumentCommandElement)) {
 					if (pendingLiterals.isEmpty()) { // [<arg>] is valid
 						first.append(toAppend);
-					} else { // argument placed attached to literals, e.g. 'lit<arg>'
+					} else { // argument placed attached to literals, e.g., 'lit<arg>'
 						Skript.error("Literals cannot be placed directly next to arguments. Separate them with a space.");
 						return null;
 					}
@@ -309,7 +309,20 @@ final class CommandCompiler {
 				}
 
 				arguments.add(argument);
-				first.append(List.of(new ArgumentCommandElement(argument)));
+				ArgumentCommandElement argumentElement = new ArgumentCommandElement(argument);
+				if (argument.defaultValue() == null) {
+					first.append(List.of(argumentElement));
+				} else { // make it implicitly optional
+					Collection<CommandElement> toAppend = new ArrayList<>();
+					toAppend.add(argumentElement);
+					toAppend.add(null);
+					if (pendingLiterals.isEmpty()) { // this is the same as [<arg>]
+						first.append(toAppend);
+					} else { // argument placed attached to literals, e.g., 'lit<arg>'
+						Skript.error("Literals cannot be placed directly next to arguments. Separate them with a space.");
+						return null;
+					}
+				}
 
 				i = end;
 			} else if (c == '\\' && i + 1 < patternLength) { // escaping
