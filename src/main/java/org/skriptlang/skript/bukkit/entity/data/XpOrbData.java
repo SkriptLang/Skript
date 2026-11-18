@@ -89,12 +89,13 @@ public class XpOrbData extends EntityData<ExperienceOrb> {
 
 	@Override
 	public @Nullable ExperienceOrb spawn(Location loc, @Nullable Consumer<ExperienceOrb> consumer) {
-		ExperienceOrb orb = super.spawn(loc, consumer);
-		if (orb == null)
-			return null;
-		if (xp == -1)
-			orb.setExperience(1 + orb.getExperience());
-		return orb;
+		// set the experience before the orb is added to the world, so the xp spawn event sees the correct amount
+		return super.spawn(loc, orb -> {
+			if (xp == -1)
+				orb.setExperience(1 + orb.getExperience());
+			if (consumer != null)
+				consumer.accept(orb);
+		});
 	}
 
 	@Override

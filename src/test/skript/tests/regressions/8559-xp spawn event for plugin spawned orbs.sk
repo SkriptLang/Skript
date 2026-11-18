@@ -1,0 +1,50 @@
+on xp spawn:
+	{8559::enabled} is set
+	set {8559::xp} to "%spawned experience%"
+	if {8559::nested} is set:
+		delete {8559::nested}
+		drop 1 xp at event-location
+	if {8559::cancel} is set:
+		cancel event
+	else:
+		add 5 to the spawned experience
+
+test "xp spawn event for plugin spawned orbs":
+	# sanitize
+	kill all xp orbs
+	delete {8559::*}
+	set {_spawn} to test-location
+
+	# Skript spawns xp orbs through the Bukkit API, like any other plugin
+	set {8559::enabled} to true
+	drop 10 xp at {_spawn}
+	set {_drop event xp} to {8559::xp}
+	set {_drop orb xp} to experience of last spawned entity
+
+	kill all xp orbs
+	delete {8559::xp}
+	spawn 10 xp at {_spawn}
+	set {_spawn event xp} to {8559::xp}
+	set {_spawn orb xp} to experience of last spawned entity
+
+	kill all xp orbs
+	set {8559::nested} to true
+	drop 10 xp at {_spawn}
+	set {_nested orb xp} to experience of last spawned entity
+
+	# cancelling the event should stop the orb from spawning
+	kill all xp orbs
+	set {8559::cancel} to true
+	drop 10 xp at {_spawn}
+	set {_cancelled orbs::*} to all xp orbs
+
+	# cleanup before asserting, so a failure can't leave the listener active for other tests
+	kill all xp orbs
+	delete {8559::*}
+
+	assert {_drop event xp} is "10 xp" with "xp spawn event should see 10 xp from a dropped orb, but saw %{_drop event xp}%"
+	assert {_drop orb xp} is 15 with "changing the spawned experience should change the dropped orb, but it has %{_drop orb xp}%"
+	assert {_spawn event xp} is "10 xp" with "xp spawn event should see 10 xp from a spawned orb, but saw %{_spawn event xp}%"
+	assert {_spawn orb xp} is 15 with "changing the spawned experience should change the spawned orb, but it has %{_spawn orb xp}%"
+	assert {_nested orb xp} is 15 with "spawning an orb in the xp spawn event should not change the original orb, but it has %{_nested orb xp}%"
+	assert {_cancelled orbs::*} is not set with "cancelling the xp spawn event should stop the orb from spawning"
