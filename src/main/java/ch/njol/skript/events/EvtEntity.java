@@ -59,7 +59,7 @@ public final class EvtEntity extends SkriptEvent {
 				}
 			} else {
 				for (final EntityData<?> d : types) {
-					if (!LivingEntity.class.isAssignableFrom(d.getType())) {
+					if (!LivingEntity.class.isAssignableFrom(d.getType()) && d.getType() != Entity.class) {
 						Skript.error("The death event only works for living entities", ErrorQuality.SEMANTIC_ERROR);
 						return false;
 					}
