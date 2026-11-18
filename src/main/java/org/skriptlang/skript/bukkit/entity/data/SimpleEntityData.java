@@ -86,7 +86,7 @@ public class SimpleEntityData extends EntityData<Entity> implements EntityItemTy
 		//<editor-fold desc="1.2" defaultstate="collapsed">
 		buildSimple(IronGolem.class, "iron golem:s @an", "iron golem[plural:s]");
 		buildSimple(Ocelot.class, "ocelot:s @an", "[wild|untamed] <age> ocelot[plural:s]");
-		buildSimple(PigZombie.class, "zombie pig:man:men|zombified piglin:s @a",
+		buildSimple(PigZombie.class, "zombie pig:man:men @a",
 			"<age> zombie pigm(an|plural:en)", "<age> zombified piglin[plural:s]", "baby:zombie pigletboy[plural:s]",
 			"baby:zombified piglin (kid[plural:s]|child[plural:ren])");
 		buildSimple(ThrownExpBottle.class, "bottle: of enchanting:s of enchanting @a",
