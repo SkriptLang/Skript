@@ -81,6 +81,9 @@ public class ExprDurability extends SimplePropertyExpression<Object, Integer> {
 				case SET:
 					newAmount = change;
 					break;
+				case RESET:
+					newAmount = durability ? ItemUtils.getMaxDamage(itemStack) : 0;
+					break;
 				default:
 					newAmount = 0;
 			}
