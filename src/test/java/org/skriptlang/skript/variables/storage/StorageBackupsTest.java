@@ -75,7 +75,11 @@ public class StorageBackupsTest {
 	 * @return backups for a storage named "test", created at made-up time 0, so the first is due at {@link #INTERVAL}
 	 */
 	private StorageBackups backups(int toKeep, boolean compress) {
-		return new StorageBackups("test", folder, compress, INTERVAL, toKeep, 0, tickingClock(),
+		return backups(toKeep, compress, tickingClock());
+	}
+
+	private StorageBackups backups(int toKeep, boolean compress, Clock clock) {
+		return new StorageBackups("test", folder, compress, INTERVAL, toKeep, 0, clock,
 			out -> {
 				writes++;
 				out.write(contents.getBytes(StandardCharsets.UTF_8));
@@ -192,7 +196,7 @@ public class StorageBackupsTest {
 	public void backupsAreNamedAfterTheStorage() throws IOException {
 		backups(-1).backupIfDue(INTERVAL);
 		String file = backupFiles().get(0);
-		assertTrue(file, file.matches("test_\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}-\\d{3}\\.csv"));
+		assertTrue(file, file.matches("test_\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}-\\d{3}Z\\.csv"));
 	}
 
 	@Test
@@ -235,6 +239,34 @@ public class StorageBackupsTest {
 		assertEquals(files.toString(), 2, files.size());
 		assertEquals("v3\n", read(files.get(0)));
 		assertEquals("v4\n", read(files.get(1)));
+	}
+
+	@Test
+	public void theNewestBackupIsKeptWhenLocalClocksGoBack() throws IOException {
+		// New York's clocks went from 01:59 back to 01:00 at 06:00 UTC that day. Two backups 20 minutes apart,
+		// at 01:50 and 01:10 local time: named in local time, the newer one would sort first and be deleted
+		AtomicLong millis = new AtomicLong(Instant.parse("2023-11-05T05:50:00Z").toEpochMilli());
+		ZoneId newYork = ZoneId.of("America/New_York");
+		Clock clock = new Clock() {
+			@Override
+			public ZoneId getZone() {
+				return newYork;
+			}
+
+			@Override
+			public Clock withZone(ZoneId zone) {
+				return this;
+			}
+
+			@Override
+			public Instant instant() {
+				return Instant.ofEpochMilli(millis.getAndAdd(20 * 60_000));
+			}
+		};
+		makeBackups(backups(1, false, clock), 2);
+		List<String> files = backupFiles();
+		assertEquals(files.toString(), 1, files.size());
+		assertEquals("v2\n", read(files.get(0)));
 	}
 
 	@Test

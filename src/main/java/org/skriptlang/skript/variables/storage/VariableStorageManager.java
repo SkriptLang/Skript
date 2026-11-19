@@ -92,7 +92,24 @@ public final class VariableStorageManager {
 		this.serializer = serializer;
 		this.deserializer = deserializer;
 		this.mainThread = mainThread;
-		this.refresher = new VariableRefresher(globals, refreshSerializer, this::route);
+		this.refresher = new VariableRefresher(globals, refreshSerializer, this::route,
+			VariableStorageManager::reportRefreshFailure);
+	}
+
+	/**
+	 * Reports variables that failed to refresh. Never throws, since it's called while shutting down too.
+	 *
+	 * @param t       what the first variable that failed threw
+	 * @param message the message to log
+	 */
+	private static void reportRefreshFailure(Throwable t, String message) {
+		try {
+			//noinspection ThrowableNotThrown
+			Skript.exception(t, message);
+		} catch (Throwable logFailure) { // logging must never stop the refresh
+			System.err.println(message);
+			t.printStackTrace();
+		}
 	}
 
 	// ---------------------------- REGISTRATION ----------------------------
@@ -446,11 +463,16 @@ public final class VariableStorageManager {
 				String name = section.getKey();
 				assert name != null;
 
+				// a database that can't be set up still takes its place in the routing order, failed, so that the
+				// variables it saves aren't saved to a database after it until it's fixed. Otherwise they'd end up in
+				// the catch-all, and be overwritten by the old copies once this database is back.
+
 				// check type
 				String typeName = section.getValue("type");
 				if (typeName == null) {
 					Skript.error("Missing entry 'type' in database definition");
 					successful = false;
+					keepFailed(placeholder(section), configured);
 					continue;
 				}
 				if (typeName.equalsIgnoreCase("disabled") || typeName.equalsIgnoreCase("none"))
@@ -459,6 +481,7 @@ public final class VariableStorageManager {
 				if (type == null) {
 					Skript.error("Invalid database type '" + typeName + "'");
 					successful = false;
+					keepFailed(placeholder(section), configured);
 					continue;
 				}
 
@@ -467,6 +490,7 @@ public final class VariableStorageManager {
 				if (clash != null) {
 					Skript.error("The databases '" + clash + "' and '" + name + "' would share a backup folder. Please rename one of them.");
 					successful = false;
+					keepFailed(placeholder(section), configured);
 					continue;
 				}
 
@@ -478,10 +502,12 @@ public final class VariableStorageManager {
 					//noinspection ThrowableNotThrown
 					Skript.exception(e, "Failed to create the database '" + name + "' of type '" + typeName + "'");
 					successful = false;
+					keepFailed(placeholder(section), configured);
 					continue;
 				}
 				if (!storage.loadConfig(section)) { // reports its own errors and releases its file
 					successful = false;
+					keepFailed(storage, configured); // its prefixes are read first, so it has them unless they were the problem
 					continue;
 				}
 				configured.add(storage);
@@ -495,13 +521,81 @@ public final class VariableStorageManager {
 	}
 
 	/**
+	 * @param section the database's section
+	 * @return a storage standing in for a database that couldn't be created, with the database's name and prefixes,
+	 * or accepting every name if its prefixes are invalid too
+	 */
+	private static VariableStorage placeholder(SectionNode section) {
+		Placeholder placeholder = new Placeholder();
+		placeholder.loadRouting(section); // reports invalid prefixes itself
+		return placeholder;
+	}
+
+	/**
+	 * Adds a database that couldn't be set up to the routing order as failed, so it keeps owning its names
+	 * without saving them, like a storage that fails to load. Warns which variables aren't saved because of it.
+	 *
+	 * @param storage    the storage, or a {@link #placeholder(SectionNode)} for it
+	 * @param configured the storages so far, in config order
+	 */
+	private static void keepFailed(VariableStorage storage, List<VariableStorage> configured) {
+		storage.loadFailed = true;
+		configured.add(storage);
+		List<String> prefixes = storage.getPrefixes();
+		if (prefixes == null) {
+			Skript.warning("Until the database '" + storage.getName() + "' is fixed, it keeps every variable that"
+				+ " databases after it would save, so those aren't saved either");
+		} else {
+			Skript.warning("Until the database '" + storage.getName() + "' is fixed, variables starting with "
+				+ String.join(", ", prefixes) + " aren't saved");
+		}
+	}
+
+	/**
+	 * Stands in for a database whose type is missing or unknown, or that couldn't be created,
+	 * so it can take its place in the routing order. It's never loaded, started or closed.
+	 */
+	private static final class Placeholder extends VariableStorage {
+
+		Placeholder() {
+			super(null, "none"); // no addon registered it, since its type doesn't exist
+		}
+
+		@Override
+		protected boolean configure(SectionNode node) {
+			return false;
+		}
+
+		@Override
+		protected void load(LoadListener listener) {
+			throw new UnsupportedOperationException("placeholder databases are never loaded");
+		}
+
+		@Override
+		protected void save(Batch batch) {
+			throw new UnsupportedOperationException("placeholder databases never save");
+		}
+
+		@Override
+		public void close() {
+		}
+
+		@Override
+		protected boolean requiresFile() {
+			return false;
+		}
+
+	}
+
+	/**
 	 * Loads configured storages into the map, one at a time and in order. Then moves misplaced variables
 	 * to the storages that own them, starts saving, and makes the storages live for routing and reported changes.
 	 * <p>
 	 * A storage that fails to load is closed but keeps its place in the routing order, so its variables stay
 	 * in the map without being saved to another storage. Package-private so tests can load storages without a config.
 	 *
-	 * @param configured the configured storages, in config order
+	 * @param configured the configured storages, in config order. Ones already marked as failed couldn't be set up,
+	 *                   and are only kept for routing
 	 * @return true if there was at least one storage, and every storage loaded and started
 	 * @throws IllegalStateException if storages have already been set up
 	 */
@@ -517,6 +611,8 @@ public final class VariableStorageManager {
 		LoadProgress progress = new LoadProgress();
 		Migration migration = new Migration(configured);
 		for (VariableStorage storage : configured) {
+			if (storage.loadFailed)
+				continue; // couldn't be set up, so it only holds its place in the routing order
 			long start = System.nanoTime();
 			if (Skript.logVeryHigh())
 				Skript.info("Loading database '" + storage.getName() + "'...");
@@ -693,9 +789,10 @@ public final class VariableStorageManager {
 		if (closed)
 			return;
 		// before closing, since routing stops once closed, and the queues must still take the refreshed values
+		// Throwable throughout: nothing that goes wrong here may stop the other storages from saving
 		try {
 			refresher.refreshAll();
-		} catch (RuntimeException e) {
+		} catch (Throwable e) {
 			//noinspection ThrowableNotThrown
 			Skript.exception(e, "Failed to save variables that changed in memory while shutting down");
 		}
@@ -703,16 +800,22 @@ public final class VariableStorageManager {
 		for (VariableStorage storage : storages) {
 			if (storage.loadFailed)
 				continue; // already closed when it failed
-			// one storage failing mustn't stop the others from saving
+			boolean stopped = true;
 			try {
-				storage.stopSaving(); // closes its queue first, so nothing racing this can be queued after the final save
-			} catch (RuntimeException e) {
+				// closes its queue first, so nothing racing this can be queued after the final save
+				stopped = storage.stopSaving();
+			} catch (Throwable e) {
 				//noinspection ThrowableNotThrown
 				Skript.exception(e, "Failed to save the database '" + storage.getName() + "' while shutting down");
 			}
+			if (!stopped) {
+				// its saving thread is stuck in save(), so closing would pull the storage out from under it
+				storage.releaseFile();
+				continue;
+			}
 			try {
 				storage.close();
-			} catch (RuntimeException e) {
+			} catch (Throwable e) {
 				//noinspection ThrowableNotThrown
 				Skript.exception(e, "Failed to close the database '" + storage.getName() + "'");
 			} finally {

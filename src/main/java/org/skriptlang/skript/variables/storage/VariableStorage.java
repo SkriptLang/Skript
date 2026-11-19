@@ -144,9 +144,7 @@ public abstract class VariableStorage implements Closeable {
 	 * @return true if the configuration was valid and the storage is ready to be used, false if it was invalid and the storage should be disabled
 	 */
 	final boolean loadConfig(SectionNode node) {
-		name = node.getKey();
-
-		if (!loadPrefix(node))
+		if (!loadRouting(node))
 			return false;
 
 		// read file if needed
@@ -167,6 +165,18 @@ public abstract class VariableStorage implements Closeable {
 		if (!success)
 			releaseFile();
 		return success;
+	}
+
+	/**
+	 * Sets the name and reads the prefixes, which is all routing needs. Called by {@link #loadConfig(SectionNode)},
+	 * and by the manager for a database it can't set up, so that it still owns its names.
+	 *
+	 * @param node the configuration node
+	 * @return false if the prefixes are invalid, in which case an error is printed and the storage accepts every name
+	 */
+	final boolean loadRouting(SectionNode node) {
+		name = node.getKey();
+		return loadPrefix(node);
 	}
 
 	/**
@@ -253,7 +263,7 @@ public abstract class VariableStorage implements Closeable {
 	 *     Backslash escapes like {@code \.} are resolved.</li>
 	 *     <li>A group of literal alternatives followed by {@code .*} or {@code .+}, such as {@code (bank|tax).*},
 	 *     becomes one prefix per alternative.</li>
-	 *     <li>Both may start with {@code (?i)}.</li>
+	 *     <li>Both may start with {@code (?i)}, in which case the prefixes are lowercased.</li>
 	 *     <li>Anything else, such as {@code (?!x_).*}, {@code db[0-9]::.*} or {@code kills::(a|b).*},
 	 *     can't be translated.</li>
 	 * </ul>
@@ -265,7 +275,8 @@ public abstract class VariableStorage implements Closeable {
 		String rest = pattern.trim();
 		if (rest.equals(".*") || rest.equals(".+") || rest.equals("(?!-).*") || rest.equals("(?!-).+"))
 			return List.of();
-		if (rest.startsWith("(?i)"))
+		boolean ignoreCase = rest.startsWith("(?i)");
+		if (ignoreCase)
 			rest = rest.substring(4);
 		if (!rest.endsWith(".*") && !rest.endsWith(".+"))
 			return null;
@@ -286,7 +297,8 @@ public abstract class VariableStorage implements Closeable {
 				return null;
 			if (literal.isEmpty())
 				return List.of(); // an empty alternative matched every name
-			prefixes.add(literal);
+			// prefixes can't ignore case, but lowercase ones match the names case-insensitive variables are saved under
+			prefixes.add(ignoreCase ? literal.toLowerCase(Locale.ENGLISH) : literal);
 		}
 		return prefixes;
 	}
@@ -792,28 +804,33 @@ public abstract class VariableStorage implements Closeable {
 	 * The router must stop sending changes to this storage before calling this:
 	 * a change queued after the final save is lost.
 	 * <p>
-	 * Waits up to {@value #STOP_TIMEOUT_MILLIS} ms for the saving thread to finish its current save.
+	 * Waits up to {@link #stopTimeoutMillis()} ms for the saving thread to finish its current save.
 	 * Then makes up to {@value #FINAL_SAVE_ATTEMPTS} final save attempts, without backoff,
 	 * and reports how many changes are still unsaved if they all fail.
+	 *
+	 * @return false if the saving thread is still inside {@link #save(Batch)} after the timeout, in which case
+	 * the storage must not be {@link #close() closed}, since that would pull its resources out from under the save;
+	 * true otherwise, including when saving was never started
 	 */
-	void stopSaving() {
+	boolean stopSaving() {
 		stopReceiving(); // nothing reported from now on should change variables mid-shutdown
 		queue.close(); // nothing is queued after this, so the final save gets everything that will ever be queued
 		Thread thread = saveThread;
 		if (thread == null)
-			return;
+			return true;
 		saving = false;
 		LockSupport.unpark(thread);
+		long timeout = stopTimeoutMillis();
 		try {
-			thread.join(STOP_TIMEOUT_MILLIS);
+			thread.join(timeout);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 		}
 		if (thread.isAlive()) {
 			// stuck inside save() and holding saveLock, so a final save would get stuck too
 			reportSaveFailure(null, "The saving thread of the database '" + getName() + "' did not finish after "
-				+ STOP_TIMEOUT_MILLIS / 1000 + " seconds; its unsaved changes are lost");
-			return;
+				+ timeout / 1000 + " seconds; its unsaved changes are lost, and the database is left open");
+			return false;
 		}
 		saveThread = null;
 
@@ -823,14 +840,23 @@ public abstract class VariableStorage implements Closeable {
 			for (int attempt = 0; attempt < FINAL_SAVE_ATTEMPTS; attempt++) {
 				saveCycle();
 				if (failedBatch == null)
-					return;
+					return true;
 			}
 			int unsaved = failedBatch.clears().size() + failedBatch.changes().size() + queue.count();
 			reportSaveFailure(null, "Could not save " + unsaved + " variable changes to the database '" + getName()
 				+ "' before shutting down; they are lost");
+			return true;
 		} finally {
 			saveLock.unlock();
 		}
+	}
+
+	/**
+	 * @return how long {@link #stopSaving()} waits for the saving thread to finish its current save, in milliseconds.
+	 * Package-private so tests don't have to wait that long.
+	 */
+	long stopTimeoutMillis() {
+		return STOP_TIMEOUT_MILLIS;
 	}
 
 	/**
@@ -932,7 +958,8 @@ public abstract class VariableStorage implements Closeable {
 	}
 
 	/**
-	 * Tries to save a batch, catching any exception and logging it. If it fails, the batch should be kept for the next cycle.
+	 * Tries to save a batch, catching anything it throws and logging it. If it fails, the batch should be kept for the next cycle.
+	 * Errors are caught too, so they back off like any other failure and can't escape {@link #stopSaving()}.
 	 *
 	 * @param batch the batch to save
 	 * @return true if the save succeeded, false if it failed
@@ -940,7 +967,7 @@ public abstract class VariableStorage implements Closeable {
 	private boolean trySave(Batch batch) {
 		try {
 			save(batch);
-		} catch (IOException | RuntimeException e) {
+		} catch (Throwable e) {
 			failures++;
 			if (failures == 1 || failures % 10 == 0)
 				reportSaveFailure(e, "Could not save " + batch.changes().size() + " variable changes to '" + getName()

@@ -6,8 +6,10 @@ import org.junit.Test;
 import org.skriptlang.skript.variables.VariableMap;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -44,16 +46,44 @@ public class VariableRefresherTest {
 	private static final class Unsaveable {
 	}
 
+	/**
+	 * A value whose serializer throws.
+	 */
+	private static final class Broken {
+	}
+
+	/**
+	 * A value that runs an action while it's serialized, standing in for another thread setting the variable
+	 * after the refresh read it but before it was queued.
+	 */
+	private static final class Racing {
+		final String text;
+		final Runnable whileSerialized;
+
+		Racing(String text, Runnable whileSerialized) {
+			this.text = text;
+			this.whileSerialized = whileSerialized;
+		}
+
+		@Override
+		public String toString() {
+			whileSerialized.run();
+			return text;
+		}
+	}
+
 	private VariableMap globals;
 	private RecordingStorage storage;
 	private VariableRefresher refresher;
+	private final List<String> reported = new ArrayList<>();
 
 	@Before
 	public void setUp() {
 		globals = VariableMap.concurrent();
 		storage = new RecordingStorage();
 		refresher = new VariableRefresher(globals, new ReusingSerializer(),
-			name -> name.startsWith("unsaved::") ? null : storage);
+			name -> name.startsWith("unsaved::") ? null : storage,
+			(t, message) -> reported.add(message));
 	}
 
 	/**
@@ -105,6 +135,8 @@ public class VariableRefresherTest {
 	private static Value serialize(Object value) {
 		if (value instanceof Unsaveable)
 			return null;
+		if (value instanceof Broken)
+			throw new IllegalStateException("broken serializer");
 		return new Value("string", String.valueOf(value).getBytes(StandardCharsets.UTF_8));
 	}
 
@@ -332,6 +364,51 @@ public class VariableRefresherTest {
 		assertEquals(boxes.length, queued.size());
 		// what it saw is saved now, so the pass it replaced doesn't carry on queueing
 		refresher.tick(System.nanoTime(), System.nanoTime() + A_DAY);
+		wholePass();
+		assertEquals(Map.of(), queued());
+	}
+
+	@Test
+	public void aVariableThatThrowsDoesntStopRefreshingEverything() {
+		Box before = new Box("old"), after = new Box("old");
+		load("a", before);
+		load("c", after);
+		globals.setVariable("b", new Broken());
+		before.text = "new";
+		after.text = "new";
+		refresher.refreshAll();
+		assertEquals(Map.of("a", "new", "c", "new"), queued());
+		assertEquals(1, reported.size());
+		assertTrue(reported.get(0), reported.get(0).contains("'b'"));
+	}
+
+	@Test
+	public void aVariableThatThrowsDoesntStopAPassAndIsReportedOncePerPass() {
+		Box box = new Box("old");
+		load("box", box);
+		globals.setVariable("broken::1", new Broken());
+		globals.setVariable("broken::2", new Broken());
+		firstTick();
+		box.text = "new";
+		wholePass();
+		assertEquals(Map.of("box", "new"), queued());
+		assertEquals(1, reported.size());
+		assertTrue(reported.get(0), reported.get(0).startsWith("Could not check 2 variables"));
+		wholePass(); // tried again, since they weren't hashed
+		assertEquals(2, reported.size());
+	}
+
+	@Test
+	public void aValueSetWhileItsRefreshedIsntOverwritten() {
+		load("x", "old");
+		firstTick();
+		// set by "another thread" while the refresh serializes the value it read, which then differs from what's saved
+		globals.setVariable("x", new Racing("changed", () -> set("x", "set")));
+		wholePass();
+		assertEquals(Map.of("x", "set"), queued());
+		// the refresh skipped it without hashing it, so the next pass saves the new value once
+		wholePass();
+		assertEquals(Map.of("x", "set"), queued());
 		wholePass();
 		assertEquals(Map.of(), queued());
 	}

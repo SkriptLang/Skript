@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -43,6 +44,22 @@ class RecordingStorage extends VariableStorage {
 	 * While above 0, {@link #save(Batch)} throws an {@link Error} and decrements it.
 	 */
 	final AtomicInteger errorSaves = new AtomicInteger();
+
+	/**
+	 * If set, {@link #save(Batch)} counts down {@link #saveStarted} and waits until this is counted down,
+	 * standing in for a save that hangs.
+	 */
+	volatile @Nullable CountDownLatch blockSaves;
+
+	/**
+	 * Counted down by {@link #save(Batch)} when it starts waiting on {@link #blockSaves}.
+	 */
+	final CountDownLatch saveStarted = new CountDownLatch(1);
+
+	/**
+	 * Returned by {@link #stopTimeoutMillis()}.
+	 */
+	long stopTimeoutMillis = 30_000;
 
 	/**
 	 * The {@link System#nanoTime()} of every call to {@link #save(Batch)}, including failed calls.
@@ -208,6 +225,15 @@ class RecordingStorage extends VariableStorage {
 	protected void save(Batch batch) throws IOException {
 		saveAttemptTimes.add(System.nanoTime());
 		lastSaveThread = Thread.currentThread().getName();
+		CountDownLatch block = blockSaves;
+		if (block != null) {
+			saveStarted.countDown();
+			try {
+				block.await();
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
 		if (errorSaves.getAndUpdate(n -> n > 0 ? n - 1 : 0) > 0)
 			throw new Error("erroring on purpose");
 		if (failSaves.getAndUpdate(n -> n > 0 ? n - 1 : 0) > 0)
@@ -226,6 +252,11 @@ class RecordingStorage extends VariableStorage {
 	@Override
 	void reportSaveRecovered(int failures) {
 		reportedRecoveries.add(failures);
+	}
+
+	@Override
+	long stopTimeoutMillis() {
+		return stopTimeoutMillis;
 	}
 
 	@Override

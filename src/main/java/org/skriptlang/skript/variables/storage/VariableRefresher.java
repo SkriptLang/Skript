@@ -6,6 +6,7 @@ import org.skriptlang.skript.variables.VariableMap;
 
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 /**
@@ -15,16 +16,15 @@ import java.util.function.Function;
  * which {@link SavedVariableHashes} remembers. Values are serialized into a reused buffer and hashed there,
  * and only copied out when they changed, so checking the many that didn't allocates next to nothing.
  * <p>
- * Only used on the main thread, so whatever it queues is the current value, never an older one.
+ * Only used on the main thread. A value is only queued if it's still the variable's current one once its storage
+ * has the name locked, so a set racing the refresh from another thread is never overwritten by the older value.
+ * A variable that throws while it's refreshed is skipped, and the failures are reported once per pass.
  */
 final class VariableRefresher {
 
 
 	private static final long TIME_BETWEEN_PASSES = TimeUnit.MINUTES.toNanos(5);
 	private static final int CHECK_EVERY = 32; // how often to check the budget
-	private static final Runnable NO_MAP_WRITE = () -> {
-	};
-
 	private SavedVariableHashes saved = new SavedVariableHashes(0); // what's saved, as of the last pass
 	private @Nullable SavedVariableHashes next;                    // being built by the running pass
 	private @Nullable Iterator<String> pass;                       // the running pass's cursor
@@ -34,18 +34,27 @@ final class VariableRefresher {
 	private final VariableMap globals; // a reference, we don't own it! so we should treat it as readonly
 	private final BufferedSerializer serializer;
 	private final Function<String, @Nullable VariableStorage> route;
+	private final BiConsumer<Throwable, String> reportFailure;
+
+	// variables that threw while refreshed during the running pass, reported once it ends
+	private int failures;
+	private @Nullable Throwable firstFailure;
+	private @Nullable String firstFailedName;
 
 	/**
-	 * @param globals    the map holding every global variable
-	 * @param serializer serializes values for saving, into a buffer it reuses
-	 * @param route      finds the storage that saves a variable, or null if it isn't saved
+	 * @param globals       the map holding every global variable
+	 * @param serializer    serializes values for saving, into a buffer it reuses
+	 * @param route         finds the storage that saves a variable, or null if it isn't saved
+	 * @param reportFailure reports what the first variable that failed to refresh in a pass threw, with a message
 	 */
 	VariableRefresher(VariableMap globals,
 	                  BufferedSerializer serializer,
-	                  Function<String, @Nullable VariableStorage> route) {
+	                  Function<String, @Nullable VariableStorage> route,
+	                  BiConsumer<Throwable, String> reportFailure) {
 		this.globals = globals;
 		this.serializer = serializer;
 		this.route = route;
+		this.reportFailure = reportFailure;
 	}
 
 	/**
@@ -105,6 +114,7 @@ final class VariableRefresher {
 		next = null;
 		pass = null;
 		nextPassAt = System.nanoTime() + TIME_BETWEEN_PASSES;
+		reportFailures();
 	}
 
 	/**
@@ -117,21 +127,54 @@ final class VariableRefresher {
 		for (Iterator<String> it = globals.nameIterator(); it.hasNext(); )
 			refresh(it.next(), all);
 		saved = all;
+		reportFailures();
 	}
 
+	/**
+	 * Queues a variable's value if it differs from what was saved, and puts its hash in the table being built.
+	 * A variable that throws is counted for {@link #reportFailures()} and left out of the table, so the next pass
+	 * tries it again.
+	 */
 	private void refresh(String name, SavedVariableHashes into) {
-		VariableStorage storage = route.apply(name);
-		if (storage == null)
-			return; // not saved: ephemeral, no storage takes it, its storage failed, or closed
-		Object value = globals.getVariable(name);
-		if (value == null)
-			return; // deleted since the iterator passed it
-		if (!serializer.serialize(value))
-			return; // a type that can't be saved
-		long hash = SavedVariableHashes.hash(serializer.type(), serializer.data(), serializer.offset(), serializer.length());
-		if (!saved.matches(name, hash)) // copied out of the buffer only now, since few values change
-			storage.queue().write(name, serializer.toValue(), NO_MAP_WRITE);
-		into.put(name, hash);
+		try {
+			VariableStorage storage = route.apply(name);
+			if (storage == null)
+				return; // not saved: ephemeral, no storage takes it, its storage failed, or closed
+			Object value = globals.getVariable(name);
+			if (value == null)
+				return; // deleted since the iterator passed it
+			if (!serializer.serialize(value))
+				return; // a type that can't be saved
+			long hash = SavedVariableHashes.hash(serializer.type(), serializer.data(), serializer.offset(), serializer.length());
+			// copied out of the buffer only now, since few values change
+			if (!saved.matches(name, hash)
+				&& !storage.queue().writeIfCurrent(name, serializer.toValue(), () -> globals.getVariable(name) == value)) {
+				// set to something else since it was read, and that change is queued instead.
+				return;
+			}
+			into.put(name, hash);
+		} catch (Throwable t) { // anything, since one bad value mustn't stop the rest from being saved
+			if (failures++ == 0) {
+				firstFailure = t;
+				firstFailedName = name;
+			}
+		}
+	}
+
+	/**
+	 * Reports the variables that threw while refreshed since the last report, if any.
+	 */
+	private void reportFailures() {
+		if (failures == 0)
+			return;
+		Throwable first = firstFailure;
+		String message = "Could not check " + failures + " variables for changes to save, starting with '"
+			+ firstFailedName + "'. Changes made to them in place won't be saved until they're set again";
+		failures = 0;
+		firstFailure = null;
+		firstFailedName = null;
+		assert first != null;
+		reportFailure.accept(first, message);
 	}
 
 }

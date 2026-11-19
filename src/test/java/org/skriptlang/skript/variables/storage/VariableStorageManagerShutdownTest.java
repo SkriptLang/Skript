@@ -154,6 +154,28 @@ public class VariableStorageManagerShutdownTest {
 		assertEquals(Map.of("a", "1"), stored(all));
 	}
 
+	@Test(timeout = 20_000)
+	public void aStorageWithAHungSaveIsntClosedAndDoesntStopTheOthers() throws InterruptedException {
+		RecordingStorage hung = storage("hung", "hung::"), all = storage("default");
+		hung.intervalMillis = 10;
+		hung.stopTimeoutMillis = 100;
+		assertTrue(loadStorages(hung, all));
+		CountDownLatch release = new CountDownLatch(1);
+		hung.blockSaves = release;
+		manager.set("hung::x", "1");
+		hung.saveStarted.await();
+		manager.set("a", "2");
+		try {
+			close();
+			assertEquals("closed while its saving thread was still saving", 0, hung.closes.get());
+			assertEquals(1, all.closes.get());
+			assertEquals(Map.of("a", "2"), stored(all));
+		} finally {
+			release.countDown();
+			hung.blockSaves = null;
+		}
+	}
+
 	@Test
 	public void flushAllSavesEveryStorage() {
 		RecordingStorage kills = storage("kills", "kills::"), all = storage("default");

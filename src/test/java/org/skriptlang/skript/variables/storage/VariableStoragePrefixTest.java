@@ -131,6 +131,9 @@ public class VariableStoragePrefixTest {
 		assertEquals(List.of("kills::"), prefixesOf("pattern: kills::.*"));
 		assertEquals(List.of("db_"), prefixesOf("pattern: db_.+"));
 		assertEquals(List.of("synced::"), prefixesOf("pattern: (?i)synced::.*"));
+		// prefixes can't ignore case, so they're lowercased, which is how case-insensitive variables are named
+		assertEquals(List.of("synced::"), VariableStorage.patternToPrefixes("(?i)Synced::.*"));
+		assertEquals(List.of("Synced::"), VariableStorage.patternToPrefixes("Synced::.*"));
 		assertEquals(List.of("a.b::"), prefixesOf("pattern: a\\.b::.*"));
 	}
 

@@ -8,6 +8,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 
@@ -222,7 +223,8 @@ public class VariableStorageSaveLoopTest {
 	public void errorFromSaveKeepsTheBatch() {
 		storage.errorSaves.set(1);
 		set("x", value(1));
-		assertThrows(Error.class, storage::flush);
+		assertFalse("an error is a failed save, like an exception", storage.flush());
+		assertTrue(storage.reportedFailures.toString(), reported("Could not save 1 variable changes"));
 
 		assertTrue(storage.flush());
 		assertEquals(variables, savedCopy());
@@ -234,10 +236,21 @@ public class VariableStorageSaveLoopTest {
 		storage.startSaving();
 		set("x", value(1));
 		await("the change is saved after the error", () -> savedEquals(variables));
-		assertTrue(storage.reportedFailures.toString(), reported("Unexpected error"));
+		assertTrue(storage.reportedFailures.toString(), reported("Could not save 1 variable changes"));
 
 		set("y", value(2));
 		await("later changes are still saved", () -> savedEquals(variables));
+	}
+
+	@Test(timeout = 20_000)
+	public void anErrorFromSaveBacksOff() throws InterruptedException {
+		storage.errorSaves.set(1);
+		set("x", value(1));
+		storage.startSaving(); // interval of 10 ms, so without backoff it would retry straight away
+		await("the change is saved after the error", () -> savedEquals(variables));
+		List<Long> attempts = storage.saveAttemptTimes;
+		long gap = TimeUnit.NANOSECONDS.toMillis(attempts.get(1) - attempts.get(0));
+		assertTrue("retried after " + gap + " ms, without backing off", gap >= 900);
 	}
 
 	// ---- flush ----
@@ -320,6 +333,32 @@ public class VariableStorageSaveLoopTest {
 		assertEquals("three final attempts", 3, storage.saveAttempts());
 		assertTrue(storage.reportedFailures.toString(), reported("Could not save 3 variable changes to the database 'test' before shutting down"));
 		assertTrue("final attempts shouldn't back off, but stopping took " + took + " ms", took < 1_000);
+	}
+
+	@Test(timeout = 20_000)
+	public void stopSavingSurvivesAnError() throws InterruptedException {
+		startSavingIdle();
+		storage.errorSaves.set(Integer.MAX_VALUE);
+		set("x", value(1));
+		assertTrue(storage.stopSaving()); // doesn't throw
+		assertTrue(storage.reportedFailures.toString(), reported("before shutting down"));
+	}
+
+	@Test(timeout = 20_000)
+	public void stopSavingGivesUpOnAHungSave() throws InterruptedException {
+		CountDownLatch release = new CountDownLatch(1);
+		storage.blockSaves = release;
+		storage.stopTimeoutMillis = 100;
+		set("x", value(1));
+		storage.startSaving();
+		storage.saveStarted.await();
+		try {
+			assertFalse("the saving thread is still in save(), so the storage mustn't be closed", storage.stopSaving());
+			assertTrue(storage.reportedFailures.toString(), reported("did not finish"));
+		} finally {
+			release.countDown();
+			storage.blockSaves = null;
+		}
 	}
 
 	@Test
