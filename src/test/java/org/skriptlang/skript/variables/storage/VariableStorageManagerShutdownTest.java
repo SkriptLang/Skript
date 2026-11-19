@@ -1,6 +1,5 @@
 package org.skriptlang.skript.variables.storage;
 
-import ch.njol.skript.log.BlockingLogHandler;
 import ch.njol.skript.variables.SerializedVariable;
 import org.junit.After;
 import org.junit.Before;
@@ -9,14 +8,15 @@ import org.skriptlang.skript.variables.VariableMap;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
+import static org.skriptlang.skript.variables.storage.ManagerTests.storage;
+import static org.skriptlang.skript.variables.storage.ManagerTests.stored;
+import static org.skriptlang.skript.variables.storage.ManagerTests.READABLE;
 
 /**
  * Tests shutting down storages with {@link VariableStorageManager#close()}, and {@link VariableStorageManager#flushAll()}.
@@ -24,18 +24,13 @@ import static org.junit.Assert.*;
  */
 public class VariableStorageManagerShutdownTest {
 
-	private static final String READABLE = "string";
-
 	private VariableMap globals;
 	private VariableStorageManager manager;
 
 	@Before
 	public void setUp() {
 		globals = VariableMap.concurrent();
-		manager = new VariableStorageManager(globals,
-			value -> value == null ? null : new SerializedVariable.Value(READABLE, String.valueOf(value).getBytes(StandardCharsets.UTF_8)),
-			(type, data) -> type.equals(READABLE) ? new String(data, StandardCharsets.UTF_8) : null,
-			Runnable::run);
+		manager = ManagerTests.manager(globals, Runnable::run);
 	}
 
 	@After
@@ -43,31 +38,12 @@ public class VariableStorageManagerShutdownTest {
 		close();
 	}
 
-	private static RecordingStorage storage(String name, String... prefixes) {
-		RecordingStorage storage = new RecordingStorage().setPrefixesForTest(prefixes.length == 0 ? null : prefixes);
-		storage.setNameForTest(name);
-		storage.intervalMillis = 3_600_000; // only the final save, unless a test flushes
-		return storage;
-	}
-
 	private boolean loadStorages(VariableStorage... storages) {
-		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
-			return manager.loadStorages(List.of(storages));
-		}
+		return ManagerTests.loadStorages(manager, storages);
 	}
 
 	private void close() {
-		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
-			manager.close();
-		}
-	}
-
-	private static Map<String, String> stored(RecordingStorage storage) {
-		Map<String, String> stored = new HashMap<>();
-		synchronized (storage.saved) {
-			storage.saved.forEach((name, value) -> stored.put(name, new String(value.data, StandardCharsets.UTF_8)));
-		}
-		return stored;
+		ManagerTests.close(manager);
 	}
 
 	@Test

@@ -23,7 +23,6 @@ import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Tag;
 import ch.njol.yggdrasil.Yggdrasil;
 import ch.njol.yggdrasil.YggdrasilInputStream;
-import ch.njol.yggdrasil.YggdrasilOutputStream;
 import com.google.common.base.Preconditions;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
@@ -742,39 +741,51 @@ public abstract class Classes {
 		// temporary
 		assert Bukkit.isPrimaryThread();
 
-		ClassInfo<?> classInfo = getSavedClassInfo(object);
-		if (classInfo == null) // value cannot be saved
-			return null;
-		object = convertForSaving(object, classInfo);
-		if (object == null)
-			return null;
-
-		try {
-			ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-			YggdrasilOutputStream yggdrasilOutputStream = Variables.yggdrasil.newOutputStream(byteOutputStream);
-
-			yggdrasilOutputStream.writeObject(object);
-			yggdrasilOutputStream.flush();
-			yggdrasilOutputStream.close();
-
-			byte[] byteArray = byteOutputStream.toByteArray();
-			byte[] start = getYggdrasilStart(classInfo);
-			for (int i = 0; i < start.length; i++)
-				assert byteArray[i] == start[i] : object + " (" + classInfo.getC().getName() + "); " + Arrays.toString(start) + ", " + Arrays.toString(byteArray);
-			byte[] byteArrayCopy = new byte[byteArray.length - start.length];
-			System.arraycopy(byteArray, start.length, byteArrayCopy, 0, byteArrayCopy.length);
-
-			Object deserialized;
-			assert equals(object,
-				deserialized = deserialize(classInfo, new ByteArrayInputStream(byteArrayCopy)))
-				: object + " (" + object.getClass() + ") != " + deserialized + " ("
-				+ (deserialized == null ? null : deserialized.getClass()) + "): " + Arrays.toString(byteArray);
-			
-			return new SerializedVariable.Value(classInfo.getCodeName(), byteArrayCopy);
-		} catch (IOException ex) { // shouldn't happen
-			Skript.exception(ex);
-			return null;
+		// one serializer is reused on the main thread, unless a value's serializer serializes another value
+		boolean reuse = !mainThreadSerializerInUse && Bukkit.getServer() != null && Bukkit.isPrimaryThread();
+		ClassesBufferedSerializer serializer;
+		if (reuse) {
+			if (mainThreadSerializer == null)
+				mainThreadSerializer = new ClassesBufferedSerializer();
+			serializer = mainThreadSerializer;
+			mainThreadSerializerInUse = true;
+		} else {
+			serializer = new ClassesBufferedSerializer();
 		}
+		try {
+			if (!serializer.serialize(object)) // value cannot be saved
+				return null;
+			SerializedVariable.Value value = serializer.toValue();
+			assert roundTrips(object, value);
+			return value;
+		} finally {
+			if (reuse)
+				mainThreadSerializerInUse = false;
+		}
+	}
+
+	// reused by serialize(Object) on the main thread, so saving a value allocates no buffer or stream
+	private static @Nullable ClassesBufferedSerializer mainThreadSerializer;
+	private static boolean mainThreadSerializerInUse;
+
+	/**
+	 * Checks that a serialized value deserializes back to what was saved. Only called in an assert.
+	 *
+	 * @param object the value that was serialized
+	 * @param value  what it was serialized to
+	 * @return true
+	 * @throws AssertionError if it deserializes to something else
+	 */
+	private static boolean roundTrips(Object object, SerializedVariable.Value value) {
+		ClassInfo<?> classInfo = getSavedClassInfo(object);
+		assert classInfo != null;
+		Object saved = convertForSaving(object, classInfo);
+		Object deserialized = deserialize(classInfo, value.data);
+		if (!equals(saved, deserialized)) {
+			throw new AssertionError(saved + " (" + (saved == null ? null : saved.getClass()) + ") != " + deserialized
+				+ " (" + (deserialized == null ? null : deserialized.getClass()) + "): " + Arrays.toString(value.data));
+		}
+		return true;
 	}
 
 	/**

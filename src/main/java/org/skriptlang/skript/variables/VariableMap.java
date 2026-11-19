@@ -45,11 +45,6 @@ import java.util.*;
 @ApiStatus.Internal
 public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVariableMap {
 
-	/**
-	 * What the name of a list variable ends with.
-	 */
-	private static final String LIST_SUFFIX = Variable.SEPARATOR + "*";
-
 	private static final String[] NO_KEYS = new String[0];
 	private static final Object[] NO_VALUES = new Object[0];
 
@@ -85,8 +80,8 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 	 * @return The value, a {@link VariableList} view for a list name, or null if the variable isn't set
 	 */
 	public @Nullable Object getVariable(String name) {
-		if (name.endsWith(LIST_SUFFIX)) {
-			VariableBranch branch = branchGet(name.substring(0, name.length() - LIST_SUFFIX.length()));
+		if (name.endsWith(Variable.LIST_SUFFIX)) {
+			VariableBranch branch = branchGet(name.substring(0, name.length() - Variable.LIST_SUFFIX.length()));
 			return branch == null || branch.childCount == 0 ? null : new View(branch, true);
 		}
 		return valueGet(name);
@@ -103,10 +98,10 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 	 * @throws IllegalArgumentException If {@code name} is a list name and {@code value} isn't null
 	 */
 	public @Nullable Object setVariable(String name, @Nullable Object value) {
-		if (name.endsWith(LIST_SUFFIX)) {
+		if (name.endsWith(Variable.LIST_SUFFIX)) {
 			if (value != null)
 				throw new IllegalArgumentException("Cannot set list variable '" + name + "' to a single value (" + value + ").");
-			setList(name.substring(0, name.length() - LIST_SUFFIX.length()), NO_KEYS, NO_VALUES);
+			setList(name.substring(0, name.length() - Variable.LIST_SUFFIX.length()), NO_KEYS, NO_VALUES);
 			return null;
 		}
 		Object previous = value == null ? valueRemove(name) : valuePut(name, value);

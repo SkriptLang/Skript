@@ -51,6 +51,9 @@ public final class VariableStorageManager {
 	private final Executor mainThread;
 	private final VariableRefresher refresher;
 
+	private static final String[] NO_KEYS = new String[0];
+	private static final Object[] NO_VALUES = new Object[0];
+
 	// registered storage types, in registration order.
 	private final List<StorageType<?>> types = new ArrayList<>();
 	// the loaded storages in config order, which is the routing and locking order.
@@ -92,24 +95,7 @@ public final class VariableStorageManager {
 		this.serializer = serializer;
 		this.deserializer = deserializer;
 		this.mainThread = mainThread;
-		this.refresher = new VariableRefresher(globals, refreshSerializer, this::route,
-			VariableStorageManager::reportRefreshFailure);
-	}
-
-	/**
-	 * Reports variables that failed to refresh. Never throws, since it's called while shutting down too.
-	 *
-	 * @param t       what the first variable that failed threw
-	 * @param message the message to log
-	 */
-	private static void reportRefreshFailure(Throwable t, String message) {
-		try {
-			//noinspection ThrowableNotThrown
-			Skript.exception(t, message);
-		} catch (Throwable logFailure) { // logging must never stop the refresh
-			System.err.println(message);
-			t.printStackTrace();
-		}
+		this.refresher = new VariableRefresher(globals, refreshSerializer, this::route, VariableStorage::report);
 	}
 
 	// ---------------------------- REGISTRATION ----------------------------
@@ -209,13 +195,28 @@ public final class VariableStorageManager {
 	 * the name is ephemeral, no storage accepts it, the storage that does failed to load, or the storages are closed
 	 */
 	private @Nullable VariableStorage route(String name) {
-		if (name.startsWith(Variable.EPHEMERAL_VARIABLE_TOKEN) || closed)
+		if (closed)
 			return null;
-		for (VariableStorage storage : storages) {
-			if (storage.accept(name)) {
-				// a storage that failed to load still owns its names, so they don't end up saved somewhere else
-				return storage.loadFailed ? null : storage;
-			}
+		VariableStorage owner = ownerAmong(storages, name);
+		// a storage that failed to load still owns its names, so they don't end up saved somewhere else
+		return owner == null || owner.loadFailed ? null : owner;
+	}
+
+	/**
+	 * The routing rule, for every place that needs it: a name is owned by the first storage, in config order,
+	 * that accepts it, and names starting with {@code -} are never owned.
+	 *
+	 * @param candidates the storages to look in, in config order. Failed storages are included, since they still
+	 *                   own their names
+	 * @param name       the variable's name
+	 * @return the storage that owns the name, which may have failed to load, or null if none does
+	 */
+	private static @Nullable VariableStorage ownerAmong(List<VariableStorage> candidates, String name) {
+		if (name.startsWith(Variable.EPHEMERAL_VARIABLE_TOKEN))
+			return null;
+		for (VariableStorage storage : candidates) {
+			if (storage.accept(name))
+				return storage;
 		}
 		return null;
 	}
@@ -232,12 +233,12 @@ public final class VariableStorageManager {
 	 * @throws IllegalArgumentException if {@code name} is a list's name and {@code value} isn't null
 	 */
 	public void set(String name, @Nullable Object value) {
-		if (name.endsWith(Variable.SEPARATOR + "*")) {
+		if (name.endsWith(Variable.LIST_SUFFIX)) {
 			if (value != null) {
 				throw new IllegalArgumentException("Cannot set a list to a non-null value! (var: '" + name + "', value: " + value + ")");
 			}
-			// clear list
-			clearList(name.substring(0, name.length() - 1));
+			// clearing a list is replacing it with nothing
+			setList(name.substring(0, name.length() - Variable.LIST_SUFFIX.length()), NO_KEYS, NO_VALUES);
 			return;
 		}
 		VariableStorage storage = route(name);
@@ -300,32 +301,9 @@ public final class VariableStorageManager {
 	}
 
 	/**
-	 * Deletes a list from the map and records the clear for every running storage that may save part of it,
-	 * under all of their exclusive locks, so that no single write can land between the map and the queues.
-	 *
-	 * @param listPrefix the list's name with {@code ::} instead of {@code ::*} at the end, such as {@code a::}
-	 */
-	private void clearList(String listPrefix) {
-		// we have to find all storages that can hold parts of this list
-		// (e.g. clear a::*, storage 1 holds a::b::*, storage 2 holds a::c::*, both need to be involved here).
-		List<VariableStorage> involvedStorages = involvedIn(listPrefix);
-		if (involvedStorages.isEmpty()) {
-			globals.setVariable(listPrefix + "*", null);
-			return;
-		}
-		underLocks(involvedStorages, () -> {
-			// clear each
-			for (VariableStorage storage : involvedStorages) {
-				if (!storage.loadFailed)
-					storage.queue().recordClear(listPrefix, true);
-			}
-			globals.setVariable(listPrefix + "*", null);
-		});
-	}
-
-	/**
 	 * Replaces a global list with the given keys and values, and queues the same changes for saving as deleting
-	 * the list and setting each element would, under the exclusive locks of every storage involved.
+	 * the list and setting each element would, under the exclusive locks of every storage involved, so that
+	 * no single write can land between the map and the queues. With no keys, this deletes the list.
 	 * The values are serialized on the calling thread, before any lock is taken.
 	 *
 	 * @param listName the list's name, without {@code ::*}, lowercased if variables are case-insensitive
@@ -352,17 +330,8 @@ public final class VariableStorageManager {
 		// determine owner for each key
 		for (int i = 0; i < keys.length; i++) {
 			names[i] = listPrefix + keys[i];
-			if (onlyOwner != null) {
-				owners[i] = onlyOwner;
-			} else {
-				// storages that aren't involved can't accept any name in the list, so the owner is one of these
-				for (VariableStorage storage : involvedStorages) {
-					if (storage.accept(names[i])) {
-						owners[i] = storage;
-						break;
-					}
-				}
-			}
+			// storages that aren't involved can't accept any name in the list, so the owner is one of these
+			owners[i] = onlyOwner != null ? onlyOwner : ownerAmong(involvedStorages, names[i]);
 			// owned by a storage that failed to load: not saved
 			if (owners[i] != null && owners[i].loadFailed)
 				owners[i] = null;
@@ -696,9 +665,19 @@ public final class VariableStorageManager {
 	private static void failed(VariableStorage storage) {
 		storage.loadFailed = true;
 		storage.stopReceiving();
+		closeQuietly(storage);
+	}
+
+	/**
+	 * Closes a storage and releases its file, reporting anything it throws instead of passing it on,
+	 * so that one storage failing to close never stops the others.
+	 *
+	 * @param storage the storage to close
+	 */
+	private static void closeQuietly(VariableStorage storage) {
 		try {
 			storage.close();
-		} catch (RuntimeException e) {
+		} catch (Throwable e) {
 			//noinspection ThrowableNotThrown
 			Skript.exception(e, "Failed to close the database '" + storage.getName() + "'");
 		} finally {
@@ -759,7 +738,7 @@ public final class VariableStorageManager {
 		@Override
 		public void loaded(String name, SerializedVariable.Value value) {
 			// older versions could save values under list names, which can't exist
-			if (name.endsWith(Variable.SEPARATOR + "*")) {
+			if (name.endsWith(Variable.LIST_SUFFIX)) {
 				Skript.warning("Skipping the stored variable '" + name + "', since variables can't have the same name as a list.");
 				return;
 			}
@@ -808,17 +787,10 @@ public final class VariableStorageManager {
 				//noinspection ThrowableNotThrown
 				Skript.exception(e, "Failed to save the database '" + storage.getName() + "' while shutting down");
 			}
-			if (!stopped) {
+			if (stopped) {
+				closeQuietly(storage);
+			} else {
 				// its saving thread is stuck in save(), so closing would pull the storage out from under it
-				storage.releaseFile();
-				continue;
-			}
-			try {
-				storage.close();
-			} catch (Throwable e) {
-				//noinspection ThrowableNotThrown
-				Skript.exception(e, "Failed to close the database '" + storage.getName() + "'");
-			} finally {
 				storage.releaseFile();
 			}
 		}
@@ -938,13 +910,7 @@ public final class VariableStorageManager {
 		 * or null if the name is ephemeral or no storage accepts it
 		 */
 		private @Nullable VariableStorage ownerOf(String name) {
-			if (name.startsWith(Variable.EPHEMERAL_VARIABLE_TOKEN))
-				return null;
-			for (VariableStorage storage : configured) {
-				if (storage.accept(name))
-					return storage;
-			}
-			return null;
+			return ownerAmong(configured, name);
 		}
 
 		/**

@@ -252,9 +252,9 @@ public class Variables {
 	 */
 	@Nullable
 	public static Object removeLocals(Event event) {
-		if (event instanceof LocalVariableHoldingEvent localVariableHoldingEvent) {
-			VariableMap map = localVariableHoldingEvent.getLocals();
-			localVariableHoldingEvent.setLocals(null);
+		if (event instanceof LocalVariableHoldingEvent holdingEvent) {
+			VariableMap map = holdingEvent.getLocals();
+			holdingEvent.setLocals(null);
 			return map;
 		}
 		return localVariables.remove(event);
@@ -291,7 +291,7 @@ public class Variables {
 	 * @return the copy.
 	 */
 	public static @Nullable Object copyLocalVariables(Event event) {
-		VariableMap from = event instanceof LocalVariableHoldingEvent lvEvent ? lvEvent.getLocals() : localVariables.get(event);
+		VariableMap from = getLocals(event);
 		if (from == null)
 			return null;
 
@@ -337,7 +337,7 @@ public class Variables {
 		}
 
 		if (local) {
-			VariableMap map = event instanceof LocalVariableHoldingEvent lvEvent ? lvEvent.getLocals() : localVariables.get(event);
+			VariableMap map = getLocals(event);
 			if (map == null)
 				return null;
 
@@ -446,7 +446,7 @@ public class Variables {
 		// we do this even for locals because of conversions like Slot->Itemstack
 		if (value != null) {
 			// names are computed at runtime, so {a::%arg%} can end up as a list name
-			if (name.endsWith(Variable.SEPARATOR + "*"))
+			if (name.endsWith(Variable.LIST_SUFFIX))
 				return;
 
 			ClassInfo<?> ci = Classes.getSuperClassInfo(value.getClass());
@@ -487,15 +487,33 @@ public class Variables {
 	 *
 	 * @param listName The full name of the list, without ::* on the end.
 	 * @param keys     The keys to use for the list's values, in any order. If a key repeats, the last value wins.
-	 * @param values   The values to use in the list, one per key. This array is not modified.
+	 * @param values   The values to use in the list, one per key. A null value leaves its key out of the list.
+	 *                 This array is not modified.
 	 */
-	public static void setList(String listName, @NotNull String @NotNull [] keys, @NotNull Object @NotNull [] values, @Nullable Event event, boolean local) {
+	public static void setList(String listName, @NotNull String @NotNull [] keys, @Nullable Object @NotNull [] values, @Nullable Event event, boolean local) {
 		assert keys.length == values.length : keys.length + " keys, " + values.length + " values";
+		int nonNull = 0;
+		for (Object value : values) {
+			if (value != null)
+				nonNull++;
+		}
+		if (nonNull < values.length) { // copied, so the caller's arrays are untouched
+			String[] keptKeys = new String[nonNull];
+			Object[] keptValues = new Object[nonNull];
+			for (int i = 0, kept = 0; i < values.length; i++) {
+				if (values[i] != null) {
+					keptKeys[kept] = keys[i];
+					keptValues[kept++] = values[i];
+				}
+			}
+			keys = keptKeys;
+			values = keptValues;
+		}
 		// keys like a::b (from keyed recursive lists) make nested lists, which the bulk path can't build.
 		// list names ending in : are the same, as a:: + b splits into a and :b, so that's really a different list.
 		// a key of * would be a value named like the list, which setVariable drops.
 		if (hasUnsupportedKey(keys) || listName.endsWith(":")) {
-			setVariable(listName + Variable.SEPARATOR + "*", null, event, local);
+			setVariable(listName + Variable.LIST_SUFFIX, null, event, local);
 			for (int i = 0; i < keys.length; i++)
 				setVariable(listName + Variable.SEPARATOR + keys[i], values[i], event, local);
 			return;
@@ -509,7 +527,6 @@ public class Variables {
 		Class<?> lastClass = null;
 		boolean copied = false;
 		for (int i = 0; i < values.length; i++) {
-			assert values[i] != null : "null value for key " + keys[i];
 			// Check if conversion is needed due to ClassInfo#getSerializeAs
 			// we do this even for locals because of conversions like Slot->ItemStack
 			Class<?> valueClass = values[i].getClass();
@@ -575,6 +592,16 @@ public class Variables {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * @param event the event, which holds its own local variables if it's a {@link LocalVariableHoldingEvent}
+	 * @return the event's local variables, or null if it has none yet
+	 */
+	private static @Nullable VariableMap getLocals(@Nullable Event event) {
+		if (event instanceof LocalVariableHoldingEvent holdingEvent)
+			return holdingEvent.getLocals();
+		return event == null ? null : localVariables.get(event);
 	}
 
 	// helper to get/create a local variable map

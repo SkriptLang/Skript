@@ -389,11 +389,12 @@ public abstract class VariableStorage implements Closeable {
 	 *
 	 * @param intervalMillis the time between backups, or 0 for no backups
 	 * @param toKeep         how many backups to keep, -1 to keep all of them,
-	 *                       or 0 for no backups and to delete the old ones when saving starts
+	 *                       or 0 for no backups and to delete the old ones when saving starts.
+	 *                       {@link StorageBackups} turns backups off for 0, whatever the interval
 	 */
 	void setBackupOptions(long intervalMillis, int toKeep) {
 		backupsToKeep = toKeep;
-		backupIntervalNanos = toKeep == 0 ? 0 : TimeUnit.MILLISECONDS.toNanos(intervalMillis);
+		backupIntervalNanos = TimeUnit.MILLISECONDS.toNanos(intervalMillis);
 	}
 
 	/**
@@ -678,7 +679,7 @@ public abstract class VariableStorage implements Closeable {
 	 * @throws IllegalArgumentException if {@code name} is a list, such as {@code a::*}
 	 */
 	protected final void reportUpdated(String name, SerializedVariable.@Nullable Value value) {
-		if (name.endsWith(Variable.SEPARATOR + "*"))
+		if (name.endsWith(Variable.LIST_SUFFIX))
 			throw new IllegalArgumentException("Can't update a list as a single variable: " + name);
 		handler().updated(this, name, value);
 	}
@@ -697,7 +698,7 @@ public abstract class VariableStorage implements Closeable {
 	 * @throws IllegalArgumentException if {@code listName} doesn't end with {@code ::*}
 	 */
 	protected final void reportCleared(String listName) {
-		if (!listName.endsWith(Variable.SEPARATOR + "*"))
+		if (!listName.endsWith(Variable.LIST_SUFFIX))
 			throw new IllegalArgumentException("Not a list name: " + listName);
 		handler().cleared(this, listName);
 	}
@@ -890,6 +891,17 @@ public abstract class VariableStorage implements Closeable {
 	 * @param message the message to log
 	 */
 	void reportSaveFailure(@Nullable Throwable t, String message) {
+		report(t, message);
+	}
+
+	/**
+	 * Logs a failure. Never throws, even if logging fails, so it's safe to call on the saving thread and while
+	 * shutting down: if logging throws, the message is printed to the console instead.
+	 *
+	 * @param t       the exception to report, or null to log only the message as an error
+	 * @param message the message to log
+	 */
+	static void report(@Nullable Throwable t, String message) {
 		try {
 			if (t == null) {
 				Skript.error(message);
