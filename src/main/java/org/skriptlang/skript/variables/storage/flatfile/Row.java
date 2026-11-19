@@ -17,6 +17,16 @@ import java.io.IOException;
 record Row(String name, String type, String hex, String line) {
 
 	/**
+	 * Checks whether a line holds a row, rather than being blank or a comment.
+	 *
+	 * @param line The line, trimmed
+	 * @return Whether it holds a row, valid or not
+	 */
+	static boolean isRow(String line) {
+		return !line.isEmpty() && !line.startsWith("#");
+	}
+
+	/**
 	 * Splits a line into a row.
 	 *
 	 * @param line The line, trimmed

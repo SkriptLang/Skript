@@ -99,36 +99,39 @@ final class VariableFile {
 	 * @throws IOException If the file can't be read, or is from before Skript 2.1
 	 */
 	Layout readLayout() throws IOException {
-		long size = Files.size(path);
-		long compactedEnd = readHeader();
-		if (compactedEnd >= 0 && !isCompactedEnd(compactedEnd, size))
-			compactedEnd = -1;
-		return new Layout(compactedEnd, size, !endsWithNewline(size));
+		try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)) {
+			long size = channel.size();
+			long compactedEnd = readHeader(channel);
+			if (compactedEnd >= 0 && !isCompactedEnd(channel, compactedEnd, size))
+				compactedEnd = -1;
+			return new Layout(compactedEnd, size, !endsWithNewline(channel, size));
+		}
 	}
 
 	/**
 	 * Reads the comment lines at the start of the file, checks its version, and finds where its compacted rows end.
 	 *
+	 * @param channel The file, open for reading at its start. It's left open
 	 * @return The offset from the {@link CsvFormat#COMPACTED_HEADER} line, or -1 if there's no valid one
 	 * @throws IOException If the file can't be read, or is from before Skript 2.1
 	 */
-	private long readHeader() throws IOException {
+	private long readHeader(FileChannel channel) throws IOException {
 		long compactedEnd = -1;
 		boolean versionChecked = false;
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(path), CsvFormat.CHARSET))) {
-			String line;
-			int lineNumber = 0;
-			while ((line = reader.readLine()) != null) {
-				lineNumber++;
-				line = line.trim();
-				if (line.startsWith(CsvFormat.VERSION_HEADER) && !versionChecked) {
-					versionChecked = true;
-					checkVersion(line, lineNumber);
-				} else if (line.startsWith(CsvFormat.COMPACTED_HEADER)) {
-					compactedEnd = parseOffset(line.substring(CsvFormat.COMPACTED_HEADER.length()).trim());
-				} else if (line.equals(CsvFormat.COMPACTED_END) || !line.isEmpty() && !line.startsWith("#")) {
-					break; // the header is over
-				}
+		// not closed, since that would close the channel
+		BufferedReader reader = new BufferedReader(new InputStreamReader(Channels.newInputStream(channel), CsvFormat.CHARSET));
+		String line;
+		int lineNumber = 0;
+		while ((line = reader.readLine()) != null) {
+			lineNumber++;
+			line = line.trim();
+			if (line.startsWith(CsvFormat.VERSION_HEADER) && !versionChecked) {
+				versionChecked = true;
+				checkVersion(line, lineNumber);
+			} else if (line.startsWith(CsvFormat.COMPACTED_HEADER)) {
+				compactedEnd = parseOffset(line.substring(CsvFormat.COMPACTED_HEADER.length()).trim());
+			} else if (line.equals(CsvFormat.COMPACTED_END) || Row.isRow(line)) {
+				break; // the header is over
 			}
 		}
 		return compactedEnd;
@@ -175,41 +178,51 @@ final class VariableFile {
 	 * Checks that the {@link CsvFormat#COMPACTED_END} line, on a line of its own, ends exactly at the offset.
 	 * If it does, nothing before it changed since we wrote the file, so we can trust the compacted rows.
 	 *
-	 * @param offset The offset the header gives
-	 * @param size   The size of the file
+	 * @param channel The file, open for reading
+	 * @param offset  The offset the header gives
+	 * @param size    The size of the file
 	 * @return Whether the compacted rows end at the offset
 	 * @throws IOException If the file can't be read
 	 */
-	private boolean isCompactedEnd(long offset, long size) throws IOException {
+	private static boolean isCompactedEnd(FileChannel channel, long offset, long size) throws IOException {
 		byte[] expected = ("\n" + CsvFormat.COMPACTED_END + "\n").getBytes(CsvFormat.CHARSET);
 		if (offset < expected.length || offset > size)
 			return false;
-		ByteBuffer actual = ByteBuffer.allocate(expected.length);
-		try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)) {
-			while (actual.hasRemaining()) {
-				if (channel.read(actual, offset - expected.length + actual.position()) < 0)
-					return false;
-			}
-		}
-		return Arrays.equals(actual.array(), expected);
+		return Arrays.equals(readAt(channel, offset - expected.length, expected.length), expected);
 	}
 
 	/**
 	 * Checks whether the file's last row is complete. Every row is written with its line break,
 	 * so a file that doesn't end with one was cut off mid-write.
 	 *
-	 * @param size The size of the file
+	 * @param channel The file, open for reading
+	 * @param size    The size of the file
 	 * @return Whether the file is empty or ends with a line break
 	 * @throws IOException If the file can't be read
 	 */
-	private boolean endsWithNewline(long size) throws IOException {
+	private static boolean endsWithNewline(FileChannel channel, long size) throws IOException {
 		if (size == 0)
 			return true;
-		try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)) {
-			ByteBuffer last = ByteBuffer.allocate(1);
-			channel.read(last, size - 1);
-			return last.get(0) == '\n';
+		byte[] last = readAt(channel, size - 1, 1);
+		return last != null && last[0] == '\n';
+	}
+
+	/**
+	 * Reads some bytes of the file, without moving the channel's position.
+	 *
+	 * @param channel The file, open for reading
+	 * @param offset  Where the bytes start
+	 * @param length  How many to read
+	 * @return The bytes, or null if the file ends before them
+	 * @throws IOException If the file can't be read
+	 */
+	private static byte @Nullable [] readAt(FileChannel channel, long offset, int length) throws IOException {
+		ByteBuffer buffer = ByteBuffer.allocate(length);
+		while (buffer.hasRemaining()) {
+			if (channel.read(buffer, offset + buffer.position()) < 0)
+				return null;
 		}
+		return buffer.array();
 	}
 
 	/**
@@ -278,7 +291,9 @@ final class VariableFile {
 		long actual = attributes.size();
 		if (mayBeLonger ? actual < size : actual != size)
 			return false;
-		return isCompactedEnd(compactedEnd, actual);
+		try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)) {
+			return isCompactedEnd(channel, compactedEnd, actual);
+		}
 	}
 
 	// ---------------------------- APPENDING ----------------------------
@@ -323,14 +338,22 @@ final class VariableFile {
 	 * @throws IOException If it can't be synced or closed
 	 */
 	void closeAppend() throws IOException {
-		FileChannel appender = this.appender;
-		try (appender) {
-			this.appender = null;
-			appenderKey = null;
-			if (appender == null)
-				return;
-			appender.force(false);
+		try (FileChannel appender = takeAppender()) {
+			if (appender != null)
+				appender.force(false);
 		}
+	}
+
+	/**
+	 * Unsets the file opened for appending, so it's never closed twice.
+	 *
+	 * @return The file opened for appending, or null if it isn't open
+	 */
+	private @Nullable FileChannel takeAppender() {
+		FileChannel appender = this.appender;
+		this.appender = null;
+		appenderKey = null;
+		return appender;
 	}
 
 	// ---------------------------- REWRITING ----------------------------
@@ -382,9 +405,7 @@ final class VariableFile {
 	 * That way a broken channel, like one an append failed on, can't stop the rewrite that recovers from it.
 	 */
 	private void discardAppend() {
-		FileChannel appender = this.appender;
-		this.appender = null;
-		appenderKey = null;
+		FileChannel appender = takeAppender();
 		if (appender == null)
 			return;
 		try {

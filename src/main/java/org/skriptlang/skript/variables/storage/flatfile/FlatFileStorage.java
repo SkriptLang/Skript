@@ -172,8 +172,9 @@ public class FlatFileStorage extends VariableStorage {
 				report.print(file.name());
 				file.backUp();
 			}
-			// rewrite the file in a proper manner. the problematic rows are left out the same way again
-			rewrite(changesFrom, changes, false);
+			// rewrite the file in a proper manner. the problematic rows are left out the same way again,
+			// and loading reported them already
+			rewrite(rows -> merge(changesFrom, changes, new LoadReport(), rows));
 		}
 	}
 
@@ -193,8 +194,7 @@ public class FlatFileStorage extends VariableStorage {
 	@Override
 	protected synchronized void save(Batch batch) throws IOException {
 		// handle possible grimy fingers touching our precious files
-		if (changedOutside())
-			reopenChanged();
+		reopenIfChangedOutside();
 		StringBuilder rows = new StringBuilder();
 		int added = 0;
 		// append clears to buffer
@@ -272,7 +272,7 @@ public class FlatFileStorage extends VariableStorage {
 	private void compactOnce(CharSequence extraRows) throws IOException {
 		Changes changes = appendedChanges();
 		changes.read(new BufferedReader(new StringReader(extraRows.toString())), false, new LoadReport());
-		rewrite(baseEnd, changes, true);
+		rewrite(sink -> mergeOurs(baseEnd, changes, sink));
 	}
 
 	/**
@@ -288,33 +288,23 @@ public class FlatFileStorage extends VariableStorage {
 		try (BufferedReader appended = file().read(baseEnd, fileLength)) {
 			changes.read(appended, false, report);
 		}
-		// we wrote these rows ourselves, after loading checked the file, so a problem means something else changed it
-		if (!report.isEmpty())
-			throw new ChangedOutsideException();
+		checkOurs(report);
 		return changes;
 	}
 
 	/**
-	 * Rewrites the file as only compacted rows: the ones it has now, with the changes merged in.
+	 * Rewrites the file as only compacted rows, and opens it for appending.
 	 *
-	 * @param compactedEnd Where the file's compacted rows end, or 0 if it has none
-	 * @param changes      The changes to merge in
-	 * @param ours         Whether we wrote the compacted rows since loading, so they must all be readable.
-	 *                     Otherwise, rows that can't be read are left out, since loading reported them already
-	 * @throws ChangedOutsideException If the compacted rows are ours, but one of them can't be read.
+	 * @param rows The rows the file should hold, in the order of their names. They may read from the file,
+	 *             which is only replaced after
+	 * @throws ChangedOutsideException If the rows come from {@link #mergeOurs}, and one of them can't be read.
 	 *                                 The file isn't replaced then
 	 * @throws IOException             If reading or writing fails. The old file is only replaced once the new one is complete
 	 */
-	private void rewrite(long compactedEnd, Changes changes, boolean ours) throws IOException {
+	private void rewrite(Row.Source rows) throws IOException {
 		rewriteRequired = true; // until it's done
 		VariableFile file = file();
-		VariableFile.Written written = file.rewrite(sink -> {
-			if (ours) {
-				mergeOurs(compactedEnd, changes, sink);
-			} else {
-				merge(compactedEnd, changes, new LoadReport(), sink);
-			}
-		});
+		VariableFile.Written written = file.rewrite(rows);
 		// the file is replaced now, so this has to describe it even if opening it fails, which the next save retries
 		lastRewrite = System.nanoTime();
 		baseRows = written.rows();
@@ -354,6 +344,16 @@ public class FlatFileStorage extends VariableStorage {
 	private void mergeOurs(long compactedEnd, Changes changes, Row.Sink sink) throws IOException {
 		LoadReport report = new LoadReport();
 		merge(compactedEnd, changes, report, sink);
+		checkOurs(report);
+	}
+
+	/**
+	 * Checks the problems found while reading rows we wrote ourselves since loading, after loading checked the file.
+	 *
+	 * @param report The problems found
+	 * @throws ChangedOutsideException If there are any, since then something else changed the file
+	 */
+	private static void checkOurs(LoadReport report) throws ChangedOutsideException {
 		if (!report.isEmpty())
 			throw new ChangedOutsideException();
 	}
@@ -377,8 +377,7 @@ public class FlatFileStorage extends VariableStorage {
 	 */
 	@Override
 	protected synchronized void writeBackup(OutputStream out) throws IOException {
-		if (changedOutside())
-			reopenChanged();
+		reopenIfChangedOutside();
 		try {
 			Changes changes = appendedChanges();
 			VariableFile.writeBackup(out, sink -> mergeOurs(baseEnd, changes, sink));
@@ -394,12 +393,13 @@ public class FlatFileStorage extends VariableStorage {
 	/**
 	 * Checks whether something else changed the file since we last wrote it: it was replaced or deleted, isn't the size
 	 * we left it at, or its compacted rows don't end where we left them. A failed append may have left more at the end.
+	 * If so, it's {@link #reopenChanged() read again}.
 	 *
-	 * @return Whether the file was changed
-	 * @throws IOException If the file can't be read
+	 * @throws IOException If the file can't be read, or can't be read again or backed up, or a new one can't be written
 	 */
-	private boolean changedOutside() throws IOException {
-		return !file().isAsWritten(baseEnd, fileLength, rewriteRequired);
+	private void reopenIfChangedOutside() throws IOException {
+		if (!file().isAsWritten(baseEnd, fileLength, rewriteRequired))
+			reopenChanged();
 	}
 
 	/**
@@ -422,7 +422,7 @@ public class FlatFileStorage extends VariableStorage {
 		if (file.exists()) {
 			open(row -> {}); // the variables in memory are what we save from now on, so these aren't passed on
 		} else {
-			rewrite(0, new Changes(), false);
+			rewrite(sink -> {}); // an empty file
 		}
 		requestResave();
 	}
@@ -436,8 +436,8 @@ public class FlatFileStorage extends VariableStorage {
 	 */
 	@Override
 	protected synchronized void checkIntegrity() throws IOException {
-		if (loaded && changedOutside())
-			reopenChanged();
+		if (loaded)
+			reopenIfChangedOutside();
 	}
 
 	/**
@@ -466,8 +466,7 @@ public class FlatFileStorage extends VariableStorage {
 			return; // never loaded
 		if (loaded) {
 			try {
-				if (changedOutside())
-					reopenChanged();
+				reopenIfChangedOutside();
 				if (rewriteRequired || appendedRows > 0)
 					compact("");
 			} catch (IOException e) {
