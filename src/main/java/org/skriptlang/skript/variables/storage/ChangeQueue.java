@@ -134,23 +134,57 @@ final class ChangeQueue {
 
 	/**
 	 * Applies a change that came from the storage itself, such as another server writing to the same database.
-	 * Runs {@code mapWrite} while the name is locked, and drops any unsaved local change to it,
-	 * so that the storage's newer value is not overwritten. Does not queue anything.
+	 * Does not queue anything.
+	 * <p>
+	 * With {@link VariableStorage.ReportPolicy#REPLACE_LOCAL}, runs {@code mapWrite} while the name is locked
+	 * and drops any unsaved local change to it, so that the storage's value is not overwritten.
+	 * With {@link VariableStorage.ReportPolicy#KEEP_LOCAL}, does nothing if the name has an unsaved local change,
+	 * or an undrained local clear covers it, since that will be saved after the storage's value.
+	 * A pending change dropped by a later clear the storage reported itself doesn't count, as draining drops it.
+	 * Otherwise runs {@code mapWrite} as above. Once the queue is closed, nothing is unsaved, so it always runs.
 	 *
 	 * @param name     the variable's name
+	 * @param policy   what to do if the variable has an unsaved local change
 	 * @param mapWrite changes the variable in Skript's variables; must not call into any storage
+	 * @return whether {@code mapWrite} ran
 	 */
-	void externalWrite(String name, Runnable mapWrite) {
+	boolean externalWrite(String name, VariableStorage.ReportPolicy policy, Runnable mapWrite) {
 		long stamp = order.readLock();
 		try {
 			if (closed) { // nothing is queued to drop
 				mapWrite.run();
-				return;
+				return true;
 			}
+			// REPLACE_LOCAL - remove any pending change to this var, and add to global map like normal
+			if (policy == VariableStorage.ReportPolicy.REPLACE_LOCAL) {
+				pending.compute(name, (key, old) -> {
+					mapWrite.run();
+					return null;
+				});
+				return true;
+			}
+			// KEEP_LOCAL - check for pending local changes first
+			// any clears cover this var?
+			long latestCover = -1;
+			for (Clear clear : clears) {
+				if (!name.startsWith(clear.prefix()))
+					continue;
+				if (clear.save()) // a local clear covers it and will be saved after the reported change
+					return false;
+				latestCover = Math.max(latestCover, clear.epoch());
+			}
+			long cover = latestCover;
+			boolean[] applied = new boolean[1];
+			// this checks whether there's a value already in pending, otherwise it applies like normal.
 			pending.compute(name, (key, old) -> {
+				// ensure we ignore any changes before the latest clear
+				if (old != null && old.epoch() > cover)
+					return old; // a live unsaved local change: keep it, skip the report
 				mapWrite.run();
+				applied[0] = true;
 				return null;
 			});
+			return applied[0];
 		} finally {
 			order.unlockRead(stamp);
 		}
