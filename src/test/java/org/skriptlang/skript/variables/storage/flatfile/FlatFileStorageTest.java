@@ -636,7 +636,8 @@ public class FlatFileStorageTest {
 		assertEquals(Map.of("a", "1", "c", "3", "d", "4"), loadedFromFile());
 		List<Path> backups = backups();
 		assertEquals("the row was left out, so the file was backed up first", 1, backups.size());
-		assertEquals(damaged, read(backups.get(0)));
+		// closing refreshes before it compacts, which may save d again, so the backup can have more rows after these
+		assertTrue(read(backups.get(0)).startsWith(damaged));
 	}
 
 	@Test
