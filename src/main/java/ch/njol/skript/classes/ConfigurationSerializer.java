@@ -3,6 +3,7 @@ package ch.njol.skript.classes;
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -48,8 +49,27 @@ public class ConfigurationSerializer<T extends ConfigurationSerializable> extend
 		return t;
 	}
 	
+	// reused on the main thread, since creating a YamlConfiguration creates a whole YAML engine, which costs more than
+	// saving most values with it. Off the main thread, and if it's somehow already in use, a new one is created.
+	private static @Nullable YamlConfiguration mainThreadYaml;
+	private static boolean mainThreadYamlInUse;
+
 	public static String serializeCS(final ConfigurationSerializable o) {
-		final YamlConfiguration y = new YamlConfiguration();
+		if (mainThreadYamlInUse || Bukkit.getServer() == null || !Bukkit.isPrimaryThread())
+			return saveToString(new YamlConfiguration(), o);
+		YamlConfiguration y = mainThreadYaml;
+		if (y == null)
+			mainThreadYaml = y = new YamlConfiguration();
+		mainThreadYamlInUse = true;
+		try {
+			return saveToString(y, o);
+		} finally {
+			y.set("value", null); // don't keep the value alive
+			mainThreadYamlInUse = false;
+		}
+	}
+
+	private static String saveToString(YamlConfiguration y, ConfigurationSerializable o) {
 		y.set("value", o);
 		return "" + y.saveToString();
 	}
