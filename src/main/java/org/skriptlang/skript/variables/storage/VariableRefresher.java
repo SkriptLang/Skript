@@ -4,10 +4,15 @@ import ch.njol.skript.variables.SerializedVariable;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.variables.VariableMap;
 
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Saves variables directly from memory, to catch cases like an item renamed in place
@@ -15,6 +20,11 @@ import java.util.function.Function;
  * serializes each one, and queues it for its storage only if it differs from what was saved for it last,
  * which {@link SavedVariableHashes} remembers. Values are serialized into a reused buffer and hashed there,
  * and only copied out when they changed, so checking the many that didn't allocates next to nothing.
+ * <p>
+ * A storage that lost some of what it saved {@link VariableStorage#requestResave() requests a resave}. The next pass
+ * then queues every one of that storage's variables, whatever their hash, and starts right away instead of waiting
+ * for its interval. A running pass is never restarted for a request, so frequent requests can't stop passes from
+ * finishing: a request made during a pass is handled by the next one, which starts as soon as it ends.
  * <p>
  * Only used on the main thread. A value is only queued if it's still the variable's current one once its storage
  * has the name locked, so a set racing the refresh from another thread is never overwritten by the older value.
@@ -34,7 +44,11 @@ final class VariableRefresher {
 	private final VariableMap globals; // a reference, we don't own it! so we should treat it as readonly
 	private final BufferedSerializer serializer;
 	private final Function<String, @Nullable VariableStorage> route;
+	private final Supplier<List<VariableStorage>> storages;
 	private final BiConsumer<Throwable, String> reportFailure;
+
+	private Set<VariableStorage> requestedRewrite = identitySet(); // requested a resave, waiting for the next pass
+	private Set<VariableStorage> forcedRewrite = identitySet();    // every variable is queued by the running pass
 
 	// variables that threw while refreshed during the running pass, reported once it ends
 	private int failures;
@@ -45,16 +59,33 @@ final class VariableRefresher {
 	 * @param globals       the map holding every global variable
 	 * @param serializer    serializes values for saving, into a buffer it reuses
 	 * @param route         finds the storage that saves a variable, or null if it isn't saved
+	 * @param storages      gives the storages, to check which of them requested a resave
 	 * @param reportFailure reports what the first variable that failed to refresh in a pass threw, with a message
 	 */
 	VariableRefresher(VariableMap globals,
 	                  BufferedSerializer serializer,
 	                  Function<String, @Nullable VariableStorage> route,
+	                  Supplier<List<VariableStorage>> storages,
 	                  BiConsumer<Throwable, String> reportFailure) {
 		this.globals = globals;
 		this.serializer = serializer;
 		this.route = route;
+		this.storages = storages;
 		this.reportFailure = reportFailure;
+	}
+
+	private static Set<VariableStorage> identitySet() {
+		return Collections.newSetFromMap(new IdentityHashMap<>());
+	}
+
+	/**
+	 * Takes the resave requests the storages made since the last call.
+	 */
+	private void collectRequests() {
+		for (VariableStorage storage : storages.get()) {
+			if (storage.takeResaveRequest())
+				requestedRewrite.add(storage);
+		}
 	}
 
 	/**
@@ -88,19 +119,23 @@ final class VariableRefresher {
 	}
 
 	/**
-	 * Starts a pass if one is due, then refreshes variables until the deadline.
+	 * Starts a pass if one is due or a storage requested a resave, then refreshes variables until the deadline.
 	 *
 	 * @param now      {@link System#nanoTime()} now
 	 * @param deadline the {@link System#nanoTime()} to stop by
 	 */
 	void tick(long now, long deadline) {
+		collectRequests();
 		if (pass == null) {
 			if (!scheduled) { // the first tick after loading. everything was just loaded, so wait a full interval
 				nextPassAt = now + TIME_BETWEEN_PASSES;
 				scheduled = true;
 			}
-			if (now - nextPassAt < 0) // compared by difference, since nanoTime can overflow
+			if (requestedRewrite.isEmpty() && now - nextPassAt < 0) // compared by difference, since nanoTime can overflow
 				return;
+			Set<VariableStorage> requested = requestedRewrite;
+			requestedRewrite = forcedRewrite;
+			forcedRewrite = requested;
 			next = new SavedVariableHashes((int) Math.min(globals.size(), Integer.MAX_VALUE / 2)); // a billion is overkill but better to have a max cap
 			pass = globals.nameIterator();
 		}
@@ -113,20 +148,27 @@ final class VariableRefresher {
 		saved = next; // names deleted since the last pass weren't put in next, so they're gone now
 		next = null;
 		pass = null;
-		nextPassAt = System.nanoTime() + TIME_BETWEEN_PASSES;
+		forcedRewrite.clear();
+		// a storage that requested a resave during this pass gets the next one right away
+		nextPassAt = requestedRewrite.isEmpty() ? System.nanoTime() + TIME_BETWEEN_PASSES : System.nanoTime();
 		reportFailures();
 	}
 
 	/**
 	 * Refreshes every variable now, with no deadline. Called once while shutting down, before the storages close.
+	 * Queues every variable of a storage that requested a resave, including one the running pass hadn't finished.
 	 */
 	void refreshAll() {
+		collectRequests();
+		forcedRewrite.addAll(requestedRewrite);
+		requestedRewrite.clear();
 		next = null;
 		pass = null;
 		SavedVariableHashes all = new SavedVariableHashes((int) Math.min(globals.size(), Integer.MAX_VALUE / 2));
 		for (Iterator<String> it = globals.nameIterator(); it.hasNext(); )
 			refresh(it.next(), all);
 		saved = all;
+		forcedRewrite.clear();
 		reportFailures();
 	}
 
@@ -147,7 +189,7 @@ final class VariableRefresher {
 				return; // a type that can't be saved
 			long hash = SavedVariableHashes.hash(serializer.type(), serializer.data(), serializer.offset(), serializer.length());
 			// copied out of the buffer only now, since few values change
-			if (!saved.matches(name, hash)
+			if ((!saved.matches(name, hash) || (!forcedRewrite.isEmpty() && forcedRewrite.contains(storage)))
 				&& !storage.queue().writeIfCurrent(name, serializer.toValue(), () -> globals.getVariable(name) == value)) {
 				// set to something else since it was read, and that change is queued instead.
 				return;
