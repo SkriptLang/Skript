@@ -72,11 +72,27 @@ public final class VariableStorageManager {
 								  Function<@Nullable Object, SerializedVariable.@Nullable Value> serializer,
 								  BiFunction<String, byte[], @Nullable Object> deserializer,
 								  Executor mainThread) {
+		this(globals, serializer, deserializer, mainThread, BufferedSerializer.of(serializer));
+	}
+
+	/**
+	 * @param globals           the map holding every global variable, which reads are served from
+	 * @param serializer        serializes a value for saving, on the thread that sets it; null for a deleted variable
+	 * @param deserializer      turns a stored value's type and data back into a value, or null if it can't
+	 * @param mainThread        runs tasks on the server's main thread, for changes that storages report
+	 * @param refreshSerializer serializes values for the refresh, the same way as {@code serializer},
+	 *                          but into a buffer it reuses, since the refresh serializes every variable
+	 */
+	public VariableStorageManager(VariableMap globals,
+								  Function<@Nullable Object, SerializedVariable.@Nullable Value> serializer,
+								  BiFunction<String, byte[], @Nullable Object> deserializer,
+								  Executor mainThread,
+								  BufferedSerializer refreshSerializer) {
 		this.globals = globals;
 		this.serializer = serializer;
 		this.deserializer = deserializer;
 		this.mainThread = mainThread;
-		this.refresher = new VariableRefresher(globals, serializer, this::route);
+		this.refresher = new VariableRefresher(globals, refreshSerializer, this::route);
 	}
 
 	// ---------------------------- REGISTRATION ----------------------------

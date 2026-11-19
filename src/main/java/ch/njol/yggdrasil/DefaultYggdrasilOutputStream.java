@@ -1,5 +1,7 @@
 package ch.njol.yggdrasil;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -20,8 +22,26 @@ public final class DefaultYggdrasilOutputStream extends YggdrasilOutputStream {
 		super(yggdrasil);
 		this.out = out;
 		version = yggdrasil.version;
+		writeHeader();
+	}
+
+	private void writeHeader() throws IOException {
 		writeInt(Yggdrasil.MAGIC_NUMBER);
 		writeShort(version);
+	}
+
+	/**
+	 * Starts over, as if this stream were new: forgets everything written so far and writes the header again.
+	 * The caller must empty the output first, like with {@link java.io.ByteArrayOutputStream#reset()}.
+	 * Lets one stream serialize many values without allocating a new one for each.
+	 */
+	@Override
+	@ApiStatus.Internal
+	public void reset() throws IOException {
+		super.reset();
+		writtenShortStrings.clear();
+		nextShortStringID = 0;
+		writeHeader();
 	}
 	
 	private void write(int b) throws IOException {

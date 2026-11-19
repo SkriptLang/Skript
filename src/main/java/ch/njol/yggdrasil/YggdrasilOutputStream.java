@@ -168,7 +168,16 @@ public abstract class YggdrasilOutputStream implements Flushable, Closeable {
 	
 	private int nextObjectID = 0;
 	private final IdentityHashMap<Object, Integer> writtenObjects = new IdentityHashMap<>();
-	
+
+	/**
+	 * Forgets every object written so far, so this stream can write a new, unrelated object graph.
+	 * Subclasses must also reset their own state and their output.
+	 */
+	protected void reset() throws IOException {
+		writtenObjects.clear(); // keeps its table, so reusing this stream allocates nothing
+		nextObjectID = 0;
+	}
+
 	public final void writeObject(@Nullable Object object) throws IOException {
 		if (object == null) {
 			writeNull();
