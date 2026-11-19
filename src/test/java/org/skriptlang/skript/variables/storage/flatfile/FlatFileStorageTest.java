@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -583,7 +584,7 @@ public class FlatFileStorageTest {
 	// ---- something else changing the file while running ----
 
 	@Test
-	public void aRowDeletedByHandWhileRunningStaysDeleted() throws IOException {
+	public void aRowDeletedByHandWhileRunningIsSavedAgain() throws IOException {
 		VariableStorageManager manager = load(VariableMap.concurrent());
 		manager.set("a", "1");
 		manager.set("b", "2");
@@ -591,8 +592,8 @@ public class FlatFileStorageTest {
 		Files.writeString(file, Files.readString(file).replace(row("a", "1"), ""));
 		manager.set("c", "3");
 		assertTrue(manager.flushAll());
-		// read again as it is, and later changes are still saved after it
-		assertEquals(Map.of("b", "2", "c", "3"), loadedFromFileOf(manager));
+		// read again as it is, later changes are still saved after it, and the resave puts a back
+		assertEquals(Map.of("a", "1", "b", "2", "c", "3"), reloaded(manager));
 		assertTrue("nothing had to be left out, so there's no backup", backups().isEmpty());
 	}
 
@@ -618,8 +619,8 @@ public class FlatFileStorageTest {
 		Files.writeString(file, older);
 		manager.set("c", "3");
 		assertTrue(manager.flushAll());
-		// b was written over, and we can't put it back without serializing everything again
-		assertEquals(Map.of("a", "1", "c", "3"), loadedFromFileOf(manager));
+		// b was written over, and the resave puts it back
+		assertEquals(Map.of("a", "1", "b", "2", "c", "3"), reloaded(manager));
 	}
 
 	@Test
@@ -648,7 +649,18 @@ public class FlatFileStorageTest {
 		Files.delete(file);
 		manager.set("b", "2");
 		assertTrue(manager.flushAll());
-		assertEquals(Map.of("b", "2"), loadedFromFileOf(manager));
+		assertEquals(Map.of("a", "1", "b", "2"), reloaded(manager));
+	}
+
+	@Test
+	public void aFileDeletedWhileIdleIsSavedAgainOnShutdown() throws IOException {
+		VariableStorageManager manager = load(VariableMap.concurrent());
+		manager.set("a", "1");
+		manager.set("b", "2");
+		assertTrue(manager.flushAll());
+		Files.delete(file);
+		// nothing is saved before shutting down, so only the check while closing notices
+		assertEquals(Map.of("a", "1", "b", "2"), reloaded(manager));
 	}
 
 	/**
@@ -709,9 +721,12 @@ public class FlatFileStorageTest {
 	public void aFileNothingWasAppendedToIsntRewrittenOnShutdown() throws IOException {
 		Files.writeString(file, HEADER + row("a", "1"));
 		VariableStorageManager manager = load(VariableMap.concurrent());
-		Files.writeString(file, "# a marker a rewrite would drop\n", StandardOpenOption.APPEND);
+		// a rewrite replaces the file, giving it a new modification time. a marker written into the file would count
+		// as an outside change, which resaves and so rewrites it
+		FileTime marker = FileTime.fromMillis(0);
+		Files.setLastModifiedTime(file, marker);
 		close(manager);
-		assertTrue(Files.readString(file).contains("a marker"));
+		assertEquals(marker, Files.getLastModifiedTime(file));
 	}
 
 	@Test
