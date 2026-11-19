@@ -5,7 +5,6 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.variables.VariableMap;
 
 import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
@@ -13,7 +12,8 @@ import java.util.function.Function;
  * Saves variables directly from memory, to catch cases like an item renamed in place
  * by an addon. Every so often it goes through all global variables a few at a time, at the end of each tick,
  * serializes each one, and queues it for its storage only if it differs from what was saved for it last,
- * which {@link SavedVariableHashes} remembers.
+ * which {@link SavedVariableHashes} remembers. Values are serialized into a reused buffer and hashed there,
+ * and only copied out when they changed, so checking the many that didn't allocates next to nothing.
  * <p>
  * Only used on the main thread, so whatever it queues is the current value, never an older one.
  */
@@ -27,21 +27,21 @@ final class VariableRefresher {
 
 	private SavedVariableHashes saved = new SavedVariableHashes(0); // what's saved, as of the last pass
 	private @Nullable SavedVariableHashes next;                    // being built by the running pass
-	private @Nullable Iterator<Map.Entry<String, Object>> pass;    // the running pass's cursor
+	private @Nullable Iterator<String> pass;                       // the running pass's cursor
 	private boolean scheduled;                                     // whether nextPassAt is set
 	private long nextPassAt;                                       // System.nanoTime() to start the next pass
 
 	private final VariableMap globals; // a reference, we don't own it! so we should treat it as readonly
-	private final Function<@Nullable Object, SerializedVariable.@Nullable Value> serializer;
+	private final BufferedSerializer serializer;
 	private final Function<String, @Nullable VariableStorage> route;
 
 	/**
 	 * @param globals    the map holding every global variable
-	 * @param serializer serializes a value for saving; null if it can't be saved
+	 * @param serializer serializes values for saving, into a buffer it reuses
 	 * @param route      finds the storage that saves a variable, or null if it isn't saved
 	 */
 	VariableRefresher(VariableMap globals,
-	                  Function<@Nullable Object, SerializedVariable.@Nullable Value> serializer,
+	                  BufferedSerializer serializer,
 	                  Function<String, @Nullable VariableStorage> route) {
 		this.globals = globals;
 		this.serializer = serializer;
@@ -93,13 +93,13 @@ final class VariableRefresher {
 			if (now - nextPassAt < 0) // compared by difference, since nanoTime can overflow
 				return;
 			next = new SavedVariableHashes((int) Math.min(globals.size(), Integer.MAX_VALUE / 2)); // a billion is overkill but better to have a max cap
-			pass = globals.valueIterator();
+			pass = globals.nameIterator();
 		}
 		int done = 0;
 		while (pass.hasNext()) {
 			if (++done % CHECK_EVERY == 0 && System.nanoTime() - deadline >= 0)
 				return; // carry on next tick
-			refresh(pass.next().getKey(), next);
+			refresh(pass.next(), next);
 		}
 		saved = next; // names deleted since the last pass weren't put in next, so they're gone now
 		next = null;
@@ -114,8 +114,8 @@ final class VariableRefresher {
 		next = null;
 		pass = null;
 		SavedVariableHashes all = new SavedVariableHashes((int) Math.min(globals.size(), Integer.MAX_VALUE / 2));
-		for (Iterator<Map.Entry<String, Object>> it = globals.valueIterator(); it.hasNext(); )
-			refresh(it.next().getKey(), all);
+		for (Iterator<String> it = globals.nameIterator(); it.hasNext(); )
+			refresh(it.next(), all);
 		saved = all;
 	}
 
@@ -126,12 +126,11 @@ final class VariableRefresher {
 		Object value = globals.getVariable(name);
 		if (value == null)
 			return; // deleted since the iterator passed it
-		SerializedVariable.Value serialized = serializer.apply(value);
-		if (serialized == null)
+		if (!serializer.serialize(value))
 			return; // a type that can't be saved
-		long hash = SavedVariableHashes.hash(serialized);
-		if (!saved.matches(name, hash))
-			storage.queue().write(name, serialized, NO_MAP_WRITE);
+		long hash = SavedVariableHashes.hash(serializer.type(), serializer.data(), serializer.offset(), serializer.length());
+		if (!saved.matches(name, hash)) // copied out of the buffer only now, since few values change
+			storage.queue().write(name, serializer.toValue(), NO_MAP_WRITE);
 		into.put(name, hash);
 	}
 

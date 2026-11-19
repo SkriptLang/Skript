@@ -713,7 +713,7 @@ public abstract class Classes {
 	@SuppressWarnings("null")
 	private final static Charset UTF_8 = Charset.forName("UTF-8");
 
-	private static byte[] getYggdrasilStart(final ClassInfo<?> c) throws NotSerializableException {
+	static byte[] getYggdrasilStart(final ClassInfo<?> c) throws NotSerializableException {
 		assert Enum.class.isAssignableFrom(Kleenean.class) && Tag.getType(Kleenean.class) == Tag.T_ENUM : Tag.getType(Kleenean.class); // TODO why is this check here?
 		final Tag t = Tag.getType(c.getC());
 		assert t.isWrapper() || t == Tag.T_STRING || t == Tag.T_OBJECT || t == Tag.T_ENUM;
@@ -741,27 +741,14 @@ public abstract class Classes {
 
 		// temporary
 		assert Bukkit.isPrimaryThread();
-		
-		ClassInfo<?> classInfo = getSuperClassInfo(object.getClass());
-		if (classInfo.getSerializeAs() != null) {
-			classInfo = getExactClassInfo(classInfo.getSerializeAs());
-			if (classInfo == null) {
-				assert false : object.getClass();
-				return null;
-			}
-			object = Converters.convert(object, classInfo.getC());
-			if (object == null) {
-				assert false : classInfo.getCodeName();
-				return null;
-			}
-		}
-		
-		Serializer<?> serializer = classInfo.getSerializer();
-		if (serializer == null) // value cannot be saved
+
+		ClassInfo<?> classInfo = getSavedClassInfo(object);
+		if (classInfo == null) // value cannot be saved
 			return null;
-		
-		assert !serializer.mustSyncDeserialization() || Bukkit.isPrimaryThread();
-		
+		object = convertForSaving(object, classInfo);
+		if (object == null)
+			return null;
+
 		try {
 			ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
 			YggdrasilOutputStream yggdrasilOutputStream = Variables.yggdrasil.newOutputStream(byteOutputStream);
@@ -788,6 +775,43 @@ public abstract class Classes {
 			Skript.exception(ex);
 			return null;
 		}
+	}
+
+	/**
+	 * Finds the class info a value is saved as: its own, or the one it's set to be serialized as.
+	 *
+	 * @param object the value to save
+	 * @return the class info to save it as, or null if it can't be saved
+	 */
+	static @Nullable ClassInfo<?> getSavedClassInfo(Object object) {
+		ClassInfo<?> classInfo = getSuperClassInfo(object.getClass());
+		if (classInfo.getSerializeAs() != null) {
+			classInfo = getExactClassInfo(classInfo.getSerializeAs());
+			if (classInfo == null) {
+				assert false : object.getClass();
+				return null;
+			}
+		}
+		Serializer<?> serializer = classInfo.getSerializer();
+		if (serializer == null)
+			return null;
+		assert !serializer.mustSyncDeserialization() || Bukkit.isPrimaryThread();
+		return classInfo;
+	}
+
+	/**
+	 * Converts a value to the class it's saved as, if it isn't one already.
+	 *
+	 * @param object  the value to save
+	 * @param savedAs what {@link #getSavedClassInfo(Object)} returned for it
+	 * @return the value to write, or null if it couldn't be converted
+	 */
+	static @Nullable Object convertForSaving(Object object, ClassInfo<?> savedAs) {
+		if (savedAs.getC().isInstance(object)) // always, unless it's serialized as another class
+			return object;
+		Object converted = Converters.convert(object, savedAs.getC());
+		assert converted != null : savedAs.getCodeName();
+		return converted;
 	}
 
 	private static boolean equals(final @Nullable Object o, final @Nullable Object d) {

@@ -3,7 +3,6 @@ package org.skriptlang.skript.variables.storage;
 
 import ch.njol.skript.variables.SerializedVariable;
 
-import java.util.Arrays;
 import java.util.zip.CRC32C;
 
 /**
@@ -38,9 +37,26 @@ final class SavedVariableHashes {
 	 * @return Its hash
 	 */
 	static long hash(SerializedVariable.Value value) {
+		return hash(value.type, value.data, 0, value.data.length);
+	}
+
+	/**
+	 * Hashes a serialized value held in part of an array, like {@link BufferedSerializer}'s buffer,
+	 * without copying it out. Gives the same hash as {@link #hash(SerializedVariable.Value)} for the same bytes.
+	 *
+	 * @param type   The value's type
+	 * @param data   The array holding the value's data
+	 * @param offset Where the data starts
+	 * @param length How long the data is
+	 * @return Its hash
+	 */
+	static long hash(String type, byte[] data, int offset, int length) {
 		CRC32C crc = new CRC32C();
-		crc.update(value.data); // intrinsic CRC instruction
-		int other = 31 * value.type.hashCode() + Arrays.hashCode(value.data);
+		crc.update(data, offset, length); // intrinsic CRC instruction
+		int dataHash = 1; // what Arrays.hashCode(byte[]) gives, which has no version for part of an array
+		for (int i = offset, end = offset + length; i < end; i++)
+			dataHash = 31 * dataHash + data[i];
+		int other = 31 * type.hashCode() + dataHash;
 		return (long) other << 32 | crc.getValue();
 	}
 
