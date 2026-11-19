@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.StampedLock;
+import java.util.function.BooleanSupplier;
 
 /**
  * The changes waiting to be saved to one {@link VariableStorage}.
@@ -78,6 +79,38 @@ final class ChangeQueue {
 				mapWrite.run();
 				return new Pending(key, value, epoch);
 			});
+		} finally {
+			order.unlockRead(stamp);
+		}
+	}
+
+	/**
+	 * Queues a change to one variable, but only if {@code current} still holds while the name is locked,
+	 * without changing Skript's variables. Used to save a value read earlier, without overwriting a change made since:
+	 * a {@link #write} to the same name either finishes before {@code current} is checked, so it can see the change,
+	 * or starts after this has queued, so its own change comes later.
+	 * <p>
+	 * {@code current} must not call into any storage.
+	 *
+	 * @param name    the variable's name
+	 * @param value   the serialized value to save
+	 * @param current whether the value is still the variable's current one
+	 * @return whether the change was queued: false if {@code current} didn't hold, or the queue is closed
+	 */
+	boolean writeIfCurrent(String name, SerializedVariable.Value value, BooleanSupplier current) {
+		long stamp = order.readLock();
+		try {
+			if (closed)
+				return false;
+			long epoch = this.epoch; // can't change while the shared lock is held
+			boolean[] queued = new boolean[1];
+			pending.compute(name, (key, old) -> {
+				if (!current.getAsBoolean())
+					return old;
+				queued[0] = true;
+				return new Pending(key, value, epoch);
+			});
+			return queued[0];
 		} finally {
 			order.unlockRead(stamp);
 		}

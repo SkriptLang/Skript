@@ -270,7 +270,34 @@ public class VariableStorageManagerLoadTest {
 			\tdefault:
 			\t\ttype: recording
 			"""));
-		assertEquals(List.of("default"), storageNames());
+		// it still saves every name, so the default after it saves nothing, as it would if the type was right
+		assertEquals(List.of("typo", "default"), storageNames());
+		assertTrue(manager.storages().get(0).loadFailed);
+		assertNull(manager.storages().get(0).getPrefixes());
+		manager.set("a", "1");
+		assertEquals("1", globals.getVariable("a")); // only in the map
+		assertTrue(savedBy(created.get(0)).isEmpty());
+	}
+
+	@Test
+	public void anUnknownTypeKeepsItsVariablesOutOfTheCatchAll() throws IOException {
+		// like an sqlite database after upgrading to a version without sqlite
+		assertFalse(load("""
+			\tremoved:
+			\t\ttype: sqlite
+			\t\tprefix: kills::
+			\tdefault:
+			\t\ttype: recording
+			"""));
+		assertEquals(List.of("removed", "default"), storageNames());
+		manager.set("kills::steve", "1");
+		manager.set("kills::*", null);
+		manager.setList("kills", new String[] {"alex"}, new Object[] {"2"});
+		manager.set("deaths::steve", "3");
+		assertEquals("2", globals.getVariable("kills::alex")); // only in the map
+		Batch batch = savedBy(created.get(0));
+		assertEquals(List.of(), batch.clears());
+		assertEquals(List.of("deaths::steve"), namesOf(batch));
 	}
 
 	@Test
@@ -281,7 +308,8 @@ public class VariableStorageManagerLoadTest {
 			\tdefault:
 			\t\ttype: recording
 			"""));
-		assertEquals(List.of("default"), storageNames());
+		assertEquals(List.of("untyped", "default"), storageNames());
+		assertEquals(List.of("a::"), manager.storages().get(0).getPrefixes());
 	}
 
 	@Test
@@ -303,7 +331,10 @@ public class VariableStorageManagerLoadTest {
 			\tdefault:
 			\t\ttype: recording
 			"""));
-		assertEquals(List.of("default"), storageNames());
+		// which names it saves is unknown, so it keeps them all
+		assertEquals(List.of("bad", "default"), storageNames());
+		assertTrue(manager.storages().get(0).loadFailed);
+		assertNull(manager.storages().get(0).getPrefixes());
 	}
 
 	@Test
@@ -315,7 +346,8 @@ public class VariableStorageManagerLoadTest {
 			\tA_b:
 			\t\ttype: recording
 			"""));
-		assertEquals(List.of("a b"), storageNames());
+		assertEquals(List.of("a b", "A_b"), storageNames());
+		assertTrue(manager.storages().get(1).loadFailed);
 	}
 
 	@Test
