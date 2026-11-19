@@ -1,9 +1,13 @@
 package org.skriptlang.skript.variables.storage;
 
+import ch.njol.skript.config.Config;
+import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.log.BlockingLogHandler;
 import ch.njol.skript.variables.SerializedVariable;
 import org.skriptlang.skript.variables.VariableMap;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -14,12 +18,12 @@ import java.util.concurrent.Executor;
  * What the {@link VariableStorageManager} tests share: a manager that saves every value as its text,
  * {@link RecordingStorage}s set up for it, and loading and closing without logging the expected errors.
  */
-final class ManagerTests {
+public final class ManagerTests {
 
 	/**
 	 * The type every value is saved as. Values of any other type can't be read.
 	 */
-	static final String READABLE = "string";
+	public static final String READABLE = "string";
 
 	private ManagerTests() {
 	}
@@ -29,7 +33,7 @@ final class ManagerTests {
 	 * @param mainThread runs the changes storages report
 	 * @return a manager that saves every value as its text, and reads back values of type {@link #READABLE}
 	 */
-	static VariableStorageManager manager(VariableMap globals, Executor mainThread) {
+	public static VariableStorageManager manager(VariableMap globals, Executor mainThread) {
 		return new VariableStorageManager(globals,
 			value -> value == null ? null : value(String.valueOf(value)),
 			(type, data) -> type.equals(READABLE) ? new String(data, StandardCharsets.UTF_8) : null,
@@ -40,7 +44,7 @@ final class ManagerTests {
 	 * @param text the text
 	 * @return the text saved as a value the manager can read back
 	 */
-	static SerializedVariable.Value value(String text) {
+	public static SerializedVariable.Value value(String text) {
 		return new SerializedVariable.Value(READABLE, text.getBytes(StandardCharsets.UTF_8));
 	}
 
@@ -71,10 +75,27 @@ final class ManagerTests {
 	/**
 	 * Closes a manager, keeping the errors that tests expect out of the log.
 	 */
-	static void close(VariableStorageManager manager) {
+	public static void close(VariableStorageManager manager) {
 		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
 			manager.close();
 		}
+	}
+
+	/**
+	 * @param databases the entries of the {@code databases} section, each line starting with a tab
+	 * @return a config holding only that {@code databases} section
+	 */
+	public static Config config(String databases) throws IOException {
+		return new Config(new ByteArrayInputStream(("databases:\n" + databases).getBytes(StandardCharsets.UTF_8)),
+			"test.sk", false, true, ":");
+	}
+
+	/**
+	 * @param databases the entries of the {@code databases} section, each line starting with a tab
+	 * @return the parsed {@code databases} section
+	 */
+	public static SectionNode databases(String databases) throws IOException {
+		return (SectionNode) config(databases).getMainNode().get("databases");
 	}
 
 	/**

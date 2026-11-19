@@ -9,7 +9,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HexFormat;
-import java.util.regex.Pattern;
 
 /**
  * Reads and writes Skript's CSV variable format, used by the CSV storage and by backups.
@@ -62,11 +61,6 @@ public final class CsvFormat {
 
 	// writes uppercase, and reads either case
 	private static final HexFormat HEX = HexFormat.of().withUpperCase();
-
-	/**
-	 * A regex pattern to check if a string contains whitespace.
-	 */
-	private static final Pattern CONTAINS_WHITESPACE = Pattern.compile("\\s");
 
 	private CsvFormat() {
 		throw new UnsupportedOperationException();
@@ -127,14 +121,16 @@ public final class CsvFormat {
 	 * @param value The value
 	 */
 	private static void appendValue(StringBuilder out, String value) {
-		if (value.indexOf('\n') >= 0 || value.indexOf('\r') >= 0) {
-			appendEscaped(out, value);
-			return;
+		boolean escapingNeeded = false;
+		for (int i = 0; i < value.length(); i++) {
+			char c = value.charAt(i);
+			if (c == '\n' || c == '\r') {
+				appendEscaped(out, value);
+				return;
+			}
+			if (c == ',' || c == '"' || c == '#' || isSpace(c))
+				escapingNeeded = true;
 		}
-		boolean escapingNeeded = value.contains(",")
-			|| value.contains("\"")
-			|| value.contains("#")
-			|| CONTAINS_WHITESPACE.matcher(value).find();
 		if (escapingNeeded) {
 			out.append('"').append(value.replace("\"", "\"\"")).append('"');
 		} else {

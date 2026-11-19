@@ -1,6 +1,5 @@
 package org.skriptlang.skript.variables.storage;
 
-import ch.njol.skript.config.Config;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.log.BlockingLogHandler;
 import ch.njol.skript.variables.SerializedVariable;
@@ -10,13 +9,12 @@ import org.junit.Test;
 import org.skriptlang.skript.variables.VariableMap;
 import org.skriptlang.skript.variables.storage.VariableStorage.Batch;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
+import static org.skriptlang.skript.variables.storage.ManagerTests.databases;
 import static org.skriptlang.skript.variables.storage.ManagerTests.value;
 import static org.skriptlang.skript.variables.storage.ManagerTests.storage;
 
@@ -57,12 +55,6 @@ public class VariableStorageManagerLoadTest {
 		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
 			return manager.load(databases);
 		}
-	}
-
-	private static SectionNode databases(String config) throws IOException {
-		Config parsed = new Config(new ByteArrayInputStream(("databases:\n" + config).getBytes(StandardCharsets.UTF_8)),
-			"test.sk", false, true, ":");
-		return (SectionNode) parsed.getMainNode().get("databases");
 	}
 
 	private List<String> storageNames() {
