@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
+import static org.skriptlang.skript.variables.storage.ManagerTests.value;
+import static org.skriptlang.skript.variables.storage.ManagerTests.storage;
 
 /**
  * Tests loading storages with {@link VariableStorageManager}: reading the {@code databases} section,
@@ -25,8 +27,6 @@ import static org.junit.Assert.*;
  */
 public class VariableStorageManagerLoadTest {
 
-	private static final String READABLE = "string";
-
 	private VariableMap globals;
 	private VariableStorageManager manager;
 	private final List<RecordingStorage> created = new ArrayList<>();
@@ -34,10 +34,7 @@ public class VariableStorageManagerLoadTest {
 	@Before
 	public void setUp() {
 		globals = VariableMap.concurrent();
-		manager = new VariableStorageManager(globals,
-			value -> value == null ? null : value(String.valueOf(value)),
-			(type, data) -> type.equals(READABLE) ? new String(data, StandardCharsets.UTF_8) : null,
-			Runnable::run);
+		manager = ManagerTests.manager(globals, Runnable::run);
 	}
 
 	@After
@@ -46,21 +43,8 @@ public class VariableStorageManagerLoadTest {
 			storage.stopSaving();
 	}
 
-	private static SerializedVariable.Value value(String text) {
-		return new SerializedVariable.Value(READABLE, text.getBytes(StandardCharsets.UTF_8));
-	}
-
-	private static RecordingStorage storage(String name, String... prefixes) {
-		RecordingStorage storage = new RecordingStorage().setPrefixesForTest(prefixes.length == 0 ? null : prefixes);
-		storage.setNameForTest(name);
-		storage.intervalMillis = 3_600_000; // so the saving thread doesn't drain the queue before a test reads it
-		return storage;
-	}
-
 	private boolean loadStorages(VariableStorage... storages) {
-		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) { // keeps expected errors out of the log
-			return manager.loadStorages(List.of(storages));
-		}
+		return ManagerTests.loadStorages(manager, storages);
 	}
 
 	private boolean load(String config) throws IOException {

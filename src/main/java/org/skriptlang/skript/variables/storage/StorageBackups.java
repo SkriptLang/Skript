@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.zip.GZIPOutputStream;
 
 /**
@@ -45,16 +46,6 @@ final class StorageBackups {
 
 	}
 
-	/**
-	 * Reports a failure. Must never throw.
-	 */
-	@FunctionalInterface
-	interface Reporter {
-
-		void report(Throwable t, String message);
-
-	}
-
 	private static final String BACKUP_EXTENSION = ".csv";
 	private static final String TEMP_EXTENSION = ".tmp";
 	// fixed width and in UTC, so sorting backups by name sorts them by age, even when local clocks go back an hour.
@@ -69,7 +60,7 @@ final class StorageBackups {
 	private final int toKeep;         // -1 keeps every backup
 	private final Clock clock;        // for file names, which are in UTC whatever its zone
 	private final Writer writer;
-	private final Reporter reporter;
+	private final BiConsumer<Throwable, String> reporter; // reports a failure, and must never throw
 
 	private long nextBackupAt;     // System.nanoTime() of the next backup
 	private boolean changed = true; // whether anything was saved since the last backup; true so the first one happens
@@ -86,7 +77,7 @@ final class StorageBackups {
 	 * @param reporter      reports failures
 	 */
 	StorageBackups(String storageName, Path folder, boolean compress, long intervalNanos, int toKeep, long now,
-				   Clock clock, Writer writer, Reporter reporter) {
+				   Clock clock, Writer writer, BiConsumer<Throwable, String> reporter) {
 		this.storageName = storageName;
 		this.folder = folder;
 		this.prefix = safeName(storageName) + "_";
@@ -142,7 +133,7 @@ final class StorageBackups {
 		try {
 			write();
 		} catch (IOException | RuntimeException e) {
-			reporter.report(e, "Could not back up the database '" + storageName + "'");
+			reporter.accept(e, "Could not back up the database '" + storageName + "'");
 			return;
 		}
 		changed = false;
@@ -199,7 +190,7 @@ final class StorageBackups {
 			for (int i = 0; i < backups.size() - keep; i++)
 				Files.deleteIfExists(backups.get(i));
 		} catch (IOException | RuntimeException e) {
-			reporter.report(e, "Could not delete old backups of the database '" + storageName + "'");
+			reporter.accept(e, "Could not delete old backups of the database '" + storageName + "'");
 		}
 	}
 

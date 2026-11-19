@@ -14,11 +14,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Serializes values the same way as {@link Classes#serialize(Object)}, byte for byte, but into one buffer and through
- * one Yggdrasil stream that it reuses, so serializing a value allocates (almost) nothing itself.
- * Values whose serializer allocates, like items, still allocate that.
+ * Serializes values for saving, into one buffer and through one Yggdrasil stream that it reuses, so serializing
+ * a value allocates (almost) nothing itself. Values whose serializer allocates, like items, still allocate that.
+ * This is how {@link Classes#serialize(Object)} serializes too, so both give the same bytes.
  * <p>
- * Only for the main thread, and not re-entrant.
+ * An instance is for one thread at a time, and isn't re-entrant.
  */
 @ApiStatus.Internal
 public final class ClassesBufferedSerializer implements BufferedSerializer {
@@ -28,7 +28,7 @@ public final class ClassesBufferedSerializer implements BufferedSerializer {
 
 	private Buffer buffer = new Buffer();
 	private @Nullable DefaultYggdrasilOutputStream stream; // created when first needed, once Yggdrasil is set up
-	// what Classes#serialize strips off the front of each value's bytes, per class info. Main thread only
+	// what is stripped off the front of each value's bytes, per class info
 	private final Map<ClassInfo<?>, byte[]> starts = new HashMap<>();
 
 	private @Nullable String type;
