@@ -8,13 +8,13 @@ import org.junit.Test;
 import org.skriptlang.skript.variables.VariableMap;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;
+import static org.skriptlang.skript.variables.storage.ManagerTests.value;
+import static org.skriptlang.skript.variables.storage.ManagerTests.storage;
 import static org.skriptlang.skript.variables.storage.VariableStorageManagerLoadTest.savedBy;
 
 /**
@@ -24,8 +24,6 @@ import static org.skriptlang.skript.variables.storage.VariableStorageManagerLoad
  */
 public class VariableStorageManagerMigrationTest {
 
-	private static final String READABLE = "string";
-
 	private VariableMap globals;
 	private VariableStorageManager manager;
 	private final List<Runnable> mainThreadTasks = new ArrayList<>();
@@ -33,10 +31,7 @@ public class VariableStorageManagerMigrationTest {
 	@Before
 	public void setUp() {
 		globals = VariableMap.concurrent();
-		manager = new VariableStorageManager(globals,
-			value -> value == null ? null : value(String.valueOf(value)),
-			(type, data) -> type.equals(READABLE) ? new String(data, StandardCharsets.UTF_8) : null,
-			mainThreadTasks::add);
+		manager = ManagerTests.manager(globals, mainThreadTasks::add);
 	}
 
 	@After
@@ -45,21 +40,8 @@ public class VariableStorageManagerMigrationTest {
 			storage.stopSaving();
 	}
 
-	private static SerializedVariable.Value value(String text) {
-		return new SerializedVariable.Value(READABLE, text.getBytes(StandardCharsets.UTF_8));
-	}
-
-	private static RecordingStorage storage(String name, String... prefixes) {
-		RecordingStorage storage = new RecordingStorage().setPrefixesForTest(prefixes.length == 0 ? null : prefixes);
-		storage.setNameForTest(name);
-		storage.intervalMillis = 3_600_000;
-		return storage;
-	}
-
 	private boolean loadStorages(VariableStorage... storages) {
-		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
-			return manager.loadStorages(List.of(storages));
-		}
+		return ManagerTests.loadStorages(manager, storages);
 	}
 
 	private void runMainThreadTasks() {
@@ -73,11 +55,7 @@ public class VariableStorageManagerMigrationTest {
 	// what a storage holds once it has stopped saving, values read back as text
 	private static Map<String, String> stored(RecordingStorage storage) {
 		storage.stopSaving();
-		Map<String, String> stored = new HashMap<>();
-		synchronized (storage.saved) {
-			storage.saved.forEach((name, value) -> stored.put(name, new String(value.data, StandardCharsets.UTF_8)));
-		}
-		return stored;
+		return ManagerTests.stored(storage);
 	}
 
 	// ---- moving variables at startup ----

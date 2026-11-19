@@ -1,6 +1,5 @@
 package org.skriptlang.skript.variables.storage;
 
-import ch.njol.skript.log.BlockingLogHandler;
 import ch.njol.skript.variables.SerializedVariable;
 import org.junit.After;
 import org.junit.Before;
@@ -13,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
+import static org.skriptlang.skript.variables.storage.ManagerTests.value;
 
 /**
  * Tests how {@link VariableStorageManager} drives the {@link VariableRefresher}: what loading and reported changes
@@ -21,7 +21,6 @@ import static org.junit.Assert.*;
  */
 public class VariableStorageManagerRefreshTest {
 
-	private static final String READABLE = "string";
 	// later than any pass could be due, since passes are minutes apart
 	private static final long A_DAY = TimeUnit.DAYS.toNanos(1);
 
@@ -48,13 +47,8 @@ public class VariableStorageManagerRefreshTest {
 	@Before
 	public void setUp() {
 		globals = VariableMap.concurrent();
-		manager = new VariableStorageManager(globals,
-			value -> value == null ? null : new SerializedVariable.Value(READABLE, String.valueOf(value).getBytes(StandardCharsets.UTF_8)),
-			(type, data) -> type.equals(READABLE) ? new String(data, StandardCharsets.UTF_8) : null,
-			Runnable::run);
-		storage = new RecordingStorage();
-		storage.setNameForTest("default");
-		storage.intervalMillis = 3_600_000; // only saves when a test flushes, or at the end
+		manager = ManagerTests.manager(globals, Runnable::run);
+		storage = ManagerTests.storage("default");
 	}
 
 	@After
@@ -63,19 +57,11 @@ public class VariableStorageManagerRefreshTest {
 	}
 
 	private void load() {
-		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
-			assertTrue(manager.loadStorages(List.of(storage)));
-		}
+		assertTrue(ManagerTests.loadStorages(manager, storage));
 	}
 
 	private void close() {
-		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
-			manager.close();
-		}
-	}
-
-	private static SerializedVariable.Value value(String text) {
-		return new SerializedVariable.Value(READABLE, text.getBytes(StandardCharsets.UTF_8));
+		ManagerTests.close(manager);
 	}
 
 	/**
