@@ -10,6 +10,7 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.ClassesBufferedSerializer;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Pair;
 import ch.njol.util.StringUtils;
@@ -210,7 +211,8 @@ public class Variables {
 	 * Saves changes to {@link #variables} to the storages configured in the config.
 	 */
 	private static final VariableStorageManager STORAGE_MANAGER =
-		new VariableStorageManager(variables, Variables::serialize, Classes::deserialize, Variables::runOnMainThread);
+		new VariableStorageManager(variables, Variables::serialize, Classes::deserialize, Variables::runOnMainThread,
+			new ClassesBufferedSerializer());
 
 	/**
 	 * Runs a task on the main thread later, in the order tasks are given. Does nothing once Skript is disabled.

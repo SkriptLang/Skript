@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.skriptlang.skript.variables.VariableMap;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -51,8 +52,54 @@ public class VariableRefresherTest {
 	public void setUp() {
 		globals = VariableMap.concurrent();
 		storage = new RecordingStorage();
-		refresher = new VariableRefresher(globals, VariableRefresherTest::serialize,
+		refresher = new VariableRefresher(globals, new ReusingSerializer(),
 			name -> name.startsWith("unsaved::") ? null : storage);
+	}
+
+	/**
+	 * Serializes like {@link #serialize(Object)}, but into one reused buffer, behind a few bytes that aren't part
+	 * of the value and followed by whatever longer values left behind, like the real buffered serializer.
+	 */
+	private static final class ReusingSerializer implements BufferedSerializer {
+
+		private static final int OFFSET = 3;
+		private byte[] buffer = new byte[16];
+		private String type = "";
+		private int length;
+
+		@Override
+		public boolean serialize(Object value) {
+			Value serialized = VariableRefresherTest.serialize(value);
+			if (serialized == null)
+				return false;
+			if (buffer.length < OFFSET + serialized.data.length)
+				buffer = Arrays.copyOf(buffer, OFFSET + serialized.data.length);
+			System.arraycopy(serialized.data, 0, buffer, OFFSET, serialized.data.length);
+			type = serialized.type;
+			length = serialized.data.length;
+			return true;
+		}
+
+		@Override
+		public String type() {
+			return type;
+		}
+
+		@Override
+		public byte[] data() {
+			return buffer;
+		}
+
+		@Override
+		public int offset() {
+			return OFFSET;
+		}
+
+		@Override
+		public int length() {
+			return length;
+		}
+
 	}
 
 	private static Value serialize(Object value) {

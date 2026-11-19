@@ -227,21 +227,21 @@ public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVar
 	}
 
 	/**
-	 * Iterates over every variable with a value, in no particular order, without copying anything.
+	 * Iterates over the full name of every variable with a value, in no particular order, without copying anything.
+	 * Only names, so that iterating allocates nothing per variable; {@link #getVariable(String)} gets the value.
 	 * <p>
 	 * For the concurrent map the iterator is weakly consistent: it never throws because of concurrent changes,
 	 * can be kept across ticks, and visits every variable that exists for the whole iteration exactly once.
 	 * Variables added or removed meanwhile may or may not be visited. The local map's iterator is fail-fast
 	 * as usual, so it must not be kept across changes.
 	 * <p>
-	 * The entries are read-only: neither the iterator nor the entries can change the map,
-	 * since that would bypass the list bookkeeping.
+	 * The iterator is read-only, since removing through it would bypass the list bookkeeping.
 	 *
-	 * @return An iterator over full names and values
+	 * @return An iterator over full names
 	 */
 	@ApiStatus.Internal
-	public Iterator<Map.Entry<String, Object>> valueIterator() {
-		return Collections.unmodifiableMap(allValues()).entrySet().iterator();
+	public Iterator<String> nameIterator() {
+		return Collections.unmodifiableSet(allValues().keySet()).iterator();
 	}
 
 	/**
