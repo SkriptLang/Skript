@@ -38,7 +38,7 @@ public class VariableStorageConfigUpdateTest {
 			\t\ttype: csv
 			\t\tpattern: kills::.*
 			\tmoney:
-			\t\tpattern: (?i)(bank::|tax::).*
+			\t\tpattern: (?i)(Bank::|tax::).*
 			""");
 		assertTrue(VariableStorageManager.migratePatterns(databases(config)));
 		assertNull(database(config, "kills").get("pattern"));

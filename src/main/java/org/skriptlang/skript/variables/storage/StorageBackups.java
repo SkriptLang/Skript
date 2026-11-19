@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -56,8 +57,9 @@ final class StorageBackups {
 
 	private static final String BACKUP_EXTENSION = ".csv";
 	private static final String TEMP_EXTENSION = ".tmp";
-	// fixed width, so sorting backups by name sorts them by age
-	private static final DateTimeFormatter BACKUP_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SSS");
+	// fixed width and in UTC, so sorting backups by name sorts them by age, even when local clocks go back an hour.
+	// the Z says the time is UTC
+	private static final DateTimeFormatter BACKUP_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SSS'Z'");
 
 	private final String storageName;
 	private final Path folder;
@@ -65,7 +67,7 @@ final class StorageBackups {
 	private final boolean compress;
 	private final long intervalNanos; // 0 means backups are off
 	private final int toKeep;         // -1 keeps every backup
-	private final Clock clock;        // for file names
+	private final Clock clock;        // for file names, which are in UTC whatever its zone
 	private final Writer writer;
 	private final Reporter reporter;
 
@@ -152,7 +154,7 @@ final class StorageBackups {
 	 */
 	private void write() throws IOException {
 		Files.createDirectories(folder);
-		String fileName = prefix + LocalDateTime.now(clock).format(BACKUP_TIME)
+		String fileName = prefix + LocalDateTime.ofInstant(clock.instant(), ZoneOffset.UTC).format(BACKUP_TIME)
 			+ BACKUP_EXTENSION + (compress ? ".gz" : "");
 		Path target = folder.resolve(fileName);
 		Path temp = folder.resolve(fileName + TEMP_EXTENSION);
