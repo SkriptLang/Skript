@@ -257,7 +257,7 @@ final class VariablesMap {
 					parent.put(childNodeName, childNode);
 					parent = (TreeMap<String, Object>) childNode;
 				} else {
-					// Want to set variable to null, bu variable is already null
+					// Want to set variable to null, but variable is already null
 					break;
 				}
 			} else if (childNode instanceof TreeMap) {
@@ -297,11 +297,7 @@ final class VariablesMap {
 				// Ran into leaf node
 				if (i == split.length - 1) {
 					// If we arrived at the end of the variable name, update parent
-					if (value == null)
-						parent.remove(childNodeName);
-					else
-						parent.put(childNodeName, value);
-
+					parent.compute(childNodeName, (k, v) -> value);
 					break;
 				} else if (value != null) {
 					// Need to continue iteration, create new child node and put old value in it
