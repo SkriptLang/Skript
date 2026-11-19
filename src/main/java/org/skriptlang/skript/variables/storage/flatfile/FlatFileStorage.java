@@ -34,7 +34,9 @@ import java.util.concurrent.TimeUnit;
  * Since the file is all we save from, we have to notice when something else changes it while we're running, like
  * someone editing it or restoring a backup over it. Before every save we check that it's still the size we left it at,
  * and that its compacted rows still end where we left them. Compacting also checks that every row we read back is one
- * we could have written. If the file was changed, we say so, then read it again as it is now and carry on from there.
+ * we could have written. If the file was changed, we say so, read it again as it is now and carry on from there,
+ * and ask for every variable to be saved again from memory, which puts back whatever the change lost.
+ * Since that's only noticed when we next write, we also check once on shutdown, before the last save.
  * <p>
  * This class decides when to do what and interfaces with the storage api.<br>
  * {@link VariableFile} handles the file itself, like IO and file system details.<br>
@@ -403,11 +405,11 @@ public class FlatFileStorage extends VariableStorage {
 	/**
 	 * Carries on after something else changed the file while we're running, which isn't supported.
 	 * <p>
-	 * We only ever save changes, so we can't put back what was lost: rows the other change removed or wrote over stay
-	 * gone until their variables change again. And the variables in memory don't change either, so an edit only takes
-	 * effect after a restart, unless the variables it changed are saved again before then. All we can do is say so,
-	 * then read the file again as it is now, just like loading it, which also backs it up if any of its rows have to be
-	 * left out. If it was deleted, we start a new one.
+	 * We say so, then read the file again as it is now, just like loading it, which also backs it up if any of its rows
+	 * have to be left out. If it was deleted, we start a new one. Then we {@link #requestResave() request a resave},
+	 * so every variable is saved again from memory: rows the other change removed or wrote over are put back, and
+	 * rows it changed are set back to what's in memory. Rows it added for variables that aren't in memory stay,
+	 * and are loaded on the next start.
 	 *
 	 * @throws IOException If the file can't be read again or backed up, or a new one can't be written
 	 */
@@ -415,13 +417,27 @@ public class FlatFileStorage extends VariableStorage {
 		VariableFile file = file();
 		file.closeAppend(); // it may still be open on a file that was replaced
 		Skript.error("Something changed " + file.name() + " while the server was running, which isn't supported."
-			+ " Variables saved to it before that may now be missing from it, until they're changed again,"
-			+ " and changes made to it only take effect after a restart. Please stop the server before editing it.");
+			+ " All variables will be saved to it again from memory, which undoes any changes made to it by hand."
+			+ " Please stop the server before editing it.");
 		if (file.exists()) {
 			open(row -> {}); // the variables in memory are what we save from now on, so these aren't passed on
 		} else {
 			rewrite(0, new Changes(), false);
 		}
+		requestResave();
+	}
+
+	/**
+	 * Checks whether something else changed the file since we last wrote it, and if so, reads it again and requests
+	 * a resave, like a save would. Otherwise a change made while the server is idle would only be noticed while closing,
+	 * after the variables were saved for the last time.
+	 *
+	 * @throws IOException If the file can't be read again or backed up, or a new one can't be written
+	 */
+	@Override
+	protected synchronized void checkIntegrity() throws IOException {
+		if (loaded && changedOutside())
+			reopenChanged();
 	}
 
 	/**
