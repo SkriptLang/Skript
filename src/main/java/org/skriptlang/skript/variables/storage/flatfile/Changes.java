@@ -53,7 +53,7 @@ final class Changes {
 			}
 			// skip non-var rows
 			line = line.trim();
-			if (line.isEmpty() || line.startsWith("#"))
+			if (!Row.isRow(line))
 				continue;
 			// parse row
 			Row row = Row.parse(line);
@@ -126,7 +126,7 @@ final class Changes {
 	 */
 	long applyTo(BufferedReader compacted, LoadReport report, Row.Sink sink) throws IOException {
 		Iterator<Map.Entry<String, @Nullable String>> appendedChanges = rows.entrySet().iterator();
-		Map.Entry<String, @Nullable String> nextChange = appendedChanges.hasNext() ? appendedChanges.next() : null;
+		Map.Entry<String, @Nullable String> nextChange = advance(appendedChanges);
 		long compactedRows = 0;
 		int lineNumber = 0;
 		String lastName = null;
@@ -135,7 +135,7 @@ final class Changes {
 			lineNumber++;
 			// skip non-var rows
 			line = line.trim();
-			if (line.isEmpty() || line.startsWith("#"))
+			if (!Row.isRow(line))
 				continue;
 			// parse row
 			Row row = Row.parse(line);
@@ -154,13 +154,13 @@ final class Changes {
 			// first the changed names that sort before this one
 			while (nextChange != null && nextChange.getKey().compareTo(name) < 0) {
 				pass(nextChange, sink); // accept the change
-				nextChange = appendedChanges.hasNext() ? appendedChanges.next() : null;
+				nextChange = advance(appendedChanges);
 			}
 			// now the next change is either the same or after this row
 			if (nextChange != null && nextChange.getKey().equals(name)) {
 				// if same, then the change wins
 				pass(nextChange, sink); // replaced, or deleted if null
-				nextChange = appendedChanges.hasNext() ? appendedChanges.next() : null;
+				nextChange = advance(appendedChanges);
 			} else if (isCleared(name)) {
 				// if this variable is caught up in a clear, drop it
 				continue;
@@ -177,10 +177,18 @@ final class Changes {
 		// apply any remaining changes
 		while (nextChange != null) {
 			pass(nextChange, sink);
-			nextChange = appendedChanges.hasNext() ? appendedChanges.next() : null;
+			nextChange = advance(appendedChanges);
 		}
 		report.compactedLines(lineNumber);
 		return compactedRows;
+	}
+
+	/**
+	 * @param changes The changes left to merge
+	 * @return The next one, or null if there are none left
+	 */
+	private static Map.@Nullable Entry<String, @Nullable String> advance(Iterator<Map.Entry<String, @Nullable String>> changes) {
+		return changes.hasNext() ? changes.next() : null;
 	}
 
 	/**

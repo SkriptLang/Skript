@@ -1,17 +1,15 @@
 package org.skriptlang.skript.variables.storage.flatfile;
 
-import ch.njol.skript.config.Config;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.log.BlockingLogHandler;
-import ch.njol.skript.variables.SerializedVariable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.skriptlang.skript.variables.VariableMap;
 import org.skriptlang.skript.variables.storage.CsvFormat;
+import org.skriptlang.skript.variables.storage.ManagerTests;
 import org.skriptlang.skript.variables.storage.VariableStorageManager;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +26,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
@@ -39,7 +38,6 @@ import static org.junit.Assert.*;
  */
 public class FlatFileStorageTest {
 
-	private static final String TEXT = "text";
 	private static final String HEADER = "# version: 2.9.0\n";
 
 	private Path folder;
@@ -54,7 +52,7 @@ public class FlatFileStorageTest {
 
 	@After
 	public void tearDown() throws IOException {
-		managers.forEach(this::close);
+		managers.forEach(ManagerTests::close);
 		try (Stream<Path> paths = Files.walk(folder)) {
 			for (Path path : paths.sorted(Comparator.reverseOrder()).toList())
 				Files.delete(path);
@@ -77,14 +75,10 @@ public class FlatFileStorageTest {
 	}
 
 	private VariableStorageManager loadExpecting(VariableMap globals, boolean successful, Path file) throws IOException {
-		VariableStorageManager manager = new VariableStorageManager(globals,
-			value -> value == null ? null : value(String.valueOf(value)),
-			(type, data) -> type.equals(TEXT) ? new String(data, StandardCharsets.UTF_8) : null,
-			Runnable::run);
+		VariableStorageManager manager = ManagerTests.manager(globals, Runnable::run);
 		manager.register(null, FlatFileStorage.class, FlatFileStorage::new, "csv");
-		String config = "databases:\n\tdefault:\n\t\ttype: csv\n\t\tfile: " + file.toString().replace('\\', '/') + "\n";
-		SectionNode databases = (SectionNode) new Config(new ByteArrayInputStream(config.getBytes(StandardCharsets.UTF_8)),
-			"test.sk", false, true, ":").getMainNode().get("databases");
+		SectionNode databases = ManagerTests.databases(
+			"\tdefault:\n\t\ttype: csv\n\t\tfile: " + file.toString().replace('\\', '/') + "\n");
 		managers.add(manager);
 		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
 			assertEquals(successful, manager.load(databases));
@@ -92,17 +86,11 @@ public class FlatFileStorageTest {
 		return manager;
 	}
 
-	private void close(VariableStorageManager manager) {
-		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
-			manager.close();
-		}
-	}
-
 	/**
 	 * Closes the manager and loads the file again.
 	 */
 	private Map<String, Object> reloaded(VariableStorageManager manager) throws IOException {
-		close(manager);
+		ManagerTests.close(manager);
 		return loadedFromFile();
 	}
 
@@ -115,13 +103,9 @@ public class FlatFileStorageTest {
 		return globals.getAll();
 	}
 
-	private static SerializedVariable.Value value(String text) {
-		return new SerializedVariable.Value(TEXT, text.getBytes(StandardCharsets.UTF_8));
-	}
-
 	private static String row(String name, String text) {
 		StringBuilder row = new StringBuilder();
-		CsvFormat.appendRow(row, name, value(text));
+		CsvFormat.appendRow(row, name, ManagerTests.value(text));
 		return row.toString();
 	}
 
@@ -129,6 +113,13 @@ public class FlatFileStorageTest {
 		StringBuilder row = new StringBuilder();
 		CsvFormat.appendRow(row, name, null);
 		return row.toString();
+	}
+
+	/**
+	 * Changes the file's text, as if someone edited it by hand.
+	 */
+	private void editFile(UnaryOperator<String> edit) throws IOException {
+		Files.writeString(file, edit.apply(Files.readString(file)));
 	}
 
 	private List<String> rows() throws IOException {
@@ -254,7 +245,7 @@ public class FlatFileStorageTest {
 		manager.set("b", null);
 		assertTrue(manager.flushAll());
 		assertEquals(Set.of(row("a", "1").trim(), deletion("l::*").trim(), deletion("b").trim()), Set.copyOf(rows()));
-		close(manager);
+		ManagerTests.close(manager);
 		assertEquals(List.of(row("a", "1").trim()), rows());
 	}
 
@@ -313,8 +304,8 @@ public class FlatFileStorageTest {
 	public void damagedRowsAreSkippedAndTheFileIsBackedUp() throws IOException {
 		String damaged = HEADER
 			+ "a row, with, too many, commas\n"
-			+ "bad hex, " + TEXT + ", XYZ\n"
-			+ "odd hex, " + TEXT + ", ABC\n"
+			+ "bad hex, " + ManagerTests.READABLE + ", XYZ\n"
+			+ "odd hex, " + ManagerTests.READABLE + ", ABC\n"
 			+ row("l::*", "a list holding a value")
 			+ row("kept", "1");
 		Files.writeString(file, damaged);
@@ -380,7 +371,7 @@ public class FlatFileStorageTest {
 		// 3300 appended rows, but too soon after the last rewrite, and fewer than ten times the base
 		assertEquals(1600 + 1100 + 2200, rows().size());
 
-		close(manager);
+		ManagerTests.close(manager);
 		assertEquals("compacted on shutdown", 500, rows().size());
 		assertEquals(500, loadedFromFile().size());
 	}
@@ -391,7 +382,7 @@ public class FlatFileStorageTest {
 		VariableStorageManager writer = load(VariableMap.concurrent());
 		for (int i = 0; i < 300_000; i++)
 			writer.set("base::" + i, "1");
-		close(writer);
+		ManagerTests.close(writer);
 
 		VariableStorageManager manager = load(VariableMap.concurrent());
 		for (int i = 0; i < 250_000; i++)
@@ -432,7 +423,7 @@ public class FlatFileStorageTest {
 
 		Map<String, Object> expected = Map.of("0 first", "new", "b", "2", "c", "new", "l::3", "3", "l::x::2", "2",
 			"m", "1", "quoted, \"name\"", "2", "z", "1");
-		close(manager);
+		ManagerTests.close(manager);
 		assertEquals(List.of(row("0 first", "new"), row("b", "2"), row("c", "new"), row("l::3", "3"), row("l::x::2", "2"),
 			row("m", "1"), row("quoted, \"name\"", "2"), row("z", "1")).stream().map(String::trim).toList(), rows());
 		assertEquals(expected, loadedFromFile());
@@ -468,7 +459,7 @@ public class FlatFileStorageTest {
 	private void compactedFile(Map<String, String> variables) throws IOException {
 		VariableStorageManager manager = load(VariableMap.concurrent());
 		variables.forEach(manager::set);
-		close(manager);
+		ManagerTests.close(manager);
 		managers.remove(manager);
 	}
 
@@ -525,7 +516,7 @@ public class FlatFileStorageTest {
 	@Test
 	public void deletingACompactedRowByHandReadsTheWholeFile() throws IOException {
 		compactedFile(Map.of("a", "1", "b", "2", "c", "3"));
-		Files.writeString(file, Files.readString(file).replace(row("b", "2"), ""));
+		editFile(text -> text.replace(row("b", "2"), ""));
 		assertEquals(Map.of("a", "1", "c", "3"), loadedFromFile());
 		assertTrue(backups().isEmpty());
 		// rewritten, so the header is right again
@@ -537,7 +528,7 @@ public class FlatFileStorageTest {
 	public void deletingAnAppendedRowByHandIsFine() throws IOException {
 		compactedFile(Map.of("a", "1"));
 		Files.writeString(file, row("b", "1") + row("c", "1"), StandardOpenOption.APPEND);
-		Files.writeString(file, Files.readString(file).replace(row("b", "1"), ""));
+		editFile(text -> text.replace(row("b", "1"), ""));
 		String before = Files.readString(file);
 		assertEquals(Map.of("a", "1", "c", "1"), loadedFromFile());
 		assertEquals(before, Files.readString(file));
@@ -547,7 +538,7 @@ public class FlatFileStorageTest {
 	public void damagedAppendedRowsAreSkippedAndTheFileIsBackedUp() throws IOException {
 		compactedFile(Map.of("a", "1", "b", "1"));
 		String cutOff = row("a", "3");
-		Files.writeString(file, "bad hex, " + TEXT + ", XYZ\n" + row("b", "2") + cutOff.substring(0, cutOff.length() - 3),
+		Files.writeString(file, "bad hex, " + ManagerTests.READABLE + ", XYZ\n" + row("b", "2") + cutOff.substring(0, cutOff.length() - 3),
 			StandardOpenOption.APPEND);
 		String damaged = Files.readString(file);
 		assertEquals(Map.of("a", "1", "b", "2"), loadedFromFile());
@@ -563,7 +554,7 @@ public class FlatFileStorageTest {
 		compactedFile(Map.of("a", "1", "b", "2", "c", "3"));
 		// the same length, so the end of the compacted rows is still where the header says
 		String bad = row("b", "2");
-		Files.writeString(file, Files.readString(file).replace(bad, bad.substring(0, bad.length() - 2) + "Z\n"));
+		editFile(text -> text.replace(bad, bad.substring(0, bad.length() - 2) + "Z\n"));
 		Files.writeString(file, row("c", "4"), StandardOpenOption.APPEND);
 		assertEquals(Map.of("a", "1", "c", "4"), loadedFromFile());
 		assertEquals(List.of(row("a", "1").trim(), row("c", "4").trim()), rows());
@@ -589,7 +580,7 @@ public class FlatFileStorageTest {
 		manager.set("a", "1");
 		manager.set("b", "2");
 		assertTrue(manager.flushAll());
-		Files.writeString(file, Files.readString(file).replace(row("a", "1"), ""));
+		editFile(text -> text.replace(row("a", "1"), ""));
 		manager.set("c", "3");
 		assertTrue(manager.flushAll());
 		// read again as it is, later changes are still saved after it, and the resave puts a back
@@ -629,11 +620,11 @@ public class FlatFileStorageTest {
 		VariableStorageManager manager = load(VariableMap.concurrent());
 		// the same length, so only reading the rows back notices it
 		String bad = row("b", "2");
-		Files.writeString(file, Files.readString(file).replace(bad, bad.substring(0, bad.length() - 2) + "Z\n"));
+		editFile(text -> text.replace(bad, bad.substring(0, bad.length() - 2) + "Z\n"));
 		manager.set("d", "4");
 		assertTrue(manager.flushAll());
 		String damaged = Files.readString(file);
-		close(manager); // compacts
+		ManagerTests.close(manager); // compacts
 		assertEquals(Map.of("a", "1", "c", "3", "d", "4"), loadedFromFile());
 		List<Path> backups = backups();
 		assertEquals("the row was left out, so the file was backed up first", 1, backups.size());
@@ -712,7 +703,7 @@ public class FlatFileStorageTest {
 			assertTrue(manager.flushAll());
 		}
 		assertEquals(3, rows().size());
-		close(manager);
+		ManagerTests.close(manager);
 		assertEquals(List.of(row("a", "2").trim()), rows());
 		assertFalse(Files.exists(folder.resolve("variables.csv.temp")));
 	}
@@ -725,7 +716,7 @@ public class FlatFileStorageTest {
 		// as an outside change, which resaves and so rewrites it
 		FileTime marker = FileTime.fromMillis(0);
 		Files.setLastModifiedTime(file, marker);
-		close(manager);
+		ManagerTests.close(manager);
 		assertEquals(marker, Files.getLastModifiedTime(file));
 	}
 

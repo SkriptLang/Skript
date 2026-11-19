@@ -47,8 +47,8 @@ final class VariableRefresher {
 	private final Supplier<List<VariableStorage>> storages;
 	private final BiConsumer<Throwable, String> reportFailure;
 
-	private Set<VariableStorage> requestedRewrite = identitySet(); // requested a resave, waiting for the next pass
-	private Set<VariableStorage> forcedRewrite = identitySet();    // every variable is queued by the running pass
+	private Set<VariableStorage> requestedResave = identitySet(); // requested a resave, waiting for the next pass
+	private Set<VariableStorage> forcedResave = identitySet();    // every variable is queued by the running pass
 
 	// variables that threw while refreshed during the running pass, reported once it ends
 	private int failures;
@@ -84,7 +84,7 @@ final class VariableRefresher {
 	private void collectRequests() {
 		for (VariableStorage storage : storages.get()) {
 			if (storage.takeResaveRequest())
-				requestedRewrite.add(storage);
+				requestedResave.add(storage);
 		}
 	}
 
@@ -131,11 +131,11 @@ final class VariableRefresher {
 				nextPassAt = now + TIME_BETWEEN_PASSES;
 				scheduled = true;
 			}
-			if (requestedRewrite.isEmpty() && now - nextPassAt < 0) // compared by difference, since nanoTime can overflow
+			if (requestedResave.isEmpty() && now - nextPassAt < 0) // compared by difference, since nanoTime can overflow
 				return;
-			Set<VariableStorage> requested = requestedRewrite;
-			requestedRewrite = forcedRewrite;
-			forcedRewrite = requested;
+			Set<VariableStorage> requested = requestedResave;
+			requestedResave = forcedResave;
+			forcedResave = requested;
 			next = new SavedVariableHashes((int) Math.min(globals.size(), Integer.MAX_VALUE / 2)); // a billion is overkill but better to have a max cap
 			pass = globals.nameIterator();
 		}
@@ -148,9 +148,9 @@ final class VariableRefresher {
 		saved = next; // names deleted since the last pass weren't put in next, so they're gone now
 		next = null;
 		pass = null;
-		forcedRewrite.clear();
+		forcedResave.clear();
 		// a storage that requested a resave during this pass gets the next one right away
-		nextPassAt = requestedRewrite.isEmpty() ? System.nanoTime() + TIME_BETWEEN_PASSES : System.nanoTime();
+		nextPassAt = requestedResave.isEmpty() ? System.nanoTime() + TIME_BETWEEN_PASSES : System.nanoTime();
 		reportFailures();
 	}
 
@@ -160,15 +160,15 @@ final class VariableRefresher {
 	 */
 	void refreshAll() {
 		collectRequests();
-		forcedRewrite.addAll(requestedRewrite);
-		requestedRewrite.clear();
+		forcedResave.addAll(requestedResave);
+		requestedResave.clear();
 		next = null;
 		pass = null;
 		SavedVariableHashes all = new SavedVariableHashes((int) Math.min(globals.size(), Integer.MAX_VALUE / 2));
 		for (Iterator<String> it = globals.nameIterator(); it.hasNext(); )
 			refresh(it.next(), all);
 		saved = all;
-		forcedRewrite.clear();
+		forcedResave.clear();
 		reportFailures();
 	}
 
@@ -189,7 +189,7 @@ final class VariableRefresher {
 				return; // a type that can't be saved
 			long hash = SavedVariableHashes.hash(serializer.type(), serializer.data(), serializer.offset(), serializer.length());
 			// copied out of the buffer only now, since few values change
-			if ((!saved.matches(name, hash) || (!forcedRewrite.isEmpty() && forcedRewrite.contains(storage)))
+			if ((!saved.matches(name, hash) || forcedResave.contains(storage))
 				&& !storage.queue().writeIfCurrent(name, serializer.toValue(), () -> globals.getVariable(name) == value)) {
 				// set to something else since it was read, and that change is queued instead.
 				return;
