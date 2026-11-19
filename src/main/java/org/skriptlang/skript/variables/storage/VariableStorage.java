@@ -675,8 +675,9 @@ public abstract class VariableStorage implements Closeable {
 		 * @param source the storage that reported it
 		 * @param name   the variable's name, which isn't a list name
 		 * @param value  the new stored value, or null if the variable was deleted
+		 * @param policy what to do if the variable has an unsaved local change
 		 */
-		void updated(VariableStorage source, String name, SerializedVariable.@Nullable Value value);
+		void updated(VariableStorage source, String name, SerializedVariable.@Nullable Value value, ReportPolicy policy);
 
 		/**
 		 * Applies a deletion of a list that a storage reported with {@link VariableStorage#reportCleared}.
@@ -693,7 +694,7 @@ public abstract class VariableStorage implements Closeable {
 	 */
 	private static final ChangeHandler STOPPED = new ChangeHandler() {
 		@Override
-		public void updated(VariableStorage source, String name, SerializedVariable.@Nullable Value value) {
+		public void updated(VariableStorage source, String name, SerializedVariable.@Nullable Value value, ReportPolicy policy) {
 		}
 
 		@Override
@@ -708,13 +709,9 @@ public abstract class VariableStorage implements Closeable {
 
 	/**
 	 * Tells Skript that a variable in this storage was changed from outside this server,
-	 * for example by another server writing to the same SQL database.
-	 * Skript updates the variable and drops any change to it that this server has not saved yet,
-	 * so the stored value is kept. The change is never passed back to any storage,
-	 * so the storage must already hold it.
-	 * <p>
-	 * May be called from any thread, but only once loading has finished and the storage is running.
-	 * Ignored once the storage has stopped. Skript deserializes the value on the main thread.
+	 * dropping any change to it that this server has not saved yet.
+	 * Same as {@link #reportUpdated(String, SerializedVariable.Value, ReportPolicy)}
+	 * with {@link ReportPolicy#REPLACE_LOCAL}.
 	 *
 	 * @param name  the name of the variable
 	 * @param value the new serialized value of the variable, or {@code null} if the variable was deleted
@@ -722,15 +719,40 @@ public abstract class VariableStorage implements Closeable {
 	 * @throws IllegalArgumentException if {@code name} is a list, such as {@code a::*}
 	 */
 	protected final void reportUpdated(String name, SerializedVariable.@Nullable Value value) {
+		reportUpdated(name, value, ReportPolicy.REPLACE_LOCAL);
+	}
+
+	/**
+	 * Tells Skript that a variable in this storage was changed from outside this server,
+	 * for example by another server writing to the same SQL database.
+	 * If this server has an unsaved change to the variable, the policy decides which one wins:
+	 * {@link ReportPolicy#REPLACE_LOCAL} drops the local change, so the stored value is kept,
+	 * and {@link ReportPolicy#KEEP_LOCAL} ignores the report, since the local change will be saved after it.
+	 * <p>
+	 * The change is never passed back to any storage, so the storage must already hold it.
+	 * A report that {@code KEEP_LOCAL} ignores leaves Skript's value and the stored one different
+	 * until the local change is saved.
+	 * <p>
+	 * May be called from any thread, but only once loading has finished and the storage is running.
+	 * Ignored once the storage has stopped. Skript deserializes the value on the main thread.
+	 *
+	 * @param name   the name of the variable
+	 * @param value  the new serialized value of the variable, or {@code null} if the variable was deleted
+	 * @param policy what to do if the variable has an unsaved local change
+	 * @throws IllegalStateException    if the storage isn't running yet
+	 * @throws IllegalArgumentException if {@code name} is a list, such as {@code a::*}
+	 */
+	protected final void reportUpdated(String name, SerializedVariable.@Nullable Value value, ReportPolicy policy) {
 		if (name.endsWith(Variable.LIST_SUFFIX))
 			throw new IllegalArgumentException("Can't update a list as a single variable: " + name);
-		handler().updated(this, name, value);
+		handler().updated(this, name, value, policy);
 	}
 
 	/**
 	 * Tells Skript that a list in this storage was deleted from outside this server.
 	 * Skript deletes the list's variables that this storage holds, including those in nested lists,
-	 * and drops any changes to them that this server has not saved yet.
+	 * and drops any changes to them that this server has not saved yet. Unlike {@link #reportUpdated},
+	 * this has no {@link ReportPolicy}: a reported clear always replaces local changes.
 	 * A variable with the list's name minus the {@code ::*}, such as {@code a} for {@code a::*}, is not affected.
 	 * <p>
 	 * May be called from any thread, but only once loading has finished and the storage is running.
@@ -798,6 +820,27 @@ public abstract class VariableStorage implements Closeable {
 		public boolean isEmpty() {
 			return clears.isEmpty() && changes.isEmpty();
 		}
+
+	}
+
+	/**
+	 * What happens when a change that a storage reported meets a change to the same variable
+	 * that this server made but hasn't saved yet.
+	 */
+	public enum ReportPolicy {
+
+		/**
+		 * The reported change wins: the unsaved local change is dropped and the reported one applied.
+		 * For storages where the remote side decides, such as one with claims.
+		 */
+		REPLACE_LOCAL,
+
+		/**
+		 * The unsaved local change wins: the report is ignored if the variable has an unsaved change,
+		 * or an unsaved clear of a list covers it, since that change will be saved after the reported one.
+		 * For storages where the last save wins, such as SQL databases.
+		 */
+		KEEP_LOCAL
 
 	}
 

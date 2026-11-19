@@ -211,6 +211,45 @@ public class VariableStorageManagerMigrationTest {
 	}
 
 	@Test
+	public void aKeepLocalReportDoesntReplaceAnUnsavedChange() {
+		RecordingStorage all = storage("default");
+		assertTrue(loadStorages(all));
+		manager.set("a", "local");
+
+		all.reportUpdatedForTest("a", value("remote"), VariableStorage.ReportPolicy.KEEP_LOCAL);
+		runMainThreadTasks();
+		assertEquals("local", globals.getVariable("a"));
+		assertEquals(Map.of("a", "local"), stored(all)); // still saved, after the reported change
+	}
+
+	@Test
+	public void aKeepLocalReportUnderAnUnsavedClearIsIgnored() {
+		RecordingStorage all = storage("default");
+		assertTrue(loadStorages(all));
+		manager.set("a::1", "1");
+		assertTrue(all.flush());
+		manager.set("a::*", null);
+
+		all.reportUpdatedForTest("a::1", value("remote"), VariableStorage.ReportPolicy.KEEP_LOCAL);
+		runMainThreadTasks();
+		assertNull(globals.getVariable("a::1"));
+		assertTrue(stored(all).isEmpty()); // the clear is still saved
+	}
+
+	@Test
+	public void aKeepLocalReportIsAppliedOnceTheChangeIsSaved() {
+		RecordingStorage all = storage("default");
+		assertTrue(loadStorages(all));
+		manager.set("a", "local");
+		assertTrue(all.flush());
+
+		all.reportUpdatedForTest("a", value("remote"), VariableStorage.ReportPolicy.KEEP_LOCAL);
+		runMainThreadTasks();
+		assertEquals("remote", globals.getVariable("a"));
+		assertEquals(Map.of("a", "local"), stored(all)); // the reported value isn't saved back
+	}
+
+	@Test
 	public void aReportedClearOfAWholeListClearsIt() {
 		RecordingStorage all = storage("default");
 		assertTrue(loadStorages(all));
