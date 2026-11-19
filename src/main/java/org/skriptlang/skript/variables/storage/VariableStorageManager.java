@@ -15,13 +15,7 @@ import org.skriptlang.skript.variables.VariableList;
 import org.skriptlang.skript.variables.VariableMap;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
@@ -1046,9 +1040,9 @@ public final class VariableStorageManager {
 	private final VariableStorage.ChangeHandler reports = new VariableStorage.ChangeHandler() {
 
 		@Override
-		public void updated(VariableStorage source, String name, SerializedVariable.@Nullable Value value) {
+		public void updated(VariableStorage source, String name, SerializedVariable.@Nullable Value value, VariableStorage.ReportPolicy policy) {
 			if (!closed)
-				mainThread.execute(() -> applyUpdate(source, name, value));
+				mainThread.execute(() -> applyUpdate(source, name, value, policy));
 		}
 
 		@Override
@@ -1061,14 +1055,15 @@ public final class VariableStorageManager {
 
 	/**
 	 * Applies a reported change to a variable, on the main thread. Ignored if the reporting storage doesn't save
-	 * the variable, or the value can't be read. Drops any unsaved local change to the variable, so the storage's value
-	 * isn't overwritten, and never queues the change for saving.
+	 * the variable, or the value can't be read. Drops or keeps an unsaved local change to the variable,
+	 * as the policy says, and never queues the change for saving.
 	 *
 	 * @param source the storage that reported the change
 	 * @param name   the variable's name
 	 * @param value  the new stored value, or null if the variable was deleted
+	 * @param policy what to do if the variable has an unsaved local change
 	 */
-	private void applyUpdate(VariableStorage source, String name, SerializedVariable.@Nullable Value value) {
+	private void applyUpdate(VariableStorage source, String name, SerializedVariable.@Nullable Value value, VariableStorage.ReportPolicy policy) {
 		if (route(name) != source) { // closed, ephemeral, or saved by another storage here
 			if (!closed)
 				Skript.debug("Ignoring a change to '" + name + "' from the database '" + source.getName() + "', which doesn't save it");
@@ -1083,8 +1078,11 @@ public final class VariableStorageManager {
 			}
 		}
 		Object newValue = deserialized;
-		// also drops any unsaved local change to it, so the storage's value isn't overwritten
-		source.queue().externalWrite(name, () -> globals.setVariable(name, newValue));
+		boolean applied = source.queue().externalWrite(name, policy, () -> globals.setVariable(name, newValue));
+		if (!applied) {
+			Skript.debug("Keeping the unsaved change to '" + name + "' over the one from the database '" + source.getName() + "'");
+			return;
+		}
 		if (value != null) // the storage has this value already, so the refresh mustn't save it back
 			refresher.recordSaved(name, value);
 	}

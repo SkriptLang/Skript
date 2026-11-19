@@ -134,6 +134,13 @@ class RecordingStorage extends VariableStorage {
 	}
 
 	/**
+	 * Calls {@link #reportUpdated(String, SerializedVariable.Value, ReportPolicy)}, which is protected.
+	 */
+	void reportUpdatedForTest(String name, SerializedVariable.@Nullable Value value, ReportPolicy policy) {
+		reportUpdated(name, value, policy);
+	}
+
+	/**
 	 * Calls {@link #reportCleared}, which is protected.
 	 */
 	void reportClearedForTest(String listName) {
