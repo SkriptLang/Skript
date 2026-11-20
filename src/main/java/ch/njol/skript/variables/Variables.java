@@ -29,28 +29,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.variables.VariableMap;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Handles all things related to variables.
@@ -161,8 +149,7 @@ public class Variables {
 	 * @return whether the loading was successful.
 	 */
 	public static boolean load() {
-		assert variables.treeMap.isEmpty();
-		assert variables.hashMap.isEmpty();
+		assert variables.isEmpty();
 		assert STORAGES.isEmpty();
 
 		Config config = SkriptConfig.getConfig();
@@ -333,50 +320,35 @@ public class Variables {
 	}
 
 	/**
-	 * A lock for reading and writing variables.
+	 * Keeps {@link #saveQueue} in the same order as the changes made to {@link #variables}, by being held across
+	 * both, so that storages end up with the same final value as the map. It's not needed to read or write the map.
+	 * <p>
+	 * This is held by every writer of a saved variable, so nothing slow should happen under it.
+	 * That includes serializing the value. Variables that don't get saved have no order to keep, so they skip it.
 	 */
-	static final ReadWriteLock variablesLock = new ReentrantReadWriteLock(true);
+	static final ReentrantLock saveOrderLock = new ReentrantLock();
 
 	/**
-	 * The {@link VariablesMap} storing global variables,
-	 * must be locked with {@link #variablesLock}.
+	 * The {@link VariableMap} storing global variables. This is thread-safe, so reading it doesn't need a lock.
+	 * Writers should hold {@link #saveOrderLock} if the change has to be saved.
 	 */
-	static final VariablesMap variables = new VariablesMap();
+	static final VariableMap variables = VariableMap.concurrent();
 
 	/**
 	 * A map storing all local variables,
 	 * indexed by their {@link Event}.
 	 */
-	private static final Map<Event, VariablesMap> localVariables = new ConcurrentHashMap<>();
+	private static final Map<Event, VariableMap> localVariables = new ConcurrentHashMap<>();
 
 	/**
-	 * Gets the {@link TreeMap} of all global variables.
-	 * <p>
-	 * Remember to lock with {@link #getReadLock()} and to not make any changes!
-	 */
-	static TreeMap<String, Object> getVariables() {
-		return variables.treeMap;
-	}
-
-	/**
-	 * Gets the {@link Map} of all global variables.
-	 * <p>
-	 * This map cannot be modified.
-	 * Remember to lock with {@link #getReadLock()}!
-	 */
-	static Map<String, Object> getVariablesHashMap() {
-		return Collections.unmodifiableMap(variables.hashMap);
-	}
-
-	/**
-	 * Gets the lock for reading variables.
+	 * Gets a sorted snapshot of all global variables by their full names.
+	 * This copies every variable, so it's only meant for things like saving.
 	 *
-	 * @return the lock.
-	 *
-	 * @see #variablesLock
+	 * @return An unmodifiable copy of the global variables.
+	 * @see VariableMap#getAll()
 	 */
-	static Lock getReadLock() {
-		return variablesLock.readLock();
+	static Map<String, Object> getVariables() {
+		return variables.getAll();
 	}
 
 	/**
@@ -388,7 +360,12 @@ public class Variables {
 	 * or {@code null} if the event had no local variables.
 	 */
 	@Nullable
-	public static VariablesMap removeLocals(Event event) {
+	public static Object removeLocals(Event event) {
+		if (event instanceof LocalVariableHoldingEvent localVariableHoldingEvent) {
+			VariableMap map = localVariableHoldingEvent.getLocals();
+			localVariableHoldingEvent.setLocals(null);
+			return map;
+		}
 		return localVariables.remove(event);
 	}
 
@@ -405,21 +382,25 @@ public class Variables {
 	 */
 	public static void setLocalVariables(Event event, @Nullable Object map) {
 		if (map != null) {
-			localVariables.put(event, (VariablesMap) map);
+			if (event instanceof LocalVariableHoldingEvent lvEvent) {
+				lvEvent.setLocals((VariableMap) map);
+			} else {
+				localVariables.put(event, (VariableMap) map);
+			}
 		} else {
 			removeLocals(event);
 		}
 	}
 
 	/**
-	 * Creates a copy of the {@link VariablesMap} for local variables
+	 * Creates a copy of the {@link VariableMap} for local variables
 	 * in an event.
 	 *
 	 * @param event the event to copy local variables from.
 	 * @return the copy.
 	 */
 	public static @Nullable Object copyLocalVariables(Event event) {
-		VariablesMap from = localVariables.get(event);
+		VariableMap from = event instanceof LocalVariableHoldingEvent lvEvent ? lvEvent.getLocals() : localVariables.get(event);
 		if (from == null)
 			return null;
 
@@ -427,8 +408,8 @@ public class Variables {
 	}
 
 	/**
-	 * Copies local variables from provider to user, runs action, then copies variables back to provider.
-	 * Removes local variables from user after action is finished.
+	 * Copies local variables from provider to user, runs action, then moves the variables back to provider.
+	 * This leaves user with no local variables once action is finished.
 	 * @param provider The originator of the local variables.
 	 * @param user The event to copy the variables to and back from.
 	 * @param action The code to run while the variables are copied.
@@ -436,8 +417,7 @@ public class Variables {
 	public static void withLocalVariables(Event provider, Event user, @NotNull Runnable action) {
 		Variables.setLocalVariables(user, Variables.copyLocalVariables(provider));
 		action.run();
-		Variables.setLocalVariables(provider, Variables.copyLocalVariables(user));
-		Variables.removeLocals(user);
+		Variables.setLocalVariables(provider, Variables.removeLocals(user));
 	}
 
 	/**
@@ -466,33 +446,13 @@ public class Variables {
 		}
 
 		if (local) {
-			VariablesMap map = localVariables.get(event);
+			VariableMap map = event instanceof LocalVariableHoldingEvent lvEvent ? lvEvent.getLocals() : localVariables.get(event);
 			if (map == null)
 				return null;
 
 			return map.getVariable(n);
 		} else {
-			try {
-				variablesLock.readLock().lock();
-				// Prevent race conditions from returning variables with incorrect values
-				if (!changeQueue.isEmpty()) {
-					// Gets the last VariableChange made
-					VariableChange variableChange = changeQueue.stream()
-							.filter(change -> change.name.equals(n))
-							.reduce((first, second) -> second)
-									// Gets last value, as iteration is from head to tail,
-									//  and adding occurs at the tail (and we want the most recently added)
-							.orElse(null);
-
-					if (variableChange != null) {
-						return variableChange.value;
-					}
-				}
-
-				return variables.getVariable(n);
-			} finally {
-				variablesLock.readLock().unlock();
-			}
+			return variables.getVariable(n);
 		}
 	}
 
@@ -513,7 +473,7 @@ public class Variables {
 
 		if (val == null)
 			return new EmptyIterator<>();
-		assert val instanceof TreeMap;
+		assert val instanceof Map;
 		// temporary list to prevent CMEs
 		@SuppressWarnings("unchecked")
 		Iterator<String> keys = new ArrayList<>(((Map<String, Object>) val).keySet()).iterator();
@@ -522,6 +482,9 @@ public class Variables {
 			private String key;
 			@Nullable
 			private Object next = null;
+			// key moves ahead whenever hasNext is called, so remove needs its own copy of what next returned
+			@Nullable
+			private String lastReturned;
 
 			@Override
 			public boolean hasNext() {
@@ -531,7 +494,7 @@ public class Variables {
 					key = keys.next();
 					if (key != null) {
 						next = Variable.convertIfOldPlayer(subName + key, local, event, Variables.getVariable(subName + key, event, local));
-						if (next != null && !(next instanceof TreeMap))
+						if (next != null && !(next instanceof Map))
 							return true;
 					}
 				}
@@ -544,15 +507,17 @@ public class Variables {
 				if (!hasNext())
 					throw new NoSuchElementException();
 				Pair<String, Object> n = new Pair<>(key, next);
+				lastReturned = key;
 				next = null;
 				return n;
 			}
 
 			@Override
 			public void remove() {
-				if (key == null)
+				if (lastReturned == null)
 					throw new IllegalStateException();
-				Variables.deleteVariable(key, event, local);
+				Variables.deleteVariable(subName + lastReturned, event, local);
+				lastReturned = null;
 			}
 		};
 	}
@@ -573,8 +538,8 @@ public class Variables {
 	 * Sets a variable.
 	 *
 	 * @param name the variable's name.
-	 *                Can be a "list variable::*", but {@code value}
-	 *                must be {@code null} in this case.
+	 *                Can be a "list variable::*", but only to delete it.
+	 *                Setting one to a value does nothing.
 	 * @param value The variable's value. Use {@code null}
 	 *                 to delete the variable.
 	 * @param event if {@code local} is {@code true}, this is the event
@@ -587,8 +552,11 @@ public class Variables {
 		}
 
 		// Check if conversion is needed due to ClassInfo#getSerializeAs
+		// we do this even for locals because of conversions like Slot->Itemstack
 		if (value != null) {
-			assert !name.endsWith("::*");
+			// names are computed at runtime, so {a::%arg%} can end up as a list name
+			if (name.endsWith(Variable.SEPARATOR + "*"))
+				return;
 
 			ClassInfo<?> ci = Classes.getSuperClassInfo(value.getClass());
 			Class<?> sas = ci.getSerializeAs();
@@ -603,7 +571,7 @@ public class Variables {
 			assert event != null : name;
 
 			// Get the variables map and set the variable in it
-			VariablesMap map = localVariables.computeIfAbsent(event, e -> new VariablesMap());
+			VariableMap map = getOrCreateLocals(event);
 			map.setVariable(name, value);
 		} else {
 			setVariable(name, value);
@@ -617,84 +585,151 @@ public class Variables {
 	 * @param value the value, or {@code null} to delete the variable.
 	 */
 	static void setVariable(String name, @Nullable Object value) {
-		if (variablesLock.writeLock().tryLock()) {
-			try {
-				if (!changeQueue.isEmpty()) { // Process older, queued changes if available
-					processChangeQueue();
+		SerializedVariable serialized = serializeChange(name, value);
+		if (serialized == null) {
+			variables.setVariable(name, value);
+			return;
+		}
+
+		saveOrderLock.lock();
+		try {
+			variables.setVariable(name, value);
+			saveQueue.add(serialized);
+		} finally {
+			saveOrderLock.unlock();
+		}
+	}
+
+	/**
+	 * Sets a list to the following keys and values, replacing the whole list at once.
+	 * This is two to three times as fast as deleting the list and calling
+	 * {@link #setVariable(String, Object, Event, boolean)} for each element.
+	 * For global variables, readers on other threads can briefly see a mix of the old list and the new one.
+	 *
+	 * @param listName The full name of the list, without ::* on the end.
+	 * @param keys     The keys to use for the list's values, in any order. If a key repeats, the last value wins.
+	 * @param values   The values to use in the list, one per key. This array is not modified.
+	 */
+	public static void setList(String listName, @NotNull String @NotNull [] keys, @NotNull Object @NotNull [] values, @Nullable Event event, boolean local) {
+		assert keys.length == values.length : keys.length + " keys, " + values.length + " values";
+		// keys like a::b (from keyed recursive lists) make nested lists, which the bulk path can't build.
+		// list names ending in : are the same, as a:: + b splits into a and :b, so that's really a different list.
+		// a key of * would be a value named like the list, which setVariable drops.
+		if (hasUnsupportedKey(keys) || listName.endsWith(":")) {
+			setVariable(listName + Variable.SEPARATOR + "*", null, event, local);
+			for (int i = 0; i < keys.length; i++)
+				setVariable(listName + Variable.SEPARATOR + keys[i], values[i], event, local);
+			return;
+		}
+		if (caseInsensitiveVariables) {
+			listName = listName.toLowerCase(Locale.ENGLISH);
+			keys = lowercased(keys); // same array back if no key changed
+		}
+
+		ClassInfo<?> lastCI = null;
+		Class<?> lastClass = null;
+		boolean copied = false;
+		for (int i = 0; i < values.length; i++) {
+			assert values[i] != null : "null value for key " + keys[i];
+			// Check if conversion is needed due to ClassInfo#getSerializeAs
+			// we do this even for locals because of conversions like Slot->ItemStack
+			Class<?> valueClass = values[i].getClass();
+			ClassInfo<?> ci = valueClass == lastClass ? lastCI : Classes.getSuperClassInfo(valueClass);
+			Class<?> sas = ci.getSerializeAs();
+
+			if (sas != null) {
+				Object newValue = Converters.convert(values[i], sas);
+				assert newValue != null : ci + ", " + sas;
+				if (!copied) { // don't modify the caller's array
+					values = values.clone();
+					copied = true;
 				}
-				// Process and save requested change
-				variables.setVariable(name, value);
-				saveVariableChange(name, value);
-			} finally {
-				variablesLock.writeLock().unlock();
+				values[i] = newValue;
+			}
+			lastClass = valueClass;
+			lastCI = ci;
+		}
+
+		if (local) {
+			assert event != null;
+			getOrCreateLocals(event).setList(listName, keys, values);
+		} else {
+			setGlobalList(listName, keys, values);
+		}
+	}
+
+	/**
+	 * Sets the given global list to the given keys and values, taking {@link #saveOrderLock} once for the whole list.
+	 * The changes saved are the same as deleting the list and setting each element would save.
+	 *
+	 * @param listName the list's name, without ::* on the end, already lowercased if needed.
+	 * @param keys the keys, already lowercased if needed and without separators.
+	 * @param values the values, already converted with {@link ClassInfo#getSerializeAs()}.
+	 */
+	private static void setGlobalList(String listName, String[] keys, Object[] values) {
+		String prefix = listName + Variable.SEPARATOR;
+		SerializedVariable clear = serializeChange(prefix + "*", null);
+		if (clear == null) { // every name here starts the same way, so none of them get saved
+			variables.setList(listName, keys, values);
+			return;
+		}
+
+		SerializedVariable[] elements = new SerializedVariable[keys.length];
+		for (int i = 0; i < keys.length; i++)
+			elements[i] = serializeChange(prefix + keys[i], values[i]);
+
+		saveOrderLock.lock();
+		try {
+			variables.setList(listName, keys, values);
+			saveQueue.add(clear);
+			for (SerializedVariable element : elements)
+				saveQueue.add(element);
+		} finally {
+			saveOrderLock.unlock();
+		}
+	}
+
+	private static boolean hasUnsupportedKey(String[] keys) {
+		for (String key : keys) {
+			if (key.equals("*") || key.contains(Variable.SEPARATOR))
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Lowercases each key, returning the same array if none of them changed.
+	 *
+	 * @param keys the strings to lowercase
+	 * @return the lowercased keys array (a new array if any were uppercase, or the existing array)
+	 */
+	private static String[] lowercased(String[] keys) {
+		String[] result = keys;
+		for (int i = 0; i < keys.length; i++) {
+			String lower = keys[i].toLowerCase(Locale.ENGLISH);
+			//noinspection StringEquality
+			if (lower != keys[i]) { // toLowerCase returns the same instance when nothing changes
+				if (result == keys)
+					result = keys.clone(); // first change: copy, so the caller's array is untouched
+				result[i] = lower;
+			}
+		}
+		return result;
+	}
+
+	// helper to get/create a local variable map
+	private static VariableMap getOrCreateLocals(Event event) {
+		VariableMap map;
+		if (event instanceof LocalVariableHoldingEvent lvEvent) {
+			map = lvEvent.getLocals();
+			if (map == null) {
+				map = VariableMap.local();
+				lvEvent.setLocals(map);
 			}
 		} else {
-			// Couldn't acquire variable write lock, queue the change (blocking here is a bad idea)
-			queueVariableChange(name, value);
+			map = localVariables.computeIfAbsent(event, e -> VariableMap.local());
 		}
-	}
-
-	/**
-	 * Changes to variables that have not yet been performed.
-	 */
-	static final Queue<VariableChange> changeQueue = new ConcurrentLinkedQueue<>();
-
-	/**
-	 * A variable change name-value pair.
-	 */
-	private static class VariableChange {
-
-		/**
-		 * The name of the changed variable.
-		 */
-		public final String name;
-
-		/**
-		 * The (possibly {@code null}) value of the variable change.
-		 */
-		@Nullable
-		public final Object value;
-
-		/**
-		 * Creates a new {@link VariableChange} with the given name and value.
-		 *
-		 * @param name the variable name.
-		 * @param value the new variable value.
-		 */
-		public VariableChange(String name, @Nullable Object value) {
-			this.name = name;
-			this.value = value;
-		}
-
-	}
-
-	/**
-	 * Queues a variable change. Only to be called when direct write is not
-	 * possible, but thread cannot be allowed to block.
-	 *
-	 * @param name the variable name.
-	 * @param value the new value.
-	 */
-	private static void queueVariableChange(String name, @Nullable Object value) {
-		changeQueue.add(new VariableChange(name, value));
-	}
-
-	/**
-	 * Processes all entries in variable change queue.
-	 * <p>
-	 * Note that caller must acquire write lock before calling this,
-	 * then release it.
-	 */
-	static void processChangeQueue() {
-		while (true) { // Run as long as we still have changes
-			VariableChange change = changeQueue.poll();
-			if (change == null)
-				break;
-
-			// Set and save variable
-			variables.setVariable(change.name, change.value);
-			saveVariableChange(change.name, change.value);
-		}
+		return map;
 	}
 
 	/**
@@ -742,6 +777,12 @@ public class Variables {
 		if (value == null)
 			return false;
 
+		// older versions could save values under list names, which can't exist
+		if (name.endsWith(Variable.SEPARATOR + "*")) {
+			Skript.warning("Skipping the stored variable '" + name + "', since variables can't have the same name as a list.");
+			return false;
+		}
+
 		synchronized (TEMP_VARIABLES) {
 			Map<String, NonNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
 			if (tvs != null) {
@@ -781,11 +822,11 @@ public class Variables {
 			}
 		}
 
-		variablesLock.writeLock().lock();
+		saveOrderLock.lock();
 		try {
 			variables.setVariable(name, value);
 		} finally {
-			variablesLock.writeLock().unlock();
+			saveOrderLock.unlock();
 		}
 
 		// Move the variable to the right storage
@@ -835,7 +876,7 @@ public class Variables {
 			TEMP_VARIABLES.set(null);
 			assert tvs != null;
 
-			variablesLock.writeLock().lock();
+			saveOrderLock.lock();
 			try {
 				// Calculate the amount of variables that don't have a storage
 				int unstoredVariables = 0;
@@ -851,7 +892,7 @@ public class Variables {
 
 				return unstoredVariables;
 			} finally {
-				variablesLock.writeLock().unlock();
+				saveOrderLock.unlock();
 			}
 		}
 	}
@@ -895,15 +936,17 @@ public class Variables {
 	}
 
 	/**
-	 * Serializes and adds the variable change to the {@link #saveQueue}.
+	 * Serializes a variable change, ready for the {@link #saveQueue}.
+	 * This should be done before taking {@link #saveOrderLock}, as it can be slow.
 	 *
 	 * @param name the variable name.
 	 * @param value the value of the variable.
+	 * @return the serialized change, or {@code null} if this variable doesn't get saved.
 	 */
-	private static void saveVariableChange(String name, @Nullable Object value) {
+	private static @Nullable SerializedVariable serializeChange(String name, @Nullable Object value) {
 		if (name.startsWith(Variable.EPHEMERAL_VARIABLE_TOKEN))
-			return;
-		saveQueue.add(serialize(name, value));
+			return null;
+		return serialize(name, value);
 	}
 
 	/**
@@ -938,20 +981,9 @@ public class Variables {
 	}, "Skript variable save thread");
 
 	/**
-	 * Closes the variable systems:
-	 * <ul>
-	 *     <li>Process all changes left in the {@link #changeQueue}.</li>
-	 *     <li>Stops the {@link #saveThread}.</li>
-	 * </ul>
+	 * Closes the variable systems, by stopping the {@link #saveThread} once all changes have been passed on to storages.
 	 */
 	public static void close() {
-		try { // Ensure that all changes are to save soon
-			variablesLock.writeLock().lock();
-			processChangeQueue();
-		} finally {
-			variablesLock.writeLock().unlock();
-		}
-
 		// First, make sure all variables are saved
 		while (saveQueue.size() > 0) {
 			try {
@@ -970,12 +1002,7 @@ public class Variables {
 	 * @return the amount of variables.
 	 */
 	public static int numVariables() {
-		try {
-			variablesLock.readLock().lock();
-			return variables.hashMap.size();
-		} finally {
-			variablesLock.readLock().unlock();
-		}
+		return (int) variables.size();
 	}
 
 }
