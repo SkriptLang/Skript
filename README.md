@@ -52,7 +52,8 @@ New Minecraft versions will usually work with existing versions of Skript, but w
 
 ## Download
 
-You can find downloads for each version with their release notes in [the releases page](https://github.com/SkriptLang/Skript/releases).
+Skript is only available for download in [GitHub](https://github.com/SkriptLang/Skript/releases/latest), [Modrinth](https://modrinth.com/plugin/skript) and [Hangar](https://hangar.papermc.io/SkriptLang/Skript). Do **not** download Skript from elsewhere.\
+Release notes are available in the [Releases page](https://github.com/SkriptLang/Skript/releases)
 
 Skript releases a major feature update 4 times per year, with monthly patches in between. See the [release model](CLOCKWORK_RELEASE_MODEL.md) for details.
 
