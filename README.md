@@ -115,6 +115,17 @@ dependencies {
 
 If dependency resolution fails on `paper-api`, add Paper's repository as well:
 
+**Maven**
+
+```xml
+<repository>
+    <id>papermc</id>
+    <url>https://repo.papermc.io/repository/maven-public/</url>
+</repository>
+```
+
+**Gradle**
+
 ```kotlin
 maven("https://repo.papermc.io/repository/maven-public/")
 ```
