@@ -75,6 +75,13 @@ These communities are run independently of the Skript team. Please don't report 
 
 **Want to test upcoming releases?** Join the [Official Testing Discord](https://discord.gg/ZPsZAg6ygu), and whenever we start testing new features/releases you will be the first to know.
 
+## Contributing
+
+- Read the [contribution guidelines](.github/contributing.md) before opening an issue or pull request.
+- If you are contributing Java code, follow our [code conventions](code-conventions.md).
+- Branch layout is available in [branches.md](branches.md). Use `dev/feature` for features and breaking changes, and `dev/patch` for fixes.
+- Found a security issue? Report it privately via [GitHub security advisories](https://github.com/SkriptLang/Skript/security/advisories/new) instead of the public tracker.
+
 ## Addons
 
 Plugins can add new syntaxes to Skript to extend it. You can find addons on [skUnity](https://forums.skunity.com/forums/addon-releases) and [Skript Hub](https://skripthub.net).
@@ -148,13 +155,6 @@ The plugin jar is written to `build/libs/Skript-<version>.jar`.
 ### Running tests
 
 TODO TODO TODO
-
-## Contributing
-
-- Read the [contribution guidelines](.github/contributing.md) before opening an issue or pull request.
-- If you are contributing Java code, follow our [code conventions](code-conventions.md).
-- Branch layout is available in [branches.md](branches.md). Use `dev/feature` for features and breaking changes, and `dev/patch` for fixes.
-- Found a security issue? Report it privately via [GitHub security advisories](https://github.com/SkriptLang/Skript/security/advisories/new) instead of the public tracker.
 
 ## License
 
