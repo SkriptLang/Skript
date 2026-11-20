@@ -466,26 +466,11 @@ public class SimpleEntityData extends EntityData<Entity> implements EntityItemTy
 	 */
 	public SimpleEntityData(Class<? extends Entity> entityClass) {
 		assert entityClass != null && entityClass.isInterface() : entityClass;
-		SimpleEntityDataInfo closestInfo = null;
-		int closestPattern = 0;
-		for (PatternGroup<SimpleEntityDataInfo> group : PATTERN_GROUPS) {
-			SimpleEntityDataInfo groupInfo = group.data();
-			assert groupInfo != null;
-			Class<? extends Entity> infoEntity = groupInfo.entityClass;
-			if (infoEntity.isAssignableFrom(entityClass)) {
-				if (closestInfo == null || closestInfo.entityClass.isAssignableFrom(infoEntity)) {
-					closestInfo = groupInfo;
-					closestPattern = group.index();
-				}
-			}
-		}
-
-		if (closestInfo != null) {
-			this.simpleInfo = closestInfo;
-			super.groupIndex = closestPattern;
-			return;
-		}
-		throw new IllegalStateException();
+		PatternGroup<SimpleEntityDataInfo> group = getClosestGroup(entityClass);
+		if (group == null)
+			throw new IllegalStateException();
+		this.simpleInfo = group.data();
+		super.groupIndex = group.index();
 	}
 
 	/**
@@ -496,26 +481,11 @@ public class SimpleEntityData extends EntityData<Entity> implements EntityItemTy
 	 */
 	@Internal
 	public SimpleEntityData(Entity entity) {
-		SimpleEntityDataInfo closestInfo = null;
-		int closestPattern = 0;
-		for (PatternGroup<SimpleEntityDataInfo> group : PATTERN_GROUPS) {
-			SimpleEntityDataInfo groupInfo = group.data();
-			assert groupInfo != null;
-			Class<? extends Entity> infoEntity = groupInfo.entityClass;
-			if (infoEntity.isInstance(entity)) {
-				if (closestInfo == null || closestInfo.entityClass.isAssignableFrom(infoEntity)) {
-					closestInfo = groupInfo;
-					closestPattern = group.index();
-				}
-			}
-		}
-
-		if (closestInfo != null) {
-			this.simpleInfo = closestInfo;
-			super.groupIndex = closestPattern;
-			return;
-		}
-		throw new IllegalStateException();
+		PatternGroup<SimpleEntityDataInfo> group = getClosestGroup(entity.getClass());
+		if (group == null)
+			throw new IllegalStateException();
+		this.simpleInfo = group.data();
+		super.groupIndex = group.index();
 	}
 
 	@Override
@@ -533,22 +503,77 @@ public class SimpleEntityData extends EntityData<Entity> implements EntityItemTy
 	
 	@Override
 	public void set(Entity entity) {}
-	
+
+
+	/**
+	 * The closest pattern group for each entity class: the one with the most specific
+	 * {@link SimpleEntityDataInfo#entityClass()} covering it, or null if none does.
+	 * Only depends on the class, so it is cached once registration is over.
+	 */
+	private static final ClassValue<@Nullable PatternGroup<SimpleEntityDataInfo>> CLOSEST_GROUPS = new ClassValue<>() {
+		@Override
+		protected @Nullable PatternGroup<SimpleEntityDataInfo> computeValue(Class<?> type) {
+			return findClosestGroup(type);
+		}
+	};
+
+	/**
+	 * Find the closest patterngroup for a entity class.
+	 * Avoid calling this directly, use {@link #getClosestGroup} instead.
+	 *
+	 * @param type The entity class
+	 * @return The closest patterngroup for type, or null if none found.
+	 */
+	private static @Nullable PatternGroup<SimpleEntityDataInfo> findClosestGroup(Class<?> type) {
+		PatternGroup<SimpleEntityDataInfo> closestGroup = null;
+		SimpleEntityDataInfo closestInfo = null;
+		for (PatternGroup<SimpleEntityDataInfo> group : PATTERN_GROUPS) {
+			SimpleEntityDataInfo groupInfo = group.data();
+			assert groupInfo != null;
+			Class<? extends Entity> infoEntity = groupInfo.entityClass;
+			if (infoEntity.isAssignableFrom(type)) {
+				// later groups win ties, as before
+				if (closestInfo == null || closestInfo.entityClass.isAssignableFrom(infoEntity)) {
+					closestGroup = group;
+					closestInfo = groupInfo;
+				}
+			}
+		}
+		return closestGroup;
+	}
+
+	/**
+	 * Find the closest patterngroup for a entity class.
+	 *
+	 * @param type The entity class
+	 * @return The closest patterngroup for type, or null if none found.
+	 * @see #getClosestInfo(Class)
+	 */
+	private static @Nullable PatternGroup<SimpleEntityDataInfo> getClosestGroup(Class<?> type) {
+		// groups are still being added during registration; don't cache a result that could change
+		if (Skript.isAcceptRegistrations())
+			return findClosestGroup(type);
+		return CLOSEST_GROUPS.get(type);
+	}
+
+	/**
+	 * Find the closest info for a entity class.
+	 *
+	 * @param type The entity class
+	 * @return The closest info for type, or null if none found.
+	 */
+	private static @Nullable SimpleEntityDataInfo getClosestInfo(Class<?> type) {
+		PatternGroup<SimpleEntityDataInfo> group = getClosestGroup(type);
+		if (group == null || group.data() == null)
+			return null;
+		return group.data();
+	}
+
 	@Override
 	public boolean match(Entity entity) {
 		if (simpleInfo.isSuperType())
 			return simpleInfo.entityClass.isInstance(entity);
-		SimpleEntityDataInfo closest = null;
-		for (PatternGroup<SimpleEntityDataInfo> group : PATTERN_GROUPS) {
-			SimpleEntityDataInfo groupInfo = group.data();
-			assert groupInfo != null;
-			Class<? extends Entity> infoEntityClass = groupInfo.entityClass;
-			if (infoEntityClass.isInstance(entity)) {
-				if (closest == null || closest.entityClass.isAssignableFrom(infoEntityClass))
-					closest = groupInfo;
-			}
-		}
-
+		SimpleEntityDataInfo closest = getClosestInfo(entity.getClass());
 		if (closest != null)
 			return this.simpleInfo.entityClass == closest.entityClass;
 		assert false;
