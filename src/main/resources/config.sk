@@ -94,7 +94,7 @@ multiline effect command tab token: _
 #	!-_set color of event-bossbar to red
 #	!-send color of {_bar}
 #	!- end							# This terminates your current session and executes what has been provided
-#	!-send {_bar}					# This returns nothing as it is a new multiline session
+#	!-send {_bar}					# This returns nothing as it is a new session
 # Example:
 #	!- spawn a zombie at me:
 #	!- _make event-entity not persist
