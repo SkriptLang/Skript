@@ -74,6 +74,7 @@ public class VariableRefresherTest {
 
 	private VariableMap globals;
 	private RecordingStorage storage;
+	private RecordingStorage other; // saves the names starting with other::
 	private VariableRefresher refresher;
 	private final List<String> reported = new ArrayList<>();
 
@@ -81,8 +82,10 @@ public class VariableRefresherTest {
 	public void setUp() {
 		globals = VariableMap.concurrent();
 		storage = new RecordingStorage();
+		other = new RecordingStorage();
 		refresher = new VariableRefresher(globals, new ReusingSerializer(),
-			name -> name.startsWith("unsaved::") ? null : storage,
+			name -> name.startsWith("unsaved::") ? null : name.startsWith("other::") ? other : storage,
+			() -> List.of(storage, other),
 			(t, message) -> reported.add(message));
 	}
 
@@ -365,6 +368,68 @@ public class VariableRefresherTest {
 		// what it saw is saved now, so the pass it replaced doesn't carry on queueing
 		refresher.tick(System.nanoTime(), System.nanoTime() + A_DAY);
 		wholePass();
+		assertEquals(Map.of(), queued());
+	}
+
+	/**
+	 * A tick that isn't due for a pass, with time for all of one.
+	 */
+	private void tickNow() {
+		refresher.tick(System.nanoTime(), System.nanoTime() + A_DAY);
+	}
+
+	@Test
+	public void aResaveQueuesEveryVariableOfThatStorageOnly() {
+		load("a", "1");
+		load("b", "2");
+		load("other::c", "3");
+		firstTick();
+		storage.requestResave();
+		tickNow(); // starts right away, without waiting for the interval
+		assertEquals(Map.of("a", "1", "b", "2"), queued());
+		assertEquals(0, other.queue().count());
+		// only once
+		wholePass();
+		assertEquals(Map.of(), queued());
+	}
+
+	@Test
+	public void aResaveRequestedDuringAPassDoesntRestartIt() {
+		for (int i = 0; i < 200; i++)
+			load("var::" + i, "value");
+		firstTick();
+		partOfAPass();
+		assertEquals(Map.of(), queued());
+		storage.requestResave();
+		tickNow(); // finishes the running pass, which doesn't take the request
+		assertEquals(Map.of(), queued());
+		tickNow(); // the next pass starts right away
+		assertEquals(200, queued().size());
+	}
+
+	@Test
+	public void repeatedResaveRequestsStillFinishPasses() {
+		for (int i = 0; i < 200; i++)
+			load("var::" + i, "value");
+		firstTick();
+		Map<String, String> queued = new HashMap<>();
+		for (int ticks = 0; queued.size() < 200; ticks++) {
+			assertTrue("a pass should finish, even with a request every tick", ticks < 200);
+			storage.requestResave();
+			refresher.tick(System.nanoTime(), System.nanoTime()); // past its deadline, so only some get done
+			queued.putAll(queued());
+		}
+	}
+
+	@Test
+	public void refreshingEverythingHonoursAPendingResave() {
+		load("a", "1");
+		load("other::b", "2");
+		storage.requestResave();
+		refresher.refreshAll();
+		assertEquals(Map.of("a", "1"), queued());
+		assertEquals(0, other.queue().count());
+		refresher.refreshAll();
 		assertEquals(Map.of(), queued());
 	}
 

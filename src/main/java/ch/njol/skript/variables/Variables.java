@@ -29,6 +29,7 @@ import org.skriptlang.skript.variables.VariableMap;
 import org.skriptlang.skript.variables.storage.VariableRefreshTicker;
 import org.skriptlang.skript.variables.storage.VariableStorage;
 import org.skriptlang.skript.variables.storage.VariableStorageManager;
+import org.skriptlang.skript.variables.storage.flatfile.FlatFileStorage;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

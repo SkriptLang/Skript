@@ -4,24 +4,18 @@ import ch.njol.skript.config.Config;
 import ch.njol.skript.config.SectionNode;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 import static org.junit.Assert.*;
+import static org.skriptlang.skript.variables.storage.ManagerTests.config;
 
 /**
  * Tests {@link VariableStorageManager#migratePatterns(SectionNode)}, which updates old configs from patterns to prefixes.
  * Needs a server, since configs are parsed through Skript.
  */
 public class VariableStorageConfigUpdateTest {
-
-	private static Config config(String databases) throws IOException {
-		return new Config(new ByteArrayInputStream(("databases:\n" + databases).getBytes(StandardCharsets.UTF_8)),
-			"test.sk", false, true, ":");
-	}
 
 	private static SectionNode databases(Config config) {
 		return (SectionNode) config.getMainNode().get("databases");
