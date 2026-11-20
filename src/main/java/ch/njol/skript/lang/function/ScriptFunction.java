@@ -85,30 +85,17 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	 */
 	private static void setListParameter(String name, Object[] values, boolean keyed, Event event) {
 		String[] keys = new String[values.length];
-		Object[] listValues = new Object[values.length];
-		int count = 0;
+		Object[] listValues = keyed ? new Object[values.length] : values;
 		for (int i = 0; i < values.length; i++) {
-			String key;
-			Object value;
 			if (keyed) {
 				KeyedValue<?> keyedValue = (KeyedValue<?>) values[i];
-				key = keyedValue.key();
-				value = keyedValue.value();
+				keys[i] = keyedValue.key();
+				listValues[i] = keyedValue.value();
 			} else {
-				key = String.valueOf(i);
-				value = values[i];
+				keys[i] = String.valueOf(i);
 			}
-			if (value == null)
-				continue;
-			keys[count] = key;
-			listValues[count] = value;
-			count++;
 		}
-		if (count < values.length) {
-			keys = Arrays.copyOf(keys, count);
-			listValues = Arrays.copyOf(listValues, count);
-		}
-		Variables.setList(name, keys, listValues, event, true);
+		Variables.setList(name, keys, listValues, event, true); // skips the nulls
 	}
 
 	@Override

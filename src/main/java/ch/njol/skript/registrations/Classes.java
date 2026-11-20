@@ -16,7 +16,6 @@ import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
-import ch.njol.skript.variables.SQLStorage;
 import ch.njol.skript.variables.SerializedVariable;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
@@ -24,7 +23,6 @@ import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Tag;
 import ch.njol.yggdrasil.Yggdrasil;
 import ch.njol.yggdrasil.YggdrasilInputStream;
-import ch.njol.yggdrasil.YggdrasilOutputStream;
 import com.google.common.base.Preconditions;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
@@ -40,6 +38,7 @@ import java.io.*;
 import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
@@ -53,9 +52,12 @@ public abstract class Classes {
 	private static ClassInfo<?>[] classInfos = null;
 	private final static List<ClassInfo<?>> tempClassInfos = new ArrayList<>();
 	private final static HashMap<Class<?>, ClassInfo<?>> exactClassInfos = new HashMap<>();
-	private final static HashMap<Class<?>, ClassInfo<?>> superClassInfos = new HashMap<>();
+	private final static Map<Class<?>, ClassInfo<?>> superClassInfos = new ConcurrentHashMap<>();
 	private final static HashMap<String, ClassInfo<?>> classInfosByCodeName = new HashMap<>();
 	private final static Map<String, List<ClassInfo<?>>> registeredLiteralPatterns = new HashMap<>();
+
+	// code names are saved with every stored variable, so they have to fit a database column
+	private static final int MAX_CODENAME_LENGTH = 50;
 
 	/**
 	 * @param info info about the class to register
@@ -67,8 +69,8 @@ public abstract class Classes {
 				throw new IllegalArgumentException("Can't register " + info.getC().getName() + " with the code name " + info.getCodeName() + " because that name is already used by " + classInfosByCodeName.get(info.getCodeName()));
 			if (exactClassInfos.containsKey(info.getC()))
 				throw new IllegalArgumentException("Can't register the class info " + info.getCodeName() + " because the class " + info.getC().getName() + " is already registered");
-			if (info.getCodeName().length() > SQLStorage.MAX_CLASS_CODENAME_LENGTH)
-				throw new IllegalArgumentException("The codename '" + info.getCodeName() + "' is too long to be saved in a database, the maximum length allowed is " + SQLStorage.MAX_CLASS_CODENAME_LENGTH);
+			if (info.getCodeName().length() > MAX_CODENAME_LENGTH)
+				throw new IllegalArgumentException("The codename '" + info.getCodeName() + "' is too long to be saved in a database, the maximum length allowed is " + MAX_CODENAME_LENGTH);
 			exactClassInfos.put(info.getC(), info);
 			classInfosByCodeName.put(info.getCodeName(), info);
 			tempClassInfos.add(info);
@@ -710,7 +712,7 @@ public abstract class Classes {
 	@SuppressWarnings("null")
 	private final static Charset UTF_8 = Charset.forName("UTF-8");
 
-	private static byte[] getYggdrasilStart(final ClassInfo<?> c) throws NotSerializableException {
+	static byte[] getYggdrasilStart(final ClassInfo<?> c) throws NotSerializableException {
 		assert Enum.class.isAssignableFrom(Kleenean.class) && Tag.getType(Kleenean.class) == Tag.T_ENUM : Tag.getType(Kleenean.class); // TODO why is this check here?
 		final Tag t = Tag.getType(c.getC());
 		assert t.isWrapper() || t == Tag.T_STRING || t == Tag.T_OBJECT || t == Tag.T_ENUM;
@@ -738,7 +740,61 @@ public abstract class Classes {
 
 		// temporary
 		assert Bukkit.isPrimaryThread();
-		
+
+		// one serializer is reused on the main thread, unless a value's serializer serializes another value
+		boolean reuse = !mainThreadSerializerInUse && Bukkit.getServer() != null && Bukkit.isPrimaryThread();
+		ClassesBufferedSerializer serializer;
+		if (reuse) {
+			if (mainThreadSerializer == null)
+				mainThreadSerializer = new ClassesBufferedSerializer();
+			serializer = mainThreadSerializer;
+			mainThreadSerializerInUse = true;
+		} else {
+			serializer = new ClassesBufferedSerializer();
+		}
+		try {
+			if (!serializer.serialize(object)) // value cannot be saved
+				return null;
+			SerializedVariable.Value value = serializer.toValue();
+			assert roundTrips(object, value);
+			return value;
+		} finally {
+			if (reuse)
+				mainThreadSerializerInUse = false;
+		}
+	}
+
+	// reused by serialize(Object) on the main thread, so saving a value allocates no buffer or stream
+	private static @Nullable ClassesBufferedSerializer mainThreadSerializer;
+	private static boolean mainThreadSerializerInUse;
+
+	/**
+	 * Checks that a serialized value deserializes back to what was saved. Only called in an assert.
+	 *
+	 * @param object the value that was serialized
+	 * @param value  what it was serialized to
+	 * @return true
+	 * @throws AssertionError if it deserializes to something else
+	 */
+	private static boolean roundTrips(Object object, SerializedVariable.Value value) {
+		ClassInfo<?> classInfo = getSavedClassInfo(object);
+		assert classInfo != null;
+		Object saved = convertForSaving(object, classInfo);
+		Object deserialized = deserialize(classInfo, value.data);
+		if (!equals(saved, deserialized)) {
+			throw new AssertionError(saved + " (" + (saved == null ? null : saved.getClass()) + ") != " + deserialized
+				+ " (" + (deserialized == null ? null : deserialized.getClass()) + "): " + Arrays.toString(value.data));
+		}
+		return true;
+	}
+
+	/**
+	 * Finds the class info a value is saved as: its own, or the one it's set to be serialized as.
+	 *
+	 * @param object the value to save
+	 * @return the class info to save it as, or null if it can't be saved
+	 */
+	static @Nullable ClassInfo<?> getSavedClassInfo(Object object) {
 		ClassInfo<?> classInfo = getSuperClassInfo(object.getClass());
 		if (classInfo.getSerializeAs() != null) {
 			classInfo = getExactClassInfo(classInfo.getSerializeAs());
@@ -746,45 +802,27 @@ public abstract class Classes {
 				assert false : object.getClass();
 				return null;
 			}
-			object = Converters.convert(object, classInfo.getC());
-			if (object == null) {
-				assert false : classInfo.getCodeName();
-				return null;
-			}
 		}
-		
 		Serializer<?> serializer = classInfo.getSerializer();
-		if (serializer == null) // value cannot be saved
+		if (serializer == null)
 			return null;
-		
 		assert !serializer.mustSyncDeserialization() || Bukkit.isPrimaryThread();
-		
-		try {
-			ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-			YggdrasilOutputStream yggdrasilOutputStream = Variables.yggdrasil.newOutputStream(byteOutputStream);
+		return classInfo;
+	}
 
-			yggdrasilOutputStream.writeObject(object);
-			yggdrasilOutputStream.flush();
-			yggdrasilOutputStream.close();
-
-			byte[] byteArray = byteOutputStream.toByteArray();
-			byte[] start = getYggdrasilStart(classInfo);
-			for (int i = 0; i < start.length; i++)
-				assert byteArray[i] == start[i] : object + " (" + classInfo.getC().getName() + "); " + Arrays.toString(start) + ", " + Arrays.toString(byteArray);
-			byte[] byteArrayCopy = new byte[byteArray.length - start.length];
-			System.arraycopy(byteArray, start.length, byteArrayCopy, 0, byteArrayCopy.length);
-
-			Object deserialized;
-			assert equals(object,
-				deserialized = deserialize(classInfo, new ByteArrayInputStream(byteArrayCopy)))
-				: object + " (" + object.getClass() + ") != " + deserialized + " ("
-				+ (deserialized == null ? null : deserialized.getClass()) + "): " + Arrays.toString(byteArray);
-			
-			return new SerializedVariable.Value(classInfo.getCodeName(), byteArrayCopy);
-		} catch (IOException ex) { // shouldn't happen
-			Skript.exception(ex);
-			return null;
-		}
+	/**
+	 * Converts a value to the class it's saved as, if it isn't one already.
+	 *
+	 * @param object  the value to save
+	 * @param savedAs what {@link #getSavedClassInfo(Object)} returned for it
+	 * @return the value to write, or null if it couldn't be converted
+	 */
+	static @Nullable Object convertForSaving(Object object, ClassInfo<?> savedAs) {
+		if (savedAs.getC().isInstance(object)) // always, unless it's serialized as another class
+			return object;
+		Object converted = Converters.convert(object, savedAs.getC());
+		assert converted != null : savedAs.getCodeName();
+		return converted;
 	}
 
 	private static boolean equals(final @Nullable Object o, final @Nullable Object d) {

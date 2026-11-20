@@ -48,6 +48,10 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 
 	private final static String SINGLE_SEPARATOR_CHAR = ":";
 	public final static String SEPARATOR = SINGLE_SEPARATOR_CHAR + SINGLE_SEPARATOR_CHAR;
+	/**
+	 * What the name of a list variable ends with, as in {@code {a::*}}.
+	 */
+	public static final String LIST_SUFFIX = SEPARATOR + "*";
 	public final static String LOCAL_VARIABLE_TOKEN = "_";
 	public static final String EPHEMERAL_VARIABLE_TOKEN = "-";
 	private static final char[] reservedTokens = {'~', '.', '+', '$', '!', '&', '^', '*'};
@@ -476,25 +480,14 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		}
 
 		String[] bulkKeys = new String[length];
-		Object[] bulkValues = new Object[length];
-		int count = 0;
-		for (int i = 0; i < length; i++) {
-			Object value = delta[i];
-			if (value == null)
-				continue;
-			bulkKeys[count] = keys == null ? String.valueOf(i + 1) : keys[i];
-			bulkValues[count] = value;
-			count++;
-		}
-		if (count < length) {
-			bulkKeys = Arrays.copyOf(bulkKeys, count);
-			bulkValues = Arrays.copyOf(bulkValues, count);
-		}
+		for (int i = 0; i < length; i++)
+			bulkKeys[i] = keys == null ? String.valueOf(i + 1) : keys[i];
+		Object[] bulkValues = length == delta.length ? delta : Arrays.copyOf(delta, length);
 
 		String name = this.name.toString(event);
-		assert name.endsWith(SEPARATOR + "*") : name + "; " + this.name;
-		String listName = name.substring(0, name.length() - (SEPARATOR.length() + 1));
-		Variables.setList(listName, bulkKeys, bulkValues, event, local);
+		assert name.endsWith(LIST_SUFFIX) : name + "; " + this.name;
+		String listName = name.substring(0, name.length() - LIST_SUFFIX.length());
+		Variables.setList(listName, bulkKeys, bulkValues, event, local); // skips the nulls
 		return true;
 	}
 
@@ -679,7 +672,8 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 						}
 
 						ChangerUtils.change(changer, originalValueArray, convertedDelta.toArray(), mode);
-
+						// the changer changed the value itself, so set it again for the change to be saved.
+						set(event, originalValue);
 					}
 				}
 				break;
