@@ -38,14 +38,14 @@ command /home:
             send "You don't have a home." to player
 ```
 
-**Skript** comes with hundreds of built-in syntaxes for blocks, entities, inventories, particles, commands and much more.\
-If **Skript** can't do something, an [addon](#addons) probably can.
+Skript comes with hundreds of built-in syntaxes for blocks, entities, inventories, particles, commands and much more.\
+If Skript can't do something, an [addon](#addons) probably can.
 
 ## Requirements
 
-**Skript** requires [Paper](https://papermc.io/downloads/paper) to run. Folia, Spigot, and Bukkit are **not** supported.
+Skript requires [Paper](https://papermc.io/downloads/paper) to run. Folia, Spigot, and Bukkit are **not** supported.
 
-**Skript** supports the last 18 months of Minecraft versions, counting from the release date of **Skript**'s latest version.\
+Skript supports the last 18 months of Minecraft versions, counting from the release date of Skript's latest version.\
 For example, this means that 1.20.4 is supported, but 1.20.3 is not.
 
 New Minecraft versions will usually work with existing versions of Skript, but with limited support for new content. Support for new versions will be added as soon as possible, according to the release schedule.
@@ -54,7 +54,7 @@ New Minecraft versions will usually work with existing versions of Skript, but w
 
 You can find downloads for each version with their release notes in [the releases page](https://github.com/SkriptLang/Skript/releases).
 
-**Skript** releases a major feature update 4 times per year, with monthly patches in between. See the [release model](CLOCKWORK_RELEASE_MODEL.md) for details.
+Skript releases a major feature update 4 times per year, with monthly patches in between. See the [release model](CLOCKWORK_RELEASE_MODEL.md) for details.
 
 ## Documentation
 
@@ -76,7 +76,7 @@ These communities are run independently of the Skript team. Please don't report 
 
 ## Addons
 
-Plugins can add new syntaxes to **Skript** to extend it. You can find addons on [skUnity](https://forums.skunity.com/forums/addon-releases) and [Skript Hub](https://skripthub.net).
+Plugins can add new syntaxes to Skript to extend it. You can find addons on [skUnity](https://forums.skunity.com/forums/addon-releases) and [Skript Hub](https://skripthub.net).
 
 Addons are maintained by their authors, not by the Skript team. When reporting a bug, try to reproduce it **without addons** first. If it is an issue with an addon, do not report it here.
 
