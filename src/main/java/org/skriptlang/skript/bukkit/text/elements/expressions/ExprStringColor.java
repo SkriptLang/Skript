@@ -136,6 +136,9 @@ public class ExprStringColor extends PropertyExpression<String, Object> {
 					continue;
 				}
 				String tag = string.substring(index + 1, end);
+				if (tag.isEmpty()) { // malformed (empty tag)
+					continue;
+				}
 				if (tag.charAt(0) == '#') { // should be a hex
 					tag = tag.substring(1);
 					int tagLength = tag.length();

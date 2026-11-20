@@ -39,11 +39,9 @@ public class EffInsertEntityStorage extends Effect {
 	private static final Map<Class<? extends BlockState>, Class<? extends Entity>> STORAGES = new HashMap<>();
 
 	static {
-		if (Skript.isRunningMinecraft(1, 21, 0)) {
-			Skript.registerEffect(EffInsertEntityStorage.class,
-				"(add|insert) %livingentities% [in[ ]]to [the] (stored entities|entity storage) of %block%");
-			STORAGES.put(Beehive.class, Bee.class);
-		}
+		Skript.registerEffect(EffInsertEntityStorage.class,
+			"(add|insert) %livingentities% [in[ ]]to [the] (stored entities|entity storage) of %block%");
+		STORAGES.put(Beehive.class, Bee.class);
 	}
 
 	private Expression<? extends Entity> entities;

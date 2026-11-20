@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.events.bukkit.ExperienceSpawnEvent;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -15,10 +16,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerFishEvent;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.event.Event;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityBreedEvent;
-import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Experience")
@@ -47,7 +45,7 @@ import org.jetbrains.annotations.Nullable;
 	""")
 @Since("2.1, 2.5.3 (block break event), 2.7 (experience change event), 2.10 (breeding, fishing)")
 @Events({"experience spawn", "break / mine", "experience change", "entity breed"})
-public class ExprExperience extends SimpleExpression<Experience> {
+public class ExprExperience extends SimpleExpression<Experience> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprExperience.class, Experience.class, ExpressionType.SIMPLE,
@@ -56,15 +54,14 @@ public class ExprExperience extends SimpleExpression<Experience> {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
-						Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(ExperienceSpawnEvent.class, BlockBreakEvent.class,
-			PlayerExpChangeEvent.class, EntityBreedEvent.class, PlayerFishEvent.class)) {
-			Skript.error("The 'experience' expression can only be used in experience spawn, " +
-				"block break, player experience change, entity breed or fishing events");
-			return false;
-		}
-
+                        Kleenean isDelayed, ParseResult parseResult) {
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(ExperienceSpawnEvent.class, BlockBreakEvent.class,
+			PlayerExpChangeEvent.class, EntityBreedEvent.class, PlayerFishEvent.class);
 	}
 
 	@Override

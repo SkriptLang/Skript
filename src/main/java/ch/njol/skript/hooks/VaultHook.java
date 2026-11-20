@@ -3,18 +3,18 @@ package ch.njol.skript.hooks;
 import java.io.IOException;
 
 import ch.njol.skript.doc.Documentation;
-import net.milkbowl.vault.Vault;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 
 import ch.njol.skript.Skript;
+import org.bukkit.plugin.Plugin;
 
 /**
  * @author Peter Güttinger
  */
-public class VaultHook extends Hook<Vault> {
+public class VaultHook extends Hook<Plugin> {
 
 	public static final String NO_GROUP_SUPPORT = "The permissions plugin you are using does not support groups.";
 

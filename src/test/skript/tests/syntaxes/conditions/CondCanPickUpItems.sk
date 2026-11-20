@@ -1,0 +1,14 @@
+test "CondCanPickUpItems":
+	spawn an pig at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} can pick up items to true
+	assert {_entity} can pick up items with "setting to true failed"
+	set whether {_entity} can pick up items to false
+	assert {_entity} can not pick up items with "setting to false failed"
+	set whether {_entity} can not pick up items to false
+	assert {_entity} can pick up items with "(negated) setting to true failed"
+	set whether {_entity} can not pick up items to true
+	assert {_entity} can not pick up items with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

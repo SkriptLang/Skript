@@ -13,16 +13,18 @@ import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.BookMeta;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 @Name("Book Pages")
@@ -39,6 +41,26 @@ import java.util.List;
 @Example("set page 1 of the player's held item to \"This page was written with Skript!\"")
 @Since("2.2-dev31, 2.7 (changers)")
 public class ExprBookPages extends SimpleExpression<Component> {
+
+	@SuppressWarnings("ConstantValue") // true on 26.1 and older
+	private static final boolean EXTENDS_ADVENTURE_BOOK = Book.class.isAssignableFrom(BookMeta.class);
+
+	public static @Unmodifiable List<Component> getPages(BookMeta bookMeta) {
+		if (EXTENDS_ADVENTURE_BOOK) {
+			//noinspection ConstantConditions
+			return ((Book) (Object) bookMeta).pages();
+		}
+		return bookMeta.pages();
+	}
+
+	public static void setPages(BookMeta bookMeta, List<Component> pages) {
+		if (EXTENDS_ADVENTURE_BOOK) {
+			//noinspection ConstantConditions, ResultOfMethodCallIgnored - modifies in place despite contract
+			((Book) (Object) bookMeta).pages(pages);
+		} else {
+			bookMeta.pages(pages);
+		}
+	}
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprBookPages.class, Component.class)
@@ -77,7 +99,7 @@ public class ExprBookPages extends SimpleExpression<Component> {
 				return new Component[0];
 			}
 			if (isAllPages()) {
-				pages.addAll(bookMeta.pages());
+				pages.addAll(getPages(bookMeta));
 			} else {
 				Integer pageNumber = this.pageNumber.getSingle(event);
 				if (pageNumber == null) {
@@ -104,14 +126,17 @@ public class ExprBookPages extends SimpleExpression<Component> {
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		int pageNumber = isAllPages() ? -1 : this.pageNumber.getOptionalSingle(event).orElse(-1);
-		List<Component> newPages = delta == null ? Collections.emptyList() : new ArrayList<>(delta.length);
+		int pageNumber = -1;
+		if (!isAllPages()) {
+			pageNumber = this.pageNumber.getOptionalSingle(event).orElse(-1);
+			if (pageNumber <= 0) {
+				return;
+			}
+		}
+		List<Component> newPages = delta == null ? List.of() : new ArrayList<>(delta.length);
 		if (delta != null) {
 			for (Object page : delta) {
 				newPages.add((Component) page);
-			}
-			if (pageNumber != -1 && newPages.isEmpty()) { // not setting this page to anything, exit early
-				return;
 			}
 		}
 
@@ -122,21 +147,34 @@ public class ExprBookPages extends SimpleExpression<Component> {
 
 			if (isAllPages()) {
 				switch (mode) {
-					case SET, DELETE, RESET -> //noinspection ResultOfMethodCallIgnored - modifies in place despite contract
-						bookMeta.pages(newPages);
+					case SET, DELETE, RESET -> setPages(bookMeta, newPages);
 					case ADD -> bookMeta.addPages(newPages.toArray(new Component[0]));
 					default -> throw new IllegalStateException();
 				}
 			} else {
 				switch (mode) {
-					case SET -> bookMeta.page(pageNumber, newPages.getFirst());
-					case DELETE -> {
-						List<Component> pages = new ArrayList<>(bookMeta.pages());
-						pages.remove(pageNumber);
-						//noinspection ResultOfMethodCallIgnored - modifies in place despite contract
-						bookMeta.pages(pages);
+					case SET -> {
+						if (pageNumber > bookMeta.getPageCount()) {
+							Component[] pages = new Component[pageNumber - bookMeta.getPageCount()];
+							Arrays.fill(pages, Component.empty());
+							bookMeta.addPages(pages);
+						}
+						bookMeta.page(pageNumber, newPages.getFirst());
 					}
-					case RESET -> bookMeta.page(pageNumber, Component.empty());
+					case DELETE -> {
+						if (pageNumber > bookMeta.getPageCount()) {
+							break;
+						}
+						List<Component> pages = new ArrayList<>(getPages(bookMeta));
+						pages.remove(pageNumber - 1);
+						setPages(bookMeta, pages);
+					}
+					case RESET -> {
+						if (pageNumber > bookMeta.getPageCount()) {
+							continue;
+						}
+						bookMeta.page(pageNumber, Component.empty());
+					}
 					default -> throw new IllegalStateException();
 				}
 			}

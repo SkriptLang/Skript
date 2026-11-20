@@ -50,6 +50,16 @@ public class EffectSectionEffect extends Effect {
 	}
 
 	@Override
+	public @Nullable TriggerItem getActualNext() {
+		return effectSection.getActualNext();
+	}
+
+	@Override
+	public @Nullable ExecutionIntent executionIntent() {
+		return effectSection.executionIntent();
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return effectSection.toString(event, debug);
 	}

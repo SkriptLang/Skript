@@ -1,0 +1,14 @@
+test "CondIsRiptiding":
+	spawn a zombie at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} is riptiding to true
+	assert {_entity} is riptiding with "setting to true failed"
+	set whether {_entity} is riptiding to false
+	assert {_entity} is not riptiding with "setting to false failed"
+	set whether {_entity} is not riptiding to false
+	assert {_entity} is riptiding with "(negated) setting to true failed"
+	set whether {_entity} is not riptiding to true
+	assert {_entity} is not riptiding with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

@@ -424,7 +424,7 @@ public class AliasesParser {
 		List<PatternSlot> slots = new ArrayList<>();
 		
 		// Compute variation slots
-		for (int i = 0; i < name.length();) {
+		for (int i = 0; i < name.length(); i += Character.charCount(name.codePointAt(i))) {
 			int c = name.codePointAt(i);
 			if (c == '{') { // Found variation name start
 				varStart = i;
@@ -444,16 +444,16 @@ public class AliasesParser {
 				VariationGroup vars = provider.getVariationGroup(varName);
 				if (vars == null) {
 					Skript.error(m_unknown_variation.toString(varName));
+					varStart = -1;
+					varEnd = i + 1;
 					continue;
 				}
 				slots.add(new VariationSlot(vars));
-				
+
 				// Variation name finished
 				varStart = -1;
 				varEnd = i + 1;
 			}
-			
-			i += Character.charCount(c);
 		}
 		
 		// Handle last non-variation slot
@@ -690,6 +690,10 @@ public class AliasesParser {
 	 * @return Name fixed.
 	 */
 	protected String fixName(String name) {
+		if (name.isEmpty()) {
+			return "";
+		}
+
 		/*
 		 * General logic:
 		 *

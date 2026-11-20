@@ -3,7 +3,7 @@ package ch.njol.skript.sections;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.*;
-import ch.njol.skript.entity.EntityType;
+import org.skriptlang.skript.bukkit.entity.EntityType;
 import ch.njol.skript.lang.EffectSection;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -139,9 +139,9 @@ public class EffSecSpawn extends EffectSection {
 						for (int i = 0; i < typeAmount; i++) {
 							if (consumer != null) {
 								//noinspection unchecked,rawtypes
-								entityType.data.spawn(location, (Consumer) consumer); // lastSpawned set within Consumer
+								entityType.getData().spawn(location, (Consumer) consumer); // lastSpawned set within Consumer
 							} else {
-								lastSpawned = entityType.data.spawn(location);
+								lastSpawned = entityType.getData().spawn(location);
 							}
 						}
 					} else if (type instanceof EntitySnapshot snapshot) {

@@ -1,0 +1,19 @@
+test "stored enchantments":
+	set {_item} to 3 of minecraft:enchanted_book
+
+	add efficiency 7 to stored enchantments of {_item}
+	add fire aspect 0 to stored enchantments of {_item}
+	assert size of stored enchantments of {_item} is 2 with "did not add 2 stored enchantments"
+	assert stored enchantments of {_item} contain fire aspect 0 with "fire aspect 0 couldn't be added"
+
+	add sharpness to stored enchantments of {_item}
+	assert stored enchantments of {_item} contain sharpness 1 with "sharpness was not added"
+
+	remove fire aspect 2 and efficiency from stored enchants of {_item}
+	assert stored enchantments of {_item} contain fire aspect 0 and sharpness 1 with "did not remove properly"
+
+	clear stored enchantments of {_item}
+	assert stored enchantments of {_item} is not set with "did not clear enchantments properly"
+
+	add sharpness and efficiency to stored enchantments of {_item}
+	assert stored enchantments of {_item} contain sharpness 1 and efficiency 1 with "did not convert properly"

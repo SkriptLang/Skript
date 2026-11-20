@@ -38,23 +38,18 @@ public class ExprOnlinePlayersCount extends SimpleExpression<Long> {
 				"[the] [(1:(real|default)|2:(fake|shown|displayed))] (count|amount|number|size) of online players");
 	}
 
-	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
-
 	private boolean isReal;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		boolean isPaperEvent = PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class);
+		boolean isListPingEvent = getParser().isCurrentEvent(PaperServerListPingEvent.class);
 		if (parseResult.mark == 2) {
-			if (!PAPER_EVENT_EXISTS && getParser().isCurrentEvent(ServerListPingEvent.class)) {
-				Skript.error("The 'fake' online players count expression requires Paper 1.12.2 or newer");
-				return false;
-			} else if (!isPaperEvent) {
+			if (!isListPingEvent) {
 				Skript.error("The 'fake' online players count expression can't be used outside of a server list ping event");
 				return false;
 			}
 		}
-		isReal = (parseResult.mark == 0 && !isPaperEvent) || parseResult.mark == 1;
+		isReal = (parseResult.mark == 0 && !isListPingEvent) || parseResult.mark == 1;
 		return true;
 	}
 

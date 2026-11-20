@@ -59,7 +59,7 @@ public class RetainingLogHandler extends LogHandler {
 
 	@Override
 	public void onStop() {
-		if (!printedErrorOrLog && Skript.testing())
+		if (!printedErrorOrLog && Skript.debug())
 			SkriptLogger.LOGGER.warning("Retaining log wasn't instructed to print anything at " + SkriptLogger.getCaller());
 	}
 

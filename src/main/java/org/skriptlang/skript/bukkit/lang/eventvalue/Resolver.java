@@ -74,21 +74,25 @@ class Resolver<E extends Event, V> {
 	 * Resolves the given list of {@link EventValue}s.
 	 *
 	 * @param eventValues The event values to resolve.
-	 * @return The resolution containing the best candidates.
+	 * @return The resolution containing the best candidates, along with a flag indicating
+	 * 	       whether any candidate considered was {@linkplain EventValue#contextDependent() context-dependent}.
 	 */
-	public EventValueRegistry.Resolution<E, V> resolve(List<EventValue<?, ?>> eventValues) {
+	public Output<E, V> resolve(List<EventValue<?, ?>> eventValues) {
 		List<EventValue<E, V>> best = new ArrayList<>();
 		EventValue<?, ?> bestMatch = null;
+		boolean contextDependent = false;
+
 		for (EventValue<?, ?> eventValue : eventValues) {
 			if (!filter.test(eventValue))
 				continue;
 
+			contextDependent |= eventValue.contextDependent();
 			switch (eventValue.validate(eventClass)) {
 				case INVALID -> {
 					continue;
 				}
 				case ABORT -> {
-					return EventValueRegistry.Resolution.error();
+					return new Output<>(EventValueRegistry.Resolution.error(), contextDependent);
 				}
 			}
 
@@ -109,9 +113,10 @@ class Resolver<E extends Event, V> {
 				best.add(converted);
 			}
 		}
+
 		if (valueClass != null && filterMatches)
-			return EventValueRegistry.Resolution.of(filterEventValues(valueClass, best));
-		return EventValueRegistry.Resolution.of(best);
+			return new Output<>(EventValueRegistry.Resolution.of(filterEventValues(valueClass, best)), contextDependent);
+		return new Output<>(EventValueRegistry.Resolution.of(best),  contextDependent);
 	}
 
 	/**
@@ -171,6 +176,14 @@ class Resolver<E extends Event, V> {
 	 */
 	static <E extends Event, V> Builder<E, V> builder(Class<E> eventClass, Class<V> valueClass) {
 		return new Builder<>(eventClass, valueClass);
+	}
+
+	static <E extends Event, V> Resolver<E, V> exact(Class<E> eventClass, Class<V> valueClass) {
+		return Resolver.builder(eventClass, valueClass)
+			.filter(ev -> ev.eventClass().isAssignableFrom(eventClass) && ev.valueClass().equals(valueClass))
+			.comparator(Resolver.EVENT_DISTANCE_COMPARATOR)
+			.filterMatches()
+			.build();
 	}
 
 	/**
@@ -308,5 +321,20 @@ class Resolver<E extends Event, V> {
 		Comparator<EventValue<?, ?>> create(Class<? extends Event> eventClass, Class<?> valueClass);
 
 	}
+
+	/**
+	 * The result of a {@link Resolver#resolve(List) resolve} call.
+	 *
+	 * @param resolution The resolution produced.
+	 * @param contextDependent Whether any candidate considered during resolution was
+	 *                         {@linkplain EventValue#contextDependent() context-dependent},
+	 *                         meaning the result must not be cached.
+	 * @param <E> The event type.
+	 * @param <V> The value type.
+	 */
+	record Output<E extends Event, V>(
+		EventValueRegistry.Resolution<E, V> resolution,
+		boolean contextDependent
+	) {}
 
 }

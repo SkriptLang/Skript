@@ -77,7 +77,7 @@ server, but our build script will create one for you. Running the tests is easy:
 ```
 
 <code>quickTest</code> runs the test suite on newest supported server version.
-<code>skriptTestJava21</code> (1.21+) runs the tests on Java 21 supported versions.
+<code>skriptTestJava21</code> (1.21.4+) runs the tests on Java 21 supported versions.
 <code>skriptTest</code> runs the tests on all versions (currently identical to the Java 21 test).
 
 By running the tests, you agree to Mojang's End User License Agreement.

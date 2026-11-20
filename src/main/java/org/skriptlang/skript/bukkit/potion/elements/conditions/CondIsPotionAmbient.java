@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.potion.elements.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -31,6 +32,16 @@ public class CondIsPotionAmbient extends PropertyCondition<SkriptPotionEffect> {
 	@Override
 	public boolean check(SkriptPotionEffect potionEffect) {
 		return potionEffect.ambient();
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(SkriptPotionEffect potionEffect, boolean ambient, ChangeMode mode) {
+		potionEffect.ambient(ambient);
 	}
 
 	@Override

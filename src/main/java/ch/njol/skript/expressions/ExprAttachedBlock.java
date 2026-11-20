@@ -35,9 +35,6 @@ public class ExprAttachedBlock extends PropertyExpression<Projectile, Block> {
 		register(ExprAttachedBlock.class, Block.class, "(attached|hit) block[multiple:s]", "projectiles");
 	}
 
-	// TODO - remove this when only Paper 1.21.4+ is supported
-	private static final boolean SUPPORTS_MULTIPLE = Skript.methodExists(AbstractArrow.class, "getAttachedBlocks");
-
 	private boolean isMultiple;
 
 	@Override
@@ -46,12 +43,7 @@ public class ExprAttachedBlock extends PropertyExpression<Projectile, Block> {
 		// noinspection unchecked
 		setExpr((Expression<? extends Projectile>) expressions[0]);
 
-		if (!SUPPORTS_MULTIPLE && isMultiple) {
-			Skript.error("The plural version of this expression is only available when running Paper 1.21.4 or newer.");
-			return false;
-		}
-
-		if (SUPPORTS_MULTIPLE && !isMultiple) {
+		if (!isMultiple) {
 			isMultiple = true;
 			String expr = toString(null, Skript.debug());
 			isMultiple = false;

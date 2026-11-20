@@ -32,7 +32,7 @@ public class TestingLogHandler extends LogHandler {
 			String name = struct instanceof EvtTestCase test ? test.getTestName() : struct != null ? struct.getSyntaxTypeName() : null;
 			TestTracker.parsingStarted(name);
 
-			if (node != null) {
+			if (node != null && parser.isActive()) {
 				TestTracker.testFailed(entry.getMessage(), parser.getCurrentScript(), node.getLine());
 			} else {
 				TestTracker.testFailed(entry.getMessage());

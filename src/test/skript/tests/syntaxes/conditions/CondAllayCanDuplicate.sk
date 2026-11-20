@@ -1,0 +1,14 @@
+test "CondAllayCanDuplicate":
+	spawn an allay at the event-location:
+		set {_entity} to the event-entity
+
+	set whether {_entity} can duplicate to true
+	assert {_entity} can duplicate with "setting to true failed"
+	set whether {_entity} can duplicate to false
+	assert {_entity} can not duplicate with "setting to false failed"
+	set whether {_entity} can not duplicate to false
+	assert {_entity} can duplicate with "(negated) setting to true failed"
+	set whether {_entity} can not duplicate to true
+	assert {_entity} can not duplicate with "(negated) setting to false failed"
+
+	delete the entity within {_entity}

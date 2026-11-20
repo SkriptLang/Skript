@@ -1,0 +1,7 @@
+command /is-script-command:
+	trigger:
+		stop
+
+test "CondIsScriptCommand":
+	assert "is-script-command" is a script command with "should be a script command but is not"
+	assert "help" is not a script command with "should not be a script command but is"

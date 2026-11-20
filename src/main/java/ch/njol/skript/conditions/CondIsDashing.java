@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -26,6 +27,18 @@ public class CondIsDashing extends PropertyCondition<LivingEntity> {
 		if (entity instanceof Camel camel)
 			return camel.isDashing();
 		return false;
+	}
+
+	@Override
+	public boolean acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET;
+	}
+
+	@Override
+	protected void change(LivingEntity entity, boolean dashing, ChangeMode mode) {
+		if (entity instanceof Camel camel) {
+			camel.setDashing(dashing);
+		}
 	}
 
 	@Override

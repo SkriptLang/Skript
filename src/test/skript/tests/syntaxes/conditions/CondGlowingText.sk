@@ -1,0 +1,16 @@
+test "CondGlowingText":
+	set {_old} to the block at the event-location
+	set the block at the event-location to an oak sign
+
+	loop the block at the event-location and an oak sign:
+		set {_holder} to loop-value
+		set whether {_holder} has glowing text to true
+		assert {_holder} has glowing text with "setting to true failed"
+		set whether {_holder} has glowing text to false
+		assert {_holder} does not have glowing text with "setting to false failed"
+		set whether {_holder} does not have glowing text to false
+		assert {_holder} has glowing text with "(negated) setting to true failed"
+		set whether {_holder} does not have glowing text to true
+		assert {_holder} does not have glowing text with "(negated) setting to false failed"
+
+	set the block at the event-location to {_old}
