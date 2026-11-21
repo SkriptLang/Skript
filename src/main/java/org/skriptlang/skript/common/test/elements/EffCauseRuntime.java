@@ -28,9 +28,9 @@ public class EffCauseRuntime extends Effect {
 	@Override
 	protected void execute(Event event) {
 		if (warning) {
-			error("Caused a runtime warning.");
+			warning("Caused a runtime warning.");
 		} else {
-			warning("Caused a runtime error.");
+			error("Caused a runtime error.");
 		}
 	}
 

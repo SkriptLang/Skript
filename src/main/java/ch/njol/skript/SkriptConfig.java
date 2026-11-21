@@ -141,7 +141,7 @@ public class SkriptConfig {
 	public static final Option<String> effectCommandToken = new Option<>("effect command token", "!");
 	public static final Option<Boolean> allowOpsToUseEffectCommands = new Option<>("allow ops to use effect commands", false);
 	public static final Option<String> multilineEffectCommandToken = new Option<>("multiline effect command token", "!-");
-	public static final Option<String> multilineEffectTabToken = new Option<>("multiline effect command tab token", "\\t");
+	public static final Option<String> multilineEffectTabToken = new Option<>("multiline effect command tab token", "_");
 	public static final Option<Timespan> multilineEffectTimeout = new Option<>("multiline effect command timeout", new Timespan(TimePeriod.MINUTE, 1));
 
 	public static final Option<Boolean> logEffectCommands = new Option<>("log effect commands", false);

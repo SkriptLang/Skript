@@ -199,7 +199,9 @@ commands:
 # -- Effect Commands --
 effect commands:
 	executing: <grey>Executing:
+	executing change: <gray>Your effect command was changed to execute:
 	log: issued effect command:
+	log change: issued an effect command that was changed to:
 	cancelled: <red>Your effect command was cancelled:
 	exception: <red>An internal error occurred while executing this effect command. Please refer to the server log for details.
 

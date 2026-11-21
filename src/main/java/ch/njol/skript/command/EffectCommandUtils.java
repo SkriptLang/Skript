@@ -47,7 +47,7 @@ public class EffectCommandUtils {
 	 * @return {@code true} if the sender can use effect commands, otherwise {@code false}.
 	 */
 	static boolean canUse(CommandSender sender) {
-		return (Skript.testing() || sender instanceof ConsoleCommandSender || sender.hasPermission("skript.effectcommands") || SkriptConfig.allowOpsToUseEffectCommands.value() && sender.isOp());
+		return (Skript.testing() || SkriptConfig.enableEffectCommands.value() && (sender instanceof ConsoleCommandSender || sender.hasPermission("skript.effectcommands") || SkriptConfig.allowOpsToUseEffectCommands.value() && sender.isOp()));
 	}
 
 	/**
@@ -115,16 +115,15 @@ public class EffectCommandUtils {
 	 */
 	static void handleMultiEffectCommand(CommandSender sender, String command) {
 		command = command.substring(SkriptConfig.multilineEffectCommandToken.value().length()).trim();
-		if (command.isBlank())
+		if (command.isBlank()) {
 			return;
+		} else if (command.equalsIgnoreCase("end")) {
+			if (!MultiEffectBuilder.hasBuilder(sender))
+				return;
+			finalizeEffectCommand(sender, MultiEffectBuilder.getBuilder(sender).build(), true);
+		}
 		// Process command
 		MultiEffectBuilder builder = MultiEffectBuilder.getBuilder(sender);
-		if (command.equalsIgnoreCase("end")) {
-			if (builder.getLines().isEmpty())
-				return;
-			finalizeEffectCommand(sender, builder.build(), true);
-			return;
-		}
 		if (!builder.getLines().isEmpty()) {
 			String tabToken = SkriptConfig.multilineEffectTabToken.value();
 			int tabs = 0;
@@ -148,6 +147,8 @@ public class EffectCommandUtils {
 	 * @param isMultiline Whether the code being executed is multilined or not.
 	 */
 	static void finalizeEffectCommand(CommandSender sender, String code, boolean isMultiline) {
+		if (!canUse(sender))
+			return;
 		EffectCommandEvent event;
 		Class<? extends Event> eventClass;
 		if (isMultiline) {
@@ -158,13 +159,14 @@ public class EffectCommandUtils {
 			eventClass = EffectCommandEvent.class;
 		}
 		Bukkit.getPluginManager().callEvent(event);
-		String tabbedCode = "  " + code.replace("\t", "  ").replace("\n", "\n  ");
+		String eventCode = event.getCommand();
+		String tabbedEventCode = "  " + eventCode.replace("\t", "  ").replace("\n", "\n  ");
 		ParserInstance parser = ParserInstance.get();
 		RetainingLogHandler log = SkriptLogger.startRetainingLog();
 		TextComponentParser textParser = TextComponentParser.instance();
 		try {
 			Config config = new Config(
-				new ByteArrayInputStream(code.getBytes(StandardCharsets.UTF_8)),
+				new ByteArrayInputStream(eventCode.getBytes(StandardCharsets.UTF_8)),
 				"effect_command",
 				true,
 				false,
@@ -185,21 +187,26 @@ public class EffectCommandUtils {
 				if (!event.isCancelled()) {
 					log.clear();
 					log.printLog();
-					sender.sendMessage(textParser.parse(Language.get("effect commands.executing") + "\n" + textParser.escape(tabbedCode)));
-
-					if (SkriptConfig.logEffectCommands.value() && !(sender instanceof ConsoleCommandSender))
-						Skript.info(sender.getName() + Language.get("effect commands.log") + "\n" + textParser.escape(tabbedCode));
+					if (eventCode.equals(code)) {
+						sender.sendMessage(textParser.parse(Language.get("effect commands.executing") + "\n" + textParser.escape(tabbedEventCode)));
+						if (SkriptConfig.logEffectCommands.value() && !(sender instanceof ConsoleCommandSender))
+							Skript.info(sender.getName() + " " + Language.get("effect commands.log") + "\n" + textParser.escape(tabbedEventCode));
+					} else {
+						sender.sendMessage(textParser.parse(Language.get("effect commands.executing change") + "\n" + textParser.escape(tabbedEventCode)));
+						if (SkriptConfig.logEffectCommands.value() && !(sender instanceof ConsoleCommandSender))
+							Skript.info(sender.getName() + " " + Language.get("effect commands.log change") + "\n" + textParser.escape(tabbedEventCode));
+					}
 					Trigger trigger = new Trigger(DUMMY_SCRIPT, sectionNode.getKey(), null, items);
 					trigger.execute(event);
-					parser.deleteCurrentEvent();
-					parser.setInactive();
 				} else {
-					sender.sendMessage(textParser.parse(Language.get("effect commands.cancelled") + "\n" + textParser.escape(tabbedCode)));
+					sender.sendMessage(textParser.parse(Language.get("effect commands.cancelled") + "\n" + textParser.escape(tabbedEventCode)));
 				}
 			}
+			parser.deleteCurrentEvent();
+			parser.setInactive();
 		} catch (Exception e) {
 			Skript.exception(e, "Unexpected error while executing effect command by '" + sender.getName()
-				+ "':\n" + TextComponentParser.instance().escape(tabbedCode));
+				+ "':\n" + TextComponentParser.instance().escape(tabbedEventCode));
 			sender.sendRichMessage(Language.get("effect commands.exception"));
 		} finally {
 			log.stop();

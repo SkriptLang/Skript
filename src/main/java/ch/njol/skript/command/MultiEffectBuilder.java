@@ -1,9 +1,16 @@
 package ch.njol.skript.command;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Timespan.TimePeriod;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +21,12 @@ import java.util.Map;
  * Builder for multiline effect commands.
  */
 public class MultiEffectBuilder {
+
+	private static boolean registeredListeners = false;
+
+	static {
+		registerListener();
+	}
 
 	private static final Map<CommandSender, MultiEffectBuilder> BUILDERS = new HashMap<>();
 
@@ -35,7 +48,7 @@ public class MultiEffectBuilder {
 		if (BUILDERS.containsKey(sender)) {
 			MultiEffectBuilder builder = BUILDERS.get(sender);
 			long timeout = SkriptConfig.multilineEffectTimeout.value().getAs(TimePeriod.SECOND);
-			if (timeout > 0 && builder.lastUsed.difference(Date.now()).getAs(TimePeriod.SECOND) < timeout)
+			if (timeout <= 0 || builder.lastUsed.difference(Date.now()).getAs(TimePeriod.SECOND) < timeout)
 				return builder;
 		}
 		MultiEffectBuilder builder = new MultiEffectBuilder(sender);
@@ -53,10 +66,11 @@ public class MultiEffectBuilder {
 
 	private final CommandSender sender;
 	private final List<String> lines = new ArrayList<>();
-	private Date lastUsed = null;
+	private Date lastUsed;
 
 	private MultiEffectBuilder(CommandSender sender) {
 		this.sender = sender;
+		this.lastUsed = Date.now();
 	}
 
 	/**
@@ -103,6 +117,23 @@ public class MultiEffectBuilder {
 	public String build() {
 		removeBuilder(sender);
 		return joinLines();
+	}
+
+	private static void registerListener() {
+		if (registeredListeners)
+			return;
+		registeredListeners = true;
+		Bukkit.getPluginManager().registerEvents(new Listener() {
+
+			@EventHandler(priority = EventPriority.HIGH)
+			public void onPlayerQuit(PlayerQuitEvent event) {
+				Player player = event.getPlayer();
+				if (!hasBuilder(player))
+					return;
+				removeBuilder(player);
+			}
+
+		}, Skript.getInstance());
 	}
 
 }
