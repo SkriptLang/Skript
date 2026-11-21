@@ -8,6 +8,7 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.PatternedParser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.command.Commands;
+import org.jspecify.annotations.NonNull;
 import org.skriptlang.skript.bukkit.entity.EntityData;
 import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.ParseContext;
@@ -617,6 +618,40 @@ public abstract class Classes {
 	}
 
 	/**
+	 * A cache of Class -> Parser lookups to avoid re-iteration classinfos constantly.
+	 * Do not use before registration is closed.
+	 */
+	private static final ClassValue<Optional<ClassInfo<?>>> TO_STRING_INFO = new ClassValue<>() {
+		@Override
+		protected Optional<ClassInfo<?>> computeValue(@NonNull Class<?> type) {
+			for (ClassInfo<?> classInfo : getClassInfos()) {
+				if (classInfo.getParser() != null && classInfo.getC().isAssignableFrom(type))
+					return Optional.of(classInfo);
+			}
+			return Optional.empty();
+		}
+	};
+
+	/**
+	 * Gets the classinfo that will be used to stringify this object.
+	 * Array types are not supported and will return null.
+	 * <br>
+	 * Do not call this method during registration.
+	 *
+	 * @param obj The object that will be stringified.
+	 * @return The {@link ClassInfo} that will be used. It will have a valid {@link Parser}. If no suitable info is
+	 * found, it will return null.
+	 */
+	public static @Nullable ClassInfo<?> getToStringClassInfo(Object obj) {
+		checkAllowClassInfoInteraction();
+		Class<?> type = obj.getClass();
+		if (type.isArray())
+			return null;
+		// double check classInfos is ready, to avoid caching bad data
+		return classInfos == null ? null : TO_STRING_INFO.get(type).orElse(null);
+	}
+
+	/**
 	 * @param o Any object, preferably not an array: use {@link Classes#toString(Object[], boolean)} instead.
 	 * @return String representation of the object (using a parser if found or {@link String#valueOf(Object)} otherwise).
 	 * @see #toString(Object, StringMode)
@@ -651,17 +686,19 @@ public abstract class Classes {
 				b.append(toString(i, mode, flags));
 				first = false;
 			}
-			return "[" + b.toString() + "]";
+			return "[" + b + "]";
 		}
-		for (final ClassInfo<?> ci : getClassInfos()) {
-			final Parser<?> parser = ci.getParser();
-			if (parser != null && ci.getC().isInstance(o)) {
-				@SuppressWarnings("unchecked")
-				final String s = mode == StringMode.MESSAGE ? ((Parser<T>) parser).toString(o, flags)
-						: mode == StringMode.DEBUG ? "[" + ci.getCodeName() + ":" + ((Parser<T>) parser).toString(o, mode) + "]"
-								: ((Parser<T>) parser).toString(o, mode);
-				return s;
-			}
+		// classInfos is null briefly after registration closes; don't cache results computed from an empty list
+		ClassInfo<?> classInfo = getToStringClassInfo(o);
+		if (classInfo != null) {
+			@SuppressWarnings("unchecked")
+			Parser<T> parser = (Parser<T>) classInfo.getParser();
+			assert parser != null;
+			return switch (mode) {
+				case MESSAGE -> parser.toString(o, flags);
+				case DEBUG -> "[" + classInfo.getCodeName() + ":" + parser.toString(o, mode) + "]";
+				default -> parser.toString(o, mode);
+			};
 		}
 		return mode == StringMode.VARIABLE_NAME ? "object:" + o : "" + o;
 	}
