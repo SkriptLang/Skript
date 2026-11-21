@@ -2,10 +2,15 @@ package org.skriptlang.skript.bukkit.entity;
 
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.util.Utils;
-import ch.njol.yggdrasil.YggdrasilSerializable;
+import ch.njol.yggdrasil.Fields;
+import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import org.bukkit.entity.Entity;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.NotSerializableException;
+import java.io.StreamCorruptedException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,7 +19,7 @@ import java.util.regex.Pattern;
  */
 public class EntityType
 	extends ch.njol.skript.entity.EntityType
-	implements Cloneable, YggdrasilSerializable {
+	implements Cloneable, YggdrasilExtendedSerializable {
 
 	private static final Pattern PARSE_PATTERN = Pattern.compile("(?i)((?<article>an?)|(?<amount>\\d+))? *(?<data>.+)");
 
@@ -52,30 +57,25 @@ public class EntityType
 		return new EntityType(data, amount);
 	}
 
-	private int entityAmount = -1;
-
-	private EntityData<?> data;
+	private EntityData<?> entityData;
+	private int entityAmount;
 
 	/**
-	 * Only used for deserialisation
+	 * Used for deserialization.
 	 */
-	@SuppressWarnings({"unused", "null"})
-	public EntityType() {
-		super();
-		data = null;
-		entityAmount = 1;
-	}
+	@ApiStatus.Internal
+	public EntityType() { }
 
 	/**
 	 * Constructs a new {@link EntityType}.
-	 * @param data The corresponding {@link EntityData}.
+	 * @param entityData The corresponding {@link EntityData}.
 	 * @param amount The amount of {@code data}.
 	 */
-	public EntityType(EntityData<?> data, int amount) {
-		super();
-		assert data != null;
-		this.data = data;
+	public EntityType(EntityData<?> entityData, int amount) {
+		assert entityData != null;
+		this.entityData = entityData;
 		this.entityAmount = amount;
+		copyToLegacyFields();
 	}
 
 	/**
@@ -84,7 +84,8 @@ public class EntityType
 	 */
 	private EntityType(EntityType other) {
 		entityAmount = other.entityAmount;
-		data = other.data;
+		entityData = other.entityData;
+		copyToLegacyFields();
 	}
 
 	/**
@@ -94,14 +95,14 @@ public class EntityType
 	 * @see EntityData#isInstance(Entity)
 	 */
 	public boolean isInstance(Entity entity) {
-		return data.isInstance(entity);
+		return entityData.isInstance(entity);
 	}
 
 	@Override
 	public String toString() {
 		if (getAmount() == 1)
-			return data.toString(0);
-		return entityAmount + " " + data.toString(Language.F_PLURAL);
+			return entityData.toString(0);
+		return entityAmount + " " + entityData.toString(Language.F_PLURAL);
 	}
 
 	/**
@@ -111,30 +112,31 @@ public class EntityType
 	 */
 	public String toString(int flags) {
 		if (getAmount() == 1)
-			return data.toString(flags);
-		return entityAmount + " " + data.toString(flags | Language.F_PLURAL);
+			return entityData.toString(flags);
+		return entityAmount + " " + entityData.toString(flags | Language.F_PLURAL);
 	}
 
 	/**
-	 * @return The amount of {@code this} corresponds to with {@link #data}.
+	 * @return The amount of {@code this} corresponds to with {@link #getData()}.
 	 */
 	public int getAmount() {
 		return entityAmount == -1 ? 1 : entityAmount;
 	}
 
 	/**
-	 * Sets the amount {@code this} corresponds to with {@link #data}.
+	 * Sets the amount {@code this} corresponds to with {@link #getData()}.
 	 * @param entityAmount The new amount.
 	 */
 	public void setAmount(int entityAmount) {
 		this.entityAmount = entityAmount;
+		copyToLegacyFields();
 	}
 
 	/**
 	 * @return The {@link EntityData} {@code this} corresponds to.
 	 */
 	public EntityData<?> getData() {
-		return data;
+		return entityData;
 	}
 
 	/**
@@ -144,28 +146,57 @@ public class EntityType
 	 * @see EntityData#equals(Object)
 	 */
 	public boolean sameType(EntityType other) {
-		return data.equals(other.data);
+		return entityData.equals(other.entityData);
 	}
 
 	@Override
 	public EntityType clone() {
 		return new EntityType(this);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		int prime = 31;
 		int result = 1;
 		result = prime * result + entityAmount;
-		result = prime * result + data.hashCode();
+		result = prime * result + entityData.hashCode();
 		return result;
 	}
-	
+
 	@Override
 	public boolean equals(@Nullable Object obj) {
 		if (!(obj instanceof EntityType other))
 			return false;
-		return entityAmount == other.entityAmount && data.equals(other.data);
+		return entityAmount == other.entityAmount && entityData.equals(other.entityData);
 	}
-	
+
+	@Override
+	public Fields serialize() throws NotSerializableException {
+		Fields fields = new Fields();
+		fields.putObject("entityData", entityData);
+		fields.putPrimitive("entityAmount", entityAmount);
+		return fields;
+	}
+
+	@Override
+	public void deserialize(@NotNull Fields fields) throws StreamCorruptedException, NotSerializableException {
+		// legacy handling
+		if (fields.hasField("data")) {
+			fields.putObject("entityData", fields.getObject("data"));
+		}
+		if (fields.hasField("amount")) {
+			fields.putPrimitive("entityAmount", fields.getPrimitive("amount"));
+		}
+
+		this.entityData = fields.getObject("entityData", EntityData.class);
+		this.entityAmount = fields.getPrimitive("entityAmount", int.class);
+		copyToLegacyFields();
+	}
+
+	@SuppressWarnings("removal")
+	private void copyToLegacyFields() {
+		super.data = this.entityData;
+		super.amount = this.entityAmount;
+	}
+
 }

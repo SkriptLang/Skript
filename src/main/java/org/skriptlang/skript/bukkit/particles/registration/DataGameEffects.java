@@ -1,14 +1,17 @@
 package org.skriptlang.skript.bukkit.particles.registration;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import com.destroystokyo.paper.MaterialTags;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import org.bukkit.Axis;
 import org.bukkit.Effect;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -81,19 +84,25 @@ public class DataGameEffects {
 	 * Game effects without data are automatically handled by the enum parser.
 	 */
 	private static void registerAll() {
+		boolean isRunning26_2 = Skript.isRunningMinecraft(26, 2);
+		boolean isRunning26_3 = Skript.isRunningMinecraft(26, 3);
+
 		registerEffect(Effect.RECORD_PLAY, "[record] song (of|using) %itemtype%",
 			//<editor-fold desc="Material data supplier that only accepts music discs" defaultstate="collapsed">
 			(event, expressions, parseResult) -> {
-				Material material = DataSupplier.getMaterialData(event, expressions, parseResult);
-				if (material == null || !MaterialTags.MUSIC_DISCS.isTagged(material))
-					return null;
-				return material;
+				if (!isRunning26_2) {
+					Material material = DataSupplier.getMaterialData(event, expressions, parseResult);
+					if (material == null || !MaterialTags.MUSIC_DISCS.isTagged(material))
+						return null;
+					return material;
+				}
+				ItemType itemType = (ItemType) expressions[0].getSingle(event);
+				ItemStack stack = itemType == null ? null : itemType.getRandom();
+				var component = stack == null ? null : stack.getData(DataComponentTypes.JUKEBOX_PLAYABLE);
+				return component == null ? null: component.jukeboxSong();
 			},
 			//</editor-fold>
 			(exprs, parseResult, builder) -> builder.append("record song of", exprs[0]));
-
-		boolean isRunning26_2 = Skript.isRunningMinecraft(26, 2);
-		boolean isRunning26_3 = Skript.isRunningMinecraft(26, 3);
 
 		Effect smokeEffect = isRunning26_2 ? Effect.SMOKE_SHOOT : Effect.SMOKE;
 		registerEffect(smokeEffect, "[dispenser] black smoke effect [(in|with|using) [the] direction] %direction%",

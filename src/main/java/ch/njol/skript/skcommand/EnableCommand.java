@@ -40,7 +40,7 @@ class EnableCommand extends SubCommand {
 				return;
 			}
 			String scriptName = StringUtils.join(args, " ", 1, args.length);
-			File scriptFile = ScriptCommandUtils.getScriptFromName(sender, scriptName);
+			File scriptFile = ScriptCommandUtils.getScriptFileFromName(sender, scriptName);
 			if (scriptFile == null)
 				return;
 

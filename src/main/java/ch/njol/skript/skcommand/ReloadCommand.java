@@ -72,7 +72,7 @@ class ReloadCommand extends SubCommand {
 						lastReloadedScriptName = scriptName;
 					}
 
-					File scriptFile = ScriptCommandUtils.getScriptFromName(sender, scriptName);
+					File scriptFile = ScriptCommandUtils.getScriptFileFromName(sender, scriptName);
 					if (scriptFile == null) {
 						return;
 					}

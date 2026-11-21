@@ -602,6 +602,23 @@ public class SimpleEntityData extends EntityData<Entity> implements EntityItemTy
 
 	@Override
 	public void deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
+		// TODO: Remove after 2.20
+		// 2.16- to 2.17+
+		if (fields.contains("info.codeName")) {
+			String codeName = fields.getAndRemoveObject("info.codeName", String.class);
+			for (PatternGroup<SimpleEntityDataInfo> group : PATTERN_GROUPS) {
+				SimpleEntityDataInfo groupInfo = group.data();
+				assert groupInfo != null;
+				if (group.name().toString(false).equalsIgnoreCase(codeName)) {
+					this.simpleInfo = groupInfo;
+					super.groupIndex = group.index();
+					super.deserialize(fields);
+					return;
+				}
+			}
+			throw new StreamCorruptedException("Invalid SimpleEntityDataInfo Name: " + codeName);
+		}
+		// 2.17+
 		String name = fields.getAndRemoveObject("info.name", String.class);
 		if (name == null)
 			return;

@@ -165,6 +165,11 @@ command /test-optional-subcommand-in-group:
 			trigger:
 				add 1 to {-test-optional-subcommand-in-group}
 
+command /test-double-optional [<number>] [<gamemode>]:
+	trigger:
+		set {test-double-optional-number} to arg-1
+		set {test-double-optional-gamemode} to arg-2
+
 command /test-player-restriction-in-group:
 	subcommands:
 		executable by: players
@@ -249,6 +254,14 @@ test "StructCommand":
 	assert {-test-optional-subcommand-in-group} is 1 with "executing with subcommand should have added 1 (total 1)"
 	execute command "test-optional-subcommand-in-group"
 	assert {-test-optional-subcommand-in-group} is 2 with "executing as base should have added 1 (total 2)"
+
+	execute command "test-double-optional 5 creative"
+	assert {test-double-optional-number} is 5 with "executing with both arguments should have set to 5"
+	assert {test-double-optional-gamemode} is creative with "executing with both arguments should have set to 5"
+	execute command "test-double-optional survival"
+	assert {test-double-optional-gamemode} is survival with "executing with just a gamemode should have set to survival"
+	execute command "test-double-optional 10"
+	assert {test-double-optional-number} is 10 with "executing with just a number should have set to 10"
 
 	execute command "test-aliases"
 	assert {-command-test-aliases} is 1 with "executing with primary name should have added 1"

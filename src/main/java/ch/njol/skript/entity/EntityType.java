@@ -17,15 +17,9 @@ public abstract class EntityType implements Cloneable, YggdrasilSerializable {
 
 	public int amount;
 	public EntityData<?> data;
-	public org.skriptlang.skript.bukkit.entity.EntityType newEntityType;
+	private org.skriptlang.skript.bukkit.entity.EntityType newEntityType;
 
-	/**
-	 * Only used for deserialisation
-	 */
-	@SuppressWarnings({"unused", "null"})
-	protected EntityType() {
-		data = null;
-	}
+	protected EntityType() { }
 
 	public EntityType(EntityData<?> data, int amount) {
 		assert data != null;

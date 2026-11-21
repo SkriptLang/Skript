@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -80,7 +81,8 @@ final class CommandCompiler {
 		public void append(Collection<? extends CommandElement> elements) {
 			// check whether elements have already been appended to this element (likely resulting from a shared choice)
 			// if one of elements has been appended, then all have been appended, so we only need to check for one
-			if (!Collections.disjoint(children, elements)) {
+			// we do NOT want to consider null in this check, as it represents a point of execution, not a real element
+			if (!Collections.disjoint(children, elements.stream().filter(Objects::nonNull).toList())) {
 				return;
 			}
 			boolean addToElement = false;

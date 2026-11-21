@@ -32,7 +32,7 @@ public class SkriptCommand implements TabExecutor {
 			new ListCommand(),
 			new InfoCommand(),
 			new UpdateCommand(),
-			new RecoverCommand()
+			new RestoreCommand()
 		));
 
 		if (TestMode.GEN_DOCS || Documentation.isDocsTemplateFound()) {

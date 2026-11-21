@@ -8,14 +8,12 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.parser.ParserInstance;
-import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
+import org.skriptlang.skript.lang.script.Script;
 
 @Name("Is Script Loaded")
 @Description("Check if the current script, or another script, is currently loaded.")
@@ -60,12 +58,8 @@ public class CondScriptLoaded extends Condition {
 		if (scripts == null)
 			return ScriptLoader.getLoadedScripts().contains(currentScript) ^ isNegated();
 		return scripts.check(event, scriptName -> {
-			File scriptFile = ScriptLoader.getScriptFromName(scriptName);
-			if (scriptFile == null) {
-				return false;
-			}
-			Script script = ScriptLoader.getScript(scriptFile);
-			return script != null && ScriptLoader.getLoadedScripts().contains(script);
+			Script script = ScriptLoader.getLoadedScriptFromName(scriptName);
+			return script != null;
 		}, isNegated());
 	}
 
