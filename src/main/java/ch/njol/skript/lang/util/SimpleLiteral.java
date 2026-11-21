@@ -59,6 +59,10 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 		this.source = source == null ? this : source;
 	}
 
+	public SimpleLiteral(T data) {
+		this(data, false, null);
+	}
+
 	public SimpleLiteral(T data, boolean isDefault) {
 		this(data, isDefault, null);
 	}
