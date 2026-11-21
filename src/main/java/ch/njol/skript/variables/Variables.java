@@ -727,7 +727,7 @@ public class Variables {
 				lvEvent.setLocals(map);
 			}
 		} else {
-			map = localVariables.computeIfAbsent(event, e -> VariableMap.local());
+			map = localVariables.computeIfAbsent(event, ignored -> VariableMap.local());
 		}
 		return map;
 	}

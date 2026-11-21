@@ -149,12 +149,10 @@ final class LocalVariableMap extends VariableMap {
 	}
 
 	@Override
-	void lock() {
-	}
+	void lock() { }
 
 	@Override
-	void unlock() {
-	}
+	void unlock() { }
 
 	@Override
 	boolean holdsLock() {
