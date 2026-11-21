@@ -17,8 +17,7 @@ public final class VariableNameComparator implements Comparator<String> {
 	 */
 	public static final VariableNameComparator INSTANCE = new VariableNameComparator();
 
-	private VariableNameComparator() {
-	}
+	private VariableNameComparator() { }
 
 	@Override
 	public int compare(String s1, String s2) {
