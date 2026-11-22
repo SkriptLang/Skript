@@ -13,7 +13,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HexFormat;
 
 /**
@@ -114,7 +114,8 @@ public final class CsvFormat {
 		out.append(", ");
 		appendValue(out, value == null ? DELETED : value.type);
 		out.append(", ");
-		appendValue(out, value == null ? "" : encode(value.data));
+		if (value != null)
+			HEX.formatHex(out, value.data); // hex never needs quoting, so it's written straight in
 		out.append('\n');
 	}
 
@@ -287,7 +288,8 @@ public final class CsvFormat {
 	public static String @Nullable [] splitCSV(String line) {
 		int length = line.length();
 		int position = 0;
-		ArrayList<String> result = new ArrayList<>(3);
+		String[] result = new String[3]; // rows have three values
+		int count = 0;
 		while (true) {
 			int start = position;
 			while (position < length && isSpace(line.charAt(position)))
@@ -313,7 +315,9 @@ public final class CsvFormat {
 					String quoted = value == null ? last : value.append(last).toString();
 					if (escaped && (quoted = unescape(quoted)) == null)
 						return null; // a backslash that isn't an escape
-					result.add(quoted);
+					if (count == result.length)
+						result = Arrays.copyOf(result, count * 2);
+					result[count++] = quoted;
 					position = quote + 1;
 					break;
 				}
@@ -329,10 +333,18 @@ public final class CsvFormat {
 						return null; // a quote inside an unquoted value
 					position++;
 				}
-				result.add(line.substring(start, position).trim());
+				// trimmed by its bounds, not with trim(), which would copy it a second time
+				int from = start, to = position;
+				while (from < to && line.charAt(from) <= ' ')
+					from++;
+				while (to > from && line.charAt(to - 1) <= ' ')
+					to--;
+				if (count == result.length)
+					result = Arrays.copyOf(result, count * 2);
+				result[count++] = line.substring(from, to);
 			}
 			if (position == length)
-				return result.toArray(new String[0]);
+				return count == result.length ? result : Arrays.copyOf(result, count);
 			if (line.charAt(position) != ',')
 				return null; // something after a quoted value
 			position++;
