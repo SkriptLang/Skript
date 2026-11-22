@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit;
  * {@link VariableFile} handles the file itself, like IO and file system details.<br>
  * {@link CsvFormat} is responsible for the format of the file / its text.<br>
  * {@link Changes} handles interpreting and merging the rows, with {@link Row} being the representation of each row.<br>
- * {@link LoadReport} is a nice helper for storing and printing the problems found while loading.
+ * {@link FileLoadReport} is a nice helper for storing and printing the problems found while loading.
  */
 public class FlatFileStorage extends VariableStorage {
 
@@ -149,7 +149,7 @@ public class FlatFileStorage extends VariableStorage {
 		long changesFrom = layout.changesFrom();
 
 		// read the appended lines (tail) first, then merge with the base compacted section
-		LoadReport report = new LoadReport();
+		FileLoadReport report = new FileLoadReport();
 		Changes changes = new Changes();
 		try (BufferedReader tail = file.read(changesFrom, layout.size())) {
 			changes.read(tail, layout.tornTail(), report);
@@ -174,7 +174,7 @@ public class FlatFileStorage extends VariableStorage {
 			}
 			// rewrite the file in a proper manner. the problematic rows are left out the same way again,
 			// and loading reported them already
-			rewrite(rows -> merge(changesFrom, changes, new LoadReport(), rows));
+			rewrite(rows -> merge(changesFrom, changes, new FileLoadReport(), rows));
 		}
 	}
 
@@ -271,7 +271,7 @@ public class FlatFileStorage extends VariableStorage {
 	 */
 	private void compactOnce(CharSequence extraRows) throws IOException {
 		Changes changes = appendedChanges();
-		changes.read(new BufferedReader(new StringReader(extraRows.toString())), false, new LoadReport());
+		changes.read(new BufferedReader(new StringReader(extraRows.toString())), false, new FileLoadReport());
 		rewrite(sink -> mergeOurs(baseEnd, changes, sink));
 	}
 
@@ -284,7 +284,7 @@ public class FlatFileStorage extends VariableStorage {
 	 */
 	private Changes appendedChanges() throws IOException {
 		Changes changes = new Changes();
-		LoadReport report = new LoadReport();
+		FileLoadReport report = new FileLoadReport();
 		try (BufferedReader appended = file().read(baseEnd, fileLength)) {
 			changes.read(appended, false, report);
 		}
@@ -324,7 +324,7 @@ public class FlatFileStorage extends VariableStorage {
 	 * @return How many rows were read from the compacted rows
 	 * @throws IOException If the file can't be read, or the sink fails
 	 */
-	private long merge(long compactedEnd, Changes changes, LoadReport report, Row.Sink sink) throws IOException {
+	private long merge(long compactedEnd, Changes changes, FileLoadReport report, Row.Sink sink) throws IOException {
 		// a file with no compacted rows may not even exist yet
 		try (BufferedReader compacted = compactedEnd == 0 ? new BufferedReader(Reader.nullReader()) : file().read(0, compactedEnd)) {
 			return changes.applyTo(compacted, report, sink);
@@ -342,7 +342,7 @@ public class FlatFileStorage extends VariableStorage {
 	 * @throws IOException             If the file can't be read, or the sink fails
 	 */
 	private void mergeOurs(long compactedEnd, Changes changes, Row.Sink sink) throws IOException {
-		LoadReport report = new LoadReport();
+		FileLoadReport report = new FileLoadReport();
 		merge(compactedEnd, changes, report, sink);
 		checkOurs(report);
 	}
@@ -353,7 +353,7 @@ public class FlatFileStorage extends VariableStorage {
 	 * @param report The problems found
 	 * @throws ChangedOutsideException If there are any, since then something else changed the file
 	 */
-	private static void checkOurs(LoadReport report) throws ChangedOutsideException {
+	private static void checkOurs(FileLoadReport report) throws ChangedOutsideException {
 		if (!report.isEmpty())
 			throw new ChangedOutsideException();
 	}

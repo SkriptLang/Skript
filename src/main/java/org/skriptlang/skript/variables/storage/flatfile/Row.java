@@ -3,6 +3,7 @@ package org.skriptlang.skript.variables.storage.flatfile;
 import ch.njol.skript.variables.SerializedVariable.Value;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.variables.storage.CsvFormat;
+import org.skriptlang.skript.variables.storage.LoadReport;
 
 import java.io.IOException;
 

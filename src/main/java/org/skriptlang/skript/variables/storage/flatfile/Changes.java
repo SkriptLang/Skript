@@ -2,6 +2,7 @@ package org.skriptlang.skript.variables.storage.flatfile;
 
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.variables.storage.CsvFormat;
+import org.skriptlang.skript.variables.storage.LoadReport;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -39,7 +40,7 @@ final class Changes {
 	 * @param report   Where to report problems
 	 * @throws IOException If the rows can't be read
 	 */
-	void read(BufferedReader reader, boolean tornTail, LoadReport report) throws IOException {
+	void read(BufferedReader reader, boolean tornTail, FileLoadReport report) throws IOException {
 		String line;
 		String next = reader.readLine(); // read one line ahead, to know which line is the last
 		int lineNumber = 0;
@@ -48,7 +49,7 @@ final class Changes {
 			lineNumber++;
 			// torn last line
 			if (next == null && tornTail) {
-				report.addAfterCompacted(LoadReport.INCOMPLETE, lineNumber, null);
+				report.addAfterCompacted(FileLoadReport.INCOMPLETE, lineNumber, null);
 				break;
 			}
 			// skip non-var rows
@@ -124,7 +125,7 @@ final class Changes {
 	 * @return How many rows were read from the compacted rows
 	 * @throws IOException If the compacted rows can't be read, or the sink fails
 	 */
-	long applyTo(BufferedReader compacted, LoadReport report, Row.Sink sink) throws IOException {
+	long applyTo(BufferedReader compacted, FileLoadReport report, Row.Sink sink) throws IOException {
 		Iterator<Map.Entry<String, @Nullable String>> appendedChanges = rows.entrySet().iterator();
 		Map.Entry<String, @Nullable String> nextChange = advance(appendedChanges);
 		long compactedRows = 0;
@@ -146,7 +147,7 @@ final class Changes {
 			// ensure there's no deletes/out-of-order rows in here, it should be sorted with valid values only
 			String name = row.name();
 			if (row.deleted() || lastName != null && name.compareTo(lastName) <= 0) {
-				report.add(LoadReport.MISPLACED, lineNumber, null);
+				report.add(FileLoadReport.MISPLACED, lineNumber, null);
 				continue;
 			}
 			lastName = name;
