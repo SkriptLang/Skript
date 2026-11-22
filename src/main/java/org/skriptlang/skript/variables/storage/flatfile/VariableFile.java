@@ -6,24 +6,11 @@ import ch.njol.skript.util.Version;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.variables.storage.CsvFormat;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FilterInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
-import java.nio.channels.WritableByteChannel;
-import java.nio.file.AtomicMoveNotSupportedException;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 
@@ -37,9 +24,9 @@ import java.util.Arrays;
 final class VariableFile {
 
 	/**
-	 * How many characters to build up before writing them out, when writing a whole file.
+	 * How many characters to read in at once, when reading part of the file.
 	 */
-	private static final int WRITE_CHUNK = 1 << 16;
+	private static final int READ_CHUNK = 1 << 16;
 
 	private final File file;
 	private final Path path;
@@ -239,7 +226,7 @@ final class VariableFile {
 		try {
 			channel.position(from);
 			InputStream in = new LimitedInputStream(Channels.newInputStream(channel), to - from);
-			return new BufferedReader(new InputStreamReader(in, CsvFormat.CHARSET), WRITE_CHUNK);
+			return new BufferedReader(new InputStreamReader(in, CsvFormat.CHARSET), READ_CHUNK);
 		} catch (IOException | RuntimeException e) {
 			channel.close();
 			throw e;
@@ -327,7 +314,7 @@ final class VariableFile {
 		FileChannel appender = this.appender;
 		if (appender == null)
 			throw new IllegalStateException(name() + " isn't open");
-		write(appender, rows);
+		CsvFormat.Writer.write(appender, rows);
 		appender.force(false);
 		return appender.size();
 	}
@@ -380,13 +367,13 @@ final class VariableFile {
 	 */
 	Written rewrite(Row.Source rows) throws IOException {
 		Path temp = path.resolveSibling(path.getFileName() + ".temp");
-		Writer writer;
+		CsvFormat.Writer writer;
 		// emptied, in case a failed rewrite left it behind
 		try (FileChannel out = FileChannel.open(temp, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
-			writer = new Writer(out, true);
-			rows.forEach(writer::row);
+			writer = new CsvFormat.Writer(out, true);
+			rows.forEach(row -> writer.line(row.line()));
 			writer.finish();
-			fillInCompactedEnd(out, writer.bytes);
+			fillInCompactedEnd(out, writer.bytes());
 			out.force(true);
 		}
 		discardAppend();
@@ -396,7 +383,7 @@ final class VariableFile {
 			Files.move(temp, path, StandardCopyOption.REPLACE_EXISTING);
 		}
 		syncFolder();
-		return new Written(writer.rows, writer.bytes);
+		return new Written(writer.rows(), writer.bytes());
 	}
 
 	/**
@@ -440,8 +427,8 @@ final class VariableFile {
 	 * @throws IOException If reading or writing fails
 	 */
 	static void writeBackup(OutputStream out, Row.Source rows) throws IOException {
-		Writer writer = new Writer(Channels.newChannel(out), false); // closing that channel would close out
-		rows.forEach(writer::row);
+		CsvFormat.Writer writer = CsvFormat.Writer.backup(out);
+		rows.forEach(row -> writer.line(row.line()));
 		writer.finish();
 	}
 
@@ -461,77 +448,6 @@ final class VariableFile {
 		ByteBuffer buffer = ByteBuffer.wrap(digits.getBytes(CsvFormat.CHARSET));
 		while (buffer.hasRemaining())
 			out.write(buffer, position + buffer.position());
-	}
-
-	/**
-	 * Writes a whole file in chunks, counting its rows and bytes as it goes.
-	 */
-	private static final class Writer {
-
-		private final WritableByteChannel out;
-		private final boolean compacted;
-		private final StringBuilder chunk = new StringBuilder(WRITE_CHUNK + 256);
-		// how many rows were written
-		long rows;
-		// how many bytes were written, so where the next byte goes
-		long bytes;
-
-		/**
-		 * Creates a writer, starting the file with its header. Nothing is written until the first chunk fills up.
-		 *
-		 * @param out       Where to write
-		 * @param compacted Whether the rows are followed by a {@link CsvFormat#COMPACTED_END} line,
-		 *                  and the header says where that ends
-		 */
-		Writer(WritableByteChannel out, boolean compacted) {
-			this.out = out;
-			this.compacted = compacted;
-			CsvFormat.appendHeader(chunk, compacted);
-		}
-
-		/**
-		 * Writes a row.
-		 *
-		 * @param row The row
-		 * @throws IOException If a full chunk can't be written
-		 */
-		void row(Row row) throws IOException {
-			row.appendTo(chunk);
-			rows++;
-			if (chunk.length() >= WRITE_CHUNK) {
-				bytes += write(out, chunk); // only whole rows, so no character is split
-				chunk.setLength(0);
-			}
-		}
-
-		/**
-		 * Writes what's left, and the {@link CsvFormat#COMPACTED_END} line if there is one.
-		 *
-		 * @throws IOException If it can't be written
-		 */
-		void finish() throws IOException {
-			if (compacted)
-				CsvFormat.appendCompactedEnd(chunk);
-			bytes += write(out, chunk);
-			chunk.setLength(0);
-		}
-
-	}
-
-	/**
-	 * Writes text to a channel in {@link CsvFormat#CHARSET}, as a single write where the channel allows it.
-	 *
-	 * @param out  Where to write
-	 * @param text The text
-	 * @return How many bytes were written
-	 * @throws IOException If it can't be written
-	 */
-	private static long write(WritableByteChannel out, CharSequence text) throws IOException {
-		ByteBuffer bytes = CsvFormat.CHARSET.encode(CharBuffer.wrap(text));
-		long written = bytes.remaining();
-		while (bytes.hasRemaining())
-			out.write(bytes);
-		return written;
 	}
 
 	/**

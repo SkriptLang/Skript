@@ -5,6 +5,12 @@ import ch.njol.skript.lang.Variable;
 import ch.njol.skript.variables.SerializedVariable;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -341,6 +347,133 @@ public final class CsvFormat {
 	 */
 	private static boolean isSpace(char c) {
 		return c == ' ' || (c >= '\t' && c <= '\r');
+	}
+
+	/**
+	 * Writes a whole variable file in {@link CsvFormat}: the header, then the rows, in chunks.
+	 * Used by the CSV storage for its file and backups, and by other storages for their backups.
+	 * <p>
+	 * Rows are built up into a chunk of text, which is written out once it's big enough. A chunk only ever ends
+	 * between rows, so no character is split between two writes. Nothing is written until the first chunk fills up
+	 * or {@link #finish()} is called, and the rows and bytes written are counted as it goes.
+	 */
+	public static final class Writer {
+
+		/**
+		 * How many characters to build up before writing them out.
+		 */
+		private static final int CHUNK = 1 << 16;
+
+		private final WritableByteChannel out;
+		private final boolean compacted;
+		private final StringBuilder chunk = new StringBuilder(CHUNK + 256);
+		private long rows;
+		private long bytes;
+
+		/**
+		 * Creates a writer, starting the file with its header.
+		 *
+		 * @param out       Where to write. It isn't closed
+		 * @param compacted Whether the rows are followed by a {@link CsvFormat#COMPACTED_END} line,
+		 *                  and the header has a {@link CsvFormat#COMPACTED_HEADER} line for where that ends.
+		 *                  Its offset is written as zeros, so whoever writes the file has to fill it in afterwards
+		 */
+		public Writer(WritableByteChannel out, boolean compacted) {
+			this.out = out;
+			this.compacted = compacted;
+			CsvFormat.appendHeader(chunk, compacted);
+		}
+
+		/**
+		 * Creates a writer for a backup, which has no compacted rows, since its header can't be filled in afterwards.
+		 *
+		 * @param out Where to write the backup. It isn't closed
+		 * @return The writer
+		 */
+		public static Writer backup(OutputStream out) {
+			// closing this channel would close out, so it's just never closed
+			return new Writer(Channels.newChannel(out), false);
+		}
+
+		/**
+		 * Writes a row from its values.
+		 *
+		 * @param name  The variable's name, or a list's name such as {@code a::*} for a deleted list
+		 * @param value The serialized value, or null for a deletion
+		 * @throws IOException If a full chunk can't be written
+		 */
+		public void row(String name, SerializedVariable.@Nullable Value value) throws IOException {
+			CsvFormat.appendRow(chunk, name, value);
+			rowAdded();
+		}
+
+		/**
+		 * Writes a row that's already in {@link CsvFormat}, such as one read from another variable file.
+		 * Copying a row like this is much faster than writing it again from its values.
+		 *
+		 * @param row The row, as {@link CsvFormat#appendRow} writes it but without the line break
+		 * @throws IOException If a full chunk can't be written
+		 */
+		public void line(String row) throws IOException {
+			chunk.append(row).append('\n');
+			rowAdded();
+		}
+
+		/**
+		 * Counts a row that was just added to the chunk, and writes the chunk out if it's full.
+		 */
+		private void rowAdded() throws IOException {
+			rows++;
+			if (chunk.length() >= CHUNK) {
+				bytes += write(out, chunk); // only whole rows, so no character is split
+				chunk.setLength(0);
+			}
+		}
+
+		/**
+		 * Writes what's left, and the {@link CsvFormat#COMPACTED_END} line if there is one.
+		 * Doesn't close or sync the channel.
+		 *
+		 * @throws IOException If it can't be written
+		 */
+		public void finish() throws IOException {
+			if (compacted)
+				CsvFormat.appendCompactedEnd(chunk);
+			bytes += write(out, chunk);
+			chunk.setLength(0);
+		}
+
+		/**
+		 * @return How many rows were written
+		 */
+		public long rows() {
+			return rows;
+		}
+
+		/**
+		 * @return How many bytes were written, so where the next byte goes.
+		 * After {@link #finish()}, the file's size, which is also where its compacted rows end
+		 */
+		public long bytes() {
+			return bytes;
+		}
+
+		/**
+		 * Writes text to a channel in {@link CsvFormat#CHARSET}, as a single write where the channel allows it.
+		 *
+		 * @param out  Where to write
+		 * @param text The text
+		 * @return How many bytes were written
+		 * @throws IOException If it can't be written
+		 */
+		public static long write(WritableByteChannel out, CharSequence text) throws IOException {
+			ByteBuffer bytes = CsvFormat.CHARSET.encode(CharBuffer.wrap(text));
+			long written = bytes.remaining();
+			while (bytes.hasRemaining())
+				out.write(bytes);
+			return written;
+		}
+
 	}
 
 }

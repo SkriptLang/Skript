@@ -10,10 +10,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.variables.VariableMap;
+import org.skriptlang.skript.variables.storage.CsvFormat;
 import org.skriptlang.skript.variables.storage.VariableStorage;
 import org.skriptlang.skript.variables.storage.VariableStorageManager;
+import org.skriptlang.skript.variables.storage.flatfile.FlatFileStorage;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Constructor;
@@ -40,7 +43,7 @@ import static org.junit.Assert.*;
 
 /**
  * Tests loading from {@link SQLiteStorage} through a {@link VariableStorageManager}, with rows written to the file
- * directly over JDBC. Saving comes with {@code save}. Needs a server, since it logs through Skript
+ * directly over JDBC, saving to it, and backing it up. Needs a server, since it logs through Skript
  * and the SQLite driver comes with Paper.
  */
 public class SQLiteStorageTest {
@@ -119,6 +122,8 @@ public class SQLiteStorageTest {
 			manager.register(null, SameTableStorage.class, SameTableStorage::new, "sametable");
 		} else if (databases.contains("type: shortnames")) {
 			manager.register(null, ShortNameStorage.class, ShortNameStorage::new, "shortnames");
+		} else if (databases.contains("type: csv")) {
+			manager.register(null, FlatFileStorage.class, FlatFileStorage::new, "csv");
 		} else {
 			manager.register(null, SQLiteStorage.class, SQLiteStorage::new, "sqlite");
 		}
@@ -291,6 +296,28 @@ public class SQLiteStorageTest {
 					result.getLong(3), result.getString(4));
 			}
 		}
+	}
+
+	/**
+	 * Writes a backup of the storage, like its saving thread does, and returns it as text.
+	 */
+	private static String backup(JdbcStorage storage) throws IOException {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		storage.writeBackup(out);
+		return out.toString(StandardCharsets.UTF_8);
+	}
+
+	/**
+	 * @return The rows of a CSV file's text, without its header and blank lines
+	 */
+	private static List<String> csvRows(String text) {
+		return text.lines().filter(line -> !line.isBlank() && !line.startsWith("#")).map(String::strip).toList();
+	}
+
+	private static String csvRow(String name, String text) {
+		StringBuilder row = new StringBuilder();
+		CsvFormat.appendRow(row, name, value(text));
+		return row.toString().strip();
 	}
 
 	private long counter() throws SQLException {
@@ -640,6 +667,62 @@ public class SQLiteStorageTest {
 		assertNull(row("old"));
 		assertTrue(row("recent").tombstone());
 		assertEquals("3", row("kept").text()); // values are never pruned, however old
+	}
+
+	// ---- backups ----
+
+	@Test
+	public void aBackupHoldsOnlyTheVariablesALoadWouldLoad() throws Exception {
+		createTables();
+		insert("a", "1");
+		insert("list::1", "one");
+		insert("deleted", null, null); // a tombstone
+		insert("broken", null, "x".getBytes(StandardCharsets.UTF_8)); // a value without a type
+		insert("list::*", "a list can't hold a value");
+		JdbcStorage storage = loadedStorage();
+
+		String text = backup(storage);
+		assertTrue(text.contains(CsvFormat.VERSION_HEADER));
+		assertFalse("a backup is read whole", text.contains(CsvFormat.COMPACTED_HEADER));
+		assertEquals(List.of(csvRow("a", "1"), csvRow("list::1", "one")),
+			csvRows(text).stream().sorted().toList());
+		assertEquals("the broken rows are still in the table", "x",
+			new String((byte[]) query("SELECT value FROM " + TABLE + " WHERE name = 'broken'"), StandardCharsets.UTF_8));
+	}
+
+	@Test
+	public void aBackupOfAnEmptyTableIsJustTheHeader() throws IOException {
+		String text = backup(loadedStorage());
+		assertTrue(text.contains(CsvFormat.VERSION_HEADER));
+		assertEquals(List.of(), csvRows(text));
+	}
+
+	@Test
+	public void aBackupLoadsAsACsvDatabase() throws IOException {
+		JdbcStorage storage = loadedStorage();
+		String big = "x".repeat(100_000); // over one chunk of the writer on its own
+		save(storage, List.of(), change("a", "1"), change("list::1", "one"), change("list::2", "two"),
+			change("gone", "x"), change("unicode::ä::名前", "wert"), change("big", big));
+		save(storage, List.of(), deletion("gone"), deletion("list::2"));
+
+		Path backup = folder.resolve("backup.csv");
+		Files.writeString(backup, backup(storage));
+		VariableMap globals = VariableMap.concurrent();
+		loadExpecting(globals, true, database("restored", "csv", backup));
+		assertEquals(Map.of("a", "1", "list::1", "one", "unicode::ä::名前", "wert", "big", big), globals.getAll());
+	}
+
+	@Test
+	public void aBackupEndsItsReadTransaction() throws Exception {
+		JdbcStorage storage = loadedStorage();
+		save(storage, List.of(), change("a", "1"));
+		backup(storage);
+
+		// a read transaction left open would keep the WAL in use, so it couldn't be emptied
+		assertEquals(0, ((Number) query("PRAGMA wal_checkpoint(TRUNCATE)")).intValue()); // 0: not blocked
+		assertEquals(0, Files.size(folder.resolve(file.getFileName() + "-wal")));
+		save(storage, List.of(), change("b", "2")); // and the storage still saves after
+		assertEquals("2", row("b").text());
 	}
 
 }
