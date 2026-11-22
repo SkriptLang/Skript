@@ -38,9 +38,8 @@ import java.util.*;
  * Maps from {@link #local()} run the same algorithm on plain collections with no lock,
  * and are confined to one thread at a time.
  * <p>
- * The algorithm lives here, once. {@link ConcurrentVariableMap} and {@link LocalVariableMap} only provide
+ * The algorithm lives here. {@link ConcurrentVariableMap} and {@link LocalVariableMap} only provide
  * the collections it runs on, through the small helpers below, each of which calls one concrete collection type.
- * This has to stay at exactly two subclasses, since the JIT only inlines those helpers well for up to two types.
  */
 @ApiStatus.Internal
 public abstract sealed class VariableMap permits ConcurrentVariableMap, LocalVariableMap {

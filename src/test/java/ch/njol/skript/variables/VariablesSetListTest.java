@@ -50,7 +50,7 @@ public class VariablesSetListTest extends SkriptJUnitTest {
 
 	@After
 	public void cleanUp() {
-		Variables.removeLocals(event);
+		Variables.removeLocalVariables(event);
 		Variables.setVariable(GLOBAL + "::*", null, null, false);
 	}
 

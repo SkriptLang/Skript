@@ -28,7 +28,7 @@ public abstract class AsyncEffect extends Effect {
 	protected TriggerItem walk(Event e) {
 		debug(e, true);
 
-		Object localVars = Variables.removeLocals(e); // Back up local variables
+		Object localVars = Variables.removeLocalVariables(e); // Back up local variables
 
 		if (!Skript.getInstance().isEnabled()) // See https://github.com/SkriptLang/Skript/issues/3702
 			return null;
@@ -52,13 +52,13 @@ public abstract class AsyncEffect extends Effect {
 					}
 					
 					TriggerItem.walk(getNext(), e);
-					
-					Variables.removeLocals(e); // Clean up local vars, we may be exiting now
+
+					Variables.removeLocalVariables(e); // Clean up local vars, we may be exiting now
 					
 					SkriptTimings.stop(timing); // Stop timing if it was even started
 				});
 			} else {
-				Variables.removeLocals(e);
+				Variables.removeLocalVariables(e);
 			}
 		});
 		return null;

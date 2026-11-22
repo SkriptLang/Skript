@@ -59,7 +59,7 @@ public class DefaultVariableHintTest extends SkriptJUnitTest {
 	@After
 	public void cleanUp() {
 		ParserInstance.get().setInactive();
-		Variables.removeLocals(event);
+		Variables.removeLocalVariables(event);
 	}
 
 	@Test

@@ -28,7 +28,7 @@ public class IndeterminateDelay extends Delay {
 				return null;
 			
 			// Back up local variables
-			Object localVars = Variables.removeLocals(event);
+			Object localVars = Variables.removeLocalVariables(event);
 			
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
 				Delay.addDelayedEvent(event);

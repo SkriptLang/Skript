@@ -6,8 +6,6 @@ import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.localization.ArgsMessage;
-import ch.njol.skript.localization.Message;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.variables.Variables;
@@ -26,19 +24,14 @@ import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.help.HelpMap;
 import org.bukkit.help.HelpTopic;
 import org.bukkit.plugin.SimplePluginManager;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.regex.Pattern;
@@ -145,7 +138,7 @@ public abstract class Commands {
 						if (SkriptConfig.logEffectCommands.value() && !(sender instanceof ConsoleCommandSender))
 							Skript.info(sender.getName() + " issued effect command: " + textParser.escape(command));
 						TriggerItem.walk(effect, effectCommand);
-						Variables.removeLocals(effectCommand);
+						Variables.removeLocalVariables(effectCommand);
 					} else {
 						sender.sendMessage(textParser.parse("<red>Your effect command '" + textParser.escape(command) + "' was cancelled."));
 					}
