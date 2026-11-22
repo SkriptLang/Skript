@@ -293,7 +293,8 @@ public abstract class JdbcStorage extends VariableStorage {
 		try {
 			Connection connection = connection();
 			try {
-				// this effectively locks the version until we commit, so any external edits will wait and not conflict with us.
+				// bumping the counter locks its row until we commit, so other servers' saves take their versions after ours
+				// and commit after us too. That way versions are committed in order, and polling for newer ones never skips one.
 				long version = nextVersion(connection);
 				// make the changes
 				clear(connection, batch.clears(), version);
