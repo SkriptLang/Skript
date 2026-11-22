@@ -19,6 +19,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,11 +30,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
@@ -84,6 +88,39 @@ public class SQLiteStorageTest {
 
 	}
 
+	/**
+	 * An SQLite storage that can only save values up to 10 bytes, like MySQL can only save values that fit in a packet.
+	 */
+	static final class SmallValueStorage extends SQLiteStorage {
+
+		SmallValueStorage(SkriptAddon registeringAddon, String type) {
+			super(registeringAddon, type);
+		}
+
+		@Override
+		protected long maxValueLength() {
+			return 10;
+		}
+
+	}
+
+	/**
+	 * An SQLite storage that acts like it can be monitored, so the tombstones and pruning that databases shared between
+	 * servers need can be tested without one.
+	 */
+	static final class MonitoredStorage extends SQLiteStorage {
+
+		MonitoredStorage(SkriptAddon registeringAddon, String type) {
+			super(registeringAddon, type);
+		}
+
+		@Override
+		protected boolean supportsMonitoring() {
+			return true;
+		}
+
+	}
+
 	@Before
 	public void setUp() throws IOException {
 		folder = Files.createTempDirectory("skript-sqlite-test");
@@ -118,6 +155,10 @@ public class SQLiteStorageTest {
 			manager.register(null, SameTableStorage.class, SameTableStorage::new, "sametable");
 		} else if (databases.contains("type: shortnames")) {
 			manager.register(null, ShortNameStorage.class, ShortNameStorage::new, "shortnames");
+		} else if (databases.contains("type: smallvalues")) {
+			manager.register(null, SmallValueStorage.class, SmallValueStorage::new, "smallvalues");
+		} else if (databases.contains("type: monitored")) {
+			manager.register(null, MonitoredStorage.class, MonitoredStorage::new, "monitored");
 		} else if (databases.contains("type: csv")) {
 			manager.register(null, FlatFileStorage.class, FlatFileStorage::new, "csv");
 		} else {
@@ -199,12 +240,12 @@ public class SQLiteStorageTest {
 	/**
 	 * Puts a row into the table directly, as if a save wrote it.
 	 *
-	 * @param type The type, or null for a broken row
-	 * @param data The value, or null for a broken row
+	 * @param type The type, or null for a tombstone or a broken row
+	 * @param data The value, or null for a tombstone
 	 */
 	private void insert(String name, String type, byte[] data) throws SQLException {
 		try (Connection connection = open(); PreparedStatement statement = connection.prepareStatement(
-				"INSERT INTO " + TABLE + " (name, type, value, version) VALUES (?, ?, ?, 1)")) {
+				"INSERT INTO " + TABLE + " (name, type, value, version, server) VALUES (?, ?, ?, 1, 'test')")) {
 			statement.setString(1, name);
 			statement.setString(2, type);
 			statement.setBytes(3, data);
@@ -248,6 +289,20 @@ public class SQLiteStorageTest {
 	}
 
 	/**
+	 * Loads the file as a storage that keeps tombstones, and returns it for saving batches to it directly.
+	 */
+	private JdbcStorage loadedMonitoredStorage() {
+		return storage(loadExpecting(VariableMap.concurrent(), true, database("default", "monitored", file)));
+	}
+
+	/**
+	 * @return The name of the version index, if the table has one
+	 */
+	private @Nullable Object versionIndex() throws SQLException {
+		return query("SELECT name FROM sqlite_master WHERE type = 'index' AND name = '" + TABLE + "_version'");
+	}
+
+	/**
 	 * Saves a batch straight to the storage, like its saving thread does.
 	 */
 	private static void save(JdbcStorage storage, List<String> clears, SerializedVariable... changes) throws IOException {
@@ -267,9 +322,14 @@ public class SQLiteStorageTest {
 	/**
 	 * A row as it is in the table.
 	 *
-	 * @param text The value as text, or null if it has none
+	 * @param text The value as text, or null for a tombstone
 	 */
-	private record Row(@Nullable String type, @Nullable String text, long version) {
+	private record Row(@Nullable String type, @Nullable String text, long version, String server) {
+
+		boolean tombstone() {
+			return type == null && text == null;
+		}
+
 	}
 
 	/**
@@ -277,14 +337,14 @@ public class SQLiteStorageTest {
 	 */
 	private @Nullable Row row(String name) throws SQLException {
 		try (Connection connection = open(); PreparedStatement statement = connection.prepareStatement(
-				"SELECT type, value, version FROM " + TABLE + " WHERE name = ?")) {
+				"SELECT type, value, version, server FROM " + TABLE + " WHERE name = ?")) {
 			statement.setString(1, name);
 			try (ResultSet result = statement.executeQuery()) {
 				if (!result.next())
 					return null;
 				byte[] data = result.getBytes(2);
 				return new Row(result.getString(1), data == null ? null : new String(data, StandardCharsets.UTF_8),
-					result.getLong(3));
+					result.getLong(3), result.getString(4));
 			}
 		}
 	}
@@ -315,14 +375,51 @@ public class SQLiteStorageTest {
 		return ((Number) query("SELECT version FROM " + TABLE + "_meta WHERE id = 0")).longValue();
 	}
 
+	/**
+	 * Lets the storage's pruning think an hour has passed since it saw the given version,
+	 * and that it last pruned long enough ago to prune again. Reaches into its private fields,
+	 * since it times pruning with {@link System#nanoTime()}.
+	 */
+	private static void pretendAnHourPassedSince(JdbcStorage storage, long version) throws ReflectiveOperationException {
+		long now = System.nanoTime();
+		Class<?> sampleClass = Class.forName(JdbcStorage.class.getName() + "$Sample");
+		Constructor<?> sample = sampleClass.getDeclaredConstructor(long.class, long.class);
+		sample.setAccessible(true);
+		Field samplesField = JdbcStorage.class.getDeclaredField("samples");
+		samplesField.setAccessible(true);
+		@SuppressWarnings("unchecked")
+		ArrayDeque<Object> samples = (ArrayDeque<Object>) samplesField.get(storage);
+		samples.clear();
+		samples.add(sample.newInstance(now - TimeUnit.HOURS.toNanos(2), version));
+		Field lastPrune = JdbcStorage.class.getDeclaredField("lastPruneNanos");
+		lastPrune.setAccessible(true);
+		lastPrune.setLong(storage, now - TimeUnit.HOURS.toNanos(1));
+	}
+
 	// ---- creating the tables ----
 
 	@Test
 	public void loadingAnEmptyFileCreatesTheTables() throws SQLException {
-		createTables();
+		VariableStorageManager manager = load(VariableMap.concurrent());
+		assertEquals(0, storage(manager).loadedVersion());
+		close(manager);
 
 		assertEquals(0L, ((Number) query("SELECT COUNT(*) FROM " + TABLE)).longValue());
-		assertEquals(0L, counter());
+		assertEquals(0L, ((Number) query("SELECT version FROM " + TABLE + "_meta WHERE id = 0")).longValue());
+		assertNull("only polling needs the version index", versionIndex());
+	}
+
+	@Test
+	public void aMonitoredTableGetsAVersionIndex() throws SQLException {
+		close(loadExpecting(VariableMap.concurrent(), true, database("default", "monitored", file)));
+		assertEquals(TABLE + "_version", versionIndex());
+	}
+
+	@Test
+	public void anOldVersionIndexIsDropped() throws SQLException {
+		close(loadExpecting(VariableMap.concurrent(), true, database("default", "monitored", file)));
+		createTables();
+		assertNull(versionIndex());
 	}
 
 	@Test
@@ -332,11 +429,10 @@ public class SQLiteStorageTest {
 	}
 
 	@Test
-	public void savingContinuesFromTheStoredCounter() throws Exception {
+	public void loadingReadsTheVersionCounter() throws SQLException {
 		createTables();
 		sql("UPDATE " + TABLE + "_meta SET version = 7 WHERE id = 0");
-		save(loadedStorage(), List.of(), change("a", "1"));
-		assertEquals(8, row("a").version());
+		assertEquals(7, storage(load(VariableMap.concurrent())).loadedVersion());
 	}
 
 	@Test
@@ -366,16 +462,23 @@ public class SQLiteStorageTest {
 	}
 
 	@Test
+	public void tombstonesArentLoaded() throws SQLException {
+		createTables();
+		insert("a", "1");
+		insert("deleted", null, null);
+		assertEquals(Map.of("a", "1"), loaded());
+	}
+
+	@Test
 	public void badRowsAreSkippedAndKept() throws SQLException {
 		createTables();
 		insert("a", "1");
 		insert("list::*", "a list can't hold a value");
 		insert("no type", null, "a value without a type".getBytes(StandardCharsets.UTF_8));
-		insert("no value", null, null);
 
 		assertEquals(Map.of("a", "1"), loaded());
 		// nothing is rewritten, so a later fix can still read them
-		assertEquals(List.of("a", "list::*", "no type", "no value"), names());
+		assertEquals(List.of("a", "list::*", "no type"), names());
 	}
 
 	@Test
@@ -410,12 +513,10 @@ public class SQLiteStorageTest {
 	}
 
 	@Test
-	public void twoDatabasesCantUseTheSameTable() throws Exception {
+	public void twoDatabasesCantUseTheSameTable() {
 		VariableStorageManager manager = loadExpecting(VariableMap.concurrent(), false,
 			database("first", "sametable", file) + database("second", "sametable", folder.resolve("other.sqlite")));
-		// the second one failed, but the first one claimed the table first and still saves to it
-		save(storage(manager), List.of(), change("a", "1"));
-		assertEquals("1", row("a").text());
+		assertEquals(1, manager.storages().size());
 	}
 
 	@Test
@@ -487,6 +588,17 @@ public class SQLiteStorageTest {
 	}
 
 	@Test
+	public void aDeletionLeavesATombstoneIfMonitored() throws Exception {
+		JdbcStorage storage = loadedMonitoredStorage();
+		save(storage, List.of(), change("a", "1"));
+		save(storage, List.of(), deletion("a"));
+
+		assertTrue(row("a").tombstone());
+		close(managers.get(0));
+		assertEquals(Map.of(), loaded());
+	}
+
+	@Test
 	public void aClearOnlyRemovesItsList() throws Exception {
 		JdbcStorage storage = loadedStorage();
 		save(storage, List.of(), change("a", "own value"), change("a::b", "1"), change("a::b::c", "2"),
@@ -533,6 +645,28 @@ public class SQLiteStorageTest {
 	}
 
 	@Test
+	public void aClearOnlyTombstonesItsListIfMonitored() throws Exception {
+		JdbcStorage storage = loadedMonitoredStorage();
+		save(storage, List.of(), change("a", "own value"), change("a::b", "1"), change("ab::x", "2"));
+		save(storage, List.of("a::"));
+
+		assertTrue(row("a::b").tombstone());
+		assertEquals("own value", row("a").text());
+		assertEquals("2", row("ab::x").text());
+	}
+
+	@Test
+	public void aClearDoesntRestampTombstones() throws Exception {
+		JdbcStorage storage = loadedMonitoredStorage();
+		save(storage, List.of(), change("x::1", "1"));
+		save(storage, List.of(), deletion("x::1"));
+		long deleted = row("x::1").version();
+		save(storage, List.of("x::"));
+
+		assertEquals(deleted, row("x::1").version());
+	}
+
+	@Test
 	public void savingTheSameBatchTwiceIsHarmless() throws Exception {
 		JdbcStorage storage = loadedStorage();
 		save(storage, List.of(), change("a::1", "1"), change("b", "2"));
@@ -559,6 +693,18 @@ public class SQLiteStorageTest {
 		assertEquals(before + 3, counter());
 		assertEquals(before + 1, row("a").version());
 		assertEquals(before + 2, row("b").version());
+		assertEquals("nothing else reads the server, so it isn't saved", "", row("a").server());
+	}
+
+	@Test
+	public void rowsGetTheServerIfMonitored() throws Exception {
+		JdbcStorage storage = loadedMonitoredStorage();
+		save(storage, List.of(), change("a", "1"));
+		save(storage, List.of(), change("b", "2"), deletion("a"));
+
+		Row b = row("b");
+		assertEquals(36, b.server().length()); // a UUID
+		assertEquals(b.server(), row("a").server()); // the same storage, tombstones included
 	}
 
 	@Test
@@ -592,6 +738,38 @@ public class SQLiteStorageTest {
 	}
 
 	@Test
+	public void aValueThatCantBeSavedIsSkipped() throws Exception {
+		VariableStorageManager manager = loadExpecting(VariableMap.concurrent(), true, database("default", "smallvalues", file));
+		JdbcStorage storage = storage(manager);
+		save(storage, List.of(), change("small", "0123456789"), change("big", "0123456789a"));
+		save(storage, List.of(), change("later", "3")); // saving still works afterwards
+
+		assertEquals("0123456789", row("small").text()); // exactly the limit is fine
+		assertNull(row("big"));
+		assertEquals("3", row("later").text());
+	}
+
+	@Test
+	public void aValueThatGrowsTooBigKeepsItsLastSavedValue() throws Exception {
+		VariableStorageManager manager = loadExpecting(VariableMap.concurrent(), true, database("default", "smallvalues", file));
+		JdbcStorage storage = storage(manager);
+		save(storage, List.of(), change("a", "small"));
+		save(storage, List.of(), change("a", "far too big a value"));
+
+		assertEquals("small", row("a").text());
+	}
+
+	@Test
+	public void aDeletionIsntLimitedByValueLength() throws Exception {
+		VariableStorageManager manager = loadExpecting(VariableMap.concurrent(), true, database("default", "smallvalues", file));
+		JdbcStorage storage = storage(manager);
+		save(storage, List.of(), change("a", "1"));
+		save(storage, List.of(), deletion("a"));
+
+		assertNull(row("a"));
+	}
+
+	@Test
 	public void aFailedSaveSavesNothingAndCanBeTriedAgain() throws Exception {
 		JdbcStorage storage = loadedStorage();
 		save(storage, List.of(), change("a", "1"));
@@ -607,6 +785,23 @@ public class SQLiteStorageTest {
 		assertEquals(version + 1, counter());
 	}
 
+	@Test
+	public void pruningRemovesOnlyOldTombstones() throws Exception {
+		JdbcStorage storage = loadedMonitoredStorage();
+		save(storage, List.of(), change("old", "1"), change("recent", "2"), change("kept", "3"));
+		save(storage, List.of(), deletion("old"));
+		long oldDeletion = counter();
+		save(storage, List.of(), deletion("recent"));
+
+		// everything before the version after the old deletion is over an hour old
+		pretendAnHourPassedSince(storage, oldDeletion + 1);
+		save(storage, List.of(), change("trigger", "4"));
+
+		assertNull(row("old"));
+		assertTrue(row("recent").tombstone());
+		assertEquals("3", row("kept").text()); // values are never pruned, however old
+	}
+
 	// ---- backups ----
 
 	@Test
@@ -614,7 +809,7 @@ public class SQLiteStorageTest {
 		createTables();
 		insert("a", "1");
 		insert("list::1", "one");
-		insert("no value", null, null); // a row without a type or value
+		insert("deleted", null, null); // a tombstone
 		insert("broken", null, "x".getBytes(StandardCharsets.UTF_8)); // a value without a type
 		insert("list::*", "a list can't hold a value");
 		JdbcStorage storage = loadedStorage();
