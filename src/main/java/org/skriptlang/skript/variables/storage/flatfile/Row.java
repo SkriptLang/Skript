@@ -90,16 +90,6 @@ record Row(String name, String type, String hex, String line) {
 	}
 
 	/**
-	 * Appends the row to a file's text, with its line break. It's copied as it was written,
-	 * which is much faster than writing it again from its values.
-	 *
-	 * @param out Where to append it
-	 */
-	void appendTo(StringBuilder out) {
-		out.append(line).append('\n');
-	}
-
-	/**
 	 * Something that takes rows in the order of their names, like a load's listener or a rewrite.
 	 */
 	@FunctionalInterface

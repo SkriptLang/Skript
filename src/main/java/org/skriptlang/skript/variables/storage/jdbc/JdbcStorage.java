@@ -6,12 +6,11 @@ import ch.njol.skript.variables.SerializedVariable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.variables.storage.CsvFormat;
-import org.skriptlang.skript.variables.storage.LoadListener;
-import org.skriptlang.skript.variables.storage.LoadReport;
-import org.skriptlang.skript.variables.storage.VariableStorage;
+import org.skriptlang.skript.variables.storage.*;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -454,6 +453,45 @@ public abstract class JdbcStorage extends VariableStorage {
 			statement.executeUpdate();
 		}
 	}
+
+	// ---------------- BACKUPS -------------------
+
+	@Override
+	protected final boolean supportsBackups() {
+		return true;
+	}
+
+	@Override
+	protected final void writeBackup(OutputStream out) throws IOException {
+		connectionLock.lock();
+		try {
+			Connection connection = connection();
+			try {
+				CsvFormat.Writer writer = CsvFormat.Writer.backup(out);
+				// copy each row to the csv file
+				readRows(connection, "value IS NOT NULL", statement -> {}, (name, value) -> {
+					try {
+						writer.row(name, value);
+					} catch (IOException e) {
+						throw new UncheckedIOException(e);
+					}
+				}, new LoadReport());
+				writer.finish();
+				connection.commit();
+			} catch (SQLException | RuntimeException e) {
+				rollbackQuietly(connection);
+				throw e;
+			}
+		} catch (SQLException e) {
+			dropConnection();
+			throw new IOException("Couldn't back up the table '" + table + "': " + e.getMessage(), e);
+		} catch (UncheckedIOException e) {
+			throw e.getCause();
+		} finally {
+			connectionLock.unlock();
+		}
+	}
+
 
 	// ---------------- CLOSING -------------------
 
