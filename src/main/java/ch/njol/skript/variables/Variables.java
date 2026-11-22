@@ -352,6 +352,15 @@ public class Variables {
 	}
 
 	/**
+	 * @deprecated Switch to {@link #removeLocalVariables(Event)} ASAP. This class exposes private api that should not be relied on.
+	 */
+	@SuppressWarnings("removal")
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public static @Nullable VariablesMap removeLocals(Event event) {
+		return VariablesMap.from((VariableMap) removeLocalVariables(event));
+	}
+
+	/**
 	 * Removes local variables associated with given event and returns them,
 	 * if they exist.
 	 *
@@ -359,8 +368,7 @@ public class Variables {
 	 * @return the local variables from the event,
 	 * or {@code null} if the event had no local variables.
 	 */
-	@Nullable
-	public static Object removeLocals(Event event) {
+	public static @Nullable Object removeLocalVariables(Event event) {
 		if (event instanceof LocalVariableHoldingEvent localVariableHoldingEvent) {
 			VariableMap map = localVariableHoldingEvent.getLocals();
 			localVariableHoldingEvent.setLocals(null);
@@ -380,15 +388,19 @@ public class Variables {
 	 * @param event the event.
 	 * @param map the new local variables.
 	 */
+	@SuppressWarnings("removal")
 	public static void setLocalVariables(Event event, @Nullable Object map) {
 		if (map != null) {
+			if (map instanceof VariablesMap oldMap)
+				map = oldMap.newMap;
+
 			if (event instanceof LocalVariableHoldingEvent lvEvent) {
 				lvEvent.setLocals((VariableMap) map);
 			} else {
 				localVariables.put(event, (VariableMap) map);
 			}
 		} else {
-			removeLocals(event);
+			removeLocalVariables(event);
 		}
 	}
 
@@ -417,7 +429,7 @@ public class Variables {
 	public static void withLocalVariables(Event provider, Event user, @NotNull Runnable action) {
 		Variables.setLocalVariables(user, Variables.copyLocalVariables(provider));
 		action.run();
-		Variables.setLocalVariables(provider, Variables.removeLocals(user));
+		Variables.setLocalVariables(provider, Variables.removeLocalVariables(user));
 	}
 
 	/**
