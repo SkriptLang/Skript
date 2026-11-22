@@ -4,16 +4,20 @@ import ch.njol.skript.config.Config;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.log.BlockingLogHandler;
 import ch.njol.skript.variables.SerializedVariable;
+import org.jetbrains.annotations.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.variables.VariableMap;
+import org.skriptlang.skript.variables.storage.VariableStorage;
 import org.skriptlang.skript.variables.storage.VariableStorageManager;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,10 +27,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
@@ -58,6 +65,22 @@ public class SQLiteStorageTest {
 		@Override
 		protected String tableKey(String table) {
 			return "the same table";
+		}
+
+	}
+
+	/**
+	 * An SQLite storage that can only save names up to 10 characters, like MySQL can only save up to 768.
+	 */
+	static final class ShortNameStorage extends SQLiteStorage {
+
+		ShortNameStorage(SkriptAddon registeringAddon, String type) {
+			super(registeringAddon, type);
+		}
+
+		@Override
+		protected int maxNameLength() {
+			return 10;
 		}
 
 	}
@@ -94,6 +117,8 @@ public class SQLiteStorageTest {
 		// a subclass of a registered type can't be registered too, so only register the one the config uses
 		if (databases.contains("type: sametable")) {
 			manager.register(null, SameTableStorage.class, SameTableStorage::new, "sametable");
+		} else if (databases.contains("type: shortnames")) {
+			manager.register(null, ShortNameStorage.class, ShortNameStorage::new, "shortnames");
 		} else {
 			manager.register(null, SQLiteStorage.class, SQLiteStorage::new, "sqlite");
 		}
@@ -212,6 +237,85 @@ public class SQLiteStorageTest {
 
 	private static JdbcStorage storage(VariableStorageManager manager) {
 		return (JdbcStorage) manager.storages().get(0);
+	}
+
+	/**
+	 * Loads the file and returns its storage, for saving batches to it directly.
+	 */
+	private JdbcStorage loadedStorage() {
+		return storage(load(VariableMap.concurrent()));
+	}
+
+	/**
+	 * Saves a batch straight to the storage, like its saving thread does.
+	 */
+	private static void save(JdbcStorage storage, List<String> clears, SerializedVariable... changes) throws IOException {
+		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
+			storage.save(new VariableStorage.Batch(clears, List.of(changes)));
+		}
+	}
+
+	private static SerializedVariable change(String name, String text) {
+		return new SerializedVariable(name, value(text));
+	}
+
+	private static SerializedVariable deletion(String name) {
+		return new SerializedVariable(name, null);
+	}
+
+	/**
+	 * A row as it is in the table.
+	 *
+	 * @param text The value as text, or null for a tombstone
+	 */
+	private record Row(@Nullable String type, @Nullable String text, long version, String server) {
+
+		boolean tombstone() {
+			return type == null && text == null;
+		}
+
+	}
+
+	/**
+	 * @return The row with the given name, or null if there is none
+	 */
+	private @Nullable Row row(String name) throws SQLException {
+		try (Connection connection = open(); PreparedStatement statement = connection.prepareStatement(
+				"SELECT type, value, version, server FROM " + TABLE + " WHERE name = ?")) {
+			statement.setString(1, name);
+			try (ResultSet result = statement.executeQuery()) {
+				if (!result.next())
+					return null;
+				byte[] data = result.getBytes(2);
+				return new Row(result.getString(1), data == null ? null : new String(data, StandardCharsets.UTF_8),
+					result.getLong(3), result.getString(4));
+			}
+		}
+	}
+
+	private long counter() throws SQLException {
+		return ((Number) query("SELECT version FROM " + TABLE + "_meta WHERE id = 0")).longValue();
+	}
+
+	/**
+	 * Lets the storage's pruning think an hour has passed since it saw the given version,
+	 * and that it last pruned long enough ago to prune again. Reaches into its private fields,
+	 * since it times pruning with {@link System#nanoTime()}.
+	 */
+	private static void pretendAnHourPassedSince(JdbcStorage storage, long version) throws ReflectiveOperationException {
+		long now = System.nanoTime();
+		Class<?> sampleClass = Class.forName(JdbcStorage.class.getName() + "$Sample");
+		Constructor<?> sample = sampleClass.getDeclaredConstructor(long.class, long.class);
+		sample.setAccessible(true);
+		Field samplesField = JdbcStorage.class.getDeclaredField("samples");
+		samplesField.setAccessible(true);
+		@SuppressWarnings("unchecked")
+		ArrayDeque<Object> samples = (ArrayDeque<Object>) samplesField.get(storage);
+		samples.clear();
+		samples.add(sample.newInstance(now - TimeUnit.HOURS.toNanos(2), version));
+		Field lastPrune = JdbcStorage.class.getDeclaredField("lastPruneNanos");
+		lastPrune.setAccessible(true);
+		lastPrune.setLong(storage, now - TimeUnit.HOURS.toNanos(1));
 	}
 
 	// ---- creating the tables ----
@@ -342,6 +446,200 @@ public class SQLiteStorageTest {
 	public void differentFilesCanUseTheSameTableName() {
 		loadExpecting(VariableMap.concurrent(), true,
 			database("first", "sqlite", file) + database("second", "sqlite", folder.resolve("other.sqlite")));
+	}
+
+	// ---- saving ----
+
+	@Test
+	public void variablesSetThroughTheManagerLoadBack() {
+		VariableStorageManager manager = load(VariableMap.concurrent());
+		manager.set("a", "1");
+		manager.set("list::1", "one");
+		manager.set("list::2", "two");
+		manager.set("list::2", null);
+		manager.set("gone::1", "x");
+		manager.set("gone::*", null);
+		close(manager); // saves what's left
+
+		assertEquals(Map.of("a", "1", "list::1", "one"), loaded());
+	}
+
+	@Test
+	public void anOverwriteKeepsTheNewValueWithANewerVersion() throws Exception {
+		JdbcStorage storage = loadedStorage();
+		save(storage, List.of(), change("a", "old"));
+		long first = row("a").version();
+		save(storage, List.of(), change("a", "new"));
+
+		Row row = row("a");
+		assertEquals("new", row.text());
+		assertEquals(TEXT, row.type());
+		assertTrue(row.version() > first);
+	}
+
+	@Test
+	public void aDeletionLeavesATombstone() throws Exception {
+		JdbcStorage storage = loadedStorage();
+		save(storage, List.of(), change("a", "1"));
+		save(storage, List.of(), deletion("a"));
+
+		assertTrue(row("a").tombstone());
+		close(managers.get(0));
+		assertEquals(Map.of(), loaded());
+	}
+
+	@Test
+	public void aClearOnlyTombstonesItsList() throws Exception {
+		JdbcStorage storage = loadedStorage();
+		save(storage, List.of(), change("a", "own value"), change("a::b", "1"), change("a::b::c", "2"),
+			change("ab::x", "3"), change("a:x", "4"));
+		save(storage, List.of("a::"));
+
+		assertTrue(row("a::b").tombstone());
+		assertTrue(row("a::b::c").tombstone());
+		assertEquals("own value", row("a").text());
+		assertEquals("3", row("ab::x").text());
+		assertEquals("4", row("a:x").text());
+	}
+
+	@Test
+	public void underscoresInAClearedListArentWildcards() throws Exception {
+		// LIKE 'my_list::%' would match myXlist too, since _ matches any character there
+		JdbcStorage storage = loadedStorage();
+		save(storage, List.of(), change("my_list::1", "1"), change("myXlist::1", "2"), change("MY_LIST::1", "3"));
+		save(storage, List.of("my_list::"));
+
+		assertTrue(row("my_list::1").tombstone());
+		assertEquals("2", row("myXlist::1").text());
+		assertEquals("3", row("MY_LIST::1").text()); // and names are compared exactly, not ignoring case
+	}
+
+	@Test
+	public void aSetAfterAClearInTheSameBatchSurvives() throws Exception {
+		JdbcStorage storage = loadedStorage();
+		save(storage, List.of(), change("a::1", "1"), change("a::2", "2"));
+		save(storage, List.of("a::"), change("a::2", "new"));
+
+		assertTrue(row("a::1").tombstone());
+		assertEquals("new", row("a::2").text());
+	}
+
+	@Test
+	public void clearsApplyInOrder() throws Exception {
+		JdbcStorage storage = loadedStorage();
+		save(storage, List.of(), change("a::b::1", "1"), change("a::c", "2"));
+		save(storage, List.of("a::b::", "a::"));
+
+		assertTrue(row("a::b::1").tombstone());
+		assertTrue(row("a::c").tombstone());
+	}
+
+	@Test
+	public void aClearDoesntRestampTombstones() throws Exception {
+		JdbcStorage storage = loadedStorage();
+		save(storage, List.of(), change("x::1", "1"));
+		save(storage, List.of(), deletion("x::1"));
+		long deleted = row("x::1").version();
+		save(storage, List.of("x::"));
+
+		assertEquals(deleted, row("x::1").version());
+	}
+
+	@Test
+	public void savingTheSameBatchTwiceIsHarmless() throws Exception {
+		JdbcStorage storage = loadedStorage();
+		save(storage, List.of(), change("a::1", "1"), change("b", "2"));
+		List<String> clears = List.of("a::");
+		SerializedVariable[] changes = {change("a::2", "two"), deletion("b"), change("c", "3")};
+		save(storage, clears, changes);
+		long version = counter();
+		save(storage, clears, changes);
+
+		assertEquals(version + 1, counter());
+		assertTrue(row("a::1").tombstone());
+		assertEquals("two", row("a::2").text());
+		assertTrue(row("b").tombstone());
+		assertEquals("3", row("c").text());
+		assertEquals(List.of("a::1", "a::2", "b", "c"), names());
+	}
+
+	@Test
+	public void eachSaveBumpsTheCounterAndStampsItsRows() throws Exception {
+		JdbcStorage storage = loadedStorage();
+		long before = counter();
+		save(storage, List.of(), change("a", "1"));
+		save(storage, List.of(), change("b", "2"));
+		save(storage, List.of("c::"));
+
+		assertEquals(before + 3, counter());
+		assertEquals(before + 1, row("a").version());
+		assertEquals(before + 2, row("b").version());
+		Row a = row("a");
+		assertEquals(36, a.server().length()); // a UUID
+		assertEquals(a.server(), row("b").server()); // the same storage
+	}
+
+	@Test
+	public void aBigBatchIsSavedInChunks() throws Exception {
+		JdbcStorage storage = loadedStorage();
+		int count = 2_500; // over two chunks of 1000
+		SerializedVariable[] changes = new SerializedVariable[count];
+		Map<String, Object> expected = new HashMap<>();
+		for (int i = 0; i < count; i++) {
+			changes[i] = change("big::" + i, String.valueOf(i));
+			expected.put("big::" + i, String.valueOf(i));
+		}
+		save(storage, List.of(), changes);
+		long version = counter();
+
+		assertEquals((long) count, ((Number) query("SELECT COUNT(*) FROM " + TABLE + " WHERE version = " + version)).longValue());
+		close(managers.get(0));
+		assertEquals(expected, loaded());
+	}
+
+	@Test
+	public void aNameThatCantBeSavedIsSkipped() throws Exception {
+		VariableStorageManager manager = loadExpecting(VariableMap.concurrent(), true, database("default", "shortnames", file));
+		JdbcStorage storage = storage(manager);
+		save(storage, List.of(), change("short", "1"), change("far too long a name", "2"));
+		save(storage, List.of(), change("later", "3")); // saving still works afterwards
+
+		assertEquals("1", row("short").text());
+		assertNull(row("far too long a name"));
+		assertEquals("3", row("later").text());
+	}
+
+	@Test
+	public void aFailedSaveSavesNothingAndCanBeTriedAgain() throws Exception {
+		JdbcStorage storage = loadedStorage();
+		save(storage, List.of(), change("a", "1"));
+		long version = counter();
+		sql("ALTER TABLE " + TABLE + " RENAME TO hidden"); // the storage can't find its table any more
+
+		assertThrows(IOException.class, () -> save(storage, List.of(), change("a", "2")));
+		assertEquals(version, counter()); // the counter's bump was rolled back with the rest
+
+		sql("ALTER TABLE hidden RENAME TO " + TABLE);
+		save(storage, List.of(), change("a", "2")); // a new connection, as after any failure
+		assertEquals("2", row("a").text());
+		assertEquals(version + 1, counter());
+	}
+
+	@Test
+	public void pruningRemovesOnlyOldTombstones() throws Exception {
+		JdbcStorage storage = loadedStorage();
+		save(storage, List.of(), change("old", "1"), change("recent", "2"), change("kept", "3"));
+		save(storage, List.of(), deletion("old"));
+		long oldDeletion = counter();
+		save(storage, List.of(), deletion("recent"));
+
+		// everything before the version after the old deletion is over an hour old
+		pretendAnHourPassedSince(storage, oldDeletion + 1);
+		save(storage, List.of(), change("trigger", "4"));
+
+		assertNull(row("old"));
+		assertTrue(row("recent").tombstone());
+		assertEquals("3", row("kept").text()); // values are never pruned, however old
 	}
 
 }

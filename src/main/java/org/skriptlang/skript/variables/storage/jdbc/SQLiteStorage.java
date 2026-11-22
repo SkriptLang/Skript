@@ -4,7 +4,6 @@ import ch.njol.skript.config.SectionNode;
 import org.skriptlang.skript.addon.SkriptAddon;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -55,11 +54,6 @@ public class SQLiteStorage extends JdbcStorage {
 	}
 
 	@Override
-	protected void save(Batch batch) throws IOException {
-
-	}
-
-	@Override
 	protected List<String> schemaSql(String table, String metaTable) {
 		return List.of(
 			// make the main table (name, type, value, version, server)
@@ -70,6 +64,13 @@ public class SQLiteStorage extends JdbcStorage {
 			// make the meta table (overall version tracker, basically), with initial values 0,0
 			"CREATE TABLE IF NOT EXISTS " + metaTable + " (id INTEGER NOT NULL PRIMARY KEY, version INTEGER NOT NULL)",
 			"INSERT OR IGNORE INTO " + metaTable + " (id, version) VALUES (0, 0)");
+	}
+
+	@Override
+	protected String upsertSql(String table) {
+		return "INSERT INTO " + table + " (name, type, value, version, server) VALUES (?, ?, ?, ?, ?) "
+			+ "ON CONFLICT(name) DO UPDATE SET "
+			+ "type = excluded.type, value = excluded.value, version = excluded.version, server = excluded.server";
 	}
 
 	@Override
