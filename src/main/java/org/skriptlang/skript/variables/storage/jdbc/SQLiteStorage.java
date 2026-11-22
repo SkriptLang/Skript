@@ -28,7 +28,7 @@ public class SQLiteStorage extends JdbcStorage {
 	 * @param registeringAddon the addon that registered this storage's type
 	 * @param type             the type name the config picked this storage with, such as {@code sqlite}
 	 */
-	SQLiteStorage(SkriptAddon registeringAddon, String type) {
+	public SQLiteStorage(SkriptAddon registeringAddon, String type) {
 		super(registeringAddon, type);
 	}
 

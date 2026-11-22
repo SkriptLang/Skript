@@ -30,6 +30,7 @@ import org.skriptlang.skript.variables.storage.VariableRefreshTicker;
 import org.skriptlang.skript.variables.storage.VariableStorage;
 import org.skriptlang.skript.variables.storage.VariableStorageManager;
 import org.skriptlang.skript.variables.storage.flatfile.FlatFileStorage;
+import org.skriptlang.skript.variables.storage.jdbc.SQLiteStorage;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -143,6 +144,7 @@ public class Variables {
 			return;
 		builtInStoragesRegistered = true;
 		STORAGE_MANAGER.register(Skript.instance(), FlatFileStorage.class, FlatFileStorage::new, "csv", "file", "flatfile");
+		STORAGE_MANAGER.register(Skript.instance(), SQLiteStorage.class, SQLiteStorage::new, "sqlite");
 	}
 
 	/**
