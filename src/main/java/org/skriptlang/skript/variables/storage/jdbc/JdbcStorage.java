@@ -23,10 +23,11 @@ import java.util.regex.Pattern;
  * <p>
  * Each variable is one row: its name, the codename of its type, and its serialized value. Next to it is a second table,
  * {@code <table>_meta}, with a single row holding a version counter. Every save is one transaction that bumps the
- * counter and stamps each row it writes with the new version and this server's id. Deleting a variable or clearing
- * a list doesn't remove its rows. Instead, they become "tombstones", rows without a type or value, with the new
- * version, and get pruned once they're old enough. That way, anything reading the table can ask what changed since
- * some version.
+ * counter and stamps each row it writes with the new version and this server's id. If the database
+ * {@link #supportsMonitoring() supports monitoring}, deleting a variable or clearing a list doesn't remove its rows.
+ * Instead, they become "tombstones", rows without a type or value, with the new version, and get pruned once they're
+ * old enough. That way, anything reading the table can ask what changed since some version, deletions included.
+ * Otherwise, nothing else can be reading along, so deleted rows are just removed and rows don't get a server id.
  * <p>
  * We only keep one connection per storage, since only one thread uses it at a time.
  * It's refreshed after each error encountered.
@@ -49,6 +50,8 @@ public abstract class JdbcStorage extends VariableStorage {
 	private static final int BATCH_SIZE = 1000;
 
 	private final String serverId = UUID.randomUUID().toString(); // an id to show what server wrote this line. Customizable in future?
+	private boolean monitorable; // supportsMonitoring(), set while configuring
+	private String rowServer = ""; // what goes in the server column: serverId if monitorable, otherwise nothing
 
 	// the tables used by configured storages, as keys from tableKey, so two storages can't save to the same table
 	private static final Set<String> claimedTables = ConcurrentHashMap.newKeySet();
@@ -85,8 +88,10 @@ public abstract class JdbcStorage extends VariableStorage {
 		}
 		this.table = table;
 		this.metaTable = table + "_meta";
+		this.monitorable = supportsMonitoring();
+		this.rowServer = monitorable ? serverId : "";
 		if (node.getValue("monitor changes") != null)
-			// temporary warning, since monitoring is covered in the MySQL PR.
+			// databases that support monitoring will get it in the MySQL PR, so for now this warns for every type
 			Skript.warning("The database '" + getName() + "' of type '" + getType() + "' can't monitor changes, so 'monitor changes' is ignored");
 		if (!configureConnection(node))
 			return false;
@@ -120,6 +125,26 @@ public abstract class JdbcStorage extends VariableStorage {
 	 * @return A key that is equal for two storages only if they use the same table of the same database
 	 */
 	protected abstract String tableKey(String table);
+
+	/**
+	 * Whether other servers can share this storage's table and watch it for changes. This is a fact about the type of
+	 * database, not the {@code monitor changes} option: a server that doesn't monitor a shared table still has to keep
+	 * its deletions as tombstones, so the servers that do monitor it can see them.
+	 * <p>
+	 * If false, deleted rows are removed right away, nothing is pruned, and rows are saved without a server id.
+	 * The version counter is still bumped, since it costs one row per save.
+	 * Called once, while configuring.
+	 *
+	 * @return Whether other servers could be reading this storage's table
+	 */
+	protected abstract boolean supportsMonitoring();
+
+	/**
+	 * @return Whether this storage keeps tombstones, from {@link #supportsMonitoring()}
+	 */
+	protected final boolean monitorable() {
+		return monitorable;
+	}
 
 	// ------------ CONNECTION ----------------
 
@@ -334,7 +359,8 @@ public abstract class JdbcStorage extends VariableStorage {
 	}
 
 	/**
-	 * Sets a subset of variable rows to tombstones, clearing them.
+	 * Clears a subset of variable rows: turns them into tombstones if this storage is {@link #monitorable()},
+	 * otherwise deletes them.
 	 * We use name >= and < to clear a full subset, e.g. anything between "a::" and "a:;" covers the entire "a::*" list.
 	 *
 	 * @param connection The connection to use.
@@ -345,11 +371,23 @@ public abstract class JdbcStorage extends VariableStorage {
 	private void clear(Connection connection, List<String> prefixes, long version) throws SQLException {
 		if (prefixes.isEmpty())
 			return;
+		if (!monitorable) {
+			try (PreparedStatement statement = connection.prepareStatement(
+				"DELETE FROM " + table + " WHERE name >= ? AND name < ?")) {
+				for (String prefix : prefixes) { // in order
+					statement.setString(1, prefix);
+					statement.setString(2, CsvFormat.prefixEnd(prefix));
+					statement.addBatch();
+				}
+				statement.executeBatch();
+			}
+			return;
+		}
 		try (PreparedStatement statement = connection.prepareStatement("UPDATE " + table
 			+ " SET type = NULL, value = NULL, version = ?, server = ? WHERE name >= ? AND name < ? AND value IS NOT NULL")) {
 			for (String prefix : prefixes) { // in order
 				statement.setLong(1, version);
-				statement.setString(2, serverId);
+				statement.setString(2, rowServer);
 				statement.setString(3, prefix);
 				statement.setString(4, CsvFormat.prefixEnd(prefix));
 				statement.addBatch();
@@ -360,6 +398,8 @@ public abstract class JdbcStorage extends VariableStorage {
 
 	/**
 	 * Write new variable changes to the database. Updates row version.
+	 * Deletions become tombstones if this storage is {@link #monitorable()}, and are deleted otherwise.
+	 * A batch has one change per name, so the deletions and the other changes can be sent as two separate batches.
 	 *
 	 * @param connection The connection to use.
 	 * @param changes    The variables to update.
@@ -369,14 +409,21 @@ public abstract class JdbcStorage extends VariableStorage {
 	private void write(Connection connection, Collection<SerializedVariable> changes, long version) throws SQLException {
 		if (changes.isEmpty())
 			return;
-		try (PreparedStatement statement = connection.prepareStatement(upsertSql(table))) {
-			int pending = 0;
+		try (Batcher upserts = new Batcher(connection, upsertSql(table));
+		     Batcher deletes = new Batcher(connection, "DELETE FROM " + table + " WHERE name = ?")) {
 			for (SerializedVariable change : changes) {
 				// name check
 				if (change.name.length() > maxNameLength()) {
 					skipUnsavable(change.name);
 					continue;
 				}
+				if (change.value == null && !monitorable) {
+					PreparedStatement statement = deletes.statement();
+					statement.setString(1, change.name);
+					deletes.add();
+					continue;
+				}
+				PreparedStatement statement = upserts.statement();
 				statement.setString(1, change.name);
 				if (change.value == null) { // deleted, both null
 					statement.setNull(2, Types.VARCHAR);
@@ -387,16 +434,62 @@ public abstract class JdbcStorage extends VariableStorage {
 					statement.setBytes(3, change.value.data);
 				}
 				statement.setLong(4, version);
-				statement.setString(5, serverId);
-				statement.addBatch();
-				if (++pending == BATCH_SIZE) { // prevent statement from getting TOO long.
-					statement.executeBatch();
-					pending = 0;
-				}
+				statement.setString(5, rowServer);
+				upserts.add();
 			}
-			if (pending > 0)
-				statement.executeBatch();
 		}
+	}
+
+	/**
+	 * A statement that's only prepared once it's first used, and sent in chunks of {@link #BATCH_SIZE},
+	 * so a huge batch isn't held all at once. Closing it sends what's left.
+	 */
+	private static final class Batcher implements AutoCloseable {
+
+		private final Connection connection;
+		private final String sql;
+		private @Nullable PreparedStatement statement;
+		private int pending;
+
+		Batcher(Connection connection, String sql) {
+			this.connection = connection;
+			this.sql = sql;
+		}
+
+		/**
+		 * @return The statement, to bind the next row's parameters to
+		 */
+		PreparedStatement statement() throws SQLException {
+			if (statement == null)
+				statement = connection.prepareStatement(sql);
+			return statement;
+		}
+
+		/**
+		 * Adds the bound row to the batch, and sends the batch if it's full.
+		 */
+		void add() throws SQLException {
+			assert statement != null;
+			statement.addBatch();
+			if (++pending == BATCH_SIZE) { // prevent statement from getting TOO long.
+				statement.executeBatch();
+				pending = 0;
+			}
+		}
+
+		/**
+		 * Sends what's left and closes the statement. If sending fails, the statement is still closed.
+		 */
+		@Override
+		public void close() throws SQLException {
+			if (statement == null)
+				return;
+			try (PreparedStatement statement = this.statement) {
+				if (pending > 0)
+					statement.executeBatch();
+			}
+		}
+
 	}
 
 	/**
@@ -433,6 +526,8 @@ public abstract class JdbcStorage extends VariableStorage {
 	 * @throws SQLException If any statement fails.
 	 */
 	private void pruneIfDue(Connection connection, long version) throws SQLException {
+		if (!monitorable) // no tombstones to prune
+			return;
 		long now = System.nanoTime();
 		// add a new sample if we haven't taken one in a minute
 		if (samples.isEmpty() || now - samples.peekLast().nanos() >= SAMPLE_INTERVAL_NANOS)
