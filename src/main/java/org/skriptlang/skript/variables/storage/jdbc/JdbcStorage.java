@@ -6,15 +6,14 @@ import ch.njol.skript.variables.SerializedVariable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.variables.storage.CsvFormat;
 import org.skriptlang.skript.variables.storage.LoadListener;
 import org.skriptlang.skript.variables.storage.LoadReport;
 import org.skriptlang.skript.variables.storage.VariableStorage;
 
 import java.io.IOException;
 import java.sql.*;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -48,6 +47,7 @@ public abstract class JdbcStorage extends VariableStorage {
 	// 58 leaves room for "_meta" within MySQL's 64 limit
 	private static final Pattern TABLE_NAME = Pattern.compile("[A-Za-z_][A-Za-z0-9_]{0,57}");
 	private static final long IDLE_CHECK_NANOS = TimeUnit.SECONDS.toNanos(30);
+	private static final int BATCH_SIZE = 1000;
 
 	private final String serverId = UUID.randomUUID().toString(); // an id to show what server wrote this line. Customizable in future?
 
@@ -170,32 +170,6 @@ public abstract class JdbcStorage extends VariableStorage {
 	protected void setUp(Connection connection) throws SQLException {
 	}
 
-	/**
-	 * Close the connection quietly if it is open. Must be done under the connectionLock.
-	 * This should be called if a SQLException is ever encountered, so the next use gets a new
-	 * connection.
-	 */
-	private void dropConnection() {
-		assert connectionLock.isHeldByCurrentThread();
-		Connection connection = this.connection;
-		this.connection = null;
-		if (connection != null)
-			closeQuietly(connection);
-	}
-
-	/**
-	 * Closes a connection while ignoring any exceptions.
-	 *
-	 * @param connection The connection to close.
-	 */
-	private static void closeQuietly(@NotNull Connection connection) {
-		try {
-			connection.close();
-		} catch (SQLException ignored) {
-			// it's being thrown away anyway
-		}
-	}
-
 	// -------------- SCHEMA / TABLE SETUP -----------------
 
 	/**
@@ -255,6 +229,7 @@ public abstract class JdbcStorage extends VariableStorage {
 			Connection connection = connection();
 			createSchema(connection);
 			loadedVersion = readVersion(connection);
+			samples.addLast(new Sample(System.nanoTime(), loadedVersion));
 			LoadReport problems = new LoadReport();
 			Binder unused = statement -> {
 			}; // will be used later
@@ -311,6 +286,175 @@ public abstract class JdbcStorage extends VariableStorage {
 		return 1000;
 	}
 
+	// ---------------- SAVING --------------------
+
+	@Override
+	protected final void save(Batch batch) throws IOException {
+		connectionLock.lock();
+		try {
+			Connection connection = connection();
+			try {
+				// this effectively locks the version until we commit, so any external edits will wait and not conflict with us.
+				long version = nextVersion(connection);
+				// make the changes
+				clear(connection, batch.clears(), version);
+				write(connection, batch.changes(), version);
+				pruneIfDue(connection, version);
+				// a whole batch is committed at once to prevent data fracturing.
+				// if it fails, we can just try it again next time.
+				connection.commit();
+			} catch (SQLException | RuntimeException e) {
+				rollbackQuietly(connection);
+				throw e;
+			}
+		} catch (SQLException e) {
+			dropConnection();
+			throw new IOException("Couldn't save to the table '" + table + "': " + e.getMessage(), e);
+		} finally {
+			connectionLock.unlock();
+		}
+	}
+
+	/**
+	 * Helper to increment and return the version value in the meta table.
+	 *
+	 * @param connection The connection to use
+	 * @return The incremented version value
+	 * @throws SQLException If accessing or updating the meta table failed.
+	 */
+	private long nextVersion(Connection connection) throws SQLException {
+		try (Statement statement = connection.createStatement()) {
+			if (statement.executeUpdate("UPDATE " + metaTable + " SET version = version + 1 WHERE id = 0") != 1)
+				throw new SQLException("The counter row of '" + metaTable + "' is missing");
+			try (ResultSet result = statement.executeQuery("SELECT version FROM " + metaTable + " WHERE id = 0")) {
+				result.next();
+				return result.getLong(1);
+			}
+		}
+	}
+
+	/**
+	 * Sets a subset of variable rows to tombstones, clearing them.
+	 * We use name >= and < to clear a full subset, e.g. anything between "a::" and "a:;" covers the entire "a::*" list.
+	 *
+	 * @param connection The connection to use.
+	 * @param prefixes   The prefixes to clear, e.g. `"a::"` for a clear meant to hit `{a::*}`.
+	 * @param version    The new version to use in the cleared rows.
+	 * @throws SQLException If the update fails.
+	 */
+	private void clear(Connection connection, List<String> prefixes, long version) throws SQLException {
+		if (prefixes.isEmpty())
+			return;
+		try (PreparedStatement statement = connection.prepareStatement("UPDATE " + table
+			+ " SET type = NULL, value = NULL, version = ?, server = ? WHERE name >= ? AND name < ? AND value IS NOT NULL")) {
+			for (String prefix : prefixes) { // in order
+				statement.setLong(1, version);
+				statement.setString(2, serverId);
+				statement.setString(3, prefix);
+				statement.setString(4, CsvFormat.prefixEnd(prefix));
+				statement.addBatch();
+			}
+			statement.executeBatch();
+		}
+	}
+
+	/**
+	 * Write new variable changes to the database. Updates row version.
+	 *
+	 * @param connection The connection to use.
+	 * @param changes    The variables to update.
+	 * @param version    The new version to use.
+	 * @throws SQLException If any of the statements fail.
+	 */
+	private void write(Connection connection, Collection<SerializedVariable> changes, long version) throws SQLException {
+		if (changes.isEmpty())
+			return;
+		try (PreparedStatement statement = connection.prepareStatement(upsertSql(table))) {
+			int pending = 0;
+			for (SerializedVariable change : changes) {
+				// name check
+				if (change.name.length() > maxNameLength()) {
+					skipUnsavable(change.name);
+					continue;
+				}
+				statement.setString(1, change.name);
+				if (change.value == null) { // deleted, both null
+					statement.setNull(2, Types.VARCHAR);
+					statement.setNull(3, Types.BLOB);
+				} else {
+					// set type and data
+					statement.setString(2, change.value.type);
+					statement.setBytes(3, change.value.data);
+				}
+				statement.setLong(4, version);
+				statement.setString(5, serverId);
+				statement.addBatch();
+				if (++pending == BATCH_SIZE) { // prevent statement from getting TOO long.
+					statement.executeBatch();
+					pending = 0;
+				}
+			}
+			if (pending > 0)
+				statement.executeBatch();
+		}
+	}
+
+	/**
+	 * @param table The table to update
+	 * @return A statement that updates or inserts a row in the table.
+	 */
+	protected abstract String upsertSql(String table);
+
+	private final Set<String> reportedUnsavable = new HashSet<>();
+
+	private void skipUnsavable(String name) {
+		if (reportedUnsavable.add(name))
+			Skript.error("The variable '" + name + "' can't be saved to the database '" + getName()
+				+ "', since its name is longer than " + maxNameLength() + " characters. It's kept until the server stops");
+	}
+
+	// ---------------- PRUNING ------------------
+
+	private static final long TOMBSTONE_RETENTION_NANOS = TimeUnit.HOURS.toNanos(1);
+	private static final long PRUNE_INTERVAL_NANOS = TimeUnit.MINUTES.toNanos(5);
+	private static final long SAMPLE_INTERVAL_NANOS = TimeUnit.MINUTES.toNanos(1);
+
+	// for tracking version ages
+	private record Sample(long nanos, long version) {}
+
+	private final ArrayDeque<Sample> samples = new ArrayDeque<>(); // oldest first
+	private long lastPruneNanos = System.nanoTime();
+
+	/**
+	 * Removes all the stale tombstones from this storage's SQL table
+	 *
+	 * @param connection The connection to use.
+	 * @param version    The new version.
+	 * @throws SQLException If any statement fails.
+	 */
+	private void pruneIfDue(Connection connection, long version) throws SQLException {
+		long now = System.nanoTime();
+		// add a new sample if we haven't taken one in a minute
+		if (samples.isEmpty() || now - samples.peekLast().nanos() >= SAMPLE_INTERVAL_NANOS)
+			samples.addLast(new Sample(now, version));
+		if (now - lastPruneNanos < PRUNE_INTERVAL_NANOS)
+			return;
+		lastPruneNanos = now;
+		// find the newest hour-plus-old sample, so we know what version to prune up to.
+		// any older ones can be thrown out, they're useless
+		Sample cutoff = null;
+		while (!samples.isEmpty() && now - samples.peekFirst().nanos() >= TOMBSTONE_RETENTION_NANOS)
+			cutoff = samples.pollFirst(); // keep removing the oldest
+		if (cutoff == null)
+			return;
+		samples.addFirst(cutoff); // keep it, so the next prune still has a cutoff
+		try (PreparedStatement statement = connection.prepareStatement(
+			"DELETE FROM " + table + " WHERE value IS NULL AND version < ?")) {
+			statement.setLong(1, cutoff.version());
+			statement.executeUpdate();
+		}
+	}
+
 	// ---------------- CLOSING -------------------
 
 	/**
@@ -331,6 +475,45 @@ public abstract class JdbcStorage extends VariableStorage {
 		}
 	}
 
+	/**
+	 * Close the connection quietly if it is open. Must be done under the connectionLock.
+	 * This should be called if a SQLException is ever encountered, so the next use gets a new
+	 * connection.
+	 */
+	private void dropConnection() {
+		assert connectionLock.isHeldByCurrentThread();
+		Connection connection = this.connection;
+		this.connection = null;
+		if (connection != null)
+			closeQuietly(connection);
+	}
+
+	/**
+	 * Closes a connection while ignoring any exceptions.
+	 *
+	 * @param connection The connection to close.
+	 */
+	private static void closeQuietly(@NotNull Connection connection) {
+		try {
+			connection.close();
+		} catch (SQLException ignored) {
+			// it's being thrown away anyway
+		}
+	}
+
+	/**
+	 * Rolls back the open transaction while ignoring any exceptions.
+	 *
+	 * @param connection The connection to roll back.
+	 */
+	private static void rollbackQuietly(Connection connection) {
+		try {
+			connection.rollback();
+		} catch (SQLException ignored) {
+			// it's being thrown away anyway
+		}
+	}
+
 	// ---------------- MISC -----------------------
 
 	/**
@@ -345,6 +528,13 @@ public abstract class JdbcStorage extends VariableStorage {
 	 */
 	protected final String table() {
 		return table;
+	}
+
+	/**
+	 * @return The longest name that can be stored. Defaults to int max.
+	 */
+	protected int maxNameLength() {
+		return Integer.MAX_VALUE;
 	}
 
 }
