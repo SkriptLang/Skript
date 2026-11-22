@@ -623,7 +623,8 @@ public class Variables {
 	 * @param values   The values to use in the list, one per key. This array is not modified.
 	 */
 	public static void setList(String listName, @NotNull String @NotNull [] keys, @NotNull Object @NotNull [] values, @Nullable Event event, boolean local) {
-		assert keys.length == values.length : keys.length + " keys, " + values.length + " values";
+		if (keys.length != values.length)
+			throw new SkriptAPIException("setList input length mismatch: " + keys.length + " keys, " + values.length + " values");
 		// keys like a::b (from keyed recursive lists) make nested lists, which the bulk path can't build.
 		// list names ending in : are the same, as a:: + b splits into a and :b, so that's really a different list.
 		// a key of * would be a value named like the list, which setVariable drops.

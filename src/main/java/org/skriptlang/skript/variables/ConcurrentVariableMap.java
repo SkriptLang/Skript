@@ -19,17 +19,17 @@ final class ConcurrentVariableMap extends VariableMap {
 	private final ConcurrentHashMap<String, VariableBranch> branches = new ConcurrentHashMap<>();
 
 	@Override
-	@Nullable Object valueGet(String key) {
+	@Nullable Object getValue(String key) {
 		return values.get(key);
 	}
 
 	@Override
-	@Nullable Object valuePut(String key, @NotNull Object value) {
+	@Nullable Object putValue(String key, @NotNull Object value) {
 		return values.put(key, value);
 	}
 
 	@Override
-	@Nullable Object valueRemove(String key) {
+	@Nullable Object removeValue(String key) {
 		return values.remove(key);
 	}
 
@@ -66,17 +66,17 @@ final class ConcurrentVariableMap extends VariableMap {
 	}
 
 	@Override
-	@Nullable VariableBranch branchGet(String name) {
+	@Nullable VariableBranch getBranch(String name) {
 		return branches.get(name);
 	}
 
 	@Override
-	void branchPut(VariableBranch branch) {
+	void putBranch(VariableBranch branch) {
 		branches.put(branch.fullName, branch);
 	}
 
 	@Override
-	void branchRemove(VariableBranch branch) {
+	void removeBranch(VariableBranch branch) {
 		branches.remove(branch.fullName, branch);
 	}
 
@@ -112,30 +112,30 @@ final class ConcurrentVariableMap extends VariableMap {
 	}
 
 	@Override
-	@Nullable Object childGet(VariableBranch branch, String key) {
+	@Nullable Object getChild(VariableBranch branch, String key) {
 		return children(branch).get(key);
 	}
 
 	@Override
-	@Nullable Object childPut(VariableBranch branch, String key, Object entry) {
+	@Nullable Object putChild(VariableBranch branch, String key, Object entry) {
 		return children(branch).put(key, entry);
 	}
 
 	@Override
-	@Nullable Object childPutIfAbsent(VariableBranch branch, String key, Object entry) {
+	@Nullable Object putChildIfAbsent(VariableBranch branch, String key, Object entry) {
 		return children(branch).putIfAbsent(key, entry);
 	}
 
 	@Override
-	void childRemove(VariableBranch branch, String key, Object entry) {
+	void removeChild(VariableBranch branch, String key, Object entry) {
 		children(branch).remove(key, entry);
 	}
 
 	@Override
-	@Nullable Object childRemoveLeaf(VariableBranch branch, String key, String name) {
+	@Nullable Object removeLeafChild(VariableBranch branch, String key, String name) {
 		if (children(branch).remove(key, name)) // a leaf's entry is always its full name
 			return name;
-		return childGet(branch, key);
+		return getChild(branch, key);
 	}
 
 	@Override
