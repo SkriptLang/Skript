@@ -15,17 +15,17 @@ final class LocalVariableMap extends VariableMap {
 	private @Nullable HashMap<String, VariableBranch> branches; // lazily allocated, as most events never use a list
 
 	@Override
-	@Nullable Object valueGet(String key) {
+	@Nullable Object getValue(String key) {
 		return values.get(key);
 	}
 
 	@Override
-	@Nullable Object valuePut(String key, @NotNull Object value) {
+	@Nullable Object putValue(String key, @NotNull Object value) {
 		return values.put(key, value);
 	}
 
 	@Override
-	@Nullable Object valueRemove(String key) {
+	@Nullable Object removeValue(String key) {
 		return values.remove(key);
 	}
 
@@ -63,19 +63,19 @@ final class LocalVariableMap extends VariableMap {
 	}
 
 	@Override
-	@Nullable VariableBranch branchGet(String name) {
+	@Nullable VariableBranch getBranch(String name) {
 		return branches == null ? null : branches.get(name);
 	}
 
 	@Override
-	void branchPut(VariableBranch branch) {
+	void putBranch(VariableBranch branch) {
 		if (branches == null)
 			branches = new HashMap<>();
 		branches.put(branch.fullName, branch);
 	}
 
 	@Override
-	void branchRemove(VariableBranch branch) {
+	void removeBranch(VariableBranch branch) {
 		if (branches != null)
 			branches.remove(branch.fullName, branch);
 	}
@@ -112,22 +112,22 @@ final class LocalVariableMap extends VariableMap {
 	}
 
 	@Override
-	@Nullable Object childGet(VariableBranch branch, String key) {
+	@Nullable Object getChild(VariableBranch branch, String key) {
 		return children(branch).get(key);
 	}
 
 	@Override
-	@Nullable Object childPut(VariableBranch branch, String key, Object entry) {
+	@Nullable Object putChild(VariableBranch branch, String key, Object entry) {
 		return children(branch).put(key, entry);
 	}
 
 	@Override
-	@Nullable Object childPutIfAbsent(VariableBranch branch, String key, Object entry) {
+	@Nullable Object putChildIfAbsent(VariableBranch branch, String key, Object entry) {
 		return children(branch).putIfAbsent(key, entry);
 	}
 
 	@Override
-	void childRemove(VariableBranch branch, String key, Object entry) {
+	void removeChild(VariableBranch branch, String key, Object entry) {
 		// only one thread can be here, so entry can't have changed. TreeMap's remove(key, entry) would walk the tree twice
 		children(branch).remove(key);
 	}
@@ -138,8 +138,8 @@ final class LocalVariableMap extends VariableMap {
 	 * Leaves still only walk the tree once, to remove themselves.
 	 */
 	@Override
-	@Nullable Object childRemoveLeaf(VariableBranch branch, String key, String name) {
-		VariableBranch list = branchGet(name);
+	@Nullable Object removeLeafChild(VariableBranch branch, String key, String name) {
+		VariableBranch list = getBranch(name);
 		return list != null ? list : children(branch).remove(key);
 	}
 

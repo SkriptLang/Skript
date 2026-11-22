@@ -113,20 +113,20 @@ public class VariableMapConcurrencyTest {
 	private static void assertTreeMatchesValues(VariableMap map) {
 		assertTreeIsConsistent(map);
 		for (VariableBranch branch : map.allBranches())
-			assertEquals(branch.fullName + " hasValue", map.valueGet(branch.fullName) != null, branch.hasValue);
+			assertEquals(branch.fullName + " hasValue", map.getValue(branch.fullName) != null, branch.hasValue);
 
 		for (String name : map.allValues().keySet()) {
 			int separator = VariableMap.lastSeparator(name);
 			if (separator == -1)
 				continue;
-			VariableBranch parent = map.branchGet(name.substring(0, separator));
+			VariableBranch parent = map.getBranch(name.substring(0, separator));
 			assertNotNull(name + " has no parent", parent);
 			assertNotNull(name + " isn't in its parent", parent.children.get(name.substring(separator + 2)));
 		}
 		for (VariableBranch branch : map.allBranches()) {
 			for (Object child : branch.children.values()) {
 				if (child instanceof String leaf)
-					assertNotNull(leaf + " leaf value", map.valueGet(leaf));
+					assertNotNull(leaf + " leaf value", map.getValue(leaf));
 			}
 		}
 	}
@@ -137,7 +137,7 @@ public class VariableMapConcurrencyTest {
 	private static void assertTreeIsConsistent(VariableMap map) {
 		for (VariableBranch branch : map.allBranches()) {
 			String name = branch.fullName;
-			assertEquals(name + " is registered", branch, map.branchGet(name));
+			assertEquals(name + " is registered", branch, map.getBranch(name));
 			assertEquals(name + " childCount", branch.children.size(), branch.childCount);
 			assertTrue(name + " is empty", branch.childCount > 0);
 
@@ -145,7 +145,7 @@ public class VariableMapConcurrencyTest {
 			for (Map.Entry<String, Object> child : branch.children.entrySet()) {
 				String childName = name + "::" + child.getKey();
 				if (child.getValue() instanceof VariableBranch childBranch) {
-					assertEquals(childName + " branch", childBranch, map.branchGet(childName));
+					assertEquals(childName + " branch", childBranch, map.getBranch(childName));
 					assertEquals(childName + " key", child.getKey(), childBranch.key);
 					assertEquals(childName + " parent", branch, childBranch.parent);
 					if (childBranch.hasValue)
