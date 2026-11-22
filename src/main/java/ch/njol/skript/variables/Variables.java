@@ -30,6 +30,7 @@ import org.skriptlang.skript.variables.storage.VariableRefreshTicker;
 import org.skriptlang.skript.variables.storage.VariableStorage;
 import org.skriptlang.skript.variables.storage.VariableStorageManager;
 import org.skriptlang.skript.variables.storage.flatfile.FlatFileStorage;
+import org.skriptlang.skript.variables.storage.jdbc.MySQLStorage;
 import org.skriptlang.skript.variables.storage.jdbc.SQLiteStorage;
 
 import java.util.*;
@@ -145,6 +146,7 @@ public class Variables {
 		builtInStoragesRegistered = true;
 		STORAGE_MANAGER.register(Skript.instance(), FlatFileStorage.class, FlatFileStorage::new, "csv", "file", "flatfile");
 		STORAGE_MANAGER.register(Skript.instance(), SQLiteStorage.class, SQLiteStorage::new, "sqlite");
+		STORAGE_MANAGER.register(Skript.instance(), MySQLStorage.class, MySQLStorage::new, "mysql", "mariadb");
 	}
 
 	/**

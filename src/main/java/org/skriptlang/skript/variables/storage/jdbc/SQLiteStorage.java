@@ -17,6 +17,8 @@ import java.util.Locale;
  * <p>
  * Each storage needs its own file. SQLite only lets one connection write to a file at a time, so two storages
  * sharing one would just take turns saving, and a damaged file would take both with it.
+ * Since no other server can use the file either, nothing can monitor it, so deleted rows are removed right away
+ * instead of being kept as tombstones, and there's no version index to keep up to date.
  * <p>
  * We turn on WAL mode, so saves append to a log instead of rewriting the file in place, and readers never block the
  * writer. With {@code synchronous=NORMAL}, a save survives the server process crashing, though maybe not a power cut,
@@ -56,9 +58,13 @@ public class SQLiteStorage extends JdbcStorage {
 	@Override
 	protected List<String> schemaSql(String table, String metaTable) {
 		return List.of(
-			// make the main table (name, type, value, version)
+			// make the main table (name, type, value, version, server)
 			"CREATE TABLE IF NOT EXISTS " + table + " (name TEXT NOT NULL PRIMARY KEY, type TEXT, value BLOB, "
-				+ "version INTEGER NOT NULL) WITHOUT ROWID",
+				+ "version INTEGER NOT NULL, server TEXT NOT NULL) WITHOUT ROWID",
+			// the version index is only for polling, which needs monitoring. Without it, every write would update it for nothing
+			monitorable()
+				? "CREATE INDEX IF NOT EXISTS " + table + "_version ON " + table + " (version)"
+				: "DROP INDEX IF EXISTS " + table + "_version",
 			// make the meta table (overall version tracker, basically), with initial values 0,0
 			"CREATE TABLE IF NOT EXISTS " + metaTable + " (id INTEGER NOT NULL PRIMARY KEY, version INTEGER NOT NULL)",
 			"INSERT OR IGNORE INTO " + metaTable + " (id, version) VALUES (0, 0)");
@@ -66,9 +72,9 @@ public class SQLiteStorage extends JdbcStorage {
 
 	@Override
 	protected String upsertSql(String table) {
-		return "INSERT INTO " + table + " (name, type, value, version) VALUES (?, ?, ?, ?) "
+		return "INSERT INTO " + table + " (name, type, value, version, server) VALUES (?, ?, ?, ?, ?) "
 			+ "ON CONFLICT(name) DO UPDATE SET "
-			+ "type = excluded.type, value = excluded.value, version = excluded.version";
+			+ "type = excluded.type, value = excluded.value, version = excluded.version, server = excluded.server";
 	}
 
 	@Override
@@ -81,5 +87,13 @@ public class SQLiteStorage extends JdbcStorage {
 	@Override
 	protected boolean requiresFile() {
 		return true;
+	}
+
+	/**
+	 * @return False, since only this server can use the file
+	 */
+	@Override
+	protected boolean supportsMonitoring() {
+		return false;
 	}
 }
