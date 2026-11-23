@@ -30,6 +30,7 @@ final class TombstonePruner {
 
 	private final ArrayDeque<Sample> samples = new ArrayDeque<>(); // oldest first
 	private long lastPruneNanos;
+	private long prunedBelow; // every tombstone below this version is gone, as far as this server knows
 
 	/**
 	 * @param now when the storage started, which counts as its last prune
@@ -64,6 +65,21 @@ final class TombstonePruner {
 			return NOT_DUE;
 		samples.addFirst(cutoff); // kept, so the next prune still has a cutoff
 		return cutoff.version();
+	}
+
+	/**
+	 * @return The version below which this server already removed every tombstone, where the next prune starts.
+	 * 0 until a prune finishes, so the first one reads the whole table
+	 */
+	long prunedBelow() {
+		return prunedBelow;
+	}
+
+	/**
+	 * Notes that a prune removed every tombstone below a version. No row gets an older version again, so they stay gone.
+	 */
+	void prunedBelow(long version) {
+		prunedBelow = Math.max(prunedBelow, version);
 	}
 
 }

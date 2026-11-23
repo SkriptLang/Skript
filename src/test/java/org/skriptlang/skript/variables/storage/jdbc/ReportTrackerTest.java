@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -103,6 +104,27 @@ public class ReportTrackerTest {
 		tracker.reported("list::1", 1);
 		Batch batch = new Batch(List.of("list::"), List.of(new SerializedVariable("list::1", SAVED)));
 		assertEquals(Map.of("list::1", SAVED), raced(batch));
+	}
+
+	@Test
+	public void namesPastTheFirstChunkAreFound() {
+		// more than one hold of the lock's worth, for both changes and a clear, with every third name raced
+		List<String> names = new ArrayList<>();
+		for (int i = 0; i < 2500; i++) {
+			String name = "l::" + String.format("%05d", i);
+			names.add(name);
+			if (i % 3 == 0)
+				tracker.reported(name, 1);
+		}
+		Map<String, SerializedVariable.Value> raced = raced(saved(names.toArray(String[]::new)));
+		assertEquals(834, raced.size());
+		assertTrue(raced.containsKey("l::02499"));
+
+		Map<String, SerializedVariable.Value> cleared = raced(cleared("l::"));
+		assertEquals(834, cleared.size());
+		assertTrue(cleared.containsKey("l::00000"));
+		assertTrue(cleared.containsKey("l::02499"));
+		assertTrue(cleared.values().stream().allMatch(Objects::isNull));
 	}
 
 }

@@ -41,6 +41,14 @@ public class TombstonePrunerTest {
 	}
 
 	@Test
+	public void theNextPruneStartsWhereAFinishedOneStopped() {
+		assertEquals(0, pruner.prunedBelow());
+		pruner.prunedBelow(5);
+		pruner.prunedBelow(3); // never goes back
+		assertEquals(5, pruner.prunedBelow());
+	}
+
+	@Test
 	public void samplesAtMostEveryMinute() {
 		pruner.sample(at(0), 1);
 		pruner.sample(at(0) + MINUTE / 2, 2); // too soon, so not kept

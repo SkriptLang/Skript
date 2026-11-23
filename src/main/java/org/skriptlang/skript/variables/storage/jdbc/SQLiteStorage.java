@@ -58,9 +58,9 @@ public class SQLiteStorage extends JdbcStorage {
 	@Override
 	protected List<String> schemaSql(String table, String metaTable) {
 		return List.of(
-			// make the main table (name, type, value, version, server)
+			// make the main table (name, type, value, version)
 			"CREATE TABLE IF NOT EXISTS " + table + " (name TEXT NOT NULL PRIMARY KEY, type TEXT, value BLOB, "
-				+ "version INTEGER NOT NULL, server TEXT NOT NULL) WITHOUT ROWID",
+				+ "version INTEGER NOT NULL) WITHOUT ROWID",
 			// the version index is only for polling, which needs monitoring. Without it, every write would update it for nothing
 			monitorsChanges()
 				? "CREATE INDEX IF NOT EXISTS " + table + "_version ON " + table + " (version)"
@@ -72,9 +72,9 @@ public class SQLiteStorage extends JdbcStorage {
 
 	@Override
 	protected String upsertSql(String table, int rows) {
-		return "INSERT INTO " + table + " (name, type, value, version, server) VALUES " + upsertValues(rows) + " "
+		return "INSERT INTO " + table + " (name, type, value, version) VALUES " + upsertValues(rows) + " "
 			+ "ON CONFLICT(name) DO UPDATE SET "
-			+ "type = excluded.type, value = excluded.value, version = excluded.version, server = excluded.server";
+			+ "type = excluded.type, value = excluded.value, version = excluded.version";
 	}
 
 	@Override

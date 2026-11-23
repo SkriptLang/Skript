@@ -17,8 +17,8 @@ import java.util.regex.Pattern;
  * Saves variables to a table on a MySQL or MariaDB server. The driver comes with Paper, so nothing has to be downloaded.
  * <p>
  * Several servers can share one table, so this storage supports monitoring. While it monitors changes, deleted
- * variables are kept as tombstones for a while instead of being removed right away, each row records the server that
- * saved it, and rows are indexed by version, so servers watching the table can see each other's changes and deletions.
+ * variables are kept as tombstones for a while instead of being removed right away, and rows are indexed by version,
+ * so servers watching the table can see each other's changes and deletions.
  * Without monitoring, the table is treated as this server's alone, which makes each saved row about half as much work
  * for the database. Sharing a table only shows other servers' changes eventually; it doesn't make variables safe to
  * change from several servers at once.
@@ -30,6 +30,7 @@ public class MySQLStorage extends JdbcStorage {
 
 	private static final int MAX_NAME_LENGTH = 768; // VARCHAR(768)
 	private static final long PACKET_HEADROOM = 16 * 1024; // for the name and the rest of the statement
+	private static final int IDLE_TIMEOUT_SECONDS = 120; // how long the database server keeps an idle connection; see setUp
 	private static final Pattern VERSION = Pattern.compile("^(\\d+)\\.(\\d+)\\.(\\d+)");
 
 	private String host;
@@ -147,6 +148,13 @@ public class MySQLStorage extends JdbcStorage {
 
 	@Override
 	protected void setUp(Connection connection) throws SQLException {
+		// if the network drops this server mid-save, without the connection closing, the database server keeps the save's
+		// transaction, and the lock on the counter that every server's save waits for, until it gives up on the connection.
+		// That's 8 hours by default, so bound it. An idle connection it closed is noticed and replaced before its next use
+		try (Statement statement = connection.createStatement()) {
+			statement.execute("SET SESSION wait_timeout = " + IDLE_TIMEOUT_SECONDS);
+		}
+
 		// pick a collation that compares names exactly, without ignoring trailing spaces
 		String found = null;
 		try (Statement statement = connection.createStatement();
@@ -233,8 +241,7 @@ public class MySQLStorage extends JdbcStorage {
 				+ "name VARCHAR(" + MAX_NAME_LENGTH + ") CHARACTER SET utf8mb4 COLLATE " + collation + " NOT NULL PRIMARY KEY, "
 				+ "type VARCHAR(255) CHARACTER SET utf8mb4 COLLATE " + collation + ", "
 				+ "value LONGBLOB, "
-				+ "version BIGINT NOT NULL, "
-				+ "server CHAR(36) NOT NULL"
+				+ "version BIGINT NOT NULL"
 				+ ") ENGINE=InnoDB", // the version index is added by schemaCreated, only while monitoring
 			"CREATE TABLE IF NOT EXISTS " + metaTable + " (id INT NOT NULL PRIMARY KEY, version BIGINT NOT NULL) ENGINE=InnoDB",
 			"INSERT IGNORE INTO " + metaTable + " (id, version) VALUES (0, 0)");
@@ -242,13 +249,13 @@ public class MySQLStorage extends JdbcStorage {
 
 	@Override
 	protected String upsertSql(String table, int rows) {
-		String insert = "INSERT INTO " + table + " (name, type, value, version, server) VALUES " + upsertValues(rows);
+		String insert = "INSERT INTO " + table + " (name, type, value, version) VALUES " + upsertValues(rows);
 		if (aliasUpsert) // MySQL 8.0.19+: VALUES() in the update is deprecated there
 			return insert + " AS new ON DUPLICATE KEY UPDATE "
-				+ "type = new.type, value = new.value, version = new.version, server = new.server";
+				+ "type = new.type, value = new.value, version = new.version";
 		// MariaDB, and MySQL before 8.0.19
 		return insert + " ON DUPLICATE KEY UPDATE "
-			+ "type = VALUES(type), value = VALUES(value), version = VALUES(version), server = VALUES(server)";
+			+ "type = VALUES(type), value = VALUES(value), version = VALUES(version)";
 	}
 
 	@Override

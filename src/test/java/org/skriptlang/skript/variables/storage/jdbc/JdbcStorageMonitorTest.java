@@ -329,7 +329,7 @@ public class JdbcStorageMonitorTest {
 				version = result.getLong(1);
 			}
 			try (PreparedStatement statement = connection.prepareStatement("INSERT OR REPLACE INTO " + TABLE
-					+ " (name, type, value, version, server) VALUES (?, ?, ?, ?, 'another server')")) {
+					+ " (name, type, value, version) VALUES (?, ?, ?, ?)")) {
 				for (String[] row : rows) {
 					statement.setString(1, row[0]);
 					statement.setString(2, row[1]);
@@ -443,6 +443,29 @@ public class JdbcStorageMonitorTest {
 		save(b, change("mine", "1"), deletion("gone"));
 
 		assertEquals(0, b.poll());
+	}
+
+	@Test
+	public void ownRowsBetweenAnotherServersArentReported() throws Exception {
+		Server a = server();
+		Server b = server();
+		save(b, change("mine", "1"));
+		save(a, change("theirs", "2"));
+		save(b, change("mine too", "3"));
+
+		assertEquals(1, b.poll());
+		assertEquals("2", b.get("theirs"));
+	}
+
+	@Test
+	public void anOwnRowAnotherServerChangedIsReported() throws Exception {
+		Server a = server();
+		Server b = server();
+		save(b, change("x", "1"));
+		save(a, change("x", "2")); // the row now has a's version
+
+		assertEquals(1, b.poll());
+		assertEquals("2", b.get("x"));
 	}
 
 	@Test

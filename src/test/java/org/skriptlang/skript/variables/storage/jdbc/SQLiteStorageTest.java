@@ -289,7 +289,7 @@ public class SQLiteStorageTest {
 	 */
 	private void insert(String name, String type, byte[] data) throws SQLException {
 		try (Connection connection = open(); PreparedStatement statement = connection.prepareStatement(
-				"INSERT INTO " + TABLE + " (name, type, value, version, server) VALUES (?, ?, ?, 1, 'test')")) {
+				"INSERT INTO " + TABLE + " (name, type, value, version) VALUES (?, ?, ?, 1)")) {
 			statement.setString(1, name);
 			statement.setString(2, type);
 			statement.setBytes(3, data);
@@ -368,7 +368,7 @@ public class SQLiteStorageTest {
 	 *
 	 * @param text The value as text, or null for a tombstone
 	 */
-	private record Row(@Nullable String type, @Nullable String text, long version, String server) {
+	private record Row(@Nullable String type, @Nullable String text, long version) {
 
 		boolean tombstone() {
 			return type == null && text == null;
@@ -381,14 +381,14 @@ public class SQLiteStorageTest {
 	 */
 	private @Nullable Row row(String name) throws SQLException {
 		try (Connection connection = open(); PreparedStatement statement = connection.prepareStatement(
-				"SELECT type, value, version, server FROM " + TABLE + " WHERE name = ?")) {
+				"SELECT type, value, version FROM " + TABLE + " WHERE name = ?")) {
 			statement.setString(1, name);
 			try (ResultSet result = statement.executeQuery()) {
 				if (!result.next())
 					return null;
 				byte[] data = result.getBytes(2);
 				return new Row(result.getString(1), data == null ? null : new String(data, StandardCharsets.UTF_8),
-					result.getLong(3), result.getString(4));
+					result.getLong(3));
 			}
 		}
 	}
@@ -798,18 +798,6 @@ public class SQLiteStorageTest {
 		assertEquals(before + 3, counter());
 		assertEquals(before + 1, row("a").version());
 		assertEquals(before + 2, row("b").version());
-		assertEquals("nothing else reads the server, so it isn't saved", "", row("a").server());
-	}
-
-	@Test
-	public void rowsGetTheServerIfMonitored() throws Exception {
-		JdbcStorage storage = loadedMonitoredStorage();
-		save(storage, List.of(), change("a", "1"));
-		save(storage, List.of(), change("b", "2"), deletion("a"));
-
-		Row b = row("b");
-		assertEquals(36, b.server().length()); // a UUID
-		assertEquals(b.server(), row("a").server()); // the same storage, tombstones included
 	}
 
 	@Test

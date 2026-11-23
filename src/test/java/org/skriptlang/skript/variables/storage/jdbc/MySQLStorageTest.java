@@ -267,7 +267,7 @@ public class MySQLStorageTest {
 	 *
 	 * @param text The value as text, or null for a tombstone
 	 */
-	private record Row(@Nullable String type, @Nullable String text, long version, String server) {
+	private record Row(@Nullable String type, @Nullable String text, long version) {
 
 		boolean tombstone() {
 			return type == null && text == null;
@@ -277,14 +277,14 @@ public class MySQLStorageTest {
 
 	private static @Nullable Row row(String name) throws SQLException {
 		try (Connection connection = open(); PreparedStatement statement = connection.prepareStatement(
-				"SELECT type, value, version, server FROM " + TABLE + " WHERE name = ?")) {
+				"SELECT type, value, version FROM " + TABLE + " WHERE name = ?")) {
 			statement.setString(1, name);
 			try (ResultSet result = statement.executeQuery()) {
 				if (!result.next())
 					return null;
 				byte[] data = result.getBytes(2);
 				Row row = new Row(result.getString(1), data == null ? null : new String(data, StandardCharsets.UTF_8),
-					result.getLong(3), result.getString(4));
+					result.getLong(3));
 				assertFalse("the name matched more than one row", result.next());
 				return row;
 			}
@@ -456,7 +456,7 @@ public class MySQLStorageTest {
 
 		assertNull(row("a"));
 		assertNull(row("list::1"));
-		assertEquals("", row("kept").server()); // no server id either
+		assertEquals("3", row("kept").text());
 	}
 
 	@Test
@@ -543,7 +543,7 @@ public class MySQLStorageTest {
 	}
 
 	@Test
-	public void aDeletionLeavesATombstoneWithTheServer() throws Exception {
+	public void aDeletionLeavesATombstone() throws Exception {
 		needsServer();
 		JdbcStorage storage = loadedSharedStorage();
 		save(storage, List.of(), change("a", "1"));
@@ -551,7 +551,6 @@ public class MySQLStorageTest {
 
 		Row row = row("a");
 		assertTrue(row.tombstone());
-		assertEquals(36, row.server().length()); // a UUID
 		closeAll();
 		assertEquals(Map.of(), loaded());
 	}
@@ -696,12 +695,12 @@ public class MySQLStorageTest {
 
 		// as another server's save: 2500 changed rows and a tombstone, under one new version
 		sql("SET SESSION cte_max_recursion_depth = 10000", "UPDATE " + TABLE + "_meta SET version = version + 1",
-			"INSERT INTO " + TABLE + " (name, type, value, version, server) "
+			"INSERT INTO " + TABLE + " (name, type, value, version) "
 				+ "WITH RECURSIVE n (i) AS (SELECT 0 UNION ALL SELECT i + 1 FROM n WHERE i < 2499) "
 				+ "SELECT CONCAT('remote::', i), '" + TEXT + "', CAST(CONCAT('v', i) AS BINARY), "
-				+ "(SELECT version FROM " + TABLE + "_meta), 'another server' FROM n",
-			"UPDATE " + TABLE + " SET type = NULL, value = NULL, version = (SELECT version FROM " + TABLE + "_meta AS m), "
-				+ "server = 'another server' WHERE name = 'gone'");
+				+ "(SELECT version FROM " + TABLE + "_meta) FROM n",
+			"UPDATE " + TABLE + " SET type = NULL, value = NULL, version = (SELECT version FROM " + TABLE + "_meta AS m) "
+				+ "WHERE name = 'gone'");
 		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
 			storage.poll(); // streamed, since MySQL's fetch size makes it stream; the main thread here runs reports at once
 		}
