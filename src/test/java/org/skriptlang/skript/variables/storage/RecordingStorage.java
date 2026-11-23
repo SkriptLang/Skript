@@ -17,7 +17,9 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.LockSupport;
 
 /**
  * A storage for testing {@link VariableStorage}: it saves batches into {@link #saved}, a map standing in for the
@@ -180,6 +182,27 @@ class RecordingStorage extends VariableStorage {
 			changes.put(change.name, change.value);
 		}
 		return changes;
+	}
+
+	/**
+	 * Waits until the saving thread has finished its first save cycle and is waiting for the next one.
+	 * The thread saves once as soon as it starts, and only then waits {@link #intervalMillis}, so a test that relies
+	 * on a long interval to keep changes queued must call this first, or that first cycle can drain them.
+	 * The thread parks with this storage as its blocker only between cycles, which is how this tells.
+	 *
+	 * @throws AssertionError if the thread doesn't get there within 10 seconds
+	 */
+	void awaitSavingIdle() {
+		String threadName = "Skript variable storage " + getName() + " saving thread";
+		long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+		while (System.nanoTime() < deadline) {
+			for (Thread thread : Thread.getAllStackTraces().keySet()) {
+				if (thread.getName().equals(threadName) && LockSupport.getBlocker(thread) == this)
+					return;
+			}
+			Thread.onSpinWait();
+		}
+		throw new AssertionError("The saving thread of '" + getName() + "' never went idle");
 	}
 
 	/**

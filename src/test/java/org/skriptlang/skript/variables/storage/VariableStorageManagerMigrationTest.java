@@ -41,7 +41,13 @@ public class VariableStorageManagerMigrationTest {
 	}
 
 	private boolean loadStorages(VariableStorage... storages) {
-		return ManagerTests.loadStorages(manager, storages);
+		boolean loaded = ManagerTests.loadStorages(manager, storages);
+		// so the saving threads' first cycles can't drain what the test queues next
+		for (VariableStorage storage : manager.storages()) {
+			if (storage instanceof RecordingStorage recording && !storage.loadFailed)
+				recording.awaitSavingIdle();
+		}
+		return loaded;
 	}
 
 	private void runMainThreadTasks() {
