@@ -20,6 +20,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
@@ -73,6 +74,7 @@ public abstract class JdbcStorage extends VariableStorage {
 	private long lastUsedNanos;
 
 	private long loadedVersion;    // the counter's value when loading, where polling starts
+	private TombstonePruner pruner = new TombstonePruner(System.nanoTime());
 	private long lastSavedVersion; // the version of this server's last save, or loadedVersion before it saves. Saving thread only
 	private boolean warnedOtherWriters;
 
@@ -84,6 +86,9 @@ public abstract class JdbcStorage extends VariableStorage {
 
 	private volatile boolean monitoring;
 	private @Nullable Thread monitorThread;
+	private final ReportTracker tracker = new ReportTracker();
+	private final AtomicLong reportCount = new AtomicLong(); // how many changes were reported, for tests
+	private long pollNumber;            // counts polls, so the tracker can tell a newer report of a name from an older one
 	private long pollCursor;            // the last version fully reported
 	private long lastPollNanos;         // when a poll last succeeded, to notice falling too far behind
 	private boolean pollFailing;        // so a failing database is reported once, not every second
@@ -307,7 +312,7 @@ public abstract class JdbcStorage extends VariableStorage {
 			createSchema(connection);
 			loadedVersion = readVersion(connection);
 			lastSavedVersion = loadedVersion;
-			samples.addLast(new Sample(System.nanoTime(), loadedVersion));
+			pruner.sample(System.nanoTime(), loadedVersion);
 			LoadReport problems = new LoadReport();
 			readRows(connection, listener, problems);
 			connection.commit(); // ends the read transaction, so SQLite's WAL can be checkpointed
@@ -374,7 +379,8 @@ public abstract class JdbcStorage extends VariableStorage {
 				rollbackQuietly(connection);
 				throw e;
 			}
-			reReportRaced(batch); // committed; still under the lock, so no poll reads in between
+			if (monitorChanges) // committed; still under the lock, so no poll reports anything in between
+				tracker.forEachRaced(batch, this::report);
 		} catch (SQLException e) {
 			dropConnection();
 			throw new IOException("Couldn't save to the table '" + table + "': " + e.getMessage(), e);
@@ -464,7 +470,8 @@ public abstract class JdbcStorage extends VariableStorage {
 	private void write(Connection connection, Collection<SerializedVariable> changes, long version) throws SQLException {
 		if (changes.isEmpty())
 			return;
-		try (Upserter upserts = new Upserter(connection, version); Deleter deletes = new Deleter(connection)) {
+		try (RowWriter rows = new RowWriter(connection, table, count -> upsertSql(table, count), rowsPerStatement(),
+				maxStatementBytes(), version, rowServer)) {
 			for (SerializedVariable change : changes) {
 				// name check
 				if (change.name.length() > maxNameLength()) {
@@ -478,197 +485,12 @@ public abstract class JdbcStorage extends VariableStorage {
 					continue;
 				}
 				if (change.value == null && !monitorChanges) {
-					deletes.add(change.name);
-					continue;
-				}
-				upserts.add(change.name, change.value);
-			}
-		}
-	}
-
-	/**
-	 * Binds one upsert row's five parameters, starting after parameter {@code offset}.
-	 */
-	private void bindUpsert(PreparedStatement statement, int offset, String name, SerializedVariable.@Nullable Value value,
-			long version) throws SQLException {
-		statement.setString(offset + 1, name);
-		if (value == null) { // a tombstone: both null
-			statement.setNull(offset + 2, Types.VARCHAR);
-			statement.setNull(offset + 3, Types.BLOB);
-		} else {
-			statement.setString(offset + 2, value.type);
-			statement.setBytes(offset + 3, value.data);
-		}
-		statement.setLong(offset + 4, version);
-		statement.setString(offset + 5, rowServer);
-	}
-
-	/**
-	 * @return At most how many bytes a row adds to a multi-row upsert statement, which the driver sends as text:
-	 * up to 3 UTF-8 bytes per character, doubled when escaped, for the name and type, 2 per byte for the value's hex,
-	 * and 100 for the version, the server id, quotes and commas
-	 */
-	private static long upsertBytes(String name, SerializedVariable.@Nullable Value value) {
-		long bytes = 6L * name.length() + 100;
-		if (value != null)
-			bytes += 6L * value.type.length() + 2L * value.data.length;
-		return bytes;
-	}
-
-	/**
-	 * Collects rows and sends them as statements of up to {@link #rowsPerStatement()} rows, sooner if the next row would
-	 * make the statement bigger than {@link #maxStatementBytes()}. A row is always sent, even alone over the limit, so this
-	 * can't get stuck. A full statement is prepared once per save and reused; shorter ones, at the end or cut short by
-	 * size, are prepared when sent. Closing it sends what's left.
-	 * <p>
-	 * Statements of many rows beat the driver's {@link PreparedStatement#addBatch()}: MySQL's driver copies every row's
-	 * parameters and escapes each string twice, about 3 KB of garbage per row, and without its rewriting sends each
-	 * delete on its own. SQLite is a little faster this way too.
-	 *
-	 * @param <R> what one row is
-	 */
-	private abstract class RowSender<R> implements AutoCloseable {
-
-		private final Connection connection;
-		private final int maxRows = rowsPerStatement();
-		private final long maxBytes = maxStatementBytes();
-		private final List<R> rows = new ArrayList<>();
-		private long bytes;
-		private @Nullable PreparedStatement full;
-
-		RowSender(Connection connection) {
-			this.connection = connection;
-		}
-
-		/**
-		 * @return The statement for that many rows
-		 */
-		abstract String sql(int rows);
-
-		/**
-		 * @return At most how many bytes the row adds to a statement, as the driver sends it
-		 */
-		abstract long bytes(R row);
-
-		/**
-		 * Binds the row's parameters, starting after parameter {@code offset}.
-		 *
-		 * @return How many parameters it bound
-		 */
-		abstract int bind(PreparedStatement statement, int offset, R row) throws SQLException;
-
-		final void addRow(R row) throws SQLException {
-			long size = bytes(row);
-			if (!rows.isEmpty() && bytes + size > maxBytes)
-				send();
-			rows.add(row);
-			bytes += size;
-			if (rows.size() == maxRows)
-				send();
-		}
-
-		private void send() throws SQLException {
-			if (rows.size() == maxRows) {
-				if (full == null)
-					full = connection.prepareStatement(sql(maxRows));
-				bindAndRun(full);
-			} else {
-				try (PreparedStatement statement = connection.prepareStatement(sql(rows.size()))) {
-					bindAndRun(statement);
+					rows.delete(change.name);
+				} else {
+					rows.upsert(change.name, change.value); // a tombstone if it's a deletion
 				}
 			}
-			rows.clear();
-			bytes = 0;
 		}
-
-		private void bindAndRun(PreparedStatement statement) throws SQLException {
-			int offset = 0;
-			for (R row : rows)
-				offset += bind(statement, offset, row);
-			statement.executeUpdate();
-		}
-
-		@Override
-		public void close() throws SQLException {
-			try {
-				if (!rows.isEmpty())
-					send();
-			} finally {
-				if (full != null)
-					full.close();
-			}
-		}
-
-	}
-
-	/**
-	 * Upserts rows, tombstones included, as statements of several rows; see {@link RowSender}.
-	 */
-	private final class Upserter extends RowSender<Upserter.Row> {
-
-		private record Row(String name, SerializedVariable.@Nullable Value value) {}
-
-		private final long version;
-
-		Upserter(Connection connection, long version) {
-			super(connection);
-			this.version = version;
-		}
-
-		/**
-		 * Adds one row: a tombstone if {@code value} is null.
-		 */
-		void add(String name, SerializedVariable.@Nullable Value value) throws SQLException {
-			addRow(new Row(name, value));
-		}
-
-		@Override
-		String sql(int rows) {
-			return upsertSql(table, rows);
-		}
-
-		@Override
-		long bytes(Row row) {
-			return upsertBytes(row.name(), row.value());
-		}
-
-		@Override
-		int bind(PreparedStatement statement, int offset, Row row) throws SQLException {
-			bindUpsert(statement, offset, row.name(), row.value(), version);
-			return 5;
-		}
-
-	}
-
-	/**
-	 * Deletes rows by name, as {@code DELETE ... WHERE name IN (...)} statements of several names; see {@link RowSender}.
-	 */
-	private final class Deleter extends RowSender<String> {
-
-		Deleter(Connection connection) {
-			super(connection);
-		}
-
-		void add(String name) throws SQLException {
-			addRow(name);
-		}
-
-		@Override
-		String sql(int rows) {
-			return "DELETE FROM " + table + " WHERE name IN (" + "?, ".repeat(rows - 1) + "?)";
-		}
-
-		@Override
-		long bytes(String name) {
-			return 6L * name.length() + 10; // up to 3 UTF-8 bytes per character, doubled when escaped, plus quotes and a comma
-		}
-
-		@Override
-		int bind(PreparedStatement statement, int offset, String name) throws SQLException {
-			statement.setString(offset + 1, name);
-			return 1;
-		}
-
 	}
 
 	/**
@@ -778,13 +600,13 @@ public abstract class JdbcStorage extends VariableStorage {
 	}
 
 	/**
-	 * Reports every row another server saved after version {@code after}, up to {@code target}. Runs under the connection
-	 * lock, so each name is marked in {@link #inFlight} and reported either before or after any save of this server's
-	 * commits; see {@link #reReportRaced}.
+	 * Reports every row another server saved after version {@code after}, up to {@code target}, and notes each name in
+	 * the {@link ReportTracker}. Runs under the connection lock, so each name is reported either before or after any save
+	 * of this server's commits, never during one.
 	 *
 	 * @param after  The last version already reported
 	 * @param target The counter, read in the same transaction, so rows still being committed are left for the next poll
-	 * @param poll   Which poll this is, for {@link #markApplied}
+	 * @param poll   Which poll this is, for the tracker
 	 */
 	private void reportRows(Connection connection, long after, long target, long poll) throws SQLException {
 		try (PreparedStatement statement = connection.prepareStatement("SELECT name, type, value FROM " + table
@@ -803,14 +625,12 @@ public abstract class JdbcStorage extends VariableStorage {
 					if (name.endsWith("::*") || (type == null) != (data == null))
 						continue;
 					SerializedVariable.Value value = type == null ? null : new SerializedVariable.Value(type, data); // null: a tombstone
-					synchronized (inFlight) {
-						inFlight.put(name, new Flight(poll, Flight.WAITING));
-						report(name, value);
-					}
+					tracker.reported(name, poll);
+					report(name, value);
 					reported.add(name);
 					if (reported.size() == REPORT_CHUNK) {
 						List<String> chunk = reported;
-						runAfterReports(() -> markApplied(chunk, poll)); // behind the reports, so after they're applied
+						runAfterReports(() -> tracker.applied(chunk, poll)); // behind the reports, so after they're applied
 						reported = new ArrayList<>();
 					}
 				}
@@ -818,7 +638,7 @@ public abstract class JdbcStorage extends VariableStorage {
 				// even if reading failed partway: the names reported so far must be marked, or they'd wait forever
 				if (!reported.isEmpty()) {
 					List<String> chunk = reported;
-					runAfterReports(() -> markApplied(chunk, poll));
+					runAfterReports(() -> tracker.applied(chunk, poll));
 				}
 			}
 		}
@@ -857,7 +677,7 @@ public abstract class JdbcStorage extends VariableStorage {
 			Skript.error("Couldn't check the database '" + getName() + "' for changes from other servers: "
 				+ e.getMessage() + ". Retrying every " + TimeUnit.NANOSECONDS.toMillis(monitorIntervalNanos) + " ms");
 		}
-		if (!reportedBehind && System.nanoTime() - lastPollNanos > TOMBSTONE_RETENTION_NANOS) {
+		if (!reportedBehind && System.nanoTime() - lastPollNanos > TombstonePruner.RETENTION_NANOS) {
 			reportedBehind = true;
 			Skript.error("The database '" + getName() + "' hasn't been checked for over an hour, so deletions made by "
 				+ "other servers may have been permanently missed. Restart the server to reload its variables");
@@ -872,29 +692,14 @@ public abstract class JdbcStorage extends VariableStorage {
 		lastPollNanos = System.nanoTime();
 	}
 
-	// --------- IN-FLIGHT RACE HANDLING ---------
+	// --------- REPORTS AND RACES ---------
 
 	/**
-	 * Where a reported name is: waiting on the main thread ({@link #WAITING}), or applied during a save epoch.
-	 * poll identifies which poll reported it, since a later poll can report the same name again.
-	 */
-	private record Flight(long poll, long appliedEpoch) {
-		static final long WAITING = -1;
-	}
-
-	// names reported by recent polls; see reReportRaced. Guarded by itself for the epoch logic.
-	private final Map<String, Flight> inFlight = new HashMap<>();
-	private long saveEpoch;   // counts finished save cycles; guarded by inFlight
-	private long pollNumber;  // only the monitor thread touches it
-	private long reportCount; // how many changes were reported, for tests; guarded by inFlight
-
-	/**
-	 * Reports a change another server saved, or this server's own saved value again after a race. KEEP_LOCAL, since
-	 * a pending local change is newer than either and will be saved after them. The caller holds inFlight.
+	 * Reports a change another server saved, or this server's own saved value again after a race; see
+	 * {@link ReportTracker}. KEEP_LOCAL, since a pending local change is newer than either and will be saved after them.
 	 */
 	private void report(String name, SerializedVariable.@Nullable Value value) {
-		assert Thread.holdsLock(inFlight);
-		reportCount++;
+		reportCount.incrementAndGet();
 		reportUpdated(name, value, ReportPolicy.KEEP_LOCAL);
 	}
 
@@ -903,128 +708,52 @@ public abstract class JdbcStorage extends VariableStorage {
 	 */
 	@VisibleForTesting
 	long reportCount() {
-		synchronized (inFlight) {
-			return reportCount;
-		}
+		return reportCount.get();
 	}
 
 	/**
-	 * Marks reported names as applied, on the main thread, right after their reports. A name a newer poll reported again
-	 * is left alone, since its newer report is still waiting.
-	 *
-	 * @param names The names to mark as applied
-	 * @param poll  The poll that reported them
+	 * @return What this storage remembers of its reports, for tests
 	 */
-	private void markApplied(List<String> names, long poll) {
-		synchronized (inFlight) {
-			for (String name : names) {
-				Flight flight = inFlight.get(name);
-				if (flight != null && flight.poll() == poll) // a newer poll's mark is left alone
-					inFlight.put(name, new Flight(poll, saveEpoch));
-			}
-		}
+	@VisibleForTesting
+	ReportTracker tracker() {
+		return tracker;
 	}
 
-	/**
-	 * Fixes reports that raced this save. A report read before this save committed holds an older value than this save's.
-	 * If it was applied after this batch was drained, nothing was pending to stop it, so memory got the older value.
-	 * Re-reporting what was saved, after that report, puts memory back to what the table holds. KEEP_LOCAL skips the
-	 * re-report if a newer local change is pending, which will be saved after this anyway.
-	 * <p>
-	 * The batch was drained some time after the previous save cycle ended, so "applied since the previous cycle ended"
-	 * covers "applied since this batch was drained", plus a little extra, which re-reports a value memory already has.
-	 */
-	private void reReportRaced(Batch batch) {
-		if (!monitorChanges)
-			return;
-		synchronized (inFlight) {
-			if (!inFlight.isEmpty()) {
-				// re-report each saved name that a report may have raced, so the report's older value doesn't stay in memory
-				Set<String> changed = new HashSet<>();
-				for (SerializedVariable change : batch.changes()) {
-					changed.add(change.name);
-					Flight flight = inFlight.get(change.name);
-					if (flight != null && raced(flight))
-						report(change.name, change.value);
-				}
-				for (String prefix : batch.clears()) {
-					for (Map.Entry<String, Flight> entry : inFlight.entrySet()) {
-						String name = entry.getKey();
-						if (name.startsWith(prefix) && !changed.contains(name) && raced(entry.getValue()))
-							report(name, null);
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * Starts a new save epoch, and forgets every report applied before it. Nothing drained is left unsaved here, so the
-	 * next batch is drained after now, and a report applied before now can't have raced it: its local change was still
-	 * pending when the report was applied, so KEEP_LOCAL kept it. Reports still waiting on the main thread are kept.
-	 * Runs every cycle, saved or not, so a server that never saves still forgets what it was sent.
-	 */
 	@Override
 	protected final void saveCycleEnded() {
-		if (!monitorChanges)
-			return;
-		synchronized (inFlight) {
-			saveEpoch++;
-			if (!inFlight.isEmpty())
-				inFlight.values().removeIf(flight -> flight.appliedEpoch() != Flight.WAITING);
-		}
-	}
-
-	/**
-	 * @return Whether the report may have been applied after the batch being saved was drained. The caller holds inFlight
-	 */
-	private boolean raced(Flight flight) {
-		return flight.appliedEpoch() == Flight.WAITING // still waiting: it will be applied after this save, so follow it
-			|| flight.appliedEpoch() == saveEpoch;    // applied since the previous cycle ended, maybe after this drain
+		if (monitorChanges)
+			tracker.saveCycleEnded();
 	}
 
 	// ---------------- PRUNING ------------------
 
-	private static final long TOMBSTONE_RETENTION_NANOS = TimeUnit.HOURS.toNanos(1);
-	private static final long PRUNE_INTERVAL_NANOS = TimeUnit.MINUTES.toNanos(5);
-	private static final long SAMPLE_INTERVAL_NANOS = TimeUnit.MINUTES.toNanos(1);
-
-	// for tracking version ages
-	private record Sample(long nanos, long version) {}
-
-	private final ArrayDeque<Sample> samples = new ArrayDeque<>(); // oldest first
-	private long lastPruneNanos = System.nanoTime();
-
 	/**
-	 * Removes all the stale tombstones from this storage's SQL table
+	 * Removes the tombstones that are over an hour old, every few minutes; see {@link TombstonePruner}.
 	 *
-	 * @param connection The connection to use.
-	 * @param version    The new version.
-	 * @throws SQLException If any statement fails.
+	 * @param connection The connection to use, in the save's transaction
+	 * @param version    The save's version
 	 */
 	private void pruneIfDue(Connection connection, long version) throws SQLException {
 		if (!monitorChanges) // no tombstones to prune
 			return;
 		long now = System.nanoTime();
-		// add a new sample if we haven't taken one in a minute
-		if (samples.isEmpty() || now - samples.peekLast().nanos() >= SAMPLE_INTERVAL_NANOS)
-			samples.addLast(new Sample(now, version));
-		if (now - lastPruneNanos < PRUNE_INTERVAL_NANOS)
+		pruner.sample(now, version);
+		long cutoff = pruner.dueCutoff(now);
+		if (cutoff == TombstonePruner.NOT_DUE)
 			return;
-		lastPruneNanos = now;
-		// find the newest hour-plus-old sample, so we know what version to prune up to.
-		// any older ones can be thrown out, they're useless
-		Sample cutoff = null;
-		while (!samples.isEmpty() && now - samples.peekFirst().nanos() >= TOMBSTONE_RETENTION_NANOS)
-			cutoff = samples.pollFirst(); // keep removing the oldest
-		if (cutoff == null)
-			return;
-		samples.addFirst(cutoff); // keep it, so the next prune still has a cutoff
 		try (PreparedStatement statement = connection.prepareStatement(
 			"DELETE FROM " + table + " WHERE value IS NULL AND version < ?")) {
-			statement.setLong(1, cutoff.version());
+			statement.setLong(1, cutoff);
 			statement.executeUpdate();
 		}
+	}
+
+	/**
+	 * Replaces the pruner, so tests can choose its times.
+	 */
+	@VisibleForTesting
+	void pruner(TombstonePruner pruner) {
+		this.pruner = pruner;
 	}
 
 	// ---------------- BACKUPS -------------------
