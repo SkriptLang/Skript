@@ -206,6 +206,17 @@ class RecordingStorage extends VariableStorage {
 	}
 
 	/**
+	 * {@link #awaitSavingIdle() Waits} for the saving thread of every recording storage the manager loaded.
+	 * Call it right after loading, before queueing anything a test expects to stay queued.
+	 */
+	static void awaitSavingIdle(VariableStorageManager manager) {
+		for (VariableStorage storage : manager.storages()) {
+			if (storage instanceof RecordingStorage recording && !storage.loadFailed)
+				recording.awaitSavingIdle();
+		}
+	}
+
+	/**
 	 * Sets the storage's name, which {@code loadConfig} would normally set from the config section.
 	 */
 	void setNameForTest(String name) {

@@ -40,7 +40,9 @@ public class VariableStorageManagerShutdownTest {
 	}
 
 	private boolean loadStorages(VariableStorage... storages) {
-		return ManagerTests.loadStorages(manager, storages);
+		boolean loaded = ManagerTests.loadStorages(manager, storages);
+		RecordingStorage.awaitSavingIdle(manager); // so the first save cycles can't drain what the test queues next
+		return loaded;
 	}
 
 	private void close() {

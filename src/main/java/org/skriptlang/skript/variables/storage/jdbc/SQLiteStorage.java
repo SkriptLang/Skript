@@ -71,8 +71,8 @@ public class SQLiteStorage extends JdbcStorage {
 	}
 
 	@Override
-	protected String upsertSql(String table) {
-		return "INSERT INTO " + table + " (name, type, value, version, server) VALUES (?, ?, ?, ?, ?) "
+	protected String upsertSql(String table, int rows) {
+		return "INSERT INTO " + table + " (name, type, value, version, server) VALUES " + upsertValues(rows) + " "
 			+ "ON CONFLICT(name) DO UPDATE SET "
 			+ "type = excluded.type, value = excluded.value, version = excluded.version, server = excluded.server";
 	}

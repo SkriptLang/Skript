@@ -29,11 +29,13 @@ import java.util.regex.Pattern;
  * <p>
  * Each variable is one row: its name, the codename of its type, and its serialized value. Next to it is a second table,
  * {@code <table>_meta}, with a single row holding a version counter. Every save is one transaction that bumps the
- * counter and stamps each row it writes with the new version and this server's id. If the database
- * {@link #supportsMonitoring() supports monitoring}, deleting a variable or clearing a list doesn't remove its rows.
- * Instead, they become "tombstones", rows without a type or value, with the new version, and get pruned once they're
- * old enough. That way, anything reading the table can ask what changed since some version, deletions included.
- * Otherwise, nothing else can be reading along, so deleted rows are just removed and rows don't get a server id.
+ * counter and stamps each row it writes with the new version. If the database
+ * {@link #supportsMonitoring() supports monitoring} and this server monitors changes, the table is shared: each row
+ * also gets this server's id, and deleting a variable or clearing a list doesn't remove its rows. Instead, they become
+ * "tombstones", rows without a type or value, with the new version, and get pruned once they're old enough. That way,
+ * other servers reading the table can ask what changed since some version, deletions included.
+ * Otherwise, the table is this server's alone, so deleted rows are just removed and rows don't get a server id.
+ * Every server sharing a table has to monitor it, or the others miss its deletions; see {@link #noticeOtherWriters}.
  * <p>
  * We only keep one connection per storage, since only one thread uses it at a time.
  * It's refreshed after each error encountered.
@@ -110,18 +112,19 @@ public abstract class JdbcStorage extends VariableStorage {
 		}
 		this.table = table;
 		this.metaTable = table + "_meta";
-		this.monitorable = supportsMonitoring();
-		this.rowServer = monitorable ? serverId : "";
 		// monitoring
 		Boolean monitor = getConfigOptional(node, "monitor changes", Boolean.class, false);
 		if (monitor == null)
 			return false;
-		if (monitor && !monitorable) {
+		if (monitor && !supportsMonitoring()) {
 			Skript.warning("The database '" + getName() + "' of type '" + getType() + "' can't monitor changes, "
 				+ "since no other server can use it, so 'monitor changes' is ignored");
 			monitor = false;
 		}
 		monitorChanges = monitor;
+		// the table is only shared, and only pays for tombstones, server ids and the version index, if this server monitors it
+		this.monitorable = monitorChanges;
+		this.rowServer = monitorable ? serverId : "";
 		// get monitor frequency
 		if (monitorChanges) {
 			Timespan interval = getConfigOptional(node, "monitor interval", Timespan.class,
@@ -185,7 +188,8 @@ public abstract class JdbcStorage extends VariableStorage {
 	protected abstract boolean supportsMonitoring();
 
 	/**
-	 * @return Whether this storage keeps tombstones, from {@link #supportsMonitoring()}
+	 * @return Whether this storage keeps tombstones and indexes rows by version: only while it monitors changes,
+	 * since only then is the table shared with other servers
 	 */
 	protected final boolean monitorable() {
 		return monitorable;
@@ -253,6 +257,12 @@ public abstract class JdbcStorage extends VariableStorage {
 	protected abstract List<String> schemaSql(String table, String metaTable);
 
 	/**
+	 * Called after {@link #schemaSql} has run, before it's committed, for schema changes that depend on what's already
+	 * there, such as adding an index the database can't add with {@code IF NOT EXISTS}.
+	 */
+	protected void schemaCreated(Connection connection) throws SQLException {}
+
+	/**
 	 * Executes {@link #schemaSql(String, String)} statements and checks if the required main table columns exist.
 	 *
 	 * @param connection The connection to use to send the statements.
@@ -263,6 +273,7 @@ public abstract class JdbcStorage extends VariableStorage {
 		try (Statement statement = connection.createStatement()) {
 			for (String sql : schemaSql(table, metaTable))
 				statement.execute(sql);
+			schemaCreated(connection);
 			try {
 				statement.executeQuery("SELECT name, type, value, version, server FROM " + table + " WHERE 1 = 0").close();
 			} catch (SQLException e) {
@@ -373,6 +384,7 @@ public abstract class JdbcStorage extends VariableStorage {
 				// a whole batch is committed at once to prevent data fracturing.
 				// if it fails, we can just try it again next time.
 				connection.commit();
+				noticeOtherWriters(version);
 			} catch (SQLException | RuntimeException e) {
 				rollbackQuietly(connection);
 				throw e;
@@ -384,6 +396,27 @@ public abstract class JdbcStorage extends VariableStorage {
 		} finally {
 			connectionLock.unlock();
 		}
+	}
+
+	private long lastSavedVersion = -1; // the version of this server's last save, or -1 before the first. Saving thread only
+	private boolean warnedOtherWriters;
+
+	/**
+	 * Warns, once, if another server saved to this table since this server's last save while this server doesn't monitor
+	 * it. Each save bumps the counter by one, so a jump means someone else saved in between. That server shares the table,
+	 * but this one removes deleted rows outright, so the others never see those deletions, and this one never sees their
+	 * changes. Costs nothing: the version is read by every save anyway.
+	 */
+	private void noticeOtherWriters(long version) {
+		long previous = lastSavedVersion < 0 ? loadedVersion : lastSavedVersion;
+		lastSavedVersion = version;
+		if (monitorable || warnedOtherWriters || version == previous + 1)
+			return;
+		warnedOtherWriters = true;
+		Skript.warning("Another server also saves variables to the table '" + table + "' of the database '" + getName()
+			+ "', but this server doesn't monitor changes. It removes deleted variables from the table right away, so the "
+			+ "other servers won't see those deletions, and it won't see their changes. Turn on 'monitor changes' for every "
+			+ "server that uses this table");
 	}
 
 	/**
@@ -455,7 +488,7 @@ public abstract class JdbcStorage extends VariableStorage {
 	private void write(Connection connection, Collection<SerializedVariable> changes, long version) throws SQLException {
 		if (changes.isEmpty())
 			return;
-		try (Batcher upserts = new Batcher(connection, upsertSql(table));
+		try (Upserter upserts = upsertRows() > 1 ? new MultiRowUpserter(connection, version) : new BatchUpserter(connection, version);
 		     Batcher deletes = new Batcher(connection, "DELETE FROM " + table + " WHERE name = ?")) {
 			for (SerializedVariable change : changes) {
 				// name check
@@ -475,21 +508,149 @@ public abstract class JdbcStorage extends VariableStorage {
 					deletes.add();
 					continue;
 				}
-				PreparedStatement statement = upserts.statement();
-				statement.setString(1, change.name);
-				if (change.value == null) { // deleted, both null
-					statement.setNull(2, Types.VARCHAR);
-					statement.setNull(3, Types.BLOB);
-				} else {
-					// set type and data
-					statement.setString(2, change.value.type);
-					statement.setBytes(3, change.value.data);
-				}
-				statement.setLong(4, version);
-				statement.setString(5, rowServer);
-				upserts.add();
+				upserts.add(change.name, change.value);
 			}
 		}
+	}
+
+	/**
+	 * Binds one upsert row's five parameters, starting after parameter {@code offset}.
+	 */
+	private void bindUpsert(PreparedStatement statement, int offset, String name, SerializedVariable.@Nullable Value value,
+			long version) throws SQLException {
+		statement.setString(offset + 1, name);
+		if (value == null) { // a tombstone: both null
+			statement.setNull(offset + 2, Types.VARCHAR);
+			statement.setNull(offset + 3, Types.BLOB);
+		} else {
+			statement.setString(offset + 2, value.type);
+			statement.setBytes(offset + 3, value.data);
+		}
+		statement.setLong(offset + 4, version);
+		statement.setString(offset + 5, rowServer);
+	}
+
+	/**
+	 * @return At most how many bytes a row adds to a multi-row upsert statement, which the driver sends as text:
+	 * up to 3 UTF-8 bytes per character, doubled when escaped, for the name and type, 2 per byte for the value's hex,
+	 * and 100 for the version, the server id, quotes and commas
+	 */
+	private static long upsertBytes(String name, SerializedVariable.@Nullable Value value) {
+		long bytes = 6L * name.length() + 100;
+		if (value != null)
+			bytes += 6L * value.type.length() + 2L * value.data.length;
+		return bytes;
+	}
+
+	/**
+	 * Sends upserts in whatever way suits the driver. Closing it sends what's left.
+	 */
+	private interface Upserter extends AutoCloseable {
+
+		/**
+		 * Adds one row: a tombstone if {@code value} is null.
+		 */
+		void add(String name, SerializedVariable.@Nullable Value value) throws SQLException;
+
+		@Override
+		void close() throws SQLException;
+
+	}
+
+	/**
+	 * Sends each row with {@link PreparedStatement#addBatch()}, for drivers whose batching is cheap.
+	 */
+	private final class BatchUpserter implements Upserter {
+
+		private final Batcher batcher;
+		private final long version;
+
+		BatchUpserter(Connection connection, long version) {
+			batcher = new Batcher(connection, upsertSql(table, 1));
+			this.version = version;
+		}
+
+		@Override
+		public void add(String name, SerializedVariable.@Nullable Value value) throws SQLException {
+			bindUpsert(batcher.statement(), 0, name, value, version);
+			batcher.add();
+		}
+
+		@Override
+		public void close() throws SQLException {
+			batcher.close();
+		}
+
+	}
+
+	/**
+	 * Collects rows and sends them as one statement of up to {@link #upsertRows()} rows, sooner if the next row would make
+	 * the statement bigger than {@link #maxUpsertBytes()}. A row is always sent, even alone over the limit, so this can't
+	 * get stuck. A full statement is prepared once per save and reused; shorter ones, at the end or cut short by size,
+	 * are prepared when sent.
+	 */
+	private final class MultiRowUpserter implements Upserter {
+
+		private record Row(String name, SerializedVariable.@Nullable Value value) {}
+
+		private final Connection connection;
+		private final long version;
+		private final int maxRows = upsertRows();
+		private final long maxBytes = maxUpsertBytes();
+		private final List<Row> rows = new ArrayList<>();
+		private long bytes;
+		private @Nullable PreparedStatement full;
+
+		MultiRowUpserter(Connection connection, long version) {
+			this.connection = connection;
+			this.version = version;
+		}
+
+		@Override
+		public void add(String name, SerializedVariable.@Nullable Value value) throws SQLException {
+			long size = upsertBytes(name, value);
+			if (!rows.isEmpty() && bytes + size > maxBytes)
+				send();
+			rows.add(new Row(name, value));
+			bytes += size;
+			if (rows.size() == maxRows)
+				send();
+		}
+
+		private void send() throws SQLException {
+			if (rows.size() == maxRows) {
+				if (full == null)
+					full = connection.prepareStatement(upsertSql(table, maxRows));
+				bindAndRun(full);
+			} else {
+				try (PreparedStatement statement = connection.prepareStatement(upsertSql(table, rows.size()))) {
+					bindAndRun(statement);
+				}
+			}
+			rows.clear();
+			bytes = 0;
+		}
+
+		private void bindAndRun(PreparedStatement statement) throws SQLException {
+			int offset = 0;
+			for (Row row : rows) {
+				bindUpsert(statement, offset, row.name(), row.value(), version);
+				offset += 5;
+			}
+			statement.executeUpdate();
+		}
+
+		@Override
+		public void close() throws SQLException {
+			try {
+				if (!rows.isEmpty())
+					send();
+			} finally {
+				if (full != null)
+					full.close();
+			}
+		}
+
 	}
 
 	/**
@@ -546,9 +707,37 @@ public abstract class JdbcStorage extends VariableStorage {
 
 	/**
 	 * @param table The table to update
-	 * @return A statement that updates or inserts a row in the table.
+	 * @param rows  How many rows the statement inserts, each bound as name, type, value, version and server, in that order.
+	 *              Only more than 1 if {@link #upsertRows()} is
+	 * @return An insert of that many rows that replaces any existing rows with the same names
 	 */
-	protected abstract String upsertSql(String table);
+	protected abstract String upsertSql(String table, int rows);
+
+	/**
+	 * @return {@code rows} groups of the five upsert parameters, such as {@code (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)}
+	 */
+	protected static String upsertValues(int rows) {
+		StringBuilder values = new StringBuilder(rows * 17);
+		for (int i = 0; i < rows; i++)
+			values.append(i == 0 ? "(?, ?, ?, ?, ?)" : ", (?, ?, ?, ?, ?)");
+		return values.toString();
+	}
+
+	/**
+	 * @return How many rows one upsert statement may insert. 1, the default, sends rows with {@link PreparedStatement#addBatch()}.
+	 * More builds statements of that many rows, for drivers whose batching is expensive
+	 */
+	protected int upsertRows() {
+		return 1;
+	}
+
+	/**
+	 * @return The most bytes one upsert statement may take, as the driver sends it, if {@link #upsertRows()} is more than 1.
+	 * A row's size is estimated generously, from its name, type and value. Defaults to no limit
+	 */
+	protected long maxUpsertBytes() {
+		return Long.MAX_VALUE;
+	}
 
 	private final Set<String> reportedUnsavable = new HashSet<>();
 
