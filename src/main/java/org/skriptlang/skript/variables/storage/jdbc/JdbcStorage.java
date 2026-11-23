@@ -23,11 +23,7 @@ import java.util.regex.Pattern;
  * <p>
  * Each variable is one row: its name, the codename of its type, and its serialized value. Next to it is a second table,
  * {@code <table>_meta}, with a single row holding a version counter. Every save is one transaction that bumps the
- * counter and stamps each row it writes with the new version and this server's id. If the database
- * {@link #supportsMonitoring() supports monitoring}, deleting a variable or clearing a list doesn't remove its rows.
- * Instead, they become "tombstones", rows without a type or value, with the new version, and get pruned once they're
- * old enough. That way, anything reading the table can ask what changed since some version, deletions included.
- * Otherwise, nothing else can be reading along, so deleted rows are just removed and rows don't get a server id.
+ * counter and stamps each row it writes with the new version. Deleting a variable or clearing a list removes its rows.
  * <p>
  * We only keep one connection per storage, since only one thread uses it at a time.
  * It's refreshed after each error encountered.
@@ -49,10 +45,6 @@ public abstract class JdbcStorage extends VariableStorage {
 	private static final long IDLE_CHECK_NANOS = TimeUnit.SECONDS.toNanos(30);
 	private static final int BATCH_SIZE = 1000;
 
-	private final String serverId = UUID.randomUUID().toString(); // an id to show what server wrote this line. Customizable in future?
-	private boolean monitorable; // supportsMonitoring(), set while configuring
-	private String rowServer = ""; // what goes in the server column: serverId if monitorable, otherwise nothing
-
 	// the tables used by configured storages, as keys from tableKey, so two storages can't save to the same table
 	private static final Set<String> claimedTables = ConcurrentHashMap.newKeySet();
 	private @Nullable String claimedTable;
@@ -63,8 +55,6 @@ public abstract class JdbcStorage extends VariableStorage {
 	private final ReentrantLock connectionLock = new ReentrantLock();
 	private @Nullable Connection connection;
 	private long lastUsedNanos;
-
-	private long loadedVersion; // generation counter to help in polling for changes
 
 	/**
 	 * @param registeringAddon the addon that registered this storage's type
@@ -88,15 +78,10 @@ public abstract class JdbcStorage extends VariableStorage {
 		}
 		this.table = table;
 		this.metaTable = table + "_meta";
-		this.monitorable = supportsMonitoring();
-		this.rowServer = monitorable ? serverId : "";
-		if (node.getValue("monitor changes") != null)
-			// databases that support monitoring will get it in the MySQL PR, so for now this warns for every type
-			Skript.warning("The database '" + getName() + "' of type '" + getType() + "' can't monitor changes, so 'monitor changes' is ignored");
 		if (!configureConnection(node))
 			return false;
 
-		// only claim once we're sure everythign else is valid.
+		// only claim once we're sure everything else is valid.
 		String key = tableKey(table);
 		if (!claimedTables.add(key)) {
 			Skript.error("The table '" + table + "' of the database '" + getName() + "' is already used by another database. "
@@ -125,26 +110,6 @@ public abstract class JdbcStorage extends VariableStorage {
 	 * @return A key that is equal for two storages only if they use the same table of the same database
 	 */
 	protected abstract String tableKey(String table);
-
-	/**
-	 * Whether other servers can share this storage's table and watch it for changes. This is a fact about the type of
-	 * database, not the {@code monitor changes} option: a server that doesn't monitor a shared table still has to keep
-	 * its deletions as tombstones, so the servers that do monitor it can see them.
-	 * <p>
-	 * If false, deleted rows are removed right away, nothing is pruned, and rows are saved without a server id.
-	 * The version counter is still bumped, since it costs one row per save.
-	 * Called once, while configuring.
-	 *
-	 * @return Whether other servers could be reading this storage's table
-	 */
-	protected abstract boolean supportsMonitoring();
-
-	/**
-	 * @return Whether this storage keeps tombstones, from {@link #supportsMonitoring()}
-	 */
-	protected final boolean monitorable() {
-		return monitorable;
-	}
 
 	// ------------ CONNECTION ----------------
 
@@ -197,9 +162,9 @@ public abstract class JdbcStorage extends VariableStorage {
 	// -------------- SCHEMA / TABLE SETUP -----------------
 
 	/**
-	 * Generates the statements that create Skript's tables and index if they don't already exist.
-	 * This must create a main table named {@link #table} with a name, type, value, version, and server column,
-	 * and a meta table with a version column, if and only if they do not already exist.
+	 * Generates the statements that create Skript's tables if they don't already exist.
+	 * This must create a main table named {@link #table} with a name, type, value and version column,
+	 * and a meta table with an id and a version column, if and only if they do not already exist.
 	 *
 	 * @param table     The name of the table to create for variables
 	 * @param metaTable The name of the table to create for metadata
@@ -219,29 +184,13 @@ public abstract class JdbcStorage extends VariableStorage {
 			for (String sql : schemaSql(table, metaTable))
 				statement.execute(sql);
 			try {
-				statement.executeQuery("SELECT name, type, value, version, server FROM " + table + " WHERE 1 = 0").close();
+				statement.executeQuery("SELECT name, type, value, version FROM " + table + " WHERE 1 = 0").close();
 			} catch (SQLException e) {
 				throw new IOException("The table '" + table + "' already exists but can't be read by this version of Skript. "
 					+ "Pick another 'table' for the database '" + getName() + "'", e);
 			}
 		}
 		connection.commit();
-	}
-
-	/**
-	 * Gets the current version of the table.
-	 *
-	 * @param connection The connection to use.
-	 * @return The version from the metadata for this storage.
-	 * @throws SQLException If the row is not present.
-	 */
-	private long readVersion(Connection connection) throws SQLException {
-		try (Statement statement = connection.createStatement();
-		     ResultSet result = statement.executeQuery("SELECT version FROM " + metaTable + " WHERE id = 0")) {
-			if (!result.next())
-				throw new SQLException("The counter row of '" + metaTable + "' is missing");
-			return result.getLong(1);
-		}
 	}
 
 	// ---------------- LOADING -------------------
@@ -252,12 +201,8 @@ public abstract class JdbcStorage extends VariableStorage {
 		try {
 			Connection connection = connection();
 			createSchema(connection);
-			loadedVersion = readVersion(connection);
-			samples.addLast(new Sample(System.nanoTime(), loadedVersion));
 			LoadReport problems = new LoadReport();
-			Binder unused = statement -> {
-			}; // will be used later
-			readRows(connection, "value IS NOT NULL", unused, listener, problems);
+			readRows(connection, listener, problems);
 			connection.commit(); // ends the read transaction, so SQLite's WAL can be checkpointed
 			problems.print("the table '" + table + "' of the database '" + getName() + "'", "these rows were skipped and left in the table");
 		} catch (SQLException e) {
@@ -269,23 +214,11 @@ public abstract class JdbcStorage extends VariableStorage {
 	}
 
 	/**
-	 * Binds the parameters of a query's WHERE clause.
+	 * Reads every variable's row, and passes each readable one to the listener.
 	 */
-	@FunctionalInterface
-	protected interface Binder {
-		void bind(PreparedStatement statement) throws SQLException;
-	}
-
-	/**
-	 * Reads the rows matching a condition and passes each readable one to the listener.
-	 * The one place rows are read, so a future partial load is another caller with a range or exact names.
-	 */
-	private void readRows(Connection connection, String where, Binder binder, LoadListener listener,
-	                      LoadReport problems) throws SQLException {
-		try (PreparedStatement statement = connection.prepareStatement(
-			"SELECT name, type, value FROM " + table + " WHERE " + where)) {
+	private void readRows(Connection connection, LoadListener listener, LoadReport problems) throws SQLException {
+		try (PreparedStatement statement = connection.prepareStatement("SELECT name, type, value FROM " + table)) {
 			statement.setFetchSize(loadFetchSize());
-			binder.bind(statement);
 			try (ResultSet rows = statement.executeQuery()) {
 				while (rows.next()) {
 					String name = rows.getString(1);
@@ -318,13 +251,11 @@ public abstract class JdbcStorage extends VariableStorage {
 		try {
 			Connection connection = connection();
 			try {
-				// bumping the counter locks its row until we commit, so other servers' saves take their versions after ours
-				// and commit after us too. That way versions are committed in order, and polling for newer ones never skips one.
+				// each save gets its own version, which every row it writes is stamped with
 				long version = nextVersion(connection);
 				// make the changes
-				clear(connection, batch.clears(), version);
+				clear(connection, batch.clears());
 				write(connection, batch.changes(), version);
-				pruneIfDue(connection, version);
 				// a whole batch is committed at once to prevent data fracturing.
 				// if it fails, we can just try it again next time.
 				connection.commit();
@@ -359,37 +290,21 @@ public abstract class JdbcStorage extends VariableStorage {
 	}
 
 	/**
-	 * Clears a subset of variable rows: turns them into tombstones if this storage is {@link #monitorable()},
-	 * otherwise deletes them.
+	 * Deletes the rows of the cleared lists.
 	 * We use name >= and < to clear a full subset, e.g. anything between "a::" and "a:;" covers the entire "a::*" list.
 	 *
 	 * @param connection The connection to use.
 	 * @param prefixes   The prefixes to clear, e.g. `"a::"` for a clear meant to hit `{a::*}`.
-	 * @param version    The new version to use in the cleared rows.
-	 * @throws SQLException If the update fails.
+	 * @throws SQLException If the delete fails.
 	 */
-	private void clear(Connection connection, List<String> prefixes, long version) throws SQLException {
+	private void clear(Connection connection, List<String> prefixes) throws SQLException {
 		if (prefixes.isEmpty())
 			return;
-		if (!monitorable) {
-			try (PreparedStatement statement = connection.prepareStatement(
-				"DELETE FROM " + table + " WHERE name >= ? AND name < ?")) {
-				for (String prefix : prefixes) { // in order
-					statement.setString(1, prefix);
-					statement.setString(2, CsvFormat.prefixEnd(prefix));
-					statement.addBatch();
-				}
-				statement.executeBatch();
-			}
-			return;
-		}
-		try (PreparedStatement statement = connection.prepareStatement("UPDATE " + table
-			+ " SET type = NULL, value = NULL, version = ?, server = ? WHERE name >= ? AND name < ? AND value IS NOT NULL")) {
+		try (PreparedStatement statement = connection.prepareStatement(
+			"DELETE FROM " + table + " WHERE name >= ? AND name < ?")) {
 			for (String prefix : prefixes) { // in order
-				statement.setLong(1, version);
-				statement.setString(2, rowServer);
-				statement.setString(3, prefix);
-				statement.setString(4, CsvFormat.prefixEnd(prefix));
+				statement.setString(1, prefix);
+				statement.setString(2, CsvFormat.prefixEnd(prefix));
 				statement.addBatch();
 			}
 			statement.executeBatch();
@@ -397,8 +312,8 @@ public abstract class JdbcStorage extends VariableStorage {
 	}
 
 	/**
-	 * Write new variable changes to the database. Updates row version.
-	 * Deletions become tombstones if this storage is {@link #monitorable()}, and are deleted otherwise.
+	 * Write new variable changes to the database, stamping each written row with the save's version.
+	 * Deleted variables have their rows removed.
 	 * A batch has one change per name, so the deletions and the other changes can be sent as two separate batches.
 	 *
 	 * @param connection The connection to use.
@@ -417,7 +332,7 @@ public abstract class JdbcStorage extends VariableStorage {
 					skipUnsavable(change.name);
 					continue;
 				}
-				if (change.value == null && !monitorable) {
+				if (change.value == null) {
 					PreparedStatement statement = deletes.statement();
 					statement.setString(1, change.name);
 					deletes.add();
@@ -425,16 +340,9 @@ public abstract class JdbcStorage extends VariableStorage {
 				}
 				PreparedStatement statement = upserts.statement();
 				statement.setString(1, change.name);
-				if (change.value == null) { // deleted, both null
-					statement.setNull(2, Types.VARCHAR);
-					statement.setNull(3, Types.BLOB);
-				} else {
-					// set type and data
-					statement.setString(2, change.value.type);
-					statement.setBytes(3, change.value.data);
-				}
+				statement.setString(2, change.value.type);
+				statement.setBytes(3, change.value.data);
 				statement.setLong(4, version);
-				statement.setString(5, rowServer);
 				upserts.add();
 			}
 		}
@@ -506,50 +414,6 @@ public abstract class JdbcStorage extends VariableStorage {
 				+ "', since its name is longer than " + maxNameLength() + " characters. It's kept until the server stops");
 	}
 
-	// ---------------- PRUNING ------------------
-
-	private static final long TOMBSTONE_RETENTION_NANOS = TimeUnit.HOURS.toNanos(1);
-	private static final long PRUNE_INTERVAL_NANOS = TimeUnit.MINUTES.toNanos(5);
-	private static final long SAMPLE_INTERVAL_NANOS = TimeUnit.MINUTES.toNanos(1);
-
-	// for tracking version ages
-	private record Sample(long nanos, long version) {}
-
-	private final ArrayDeque<Sample> samples = new ArrayDeque<>(); // oldest first
-	private long lastPruneNanos = System.nanoTime();
-
-	/**
-	 * Removes all the stale tombstones from this storage's SQL table
-	 *
-	 * @param connection The connection to use.
-	 * @param version    The new version.
-	 * @throws SQLException If any statement fails.
-	 */
-	private void pruneIfDue(Connection connection, long version) throws SQLException {
-		if (!monitorable) // no tombstones to prune
-			return;
-		long now = System.nanoTime();
-		// add a new sample if we haven't taken one in a minute
-		if (samples.isEmpty() || now - samples.peekLast().nanos() >= SAMPLE_INTERVAL_NANOS)
-			samples.addLast(new Sample(now, version));
-		if (now - lastPruneNanos < PRUNE_INTERVAL_NANOS)
-			return;
-		lastPruneNanos = now;
-		// find the newest hour-plus-old sample, so we know what version to prune up to.
-		// any older ones can be thrown out, they're useless
-		Sample cutoff = null;
-		while (!samples.isEmpty() && now - samples.peekFirst().nanos() >= TOMBSTONE_RETENTION_NANOS)
-			cutoff = samples.pollFirst(); // keep removing the oldest
-		if (cutoff == null)
-			return;
-		samples.addFirst(cutoff); // keep it, so the next prune still has a cutoff
-		try (PreparedStatement statement = connection.prepareStatement(
-			"DELETE FROM " + table + " WHERE value IS NULL AND version < ?")) {
-			statement.setLong(1, cutoff.version());
-			statement.executeUpdate();
-		}
-	}
-
 	// ---------------- BACKUPS -------------------
 
 	@Override
@@ -565,7 +429,7 @@ public abstract class JdbcStorage extends VariableStorage {
 			try {
 				CsvFormat.Writer writer = CsvFormat.Writer.backup(out);
 				// copy each row to the csv file
-				readRows(connection, "value IS NOT NULL", statement -> {}, (name, value) -> {
+				readRows(connection, (name, value) -> {
 					try {
 						writer.row(name, value);
 					} catch (IOException e) {
@@ -649,13 +513,6 @@ public abstract class JdbcStorage extends VariableStorage {
 	}
 
 	// ---------------- MISC -----------------------
-
-	/**
-	 * @return the counter's value when loading started
-	 */
-	protected final long loadedVersion() {
-		return loadedVersion;
-	}
 
 	/**
 	 * @return the table name
