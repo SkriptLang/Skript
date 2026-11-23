@@ -62,10 +62,10 @@ public class SQLiteStorage extends JdbcStorage {
 			"CREATE TABLE IF NOT EXISTS " + table + " (name TEXT NOT NULL PRIMARY KEY, type TEXT, value BLOB, "
 				+ "version INTEGER NOT NULL, server TEXT NOT NULL) WITHOUT ROWID",
 			// the version index is only for polling, which needs monitoring. Without it, every write would update it for nothing
-			monitorable()
+			monitorsChanges()
 				? "CREATE INDEX IF NOT EXISTS " + table + "_version ON " + table + " (version)"
 				: "DROP INDEX IF EXISTS " + table + "_version",
-			// make the meta table (overall version tracker, basically), with initial values 0,0
+			// the meta table holds the version counter, in one row with id 0
 			"CREATE TABLE IF NOT EXISTS " + metaTable + " (id INTEGER NOT NULL PRIMARY KEY, version INTEGER NOT NULL)",
 			"INSERT OR IGNORE INTO " + metaTable + " (id, version) VALUES (0, 0)");
 	}

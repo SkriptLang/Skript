@@ -30,23 +30,20 @@ public class MySQLStorage extends JdbcStorage {
 
 	private static final int MAX_NAME_LENGTH = 768; // VARCHAR(768)
 	private static final long PACKET_HEADROOM = 16 * 1024; // for the name and the rest of the statement
+	private static final Pattern VERSION = Pattern.compile("^(\\d+)\\.(\\d+)\\.(\\d+)");
 
 	private String host;
-	private Integer port;
+	private int port;
 	private String database;
 	private String user;
 	private String password;
 	private Ssl ssl = Ssl.PREFERRED;
-
-	private static final Pattern VERSION = Pattern.compile("^(\\d+)\\.(\\d+)\\.(\\d+)");
 
 	private String collation = "";
 	private boolean aliasUpsert;
 
 	private long maxValueLength = Long.MAX_VALUE;
 	private long maxStatementBytes = Long.MAX_VALUE;
-
-	private static final int ROWS_PER_STATEMENT = 1000;
 
 	/**
 	 * @param registeringAddon the addon that registered this storage's type
@@ -61,10 +58,11 @@ public class MySQLStorage extends JdbcStorage {
 		host = getConfigValue(node, "host");
 		database = getConfigValue(node, "database");
 		user = getConfigValue(node, "user");
-		port = getConfigOptional(node, "port", Integer.class, 3306);
+		Integer port = getConfigOptional(node, "port", Integer.class, 3306);
 		password = getConfigOptional(node, "password", String.class, "");
 		if (host == null || database == null || user == null || port == null || password == null)
 			return false;
+		this.port = port;
 		if (!(1 <= port && port <= 65535)) {
 			Skript.error("The port of the database '" + getName() + "' must be between 1 and 65535, not " + port);
 			return false;
@@ -205,11 +203,11 @@ public class MySQLStorage extends JdbcStorage {
 				indexed = result.next();
 			}
 		}
-		if (monitorable() && !indexed) {
+		if (monitorsChanges() && !indexed) {
 			try (Statement statement = connection.createStatement()) {
 				statement.execute("ALTER TABLE " + table() + " ADD INDEX version_index (version)");
 			}
-		} else if (!monitorable() && indexed) {
+		} else if (!monitorsChanges() && indexed) {
 			Skript.warning("The table '" + table() + "' of the database '" + getName() + "' has an index for monitoring "
 				+ "changes, but this server doesn't monitor them. If no server does, removing it makes saving faster: "
 				+ "ALTER TABLE " + table() + " DROP INDEX version_index");
@@ -271,16 +269,6 @@ public class MySQLStorage extends JdbcStorage {
 	@Override
 	protected long maxValueLength() {
 		return maxValueLength;
-	}
-
-	/**
-	 * @return {@value #ROWS_PER_STATEMENT}: the driver's own batching copies every row's parameters and escapes each string twice,
-	 * which made about 3 KB of garbage per row saved, and without its rewriting sends each delete on its own. Building
-	 * statements of several rows here makes about a third of the garbage, and deletes about 15 times faster
-	 */
-	@Override
-	protected int rowsPerStatement() {
-		return ROWS_PER_STATEMENT;
 	}
 
 	@Override
