@@ -15,10 +15,12 @@ import java.util.regex.Pattern;
 /**
  * Saves variables to a table on a MySQL or MariaDB server. The driver comes with Paper, so nothing has to be downloaded.
  * <p>
- * Several servers can share one table, so this storage supports monitoring: deleted variables are kept as tombstones
- * for a while instead of being removed right away, and each row records the server that saved it, so servers watching
- * the table can see each other's changes and deletions. Sharing a table only shows other servers' changes eventually;
- * it doesn't make variables safe to change from several servers at once.
+ * Several servers can share one table, so this storage supports monitoring. While it monitors changes, deleted
+ * variables are kept as tombstones for a while instead of being removed right away, each row records the server that
+ * saved it, and rows are indexed by version, so servers watching the table can see each other's changes and deletions.
+ * Without monitoring, the table is treated as this server's alone, which makes each saved row about a third cheaper
+ * for the database. Sharing a table only shows other servers' changes eventually; it doesn't make variables safe to
+ * change from several servers at once.
  * <p>
  * Names longer than {@value #MAX_NAME_LENGTH} characters can't be saved, since that's as long as an InnoDB key can be.
  * Such variables are reported and kept in memory until the server stops.
@@ -40,6 +42,9 @@ public class MySQLStorage extends JdbcStorage {
 	private boolean aliasUpsert;
 
 	private long maxValueLength = Long.MAX_VALUE;
+	private long maxUpsertBytes = Long.MAX_VALUE;
+
+	private static final int UPSERT_ROWS = 1000;
 
 	/**
 	 * @param registeringAddon the addon that registered this storage's type
@@ -83,7 +88,6 @@ public class MySQLStorage extends JdbcStorage {
 		Properties properties = new Properties();
 		properties.setProperty("user", user);
 		properties.setProperty("password", password);
-		properties.setProperty("rewriteBatchedStatements", "true"); // commit the batches as a whole, not line by line.
 		properties.setProperty("characterEncoding", "UTF-8");
 		properties.setProperty("connectTimeout", "10000");
 		properties.setProperty("socketTimeout", "60000");
@@ -129,6 +133,34 @@ public class MySQLStorage extends JdbcStorage {
 					+ "which is too small to save variables. Set its 'max_allowed_packet' to at least 1 MB");
 			// the driver sends values as hex, two characters per byte, and we need to leave room for the name and the statement
 			maxValueLength = (packet - PACKET_HEADROOM) / 2;
+			// a statement of several rows has to fit too. A row with the longest value fits alone, its name in the headroom
+			maxUpsertBytes = packet - PACKET_HEADROOM;
+		}
+	}
+
+	/**
+	 * Adds the version index that polling needs, if this server monitors changes and the table doesn't have it yet.
+	 * MySQL has no {@code CREATE INDEX IF NOT EXISTS}, hence the check. An index this server doesn't need is only
+	 * warned about, not dropped, since another server sharing the table may poll with it.
+	 */
+	@Override
+	protected void schemaCreated(Connection connection) throws SQLException {
+		boolean indexed;
+		try (PreparedStatement statement = connection.prepareStatement("SELECT 1 FROM information_schema.STATISTICS "
+				+ "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = 'version_index'")) {
+			statement.setString(1, table());
+			try (ResultSet result = statement.executeQuery()) {
+				indexed = result.next();
+			}
+		}
+		if (monitorable() && !indexed) {
+			try (Statement statement = connection.createStatement()) {
+				statement.execute("ALTER TABLE " + table() + " ADD INDEX version_index (version)");
+			}
+		} else if (!monitorable() && indexed) {
+			Skript.warning("The table '" + table() + "' of the database '" + getName() + "' has an index for monitoring "
+				+ "changes, but this server doesn't monitor them. If no server does, removing it makes saving faster: "
+				+ "ALTER TABLE " + table() + " DROP INDEX version_index");
 		}
 	}
 
@@ -152,17 +184,15 @@ public class MySQLStorage extends JdbcStorage {
 				+ "type VARCHAR(255) CHARACTER SET utf8mb4 COLLATE " + collation + ", "
 				+ "value LONGBLOB, "
 				+ "version BIGINT NOT NULL, "
-				+ "server CHAR(36) NOT NULL, "
-				// for polling by version. MySQL has no CREATE INDEX IF NOT EXISTS, so it's made with the table
-				+ "INDEX version_index (version)"
-				+ ") ENGINE=InnoDB",
+				+ "server CHAR(36) NOT NULL"
+				+ ") ENGINE=InnoDB", // the version index is added by schemaCreated, only while monitoring
 			"CREATE TABLE IF NOT EXISTS " + metaTable + " (id INT NOT NULL PRIMARY KEY, version BIGINT NOT NULL) ENGINE=InnoDB",
 			"INSERT IGNORE INTO " + metaTable + " (id, version) VALUES (0, 0)");
 	}
 
 	@Override
-	protected String upsertSql(String table) {
-		String insert = "INSERT INTO " + table + " (name, type, value, version, server) VALUES (?, ?, ?, ?, ?)";
+	protected String upsertSql(String table, int rows) {
+		String insert = "INSERT INTO " + table + " (name, type, value, version, server) VALUES " + upsertValues(rows);
 		if (aliasUpsert) // MySQL 8.0.19+: VALUES() in the update is deprecated there
 			return insert + " AS new ON DUPLICATE KEY UPDATE "
 				+ "type = new.type, value = new.value, version = new.version, server = new.server";
@@ -189,6 +219,20 @@ public class MySQLStorage extends JdbcStorage {
 	@Override
 	protected long maxValueLength() {
 		return maxValueLength;
+	}
+
+	/**
+	 * @return {@value #UPSERT_ROWS}: the driver's own batching copies every row's parameters and escapes each string twice,
+	 * which made about 3 KB of garbage per row saved. Building the multi-row statement here makes about a third of that
+	 */
+	@Override
+	protected int upsertRows() {
+		return UPSERT_ROWS;
+	}
+
+	@Override
+	protected long maxUpsertBytes() {
+		return maxUpsertBytes;
 	}
 
 }

@@ -194,6 +194,35 @@ public class MySQLStorageTest {
 		return storage(loadExpecting(VariableMap.concurrent(), true, database("default")));
 	}
 
+	/**
+	 * @return A storage that monitors changes, so it keeps tombstones like a shared table, without ever polling
+	 */
+	private JdbcStorage loadedSharedStorage() {
+		return storage(loadExpecting(VariableMap.concurrent(), true, SHARED));
+	}
+
+	private static final String SHARED_LINES = "monitor changes: true";
+	private static final String SHARED = database("default", SHARED_LINES, "monitor interval: 1 hour");
+
+	/**
+	 * Loads the databases into a new manager, expecting it to work, and returns the warnings it printed.
+	 */
+	private List<String> loadWarnings(String databases) {
+		VariableStorageManager manager = manager(VariableMap.concurrent());
+		try (RetainingLogHandler log = new RetainingLogHandler().start()) {
+			assertTrue(manager.load(node(databases)));
+			return log.getLog().stream()
+				.filter(entry -> entry.getLevel() == Level.WARNING)
+				.map(LogEntry::getMessage)
+				.toList();
+		}
+	}
+
+	private static boolean versionIndexed() throws SQLException {
+		return query("SELECT COLUMN_NAME FROM information_schema.STATISTICS "
+			+ "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = 'version_index'", TABLE) != null;
+	}
+
 	private static JdbcStorage storage(VariableStorageManager manager) {
 		return (JdbcStorage) manager.storages().get(0);
 	}
@@ -335,12 +364,68 @@ public class MySQLStorageTest {
 	}
 
 	@Test
-	public void theTableHasAVersionIndex() throws SQLException {
+	public void aMonitoredTableHasAVersionIndex() throws SQLException {
 		needsServer();
-		loadedStorage();
+		loadedSharedStorage();
 
 		assertEquals("version", query("SELECT COLUMN_NAME FROM information_schema.STATISTICS "
 			+ "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = 'version_index'", TABLE));
+	}
+
+	@Test
+	public void anUnmonitoredTableHasNoVersionIndex() throws SQLException {
+		needsServer();
+		loadedStorage();
+
+		assertFalse(versionIndexed());
+	}
+
+	@Test
+	public void turningMonitoringOnAddsTheIndexToAnExistingTable() throws Exception {
+		needsServer();
+		save(loadedStorage(), List.of(), change("a", "1"));
+		closeAll();
+		loadedSharedStorage();
+
+		assertTrue(versionIndexed());
+	}
+
+	@Test
+	public void turningMonitoringOffKeepsTheIndexAndWarns() throws Exception {
+		needsServer();
+		loadedSharedStorage();
+		closeAll();
+
+		List<String> warnings = loadWarnings(database("default"));
+		assertTrue(versionIndexed()); // another server may still poll with it
+		assertEquals(warnings.toString(), 1, warnings.size());
+		assertTrue(warnings.get(0), warnings.get(0).contains("DROP INDEX version_index"));
+	}
+
+	@Test
+	public void anUnmonitoredTableRemovesDeletedRows() throws Exception {
+		needsServer();
+		JdbcStorage storage = loadedStorage();
+		save(storage, List.of(), change("a", "1"), change("list::1", "2"), change("kept", "3"));
+		save(storage, List.of("list::"), deletion("a"));
+
+		assertNull(row("a"));
+		assertNull(row("list::1"));
+		assertEquals("", row("kept").server()); // no server id either
+	}
+
+	@Test
+	public void anotherServerSavingToAnUnmonitoredTableIsWarnedAbout() throws Exception {
+		needsServer();
+		JdbcStorage storage = loadedStorage();
+		save(storage, List.of(), change("a", "1"));
+		sql("UPDATE " + TABLE + "_meta SET version = version + 1"); // as another server's save would
+
+		try (RetainingLogHandler log = new RetainingLogHandler().start()) {
+			storage.save(new VariableStorage.Batch(List.of(), List.of(change("b", "2"))));
+			assertTrue(log.getLog().stream().anyMatch(entry -> entry.getLevel() == Level.WARNING
+				&& entry.getMessage().contains("'monitor changes'")));
+		}
 	}
 
 	@Test
@@ -415,7 +500,7 @@ public class MySQLStorageTest {
 	@Test
 	public void aDeletionLeavesATombstoneWithTheServer() throws Exception {
 		needsServer();
-		JdbcStorage storage = loadedStorage();
+		JdbcStorage storage = loadedSharedStorage();
 		save(storage, List.of(), change("a", "1"));
 		save(storage, List.of(), deletion("a"));
 
@@ -429,7 +514,7 @@ public class MySQLStorageTest {
 	@Test
 	public void aClearOnlyTombstonesItsList() throws Exception {
 		needsServer();
-		JdbcStorage storage = loadedStorage();
+		JdbcStorage storage = loadedSharedStorage();
 		save(storage, List.of(), change("a", "own value"), change("a::b", "1"), change("a::b::c", "2"),
 			change("ab::x", "3"), change("a:x", "4"), change("A::b", "5"), change("a::😀", "6"));
 		save(storage, List.of("a::"));
@@ -446,7 +531,7 @@ public class MySQLStorageTest {
 	@Test
 	public void underscoresAndPercentsInAClearedListArentWildcards() throws Exception {
 		needsServer();
-		JdbcStorage storage = loadedStorage();
+		JdbcStorage storage = loadedSharedStorage();
 		save(storage, List.of(), change("my_list::1", "1"), change("myXlist::1", "2"), change("50%::1", "3"),
 			change("50x::1", "4"));
 		save(storage, List.of("my_list::", "50%::"));
@@ -533,6 +618,27 @@ public class MySQLStorageTest {
 			((Number) query("SELECT LENGTH(value) FROM " + TABLE + " WHERE name = 'largest'")).longValue());
 		assertEquals("2", row("small").text());
 		assertEquals("3", row("later").text());
+	}
+
+	@Test
+	public void rowsThatDontFitOneStatementTogetherAreSplit() throws Exception {
+		needsServer();
+		JdbcStorage storage = loadedStorage();
+		long limit = storage.maxValueLength();
+		Assume.assumeTrue("the server's max_allowed_packet is too big to test the limit quickly", limit <= 40 << 20);
+
+		// each value is 40% of the packet once sent as hex, so all three in one statement would be over it
+		byte[] value = new byte[(int) (limit * 4 / 10)];
+		Arrays.fill(value, (byte) 0xAB);
+		save(storage, List.of(), new SerializedVariable("a", new SerializedVariable.Value(TEXT, value)),
+			new SerializedVariable("b", new SerializedVariable.Value(TEXT, value)),
+			new SerializedVariable("c", new SerializedVariable.Value(TEXT, value)), change("small", "1"));
+
+		for (String name : List.of("a", "b", "c")) {
+			assertEquals(name, (long) value.length,
+				((Number) query("SELECT LENGTH(value) FROM " + TABLE + " WHERE name = '" + name + "'")).longValue());
+		}
+		assertEquals("1", row("small").text());
 	}
 
 	@Test

@@ -3,6 +3,8 @@ package org.skriptlang.skript.variables.storage.jdbc;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.log.BlockingLogHandler;
+import ch.njol.skript.log.LogEntry;
+import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.variables.SerializedVariable;
 import org.jetbrains.annotations.Nullable;
 import org.junit.After;
@@ -37,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
@@ -105,6 +108,45 @@ public class SQLiteStorageTest {
 	}
 
 	/**
+	 * An SQLite storage that sends upserts as statements of up to 3 rows and 400 bytes, the way MySQL does with 1000 rows
+	 * and its packet size, so that path is tested without a MySQL server. It's monitorable, so deletions are upserted too.
+	 * A short row, such as {@code r1 = x}, counts as 138 bytes.
+	 */
+	static final class MultiRowStorage extends SQLiteStorage {
+
+		/**
+		 * The row count of every statement prepared, in order. A full statement is only prepared once per save.
+		 */
+		final List<Integer> prepared = new ArrayList<>();
+
+		MultiRowStorage(SkriptAddon registeringAddon, String type) {
+			super(registeringAddon, type);
+		}
+
+		@Override
+		protected boolean supportsMonitoring() {
+			return true;
+		}
+
+		@Override
+		protected int upsertRows() {
+			return 3;
+		}
+
+		@Override
+		protected long maxUpsertBytes() {
+			return 400;
+		}
+
+		@Override
+		protected String upsertSql(String table, int rows) {
+			prepared.add(rows);
+			return super.upsertSql(table, rows);
+		}
+
+	}
+
+	/**
 	 * An SQLite storage that acts like it can be monitored, so the tombstones and pruning that databases shared between
 	 * servers need can be tested without one.
 	 */
@@ -157,6 +199,8 @@ public class SQLiteStorageTest {
 			manager.register(null, ShortNameStorage.class, ShortNameStorage::new, "shortnames");
 		} else if (databases.contains("type: smallvalues")) {
 			manager.register(null, SmallValueStorage.class, SmallValueStorage::new, "smallvalues");
+		} else if (databases.contains("type: multirow")) {
+			manager.register(null, MultiRowStorage.class, MultiRowStorage::new, "multirow");
 		} else if (databases.contains("type: monitored")) {
 			manager.register(null, MonitoredStorage.class, MonitoredStorage::new, "monitored");
 		} else if (databases.contains("type: csv")) {
@@ -187,11 +231,14 @@ public class SQLiteStorageTest {
 	}
 
 	/**
-	 * @return A database section for the config, with any extra lines after the file
+	 * @return A database section for the config, with any extra lines after the file. The types that act like a shared
+	 * database monitor changes, since only then do they keep tombstones, with an interval long enough never to poll
 	 */
 	private static String database(String name, String type, Path file, String... extra) {
 		StringBuilder section = new StringBuilder("\t" + name + ":\n\t\ttype: " + type
 			+ "\n\t\tfile: " + file.toString().replace('\\', '/') + "\n");
+		if (type.equals("monitored") || type.equals("multirow"))
+			section.append("\t\tmonitor changes: true\n\t\tmonitor interval: 1 hour\n");
 		for (String line : extra)
 			section.append("\t\t").append(line).append("\n");
 		return section.toString();
@@ -407,6 +454,61 @@ public class SQLiteStorageTest {
 		assertEquals(0L, ((Number) query("SELECT COUNT(*) FROM " + TABLE)).longValue());
 		assertEquals(0L, ((Number) query("SELECT version FROM " + TABLE + "_meta WHERE id = 0")).longValue());
 		assertNull("only polling needs the version index", versionIndex());
+	}
+
+	@Test
+	public void aMonitorableTableWithoutMonitoringRemovesDeletedRows() throws Exception {
+		VariableStorageManager manager = loadExpecting(VariableMap.concurrent(), true, database("default", "multirow", file)
+			.replace("monitor changes: true", "monitor changes: false"));
+		JdbcStorage storage = storage(manager);
+		save(storage, List.of(), change("a", "1"), change("list::1", "2"));
+		save(storage, List.of("list::"), deletion("a"));
+
+		assertEquals(List.of(), names());
+		assertNull("only polling needs the version index", versionIndex());
+	}
+
+	@Test
+	public void anotherServerSavingToAnUnmonitoredTableIsWarnedAboutOnce() throws Exception {
+		JdbcStorage storage = storage(load(VariableMap.concurrent()));
+		assertEquals(List.of(), saveWarnings(storage, change("a", "1")));
+
+		sql("UPDATE " + TABLE + "_meta SET version = version + 1"); // as another server's save would
+		List<String> warnings = saveWarnings(storage, change("b", "2"));
+		assertEquals(warnings.toString(), 1, warnings.size());
+		assertTrue(warnings.get(0), warnings.get(0).contains("'monitor changes'"));
+
+		sql("UPDATE " + TABLE + "_meta SET version = version + 1");
+		assertEquals(List.of(), saveWarnings(storage, change("c", "3"))); // once is enough
+	}
+
+	@Test
+	public void anotherServerSavingBeforeTheFirstSaveIsNoticed() throws Exception {
+		JdbcStorage storage = storage(load(VariableMap.concurrent()));
+		sql("UPDATE " + TABLE + "_meta SET version = version + 1");
+
+		assertEquals(1, saveWarnings(storage, change("a", "1")).size());
+	}
+
+	@Test
+	public void aMonitoredTableIsntWarnedAboutOtherServers() throws Exception {
+		JdbcStorage storage = loadedMonitoredStorage();
+		sql("UPDATE " + TABLE + "_meta SET version = version + 1");
+
+		assertEquals(List.of(), saveWarnings(storage, change("a", "1")));
+	}
+
+	/**
+	 * Saves a batch of changes, and returns the warnings that printed.
+	 */
+	private static List<String> saveWarnings(JdbcStorage storage, SerializedVariable... changes) throws IOException {
+		try (RetainingLogHandler log = new RetainingLogHandler().start()) {
+			storage.save(new VariableStorage.Batch(List.of(), List.of(changes)));
+			return log.getLog().stream()
+				.filter(entry -> entry.getLevel().intValue() >= Level.WARNING.intValue())
+				.map(LogEntry::getMessage)
+				.toList();
+		}
 	}
 
 	@Test
@@ -735,6 +837,74 @@ public class SQLiteStorageTest {
 		assertEquals("1", row("short").text());
 		assertNull(row("far too long a name"));
 		assertEquals("3", row("later").text());
+	}
+
+	// ---- multi-row upserts ----
+
+	private MultiRowStorage loadedMultiRowStorage() {
+		return (MultiRowStorage) storage(loadExpecting(VariableMap.concurrent(), true, database("default", "multirow", file)));
+	}
+
+	@Test
+	public void rowsAreCutShortBySize() throws Exception {
+		MultiRowStorage storage = loadedMultiRowStorage();
+		SerializedVariable[] changes = new SerializedVariable[10];
+		for (int i = 0; i < changes.length; i++)
+			changes[i] = change("r" + i, "x"); // 138 bytes each: 2 fit in 400, 3 don't
+		storage.prepared.clear();
+		save(storage, List.of(), changes);
+
+		assertEquals(List.of(2, 2, 2, 2, 2), storage.prepared); // none full, so each is prepared when sent
+		for (int i = 0; i < changes.length; i++)
+			assertEquals("x", row("r" + i).text());
+	}
+
+	@Test
+	public void aFullStatementIsPreparedOncePerSave() throws Exception {
+		MultiRowStorage storage = loadedMultiRowStorage();
+		SerializedVariable[] changes = new SerializedVariable[7];
+		for (int i = 0; i < changes.length; i++)
+			changes[i] = new SerializedVariable("r" + i, new SerializedVariable.Value("t", new byte[0])); // 118 bytes each
+		storage.prepared.clear();
+		save(storage, List.of(), changes);
+
+		assertEquals(List.of(3, 1), storage.prepared); // the full one is reused for both full statements, then the rest
+		assertEquals(7, names().size());
+	}
+
+	@Test
+	public void aRowOverTheLimitIsSentAlone() throws Exception {
+		MultiRowStorage storage = loadedMultiRowStorage();
+		String big = "y".repeat(200); // 542 bytes, more than the whole limit
+		storage.prepared.clear();
+		save(storage, List.of(), change("a", "x"), change("big", big), change("b", "x"));
+
+		assertEquals(List.of(1, 1, 1), storage.prepared);
+		assertEquals("x", row("a").text());
+		assertEquals(big, row("big").text());
+		assertEquals("x", row("b").text());
+	}
+
+	@Test
+	public void tombstonesAreUpsertedInMultiRowStatements() throws Exception {
+		MultiRowStorage storage = loadedMultiRowStorage();
+		save(storage, List.of(), change("a", "1"), change("b", "2"), change("c", "3"));
+		save(storage, List.of(), deletion("a"), deletion("b"), change("c", "4"));
+
+		assertTrue(row("a").tombstone());
+		assertTrue(row("b").tombstone());
+		assertEquals("4", row("c").text());
+	}
+
+	@Test
+	public void aSaveWithoutRowsPreparesNoUpsert() throws Exception {
+		MultiRowStorage storage = loadedMultiRowStorage();
+		save(storage, List.of(), change("list::1", "1"));
+		storage.prepared.clear();
+		save(storage, List.of("list::"));
+
+		assertTrue(storage.prepared.isEmpty());
+		assertTrue(row("list::1").tombstone());
 	}
 
 	@Test
