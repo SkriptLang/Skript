@@ -2,6 +2,7 @@ package org.skriptlang.skript.variables.storage.jdbc;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
 
 import java.sql.*;
@@ -18,7 +19,7 @@ import java.util.regex.Pattern;
  * Several servers can share one table, so this storage supports monitoring. While it monitors changes, deleted
  * variables are kept as tombstones for a while instead of being removed right away, each row records the server that
  * saved it, and rows are indexed by version, so servers watching the table can see each other's changes and deletions.
- * Without monitoring, the table is treated as this server's alone, which makes each saved row about a third cheaper
+ * Without monitoring, the table is treated as this server's alone, which makes each saved row about half as much work
  * for the database. Sharing a table only shows other servers' changes eventually; it doesn't make variables safe to
  * change from several servers at once.
  * <p>
@@ -35,6 +36,7 @@ public class MySQLStorage extends JdbcStorage {
 	private String database;
 	private String user;
 	private String password;
+	private Ssl ssl = Ssl.PREFERRED;
 
 	private static final Pattern VERSION = Pattern.compile("^(\\d+)\\.(\\d+)\\.(\\d+)");
 
@@ -67,7 +69,45 @@ public class MySQLStorage extends JdbcStorage {
 			Skript.error("The port of the database '" + getName() + "' must be between 1 and 65535, not " + port);
 			return false;
 		}
+		String ssl = getConfigOptional(node, "ssl", String.class, "preferred");
+		if (ssl == null)
+			return false;
+		Ssl mode = Ssl.parse(ssl);
+		if (mode == null) {
+			Skript.error("The entry for 'ssl' in the database '" + getName() + "' must be 'disabled', 'preferred', "
+				+ "'required' or 'verify', not '" + ssl + "'");
+			return false;
+		}
+		this.ssl = mode;
 		return true;
+	}
+
+	/**
+	 * How the connection is encrypted, as the {@code ssl} option says.
+	 */
+	private enum Ssl {
+		/** Never encrypted. */
+		DISABLED("DISABLED"),
+		/** Encrypted if the server supports it, without checking its certificate. The driver's default. */
+		PREFERRED("PREFERRED"),
+		/** Always encrypted, without checking the server's certificate, so it's safe from eavesdropping but not impostors. */
+		REQUIRED("REQUIRED"),
+		/** Always encrypted, and the server's certificate must be trusted by Java and name the host connected to. */
+		VERIFY("VERIFY_IDENTITY");
+
+		private final String driverMode;
+
+		Ssl(String driverMode) {
+			this.driverMode = driverMode;
+		}
+
+		static @Nullable Ssl parse(String value) {
+			for (Ssl mode : values()) {
+				if (mode.name().equalsIgnoreCase(value.trim()))
+					return mode;
+			}
+			return null;
+		}
 	}
 
 	@Override
@@ -92,7 +132,19 @@ public class MySQLStorage extends JdbcStorage {
 		properties.setProperty("connectTimeout", "10000");
 		properties.setProperty("socketTimeout", "60000");
 		properties.setProperty("tcpKeepAlive", "true");
-		return DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, properties);
+		properties.setProperty("sslMode", ssl.driverMode);
+		try {
+			return DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, properties);
+		} catch (SQLException e) {
+			String message = e.getMessage();
+			if (message != null && message.contains("Public Key Retrieval is not allowed")) {
+				// the driver's message doesn't say what to do about it
+				throw new SQLException("The database server only accepts this user's password over an encrypted "
+					+ "connection, and the connection isn't encrypted" + (ssl == Ssl.DISABLED ? " since 'ssl' is 'disabled'" : "")
+					+ ". Turn on TLS for the database server, or give the user 'mysql_native_password' authentication", e.getSQLState(), e.getErrorCode(), e);
+			}
+			throw e;
+		}
 	}
 
 	@Override

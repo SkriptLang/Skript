@@ -780,7 +780,8 @@ public abstract class VariableStorage implements Closeable {
 
 	/**
 	 * Runs a task on the main thread once every change this storage reported before calling this has been applied.
-	 * Reports are applied in the order they were made, so the task simply runs after them.
+	 * Reports are applied in the order they were made, so the task simply runs after them. Only a few milliseconds
+	 * of reports are applied each tick, so after many reports at once, the task may wait several ticks.
 	 * Dropped once the storage has stopped. May be called from any thread, but only once the storage is running.
 	 */
 	protected final void runAfterReports(Runnable task) {

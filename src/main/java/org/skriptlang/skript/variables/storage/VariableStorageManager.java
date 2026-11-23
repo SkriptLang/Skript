@@ -16,8 +16,10 @@ import org.skriptlang.skript.variables.VariableMap;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -43,6 +45,7 @@ public final class VariableStorageManager {
 	private final Function<@Nullable Object, SerializedVariable.@Nullable Value> serializer;
 	private final BiFunction<String, byte[], @Nullable Object> deserializer;
 	private final Executor mainThread;
+	private final Executor nextTick;
 	private final VariableRefresher refresher;
 
 	private static final String[] NO_KEYS = new String[0];
@@ -85,10 +88,31 @@ public final class VariableStorageManager {
 								  BiFunction<String, byte[], @Nullable Object> deserializer,
 								  Executor mainThread,
 								  BufferedSerializer refreshSerializer) {
+		this(globals, serializer, deserializer, mainThread, mainThread, refreshSerializer);
+	}
+
+	/**
+	 * @param globals           the map holding every global variable, which reads are served from
+	 * @param serializer        serializes a value for saving, on the thread that sets it; null for a deleted variable
+	 * @param deserializer      turns a stored value's type and data back into a value, or null if it can't
+	 * @param mainThread        runs tasks on the server's main thread, for changes that storages report
+	 * @param nextTick          runs tasks on the server's main thread in a later tick, for reported changes left over once
+	 *                          a tick's time for them is up. Only called on the main thread. On a server, {@code mainThread}
+	 *                          can't do this, since a task it schedules from a task runs in the same tick
+	 * @param refreshSerializer serializes values for the refresh, the same way as {@code serializer},
+	 *                          but into a buffer it reuses, since the refresh serializes every variable
+	 */
+	public VariableStorageManager(VariableMap globals,
+								  Function<@Nullable Object, SerializedVariable.@Nullable Value> serializer,
+								  BiFunction<String, byte[], @Nullable Object> deserializer,
+								  Executor mainThread,
+								  Executor nextTick,
+								  BufferedSerializer refreshSerializer) {
 		this.globals = globals;
 		this.serializer = serializer;
 		this.deserializer = deserializer;
 		this.mainThread = mainThread;
+		this.nextTick = nextTick;
 		this.refresher = new VariableRefresher(globals, refreshSerializer, this::route, () -> storages, VariableStorage::report);
 	}
 
@@ -1034,6 +1058,17 @@ public final class VariableStorageManager {
 	// ---------------------------- REPORTED CHANGES ----------------------------
 
 	/**
+	 * How long the main thread may spend on reported changes in one go. Whatever is left waits for the next tick,
+	 * so a storage reporting many changes at once, like another server's huge save, doesn't freeze the server.
+	 */
+	private static final long REPORT_BUDGET_NANOS = TimeUnit.MILLISECONDS.toNanos(5);
+
+	// reported changes and afterReports tasks waiting for the main thread, in the order they were reported
+	private final Queue<Runnable> pendingReports = new ConcurrentLinkedQueue<>();
+	// whether a task to apply them is queued on the main thread or running, so only one ever is
+	private final AtomicBoolean reportsScheduled = new AtomicBoolean();
+
+	/**
 	 * Applies the changes storages report from outside this server. They are handed to the main thread,
 	 * in the order they were reported, since some types can only be deserialized there. Ignored once closed.
 	 */
@@ -1042,22 +1077,61 @@ public final class VariableStorageManager {
 		@Override
 		public void updated(VariableStorage source, String name, SerializedVariable.@Nullable Value value, VariableStorage.ReportPolicy policy) {
 			if (!closed)
-				mainThread.execute(() -> applyUpdate(source, name, value, policy));
+				queueReport(() -> applyUpdate(source, name, value, policy));
 		}
 
 		@Override
 		public void cleared(VariableStorage source, String listName) {
 			if (!closed)
-				mainThread.execute(() -> applyClear(source, listName));
+				queueReport(() -> applyClear(source, listName));
 		}
 
 		@Override
 		public void afterReports(VariableStorage source, Runnable task) {
 			if (!closed)
-				mainThread.execute(task);
+				queueReport(task); // same queue, so it runs after every report before it
 		}
 
 	};
+
+	/**
+	 * Queues a task to run on the main thread after every task queued before it, and makes sure the main thread
+	 * will apply the queue. Any thread may call this.
+	 */
+	private void queueReport(Runnable task) {
+		pendingReports.add(task);
+		if (reportsScheduled.compareAndSet(false, true))
+			mainThread.execute(this::applyReports);
+	}
+
+	/**
+	 * Runs queued report tasks on the main thread, in order, for up to {@link #REPORT_BUDGET_NANOS}.
+	 * If any are left, runs again in a later tick, through {@link #nextTick}.
+	 */
+	private void applyReports() {
+		long deadline = System.nanoTime() + REPORT_BUDGET_NANOS;
+		while (true) {
+			Runnable task = pendingReports.poll();
+			if (task == null) {
+				reportsScheduled.set(false);
+				// a task queued between the poll and clearing the flag didn't schedule this, so take it on now
+				if (pendingReports.isEmpty() || !reportsScheduled.compareAndSet(false, true))
+					return;
+				continue;
+			}
+			try {
+				task.run();
+			} catch (RuntimeException e) {
+				// one broken report mustn't stop the ones after it
+				Skript.exception(e, "Applying a variable change reported by a database failed");
+			}
+			// nanoTime values may overflow, so they're only ever compared by their difference
+			if (System.nanoTime() - deadline >= 0 && !pendingReports.isEmpty()) {
+				nextTick.execute(this::applyReports); // still scheduled, so nothing else queues another
+				return;
+			}
+		}
+	}
 
 	/**
 	 * Applies a reported change to a variable, on the main thread. Ignored if the reporting storage doesn't save

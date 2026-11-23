@@ -319,6 +319,51 @@ public class MySQLStorageTest {
 	}
 
 	@Test
+	public void anUnknownSslModeFailsConfiguring() {
+		assertMentions(loadErrors(database("default", "ssl: sometimes")), "'ssl'");
+	}
+
+	@Test
+	public void sslModesAreReadIgnoringCase() {
+		needsServer();
+		loadExpecting(VariableMap.concurrent(), true, database("default", "ssl: Preferred"));
+	}
+
+	@Test
+	public void eachSslModeConnectsLikeTheDriverDoes() throws Exception {
+		needsServer();
+		// whether each mode works depends on the server's certificate and the user's authentication, so compare
+		// with the driver itself: 'verify' fails on a self-signed certificate, which shows the mode is passed on
+		Map<String, String> modes = Map.of("disabled", "DISABLED", "preferred", "PREFERRED", "required", "REQUIRED",
+			"verify", "VERIFY_IDENTITY");
+		for (Map.Entry<String, String> mode : modes.entrySet()) {
+			boolean driverConnects = connects(mode.getValue());
+			if (driverConnects) {
+				dropTables();
+				close(loadExpecting(VariableMap.concurrent(), true, database("default", "ssl: " + mode.getKey())));
+			} else {
+				assertFalse("'" + mode.getKey() + "' connected, unlike the driver",
+					loadErrors(database("default", "ssl: " + mode.getKey())).isEmpty());
+			}
+		}
+	}
+
+	/**
+	 * @return Whether the driver connects to the test server with that sslMode
+	 */
+	private static boolean connects(String sslMode) {
+		Properties properties = new Properties();
+		properties.setProperty("user", USER);
+		properties.setProperty("password", PASSWORD);
+		properties.setProperty("sslMode", sslMode);
+		try (Connection ignored = DriverManager.getConnection("jdbc:mysql://" + HOST + ":" + PORT + "/" + DATABASE, properties)) {
+			return true;
+		} catch (SQLException e) {
+			return false;
+		}
+	}
+
+	@Test
 	public void aPortThatIsntANumberFailsConfiguring() {
 		assertMentions(loadErrors(database("default", "port: lots")), "'port'");
 	}

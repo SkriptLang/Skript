@@ -143,6 +143,13 @@ class RecordingStorage extends VariableStorage {
 	}
 
 	/**
+	 * Calls {@link #runAfterReports}, which is protected.
+	 */
+	void runAfterReportsForTest(Runnable task) {
+		runAfterReports(task);
+	}
+
+	/**
 	 * Calls {@link #reportCleared}, which is protected.
 	 */
 	void reportClearedForTest(String listName) {

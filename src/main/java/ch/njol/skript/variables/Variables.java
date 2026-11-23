@@ -217,7 +217,7 @@ public class Variables {
 	 */
 	private static final VariableStorageManager STORAGE_MANAGER =
 		new VariableStorageManager(variables, Variables::serialize, Classes::deserialize, Variables::runOnMainThread,
-			new ClassesBufferedSerializer());
+			task -> runOnMainThread(task, 1), new ClassesBufferedSerializer());
 
 	/**
 	 * Runs a task on the main thread later, in the order tasks are given. Does nothing once Skript is disabled.
@@ -226,6 +226,24 @@ public class Variables {
 		Skript skript = Skript.getInstance();
 		try {
 			Bukkit.getScheduler().runTask(skript, task);
+		} catch (RuntimeException e) {
+			// can't schedule once disabled, but storages have stopped receiving changes by then anyway
+			if (skript.isEnabled())
+				throw e;
+		}
+	}
+
+	/**
+	 * Runs a task on the main thread after a delay. With no delay, a task scheduled while the scheduler runs tasks
+	 * runs in the same tick, so a task that keeps scheduling itself needs at least 1 to let the tick end.
+	 * Does nothing once Skript is disabled.
+	 *
+	 * @param delayTicks how many ticks to wait first
+	 */
+	private static void runOnMainThread(Runnable task, long delayTicks) {
+		Skript skript = Skript.getInstance();
+		try {
+			Bukkit.getScheduler().runTaskLater(skript, task, delayTicks);
 		} catch (RuntimeException e) {
 			// can't schedule once disabled, but storages have stopped receiving changes by then anyway
 			if (skript.isEnabled())
