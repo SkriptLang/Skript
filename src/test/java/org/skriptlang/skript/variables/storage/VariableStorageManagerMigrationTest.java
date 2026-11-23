@@ -180,6 +180,70 @@ public class VariableStorageManagerMigrationTest {
 	}
 
 	@Test
+	public void manyReportsShareOneMainThreadTask() {
+		RecordingStorage kills = storage("kills", "kills::"), all = storage("default");
+		assertTrue(loadStorages(kills, all));
+
+		for (int i = 0; i < 1000; i++)
+			kills.reportUpdatedForTest("kills::" + i, value(String.valueOf(i)));
+		assertEquals(1, mainThreadTasks.size());
+		runMainThreadTasks();
+		assertTrue(mainThreadTasks.isEmpty());
+		assertEquals("999", globals.getVariable("kills::999"));
+	}
+
+	@Test
+	public void reportsPastTheTimeLimitWaitForTheNextTask() {
+		RecordingStorage kills = storage("kills", "kills::"), all = storage("default");
+		assertTrue(loadStorages(kills, all));
+
+		List<Integer> ran = new ArrayList<>();
+		for (int i = 0; i < 4; i++) {
+			int task = i;
+			kills.runAfterReportsForTest(() -> {
+				ran.add(task);
+				sleep(3); // two of these are over the 5 ms limit
+			});
+		}
+		kills.reportUpdatedForTest("kills::steve", value("1"));
+		runMainThreadTasks();
+		assertTrue("stops once over the limit: " + ran, ran.size() < 4);
+		assertEquals("the rest are left for the next task", 1, mainThreadTasks.size());
+		assertNull(globals.getVariable("kills::steve"));
+
+		while (!mainThreadTasks.isEmpty())
+			runMainThreadTasks();
+		assertEquals(List.of(0, 1, 2, 3), ran); // still in order
+		assertEquals("1", globals.getVariable("kills::steve"));
+	}
+
+	@Test
+	public void aFailingReportTaskDoesntStopTheRest() {
+		RecordingStorage kills = storage("kills", "kills::"), all = storage("default");
+		assertTrue(loadStorages(kills, all));
+
+		kills.runAfterReportsForTest(() -> {
+			throw new IllegalStateException("broken on purpose");
+		});
+		kills.reportUpdatedForTest("kills::steve", value("1"));
+		runMainThreadTasks();
+		assertEquals("1", globals.getVariable("kills::steve"));
+
+		kills.reportUpdatedForTest("kills::steve", value("2")); // and the queue still runs later reports
+		runMainThreadTasks();
+		assertEquals("2", globals.getVariable("kills::steve"));
+	}
+
+	private static void sleep(long millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Test
 	public void reportedChangesArentSavedAgain() {
 		RecordingStorage kills = storage("kills", "kills::");
 		assertTrue(loadStorages(kills));

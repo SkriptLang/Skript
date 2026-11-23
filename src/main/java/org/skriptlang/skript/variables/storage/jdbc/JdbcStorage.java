@@ -958,7 +958,7 @@ public abstract class JdbcStorage extends VariableStorage {
 					SerializedVariable.Value value = type == null ? null : new SerializedVariable.Value(type, data); // null: a tombstone
 					synchronized (inFlight) {
 						inFlight.put(name, new Flight(poll, -1));
-						reportUpdated(name, value, ReportPolicy.KEEP_LOCAL);
+						report(name, value);
 					}
 					reported.add(name);
 					if (reported.size() == REPORT_CHUNK) {
@@ -1039,6 +1039,27 @@ public abstract class JdbcStorage extends VariableStorage {
 	private final Map<String, Flight> inFlight = new HashMap<>();
 	private long saveEpoch;   // counts finished save cycles; guarded by inFlight
 	private long pollNumber;  // only the monitor thread touches it
+	private long reportCount; // how many changes were reported, for tests; guarded by inFlight
+
+	/**
+	 * Reports a change another server saved, or this server's own saved value again after a race. KEEP_LOCAL, since
+	 * a pending local change is newer than either and will be saved after them. The caller holds inFlight.
+	 */
+	private void report(String name, SerializedVariable.@Nullable Value value) {
+		assert Thread.holdsLock(inFlight);
+		reportCount++;
+		reportUpdated(name, value, ReportPolicy.KEEP_LOCAL);
+	}
+
+	/**
+	 * @return How many changes this storage has reported so far, including re-reports after races
+	 */
+	@VisibleForTesting
+	long reportCount() {
+		synchronized (inFlight) {
+			return reportCount;
+		}
+	}
 
 	/**
 	 * Marks reported names as applied, on the main thread, right after their reports. A name a newer poll reported again
@@ -1077,13 +1098,13 @@ public abstract class JdbcStorage extends VariableStorage {
 					changed.add(change.name);
 					Flight flight = inFlight.get(change.name);
 					if (flight != null && raced(flight))
-						reportUpdated(change.name, change.value, ReportPolicy.KEEP_LOCAL);
+						report(change.name, change.value);
 				}
 				for (String prefix : batch.clears()) {
 					for (Map.Entry<String, Flight> entry : inFlight.entrySet()) {
 						String name = entry.getKey();
 						if (name.startsWith(prefix) && !changed.contains(name) && raced(entry.getValue()))
-							reportUpdated(name, null, ReportPolicy.KEEP_LOCAL);
+							report(name, null);
 					}
 				}
 			}

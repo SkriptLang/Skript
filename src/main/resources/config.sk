@@ -306,10 +306,14 @@ databases:
 
 		# == Required for all types ==
 		type: disabled
-		# The type of this database. Allowed values are 'CSV', 'sqlite', and 'disabled'.
+		# The type of this database. Allowed values are 'CSV', 'sqlite', 'mysql', 'mariadb', and 'disabled'.
 		# - CSV: uses a text file to store the variables. Fast and requires no set-up. This is the default.
 		# - sqlite: uses an SQLite database file to store the variables. Also requires no set-up.
 		#           Useful if you want external programs to read your variables, but there is no real performance benefit over CSV.
+		# - mysql or mariadb: saves the variables to a table on a MySQL (8.0 or newer) or MariaDB (10.2.2 or newer) database server.
+		#           Both names work for either. The database server must already be running, see the MySQL and MariaDB options below.
+		#           Useful if several servers should share variables (see 'monitor changes'), or you already run a database server.
+		#           It doesn't make saving faster than CSV: the database server does work for every change.
 		# - disabled: makes Skript ignore the database as if it wasn't defined at all.
 
 		# == Optional for all types ==
@@ -329,13 +333,44 @@ databases:
 		# Each database needs its own file. SQLite also keeps two files next to its file while the server runs, ending in '-wal' and '-shm'.
 		# Don't delete these, or copy the file without them, as they can hold the latest changes.
 
-		# == for SQLite, optional ==
+		# == Required for MySQL and MariaDB ==
+		host: localhost
+		# The address of the database server, such as 'localhost' if it runs on the same machine, or 'db.example.com'.
+
+		database: skript
+		# The name of the database on the server to put the table in. It must exist already: Skript only creates the tables in it.
+
+		user: skript
+		# The user to log in as. It needs to be allowed to create and change tables, and to read and change rows, in the database,
+		# for example with "GRANT ALL PRIVILEGES ON skript.* TO 'skript'@'%';" (run on the database server, with your database's name).
+
+		# == for SQLite, MySQL and MariaDB, optional ==
 		# table: skript_variables
-		# The name of the table to save the variables in, inside the file. Defaults to 'skript_variables'.
+		# The name of the table to save the variables in, inside the file or database. Defaults to 'skript_variables'.
 		# Use up to 58 letters, digits and underscores, not starting with a digit. Skript also makes a second table with '_meta' added to the name.
-		# You only need this if something else, like another program, already uses a table with the default name in the same file.
+		# You only need this if something else, like another program, already uses a table with the default name in the same file or database.
+		# Two databases on the same server can't use the same table, but several servers can share one MySQL or MariaDB table, see 'monitor changes'.
 
 		# == for MySQL and MariaDB, optional ==
+		# port: 3306
+		# The port the database server listens on. Defaults to 3306, the usual port for MySQL and MariaDB.
+
+		# password: secret
+		# The user's password. Defaults to none. It's kept in this file as plain text, so give Skript a user of its own,
+		# allowed into no other database.
+
+		# ssl: preferred
+		# Whether the connection to the database server is encrypted. Defaults to 'preferred'.
+		# - disabled: never encrypted. Only use this if the database server runs on the same machine or a network you trust.
+		# - preferred: encrypted if the database server supports it, otherwise not. The server's certificate isn't checked,
+		#              so this stops others on the network from reading the connection, but not from pretending to be the server.
+		# - required: always encrypted, and connecting fails if the database server doesn't support it. The certificate isn't checked either.
+		# - verify: always encrypted, and the server's certificate must be trusted by Java and name the 'host' above.
+		#           The safest, but a self-signed certificate, like the one MySQL makes for itself, has to be added to Java's trust store first.
+		# If connecting fails with "the database server only accepts this user's password over an encrypted connection", the user has MySQL's
+		# default 'caching_sha2_password' login, which needs encryption the first time a user logs in. Turn on TLS for the database server
+		# and don't use 'disabled', or give the user 'mysql_native_password' login instead.
+
 		# monitor changes: false
 		# Whether to watch the table for changes that other servers save to it, and apply them on this server. Defaults to false.
 		# Turn this on when several servers share one table, so that each one sees the others' changes without restarting.
@@ -346,12 +381,24 @@ databases:
 		# If this server can't reach the database for over an hour, it may miss variables other servers deleted in that time, and says so. Restart it to reload them.
 		# Every server that shares the table must turn this on, even one that only writes to it: with it off, deleted variables are removed from the table right away,
 		# so other servers never see those deletions. Skript warns if it notices another server saving to a table it doesn't monitor.
-		# With it off, the table is treated as this server's alone, which makes saving about a third cheaper for the database.
+		# With it off, the table is treated as this server's alone, which makes saving about half as much work for the database.
 		# Other types of databases can't be shared by servers, so they ignore this option and warn if it's on.
 
 		# monitor interval: 1 second
 		# How often to check the table for changes from other servers, if 'monitor changes' is on. Defaults to 1 second, and can't be less than 100 milliseconds.
-		# Each check is one small query, plus one more for every 1000 changed variables, so checking more often costs the database a little more.
+		# Each check is one small query, plus one that reads the variables that changed, so checking more often costs the database a little more.
+
+		# == Notes for MySQL and MariaDB ==
+		# Each variable is one row of the table. A variable's name can be up to 768 characters long, and its value up to about half the
+		# database server's 'max_allowed_packet' setting (64 MB by default on MySQL, so values up to about 32 MB; 16 MB on MariaDB).
+		# A variable that doesn't fit is reported, and kept on this server until it stops, but never saved.
+		# The database server does about the same work for every variable saved, so scripts that change thousands of variables a second
+		# keep it busy: on a desktop computer, roughly 12 microseconds of its time per changed variable, about twice that with 'monitor changes' on.
+		# MySQL 8 keeps a binary log of every change by default (MariaDB doesn't), for replication and point-in-time recovery,
+		# which adds about a fifth to that.
+		# If you use neither, you can turn it off in the database server's config with 'disable_log_bin'.
+		# Skript reads the table when the server starts, and, with 'monitor changes' on, the changes other servers save. Only change the
+		# table by hand while no server uses it, since a running server won't see the change and may save over it.
 
 		# == Optional for all types ==
 		backup interval: 2 hours

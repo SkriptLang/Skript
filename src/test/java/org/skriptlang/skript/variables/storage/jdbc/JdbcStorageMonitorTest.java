@@ -155,30 +155,24 @@ public class JdbcStorageMonitorTest {
 			return runTasks();
 		}
 
-		/**
-		 * Runs the main thread's queued tasks.
-		 *
-		 * @return how many of them were reports: the storage's own tasks, which mark reports as applied, aren't counted
-		 */
-		int runTasks() {
-			int count = 0;
-			try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
-				Runnable task;
-				while ((task = mainThread.poll()) != null) {
-					task.run();
-					if (!isStorageTask(task))
-						count++;
-				}
-			}
-			return count;
-		}
+		// how many reports the storage had made when runTasks last counted them
+		private long counted;
 
 		/**
-		 * @return whether the storage queued the task itself through runAfterReports, rather than the manager for a report.
-		 * Told apart by where the lambda was written, since nothing else does.
+		 * Runs the main thread's queued tasks, until none are left.
+		 *
+		 * @return how many changes the storage reported since the last call, which these tasks applied
 		 */
-		private static boolean isStorageTask(Runnable task) {
-			return task.getClass().getName().startsWith(JdbcStorage.class.getName() + "$$Lambda");
+		int runTasks() {
+			try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
+				Runnable task;
+				while ((task = mainThread.poll()) != null)
+					task.run();
+			}
+			long reported = storage().reportCount();
+			int count = (int) (reported - counted);
+			counted = reported;
+			return count;
 		}
 
 		Object get(String name) {
