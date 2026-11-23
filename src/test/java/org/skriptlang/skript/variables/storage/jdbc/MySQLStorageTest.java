@@ -642,6 +642,31 @@ public class MySQLStorageTest {
 	}
 
 	@Test
+	public void aPollReportsAnotherServersRows() throws Exception {
+		needsServer();
+		VariableMap globals = VariableMap.concurrent();
+		JdbcStorage storage = storage(loadExpecting(globals, true, SHARED)); // monitors, but polls only when told
+		save(storage, List.of(), change("gone", "1"));
+		globals.setVariable("gone", "1"); // as if loaded
+
+		// as another server's save: 2500 changed rows and a tombstone, under one new version
+		sql("SET SESSION cte_max_recursion_depth = 10000", "UPDATE " + TABLE + "_meta SET version = version + 1",
+			"INSERT INTO " + TABLE + " (name, type, value, version, server) "
+				+ "WITH RECURSIVE n (i) AS (SELECT 0 UNION ALL SELECT i + 1 FROM n WHERE i < 2499) "
+				+ "SELECT CONCAT('remote::', i), '" + TEXT + "', CAST(CONCAT('v', i) AS BINARY), "
+				+ "(SELECT version FROM " + TABLE + "_meta), 'another server' FROM n",
+			"UPDATE " + TABLE + " SET type = NULL, value = NULL, version = (SELECT version FROM " + TABLE + "_meta AS m), "
+				+ "server = 'another server' WHERE name = 'gone'");
+		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
+			storage.poll(); // streamed, since MySQL's fetch size makes it stream; the main thread here runs reports at once
+		}
+
+		assertEquals("v0", globals.getVariable("remote::0"));
+		assertEquals("v2499", globals.getVariable("remote::2499"));
+		assertNull(globals.getVariable("gone"));
+	}
+
+	@Test
 	public void variablesSetThroughTheManagerLoadBack() {
 		needsServer();
 		VariableStorageManager manager = loadExpecting(VariableMap.concurrent(), true, database("default"));

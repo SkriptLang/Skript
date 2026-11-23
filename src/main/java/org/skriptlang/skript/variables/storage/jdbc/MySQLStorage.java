@@ -42,9 +42,9 @@ public class MySQLStorage extends JdbcStorage {
 	private boolean aliasUpsert;
 
 	private long maxValueLength = Long.MAX_VALUE;
-	private long maxUpsertBytes = Long.MAX_VALUE;
+	private long maxStatementBytes = Long.MAX_VALUE;
 
-	private static final int UPSERT_ROWS = 1000;
+	private static final int ROWS_PER_STATEMENT = 1000;
 
 	/**
 	 * @param registeringAddon the addon that registered this storage's type
@@ -134,7 +134,7 @@ public class MySQLStorage extends JdbcStorage {
 			// the driver sends values as hex, two characters per byte, and we need to leave room for the name and the statement
 			maxValueLength = (packet - PACKET_HEADROOM) / 2;
 			// a statement of several rows has to fit too. A row with the longest value fits alone, its name in the headroom
-			maxUpsertBytes = packet - PACKET_HEADROOM;
+			maxStatementBytes = packet - PACKET_HEADROOM;
 		}
 	}
 
@@ -222,17 +222,18 @@ public class MySQLStorage extends JdbcStorage {
 	}
 
 	/**
-	 * @return {@value #UPSERT_ROWS}: the driver's own batching copies every row's parameters and escapes each string twice,
-	 * which made about 3 KB of garbage per row saved. Building the multi-row statement here makes about a third of that
+	 * @return {@value #ROWS_PER_STATEMENT}: the driver's own batching copies every row's parameters and escapes each string twice,
+	 * which made about 3 KB of garbage per row saved, and without its rewriting sends each delete on its own. Building
+	 * statements of several rows here makes about a third of the garbage, and deletes about 15 times faster
 	 */
 	@Override
-	protected int upsertRows() {
-		return UPSERT_ROWS;
+	protected int rowsPerStatement() {
+		return ROWS_PER_STATEMENT;
 	}
 
 	@Override
-	protected long maxUpsertBytes() {
-		return maxUpsertBytes;
+	protected long maxStatementBytes() {
+		return maxStatementBytes;
 	}
 
 }

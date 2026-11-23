@@ -504,7 +504,7 @@ public class JdbcStorageMonitorTest {
 	}
 
 	@Test
-	public void manyRowsInOneSaveArePaged() throws Exception {
+	public void manyRowsInOneSaveAreAllReported() throws Exception {
 		Server a = server();
 		Server b = server();
 		int count = 2_500; // three pages of 1000
@@ -519,7 +519,7 @@ public class JdbcStorageMonitorTest {
 	}
 
 	@Test
-	public void manyRowsOverManySavesArePaged() throws Exception {
+	public void manyRowsOverManySavesAreAllReported() throws Exception {
 		Server a = server();
 		Server b = server();
 		for (int save = 0; save < 5; save++) {
