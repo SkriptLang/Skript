@@ -31,11 +31,11 @@ import java.util.regex.Pattern;
  * Each variable is one row: its name, the codename of its type, and its serialized value. Next to it is a second table,
  * {@code <table>_meta}, with a single row holding a version counter. Every save is one transaction that bumps the
  * counter and stamps each row it writes with the new version. If the database
- * {@link #supportsMonitoring() supports monitoring} and this server monitors changes, the table is shared: each row
- * also gets this server's id, and deleting a variable or clearing a list doesn't remove its rows. Instead, they become
- * "tombstones", rows without a type or value, with the new version, and get pruned once they're old enough. That way,
- * other servers reading the table can ask what changed since some version, deletions included.
- * Otherwise, the table is this server's alone, so deleted rows are just removed and rows don't get a server id.
+ * {@link #supportsMonitoring() supports monitoring} and this server monitors changes, the table is shared: deleting
+ * a variable or clearing a list doesn't remove its rows. Instead, they become "tombstones", rows without a type or
+ * value, with the new version, and get pruned once they're old enough. That way, other servers reading the table can ask
+ * what changed since some version, deletions included. Each save has its own version, so a server tells its own rows
+ * apart by the versions of its saves. Otherwise, the table is this server's alone, so deleted rows are just removed.
  * Every server sharing a table has to monitor it, or the others miss its deletions; see {@link #noticeOtherWriters}.
  * <p>
  * We only keep one connection per storage, since only one thread uses it at a time.
@@ -58,9 +58,8 @@ public abstract class JdbcStorage extends VariableStorage {
 	private static final long IDLE_CHECK_NANOS = TimeUnit.SECONDS.toNanos(30);
 	private static final int ROWS_PER_STATEMENT = 1000;
 	private static final long MIN_MONITOR_INTERVAL_MILLIS = 100;
+	private static final int PRUNE_LIMIT = 100_000; // the most tombstones one prune removes, so their names fit in memory
 
-	private final String serverId = UUID.randomUUID().toString(); // marks the rows this server saves, so its polls skip them
-	private String rowServer = ""; // what goes in the server column: serverId while monitoring changes, otherwise nothing
 
 	// the tables used by configured storages, as keys from tableKey, so two storages can't save to the same table
 	private static final Set<String> claimedTables = ConcurrentHashMap.newKeySet();
@@ -83,10 +82,14 @@ public abstract class JdbcStorage extends VariableStorage {
 	private long monitorIntervalNanos;
 
 	private static final int REPORT_CHUNK = 1000; // how many reported names to mark as applied at once
+	private static final int MAX_EXCLUDED_VERSIONS = 1000; // how many of its own versions a poll leaves out by name
 
 	private volatile boolean monitoring;
 	private @Nullable Thread monitorThread;
 	private final ReportTracker tracker = new ReportTracker();
+	// the versions of this server's saves that polling hasn't passed yet, oldest first, so a poll can leave out this
+	// server's own rows. Guarded by the connection lock
+	private final ArrayDeque<Long> ownVersions = new ArrayDeque<>();
 	private final AtomicLong reportCount = new AtomicLong(); // how many changes were reported, for tests
 	private long pollNumber;            // counts polls, so the tracker can tell a newer report of a name from an older one
 	private long pollCursor;            // the last version fully reported
@@ -126,8 +129,7 @@ public abstract class JdbcStorage extends VariableStorage {
 			monitor = false;
 		}
 		monitorChanges = monitor;
-		// the table is only shared, and only pays for tombstones, server ids and the version index, if this server monitors it
-		this.rowServer = monitorChanges ? serverId : "";
+		// the table is only shared, and only pays for tombstones and the version index, if this server monitors it
 		// get monitor frequency
 		if (monitorChanges) {
 			Timespan interval = getConfigOptional(node, "monitor interval", Timespan.class,
@@ -188,8 +190,8 @@ public abstract class JdbcStorage extends VariableStorage {
 
 	/**
 	 * Whether this server monitors the table for changes, as the {@code monitor changes} option says. Only then is the
-	 * table shared, so only then are deletions kept as tombstones, rows saved with this server's id, and rows indexed by
-	 * version for polling. Otherwise, deleted rows are removed right away and nothing is pruned.
+	 * table shared, so only then are deletions kept as tombstones and rows indexed by version for polling. Otherwise,
+	 * deleted rows are removed right away and nothing is pruned.
 	 *
 	 * @return Whether this server monitors changes
 	 */
@@ -249,8 +251,8 @@ public abstract class JdbcStorage extends VariableStorage {
 
 	/**
 	 * Generates the statements that create Skript's tables and index if they don't already exist.
-	 * This must create a main table named {@link #table} with a name, type, value, version, and server column,
-	 * and a meta table with a version column, if and only if they do not already exist.
+	 * This must create a main table named {@link #table} with a name, type, value and version column,
+	 * and a meta table with an id and a version column, if and only if they do not already exist.
 	 *
 	 * @param table     The name of the table to create for variables
 	 * @param metaTable The name of the table to create for metadata
@@ -277,7 +279,7 @@ public abstract class JdbcStorage extends VariableStorage {
 				statement.execute(sql);
 			schemaCreated(connection);
 			try {
-				statement.executeQuery("SELECT name, type, value, version, server FROM " + table + " WHERE 1 = 0").close();
+				statement.executeQuery("SELECT name, type, value, version FROM " + table + " WHERE 1 = 0").close();
 			} catch (SQLException e) {
 				throw new IOException("The table '" + table + "' already exists but can't be read by this version of Skript. "
 					+ "Pick another 'table' for the database '" + getName() + "'", e);
@@ -363,14 +365,14 @@ public abstract class JdbcStorage extends VariableStorage {
 		connectionLock.lock();
 		try {
 			Connection connection = connection();
+			long version;
 			try {
 				// bumping the counter locks its row until we commit, so other servers' saves take their versions after ours
 				// and commit after us too. That way versions are committed in order, and polling for newer ones never skips one.
-				long version = nextVersion(connection);
+				version = nextVersion(connection);
 				// make the changes
 				clear(connection, batch.clears(), version);
 				write(connection, batch.changes(), version);
-				pruneIfDue(connection, version);
 				// a whole batch is committed at once to prevent data fracturing.
 				// if it fails, we can just try it again next time.
 				connection.commit();
@@ -379,8 +381,13 @@ public abstract class JdbcStorage extends VariableStorage {
 				rollbackQuietly(connection);
 				throw e;
 			}
-			if (monitorChanges) // committed; still under the lock, so no poll reports anything in between
+			if (monitorChanges) {
+				// committed; still under the lock, so no poll reads in between. If the commit threw but went through anyway,
+				// the version isn't noted, and the next poll reports this save's rows back, which only repeats their values
+				ownVersions.addLast(version);
 				tracker.forEachRaced(batch, this::report);
+				pruneIfDue(connection, version); // its own transaction, after this one, so it holds up no other server's save
+			}
 		} catch (SQLException e) {
 			dropConnection();
 			throw new IOException("Couldn't save to the table '" + table + "': " + e.getMessage(), e);
@@ -439,16 +446,14 @@ public abstract class JdbcStorage extends VariableStorage {
 		if (prefixes.isEmpty())
 			return;
 		String sql = monitorChanges
-			? "UPDATE " + table + " SET type = NULL, value = NULL, version = ?, server = ? "
+			? "UPDATE " + table + " SET type = NULL, value = NULL, version = ? "
 				+ "WHERE name >= ? AND name < ? AND value IS NOT NULL"
 			: "DELETE FROM " + table + " WHERE name >= ? AND name < ?";
 		try (PreparedStatement statement = connection.prepareStatement(sql)) {
 			for (String prefix : prefixes) { // in order
 				int parameter = 1;
-				if (monitorChanges) {
+				if (monitorChanges)
 					statement.setLong(parameter++, version);
-					statement.setString(parameter++, rowServer);
-				}
 				statement.setString(parameter++, prefix);
 				statement.setString(parameter, CsvFormat.prefixEnd(prefix));
 				statement.addBatch();
@@ -471,7 +476,7 @@ public abstract class JdbcStorage extends VariableStorage {
 		if (changes.isEmpty())
 			return;
 		try (RowWriter rows = new RowWriter(connection, table, count -> upsertSql(table, count), rowsPerStatement(),
-				maxStatementBytes(), version, rowServer)) {
+				maxStatementBytes(), version)) {
 			for (SerializedVariable change : changes) {
 				// name check
 				if (change.name.length() > maxNameLength()) {
@@ -495,18 +500,18 @@ public abstract class JdbcStorage extends VariableStorage {
 
 	/**
 	 * @param table The table to update
-	 * @param rows  How many rows the statement inserts, each bound as name, type, value, version and server, in that order
+	 * @param rows  How many rows the statement inserts, each bound as name, type, value and version, in that order
 	 * @return An insert of that many rows that replaces any existing rows with the same names
 	 */
 	protected abstract String upsertSql(String table, int rows);
 
 	/**
-	 * @return {@code rows} groups of the five upsert parameters, such as {@code (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)}
+	 * @return {@code rows} groups of the four upsert parameters, such as {@code (?, ?, ?, ?), (?, ?, ?, ?)}
 	 */
 	protected static String upsertValues(int rows) {
-		StringBuilder values = new StringBuilder(rows * 17);
+		StringBuilder values = new StringBuilder(rows * 14);
 		for (int i = 0; i < rows; i++)
-			values.append(i == 0 ? "(?, ?, ?, ?, ?)" : ", (?, ?, ?, ?, ?)");
+			values.append(i == 0 ? "(?, ?, ?, ?)" : ", (?, ?, ?, ?)");
 		return values.toString();
 	}
 
@@ -603,18 +608,33 @@ public abstract class JdbcStorage extends VariableStorage {
 	 * Reports every row another server saved after version {@code after}, up to {@code target}, and notes each name in
 	 * the {@link ReportTracker}. Runs under the connection lock, so each name is reported either before or after any save
 	 * of this server's commits, never during one.
+	 * <p>
+	 * This server's own rows are left out by their versions. Not just filtered out by the database: after a big save of
+	 * its own, a range of only its own versions made the planner scan the whole table to return nothing. If every
+	 * version in the range is this server's, nothing is read at all.
 	 *
 	 * @param after  The last version already reported
 	 * @param target The counter, read in the same transaction, so rows still being committed are left for the next poll
 	 * @param poll   Which poll this is, for the tracker
 	 */
 	private void reportRows(Connection connection, long after, long target, long poll) throws SQLException {
+		while (!ownVersions.isEmpty() && ownVersions.peekFirst() <= after)
+			ownVersions.pollFirst(); // already passed
+		StringJoiner own = new StringJoiner(", ", " AND version NOT IN (", ")");
+		int owned = 0;
+		for (long version : ownVersions) {
+			if (version > target || owned == MAX_EXCLUDED_VERSIONS)
+				break; // any left in only get reported back, which repeats values memory has
+			own.add(Long.toString(version)); // numbers this server made, so they're safe in the statement
+			owned++;
+		}
+		if (owned == target - after)
+			return; // every version in the range is this server's
 		try (PreparedStatement statement = connection.prepareStatement("SELECT name, type, value FROM " + table
-				+ " WHERE version > ? AND version <= ? AND server <> ?")) {
+				+ " WHERE version > ? AND version <= ?" + (owned == 0 ? "" : own.toString()))) {
 			statement.setFetchSize(loadFetchSize());
 			statement.setLong(1, after);
 			statement.setLong(2, target);
-			statement.setString(3, serverId);
 			List<String> reported = new ArrayList<>();
 			try (ResultSet result = statement.executeQuery()) {
 				while (monitoring && result.next()) {
@@ -728,24 +748,65 @@ public abstract class JdbcStorage extends VariableStorage {
 	// ---------------- PRUNING ------------------
 
 	/**
-	 * Removes the tombstones that are over an hour old, every few minutes; see {@link TombstonePruner}.
+	 * Removes the tombstones that are over an hour old, every few minutes; see {@link TombstonePruner}. Runs in its own
+	 * transaction after a save commits, so a slow prune doesn't hold the counter's lock, which every other server's save
+	 * waits for. A failure only warns, since the save went through, and the next prune tries again.
 	 *
-	 * @param connection The connection to use, in the save's transaction
+	 * @param connection The connection to use, with no transaction open
 	 * @param version    The save's version
 	 */
-	private void pruneIfDue(Connection connection, long version) throws SQLException {
-		if (!monitorChanges) // no tombstones to prune
-			return;
+	private void pruneIfDue(Connection connection, long version) {
 		long now = System.nanoTime();
 		pruner.sample(now, version);
 		long cutoff = pruner.dueCutoff(now);
 		if (cutoff == TombstonePruner.NOT_DUE)
 			return;
-		try (PreparedStatement statement = connection.prepareStatement(
-			"DELETE FROM " + table + " WHERE value IS NULL AND version < ?")) {
-			statement.setLong(1, cutoff);
-			statement.executeUpdate();
+		try {
+			// READ COMMITTED, so deleting a name another server already pruned doesn't lock the gap it left. Under
+			// REPEATABLE READ, MySQL's default, it did, which held up other servers' saves of new names in that gap until
+			// this prune committed, and they hold the counter's lock while they wait, so every other server waited too
+			int isolation = connection.getTransactionIsolation();
+			connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+			boolean finished = prune(connection, pruner.prunedBelow(), cutoff);
+			connection.commit();
+			connection.setTransactionIsolation(isolation); // on a failure, the connection is dropped instead
+			if (finished)
+				pruner.prunedBelow(cutoff);
+		} catch (SQLException e) {
+			rollbackQuietly(connection);
+			dropConnection();
+			Skript.warning("Couldn't remove old deleted variables from the table '" + table + "' of the database '"
+				+ getName() + "': " + e.getMessage() + ". Trying again in a few minutes");
 		}
+	}
+
+	/**
+	 * Removes the tombstones with versions from {@code from} up to {@code cutoff}. Their names are read first, with a
+	 * plain read that locks nothing, then the rows are deleted by name, which locks only them. Deleting with the condition
+	 * itself scanned the whole table, since most rows have old versions, and locked every row it read: about 1.2 million
+	 * locks and 2 seconds for a table of that many rows. The range starts where the last finished prune stopped, since no
+	 * row gets an old version again, so a prune only reads the few minutes of changes since the last.
+	 *
+	 * @return Whether every such tombstone was removed, rather than only the first {@link #PRUNE_LIMIT}
+	 */
+	private boolean prune(Connection connection, long from, long cutoff) throws SQLException {
+		List<String> names = new ArrayList<>();
+		try (PreparedStatement statement = connection.prepareStatement("SELECT name FROM " + table
+				+ " WHERE value IS NULL AND version >= ? AND version < ? LIMIT " + PRUNE_LIMIT)) {
+			statement.setLong(1, from);
+			statement.setLong(2, cutoff);
+			try (ResultSet result = statement.executeQuery()) {
+				while (result.next())
+					names.add(result.getString(1));
+			}
+		}
+		// the condition again, in case a row was set since it was read
+		try (RowWriter.Deletes deletes = new RowWriter.Deletes(connection, rowsPerStatement(), maxStatementBytes(), table,
+				"value IS NULL AND version < " + cutoff + " AND ")) {
+			for (String name : names)
+				deletes.add(name);
+		}
+		return names.size() < PRUNE_LIMIT;
 	}
 
 	/**

@@ -2,13 +2,17 @@ package org.skriptlang.skript.variables.storage.jdbc;
 
 import ch.njol.skript.variables.SerializedVariable;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.variables.storage.CsvFormat;
 import org.skriptlang.skript.variables.storage.VariableStorage.Batch;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.BiConsumer;
 
 /**
@@ -29,6 +33,7 @@ import java.util.function.BiConsumer;
 final class ReportTracker {
 
 	private static final long WAITING = -1;
+	private static final int CHUNK = 1000; // how many names forEachRaced checks per hold of the lock
 
 	/**
 	 * @param poll         the poll that reported the name, since a later poll can report it again
@@ -36,7 +41,8 @@ final class ReportTracker {
 	 */
 	private record Flight(long poll, long appliedEpoch) {}
 
-	private final Map<String, Flight> flights = new HashMap<>();
+	// sorted, so a cleared list's names are one range, not a search of every name: during a catch-up it holds many
+	private final NavigableMap<String, Flight> flights = new TreeMap<>();
 	private long saveEpoch; // counts ended save cycles
 
 	/**
@@ -63,29 +69,68 @@ final class ReportTracker {
 	 * applied after the save, and those applied since the previous save cycle ended, which may be after this batch was
 	 * drained. That second rule catches a little more than it must, which only reports a value memory already has.
 	 * The caller must hold the lock that polls read under, so no poll reports anything in between.
+	 * <p>
+	 * The tracker's lock is taken for {@value #CHUNK} names at a time, not the whole batch, since the main thread's
+	 * {@link #applied} waits for it, and a batch of 200,000 names held it for about 35 ms. In between, only
+	 * {@link #applied} can run, since polls are held off and the cycle ends on the calling thread. It only turns a waiting
+	 * name into one applied in this epoch, and both count as raced, so the answer is the same.
 	 *
 	 * @param batch    the batch just committed
 	 * @param reReport given each raced name, with its saved value, or null if a clear in the batch deleted it
 	 */
-	synchronized void forEachRaced(Batch batch, BiConsumer<String, SerializedVariable.@Nullable Value> reReport) {
-		if (flights.isEmpty())
-			return;
-		Set<String> changed = new HashSet<>();
-		for (SerializedVariable change : batch.changes()) {
-			changed.add(change.name);
-			Flight flight = flights.get(change.name);
-			if (flight != null && raced(flight))
-				reReport.accept(change.name, change.value);
+	void forEachRaced(Batch batch, BiConsumer<String, SerializedVariable.@Nullable Value> reReport) {
+		synchronized (this) {
+			if (flights.isEmpty())
+				return;
 		}
+		List<SerializedVariable> racedChanges = new ArrayList<>();
+		Iterator<SerializedVariable> changes = batch.changes().iterator();
+		while (changes.hasNext()) {
+			synchronized (this) {
+				for (int i = 0; i < CHUNK && changes.hasNext(); i++) {
+					SerializedVariable change = changes.next();
+					Flight flight = flights.get(change.name);
+					if (flight != null && raced(flight))
+						racedChanges.add(change);
+				}
+			}
+			for (SerializedVariable change : racedChanges)
+				reReport.accept(change.name, change.value);
+			racedChanges.clear();
+		}
+		if (batch.clears().isEmpty())
+			return;
+		// a name the batch also changed was reported with its value above
+		Set<String> changed = new HashSet<>();
+		for (SerializedVariable change : batch.changes())
+			changed.add(change.name);
+		List<String> racedNames = new ArrayList<>();
 		for (String prefix : batch.clears()) {
-			for (Map.Entry<String, Flight> entry : flights.entrySet()) {
-				String name = entry.getKey();
-				if (name.startsWith(prefix) && !changed.contains(name) && raced(entry.getValue()))
+			String end = CsvFormat.prefixEnd(prefix);
+			String from = prefix;
+			boolean inclusive = true;
+			while (from != null) {
+				synchronized (this) {
+					Iterator<Map.Entry<String, Flight>> entries = flights.subMap(from, inclusive, end, false).entrySet().iterator();
+					String last = null;
+					for (int i = 0; i < CHUNK && entries.hasNext(); i++) {
+						Map.Entry<String, Flight> entry = entries.next();
+						last = entry.getKey();
+						if (!changed.contains(last) && raced(entry.getValue()))
+							racedNames.add(last);
+					}
+					// the next chunk starts after the last name, so it doesn't depend on this iterator
+					from = entries.hasNext() ? last : null;
+					inclusive = false;
+				}
+				for (String name : racedNames)
 					reReport.accept(name, null);
+				racedNames.clear();
 			}
 		}
 	}
 
+	// the caller holds the lock
 	private boolean raced(Flight flight) {
 		return flight.appliedEpoch() == WAITING || flight.appliedEpoch() == saveEpoch;
 	}

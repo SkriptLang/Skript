@@ -35,12 +35,11 @@ final class RowWriter implements AutoCloseable {
 	 * @param maxRows    the most rows one statement may cover
 	 * @param maxBytes   the most bytes one statement may take, as the driver sends it
 	 * @param version    the version to stamp each upserted row with
-	 * @param server     what to put in each upserted row's server column
 	 */
 	RowWriter(Connection connection, String table, IntFunction<String> upsertSql, int maxRows, long maxBytes,
-	          long version, String server) {
-		upserts = new Upserts(connection, maxRows, maxBytes, upsertSql, version, server);
-		deletes = new Deletes(connection, maxRows, maxBytes, table);
+	          long version) {
+		upserts = new Upserts(connection, maxRows, maxBytes, upsertSql, version);
+		deletes = new Deletes(connection, maxRows, maxBytes, table, "");
 	}
 
 	/**
@@ -70,7 +69,7 @@ final class RowWriter implements AutoCloseable {
 	/**
 	 * @return At most how many bytes a row adds to an upsert statement, which the driver sends as text: up to 3 UTF-8
 	 * bytes per character, doubled when escaped, for the name and type, 2 per byte for the value's hex, and 100 for the
-	 * version, the server, quotes and commas
+	 * version, quotes and commas
 	 */
 	static long upsertBytes(String name, SerializedVariable.@Nullable Value value) {
 		long bytes = 6L * name.length() + 100;
@@ -86,7 +85,7 @@ final class RowWriter implements AutoCloseable {
 	 *
 	 * @param <R> what one row is
 	 */
-	private abstract static class Sender<R> implements AutoCloseable {
+	abstract static class Sender<R> implements AutoCloseable {
 
 		private final Connection connection;
 		private final int maxRows;
@@ -166,13 +165,11 @@ final class RowWriter implements AutoCloseable {
 
 		private final IntFunction<String> sql;
 		private final long version;
-		private final String server;
 
-		Upserts(Connection connection, int maxRows, long maxBytes, IntFunction<String> sql, long version, String server) {
+		Upserts(Connection connection, int maxRows, long maxBytes, IntFunction<String> sql, long version) {
 			super(connection, maxRows, maxBytes);
 			this.sql = sql;
 			this.version = version;
-			this.server = server;
 		}
 
 		@Override
@@ -196,24 +193,31 @@ final class RowWriter implements AutoCloseable {
 				statement.setBytes(offset + 3, row.value().data);
 			}
 			statement.setLong(offset + 4, version);
-			statement.setString(offset + 5, server);
-			return 5;
+			return 4;
 		}
 
 	}
 
-	private static final class Deletes extends Sender<String> {
+	/**
+	 * Deletes rows by name, as {@code DELETE ... WHERE name IN (...)} statements of several names.
+	 */
+	static final class Deletes extends Sender<String> {
 
 		private final String table;
+		private final String condition;
 
-		Deletes(Connection connection, int maxRows, long maxBytes, String table) {
+		/**
+		 * @param condition SQL that each row must also match to be deleted, ending in {@code " AND "}, or empty
+		 */
+		Deletes(Connection connection, int maxRows, long maxBytes, String table, String condition) {
 			super(connection, maxRows, maxBytes);
 			this.table = table;
+			this.condition = condition;
 		}
 
 		@Override
 		String sql(int rows) {
-			return "DELETE FROM " + table + " WHERE name IN (" + "?, ".repeat(rows - 1) + "?)";
+			return "DELETE FROM " + table + " WHERE " + condition + "name IN (" + "?, ".repeat(rows - 1) + "?)";
 		}
 
 		@Override

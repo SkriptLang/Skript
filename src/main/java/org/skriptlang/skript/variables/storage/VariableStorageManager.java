@@ -1124,6 +1124,10 @@ public final class VariableStorageManager {
 			} catch (RuntimeException e) {
 				// one broken report mustn't stop the ones after it
 				Skript.exception(e, "Applying a variable change reported by a database failed");
+			} catch (Error e) {
+				// still scheduled, so nothing else would queue this again: the rest waits for the next tick instead of forever
+				nextTick.execute(this::applyReports);
+				throw e;
 			}
 			// nanoTime values may overflow, so they're only ever compared by their difference
 			if (System.nanoTime() - deadline >= 0 && !pendingReports.isEmpty()) {
