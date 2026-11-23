@@ -109,7 +109,7 @@ public class SQLiteStorageTest {
 
 	/**
 	 * An SQLite storage that sends upserts as statements of up to 3 rows and 400 bytes, the way MySQL does with 1000 rows
-	 * and its packet size, so that path is tested without a MySQL server. It's monitorable, so deletions are upserted too.
+	 * and its packet size, so that path is tested without a MySQL server. Its tests monitor changes, so deletions are upserted, unless one turns that off.
 	 * A short row, such as {@code r1 = x}, counts as 138 bytes.
 	 */
 	static final class MultiRowStorage extends SQLiteStorage {
@@ -129,12 +129,12 @@ public class SQLiteStorageTest {
 		}
 
 		@Override
-		protected int upsertRows() {
+		protected int rowsPerStatement() {
 			return 3;
 		}
 
 		@Override
-		protected long maxUpsertBytes() {
+		protected long maxStatementBytes() {
 			return 400;
 		}
 
@@ -466,6 +466,24 @@ public class SQLiteStorageTest {
 
 		assertEquals(List.of(), names());
 		assertNull("only polling needs the version index", versionIndex());
+	}
+
+	@Test
+	public void manyDeletionsAreSentInMultiRowStatements() throws Exception {
+		VariableStorageManager manager = loadExpecting(VariableMap.concurrent(), true, database("default", "multirow", file)
+			.replace("monitor changes: true", "monitor changes: false"));
+		JdbcStorage storage = storage(manager);
+		SerializedVariable[] changes = new SerializedVariable[10];
+		SerializedVariable[] deletions = new SerializedVariable[9];
+		for (int i = 0; i < changes.length; i++)
+			changes[i] = change("r" + i, "x");
+		for (int i = 0; i < deletions.length; i++)
+			deletions[i] = deletion("r" + i); // 3 to a statement, by count: each name is only 22 bytes
+		deletions[8] = deletion("r8" + "y".repeat(100)); // a name that doesn't exist, over the limit alone
+		save(storage, List.of(), changes);
+		save(storage, List.of(), deletions);
+
+		assertEquals(List.of("r8", "r9"), names());
 	}
 
 	@Test
