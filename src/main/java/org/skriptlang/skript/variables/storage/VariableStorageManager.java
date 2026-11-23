@@ -1051,6 +1051,12 @@ public final class VariableStorageManager {
 				mainThread.execute(() -> applyClear(source, listName));
 		}
 
+		@Override
+		public void afterReports(VariableStorage source, Runnable task) {
+			if (!closed)
+				mainThread.execute(task);
+		}
+
 	};
 
 	/**
