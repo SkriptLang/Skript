@@ -618,10 +618,12 @@ public class SQLiteStorageTest {
 	}
 
 	@Test
-	public void twoDatabasesCantUseTheSameTable() {
+	public void twoDatabasesCantUseTheSameTable() throws Exception {
 		VariableStorageManager manager = loadExpecting(VariableMap.concurrent(), false,
 			database("first", "sametable", file) + database("second", "sametable", folder.resolve("other.sqlite")));
-		assertEquals(1, manager.storages().size());
+		// the second one failed, but the first one claimed the table first and still saves to it
+		save(storage(manager), List.of(), change("a", "1"));
+		assertEquals("1", row("a").text());
 	}
 
 	@Test
