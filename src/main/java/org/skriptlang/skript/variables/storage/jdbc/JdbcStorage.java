@@ -2,11 +2,16 @@ package org.skriptlang.skript.variables.storage.jdbc;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.SerializedVariable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.variables.storage.*;
+import org.skriptlang.skript.variables.storage.CsvFormat;
+import org.skriptlang.skript.variables.storage.LoadListener;
+import org.skriptlang.skript.variables.storage.LoadReport;
+import org.skriptlang.skript.variables.storage.VariableStorage;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -15,6 +20,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
 
@@ -44,10 +50,12 @@ public abstract class JdbcStorage extends VariableStorage {
 
 	public static final String DEFAULT_TABLE = "skript_variables";
 
+
 	// 58 leaves room for "_meta" within MySQL's 64 limit
 	private static final Pattern TABLE_NAME = Pattern.compile("[A-Za-z_][A-Za-z0-9_]{0,57}");
 	private static final long IDLE_CHECK_NANOS = TimeUnit.SECONDS.toNanos(30);
 	private static final int BATCH_SIZE = 1000;
+	private static final long MIN_MONITOR_INTERVAL_MILLIS = 100;
 
 	private final String serverId = UUID.randomUUID().toString(); // an id to show what server wrote this line. Customizable in future?
 	private boolean monitorable; // supportsMonitoring(), set while configuring
@@ -64,7 +72,21 @@ public abstract class JdbcStorage extends VariableStorage {
 	private @Nullable Connection connection;
 	private long lastUsedNanos;
 
+
+	// monitoring stuff
 	private long loadedVersion; // generation counter to help in polling for changes
+	private boolean monitorChanges;
+	private long monitorIntervalNanos;
+
+	private static final int POLL_PAGE_SIZE = 1000;
+
+	private volatile boolean monitoring;
+	private @Nullable Thread monitorThread;
+	private long pollCursor;            // the last version fully reported
+	private long lastPollNanos;         // when a poll last succeeded, to notice falling too far behind
+	private boolean pollFailing;        // so a failing database is reported once, not every second
+	private boolean reportedBehind;
+
 
 	/**
 	 * @param registeringAddon the addon that registered this storage's type
@@ -90,9 +112,32 @@ public abstract class JdbcStorage extends VariableStorage {
 		this.metaTable = table + "_meta";
 		this.monitorable = supportsMonitoring();
 		this.rowServer = monitorable ? serverId : "";
-		if (node.getValue("monitor changes") != null)
-			// databases that support monitoring will get it in the MySQL PR, so for now this warns for every type
-			Skript.warning("The database '" + getName() + "' of type '" + getType() + "' can't monitor changes, so 'monitor changes' is ignored");
+		// monitoring
+		Boolean monitor = getConfigOptional(node, "monitor changes", Boolean.class, false);
+		if (monitor == null)
+			return false;
+		if (monitor && !monitorable) {
+			Skript.warning("The database '" + getName() + "' of type '" + getType() + "' can't monitor changes, "
+				+ "since no other server can use it, so 'monitor changes' is ignored");
+			monitor = false;
+		}
+		monitorChanges = monitor;
+		// get monitor frequency
+		if (monitorChanges) {
+			Timespan interval = getConfigOptional(node, "monitor interval", Timespan.class,
+				new Timespan(Timespan.TimePeriod.SECOND, 1));
+			if (interval == null)
+				return false;
+			long millis = interval.getAs(Timespan.TimePeriod.MILLISECOND);
+			if (millis < MIN_MONITOR_INTERVAL_MILLIS) {
+				Skript.error("The entry for 'monitor interval' in the database '" + getName() + "' must be at least "
+					+ MIN_MONITOR_INTERVAL_MILLIS + " milliseconds, since each check asks the database");
+				return false;
+			}
+			monitorIntervalNanos = TimeUnit.MILLISECONDS.toNanos(millis);
+		}
+
+		// configure connection with type-specific stuff
 		if (!configureConnection(node))
 			return false;
 
@@ -332,6 +377,7 @@ public abstract class JdbcStorage extends VariableStorage {
 				rollbackQuietly(connection);
 				throw e;
 			}
+			reReportRaced(batch); // committed; still under the lock, so no poll reads in between
 		} catch (SQLException e) {
 			dropConnection();
 			throw new IOException("Couldn't save to the table '" + table + "': " + e.getMessage(), e);
@@ -512,6 +558,286 @@ public abstract class JdbcStorage extends VariableStorage {
 				+ ". It's kept until the server stops");
 	}
 
+	// ---------------- MONITORING ---------------
+
+	@Override
+	protected final void receivingStarted() {
+		if (!monitorChanges)
+			return;
+		pollCursor = loadedVersion;
+		lastPollNanos = System.nanoTime();
+		monitoring = true;
+		// start a thread that repeatedly polls for changes
+		Thread thread = new Thread(this::monitorLoop, "Skript variable storage " + getName() + " monitor thread");
+		thread.setDaemon(true);
+		monitorThread = thread;
+		thread.start();
+	}
+
+	/**
+	 * Checks for changes every {@link #monitorIntervalNanos}.
+	 */
+	private void monitorLoop() {
+		while (monitoring) {
+			LockSupport.parkNanos(this, monitorIntervalNanos);
+			if (!monitoring)
+				break;
+			try {
+				poll();
+			} catch (Throwable t) { // never let the thread die, or nothing is reported again
+				Skript.exception(t, "Unexpected error while checking the database '" + getName() + "' for changes");
+			}
+		}
+	}
+
+	/**
+	 * Reports the rows other servers saved since the last poll, page by page.
+	 * Package-private, so tests can poll when they choose instead of waiting for the thread.
+	 */
+	@VisibleForTesting
+	void poll() {
+		if (!monitoring)
+			return; // closed: don't open a new connection
+		long poll = ++pollNumber;
+		long target;
+		try {
+			target = withConnection(this::readVersion); // every version up to here has committed
+		} catch (SQLException e) {
+			pollFailed(e);
+			return;
+		}
+		// early exit if we're still at latest version
+		if (target <= pollCursor) {
+			pollSucceeded();
+			return;
+		}
+		long afterVersion = pollCursor;
+		@Nullable String afterName = null;   // null for the first page: everything after the cursor's version
+		while (monitoring) {
+			List<PolledRow> page;
+			// read a page from the db, keeping any rows that were newer than our version
+			try {
+				long v = afterVersion;
+				String n = afterName;
+				page = withConnection(connection -> {
+					// get the changes
+					List<PolledRow> rows = readPage(connection, v, n, target);
+					List<String> reported = new ArrayList<>();
+					synchronized (inFlight) {
+						// report changes and mark them as inflight
+						for (PolledRow row : rows) {
+							if (row.broken())
+								continue;
+							inFlight.put(row.name(), new Flight(poll, -1));
+							reportUpdated(row.name(), row.value(), ReportPolicy.KEEP_LOCAL);
+							reported.add(row.name());
+						}
+					}
+					// add barrier task to the queue so they are marked as applied in the inflight map
+					if (!reported.isEmpty())
+						runAfterReports(() -> markApplied(reported, poll));
+					return rows;
+				});
+			} catch (SQLException e) {
+				pollFailed(e);
+				return; // the cursor hasn't moved, so the next poll tries the same rows again
+			}
+			if (page.size() < POLL_PAGE_SIZE)
+				break;
+			PolledRow last = page.getLast();
+			afterVersion = last.version;
+			afterName = last.name; // update to make sure we don't read anything twice
+		}
+		if (!monitoring)
+			return; // stopping: leave the cursor, nothing reported now is applied anyway
+		pollCursor = target;
+		pollSucceeded();
+	}
+
+	/**
+	 * Do the actual polling query.
+	 *
+	 * @param connection   The connection to use
+	 * @param afterVersion The baseline version, so only report things newer than this
+	 * @param afterName    Optional, for limiting where to start reading from.
+	 * @param target       The latest version, just read, so that we skip anything that's still being committed.
+	 * @return Any rows that have been written since afterVersion, by someone other than us.
+	 * @throws SQLException If any statement fails.
+	 */
+	private List<PolledRow> readPage(Connection connection, long afterVersion, @Nullable String afterName, long target)
+		throws SQLException {
+		// order by version, then name, so we report any changes in order they were applied
+		String sql = "SELECT name, type, value, version FROM " + table + " WHERE version <= ? AND server <> ? AND "
+			+ (afterName == null ? "version > ?" : "(version > ? OR (version = ? AND name > ?))")
+			+ " ORDER BY version, name LIMIT " + POLL_PAGE_SIZE;
+		try (PreparedStatement statement = connection.prepareStatement(sql)) {
+			statement.setLong(1, target);
+			statement.setString(2, serverId);
+			statement.setLong(3, afterVersion);
+			if (afterName != null) {
+				statement.setLong(4, afterVersion);
+				statement.setString(5, afterName);
+			}
+			List<PolledRow> rows = new ArrayList<>();
+			try (ResultSet result = statement.executeQuery()) {
+				while (result.next()) {
+					String name = result.getString(1);
+					String type = result.getString(2);
+					byte[] data = result.getBytes(3);
+					long version = result.getLong(4);
+					if (name.endsWith("::*")) {
+						// no server saves a list as one variable, mark as broken
+						rows.add(new PolledRow(name, null, version, true));
+					} else if (type == null && data == null) {
+						rows.add(new PolledRow(name, null, version, false)); // a tombstone: deleted
+					} else if (type != null && data != null) {
+						rows.add(new PolledRow(name, new SerializedVariable.Value(type, data), version, false));
+					} else {
+						// broken row; still count it for paging, but don't report it
+						rows.add(new PolledRow(name, null, version, true));
+					}
+				}
+			}
+			return rows;
+		}
+	}
+
+	private record PolledRow(String name, SerializedVariable.@Nullable Value value, long version, boolean broken) {}
+
+	private interface ConnectionTask<T> {
+		T run(Connection connection) throws SQLException;
+	}
+
+	/**
+	 * Runs a read under the connection lock and ends its transaction afterwards, so the next read sees newer commits.
+	 */
+	private <T> T withConnection(ConnectionTask<T> task) throws SQLException {
+		connectionLock.lock();
+		try {
+			Connection connection = connection();
+			try {
+				T result = task.run(connection);
+				connection.commit(); // REPEATABLE READ keeps a snapshot until the transaction ends, and we don't want to see that forever, so end the tx
+				return result;
+			} catch (SQLException | RuntimeException e) {
+				rollbackQuietly(connection);
+				throw e;
+			}
+		} catch (SQLException e) {
+			dropConnection();
+			throw e;
+		} finally {
+			connectionLock.unlock();
+		}
+	}
+
+	private void pollFailed(SQLException e) {
+		if (!pollFailing) {
+			pollFailing = true;
+			Skript.error("Couldn't check the database '" + getName() + "' for changes from other servers: "
+				+ e.getMessage() + ". Retrying every " + TimeUnit.NANOSECONDS.toMillis(monitorIntervalNanos) + " ms");
+		}
+		if (!reportedBehind && System.nanoTime() - lastPollNanos > TOMBSTONE_RETENTION_NANOS) {
+			reportedBehind = true;
+			Skript.error("The database '" + getName() + "' hasn't been checked for over an hour, so deletions made by "
+				+ "other servers may have been permanently missed. Restart the server to reload its variables");
+		}
+	}
+
+	private void pollSucceeded() {
+		if (pollFailing) {
+			pollFailing = false;
+			Skript.info("Checking the database '" + getName() + "' for changes works again");
+		}
+		lastPollNanos = System.nanoTime();
+	}
+
+	// --------- IN-FLIGHT RACE HANDLING ---------
+
+	/**
+	 * Where a reported name is: waiting on the main thread (appliedEpoch -1), or applied during a save epoch.
+	 * poll identifies which poll reported it, since a later poll can report the same name again.
+	 */
+	private record Flight(long poll, long appliedEpoch) {}
+
+	// names reported by recent polls; see reReportRaced. Guarded by itself for the epoch logic.
+	private final Map<String, Flight> inFlight = new HashMap<>();
+	private long saveEpoch;   // counts finished save cycles; guarded by inFlight
+	private long pollNumber;  // only the monitor thread touches it
+
+	/**
+	 * Helper to mark inflight names as fully applied.
+	 *
+	 * @param names The names to mark as applied
+	 * @param poll  Which poll did this.
+	 */
+	private void markApplied(List<String> names, long poll) {
+		synchronized (inFlight) {
+			for (String name : names) {
+				Flight flight = inFlight.get(name);
+				if (flight != null && flight.poll() == poll) // a newer poll's mark is left alone
+					inFlight.put(name, new Flight(poll, saveEpoch));
+			}
+		}
+	}
+
+	/**
+	 * Fixes reports that raced this save. A report read before this save committed holds an older value than this save's.
+	 * If it was applied after this batch was drained, nothing was pending to stop it, so memory got the older value.
+	 * Re-reporting what was saved, after that report, puts memory back to what the table holds. KEEP_LOCAL skips the
+	 * re-report if a newer local change is pending, which will be saved after this anyway.
+	 * <p>
+	 * The batch was drained some time after the previous save cycle ended, so "applied since the previous cycle ended"
+	 * covers "applied since this batch was drained", plus a little extra, which re-reports a value memory already has.
+	 */
+	private void reReportRaced(Batch batch) {
+		if (!monitorChanges)
+			return;
+		synchronized (inFlight) {
+			if (!inFlight.isEmpty()) {
+				// for each change in the batch, check if there's a inflight reported change already.
+				// If so, we need to requeue this change to overwrite the inflight change.
+				Set<String> changed = new HashSet<>();
+				for (SerializedVariable change : batch.changes()) {
+					changed.add(change.name);
+					Flight flight = inFlight.get(change.name);
+					if (flight != null && raced(flight))
+						reportUpdated(change.name, change.value, ReportPolicy.KEEP_LOCAL);
+				}
+				for (String prefix : batch.clears()) {
+					for (Map.Entry<String, Flight> entry : inFlight.entrySet()) {
+						String name = entry.getKey();
+						if (name.startsWith(prefix) && !changed.contains(name) && raced(entry.getValue()))
+							reportUpdated(name, null, ReportPolicy.KEEP_LOCAL);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Starts a new save epoch, and forgets every report applied before it. Nothing drained is left unsaved here, so the
+	 * next batch is drained after now, and a report applied before now can't have raced it: its local change was still
+	 * pending when the report was applied, so KEEP_LOCAL kept it. Reports still waiting on the main thread are kept.
+	 * Runs every cycle, saved or not, so a server that never saves still forgets what it was sent.
+	 */
+	@Override
+	protected final void saveCycleEnded() {
+		if (!monitorChanges)
+			return;
+		synchronized (inFlight) {
+			saveEpoch++;
+			if (!inFlight.isEmpty())
+				inFlight.values().removeIf(flight -> flight.appliedEpoch() >= 0);
+		}
+	}
+
+	// helper to check if there was a race
+	private boolean raced(Flight flight) {
+		return flight.appliedEpoch() < 0           // still waiting: it will be applied after this save, so follow it
+			|| flight.appliedEpoch() == saveEpoch; // applied since the previous cycle ended, maybe after this drain
+	}
+
 	// ---------------- PRUNING ------------------
 
 	private static final long TOMBSTONE_RETENTION_NANOS = TimeUnit.HOURS.toNanos(1);
@@ -603,6 +929,18 @@ public abstract class JdbcStorage extends VariableStorage {
 	 */
 	@Override
 	public final void close() {
+		monitoring = false;
+		Thread thread = monitorThread;
+		if (thread != null) {
+			LockSupport.unpark(thread);
+			try {
+				thread.join(10_000);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+			monitorThread = null;
+		}
+		// actually close now
 		connectionLock.lock();
 		try {
 			dropConnection();

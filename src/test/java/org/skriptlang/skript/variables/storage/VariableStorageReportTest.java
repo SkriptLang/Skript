@@ -35,6 +35,11 @@ public class VariableStorageReportTest {
 			received.add(source.getName() + " cleared " + listName);
 		}
 
+		@Override
+		public void afterReports(VariableStorage source, Runnable task) {
+			task.run(); // nothing is queued here, so every earlier report has already been passed on
+		}
+
 	}
 
 	private RecordingStorage storage;

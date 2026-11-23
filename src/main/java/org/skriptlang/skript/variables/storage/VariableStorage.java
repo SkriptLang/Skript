@@ -687,6 +687,12 @@ public abstract class VariableStorage implements Closeable {
 		 */
 		void cleared(VariableStorage source, String listName);
 
+		/**
+		 * Runs a task on the main thread after every change the storage reported before this call.
+		 * See {@link VariableStorage#runAfterReports(Runnable)}.
+		 */
+		void afterReports(VariableStorage source, Runnable task);
+
 	}
 
 	/**
@@ -699,6 +705,10 @@ public abstract class VariableStorage implements Closeable {
 
 		@Override
 		public void cleared(VariableStorage source, String listName) {
+		}
+
+		@Override
+		public void afterReports(VariableStorage source, Runnable task) {
 		}
 	};
 
@@ -769,6 +779,15 @@ public abstract class VariableStorage implements Closeable {
 	}
 
 	/**
+	 * Runs a task on the main thread once every change this storage reported before calling this has been applied.
+	 * Reports are applied in the order they were made, so the task simply runs after them.
+	 * Dropped once the storage has stopped. May be called from any thread, but only once the storage is running.
+	 */
+	protected final void runAfterReports(Runnable task) {
+		handler().afterReports(this, task);
+	}
+
+	/**
 	 * @return where reported changes go
 	 * @throws IllegalStateException if the storage isn't running yet
 	 */
@@ -788,7 +807,15 @@ public abstract class VariableStorage implements Closeable {
 		if (changeHandler != null)
 			throw new IllegalStateException("The database '" + getName() + "' already receives changes");
 		changeHandler = handler;
+		receivingStarted();
 	}
+
+	/**
+	 * Called once the storage is running and may {@link #reportUpdated report changes}. For example, a storage that watches
+	 * for changes from outside this server starts watching here.
+	 * Not called if loading or starting to save failed. Runs on the thread that loads the storages.
+	 */
+	protected void receivingStarted() {}
 
 	/**
 	 * Stops passing reported changes on: any reported from now on are ignored.
@@ -1041,11 +1068,19 @@ public abstract class VariableStorage implements Closeable {
 				batchSaved();
 			}
 			failedBatch = null;
+			saveCycleEnded();
 			return intervalNanos;
 		} finally {
 			saveLock.unlock();
 		}
 	}
+
+	/**
+	 * Called on the saving thread at the end of each save cycle in which nothing was left unsaved: every change drained
+	 * so far has been saved, and the next is drained after this returns. Called whether or not there was anything to save,
+	 * about every {@link #saveIntervalMillis()} ms, so it must be cheap. Not called while a failed batch waits for a retry.
+	 */
+	protected void saveCycleEnded() {}
 
 	/**
 	 * Notes that a batch was saved, so the next backup has something new in it. The caller must hold {@link #saveLock}.
