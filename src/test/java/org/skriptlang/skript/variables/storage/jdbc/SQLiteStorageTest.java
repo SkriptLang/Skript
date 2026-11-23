@@ -21,8 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,7 +30,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -424,26 +421,14 @@ public class SQLiteStorageTest {
 
 	/**
 	 * Lets the storage's pruning think an hour has passed since it saw the given version,
-	 * and that it last pruned long enough ago to prune again. Reaches into its private fields,
-	 * since it times pruning with {@link System#nanoTime()}.
+	 * and that it last pruned long enough ago to prune again.
 	 */
-	private static void pretendAnHourPassedSince(JdbcStorage storage, long version) throws ReflectiveOperationException {
+	private static void pretendAnHourPassedSince(JdbcStorage storage, long version) {
 		long now = System.nanoTime();
-		Class<?> sampleClass = Class.forName(JdbcStorage.class.getName() + "$Sample");
-		Constructor<?> sample = sampleClass.getDeclaredConstructor(long.class, long.class);
-		sample.setAccessible(true);
-		Field samplesField = JdbcStorage.class.getDeclaredField("samples");
-		samplesField.setAccessible(true);
-		@SuppressWarnings("unchecked")
-		ArrayDeque<Object> samples = (ArrayDeque<Object>) samplesField.get(storage);
-		samples.clear();
-		samples.add(sample.newInstance(now - TimeUnit.HOURS.toNanos(2), version));
-		Field lastPrune = JdbcStorage.class.getDeclaredField("lastPruneNanos");
-		lastPrune.setAccessible(true);
-		lastPrune.setLong(storage, now - TimeUnit.HOURS.toNanos(1));
+		TombstonePruner pruner = new TombstonePruner(now - TimeUnit.HOURS.toNanos(1));
+		pruner.sample(now - TimeUnit.HOURS.toNanos(2), version);
+		storage.pruner(pruner);
 	}
-
-	// ---- creating the tables ----
 
 	@Test
 	public void loadingAnEmptyFileCreatesTheTables() throws SQLException {

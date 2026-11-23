@@ -17,7 +17,6 @@ import org.skriptlang.skript.variables.storage.VariableStorageManager;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,7 +28,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
@@ -258,15 +256,10 @@ public class JdbcStorageMonitorTest {
 	}
 
 	/**
-	 * @return How many names the storage remembers having reported. Reads its private map.
+	 * @return How many names the storage remembers having reported
 	 */
-	private static int inFlight(Server server) throws ReflectiveOperationException {
-		Field field = JdbcStorage.class.getDeclaredField("inFlight");
-		field.setAccessible(true);
-		Map<?, ?> inFlight = (Map<?, ?>) field.get(server.storage());
-		synchronized (inFlight) {
-			return inFlight.size();
-		}
+	private static int inFlight(Server server) {
+		return server.storage().tracker().size();
 	}
 
 	/**
