@@ -129,7 +129,7 @@ public class SQLiteStorageTest {
 		}
 
 		@Override
-		protected int rowsPerStatement() {
+		int rowsPerStatement() {
 			return 3;
 		}
 
