@@ -5,6 +5,7 @@ import ch.njol.skript.log.BlockingLogHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.skriptlang.skript.test.utils.ExpectedExceptions;
 import org.skriptlang.skript.variables.VariableMap;
 import org.skriptlang.skript.variables.storage.CsvFormat;
 import org.skriptlang.skript.variables.storage.ManagerTests;
@@ -684,8 +685,10 @@ public class FlatFileStorageTest {
 		assertTrue(manager.flushAll());
 		breakAppender(manager);
 		manager.set("b", "2");
-		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
+		try (BlockingLogHandler ignored = new BlockingLogHandler().start();
+			 ExpectedExceptions exceptions = ExpectedExceptions.start()) {
 			assertFalse("the append fails", manager.flushAll());
+			exceptions.assertReported("Could not save 1 variable changes to 'default'");
 			assertTrue("the retry compacts the file instead", manager.flushAll());
 		}
 		assertEquals(List.of(row("a", "1").trim(), row("b", "2").trim()), rows());
