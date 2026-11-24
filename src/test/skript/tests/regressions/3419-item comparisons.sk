@@ -86,21 +86,25 @@ test "item comparisons":
 
 	# Player Head Comparisons
 
-	set {_p1} to "APickledWalrus" parsed as an offlineplayer
-	set {_p2} to "ShaneBee" parsed as an offlineplayer
-	set {_a} to skull of {_p1}
-	set {_b} to skull of {_p2}
+	# These checks have been commented out due to a reliance on Mojang's api that is not reliable for our testing
+	# They are too unreliable to be useful tests at the moment, but their content is still something to be tested
+	# It would be nice to somehow test this without relying on external API.
+	
+	# set {_p1} to "APickledWalrus" parsed as an offlineplayer
+	# set {_p2} to "ShaneBee" parsed as an offlineplayer
+	# set {_a} to skull of {_p1}
+	# set {_b} to skull of {_p2}
 
-	assert {_a} is a player head with "{_a} is not a player head (it should be)"
-	assert {_a} is the skull of {_p1} with "{_a} is not the skull of {_p1} (it should be)"
-	assert {_a} is not the skull of {_p2} with "{_a} is the skull of {_p2} (it shouldn't be)"
+	# assert {_a} is a player head with "{_a} is not a player head (it should be)"
+	# assert {_a} is the skull of {_p1} with "{_a} is not the skull of {_p1} (it should be)"
+	# assert {_a} is not the skull of {_p2} with "{_a} is the skull of {_p2} (it shouldn't be)"
 
-	assert {_b} is a player head with "{_b} is not a player head (it should be)"
-	assert {_b} is the skull of {_p2} with "{_b} is not the skull of {_p2} (it should be)"
-	assert {_b} is not the skull of {_p1} with "{_b} is the skull of {_p1} (it shouldn't be)"
+	# assert {_b} is a player head with "{_b} is not a player head (it should be)"
+	# assert {_b} is the skull of {_p2} with "{_b} is not the skull of {_p2} (it should be)"
+	# assert {_b} is not the skull of {_p1} with "{_b} is the skull of {_p1} (it shouldn't be)"
 
-	assert {_a} is not {_b} with "{_a} is {_b} (it shouldn't be) (Player Head Comparisons)"
-	assert {_b} is not {_a} with "{_b} is {_a} (it shouldn't be) (Player Head Comparisons)"
+	# assert {_a} is not {_b} with "{_a} is {_b} (it shouldn't be) (Player Head Comparisons)"
+	# assert {_b} is not {_a} with "{_b} is {_a} (it shouldn't be) (Player Head Comparisons)"
 
 	# Remove / Remove All Tests
 
