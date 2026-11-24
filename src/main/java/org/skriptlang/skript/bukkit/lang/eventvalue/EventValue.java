@@ -56,7 +56,26 @@ public sealed interface EventValue<E extends Event, V> extends Documentable perm
 	 * @see #builder(Class, Class)
 	 */
 	static <E extends Event, V> EventValue<E, V> simple(Class<E> eventClass, Class<V> valueClass, Converter<E, V> converter) {
-		return builder(eventClass, valueClass).getter(converter).build();
+		return builder(eventClass, valueClass)
+			.getter(converter)
+			.build();
+	}
+
+	/**
+	 * Creates a new {@link EventValue} using a getter
+	 *
+	 * @param eventClass the event type this value applied to
+	 * @param valueClass the value type to produce
+	 * @param converter the getter
+	 * @param description string describing this event value
+	 * @return the constructed event value
+	 * @see #builder(Class, Class)
+	 */
+	static <E extends Event, V> EventValue<E, V> simple(Class<E> eventClass, Class<V> valueClass, Converter<E, V> converter, String description) {
+		return builder(eventClass, valueClass)
+			.getter(converter)
+			.description(description)
+			.build();
 	}
 
 	/**
@@ -267,11 +286,17 @@ public sealed interface EventValue<E extends Event, V> extends Documentable perm
 		@Nullable Converter<NewValue, V> reverseConverter
 	);
 
+	/**
+	 * @return A description for this event value.
+	 */
+	String description();
+
 	@Override
 	default void write(DocumentationAdapter adapter) {
 		adapter.write("type", valueClass());
 		adapter.write("plural", valueClass().isArray());
 		adapter.write("time", time().name());
+		adapter.write("description", description());
 		adapter.write("patterns", patterns().stream()
 			.map(pattern -> PatternCompiler.compile(pattern).toString(StringificationProperties.builder()
 				.excludeParseTags()
@@ -502,6 +527,14 @@ public sealed interface EventValue<E extends Event, V> extends Documentable perm
 		 */
 		@Contract(value = " -> this", mutates = "this")
 		Builder<E, V> contextDependent();
+
+		/**
+		 * Sets the description for this event value.
+		 * @param description The description to use.
+		 * @return This builder.
+		 */
+		@Contract(value = "_ -> this", mutates = "this")
+		Builder<E, V> description(String description);
 
 		/**
 		 * Builds the event value.

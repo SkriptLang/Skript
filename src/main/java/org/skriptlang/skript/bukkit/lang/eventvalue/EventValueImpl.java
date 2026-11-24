@@ -36,7 +36,8 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 	private final Time time;
 	private final Collection<Class<? extends E>> excludedEvents;
 	private final @Nullable String excludedErrorMessage;
-	private final boolean contextDepenent;
+	private final boolean contextDependent;
+	private final String description;
 
 	private SkriptPattern[] compiledPatterns;
 
@@ -52,7 +53,8 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 		this.time = builder.time;
 		this.excludedEvents = builder.excludedEvents;
 		this.excludedErrorMessage = builder.excludedErrorMessage;
-		this.contextDepenent = builder.contextDependent;
+		this.contextDependent = builder.contextDependent;
+		this.description = builder.description;
 	}
 
 	@Override
@@ -157,7 +159,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 
 	@Override
 	public boolean contextDependent() {
-		return contextDepenent;
+		return contextDependent;
 	}
 
 	@Override
@@ -189,6 +191,11 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 	}
 
 	@Override
+	public String description() {
+		return description;
+	}
+
+	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(this)
 			.add("eventClass", eventClass)
@@ -212,6 +219,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 		private Collection<Class<? extends E>> excludedEvents = Collections.emptyList();
 		private @Nullable String excludedErrorMessage;
 		private boolean contextDependent = false;
+		private String description = "";
 
 		BuilderImpl(Class<E> eventClass, Class<V> valueClass) {
 			this.eventClass = eventClass;
@@ -275,6 +283,12 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 		}
 
 		@Override
+		public Builder<E, V> description(String description) {
+			this.description = description;
+			return this;
+		}
+
+		@Override
 		public EventValue<E, V> build() {
 			if (patterns == null) {
 				boolean plural = valueClass.isArray();
@@ -282,7 +296,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 				ClassInfo<?> type = Classes.getExactClassInfo(plural ? (Class<V>) valueClass.getComponentType() : valueClass);
 				if (type != null && type.getUserInputPatterns() != null) {
 					inputValidator = combinePredicates(
-						(input, parseResult) -> plural == Utils.getEnglishPlural(input).getSecond(),
+						(input, ignored) -> plural == Utils.isPlural(input).plural(),
 						inputValidator
 					);
 				}
