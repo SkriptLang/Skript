@@ -4,6 +4,7 @@ import ch.njol.skript.variables.SerializedVariable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.skriptlang.skript.test.utils.ExpectedExceptions;
 import org.skriptlang.skript.variables.VariableMap;
 
 import java.io.IOException;
@@ -124,7 +125,10 @@ public class VariableStorageManagerShutdownTest {
 		assertTrue(loadStorages(kills, all));
 		kills.failClose = true;
 		manager.set("a", "1");
-		close();
+		try (ExpectedExceptions exceptions = ExpectedExceptions.start()) {
+			close();
+			exceptions.assertReported("Failed to close the database 'kills'");
+		}
 		assertEquals(1, kills.closes.get());
 		assertEquals(1, all.closes.get());
 		assertEquals(Map.of("a", "1"), stored(all));
