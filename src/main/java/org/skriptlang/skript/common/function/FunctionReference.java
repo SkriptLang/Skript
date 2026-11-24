@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.function.FunctionReferenceParser.EmptyExpression;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.*;
 
@@ -30,12 +31,15 @@ public final class FunctionReference<T> implements Debuggable {
 
 	private final String namespace;
 	private final String name;
+	private final @Nullable Expression<String> nameExpression;
 	private final Argument<Expression<?>>[] arguments;
 
 	private Signature<T> cachedSignature;
 	private boolean validSignature = true;
 	private boolean printedInvalidSignatureWarning;
 	private Function<T> cachedFunction;
+	private @Nullable Function<T> lastResolvedFunction;
+	private final Set<String> warnedCalls = new HashSet<>();
 	private LinkedHashMap<String, ArgInfo> cachedArguments;
 
 	private record ArgInfo(Expression<?> expression, Class<?> type, Set<Modifier> modifiers) {
@@ -52,8 +56,46 @@ public final class FunctionReference<T> implements Debuggable {
 
 		this.namespace = namespace;
 		this.name = name;
+		this.nameExpression = null;
 		this.cachedSignature = signature;
 		this.arguments = arguments;
+	}
+
+	/**
+	 * Creates a function reference whose name is resolved at runtime,
+	 * e.g. {@code myFunc%{_name}%(...)}.
+	 *
+	 * <p>Since the function is not known during parsing, arguments are parsed
+	 * generically and validated against the resolved function at runtime.</p>
+	 *
+	 * @param namespace The name of the script this call originates from (for local functions).
+	 * @param name The function name, containing at least one interpolated expression.
+	 * @param arguments The passed arguments.
+	 */
+	public FunctionReference(@Nullable String namespace,
+							 @NotNull Expression<String> name,
+							 @NotNull Argument<Expression<?>>[] arguments) {
+		Preconditions.checkNotNull(name, "name cannot be null");
+		Preconditions.checkNotNull(arguments, "arguments cannot be null");
+
+		this.namespace = namespace;
+		this.name = name.toString(null, false);
+		this.nameExpression = name;
+		this.arguments = arguments;
+		this.cachedSignature = wildcardSignature(namespace, this.name);
+	}
+
+	/**
+	 * Whether the function name of this reference is resolved at runtime.
+	 */
+	private boolean isDynamic() {
+		return nameExpression != null;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> Signature<T> wildcardSignature(@Nullable String namespace, String name) {
+		return (Signature<T>) new ch.njol.skript.lang.function.Signature<>(
+				namespace, name, new Parameters(new LinkedHashMap<>()), (Class<T>) Object.class, false);
 	}
 
 	/**
@@ -62,6 +104,9 @@ public final class FunctionReference<T> implements Debuggable {
 	 * @return True if this is a valid function reference, false if not.
 	 */
 	public boolean validate() {
+		if (isDynamic())
+			return true;
+
 		if (!validSignature) {
 			Class<?>[] parameters = Arrays.stream(cachedSignature.parameters().all())
 				.map(Parameter::type)
@@ -161,6 +206,9 @@ public final class FunctionReference<T> implements Debuggable {
 	 * @return The return value of the function.
 	 */
 	public T execute(Event event) {
+		if (isDynamic())
+			return executeDynamic(event);
+
 		if (!validate()) {
 			Skript.error("Failed to verify function %s before execution.", name);
 			return null;
@@ -185,6 +233,135 @@ public final class FunctionReference<T> implements Debuggable {
 			Skript.error("Failed to obtain function for call: %s", toString(null, false));
 			return null;
 		}
+		FunctionEvent<?> fnEvent = new FunctionEvent<>(function);
+
+		if (Functions.callFunctionEvents)
+			Bukkit.getPluginManager().callEvent(fnEvent);
+
+		return function.execute(fnEvent, new FunctionArgumentsImpl(args));
+	}
+
+	/**
+	 * Executes a reference whose name is resolved at runtime.
+	 * The resolved function's signature is used to map and convert the
+	 * generically-parsed arguments on each call.
+	 *
+	 * @param event The event to use for execution.
+	 * @return The return value of the function.
+	 */
+	@SuppressWarnings("unchecked")
+	private @Nullable T executeDynamic(Event event) {
+		assert nameExpression != null;
+		String resolvedName = nameExpression.getSingle(event);
+		if (resolvedName == null)
+			return null;
+
+		ch.njol.skript.lang.function.Function<?> resolved = Functions.getFunction(resolvedName, namespace);
+		if (resolved == null) {
+			if (warnedCalls.add(resolvedName))
+				Skript.warning("The function '%s' does not exist; this call will do nothing. Call: %s"
+						.formatted(resolvedName, toString(null, false)));
+			return null;
+		}
+		ch.njol.skript.lang.function.Signature<?> signature = resolved.getSignature();
+		Parameter<?>[] parameters = signature.parameters().all();
+
+		// a single non-single parameter takes all arguments, e.g. sum(ns: numbers)
+		boolean varArgs = parameters.length == 1 && !parameters[0].isSingle();
+
+		if ((!varArgs && arguments.length > parameters.length)
+				|| arguments.length < signature.getMinParameters()) {
+			if (warnedCalls.add(resolvedName + ' '))
+				Skript.warning("Wrong number of arguments for the function '%s'. Call: %s"
+						.formatted(resolvedName, toString(null, false)));
+			return null;
+		}
+
+		SequencedMap<String, Object> args = new LinkedHashMap<>();
+		for (int i = 0; i < arguments.length; i++) {
+			Argument<Expression<?>> argument = arguments[i];
+
+			Parameter<?> parameter;
+			if (varArgs) {
+				parameter = parameters[0];
+			} else if (argument.type() == ArgumentType.NAMED) {
+				parameter = signature.parameters().get(argument.name());
+				if (parameter == null) {
+					if (warnedCalls.add(resolvedName + argument.name()))
+						Skript.warning("'%s' is not a parameter of the function '%s'. Call: %s"
+								.formatted(argument.name(), resolvedName, toString(null, false)));
+					return null;
+				}
+			} else {
+				parameter = parameters[i];
+			}
+
+			Object[] values = argument.value().getArray(event);
+			int expected = values.length;
+			values = Converters.convert(values, (Class<Object>) Utils.getComponentType(parameter.type()));
+			if (values.length < expected && warnedCalls.add(resolvedName + i))
+				Skript.warning("Could not convert all values for parameter '%s' of the function '%s'. Call: %s"
+						.formatted(parameter.name(), resolvedName, toString(null, false)));
+
+			if (parameter.isSingle() && values.length > 1) {
+				if (warnedCalls.add(resolvedName + ' ' + i))
+					Skript.warning("Expected a single value for parameter '%s' of the function '%s', but got %d. Call: %s"
+							.formatted(parameter.name(), resolvedName, values.length, toString(null, false)));
+				return null;
+			}
+
+			// Don't allow mutating across function boundary; same hack is applied to variables
+			for (int j = 0; j < values.length; j++)
+				values[j] = Classes.clone(values[j]);
+
+			if (varArgs) {
+				Object existing = args.get(parameter.name());
+				if (existing instanceof Object[] existingArray) {
+					Object[] merged = Arrays.copyOf(existingArray, existingArray.length + values.length);
+					System.arraycopy(values, 0, merged, existingArray.length, values.length);
+					values = merged;
+				}
+				args.put(parameter.name(), values);
+			} else {
+				args.put(parameter.name(), parameter.isSingle()
+						? (values.length == 0 ? null : values[0])
+						: values);
+			}
+		}
+
+		// fill in the default values of parameters that were not provided
+		for (Parameter<?> parameter : parameters) {
+			if (varArgs || args.containsKey(parameter.name()))
+				continue;
+
+			Expression<?> defaultValue;
+			if (parameter instanceof ch.njol.skript.lang.function.Parameter<?> scriptParameter) {
+				defaultValue = scriptParameter.getDefaultExpression();
+			} else if (parameter instanceof ScriptParameter<?> scriptParameter) {
+				defaultValue = scriptParameter.defaultValue();
+			} else {
+				continue; // other parameters (e.g. DefaultFunction) handle their own defaults
+			}
+
+			if (defaultValue == null) {
+				if (!parameter.hasModifier(Modifier.OPTIONAL)) {
+					if (warnedCalls.add("missing " + resolvedName + ' ' + parameter.name()))
+						Skript.warning("Missing argument for parameter '%s' of the function '%s'. Call: %s"
+								.formatted(parameter.name(), resolvedName, toString(null, false)));
+					return null;
+				}
+				continue;
+			}
+
+			//noinspection unchecked,rawtypes
+			Object[] values = parameter.evaluate((Expression) defaultValue, event);
+			args.put(parameter.name(), parameter.isSingle()
+					? (values == null || values.length == 0 ? null : values[0])
+					: values);
+		}
+
+		Function<T> function = (Function<T>) resolved;
+		lastResolvedFunction = function;
 		FunctionEvent<?> fnEvent = new FunctionEvent<>(function);
 
 		if (Functions.callFunctionEvents)
@@ -247,7 +424,10 @@ public final class FunctionReference<T> implements Debuggable {
 	/**
 	 * @return The function referred to by this reference.
 	 */
-	public Function<T> function() {
+	public @Nullable Function<T> function() {
+		if (isDynamic())
+			return lastResolvedFunction;
+
 		if (cachedFunction == null) {
 			Class<?>[] parameters = Arrays.stream(cachedSignature.parameters().all())
 					.map(Parameter::type)
@@ -316,7 +496,11 @@ public final class FunctionReference<T> implements Debuggable {
 
 		StringJoiner args = new StringJoiner(", ");
 		for (Argument<Expression<?>> argument : arguments) {
-			args.add("%s: %s".formatted(argument.name, argument.value.toString(event, debug)));
+			if (argument.name != null) {
+				args.add("%s: %s".formatted(argument.name, argument.value.toString(event, debug)));
+			} else {
+				args.add(argument.value.toString(event, debug));
+			}
 		}
 
 		builder.append(args);

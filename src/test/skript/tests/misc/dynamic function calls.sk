@@ -1,0 +1,122 @@
+using script reflection
+
+function dynamicOne() :: string:
+	return "one"
+
+function dynamicTwo() :: string:
+	return "two"
+
+function dynamicPrefixSuffix() :: string:
+	return "interpolated"
+
+function dynamicAB() :: string:
+	return "multi"
+
+local function dynamicLocal() :: string:
+	return "local"
+
+function dynamicAdd(a: number, b: number) :: number:
+	return {_a} + {_b}
+
+function dynamicFlag():
+	set {dynamicFlag::ran} to true
+
+local function dynamicDefault(a: number, b: number = 10) :: number:
+	return {_a} + {_b}
+
+local function dynamicSum(ns: numbers) :: number:
+	set {_total} to 0
+	loop {_ns::*}:
+		add loop-value to {_total}
+	return {_total}
+
+local function dynamicSingle(x: object) :: object:
+	return {_x}
+
+test "dynamic function calls resolve at runtime":
+	set {_f} to "One"
+	assert dynamic%{_f}%() is "one" with "dynamic call failed"
+
+	# the same call site can resolve a different function on each execution
+	set {_names::*} to "One" and "Two"
+	loop {_names::*}:
+		add dynamic%loop-value%() to {_results::*}
+	assert {_results::1} is "one" with "first call resolved the wrong function"
+	assert {_results::2} is "two" with "second call resolved the wrong function"
+
+	# interpolation can appear anywhere in the name
+	set {_f} to "Prefix"
+	assert dynamic%{_f}%Suffix() is "interpolated" with "mid-name interpolation failed"
+
+	# names may contain multiple interpolations
+	set {_a} to "A"
+	set {_b} to "B"
+	assert dynamic%{_a}%%{_b}%() is "multi" with "multiple interpolations failed"
+
+	# local functions resolve before global functions
+	set {_f} to "Local"
+	assert dynamic%{_f}%() is "local" with "local function was not resolved"
+
+	# calls without a return value still execute
+	delete {dynamicFlag::ran}
+	set {_f} to "Flag"
+	dynamic%{_f}%()
+	assert {dynamicFlag::ran} is true with "function without return value did not execute"
+
+test "dynamic function call arguments":
+	set {_f} to "Add"
+	assert dynamic%{_f}%(2, 3) is 5 with "positional arguments failed"
+	assert dynamic%{_f}%(a: 2, b: 3) is 5 with "named arguments failed"
+	assert dynamic%{_f}%(b: 3, a: 2) is 5 with "named argument order failed"
+
+	# parameters with default values may be omitted
+	set {_f} to "Default"
+	assert dynamic%{_f}%(5) is 15 with "default parameter was not applied"
+	assert dynamic%{_f}%(5, 20) is 25 with "overriding the default parameter failed"
+
+	# a single non-single parameter accepts any number of arguments
+	set {_f} to "Sum"
+	assert dynamic%{_f}%(1, 2, 3) is 6 with "varargs failed"
+	set {_nums::*} to 10, 20 and 30
+	assert dynamic%{_f}%({_nums::*}) is 60 with "list argument for varargs failed"
+
+test "dynamic function call failure handling":
+	# an unresolved name expression returns nothing
+	delete {_f}
+	assert dynamic%{_f}%() is not set with "call with an empty name should return nothing"
+
+	# nonexistent functions warn once and return nothing
+	set {_f} to "Nonexistent"
+	assert dynamic%{_f}%() is not set with "nonexistent function should return nothing"
+	assert dynamic%{_f}%() is not set with "repeated call to nonexistent function should return nothing"
+
+	# more arguments than parameters
+	set {_f} to "One"
+	assert dynamic%{_f}%(1) is not set with "surplus arguments should return nothing"
+
+	# fewer arguments than required parameters
+	set {_f} to "Add"
+	assert dynamic%{_f}%(1) is not set with "missing arguments should return nothing"
+	assert dynamic%{_f}%(1) is not set with "missing arguments should warn and return nothing"
+
+	# parameters that do not exist on the resolved function
+	assert dynamic%{_f}%(c: 1, a: 2, b: 3) is not set with "unknown named parameter should return nothing"
+
+	# named arguments cannot skip a required parameter
+	set {_f} to "Default"
+	assert dynamic%{_f}%(b: 3) is not set with "uncovered required parameter should return nothing"
+
+	# no arguments for a required non-single parameter
+	set {_f} to "Sum"
+	assert dynamic%{_f}%() is not set with "missing varargs should return nothing"
+
+	# multiple values passed to a single parameter
+	set {_f} to "Single"
+	set {_list::*} to "a" and "b"
+	assert dynamic%{_f}%({_list::*}) is not set with "plural value for single parameter should return nothing"
+
+test "dynamic function call argument parsing":
+	# 'or' lists are not allowed in arguments, matching static calls
+	parse:
+		set {_x} to dynamic%{_f}%(1 or 2)
+	assert first element of last parse logs contains "Function arguments cannot be seperated by an 'or'" with "or in arguments should produce a parse error"
