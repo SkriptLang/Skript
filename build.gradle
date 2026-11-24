@@ -221,7 +221,7 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 			project.configurations.runtimeClasspath.find { it.name.startsWith('gson') },
 			sourceSets.main.runtimeClasspath
 		])
-		getMainClass().set('ch.njol.skript.test.platform.PlatformMain')
+		getMainClass().set('org.skriptlang.skript.test.platform.PlatformMain')
 		args = [
 			'build/test_runners',
 			junit ? 'src/test/skript/junit' : 'src/test/skript/tests',
@@ -319,6 +319,7 @@ createTestTask('customTest', 'Runs tests based on provided parameters.', customE
 
 // Build flavor configurations
 tasks.register('githubResources', ProcessResources) {
+	dependsOn compileTestJava
 	from 'src/main/resources', {
 		include '**'
 		version = project.property('version')
@@ -339,8 +340,16 @@ tasks.register('githubResources', ProcessResources) {
 }
 
 tasks.register('githubRelease', ShadowJar) {
-	from sourceSets.main.output
 	dependsOn githubResources
+	from (sourceSets.main.output)
+	from({
+		if (gradle.taskGraph.hasTask(':genReleaseDocs')) {
+			return sourceSets.test.output.asFileTree.matching {
+				include 'org/skriptlang/skript/test/platform/**'
+			}
+		}
+		return []
+	})
 	archiveFileName = 'Skript-' + version + '.jar'
 	manifest {
 		attributes(
@@ -351,40 +360,8 @@ tasks.register('githubRelease', ShadowJar) {
 	}
 }
 
-tasks.register('spigotResources', ProcessResources) {
-	from 'src/main/resources', {
-		include '**'
-		version = project.property('version')
-		def channel = 'stable'
-		if (version.contains('-'))
-			channel = 'prerelease'
-		filter ReplaceTokens, tokens: [
-			'version'         : version,
-			'today'           : '' + LocalTime.now(),
-			'release-flavor'  : 'skriptlang-spigot', // SkriptLang build, distributed on Spigot resources
-			'release-channel' : channel, // Release channel, see above
-			'release-updater' : 'ch.njol.skript.update.GithubChecker', // Github API client
-			'release-source'  : 'https://api.github.com/repos/SkriptLang/Skript/releases', // Github API URL
-			'release-download': '\'http://example.com\'' // TODO insert Spigot URL
-		]
-	}
-	into 'build/resources/main'
-}
-
-tasks.register('spigotRelease', ShadowJar) {
-	from sourceSets.main.output
-	dependsOn spigotResources
-	archiveFileName = 'Skript-spigot.jar'
-	manifest {
-		attributes(
-			'Name': 'ch/njol/skript',
-			'Automatic-Module-Name': 'ch.njol.skript',
-			'Sealed': 'true'
-		)
-	}
-}
-
 tasks.register('nightlyResources', ProcessResources) {
+	dependsOn compileTestJava
 	from 'src/main/resources', {
 		include '**'
 		def hash = 'git rev-parse --short HEAD'.execute().text.trim()
@@ -403,8 +380,8 @@ tasks.register('nightlyResources', ProcessResources) {
 }
 
 tasks.register('nightlyRelease', ShadowJar) {
-	from sourceSets.main.output
 	dependsOn nightlyResources
+	from sourceSets.main.output, sourceSets.test.output
 	archiveFileName = 'Skript-nightly.jar'
 	manifest {
 		attributes(

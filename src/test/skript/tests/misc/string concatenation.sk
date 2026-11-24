@@ -1,5 +1,5 @@
 
-test "string concatenation":
+test "arithmetic string concatenation":
 
 	# string + string
 	assert "hello " + "there" is "hello there" with "string + string concat failed"

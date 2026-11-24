@@ -1,13 +1,8 @@
 {
 	"name": "paper-26.1.2",
 	"resources": [
-		{"source": "server.properties.generic", "target": "server.properties"}
-	],
-	"paperDownloads": [
-		{
-			"version": "26.1.2",
-			"target": "paperclip.jar"
-		}
+		{"type": "file", "source": "server.properties.generic", "target": "server.properties"},
+		{"type": "paperJar", "version": "26.1.2", "target": "paperclip.jar"}
 	],
 	"skriptTarget": "plugins/Skript.jar",
 	"commandLine": [
