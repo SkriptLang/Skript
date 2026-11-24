@@ -1,6 +1,8 @@
 name: Cleanup nightly documentation
 
-on: delete
+on:
+  delete:
+  workflow_dispatch:
 
 jobs:
   nightly-docs-cleanup:
