@@ -8,6 +8,7 @@ import ch.njol.skript.util.FileUtils;
 import ch.njol.util.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -38,6 +39,7 @@ class ScriptCommandUtils {
 		if (f == null) {
 			// Always allow '/' and '\' regardless of OS
 			boolean isDirectory = name.endsWith("/") || name.endsWith("\\") || name.endsWith(File.separator);
+			name = TextComponentParser.instance().escape(name);
 			Skript.error(sender, (isDirectory ? INVALID_FOLDER_MESSAGE : INVALID_SCRIPT_MESSAGE).toString(name));
 			return null;
 		}

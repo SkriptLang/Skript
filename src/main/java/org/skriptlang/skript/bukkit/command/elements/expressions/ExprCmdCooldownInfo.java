@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.coll.CollectionUtils;
@@ -40,7 +39,6 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 			teleport player to {home::%player%}
 	""")
 @Since("2.2-dev33")
-@Keywords("")
 public class ExprCmdCooldownInfo extends SimpleExpression<Object> implements EventRestrictedSyntax {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
@@ -64,6 +62,7 @@ public class ExprCmdCooldownInfo extends SimpleExpression<Object> implements Eve
 		CommandParsingData data = getParser().getData(CommandParsingData.class);
 		if (!data.isParsingCooldownEntry && data.getExecutorData(ExecutorData::cooldownManager) == null) {
 			Skript.error("'" + toString(null, false) + "' can't be used because the command doesn't have a cooldown.");
+			return false;
 		}
 		return true;
 	}
