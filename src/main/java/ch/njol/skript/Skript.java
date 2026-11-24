@@ -4,7 +4,6 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.bukkitutil.BurgerHelper;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.data.*;
-import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.events.EvtSkript;
 import ch.njol.skript.expressions.arithmetic.ExprArithmetic;
 import ch.njol.skript.hooks.Hook;
@@ -640,8 +639,6 @@ public final class Skript extends JavaPlugin implements Listener {
 				}
 
 				stopAcceptingRegistrations();
-
-				Documentation.generate(); // TODO move to test classes?
 
 				// Variable loading
 				if (logNormal())
@@ -1503,7 +1500,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 		SkriptAddon addon = getAddon(plugin);
 		if (addon != null) {
-			return Origin.of(addon);
+			return Origin.of(addon, source);
 		}
 		return Origin.UNKNOWN;
 	}

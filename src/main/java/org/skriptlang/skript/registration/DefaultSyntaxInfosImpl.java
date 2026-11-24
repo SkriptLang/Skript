@@ -3,7 +3,7 @@ package org.skriptlang.skript.registration;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.docs.Origin;
+import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.util.Priority;
 
@@ -22,10 +22,10 @@ final class DefaultSyntaxInfosImpl {
 		private final Class<R> returnType;
 
 		ExpressionImpl(
-			Origin origin, Class<E> type, @Nullable Supplier<E> supplier,
-			SequencedCollection<String> patterns, Priority priority, @Nullable Class<R> returnType
+			Class<E> type, @Nullable Supplier<E> supplier, SequencedCollection<String> patterns,
+			Priority priority, Documentation documentation, @Nullable Class<R> returnType
 		) {
-			super(origin, type, supplier, patterns, priority);
+			super(type, supplier, patterns, priority, documentation);
 			Preconditions.checkNotNull(returnType, "An expression syntax info must have a return type.");
 			this.returnType = returnType;
 		}
@@ -69,10 +69,10 @@ final class DefaultSyntaxInfosImpl {
 		@Override
 		public String toString() {
 			return MoreObjects.toStringHelper(this)
-					.add("origin", origin())
 					.add("type", type())
 					.add("patterns", patterns())
 					.add("priority", priority())
+					.add("documentation", documentation())
 					.add("returnType", returnType())
 					.toString();
 		}
@@ -92,7 +92,7 @@ final class DefaultSyntaxInfosImpl {
 			}
 
 			public Expression<E, R> build() {
-				return new ExpressionImpl<>(origin, type, supplier, patterns, priority, returnType);
+				return new ExpressionImpl<>(type, supplier, patterns, priority, documentation, returnType);
 			}
 		}
 
@@ -108,11 +108,10 @@ final class DefaultSyntaxInfosImpl {
 		private final NodeType nodeType;
 
 		StructureImpl(
-			Origin origin, Class<E> type, @Nullable Supplier<E> supplier,
-			SequencedCollection<String> patterns, Priority priority,
-			@Nullable EntryValidator entryValidator, NodeType nodeType
+			Class<E> type, @Nullable Supplier<E> supplier, SequencedCollection<String> patterns,
+			Priority priority, Documentation documentation, @Nullable EntryValidator entryValidator, NodeType nodeType
 		) {
-			super(origin, type, supplier, patterns, priority);
+			super(type, supplier, patterns, priority, documentation);
 			if (!nodeType.canBeSection() && entryValidator != null)
 				throw new IllegalArgumentException("Simple Structures cannot have an EntryValidator");
 			this.entryValidator = entryValidator;
@@ -168,10 +167,10 @@ final class DefaultSyntaxInfosImpl {
 		@Override
 		public String toString() {
 			return MoreObjects.toStringHelper(this)
-					.add("origin", origin())
 					.add("type", type())
 					.add("patterns", patterns())
 					.add("priority", priority())
+					.add("documentation", documentation())
 					.add("entryValidator", entryValidator())
 					.toString();
 		}
@@ -204,7 +203,7 @@ final class DefaultSyntaxInfosImpl {
 			}
 
 			public Structure<E> build() {
-				return new StructureImpl<>(origin, type, supplier, patterns, priority, entryValidator, nodeType);
+				return new StructureImpl<>(type, supplier, patterns, priority, documentation, entryValidator, nodeType);
 			}
 
 			@Override

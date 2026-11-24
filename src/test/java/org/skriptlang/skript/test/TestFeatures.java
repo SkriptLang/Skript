@@ -3,6 +3,7 @@ package org.skriptlang.skript.test;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
 import org.skriptlang.skript.lang.experiment.LifeCycle;
@@ -53,6 +54,11 @@ public enum TestFeatures implements Experiment {
 	@Override
 	public SkriptPattern pattern() {
 		return compiledPattern;
+	}
+
+	@Override
+	public Documentation documentation() {
+		return Documentation.NONE;
 	}
 
 }

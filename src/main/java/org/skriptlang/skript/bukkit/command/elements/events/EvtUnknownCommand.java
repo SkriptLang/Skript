@@ -39,13 +39,17 @@ public class EvtUnknownCommand extends SimpleEvent {
 					""")
 				.addSince("2.17")
 				.build());
-		eventValueRegistry.register(EventValue.simple(UnknownCommandEvent.class, CommandSender.class, UnknownCommandEvent::getSender));
+		eventValueRegistry.register(EventValue.simple(UnknownCommandEvent.class, CommandSender.class, UnknownCommandEvent::getSender,
+			"The thing that tried to execute the command."));
 		eventValueRegistry.register(EventValue.simple(UnknownCommandEvent.class, Block.class,
-			event -> event.getSender() instanceof BlockCommandSender sender ? sender.getBlock() : null));
+			event -> event.getSender() instanceof BlockCommandSender sender ? sender.getBlock() : null,
+			"If the attempted command was from a block, the block itself."));
 		eventValueRegistry.register(EventValue.simple(UnknownCommandEvent.class, Location.class,
-			event -> event.getCommandSource().getLocation()));
+			event -> event.getCommandSource().getLocation(),
+			"The location where the attempted command execution occurred."));
 		eventValueRegistry.register(EventValue.simple(UnknownCommandEvent.class, World.class,
-			event -> event.getCommandSource().getLocation().getWorld()));
+			event -> event.getCommandSource().getLocation().getWorld(),
+			"The world that the attempted command execution occurred in."));
 	}
 
 }

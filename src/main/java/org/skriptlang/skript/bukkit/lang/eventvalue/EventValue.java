@@ -2,13 +2,18 @@ package org.skriptlang.skript.bukkit.lang.eventvalue;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.patterns.PatternCompiler;
+import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.docs.Documentable;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.lang.converter.Converter;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.SequencedCollection;
@@ -27,7 +32,7 @@ import java.util.function.Function;
  * Instances should be created using {@link #builder(Class, Class)} and registered via
  * {@link EventValueRegistry#register(EventValue)}.
  */
-public sealed interface EventValue<E extends Event, V> permits EventValueImpl, ConvertedEventValue {
+public sealed interface EventValue<E extends Event, V> extends Documentable permits EventValueImpl, ConvertedEventValue {
 
 	/**
 	 * Creates a new builder for an {@link EventValue}.
@@ -51,7 +56,26 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	 * @see #builder(Class, Class)
 	 */
 	static <E extends Event, V> EventValue<E, V> simple(Class<E> eventClass, Class<V> valueClass, Converter<E, V> converter) {
-		return builder(eventClass, valueClass).getter(converter).build();
+		return builder(eventClass, valueClass)
+			.getter(converter)
+			.build();
+	}
+
+	/**
+	 * Creates a new {@link EventValue} using a getter
+	 *
+	 * @param eventClass the event type this value applied to
+	 * @param valueClass the value type to produce
+	 * @param converter the getter
+	 * @param description string describing this event value
+	 * @return the constructed event value
+	 * @see #builder(Class, Class)
+	 */
+	static <E extends Event, V> EventValue<E, V> simple(Class<E> eventClass, Class<V> valueClass, Converter<E, V> converter, String description) {
+		return builder(eventClass, valueClass)
+			.getter(converter)
+			.description(description)
+			.build();
 	}
 
 	/**
@@ -261,6 +285,30 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 		Converter<V, NewValue> converter,
 		@Nullable Converter<NewValue, V> reverseConverter
 	);
+
+	/**
+	 * @return A description for this event value.
+	 */
+	String description();
+
+	@Override
+	default void write(DocumentationAdapter adapter) {
+		adapter.write("type", valueClass());
+		adapter.write("plural", valueClass().isArray());
+		adapter.write("time", time().name());
+		adapter.write("description", description());
+		adapter.write("patterns", patterns().stream()
+			.map(pattern -> PatternCompiler.compile(pattern).toString(StringificationProperties.builder()
+				.excludeParseTags()
+				.excludeTypeFlags()
+				.mapUndocumentableTypes()
+				.build()))
+			.toList());
+		adapter.write("supportedChangeModes", Arrays.stream(ChangeMode.values())
+			.filter(this::hasChanger)
+			.map(Enum::name)
+			.toList());
+	}
 
 	/**
 	 * Represents the time state an event value is registered for.
@@ -479,6 +527,14 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 		 */
 		@Contract(value = " -> this", mutates = "this")
 		Builder<E, V> contextDependent();
+
+		/**
+		 * Sets the description for this event value.
+		 * @param description The description to use.
+		 * @return This builder.
+		 */
+		@Contract(value = "_ -> this", mutates = "this")
+		Builder<E, V> description(String description);
 
 		/**
 		 * Builds the event value.

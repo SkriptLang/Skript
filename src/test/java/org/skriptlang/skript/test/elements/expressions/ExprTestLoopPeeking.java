@@ -1,5 +1,6 @@
 package org.skriptlang.skript.test.elements.expressions;
 
+import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
+@NoDoc
 public class ExprTestLoopPeeking extends SimpleExpression<Integer> {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
