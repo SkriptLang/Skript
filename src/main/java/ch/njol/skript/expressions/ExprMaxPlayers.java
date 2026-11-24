@@ -20,7 +20,7 @@ import org.bukkit.event.server.ServerListPingEvent;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Max Players")
-@Description({"The count of max players. This can be changed in a <a href='#server_list_ping'>server list ping</a> event only.",
+@Description({"The count of max players. This can be changed in a [server list ping](docs:Skript/EvtServerListPing) event only.",
 		"'real max players' returns the real count of max players of the server and can be modified on Paper 1.16 or later."})
 @Example("""
 	on server list ping:

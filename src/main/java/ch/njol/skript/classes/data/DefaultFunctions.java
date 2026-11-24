@@ -110,7 +110,7 @@ public class DefaultFunctions {
 					return new Long[] {(Long) params[0][0]};
 				return new Long[] {Math2.ceil(((Number) params[0][0]).doubleValue())};
 			}
-		}.description("Alias of <a href='#ceil'>ceil</a>.")
+		}.description("Alias of [ceil](docs:Skript/FuncCeil).")
 			.examples("ceiling(2.34) = 3", "ceiling(2) = 2", "ceiling(2.99) = 3")
 			.since("2.2"));
 
@@ -198,7 +198,7 @@ public class DefaultFunctions {
 			public Number[] executeSimple(Object[][] params) {
 				return new Double[] {Math.cos(Math.toRadians(((Number) params[0][0]).doubleValue()))};
 			}
-		}.description("The cosine function. This is basically the <a href='#sin'>sine</a> shifted by 90°, i.e. <code>cos(a) = sin(a + 90°)</code>, for any number a. Uses degrees, not radians.")
+		}.description("The cosine function. This is basically the [sine](docs:Skript/FuncSin) shifted by 90°, i.e. <code>cos(a) = sin(a + 90°)</code>, for any number a. Uses degrees, not radians.")
 			.examples("cos(0) = 1", "cos(90) = 0")
 			.since("2.2"));
 
@@ -207,7 +207,7 @@ public class DefaultFunctions {
 			public Number[] executeSimple(Object[][] params) {
 				return new Double[] {Math.tan(Math.toRadians(((Number) params[0][0]).doubleValue()))};
 			}
-		}.description("The tangent function. This is basically <code><a href='#sin'>sin</a>(arg)/<a href='#cos'>cos</a>(arg)</code>. Uses degrees, not radians.")
+		}.description("The tangent function. This is basically [sin](docs:Skript/FuncSin)(arg)/[cos](docs:Skript/FuncCos)(arg). Uses degrees, not radians.")
 			.examples("tan(0) = 0", "tan(45) = 1", "tan(89.99) = " + str(Math.tan(Math.toRadians(89.99))))
 			.since("2.2"));
 
@@ -216,7 +216,7 @@ public class DefaultFunctions {
 			public Number[] executeSimple(Object[][] params) {
 				return new Double[] {Math.toDegrees(Math.asin(((Number) params[0][0]).doubleValue()))};
 			}
-		}.description("The inverse of the <a href='#sin'>sine</a>, also called arcsin. Returns result in degrees, not radians. Only returns values from -90 to 90.")
+		}.description("The inverse of the [sine](docs:Skript/FuncSin), also called arcsin. Returns result in degrees, not radians. Only returns values from -90 to 90.")
 			.examples("asin(0) = 0", "asin(1) = 90", "asin(0.5) = " + str(Math.toDegrees(Math.asin(0.5))))
 			.since("2.2"));
 
@@ -225,7 +225,7 @@ public class DefaultFunctions {
 			public Number[] executeSimple(Object[][] params) {
 				return new Double[] {Math.toDegrees(Math.acos(((Number) params[0][0]).doubleValue()))};
 			}
-		}.description("The inverse of the <a href='#cos'>cosine</a>, also called arccos. Returns result in degrees, not radians. Only returns values from 0 to 180.")
+		}.description("The inverse of the [cosine](docs:Skript/FuncCos), also called arccos. Returns result in degrees, not radians. Only returns values from 0 to 180.")
 			.examples("acos(0) = 90", "acos(1) = 0", "acos(0.5) = " + str(Math.toDegrees(Math.asin(0.5))))
 			.since("2.2"));
 
@@ -234,7 +234,7 @@ public class DefaultFunctions {
 			public Number[] executeSimple(Object[][] params) {
 				return new Double[] {Math.toDegrees(Math.atan(((Number) params[0][0]).doubleValue()))};
 			}
-		}.description("The inverse of the <a href='#tan'>tangent</a>, also called arctan. Returns result in degrees, not radians. Only returns values from -90 to 90.")
+		}.description("The inverse of the [tangent](docs:Skript/FuncTan), also called arctan. Returns result in degrees, not radians. Only returns values from -90 to 90.")
 			.examples("atan(0) = 0", "atan(1) = 45", "atan(10000) = " + str(Math.toDegrees(Math.atan(10000))))
 			.since("2.2"));
 
@@ -246,7 +246,7 @@ public class DefaultFunctions {
 			public Number[] executeSimple(Object[][] params) {
 				return new Double[] {Math.toDegrees(Math.atan2(((Number) params[1][0]).doubleValue(), ((Number) params[0][0]).doubleValue()))};
 			}
-		}.description("Similar to <a href='#atan'>atan</a>, but requires two coordinates and returns values from -180 to 180.",
+		}.description("Similar to [atan](docs:Skript/FuncAtan), but requires two coordinates and returns values from -180 to 180.",
 			"The returned angle is measured counterclockwise in a standard mathematical coordinate system (x to the right, y to the top).")
 			.examples("atan2(0, 1) = 0", "atan2(10, 0) = 90", "atan2(-10, 5) = " + str(Math.toDegrees(Math.atan2(-10, 5))))
 			.since("2.2"));
@@ -814,7 +814,7 @@ public class DefaultFunctions {
 				"will be used for whole numbers and '###,###.##' (e.g. '123,456,789.00) will be used for decimal numbers. " +
 				"A hashtag '#' represents a digit, a comma ',' is used to separate numbers, and a period '.' is used for decimals. ",
 				"Will return none if the format is invalid.",
-				"For further reference, see this <a href=\"https://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html\" target=\"_blank\">article</a>.")
+				"For further reference, see [this article](https://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html).")
 			.examples(
 				"command /balance:",
 					"\taliases: bal",

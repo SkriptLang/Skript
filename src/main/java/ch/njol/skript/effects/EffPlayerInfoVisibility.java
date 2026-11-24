@@ -14,11 +14,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Player Info Visibility")
 @Description({"Sets whether all player related information is hidden in the server list.",
-		"The Vanilla Minecraft client will display ??? (dark gray) instead of player counts and will not show the",
-		"<a href='#ExprHoverList'>hover hist</a> when hiding player info.",
-		"<a href='#ExprVersionString'>The version string</a> can override the ???.",
-		"Also the <a href='#ExprOnlinePlayersCount'>Online Players Count</a> and",
-		"<a href='#ExprMaxPlayers'>Max Players</a> expressions will return -1 when hiding player info."})
+		"The Vanilla Minecraft client will display `???` (dark gray) instead of player counts and will not show the ",
+		"[hover list](docs:Skript/ExprHoverList) when hiding player info.",
+		"The [version string](docs:Skript/ExprVersionString) expression can override the ???.",
+		"Also the [online player count](docs:Skript/ExprOnlinePlayersCount) expression and ",
+		"the [max players](docs:Skript/ExprMaxPlayers) expressions will return -1 when hiding player info."})
 @Example("hide player info")
 @Example("hide player related information in the server list")
 @Example("reveal all player related info")

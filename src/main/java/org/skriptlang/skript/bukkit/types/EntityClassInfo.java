@@ -38,10 +38,12 @@ public class EntityClassInfo extends ClassInfo<Entity> {
 		super(Entity.class, "entity");
 		this.user("entit(y|ies)")
 			.name("Entity")
-			.description("An entity is something in a <a href='#world'>world</a> that's not a <a href='#block'>block</a>, " +
-				"e.g. a <a href='#player'>player</a>, a skeleton, or a zombie, but also " +
-				"<a href='#projectile'>projectiles</a> like arrows, fireballs or thrown potions, " +
-				"or special entities like dropped items, falling blocks or paintings.")
+			.description("""
+				An entity is something in a [world](docs:Skript/TypeWorld) like a [player](docs:Skript/TypePlayer), \
+				a skeleton, or a zombie. \
+				It also includes [projectiles](docs:Skript/TypeProjectile) like arrows, fireballs, and thrown potions. \
+				Special entities like dropped items, falling blocks, and paintings are included too.
+				""")
 			.usage("player, op, wolf, tamed ocelot, powered creeper, zombie, unsaddled pig, fireball, arrow, dropped item, item frame, etc.")
 			.examples("entity is a zombie or creeper",
 				"player is an op",

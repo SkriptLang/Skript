@@ -18,7 +18,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
 @Name("Hotbar Button")
-@Description("The hotbar button clicked in an <a href='#inventory_click'>inventory click</a> event.")
+@Description("The hotbar button clicked in an [inventory click](docs:Skript/EvtInventoryClick) event.")
 @Example("""
 	on inventory click:
 		send "You clicked the hotbar button %hotbar button%!"

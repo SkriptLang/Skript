@@ -21,7 +21,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	Setting distribution/velocity with this method may change the particle count to 1/0 respectively.
 	
 	More detailed information on particle behavior can be found at \
-	<a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
+	[Paper's particle documentation](https://docs.papermc.io/paper/dev/particles/#count-argument-behavior-).
 	""")
 @Example("set the particle offset of {_my-particle} to vector(1, 2, 1)")
 @Since("2.14")

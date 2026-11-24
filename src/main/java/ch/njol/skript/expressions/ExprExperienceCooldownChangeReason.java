@@ -11,8 +11,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Experience Cooldown Change Reason")
 @Description({
-	"The <a href='#experiencechangereason'>experience change reason</a> within an " +
-	"<a href='#experience%20cooldown%20change%20event'>experience cooldown change event</a>."
+	"The [experience change reason](docs:Skript/TypeExperiencecooldownchangereason) within an " +
+	"[experience cooldown change](docs:Skript/EvtExperienceCooldownChange) event."
 })
 @Example("""
 	on player experience cooldown change:

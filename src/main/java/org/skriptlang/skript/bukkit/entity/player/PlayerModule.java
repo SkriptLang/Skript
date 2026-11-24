@@ -55,8 +55,8 @@ public class PlayerModule extends HierarchicalAddonModule {
 				.name("Chat")
 				.description("""
 					Called whenever a player chats.
-					Use <a href='#ExprChatFormat'>chat format</a> to change message format.
-					Use <a href='#ExprChatRecipients'>chat recipients</a> to edit chat recipients.
+					Use the [chat format](docs:Skript/ExprChatFormat) expression to change the message format.
+					Use the [chat recipients](docs:Skript/ExprChatRecipients) expression to edit chat recipients.
 					""")
 				.addExample("""
 					on chat:

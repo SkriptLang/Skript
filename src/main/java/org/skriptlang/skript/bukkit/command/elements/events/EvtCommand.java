@@ -25,7 +25,7 @@ public class EvtCommand extends SkriptEvent {
 			.addDescription("""
 				Called when a player enters a command. \
 				You can check whether the command is a script command using the \
-				'<a href='#CondIsScriptCommand'>Is a Script Command</a>' condition.
+				'[Is a Script Command](docs:Skript/CondIsScriptCommand)' condition.
 				""")
 			.addExample("""
 				on command:

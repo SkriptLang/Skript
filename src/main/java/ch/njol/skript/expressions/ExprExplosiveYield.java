@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 @Name("Explosive Yield")
 @Description({
 	"The yield of an explosive (creeper, ghast, primed tnt, fireball, etc.). This is how big of an explosion is caused by the entity.",
-	"Read <a href='https://minecraft.wiki/w/Explosion'>this wiki page</a> for more information.",
+	"Read [the Minecraft wiki page on explosions](https://minecraft.wiki/w/Explosion) for more information.",
 	"The yield of ghasts can only be set to between 0 and 127."
 })
 @Example("""

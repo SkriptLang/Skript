@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Has Played Before")
 @Description("Checks whether a player has played on this server before. You can also use " +
-	"<a href='#first_join'>on first join</a> if you want to make triggers for new players.")
+	"[on first join](docs:Skript/EvtFirstJoin) if you want to make triggers for new players.")
 @Example("player has played on this server before")
 @Example("player hasn't played before")
 @Since("1.4, 2.7 (multiple players)")

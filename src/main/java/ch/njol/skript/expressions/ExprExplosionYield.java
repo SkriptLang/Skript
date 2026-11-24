@@ -23,7 +23,7 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Explosion Yield")
 @Description({"The yield of the explosion in an explosion prime event. This is how big the explosion is.",
 				" When changing the yield, values less than 0 will be ignored.",
-				" Read <a href='https://minecraft.wiki/w/Explosion'>this wiki page</a> for more information"})
+				" Read [the Minecraft wiki page on explosions](https://minecraft.wiki/w/Explosion) for more information."})
 @Example("""
 	on explosion prime:
 		set the yield of the explosion to 10

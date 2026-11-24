@@ -16,7 +16,7 @@ import ch.njol.skript.util.Date;
 import ch.njol.util.Kleenean;
 
 @Name("Now")
-@Description("The current <a href='#date'>system time</a> of the server. Use <a href='#ExprTime'>time</a> to get the <a href='#time'>Minecraft time</a> of a world.")
+@Description("The current [system time](docs:Skript/TypeDate) of the server. Use the [time](docs:Skript/ExprTime) expression to get the [Minecraft time](docs:Skript/TypeTime) of a world.")
 @Example("broadcast \"Current server time: %now%\"")
 @Since("1.4")
 public class ExprNow extends SimpleExpression<Date> {

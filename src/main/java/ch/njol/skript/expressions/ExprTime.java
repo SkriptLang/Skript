@@ -22,8 +22,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Time")
 @Description({
-	"The <a href='#time'>time</a> of a world.",
-	"Use the \"minecraft <a href='#timespan'>timespan</a>\" syntax to change the time according " +
+	"The [time](docs:Skript/TypeTime) of a world.",
+	"Use the \"minecraft [timespan](docs:Skript/TypeTimespan)\" syntax to change the time according " +
 	"to Minecraft's time intervals.",
 	"Since Minecraft uses discrete intervals for time (ticks), " +
 	"changing the time by real-world minutes or real-world seconds only changes it approximately.",

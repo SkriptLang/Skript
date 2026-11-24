@@ -9,7 +9,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
 
 @Name("Respawn Reason")
-@Description("The <a href='#respawnreason'>respawn reason</a> in a <a href='#respawn'>respawn</a> event.")
+@Description("The [reason](docs:Skript/TypeRespawnreason) in a [respawn](docs:Skript/EvtRespawn) event.")
 @Example("""
 	on respawn:
 		if respawn reason is end portal:

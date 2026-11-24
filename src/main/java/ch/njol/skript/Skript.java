@@ -65,6 +65,7 @@ import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.bukkit.BukkitModule;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
 import org.skriptlang.skript.bukkit.command.elements.effects.EffCommand;
+import org.skriptlang.skript.bukkit.docs.BukkitDocumentationAdapter;
 import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
@@ -936,6 +937,18 @@ public final class Skript extends JavaPlugin implements Listener {
 					info("Completed " + tests + " JUnit tests in " + size + " classes with " + fails +
 						" failures in " + milliseconds + " milliseconds.");
 				});
+			}
+
+			// validate documentation generates without warnings or errors
+			try (RetainingLogHandler logHandler = new RetainingLogHandler().start()) {
+				BukkitDocumentationAdapter.of(skript).dataMap();
+				if (logHandler.size() > 0) {
+					TestTracker.testStarted("documentation validation");
+					TestTracker.testFailed(logHandler.size() + " documentation warning(s) and/or error(s) found:\n    - " +
+						logHandler.getLog().stream()
+							.map(LogEntry::getMessage)
+							.collect(Collectors.joining("\n    - ")));
+				}
 			}
 		}
 

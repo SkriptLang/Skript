@@ -18,7 +18,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
 @Name("Hostname")
-@Description("The hostname used by the connecting player to connect to the server in a <a href='#connect'>connect</a> event.")
+@Description("The hostname used by the connecting player to connect to the server in a [connect](docs:Skript/EvtConnect) event.")
 @Example("""
 	on connect:
 		hostname is "testers.example.com"

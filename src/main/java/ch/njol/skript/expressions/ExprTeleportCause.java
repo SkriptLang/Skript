@@ -9,7 +9,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
 
 @Name("Teleport Cause")
-@Description("The <a href='#teleportcause'>teleport cause</a> within a player <a href='#teleport'>teleport</a> event.")
+@Description("The [cause](docs:Skript/TypeTeleportcause) within a player [teleport](docs:Skript/EvtTeleport) event.")
 @Example("""
 	on teleport:
 		teleport cause is nether portal, end portal or end gateway

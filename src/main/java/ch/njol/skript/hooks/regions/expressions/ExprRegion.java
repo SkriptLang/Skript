@@ -15,7 +15,7 @@ import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Region")
 @Description({
-	"The <a href='#region'>region</a> involved in an event.",
+	"The [region](docs:Skript/TypeRegion) involved in an event.",
 	"This expression requires a supported regions plugin to be installed."
 })
 @Example("""

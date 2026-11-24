@@ -25,7 +25,7 @@ public class EvtFurnace extends SkriptEvent {
 					"[furnace] [ore] smelt[ed|ing] [of %-itemtypes%]",
 					"[furnace] smelt[ed|ing] of ore"
 				)
-				.addDescription("Called when a furnace smelts an item in its <a href='#ExprFurnaceSlot'>input slot</a>.")
+				.addDescription("Called when a furnace smelts an item in its [input slot](docs:Skript/ExprFurnaceSlot).")
 				.addExample("""
 					on smelt:
 						clear the smelted item
@@ -45,7 +45,7 @@ public class EvtFurnace extends SkriptEvent {
 			BukkitSyntaxInfos.Event.builder(EvtFurnace.class, "Fuel Burn")
 				.addEvent(FurnaceBurnEvent.class)
 				.addPatterns("[furnace] fuel burn[ing] [of %-itemtypes%]")
-				.addDescription("Called when a furnace burns an item from its <a href='#ExprFurnaceSlot'>fuel slot</a>.")
+				.addDescription("Called when a furnace burns an item from its [fuel slot](docs:Skript/ExprFurnaceSlot).")
 				.addExample("""
 					on fuel burning:
 						broadcast fuel burned

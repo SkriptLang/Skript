@@ -15,7 +15,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Text Display Opacity")
 @Description("""
-	Returns or changes the text opacity of <a href='#display'>text displays</a>. The default is 255, fully opaque.
+	Returns or changes the text opacity of [text displays](docs:Skript/TypeDisplay). The default is 255, fully opaque.
 	Values are between 0 and 255. 0 to 3 are treated the same as 255, meaning fully opaque.
 	Values from 4 to 26 are fully transparent, and opacity increases linearly from there up to 255.
 	For backwards compatability, setting negative values between -1 and -128 wrap around, so -1 is the same as 255 and -128 is the same as 128.

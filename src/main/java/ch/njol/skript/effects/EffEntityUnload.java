@@ -17,8 +17,8 @@ import org.jetbrains.annotations.Nullable;
 @Description({
 	"Make a living entity despawn when the chunk they're located at is unloaded.",
 	"Setting a custom name on a living entity automatically makes it not despawnable.",
-	"More information on what and when entities despawn can be found at "
-		+ "<a href=\"https://minecraft.wiki/w/Mob_spawning#Despawning\">reference</a>."
+	"More information on what and when entities despawn can be found on " +
+		"[the Minecraft wiki](https://minecraft.wiki/w/Mob_spawning#Despawning)."
 })
 @Example("make all entities not despawnable on chunk unload")
 @Example("""

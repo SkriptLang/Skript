@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Block Data")
 @Description({
-	"Get the <a href='#blockdata'>block data</a> associated with a block.",
+	"Get the [block data](docs:Skript/TypeBlockdata) associated with a block.",
 	"This data can also be used to set blocks."
 })
 @Example("set {_data} to block data of target block")

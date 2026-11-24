@@ -21,7 +21,7 @@ import ch.njol.skript.util.slot.SlotWithIndex;
 	"succeeds. This expression is mainly for the cases where you must " +
 	"for some reason save the slot numbers.",
 	"",
-	"Raw index of slot is unique for the view, see <a href=\"https://wiki.vg/Inventory\">Minecraft Wiki</a>",
+	"Raw index of slot is unique for the view, see [the Minecraft wiki](https://minecraft.wiki/w/Slot)",
 })
 @Example("""
 	if index of event-slot is 10:

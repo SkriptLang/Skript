@@ -27,7 +27,7 @@ import org.skriptlang.skript.bukkit.entity.EntityData;
 import java.lang.reflect.Array;
 
 @Name("Last Spawned Entity")
-@Description("Holds the entity that was spawned most recently with the spawn effect (section), dropped with the <a href='../effects/#EffDrop'>drop effect</a>, shot with the <a href='../effects/#EffShoot'>shoot effect</a> or created with the <a href='../effects/#EffLightning'>lightning effect</a>. " +
+@Description("Holds the entity that was spawned most recently with the [spawn](docs:Skript/EffSecSpawn) effect section, dropped with the [drop](docs:Skript/EffDrop) effect, shot with the [shoot](docs:Skript/EffSecShoot) effect section, or created with the [lightning](docs:Skript/EffLightning) effect. " +
 		"Please note that even though you can spawn multiple mobs simultaneously (e.g. with 'spawn 5 creepers'), only the last spawned mob is saved and can be used. " +
 		"If you spawn an entity, shoot a projectile and drop an item you can however access all them together.")
 @Example("""

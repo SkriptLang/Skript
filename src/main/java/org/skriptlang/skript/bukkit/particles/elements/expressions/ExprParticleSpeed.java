@@ -19,7 +19,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	* acts as a multiplier to the particle's offset if the particle count is 0.
 	
 	More detailed information on particle behavior can be found at \
-	<a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
+	[Paper's particle documentation](https://docs.papermc.io/paper/dev/particles/#count-argument-behavior-).
 	""")
 @Example("set the extra value of {_my-flame-particle} to 2")
 @Example("set the particle speed of {_my-flame-particle} to 0")

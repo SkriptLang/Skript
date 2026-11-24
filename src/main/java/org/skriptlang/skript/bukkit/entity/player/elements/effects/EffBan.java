@@ -32,7 +32,7 @@ import java.util.Date;
 	"We recommend that you test your scripts so that no accidental permanent bans are applied.",
 	"",
 	"Note that banning people does not kick them from the server.",
-	"You can optionally use 'and kick' or consider using the <a href='#EffKick'>kick effect</a> after applying a ban."})
+	"You can optionally use 'and kick' or consider using the [kick effect](docs:Skript/EffKick) after applying a ban."})
 @Example("unban player")
 @Example("ban \"127.0.0.1\"")
 @Example("IP-ban the player because \"he is an idiot\"")

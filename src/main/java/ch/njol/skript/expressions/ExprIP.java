@@ -24,8 +24,8 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
 @Name("IP")
-@Description("The IP address of a player, or the connected player in a <a href='#connect'>connect</a> event, " +
-		"or the pinger in a <a href='#server_list_ping'>server list ping</a> event.")
+@Description("The IP address of a player, or the connected player in a [connect](docs:Skript/EvtConnect) event, " +
+		"or the pinger in a [server list ping](docs:Skript/EvtServerListPing) event.")
 @Example("""
 	ban the IP address of the player")
 	broadcast "Banned the IP %IP of player%"

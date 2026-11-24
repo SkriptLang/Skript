@@ -21,7 +21,7 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Location")
-@Description("The location where an event happened (e.g. at an entity or block), or a location <a href='#ExprDirection'>relative</a> to another (e.g. 1 meter above another location).")
+@Description("The location where an event happened (e.g. at an entity or block), or a location [relative](docs:Skript/ExprDirection) to another (e.g. 1 meter above another location).")
 @Example("drop 5 apples at the event-location # exactly the same as writing 'drop 5 apples'")
 @Example("set {_loc} to the location 1 meter above the player")
 @Since("2.0")

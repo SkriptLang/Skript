@@ -25,7 +25,7 @@ import java.util.ArrayList;
  */
 @Name("Region Members & Owners")
 @Description({
-	"A list of members or owners of a <a href='#region'>region</a>.",
+	"A list of members or owners of a [region](docs:Skript/TypeRegion).",
 	"This expression requires a supported regions plugin to be installed."
 })
 @Example("""

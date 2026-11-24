@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Player Protocol Version")
-@Description("Player's protocol version. For more information and list of protocol versions <a href='https://wiki.vg/Protocol_version_numbers'>visit wiki.vg</a>.")
+@Description("Player's protocol version. For more information and list of protocol versions, see [the Minecraft wiki](https://minecraft.wiki/w/Protocol_version#List_of_protocol_versions).")
 @Example("""
 	command /protocolversion <player>:
 		trigger:
