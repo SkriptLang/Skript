@@ -219,4 +219,9 @@ record ConvertedEventValue<SourceEvent extends Event, ConvertedEvent extends Eve
 		return new ConvertedEventValue<>(newEventClass, newValueClass, this, converter, reverseConverter);
 	}
 
+	@Override
+	public String description() {
+		return source.description();
+	}
+
 }

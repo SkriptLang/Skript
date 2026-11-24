@@ -112,12 +112,8 @@ public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends Document
 	Documentation documentation();
 
 	@Override
-	default void preWrite(DocumentationAdapter adapter) {
-		String id = documentation().id();
-		if (id == null) {
-			id = type().getSimpleName();
-		}
-		adapter.enterScope(id);
+	default String documentationAutoId() {
+		return type().getSimpleName();
 	}
 
 	@Override

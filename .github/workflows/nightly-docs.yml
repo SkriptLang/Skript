@@ -8,6 +8,7 @@ on:
       - 'feature/**'
     tags-ignore:
       - '**'
+  workflow_dispatch:
 
 jobs:
   nightly-docs:

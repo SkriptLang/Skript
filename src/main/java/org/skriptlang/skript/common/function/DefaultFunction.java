@@ -157,6 +157,11 @@ public sealed interface DefaultFunction<T>
 	}
 
 	@Override
+	default String documentationAutoId() {
+		return "Func" + DocumentationDocumentable.super.documentationAutoId();
+	}
+
+	@Override
 	default boolean canWrite(DocumentationAdapter adapter) {
 		return DocumentationDocumentable.super.canWrite(adapter);
 	}
@@ -165,11 +170,6 @@ public sealed interface DefaultFunction<T>
 	default void write(DocumentationAdapter adapter) {
 		DocumentationDocumentable.super.write(adapter);
 		Function.super.write(adapter);
-	}
-
-	@Override
-	default String documentationIdPrefix() {
-		return "Func";
 	}
 
 }

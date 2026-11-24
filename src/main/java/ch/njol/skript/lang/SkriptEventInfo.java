@@ -1,6 +1,5 @@
 package ch.njol.skript.lang;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
@@ -248,9 +247,10 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 
 		private final Origin origin;
 
-		public ModernSkriptEventInfo(String name, String[] patterns, Class<E> eventClass, String originClassPath, Class<? extends Event>[] events) {
+		public ModernSkriptEventInfo(String name, String[] patterns, Class<E> eventClass, String originClassPath,
+				Class<? extends Event>[] events, Origin origin) {
 			super(name, patterns, eventClass, originClassPath, events);
-			this.origin = Skript.getSyntaxOrigin(eventClass);
+			this.origin = origin;
 		}
 
 		@Override
