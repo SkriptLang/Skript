@@ -1,0 +1,13 @@
+options:
+	test: "ch.njol.skript.events.BellEventsTest"
+
+test "BellEventsTest" when running JUnit:
+	ensure {@test} completes "bell resonates" and "bell rings"
+
+on bell ringing:
+	junit test is {@test}
+	complete "bell rings" for {@test}
+
+on bell resonating:
+	junit test is {@test}
+	complete "bell resonates" for {@test}

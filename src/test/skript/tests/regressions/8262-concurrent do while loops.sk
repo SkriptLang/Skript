@@ -1,10 +1,10 @@
 local function test(id: integer):
 	do while true is true:
-		add {_id} to {-%script%::*}
+		add {_id} to {-concurrent_do_while::*}
 		wait 1 tick
 		exit
 
 test "concurrent do while loops":
 	test(1)
 	test(2)
-	assert size of {-%script%::*} is 2 with "Didn't run multiple do-while loops concurrently"
+	assert size of {-concurrent_do_while::*} is 2 with "Didn't run multiple do-while loops concurrently"
