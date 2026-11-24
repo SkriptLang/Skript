@@ -11,7 +11,6 @@ import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RedirectingLogHandler;
 import ch.njol.skript.log.TimingLogHandler;
 import ch.njol.skript.skcommand.SkriptCommand.SubCommand;
-import ch.njol.skript.util.Utils;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
@@ -212,7 +211,7 @@ class ReloadCommand extends SubCommand {
 
 		// Log reloading message
 		String text = Language.format(SkriptCommand.CONFIG_NODE + ".reload." + "player reload", sender.getName(), what);
-		logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(text)), sender);
+		logHandler.log(new LogEntry(Level.INFO, text), sender);
 	}
 
 	private static void reloaded(RedirectingLogHandler logHandler, TimingLogHandler timingLogHandler,
@@ -231,7 +230,7 @@ class ReloadCommand extends SubCommand {
 			String errorMessage = Skript.getSkriptPrefix() + RELOAD_ERROR_MESSAGE.toString(what, logHandler.numErrors(), timeTaken);
 			message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(errorMessage));
 		}
-		logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(message)));
+		logHandler.log(new LogEntry(Level.INFO, message));
 	}
 
 }

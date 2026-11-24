@@ -157,7 +157,7 @@ public class BossBarClassInfo extends ClassInfo<BossBar> {
 			if (mode == ChangeMode.ADD) {
 				progress += bar.getProgress();
 			} else if (mode == ChangeMode.REMOVE) {
-				progress -= bar.getProgress();
+				progress = bar.getProgress() - progress;
 			}
 			bar.setProgress(Math.clamp(progress, 0.0, 1.0));
 		}
