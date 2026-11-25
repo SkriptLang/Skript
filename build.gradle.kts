@@ -18,7 +18,6 @@ repositories {
 }
 
 val testShadow = configurations.create("testShadow") {
-	isCanBeResolved = false
 	isCanBeConsumed = false
 }
 configurations {
@@ -26,8 +25,8 @@ configurations {
 }
 
 dependencies {
-	// base dependencies
-	implementation("com.google.code.findbugs:findbugs:3.0.1")
+	// TODO migrate to lang3
+	implementation("commons-lang:commons-lang:2.6")
 
 	// Bukkit dependencies
 	implementation("io.papermc.paper:paper-api:26.3.build.+")
@@ -137,7 +136,7 @@ tasks.withType<JavaCompile>().configureEach {
 group = "org.skriptlang.skript"
 version = project.property("version") as String
 
-tasks.register<ShadowJar>("sourcesJar") {
+tasks.register<Jar>("sourcesJar") {
 	description = "Creates a JAR with all sources."
 	from(sourceSets.main.get().allJava)
 	archiveClassifier = "sources"

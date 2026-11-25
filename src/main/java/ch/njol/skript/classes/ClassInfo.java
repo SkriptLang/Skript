@@ -8,7 +8,6 @@ import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.iterator.ArrayIterator;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +27,6 @@ import java.util.regex.PatternSyntaxException;
  * @author Peter Güttinger
  * @param <T> The class this info is for
  */
-@SuppressFBWarnings("DM_STRING_VOID_CTOR")
 public class ClassInfo<T> implements Debuggable {
 
 	private final Class<T> c;

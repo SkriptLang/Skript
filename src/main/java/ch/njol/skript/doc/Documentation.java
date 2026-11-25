@@ -13,7 +13,6 @@ import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.IteratorIterable;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.function.Parameter;
 
@@ -28,7 +27,6 @@ import java.util.regex.Pattern;
  * TODO compare doc in code with changed one of the webserver and warn about differences?
  *
  */
-@SuppressFBWarnings("ES_COMPARING_STRINGS_WITH_EQ")
 public class Documentation {
 
 	private static final Pattern CP_PARSE_MARKS_PATTERN = Pattern.compile("(?<=[(|])[-0-9]+?¦");
