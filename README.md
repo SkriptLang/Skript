@@ -152,14 +152,41 @@ Requires **JDK 25**. The `skript-aliases` submodule is required, so clone recurs
 ```bash
 git clone --recurse-submodules https://github.com/SkriptLang/Skript.git
 cd Skript
-./gradlew clean build        # gradlew.bat on Windows
+./gradlew clean build   # gradlew.bat on Windows
 ```
 
 The plugin jar is written to `build/libs/Skript-<version>.jar`.
 
+### Compiling Modules
+
+Parts of Skript are provided as Gradle subprojects. They require Skript, so they are compiled after it has been built.
+For this reason, if you want them embedded in Skript jar, you must re-package it after compiling once. For example:
+```
+./gradlew jar
+```
+Note that modules are not necessary for Skript to work. Currently, they are only used to provide compatibility with old WorldGuard versions.
+
 ### Running tests
 
-TODO TODO TODO
+Skript has some tests written in Skript. Running them requires a Minecraft server, but our build script will create one for you.
+Running the tests is easy:
+```
+./gradlew (quickTest|skriptTest|skriptTestJava21)
+```
+
+`quickTest` runs the test suite on newest supported server version.\
+`skriptTestJava21` (1.21.4+) runs the tests on Java 21 supported versions.\
+`skriptTest` runs the tests on all versions (currently identical to the Java 21 test).
+
+By running the tests, you agree to [Mojang's End User License Agreement](https://www.minecraft.net/en-us/eula).
+
+### Releasing
+
+```
+./gradlew clean build
+./gradlew <flavor>Release
+```
+Available flavors are `github` and `nightly`. Please do not abuse flavors by compiling your own test builds as releases.
 
 ## License
 
