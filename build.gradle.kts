@@ -414,3 +414,22 @@ tasks.register("JUnit") {
 	group = "execution"
 	dependsOn(jUnitJava21, jUnitJava25)
 }
+
+// custom test task
+// usage: gradlew customTest -PtestEnvs=<environment files, comma separated list> -PtestEnvJavaVersion=<java version> -Ptimeout=<timeout in ms> -Pjunit=[true|false]
+// defaults: testEnvs=testEnv, testEnvJavaVersion from gradle.properties, timeout=5 minutes, junit=false
+// example: gradlew customTest -PtestEnvs="java21/paper-1.21.5,java21/paper-1.21.8" -PtestEnvJavaVersion=21 -Ptimeout=600000 -Pjunit=true
+val customEnvironments = findProperty("testEnvs")?.toString()
+	?.split(",")
+	?.joinToString(",") { "${environments}${it.trim()}.json" } // PlatformMain expects ',' between environments
+	?: defaultEnv
+val customTimeout = findProperty("timeout")?.toString()?.toLong() ?: defaultTestTimeout
+val customRun = if (findProperty("junit")?.toString().equals("true", ignoreCase = true)) TestingRun.JUNIT else TestingRun.TESTS
+
+registerSkriptTestTask(
+	name = "customTest",
+	description = "Runs tests based on provided parameters.",
+	environments = customEnvironments,
+	timeout = customTimeout,
+	run = customRun,
+)
