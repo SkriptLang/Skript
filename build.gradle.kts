@@ -17,35 +17,32 @@ repositories {
 	maven("https://jitpack.io") // for Vault
 }
 
-val testShadow = configurations.create("testShadow") {
-	isCanBeConsumed = false
-}
-configurations {
-	testImplementation.get().extendsFrom(testShadow)
+configurations.testCompileOnly {
+	extendsFrom(configurations.compileOnly.get())
 }
 
 dependencies {
 	// TODO migrate to lang3
-	implementation("commons-lang:commons-lang:2.6")
+	compileOnly("commons-lang:commons-lang:2.6")
 
 	// Bukkit dependencies
-	implementation("io.papermc.paper:paper-api:26.3.build.+")
-	shadow("org.bstats:bstats-bukkit:3.2.1")
+	compileOnly("io.papermc.paper:paper-api:26.3.build.+")
+	implementation("org.bstats:bstats-bukkit:3.2.1")
 	// bundled with Minecraft 1.19.4+ for display entity transforms
-	implementation("org.joml:joml:1.10.9")
+	compileOnly("org.joml:joml:1.10.9")
 	// Plugin hook libraries
-	implementation("com.sk89q.worldguard:worldguard-legacy:7.0.0-SNAPSHOT") {
+	compileOnly("com.sk89q.worldguard:worldguard-legacy:7.0.0-SNAPSHOT") {
 		exclude(group = "org.bukkit", module = "bukkit")
 		exclude(group = "org.bstats", module = "bstats-bukkit")
 	}
-	implementation("com.github.MilkBowl:VaultAPI:1.7.1") {
+	compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
 		exclude(group = "org.bukkit", module = "bukkit")
 		exclude(group = "org.bstats", module = "bstats-bukkit")
 	}
-	implementation(fileTree("lib") { include("*.jar") })
+	compileOnly(fileTree("lib") { include("*.jar") })
 
-	testShadow("junit:junit:4.13.2")
-	testShadow("org.easymock:easymock:5.7.0")
+	testImplementation("junit:junit:4.13.2")
+	testImplementation("org.easymock:easymock:5.7.0")
 }
 
 checkstyle {
@@ -56,6 +53,10 @@ checkstyle {
 /*
  * Building
  */
+
+tasks.test {
+	enabled = false
+}
 
 tasks.register("checkAliases") {
 	description = "Checks for the existence of the aliases."
@@ -68,38 +69,28 @@ tasks.register("checkAliases") {
 	}
 }
 
-tasks.replace("build", ShadowJar::class.java).apply {
+tasks.replace("jar", ShadowJar::class.java).apply {
 	from(sourceSets.main.get().output)
 	archiveFileName = "Skript-${project.version}.jar"
 }
 
-tasks.replace("jar", ShadowJar::class.java).apply {
-	dependsOn(tasks.named("checkAliases"))
-	from(sourceSets.main.get().output)
-	archiveFileName = "Skript-${project.version}.jar"
+tasks.shadowJar {
+	// we replace "jar" to behave the same as "shadowJar"
+	enabled = false
 }
 
 tasks.register<ShadowJar>("testJar") {
 	description = "Creates a JAR with test dependencies included."
-	dependsOn(tasks.compileTestJava)
 	archiveFileName = "Skript-JUnit.jar"
 	from(sourceSets.main.get().output, sourceSets.test.get().output)
-	from(provider {
-		testShadow.map { if (it.isDirectory) it else zipTree(it) }
-	})
+	configurations = listOf(project.configurations["testRuntimeClasspath"])
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-tasks.test {
-	enabled = false
-}
-
 tasks.withType<ShadowJar>().configureEach {
-	configurations = listOf(project.configurations["shadow"])
-	dependencies {
-		include(dependency("org.bstats:bstats-base"))
-		include(dependency("org.bstats:bstats-bukkit"))
-	}
+	dependsOn(tasks.named("checkAliases"))
+
+	configurations.convention(listOf(project.configurations["runtimeClasspath"]))
 	relocate("org.bstats", "org.skriptlang.skript.bukkit.bstats")
 	manifest {
 		attributes(
@@ -323,7 +314,7 @@ fun registerSkriptTestTask(
 	classpath = files(
 		// jar must stay first: PlatformMain installs the jar that org.skriptlang.skript.Skript was loaded from
 		jar.flatMap { it.archiveFile },
-		configurations.runtimeClasspath.get().filter { it.name.startsWith("gson") },
+		configurations.compileClasspath.get().filter { it.name.startsWith("gson") },
 		sourceSets.main.get().runtimeClasspath,
 	)
 	if (run == TestingRun.RELEASE_DOCS) {
