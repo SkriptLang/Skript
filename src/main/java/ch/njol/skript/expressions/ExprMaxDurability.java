@@ -67,7 +67,8 @@ public class ExprMaxDurability extends SimplePropertyExpression<Object, Integer>
 				case ADD -> ItemUtils.getMaxDamage(itemStack) + change;
 				case REMOVE -> Math.max(1, ItemUtils.getMaxDamage(itemStack) - change);
 				case SET -> change;
-				default -> 0;
+				case RESET, DELETE -> 0;
+				default -> throw new IllegalStateException();
 			};
 
 			ItemUtils.setMaxDamage(itemStack, newValue);
