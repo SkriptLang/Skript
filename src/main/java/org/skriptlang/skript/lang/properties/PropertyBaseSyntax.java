@@ -93,10 +93,32 @@ public interface PropertyBaseSyntax<Handler extends PropertyHandler<?>> {
 	 * @param expr the expression to check
 	 * @param <Handler> the type of the property handler
 	 * @return a map of classes to property infos for the given expression's return types
+	 * @deprecated use {@link #getPossiblePropertyInfos(Property, Expression, Expression)}, which lets the calling
+	 *             syntax pass itself as the parent expression.
 	 */
+	@Deprecated(forRemoval = true)
 	static <Handler extends PropertyHandler<?>> PropertyMap<Handler> getPossiblePropertyInfos(
 		Property<Handler> property,
 		Expression<?> expr
+	) {
+		return getPossiblePropertyInfos(property, expr, expr);
+	}
+
+	/**
+	 * Gets a map of all possible property infos for the given expression's return types.
+	 * This is useful for determining which property handlers can be used with an expression.
+	 *
+	 * @param property the property to check for
+	 * @param expr the expression to check
+	 * @param parentExpression the expression the handlers will be used by, handed to
+	 *                         {@link PropertyHandler#init(Expression, ch.njol.skript.lang.parser.ParserInstance)}.
+	 * @param <Handler> the type of the property handler
+	 * @return a map of classes to property infos for the given expression's return types
+	 */
+	static <Handler extends PropertyHandler<?>> PropertyMap<Handler> getPossiblePropertyInfos(
+		Property<Handler> property,
+		Expression<?> expr,
+		Expression<?> parentExpression
 	) {
 		PropertyMap<Handler> propertyInfos = new PropertyMap<>();
 
@@ -106,40 +128,64 @@ public interface PropertyBaseSyntax<Handler extends PropertyHandler<?>> {
 		// for each return type, match to a classinfo w/ name property
 		for (Class<?> returnType : expr.possibleReturnTypes()) {
 			ClassInfo<?> closestInfo = null;
+			List<ClassInfo<?>> subtypeInfos = new ArrayList<>();
 			for (ClassInfo<?> propertiedClassInfo : classInfos) {
-				if (propertiedClassInfo.getC() == returnType) {
+				Class<?> propertiedClass = propertiedClassInfo.getC();
+				if (propertiedClass == returnType) {
 					// exact match, use it
 					closestInfo = propertiedClassInfo;
-					break;
-				}
-				if (propertiedClassInfo.getC().isAssignableFrom(returnType)) {
-					// closest match so far
-					if (closestInfo == null || closestInfo.getC().isAssignableFrom(propertiedClassInfo.getC())) {
+				} else if (propertiedClass.isAssignableFrom(returnType)) {
+					// a supertype of the declared type: closest match so far
+					if (closestInfo == null || closestInfo.getC().isAssignableFrom(propertiedClass)) {
 						closestInfo = propertiedClassInfo;
 					}
+				} else if (returnType.isAssignableFrom(propertiedClass)) {
+					// a subtype of the declared type: the value may be one of these at runtime, e.g. a display for
+					// an expression only known to return entities. PropertyMap picks the most specific one then.
+					subtypeInfos.add(propertiedClassInfo);
 				}
 			}
-			if (closestInfo == null) {
+			if (closestInfo == null && subtypeInfos.isEmpty()) {
 				continue; // no name property
 			}
 
 			// get property
-			var propertyInfo = closestInfo.getPropertyInfo(property);
-			if (propertyInfo != null) {
-				var clonedHandler = propertyInfo.handler().newInstance();
-				if (clonedHandler.init(expr, expr.getParser())) {
-					// overwrite with cloned handler
-					//noinspection unchecked
-					propertyInfo = new Property.PropertyInfo<>(propertyInfo.property(), (Handler) clonedHandler);
-				} else {
-					propertyInfo = null; // failed to init, invalid property
-				}
+			if (closestInfo != null) {
+				var propertyInfo = PropertyBaseSyntax.<Handler>resolvePropertyInfo(property, closestInfo, expr, parentExpression);
+				ClassInfo<?> classInfo = Classes.getSuperClassInfo(returnType);
+				propertyInfos.put(classInfo.getC(), propertyInfo);
+				propertyInfos.put(closestInfo.getC(), propertyInfo);
 			}
-			ClassInfo<?> classInfo = Classes.getSuperClassInfo(returnType);
-			propertyInfos.put(classInfo.getC(), propertyInfo);
-			propertyInfos.put(closestInfo.getC(), propertyInfo);
+			for (ClassInfo<?> subtypeInfo : subtypeInfos) {
+				propertyInfos.put(subtypeInfo.getC(),
+					PropertyBaseSyntax.<Handler>resolvePropertyInfo(property, subtypeInfo, expr, parentExpression));
+			}
 		}
 		return propertyInfos;
+	}
+
+	/**
+	 * Looks up the property info a class info holds for the given property, and replaces its handler with a freshly
+	 * initialised instance for this usage.
+	 *
+	 * @return the property info with its own handler instance, or null if the handler refused to initialise
+	 */
+	private static <Handler extends PropertyHandler<?>> Property.@Nullable PropertyInfo<Handler> resolvePropertyInfo(
+		Property<Handler> property,
+		ClassInfo<?> classInfo,
+		Expression<?> expr,
+		Expression<?> parentExpression
+	) {
+		Property.PropertyInfo<Handler> propertyInfo = classInfo.getPropertyInfo(property);
+		if (propertyInfo == null) {
+			return null;
+		}
+		var clonedHandler = propertyInfo.handler().newInstance();
+		if (!clonedHandler.init(parentExpression, expr.getParser())) {
+			return null; // failed to init, invalid property
+		}
+		//noinspection unchecked
+		return new Property.PropertyInfo<>(propertyInfo.property(), (Handler) clonedHandler);
 	}
 
 }
