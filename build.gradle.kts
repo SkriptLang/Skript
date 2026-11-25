@@ -251,9 +251,6 @@ tasks.register<ShadowJar>("nightlyRelease") {
 tasks.register<ShadowJar>("githubRelease") {
 	description = "JAR task for GitHub releases."
 
-	// the conditional test output below can't reliably supply its own task dependency
-	dependsOn(tasks.compileTestJava)
-
 	from(sourceSets.main.get().output.classesDirs) // use classesDirs to exclude resources, processed below instead
 
 	val releaseVersion = project.version.toString()
@@ -272,17 +269,6 @@ tasks.register<ShadowJar>("githubRelease") {
 			)
 		)
 	}
-
-	// we want to include the testing platform classes if this GitHub jar is used to generate docs
-	from(Callable {
-		if (gradle.taskGraph.hasTask(":genReleaseDocs")) {
-			sourceSets.test.get().output.asFileTree.matching {
-				include("org/skriptlang/skript/test/platform/**")
-			}
-		} else {
-			emptyList<Any>()
-		}
-	})
 
 	archiveFileName = "Skript-${project.version}.jar"
 }
@@ -336,10 +322,15 @@ fun registerSkriptTestTask(
 	}
 
 	classpath = files(
+		// jar must stay first: PlatformMain installs the jar that org.skriptlang.skript.Skript was loaded from
 		jar.flatMap { it.archiveFile },
 		configurations.runtimeClasspath.get().filter { it.name.startsWith("gson") },
 		sourceSets.main.get().runtimeClasspath,
 	)
+	if (run == TestingRun.RELEASE_DOCS) {
+		// PlatformMain lives in the test source set, so a release jar wouldn't contain it
+		classpath += sourceSets.test.get().output
+	}
 	mainClass = "org.skriptlang.skript.test.platform.PlatformMain"
 	args(
 		"build/test_runners",
