@@ -59,7 +59,7 @@ Skript releases a major feature update 4 times per year, with monthly patches in
 
 ## Documentation
 
-Information about every syntax, tutorials, and API docs are available at **[docs.skriptlang.org](https://beta-docs.skriptlang.org/)** and the unofficial [Skript Hub](https://skripthub.net) page.
+Information about every syntax, tutorials, and API docs are available at **[docs.skriptlang.org](https://beta-docs.skriptlang.org/)**.
 
 ## Community
 
@@ -68,6 +68,11 @@ Need help with a script? Start with the [docs](#documentation), then ask:
 - [skUnity Forums](https://forums.skunity.com)
 - [skUnity Discord](https://discord.gg/0l3WlzBPKX7WNjkf)
 - [Skript Chat Discord](https://discord.gg/V4qFVnh)
+
+Looking for documentation about addons?
+- [skUnity Docs](https://docs.skunity.com/)
+- [SkriptHub Docs](https://skripthub.net/docs)
+- [skdocs](https://skdocs.org/)
 
 These communities are run independently of the Skript team. Please don't report their issues here.
 
@@ -84,7 +89,7 @@ These communities are run independently of the Skript team. Please don't report 
 
 ## Addons
 
-Plugins can add new syntaxes to Skript to extend it. You can find addons on [skUnity](https://forums.skunity.com/forums/addon-releases) and [Skript Hub](https://skripthub.net).
+Plugins can add new syntaxes to Skript to extend it. You can find addons on [community](#community) and other plugin websites.
 
 Addons are maintained by their authors, not by the Skript team. When reporting a bug, try to reproduce it **without addons** first. If it is an issue with an addon, do not report it here.
 
