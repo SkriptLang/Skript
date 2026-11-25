@@ -82,8 +82,10 @@ public class EffDancing extends Effect {
 			if (entity instanceof Allay allay) {
 				if (!start) {
 					allay.stopDancing();
-				} else if (location != null && allay.getWorld().getBlockAt(location).getType().equals(Material.JUKEBOX)) {
-					allay.startDancing(location);
+				} else if (location != null) {
+					if (allay.getWorld().getBlockAt(location).getType().equals(Material.JUKEBOX)) {
+						allay.startDancing(location);
+					}
 				} else {
 					allay.startDancing();
 				}
