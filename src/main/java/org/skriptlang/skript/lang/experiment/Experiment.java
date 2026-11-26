@@ -82,15 +82,9 @@ class ConstantExperiment implements Experiment {
 		this.codeName = codeName;
 		this.phase = phase;
 		switch (patterns.length) {
-			case 0:
-				this.compiledPattern = PatternCompiler.compile(codeName);
-				break;
-			case 1:
-				this.compiledPattern = PatternCompiler.compile(patterns[0]);
-				break;
-			default:
-				this.compiledPattern = PatternCompiler.compile(String.join("|", patterns));
-				break;
+			case 0 -> this.compiledPattern = PatternCompiler.compile(codeName);
+			case 1 -> this.compiledPattern = PatternCompiler.compile(patterns[0]);
+			default -> this.compiledPattern = PatternCompiler.compile(String.join("|", patterns));
 		}
 	}
 
@@ -111,7 +105,7 @@ class ConstantExperiment implements Experiment {
 
 	@Override
 	public boolean matches(String text) {
-		return codeName.equals(text);
+		return text != null && compiledPattern.match(text) != null;
 	}
 
 	@Override
@@ -149,6 +143,11 @@ class UnmatchedExperiment extends ConstantExperiment {
 	@Override
 	public boolean isKnown() {
 		return false;
+	}
+
+	@Override
+	public boolean matches(String text) {
+		return codeName().equals(text);
 	}
 
 }
