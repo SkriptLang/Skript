@@ -124,7 +124,7 @@ tasks.withType<JavaCompile>().configureEach {
  * Publishing
  */
 
-group = "org.skriptlang.skript"
+group = "org.skriptlang"
 version = project.property("version") as String
 
 tasks.register<Jar>("sourcesJar") {
@@ -136,6 +136,7 @@ tasks.register<Jar>("sourcesJar") {
 publishing {
 	publications {
 		create<MavenPublication>("maven") {
+			artifactId = "skript"
 			artifact(tasks.named("sourcesJar"))
 			artifact(tasks.named("jar"))
 		}
