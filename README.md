@@ -138,7 +138,7 @@ Or, if you use Maven:
 Then you will also need to add Skript as a dependency.
 ```gradle
 dependencies {
-    implementation 'com.github.SkriptLang:Skript:[versionTag]'
+    implementation 'org.skriptlang:skript:[versionTag]'
 }
 ```
 
@@ -149,8 +149,8 @@ An example of the version tag would be ```2.8.5```.
 Or, if you use Maven:
 ```
 <dependency>
-    <groupId>com.github.SkriptLang</groupId>
-    <artifactId>Skript</artifactId>
+    <groupId>org.skriptlang</groupId>
+    <artifactId>skript</artifactId>
     <version>[versionTag]</version>
     <scope>provided</scope>
 </dependency>

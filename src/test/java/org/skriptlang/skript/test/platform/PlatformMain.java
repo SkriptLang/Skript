@@ -1,11 +1,9 @@
 package org.skriptlang.skript.test.platform;
 
 import ch.njol.skript.test.utils.TestResults;
-import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import org.apache.commons.lang.StringUtils;
 import org.skriptlang.skript.test.platform.Resource.ResourceDeserializer;
 
 import java.io.IOException;
@@ -47,7 +45,7 @@ public class PlatformMain {
 		long timeout = Long.parseLong(args[9]);
 		if (timeout < 0)
 			timeout = 0;
-		Set<String> jvmArgs = Sets.newHashSet(Arrays.copyOfRange(args, 10, args.length));
+		Set<String> jvmArgs = new HashSet<>(Arrays.asList(args).subList(10, args.length));
 		if (jvmArgs.stream().noneMatch(arg -> arg.contains("-Xmx")))
 			jvmArgs.add("-Xmx5G");
 
@@ -133,9 +131,9 @@ public class PlatformMain {
 
 		// All succeeded tests in a single line
 		StringBuilder output = new StringBuilder()
-			.append(StringUtils.repeat("-", 25))
+			.repeat('-', 25)
 			.append(" Results ")
-			.append(StringUtils.repeat("-", 25))
+			.repeat('-', 25)
 			.append(System.lineSeparator())
 			.append(System.lineSeparator())
 			.append("Tested Environments: ")
@@ -174,7 +172,7 @@ public class PlatformMain {
 
 		output.append(System.lineSeparator())
 			.append(System.lineSeparator())
-			.append(StringUtils.repeat("-", 59)); // same length as header
+			.repeat('-', 59); // same length as header
 
 		if (failNames.isEmpty()) { // all tests passed
 			System.out.print(output);

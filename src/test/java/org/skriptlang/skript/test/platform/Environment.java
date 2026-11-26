@@ -3,6 +3,7 @@ package org.skriptlang.skript.test.platform;
 import ch.njol.skript.test.utils.TestResults;
 import com.google.gson.Gson;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.Skript;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,7 +65,7 @@ public class Environment {
 		Path skript = env.resolve(skriptTarget);
 		Files.createDirectories(skript.getParent());
 		try {
-			Files.copy(new File(getClass().getProtectionDomain().getCodeSource().getLocation()
+			Files.copy(new File(Skript.class.getProtectionDomain().getCodeSource().getLocation()
 				.toURI()).toPath(), skript, StandardCopyOption.REPLACE_EXISTING);
 		} catch (URISyntaxException e) {
 			throw new AssertionError(e);

@@ -26,7 +26,6 @@ import ch.njol.yggdrasil.Yggdrasil;
 import ch.njol.yggdrasil.YggdrasilInputStream;
 import ch.njol.yggdrasil.YggdrasilOutputStream;
 import com.google.common.base.Preconditions;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -115,7 +114,6 @@ public abstract class Classes {
 	/**
 	 * Sorts the class infos according to sub/superclasses and relations set with {@link ClassInfo#before(String...)} and {@link ClassInfo#after(String...)}.
 	 */
-	@SuppressFBWarnings("LI_LAZY_INIT_STATIC")
 	private static void sortClassInfos() {
 		assert classInfos == null;
 
