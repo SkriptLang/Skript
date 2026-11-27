@@ -35,6 +35,7 @@ public class Version implements Serializable, Comparable<Version> {
 	}
 
 	public final static Pattern versionPattern = Pattern.compile("(\\d+)\\.(\\d+)(?:\\.(\\d+))?(?:-(.*))?");
+	private final static Pattern relaxedVersionPattern = Pattern.compile("\\d+\\.\\d+(?:\\.\\d+)?");
 
 	public Version(String version) {
 		final Matcher m = versionPattern.matcher(version.trim());
@@ -45,6 +46,19 @@ public class Version implements Serializable, Comparable<Version> {
 				this.version[i] = Utils.parseInt("" + m.group(i + 1));
 		}
 		postfix = m.group(4);
+	}
+	@Nullable
+	public static Version parse(String version) {
+		try {
+			return new Version(version);
+		} catch (IllegalArgumentException ignored) {}
+		Matcher m = relaxedVersionPattern.matcher(version.trim());
+		if (m.find()) {
+			try {
+				return new Version(m.group());
+			} catch (IllegalArgumentException ignored) {}
+		}
+		return null;
 	}
 
 	@Override

@@ -137,7 +137,7 @@ public class SectionNode extends Node implements Iterable<Node> {
 	 * @return The node at the specified index. May be null.
 	 * @throws IllegalArgumentException if the index is out of bounds
 	 */
-	@Nullable Node getAt(int index) {
+	public @Nullable Node getAt(int index) {
 		Preconditions.checkArgument(index >= 0 && index < size(), "index out of bounds: %s", index);
 		return nodes.get(index);
 	}

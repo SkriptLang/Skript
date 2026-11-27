@@ -12,6 +12,42 @@ test "SecConditional - ParseIf":
 		#this code in this section SHOULD be parsed but should NOT be ran
 		assert 10 = 1 with "ParseIf/Else section was parsed and failed"
 
+parse if plugin "LaDeDa-LeFakePlugin" is enabled:
+	test "SecConditional - ParseIf structure (skipped)":
+		#this whole structure should NOT be parsed
+		floopidy flopidy flernindurf
+
+else parse if plugin "Skript" is enabled:
+	test "SecConditional - ParseIf structure":
+		set {_a} to 10
+		assert {_a} is 10 with "top-level ParseIf structure was not loaded"
+
+else:
+	test "SecConditional - ParseIf structure else (skipped)":
+		assert 10 = 1 with "top-level ParseIf else branch was parsed when it should not have been"
+
+parse if version of "skript" is at least "999.0":
+	test "SecConditional - ParseIf version (skipped)":
+		floopidy flopidy flernindurf
+
+parse if version of "skript" is at least "2.0":
+	test "SecConditional - ParseIf version":
+		assert 10 is 10 with "version-gated structure was not loaded"
+
+parse if version of "LaDeDa-LeFakePlugin" is at least "1.0":
+	test "SecConditional - ParseIf plugin version (skipped)":
+		floopidy flopidy flernindurf
+
+command /parsetest:
+	parse if plugin "LaDeDa-LeFakePlugin" is enabled:
+		suggestions:
+			floopidy flopidy flernindurf
+	else:
+		suggestions:
+			set arg-1's suggestions to "parsed"
+	trigger:
+		stop
+
 test "SecConditional":
 	set {_b} to true
 	if 1 is 1:
