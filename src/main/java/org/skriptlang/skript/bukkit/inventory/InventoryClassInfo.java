@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.types;
+package org.skriptlang.skript.bukkit.inventory;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
