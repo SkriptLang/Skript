@@ -3,6 +3,7 @@ package org.skriptlang.skript.bukkit.item.book;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.item.book.elements.effects.*;
 import org.skriptlang.skript.bukkit.item.book.elements.expressions.*;
 
 public class BookModule extends HierarchicalAddonModule {
@@ -14,6 +15,7 @@ public class BookModule extends HierarchicalAddonModule {
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
 		register(addon,
+			EffOpenBook::register,
 			ExprBookAuthor::register,
 			ExprBookPages::register,
 			ExprBookTitle::register
