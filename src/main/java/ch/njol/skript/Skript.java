@@ -71,6 +71,9 @@ import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.common.CommonModule;
+import org.skriptlang.skript.common.elements.functions.MathFunctions;
+import org.skriptlang.skript.common.elements.functions.StringFunctions;
+import org.skriptlang.skript.common.elements.functions.TimeFunctions;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
@@ -566,7 +569,6 @@ public final class Skript extends JavaPlugin implements Listener {
 					.build()
 					.loadClasses(Skript.class, getFile());
 				BukkitEventValues.register(eventValueRegistry);
-				new DefaultFunctions();
 				new DefaultOperations();
 			}
 
