@@ -13,7 +13,6 @@ import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-
 @Name("PvP")
 @Description("Set the PvP state for a given world.")
 @Example("enable PvP #(current world only)")
