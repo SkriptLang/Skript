@@ -1,24 +1,19 @@
 package org.skriptlang.skript.bukkit.entity.player.elements.expressions;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.lang.EventRestrictedSyntax;
-import io.papermc.paper.event.player.AsyncChatEvent;
-import net.kyori.adventure.audience.Audience;
-import org.bukkit.Bukkit;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.ChangeDelayRestrictedSyntax;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.audience.Audience;
+import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -27,7 +22,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Example("chat recipients")
 @Since("2.2-Fixes-v7, 2.2-dev35 (clearing recipients), 2.15 (returns Audience)")
 @Events("chat")
-public class ExprChatRecipients extends SimpleExpression<Audience> implements EventRestrictedSyntax {
+public class ExprChatRecipients extends SimpleExpression<Audience> implements EventRestrictedSyntax, ChangeDelayRestrictedSyntax {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprChatRecipients.class, Audience.class)
@@ -51,10 +46,6 @@ public class ExprChatRecipients extends SimpleExpression<Audience> implements Ev
 
 	@Override
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (getParser().getHasDelayBefore().isTrue()) {
-			Skript.error("'" + toString(null, false) + "' can't be changed after the event has passed");
-			return null;
-		}
 		return switch (mode) {
 			case ADD, SET, REMOVE, DELETE, RESET -> CollectionUtils.array(Audience[].class);
 			default -> null;

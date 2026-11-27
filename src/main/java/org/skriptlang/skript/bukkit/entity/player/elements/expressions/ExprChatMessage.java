@@ -1,12 +1,8 @@
 package org.skriptlang.skript.bukkit.entity.player.elements.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.ChangeDelayRestrictedSyntax;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -29,7 +25,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	""")
 @Since("1.4.6, 2.15 (support for reset)")
 @Events("chat")
-public class ExprChatMessage extends SimpleExpression<Component> implements EventRestrictedSyntax {
+public class ExprChatMessage extends SimpleExpression<Component> implements EventRestrictedSyntax, ChangeDelayRestrictedSyntax {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprChatMessage.class, Component.class)
@@ -53,10 +49,6 @@ public class ExprChatMessage extends SimpleExpression<Component> implements Even
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		if (getParser().getHasDelayBefore().isTrue()) {
-			Skript.error("'" + toString(null, false) + "' can't be changed after the event has passed");
-			return null;
-		}
 		return switch (mode) {
 			case SET, DELETE, RESET -> CollectionUtils.array(Component.class);
 			default -> null;

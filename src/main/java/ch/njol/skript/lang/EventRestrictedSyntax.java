@@ -15,7 +15,7 @@ public interface EventRestrictedSyntax {
 	 * <p>
 	 * Before {@link SyntaxElement#init(Expression[], int, Kleenean, SkriptParser.ParseResult)} is called, checks
 	 * to see if the current event is supported by this syntax element.
-	 * If it is not, an error will be printed and the syntax element will not be initialised.
+	 * If it is not, an error will be printed and the syntax element will not be initialized.
 	 * </p>
 	 *
 	 * @return All supported event classes.
