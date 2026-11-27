@@ -7,6 +7,7 @@ import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.common.elements.effects.*;
 import org.skriptlang.skript.common.elements.expressions.*;
 import org.skriptlang.skript.common.properties.PropertiesModule;
+import org.skriptlang.skript.common.test.TestModule;
 import org.skriptlang.skript.common.types.*;
 
 import java.util.List;
@@ -16,7 +17,8 @@ public class CommonModule extends HierarchicalAddonModule {
 	@Override
 	public Iterable<AddonModule> children() {
 		return List.of(
-			new PropertiesModule(this)
+			new PropertiesModule(this),
+			new TestModule(this)
 		);
 	}
 
