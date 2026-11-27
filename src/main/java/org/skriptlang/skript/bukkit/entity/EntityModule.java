@@ -12,6 +12,8 @@ import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.entity.data.*;
 import org.skriptlang.skript.bukkit.entity.displays.DisplayModule;
+import org.skriptlang.skript.bukkit.entity.interactions.InteractionModule;
+import org.skriptlang.skript.bukkit.entity.elements.effects.EffLook;
 import org.skriptlang.skript.bukkit.entity.elements.effects.EffTeleport;
 import org.skriptlang.skript.bukkit.entity.elements.expressions.ExprDeathMessage;
 import org.skriptlang.skript.bukkit.entity.elements.expressions.ExprPathfindingLocation;
@@ -103,8 +105,8 @@ public class EntityModule extends HierarchicalAddonModule {
 			ExprDeathMessage::register,
 			ExprPathfindingLocation::register,
 			ExprPathfindingTarget::register,
-			EffTeleport::register,
-			ExprDeathMessage::register
+			EffLook::register,
+			EffTeleport::register
 		);
 	}
 
