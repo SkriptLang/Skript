@@ -18,6 +18,7 @@ public class MiscModule extends HierarchicalAddonModule {
 			EffRotate::register,
 			ExprBroadcastMessage::register,
 			ExprColorOf::register,
+			ExprDirection::register,
 			ExprItemOfEntity::register,
 			ExprMOTD::register,
 			ExprQuaternionAxisAngle::register,

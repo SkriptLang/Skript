@@ -1,22 +1,106 @@
+using error catching
+
+test "invalid block data":
+	set {_block} to campfire[]
+	catch runtime errors:
+		set blockdata "waterlogged" of {_block} to "1"
+	set {_error} to "The blockdata tag 'waterlogged' can only be changed to a boolean (yes/no) value."
+	assert last caught runtime errors contains {_error} with "Boolean BlockData should error with non-boolean value"
+
+	set {_block} to sea pickles[]
+	catch runtime errors:
+		set blockdata "pickles" of {_block} to "a"
+	set {_error} to "The blockdata tag 'pickles' can only be changed to an integer value."
+	assert last caught runtime errors contains {_error} with "Integer BlockData should error with non-integer value"
+
+	set {_block} to oak stairs[]
+	catch runtime errors:
+		set blockdata "facing" of {_block} to 1
+	set {_error} to "The blockdata tag 'facing' can only be changed to a direction value."
+	assert last caught runtime errors contains {_error} with "Direction BlockData should error with non-direction value"
+
+	catch runtime errors:
+		set blockdata "facing" of {_block} to north east
+	set {_error} to "The blockdata tag 'facing' does not support the direction value 'north_east' for the block type: oak stairs"
+	assert last caught runtime errors contains {_error} with "Direction BlockData should error with non-supported direction value for 'facing'"
+
+	catch runtime errors:
+		set blockdata "half" of {_block} to "left"
+	set {_error} to "The blockdata tag 'half' does not support the text value 'left' for the block type: oak stairs"
+	assert last caught runtime errors contains {_error} with "String BlockData should error with non-supported string value for 'half'"
+
 test "block data":
-	set {_b} to block at test-location
-	set block at {_b} to campfire[lit=false;waterlogged=true]
-	assert block at {_b} is campfire[lit=false] with "block at spawn should be an unlit campfire"
+	set {_loc} to test-location
+	set block at {_loc} to campfire[lit=false;waterlogged=true]
 
-	assert block at {_b} = campfire[lit=false;waterlogged=true] with "block should have been an unlit, waterlogged campfire"
-	assert block at {_b} = campfire[waterlogged=true] with "block should have been a waterlogged campfire"
-	assert block at {_b} = campfire[] with "block should have been a campfire"
-	assert block at {_b} != campfire[lit=true;waterlogged=false] with "block should not have been an unlit, waterlogged campfire"
+	assert block at {_loc} is campfire[lit=false] with "Block should match with partial BlockData - lit"
+	assert block at {_loc} is campfire[waterlogged=true] with "Block should match with partial BlockData - waterlogged"
+	assert block at {_loc} is campfire[lit=false;waterlogged=true] with "Block should match full BlockData"
+	assert block at {_loc} is campfire[] with "Block should match with no specified BlockData"
+	assert block at {_loc} is not campfire[lit=true;waterlogged=false] with "Block should not match with inverted BlockData"
 
-	set {_data} to block data of block at {_b}
-	assert "%{_data}%" contains "campfire", "lit=false" and "waterlogged=true" with "block data for campfire did not match"
+	set {_data} to blockdata of block at {_loc}
+	assert "%{_data}%" contains "campfire", "lit=false" and "waterlogged=true" with "BlockData string did not contain specified parts"
 
-	set block at {_b} to air
+	assert {_data} is campfire[lit=false] with "BlockData should match with partial BlockData - lit"
+	assert {_data} is campfire[waterlogged=true] with "BlockData should match with partial BlockData - waterlogged"
+	assert {_data} is campfire[lit=false;waterlogged=true] with "BlockData should match full BlockData"
+	assert {_data} is campfire[] with "BlockData should match with no specified BlockData"
+	assert {_data} is not campfire[lit=true;waterlogged=false] with "BlockData should not match with inverted BlockData"
+
+	set {_tags::*} to "lit" and "waterlogged"
+	loop {_tags::*}:
+		assert blockdata (loop-value) of (block at {_loc}) is set with "BlockData '" + (loop-value) +"' was not found on Block"
+		assert (block at {_loc}) has blockdata (loop-value) with "Block did not have BlockData '" + (loop-value) + "'"
+		assert blockdata (loop-value) of {_data} is set with "BlockData '" + (loop-value) +"' was not found on BlockData"
+		assert {_data} has blockdata (loop-value) with "BlockData did not have BlockData '" + (loop-value) + "'"
+	assert (block at {_loc}) is tagged with blockdata {_tags::*} with "Block did not have all BlockData tags"
+	assert {_data} is tagged with blockdata {_tags::*} with "BlockData did not have all BlockData tags"
+
+	assert blockdata tags of (block at {_loc}) contains {_tags::*} with "Block's BlockData tags did not have all specified tags"
+	assert blockdata tags of {_data} contains {_tags::*} with "BlockData's tags did not have all specified tags"
+
+	set blockdata "waterlogged" of (block at {_loc}) to false
+	assert blockdata "waterlogged" of (block at {_loc}) is false with "BlockData 'waterlogged' was not set to false (boolean)"
+	set blockdata "lit" of (block at {_loc}) to "true"
+	assert blockdata "lit" of (block at {_loc}) is true with "BlockData 'lit' was not set to true (string)"
+
+	set block at {_loc} to air
 
 test "falling block block data":
-    spawn a falling block at test-location:
-        set {_e} to entity
-    assert block data of {_e} is stone[] with "Falling block should default to stone"
-    set block data of {_e} to sand[]
-    assert block data of {_e} is sand[] with "Falling block should update to sand"
-    clear entity within {_e}
+	spawn a falling block at test-location:
+		set {_entity} to entity
+	assert block data of {_entity} is stone[] with "FallingBlock should default to stone"
+	set block data of {_entity} to oak stairs[]
+	assert block data of {_entity} is oak stairs[] with "FallingBlock should update to oak stairs"
+
+	set {_tags::*} to "facing", "shape", "half" and "waterlogged"
+	assert {_entity} has blockdata {_tags::*} with "FallingBlock BlockData did not have specified tags"
+	set blockdata "facing" of {_entity} to east
+	assert blockdata "facing" of {_entity} is east with "FallingBlock 'facing' was not set to 'east'"
+	assert blockdata of {_entity} is oak stairs[facing=east;waterlogged=false] with "FallingBlock should match with partial BlockData"
+
+	clear entity within {_entity}
+
+test "block display block data":
+	spawn a block display at test-location:
+		set {_entity} to entity
+	set block data of {_entity} to oak stairs[]
+	assert block data of {_entity} is oak stairs[] with "BlockDisplay should update to oak stairs"
+
+	set {_tags::*} to "facing", "shape", "half" and "waterlogged"
+	assert {_entity} has blockdata {_tags::*} with "BlockDisplay BlockData did not have specified tags"
+	set blockdata "facing" of {_entity} to east
+	assert blockdata "facing" of {_entity} is east with "BlockDisplay 'facing' was not set to 'east'"
+	assert blockdata of {_entity} is oak stairs[facing=east;waterlogged=false] with "BlockDisplay should match with partial BlockData"
+
+	clear entity within {_entity}
+
+test "itemtype block data":
+	set {_item} to oak stairs
+	set {_tags::*} to "facing", "shape", "half" and "waterlogged"
+	assert {_item} has blockdata {_tags::*} with "ItemType BlockData did not have specified tags"
+	set blockdata "facing" of {_item} to east
+	assert blockdata "facing" of {_item} is east with "ItemType 'facing' was not set to 'east'"
+	assert blockdata of {_item} is oak stairs[facing=east;waterlogged=false] with "ItemType should match with partial BlockData"
+
