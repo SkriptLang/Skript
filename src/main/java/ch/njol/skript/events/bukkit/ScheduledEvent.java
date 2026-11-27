@@ -1,6 +1,5 @@
 package ch.njol.skript.events.bukkit;
 
-import ch.njol.skript.registrations.EventValues;
 import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -10,12 +9,6 @@ import org.jetbrains.annotations.Nullable;
  * @author Peter Güttinger
  */
 public class ScheduledEvent extends Event {
-
-	static {
-		EventValues.registerEventValue(ScheduledEvent.class, World.class, ScheduledEvent::getWorld, EventValues.TIME_NOW,
-			"There's no world in a periodic event if no world is given in the event (e.g. like 'every hour in \"world\"')",
-			ScheduledNoWorldEvent.class);
-	}
 	
 	@Nullable
 	private final World world;
