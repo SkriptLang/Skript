@@ -81,17 +81,11 @@ class ConstantExperiment implements Experiment {
 	ConstantExperiment(String codeName, LifeCycle phase, String... patterns) {
 		this.codeName = codeName;
 		this.phase = phase;
-		switch (patterns.length) {
-			case 0:
-				this.compiledPattern = PatternCompiler.compile(codeName);
-				break;
-			case 1:
-				this.compiledPattern = PatternCompiler.compile(patterns[0]);
-				break;
-			default:
-				this.compiledPattern = PatternCompiler.compile(String.join("|", patterns));
-				break;
-		}
+		this.compiledPattern = switch (patterns.length) {
+			case 0 -> PatternCompiler.compile(codeName);
+			case 1 -> PatternCompiler.compile(patterns[0]);
+			default -> PatternCompiler.compile(String.join("|", patterns));
+		};
 	}
 
 	@Override
@@ -107,11 +101,6 @@ class ConstantExperiment implements Experiment {
 	@Override
 	public SkriptPattern pattern() {
 		return compiledPattern;
-	}
-
-	@Override
-	public boolean matches(String text) {
-		return codeName.equals(text);
 	}
 
 	@Override
@@ -149,6 +138,11 @@ class UnmatchedExperiment extends ConstantExperiment {
 	@Override
 	public boolean isKnown() {
 		return false;
+	}
+
+	@Override
+	public boolean matches(String text) {
+		return codeName().equals(text);
 	}
 
 }
