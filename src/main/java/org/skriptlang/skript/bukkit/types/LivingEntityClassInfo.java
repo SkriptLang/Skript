@@ -9,7 +9,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Phantom;
 import org.bukkit.entity.Slime;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.types.EntityClassInfo.EntityChanger;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 

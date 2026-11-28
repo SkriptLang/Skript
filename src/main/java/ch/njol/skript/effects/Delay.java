@@ -116,7 +116,7 @@ public class Delay extends EffectSection {
 		TriggerItem afterDelay = trigger != null ? trigger : getNext();
 		if (afterDelay != null) {
 			boolean isSection = trigger != null;
-			Object localVars = isSection ? Variables.copyLocalVariables(event) : Variables.removeLocals(event);
+			Object localVars = isSection ? Variables.copyLocalVariables(event) : Variables.removeLocalVariables(event);
 
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
 				addDelayedEvent(event);
@@ -127,7 +127,7 @@ public class Delay extends EffectSection {
 
 				TriggerItem.walk(afterDelay, event);
 
-				Variables.removeLocals(event); // Clean up local vars, we may be exiting now
+				Variables.removeLocalVariables(event); // Clean up local vars, we may be exiting now
 			}, ticks);
 		}
 

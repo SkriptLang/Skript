@@ -33,10 +33,10 @@ public class Trigger extends TriggerSection {
 		boolean success = TriggerItem.walk(this, event);
 
 		// Clear local variables
-		Variables.removeLocals(event);
+		Variables.removeLocalVariables(event);
 		/*
 		 * Local variables can be used in delayed effects by backing reference
-		 * of VariablesMap up. Basically:
+		 * of VariableMap up. Basically:
 		 *
 		 * Object localVars = Variables.removeLocals(event);
 		 *

@@ -134,7 +134,7 @@ public class EffTeleport extends Effect {
 		}
 
 		final Location fixed = location;
-		Object localVars = Variables.removeLocals(event);
+		Object localVars = Variables.removeLocalVariables(event);
 		fixed.getWorld().getChunkAtAsync(fixed).thenAccept(ignored -> {
 			Delay.addDelayedEvent(event);
 			for (Entity entity : entityArray) {
@@ -157,7 +157,7 @@ public class EffTeleport extends Effect {
 
 				TriggerItem.walk(next, event);
 			}
-			Variables.removeLocals(event); // Clean up local vars, we may be exiting now
+			Variables.removeLocalVariables(event); // Clean up local vars, we may be exiting now
 			SkriptTimings.stop(timing);
 		});
 
