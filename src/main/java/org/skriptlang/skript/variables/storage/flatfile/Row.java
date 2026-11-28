@@ -3,6 +3,7 @@ package org.skriptlang.skript.variables.storage.flatfile;
 import ch.njol.skript.variables.SerializedVariable.Value;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.variables.storage.CsvFormat;
+import org.skriptlang.skript.variables.storage.LoadReport;
 
 import java.io.IOException;
 
@@ -86,16 +87,6 @@ record Row(String name, String type, String hex, String line) {
 	 */
 	Value value() {
 		return new Value(type, CsvFormat.decode(hex));
-	}
-
-	/**
-	 * Appends the row to a file's text, with its line break. It's copied as it was written,
-	 * which is much faster than writing it again from its values.
-	 *
-	 * @param out Where to append it
-	 */
-	void appendTo(StringBuilder out) {
-		out.append(line).append('\n');
 	}
 
 	/**
