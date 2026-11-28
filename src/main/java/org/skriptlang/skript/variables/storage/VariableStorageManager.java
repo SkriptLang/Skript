@@ -95,7 +95,7 @@ public final class VariableStorageManager {
 		this.serializer = serializer;
 		this.deserializer = deserializer;
 		this.mainThread = mainThread;
-		this.refresher = new VariableRefresher(globals, refreshSerializer, this::route, VariableStorage::report);
+		this.refresher = new VariableRefresher(globals, refreshSerializer, this::route, () -> storages, VariableStorage::report);
 	}
 
 	// ---------------------------- REGISTRATION ----------------------------
@@ -767,6 +767,17 @@ public final class VariableStorageManager {
 	public synchronized void close() {
 		if (closed)
 			return;
+		// before the final refresh, so a storage that finds it lost data can still request a resave
+		for (VariableStorage storage : storages) {
+			if (storage.loadFailed)
+				continue;
+			try {
+				storage.checkIntegrity();
+			} catch (IOException | RuntimeException e) {
+				//noinspection ThrowableNotThrown
+				Skript.exception(e, "Failed to check the database '" + storage.getName() + "' while shutting down");
+			}
+		}
 		// before closing, since routing stops once closed, and the queues must still take the refreshed values
 		// Throwable throughout: nothing that goes wrong here may stop the other storages from saving
 		try {

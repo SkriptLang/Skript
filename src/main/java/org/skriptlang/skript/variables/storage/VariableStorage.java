@@ -33,6 +33,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -56,8 +57,12 @@ import java.util.concurrent.locks.ReentrantLock;
  *     before anything newer is drained. If the storage {@link #supportsBackups() supports backups} and the config
  *     sets a {@code backup interval}, the saving thread also writes a backup every interval.</li>
  *     A storage whose data can also be changed from outside this server reports those changes with
- *     {@link #reportUpdated} and {@link #reportCleared}.</li>
- *     <li><b>Stop:</b> on shutdown, the saving thread is stopped and what is left is saved one last time.</li>
+ *     {@link #reportUpdated} and {@link #reportCleared}. A storage that lost data it had saved, for example because
+ *     its file was replaced, calls {@link #requestResave()}, and Skript queues every one of its variables again
+ *     from memory.</li>
+ *     <li><b>Check:</b> on shutdown, {@link #checkIntegrity()} is called once, so a storage can find such a loss
+ *     and request a resave while the variables can still be saved.</li>
+ *     <li><b>Stop:</b> the saving thread is stopped and what is left is saved one last time.</li>
  *     <li><b>Close:</b> {@link #close()} releases the storage's resources.</li>
  * </ol>
  * <p>
@@ -98,6 +103,9 @@ public abstract class VariableStorage implements Closeable {
 
 	// the changes waiting to be saved
 	private final ChangeQueue queue = new ChangeQueue();
+
+	// whether the storage asked for all of its variables to be saved again. taken by the refresher on the main thread
+	private final AtomicBoolean resaveRequested = new AtomicBoolean();
 
 	// saving thread stuff
 	private final ReentrantLock saveLock = new ReentrantLock();
@@ -617,6 +625,41 @@ public abstract class VariableStorage implements Closeable {
 	 */
 	@Override
 	public abstract void close();
+
+	// ---------------------------- RESAVING ----------------------------
+
+	/**
+	 * Asks Skript to save every variable of this storage again, from memory, because the storage lost some of what it
+	 * had saved, for example because its file was replaced while the server was running.
+	 * The variables are queued again over the next ticks, or right away if the server is shutting down.
+	 * <p>
+	 * May be called from any thread. Asking again before the variables were queued again does nothing more.
+	 */
+	protected final void requestResave() {
+		resaveRequested.set(true);
+	}
+
+	/**
+	 * Takes a request made with {@link #requestResave()}, so it's only acted on once.
+	 *
+	 * @return whether a resave was requested since the last call
+	 */
+	final boolean takeResaveRequest() {
+		// read first, so the usual case of no request doesn't write to the flag every tick
+		return resaveRequested.get() && resaveRequested.getAndSet(false);
+	}
+
+	/**
+	 * Checks whether the storage still holds what it saved, and calls {@link #requestResave()} if it doesn't.
+	 * Called once on shutdown, on the main thread, before the variables are saved for the last time, so that what
+	 * was lost can still be saved again. The saving thread may still be running while this is called.
+	 * <p>
+	 * Does nothing by default.
+	 *
+	 * @throws IOException if the check fails. Skript reports it and carries on shutting down
+	 */
+	protected void checkIntegrity() throws IOException {
+	}
 
 	// ------------------------ EXTERNAL CHANGES ------------------------
 
