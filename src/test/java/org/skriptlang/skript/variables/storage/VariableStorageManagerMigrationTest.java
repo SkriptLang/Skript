@@ -55,11 +55,14 @@ public class VariableStorageManagerMigrationTest {
 		}
 	}
 
-	// runs main thread tasks until none are left, since one run stops once it's over its time limit,
-	// and a slow machine can reach that limit in fewer reports than a fast one
+	// runs main thread tasks until none are left, then the end of the tick, since a task stops once it's over its time
+	// limit and leaves the rest to it, and a slow machine can reach that limit in fewer reports than a fast one
 	private void runAllMainThreadTasks() {
 		while (!mainThreadTasks.isEmpty())
 			runMainThreadTasks();
+		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
+			ManagerTests.runTickEnd(manager);
+		}
 	}
 
 	// what a storage holds once it has stopped saving, values read back as text
@@ -200,7 +203,7 @@ public class VariableStorageManagerMigrationTest {
 	}
 
 	@Test
-	public void reportsPastTheTimeLimitWaitForTheNextTask() {
+	public void reportsPastTheTimeLimitWaitForTheEndOfTheTick() {
 		RecordingStorage kills = storage("kills", "kills::"), all = storage("default");
 		assertTrue(loadStorages(kills, all));
 
@@ -215,13 +218,16 @@ public class VariableStorageManagerMigrationTest {
 		kills.reportUpdatedForTest("kills::steve", value("1"));
 		runMainThreadTasks();
 		assertTrue("stops once over the limit: " + ran, ran.size() < 4);
-		assertEquals("the rest are left for the next task", 1, mainThreadTasks.size());
+		assertTrue("the rest are left for the end of the tick", mainThreadTasks.isEmpty());
 		assertNull(globals.getVariable("kills::steve"));
 
-		while (!mainThreadTasks.isEmpty())
-			runMainThreadTasks();
+		kills.reportUpdatedForTest("kills::alex", value("2"));
+		assertTrue("a report queued meanwhile waits for the end of the tick too", mainThreadTasks.isEmpty());
+
+		ManagerTests.runTickEnd(manager);
 		assertEquals(List.of(0, 1, 2, 3), ran); // still in order
 		assertEquals("1", globals.getVariable("kills::steve"));
+		assertEquals("2", globals.getVariable("kills::alex"));
 	}
 
 	@Test
@@ -339,6 +345,41 @@ public class VariableStorageManagerMigrationTest {
 		assertNull(globals.getVariable("a::1"));
 		assertNull(globals.getVariable("a::b::2"));
 		assertEquals("own value", globals.getVariable("a"));
+	}
+
+	@Test
+	public void aKeepLocalClearKeepsUnsavedChanges() {
+		RecordingStorage all = storage("default");
+		assertTrue(loadStorages(all));
+		manager.set("a::saved", "1");
+		manager.set("a::deleted", "2");
+		assertTrue(all.flush());
+		manager.set("a::unsaved", "local");
+		manager.set("a::deleted", null);
+
+		all.reportClearedForTest("a::*", VariableStorage.ReportPolicy.KEEP_LOCAL);
+		runAllMainThreadTasks();
+		assertNull(globals.getVariable("a::saved"));
+		assertNull(globals.getVariable("a::deleted"));
+		assertEquals("local", globals.getVariable("a::unsaved"));
+		// the unsaved changes are still saved, and the reported clear isn't saved back, since its storage already has it
+		assertEquals(Map.of("a::saved", "1", "a::unsaved", "local"), stored(all));
+	}
+
+	@Test
+	public void aKeepLocalClearUnderAnUnsavedClearIsIgnored() {
+		RecordingStorage all = storage("default");
+		assertTrue(loadStorages(all));
+		manager.set("a::1", "1");
+		assertTrue(all.flush());
+		manager.set("a::*", null);
+		manager.set("a::2", "after");
+
+		all.reportClearedForTest("a::b::*", VariableStorage.ReportPolicy.KEEP_LOCAL);
+		all.reportClearedForTest("a::*", VariableStorage.ReportPolicy.KEEP_LOCAL);
+		runAllMainThreadTasks();
+		assertEquals("after", globals.getVariable("a::2"));
+		assertEquals(Map.of("a::2", "after"), stored(all));
 	}
 
 	@Test

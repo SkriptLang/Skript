@@ -1,5 +1,6 @@
 package org.skriptlang.skript.variables.storage;
 
+import ch.njol.skript.variables.SerializedVariable;
 import ch.njol.skript.variables.SerializedVariable.Value;
 import org.junit.Before;
 import org.junit.Test;
@@ -494,6 +495,76 @@ public class ChangeQueueTest {
 			drains++;
 		}
 		assertTrue("took " + drains + " one-second drains to decay", drains <= 60);
+	}
+
+	// ---- what a reported clear keeps ----
+
+	/**
+	 * @return what {@link ChangeQueue#unsavedUnder} gives for the prefix, by name, or null if a local clear covers it
+	 */
+	private Map<String, Value> unsavedUnder(String prefix) {
+		long stamp = queue.lockExclusive();
+		try {
+			List<SerializedVariable> kept = queue.unsavedUnder(prefix);
+			if (kept == null)
+				return null;
+			Map<String, Value> byName = new HashMap<>();
+			for (SerializedVariable change : kept)
+				byName.put(change.name, change.value);
+			return byName;
+		} finally {
+			queue.unlockExclusive(stamp);
+		}
+	}
+
+	@Test
+	public void aReportedClearKeepsPendingChangesInTheList() {
+		Value kept = value(1);
+		set("a::1", kept);
+		set("a::sub::2", null);
+		set("a", value(3)); // the list's own name isn't in it
+		set("ab::1", value(4));
+
+		Map<String, Value> expected = new HashMap<>();
+		expected.put("a::1", kept);
+		expected.put("a::sub::2", null); // a pending deletion is kept too, so it's still saved
+		assertEquals(expected, unsavedUnder("a::"));
+	}
+
+	@Test
+	public void aReportedClearOfAListALocalClearCoversIsIgnored() {
+		clear("a::");
+		set("a::1", value(1));
+		assertNull(unsavedUnder("a::"));
+		assertNull("a clear of the list it's in covers it too", unsavedUnder("a::b::"));
+	}
+
+	@Test
+	public void aLocalClearInsideTheListOnlyDropsWhatItCovers() {
+		Value outside = value(2), after = value(3);
+		set("a::b::1", value(1));
+		set("a::c", outside);
+		clear("a::b::");
+		set("a::b::2", after);
+
+		assertEquals(Map.of("a::c", outside, "a::b::2", after), unsavedUnder("a::"));
+	}
+
+	@Test
+	public void changesAnEarlierReportedClearDroppedArentKept() {
+		set("a::1", value(1));
+		externalClear("a::"); // drops a::1 when draining
+		Value after = value(2);
+		set("a::2", after);
+
+		assertEquals(Map.of("a::2", after), unsavedUnder("a::"));
+	}
+
+	@Test
+	public void aReportedClearKeepsNothingOnceClosed() {
+		set("a::1", value(1));
+		queue.close();
+		assertEquals(Map.of(), unsavedUnder("a::"));
 	}
 
 }

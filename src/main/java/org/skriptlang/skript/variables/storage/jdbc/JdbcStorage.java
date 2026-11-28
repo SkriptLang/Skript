@@ -2,7 +2,6 @@ package org.skriptlang.skript.variables.storage.jdbc;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.SerializedVariable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,7 +20,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
 
@@ -30,13 +28,20 @@ import java.util.regex.Pattern;
  * <p>
  * Each variable is one row: its name, the codename of its type, and its serialized value. Next to it is a second table,
  * {@code <table>_meta}, with a single row holding a version counter. Every save is one transaction that bumps the
- * counter and stamps each row it writes with the new version. If the database
- * {@link #supportsMonitoring() supports monitoring} and this server monitors changes, the table is shared: deleting
- * a variable or clearing a list doesn't remove its rows. Instead, they become "tombstones", rows without a type or
- * value, with the new version, and get pruned once they're old enough. That way, other servers reading the table can ask
- * what changed since some version, deletions included. Each save has its own version, so a server tells its own rows
- * apart by the versions of its saves. Otherwise, the table is this server's alone, so deleted rows are just removed.
- * Every server sharing a table has to monitor it, or the others miss its deletions; see {@link #noticeOtherWriters}.
+ * counter, so each save has its own version. Deleting a variable or clearing a list removes its rows.
+ * <p>
+ * If the database {@link #supportsMonitoring() supports monitoring} and this server monitors changes, the table is
+ * shared, and each save also notes every name it changed and every list it cleared in a third table, {@code <table>_log},
+ * under the save's version. The log keeps one entry per name, its latest, so it only grows with how many names changed
+ * recently, not how often. Other servers read the log for what changed since the version they last read, deletions and
+ * clears included. Entries are pruned once they're {@link LogPruner#RETENTION_NANOS 5 minutes} old, and the meta table's
+ * second row notes the version below which they're gone, so a server that falls behind knows it missed some. Every server
+ * sharing a table has to monitor it, or the others miss its changes; see {@link #noticeOtherWriters}.
+ * <p>
+ * A monitoring server reads the log at the end of each of its save cycles, on its saving thread, and doesn't start the
+ * next cycle until the main thread has applied what it read; see {@link #mayDrain()}. So every local change is either
+ * saved before the log is read, so what was read is newer, or still waiting to be saved when the read changes are
+ * applied, so they skip it. Either way, this server never shows an older value than one it set itself.
  * <p>
  * We only keep one connection per storage, since only one thread uses it at a time.
  * It's refreshed after each error encountered.
@@ -57,9 +62,9 @@ public abstract class JdbcStorage extends VariableStorage {
 	private static final Pattern TABLE_NAME = Pattern.compile("[A-Za-z_][A-Za-z0-9_]{0,57}");
 	private static final long IDLE_CHECK_NANOS = TimeUnit.SECONDS.toNanos(30);
 	private static final int ROWS_PER_STATEMENT = 1000;
-	private static final long MIN_MONITOR_INTERVAL_MILLIS = 100;
-	private static final int PRUNE_LIMIT = 100_000; // the most tombstones one prune removes, so their names fit in memory
-
+	private static final int MAX_EXCLUDED_VERSIONS = 1000; // how many of its own versions a poll leaves out by number
+	private static final int PRUNE_VERSIONS = 1000; // how many versions' log entries one prune statement removes
+	private static final long SLOW_REPORTS_NANOS = TimeUnit.SECONDS.toNanos(10); // when waiting on reports is logged
 
 	// the tables used by configured storages, as keys from tableKey, so two storages can't save to the same table
 	private static final Set<String> claimedTables = ConcurrentHashMap.newKeySet();
@@ -67,35 +72,31 @@ public abstract class JdbcStorage extends VariableStorage {
 
 	private String table = DEFAULT_TABLE;
 	private String metaTable = DEFAULT_TABLE + "_meta";
+	private String logTable = DEFAULT_TABLE + "_log";
 
 	private final ReentrantLock connectionLock = new ReentrantLock();
 	private @Nullable Connection connection;
 	private long lastUsedNanos;
 
 	private long loadedVersion;    // the counter's value when loading, where polling starts
-	private TombstonePruner pruner = new TombstonePruner(System.nanoTime());
 	private long lastSavedVersion; // the version of this server's last save, or loadedVersion before it saves. Saving thread only
 	private boolean warnedOtherWriters;
 
 	// monitoring
 	private boolean monitorChanges;
-	private long monitorIntervalNanos;
-
-	private static final int REPORT_CHUNK = 1000; // how many reported names to mark as applied at once
-	private static final int MAX_EXCLUDED_VERSIONS = 1000; // how many of its own versions a poll leaves out by name
-
 	private volatile boolean monitoring;
-	private @Nullable Thread monitorThread;
-	private final ReportTracker tracker = new ReportTracker();
+	private LogPruner pruner = new LogPruner(System.nanoTime());
 	// the versions of this server's saves that polling hasn't passed yet, oldest first, so a poll can leave out this
-	// server's own rows. Guarded by the connection lock
+	// server's own entries. Guarded by the connection lock
 	private final ArrayDeque<Long> ownVersions = new ArrayDeque<>();
-	private final AtomicLong reportCount = new AtomicLong(); // how many changes were reported, for tests
-	private long pollNumber;            // counts polls, so the tracker can tell a newer report of a name from an older one
 	private long pollCursor;            // the last version fully reported
-	private long lastPollNanos;         // when a poll last succeeded, to notice falling too far behind
 	private boolean pollFailing;        // so a failing database is reported once, not every second
-	private boolean reportedBehind;
+	private boolean reportedBehind;     // so missing pruned changes is reported once
+	// whether the main thread has applied everything the last poll reported, so the next save cycle may drain
+	private volatile boolean reportsApplied = true;
+	private long waitingSinceNanos;
+	private boolean loggedSlowReports;
+	private final AtomicLong reportCount = new AtomicLong(); // for tests
 
 	/**
 	 * @param registeringAddon the addon that registered this storage's type
@@ -119,6 +120,7 @@ public abstract class JdbcStorage extends VariableStorage {
 		}
 		this.table = table;
 		this.metaTable = table + "_meta";
+		this.logTable = table + "_log";
 		// monitoring
 		Boolean monitor = getConfigOptional(node, "monitor changes", Boolean.class, false);
 		if (monitor == null)
@@ -129,21 +131,6 @@ public abstract class JdbcStorage extends VariableStorage {
 			monitor = false;
 		}
 		monitorChanges = monitor;
-		// the table is only shared, and only pays for tombstones and the version index, if this server monitors it
-		// get monitor frequency
-		if (monitorChanges) {
-			Timespan interval = getConfigOptional(node, "monitor interval", Timespan.class,
-				new Timespan(Timespan.TimePeriod.SECOND, 1));
-			if (interval == null)
-				return false;
-			long millis = interval.getAs(Timespan.TimePeriod.MILLISECOND);
-			if (millis < MIN_MONITOR_INTERVAL_MILLIS) {
-				Skript.error("The entry for 'monitor interval' in the database '" + getName() + "' must be at least "
-					+ MIN_MONITOR_INTERVAL_MILLIS + " milliseconds, since each check asks the database");
-				return false;
-			}
-			monitorIntervalNanos = TimeUnit.MILLISECONDS.toNanos(millis);
-		}
 
 		// configure connection with type-specific stuff
 		if (!configureConnection(node))
@@ -190,8 +177,7 @@ public abstract class JdbcStorage extends VariableStorage {
 
 	/**
 	 * Whether this server monitors the table for changes, as the {@code monitor changes} option says. Only then is the
-	 * table shared, so only then are deletions kept as tombstones and rows indexed by version for polling. Otherwise,
-	 * deleted rows are removed right away and nothing is pruned.
+	 * table shared, so only then do saves add entries to the change log, which needs its own table.
 	 *
 	 * @return Whether this server monitors changes
 	 */
@@ -250,42 +236,49 @@ public abstract class JdbcStorage extends VariableStorage {
 	// -------------- SCHEMA / TABLE SETUP -----------------
 
 	/**
-	 * Generates the statements that create Skript's tables and index if they don't already exist.
-	 * This must create a main table named {@link #table} with a name, type, value and version column,
-	 * and a meta table with an id and a version column, if and only if they do not already exist.
+	 * Generates the statements that create Skript's tables if they don't already exist.
+	 * This must create a main table named {@code table} with a name, type and value column,
+	 * and a meta table with an id and a version column, if and only if they do not already exist. The meta table needs
+	 * two rows, both starting at version 0: id 0 holds the counter, and id 1 the version the change log is pruned below.
+	 * If this server {@link #monitorsChanges() monitors changes}, it must also create a log table with a name, a version
+	 * and a seq column, keyed by name, with an index on version and seq, so entries can be read in that order without
+	 * sorting.
 	 *
 	 * @param table     The name of the table to create for variables
 	 * @param metaTable The name of the table to create for metadata
+	 * @param logTable  The name of the table to create for the change log, if monitoring
 	 * @return The list of statements to execute.
 	 */
-	protected abstract List<String> schemaSql(String table, String metaTable);
+	protected abstract List<String> schemaSql(String table, String metaTable, String logTable);
 
 	/**
-	 * Called after {@link #schemaSql} has run, before it's committed, for schema changes that depend on what's already
-	 * there, such as adding an index the database can't add with {@code IF NOT EXISTS}.
-	 */
-	protected void schemaCreated(Connection connection) throws SQLException {}
-
-	/**
-	 * Executes {@link #schemaSql(String, String)} statements and checks if the required main table columns exist.
+	 * Executes {@link #schemaSql} statements and checks if the required columns exist.
 	 *
 	 * @param connection The connection to use to send the statements.
 	 * @throws SQLException If anything goes wrong with the schema statements
-	 * @throws IOException  If the resulting table does not have the required columns, or otherwise has issues.
+	 * @throws IOException  If the resulting tables do not have the required columns, or otherwise have issues.
 	 */
 	private void createSchema(Connection connection) throws SQLException, IOException {
 		try (Statement statement = connection.createStatement()) {
-			for (String sql : schemaSql(table, metaTable))
+			for (String sql : schemaSql(table, metaTable, logTable))
 				statement.execute(sql);
-			schemaCreated(connection);
-			try {
-				statement.executeQuery("SELECT name, type, value, version FROM " + table + " WHERE 1 = 0").close();
-			} catch (SQLException e) {
-				throw new IOException("The table '" + table + "' already exists but can't be read by this version of Skript. "
-					+ "Pick another 'table' for the database '" + getName() + "'", e);
-			}
+			checkColumns(statement, table, "name, type, value");
+			if (monitorChanges)
+				checkColumns(statement, logTable, "name, version, seq");
 		}
 		connection.commit();
+	}
+
+	/**
+	 * @throws IOException If the table can't be read with those columns
+	 */
+	private void checkColumns(Statement statement, String table, String columns) throws IOException {
+		try {
+			statement.executeQuery("SELECT " + columns + " FROM " + table + " WHERE 1 = 0").close();
+		} catch (SQLException e) {
+			throw new IOException("The table '" + table + "' already exists but can't be read by this version of Skript. "
+				+ "Pick another 'table' for the database '" + getName() + "'", e);
+		}
 	}
 
 	/**
@@ -301,6 +294,16 @@ public abstract class JdbcStorage extends VariableStorage {
 			if (!result.next())
 				throw new SQLException("The counter row of '" + metaTable + "' is missing");
 			return result.getLong(1);
+		}
+	}
+
+	/**
+	 * @return The version the change log has been pruned below: entries of earlier versions are gone
+	 */
+	private long readPrunedBelow(Connection connection) throws SQLException {
+		try (Statement statement = connection.createStatement();
+		     ResultSet result = statement.executeQuery("SELECT version FROM " + metaTable + " WHERE id = 1")) {
+			return result.next() ? result.getLong(1) : 0; // the schema adds the row, so it's only missing if removed by hand
 		}
 	}
 
@@ -328,11 +331,10 @@ public abstract class JdbcStorage extends VariableStorage {
 	}
 
 	/**
-	 * Reads every variable's row, skipping tombstones, and passes each readable one to the listener.
+	 * Reads every variable's row, and passes each readable one to the listener.
 	 */
 	private void readRows(Connection connection, LoadListener listener, LoadReport problems) throws SQLException {
-		try (PreparedStatement statement = connection.prepareStatement(
-			"SELECT name, type, value FROM " + table + " WHERE value IS NOT NULL")) {
+		try (PreparedStatement statement = connection.prepareStatement("SELECT name, type, value FROM " + table)) {
 			statement.setFetchSize(loadFetchSize());
 			try (ResultSet rows = statement.executeQuery()) {
 				while (rows.next()) {
@@ -370,9 +372,13 @@ public abstract class JdbcStorage extends VariableStorage {
 				// bumping the counter locks its row until we commit, so other servers' saves take their versions after ours
 				// and commit after us too. That way versions are committed in order, and polling for newer ones never skips one.
 				version = nextVersion(connection);
-				// make the changes
-				clear(connection, batch.clears(), version);
-				write(connection, batch.changes(), version);
+				// make the changes, clears first, and log them if monitoring
+				try (RowWriter rows = new RowWriter(connection, table, count -> upsertSql(table, VALUE_COLUMNS, count),
+					rowsPerStatement(), maxStatementBytes(),
+					monitorChanges ? count -> upsertSql(logTable, LOG_COLUMNS, count) : null, version)) {
+					clear(connection, rows, batch.clears());
+					write(rows, batch.changes());
+				}
 				// a whole batch is committed at once to prevent data fracturing.
 				// if it fails, we can just try it again next time.
 				connection.commit();
@@ -383,9 +389,8 @@ public abstract class JdbcStorage extends VariableStorage {
 			}
 			if (monitorChanges) {
 				// committed; still under the lock, so no poll reads in between. If the commit threw but went through anyway,
-				// the version isn't noted, and the next poll reports this save's rows back, which only repeats their values
+				// the version isn't noted, and the next poll reports this save's changes back, which only repeats their values
 				ownVersions.addLast(version);
-				tracker.forEachRaced(batch, this::report);
 				pruneIfDue(connection, version); // its own transaction, after this one, so it holds up no other server's save
 			}
 		} catch (SQLException e) {
@@ -399,8 +404,8 @@ public abstract class JdbcStorage extends VariableStorage {
 	/**
 	 * Warns, once, if another server saved to this table since this server's last save while this server doesn't monitor
 	 * it. Each save bumps the counter by one, so a jump means someone else saved in between. That server shares the table,
-	 * but this one removes deleted rows outright, so the others never see those deletions, and this one never sees their
-	 * changes. Costs nothing: the version is read by every save anyway.
+	 * but this one doesn't log its changes, so the others never see them, and this one never sees theirs.
+	 * Costs nothing: the version is read by every save anyway.
 	 */
 	private void noticeOtherWriters(long version) {
 		long previous = lastSavedVersion;
@@ -409,9 +414,8 @@ public abstract class JdbcStorage extends VariableStorage {
 			return;
 		warnedOtherWriters = true;
 		Skript.warning("Another server also saves variables to the table '" + table + "' of the database '" + getName()
-			+ "', but this server doesn't monitor changes. It removes deleted variables from the table right away, so the "
-			+ "other servers won't see those deletions, and it won't see their changes. Turn on 'monitor changes' for every "
-			+ "server that uses this table");
+			+ "', but this server doesn't monitor changes. It doesn't log its changes, so the other servers won't see them, "
+			+ "and it won't see theirs. Turn on 'monitor changes' for every server that uses this table");
 	}
 
 	/**
@@ -433,90 +437,85 @@ public abstract class JdbcStorage extends VariableStorage {
 	}
 
 	/**
-	 * Clears a subset of variable rows: turns them into tombstones if this storage is {@link #monitorsChanges()},
-	 * otherwise deletes them.
+	 * Deletes the rows of the cleared lists, and logs each clear.
 	 * We use name >= and < to clear a full subset, e.g. anything between "a::" and "a:;" covers the entire "a::*" list.
 	 *
 	 * @param connection The connection to use.
+	 * @param rows       Where to log the clears.
 	 * @param prefixes   The prefixes to clear, e.g. `"a::"` for a clear meant to hit `{a::*}`.
-	 * @param version    The new version to use in the cleared rows.
-	 * @throws SQLException If the update fails.
+	 * @throws SQLException If the delete fails.
 	 */
-	private void clear(Connection connection, List<String> prefixes, long version) throws SQLException {
+	private void clear(Connection connection, RowWriter rows, List<String> prefixes) throws SQLException {
 		if (prefixes.isEmpty())
 			return;
-		String sql = monitorChanges
-			? "UPDATE " + table + " SET type = NULL, value = NULL, version = ? "
-				+ "WHERE name >= ? AND name < ? AND value IS NOT NULL"
-			: "DELETE FROM " + table + " WHERE name >= ? AND name < ?";
-		try (PreparedStatement statement = connection.prepareStatement(sql)) {
+		try (PreparedStatement statement = connection.prepareStatement(
+			"DELETE FROM " + table + " WHERE name >= ? AND name < ?")) {
 			for (String prefix : prefixes) { // in order
-				int parameter = 1;
-				if (monitorChanges)
-					statement.setLong(parameter++, version);
-				statement.setString(parameter++, prefix);
-				statement.setString(parameter, CsvFormat.prefixEnd(prefix));
+				statement.setString(1, prefix);
+				statement.setString(2, CsvFormat.prefixEnd(prefix));
 				statement.addBatch();
+				rows.cleared(prefix + "*");
 			}
 			statement.executeBatch();
 		}
 	}
 
 	/**
-	 * Write new variable changes to the database. Updates row version.
-	 * Deletions become tombstones if this storage is {@link #monitorsChanges()}, and are deleted otherwise.
+	 * Write new variable changes to the database. Deleted variables have their rows removed.
 	 * A batch has one change per name, so the deletions and the other changes can be sent separately.
 	 *
-	 * @param connection The connection to use.
-	 * @param changes    The variables to update.
-	 * @param version    The new version to use.
+	 * @param rows    Where to write the changes.
+	 * @param changes The variables to update.
 	 * @throws SQLException If any of the statements fail.
 	 */
-	private void write(Connection connection, Collection<SerializedVariable> changes, long version) throws SQLException {
-		if (changes.isEmpty())
-			return;
-		try (RowWriter rows = new RowWriter(connection, table, count -> upsertSql(table, count), rowsPerStatement(),
-				maxStatementBytes(), version)) {
-			for (SerializedVariable change : changes) {
-				// name check
-				if (change.name.length() > maxNameLength()) {
-					skipUnsavable(change.name, "its name is longer than " + maxNameLength() + " characters");
-					continue;
-				}
-				// value length check
-				if (change.value != null && change.value.data.length > maxValueLength()) {
-					skipUnsavable(change.name, "its value is " + change.value.data.length + " bytes, and it only accepts up to "
-						+ maxValueLength());
-					continue;
-				}
-				if (change.value == null && !monitorChanges) {
-					rows.delete(change.name);
-				} else {
-					rows.upsert(change.name, change.value); // a tombstone if it's a deletion
-				}
+	private void write(RowWriter rows, Collection<SerializedVariable> changes) throws SQLException {
+		for (SerializedVariable change : changes) {
+			// name check
+			if (change.name.length() > maxNameLength()) {
+				skipUnsavable(change.name, "its name is longer than " + maxNameLength() + " characters");
+				continue;
+			}
+			// value length check
+			if (change.value != null && change.value.data.length > maxValueLength()) {
+				skipUnsavable(change.name, "its value is " + change.value.data.length + " bytes, and it only accepts up to "
+					+ maxValueLength());
+				continue;
+			}
+			if (change.value == null) {
+				rows.delete(change.name);
+			} else {
+				rows.upsert(change.name, change.value);
 			}
 		}
 	}
 
-	/**
-	 * @param table The table to update
-	 * @param rows  How many rows the statement inserts, each bound as name, type, value and version, in that order
-	 * @return An insert of that many rows that replaces any existing rows with the same names
-	 */
-	protected abstract String upsertSql(String table, int rows);
+	private static final List<String> VALUE_COLUMNS = List.of("name", "type", "value");
+	private static final List<String> LOG_COLUMNS = List.of("name", "version", "seq");
 
 	/**
-	 * @return {@code rows} groups of the four upsert parameters, such as {@code (?, ?, ?, ?), (?, ?, ?, ?)}
+	 * Makes the statement that saves rows to the main table, as {@code name, type, value}, or to the change log, as
+	 * {@code name, version, seq}. Either way, the first column is the key, {@code name}.
+	 *
+	 * @param table   The table to update
+	 * @param columns The columns, in the order each row binds them, the key first
+	 * @param rows    How many rows the statement inserts
+	 * @return An insert of that many rows that, for a name that already has a row, sets that row's other columns instead
 	 */
-	protected static String upsertValues(int rows) {
-		StringBuilder values = new StringBuilder(rows * 14);
+	protected abstract String upsertSql(String table, List<String> columns, int rows);
+
+	/**
+	 * @return {@code rows} groups of {@code columns} parameters, such as {@code (?, ?, ?), (?, ?, ?)}
+	 */
+	protected static String upsertValues(int columns, int rows) {
+		String group = "(" + "?, ".repeat(columns - 1) + "?)";
+		StringBuilder values = new StringBuilder(rows * (group.length() + 2));
 		for (int i = 0; i < rows; i++)
-			values.append(i == 0 ? "(?, ?, ?, ?)" : ", (?, ?, ?, ?)");
+			values.append(i == 0 ? "" : ", ").append(group);
 		return values.toString();
 	}
 
 	/**
-	 * @return How many rows one upsert, or one delete by name, may cover: {@value #ROWS_PER_STATEMENT}, which keeps
+	 * @return How many rows one upsert, delete by name, or log upsert may cover: {@value #ROWS_PER_STATEMENT}, which keeps
 	 * SQLite well under its parameter limit. Package-private, so tests can make statements split sooner
 	 */
 	@VisibleForTesting
@@ -547,118 +546,143 @@ public abstract class JdbcStorage extends VariableStorage {
 		if (!monitorChanges)
 			return;
 		pollCursor = loadedVersion;
-		lastPollNanos = System.nanoTime();
 		monitoring = true;
-		// start a thread that repeatedly polls for changes
-		Thread thread = new Thread(this::monitorLoop, "Skript variable storage " + getName() + " monitor thread");
-		thread.setDaemon(true);
-		monitorThread = thread;
-		thread.start();
 	}
 
 	/**
-	 * Checks for changes every {@link #monitorIntervalNanos}.
+	 * Polls for other servers' changes, once every change drained so far has been saved: the cycle's batch was
+	 * committed before the log is read, so anything read is either another server's change after it, or
+	 * an entry for a name whose value this server saved itself.
 	 */
-	private void monitorLoop() {
-		while (monitoring) {
-			LockSupport.parkNanos(this, monitorIntervalNanos);
-			if (!monitoring)
-				break;
-			try {
-				poll();
-			} catch (Throwable t) { // never let the thread die, or nothing is reported again
-				Skript.exception(t, "Unexpected error while checking the database '" + getName() + "' for changes");
-			}
-		}
+	@Override
+	protected final void saveCycleEnded() {
+		if (monitoring && isReceiving())
+			poll();
 	}
 
 	/**
-	 * Reports the rows other servers saved since the last poll, read in one go. Rows aren't sorted or paged: each name
-	 * has one row, so the order doesn't matter, and sorting a big range for every page made a poll after a large save
-	 * take minutes. The rows are streamed, with {@link #loadFetchSize()}, so they're never all held at once.
-	 * Package-private, so tests can poll when they choose instead of waiting for the thread.
+	 * Holds off the next drain until the main thread has applied what the last poll reported, so no local change is
+	 * drained, and so stops blocking a report, before a report older than it is applied. Logs, once per wait, if the
+	 * main thread takes more than {@link #SLOW_REPORTS_NANOS} to catch up, since saving waits for it.
+	 */
+	@Override
+	protected final boolean mayDrain() {
+		if (reportsApplied || !monitoring || !isReceiving()) { // once stopped, nothing will mark them applied
+			waitingSinceNanos = 0;
+			loggedSlowReports = false;
+			return true;
+		}
+		long now = System.nanoTime();
+		if (waitingSinceNanos == 0) {
+			waitingSinceNanos = now;
+		} else if (!loggedSlowReports && now - waitingSinceNanos > SLOW_REPORTS_NANOS) {
+			loggedSlowReports = true;
+			Skript.debug("Saving to the database '" + getName() + "' has waited " + TimeUnit.NANOSECONDS.toSeconds(now - waitingSinceNanos)
+				+ " seconds for the main thread to apply changes from other servers");
+		}
+		return false;
+	}
+
+	/**
+	 * Reports the changes other servers saved since the last poll. The log entries are read in one go, in the order they
+	 * were saved, each with its name's current value, and each name is reported once, where its last entry was: what's
+	 * reported is the value it has after everything read, so its earlier entries add nothing, and any clear of its list
+	 * after them is still reported after it. Entries for a list are reported as clears. Nothing is reported unless the
+	 * whole read succeeds, and then the next drain waits until the main thread has applied it.
+	 * Package-private, so tests can poll when they choose instead of waiting for a save cycle.
 	 */
 	@VisibleForTesting
 	void poll() {
 		if (!monitoring)
 			return; // closed: don't open a new connection
-		long poll = ++pollNumber;
 		long after = pollCursor;
-		long target;
+		Map<String, SerializedVariable.@Nullable Value> changes = new LinkedHashMap<>();
+		long target, prunedBelow;
 		try {
-			// one transaction, so the rows are read from the same snapshot as the counter: every version up to it has
-			// committed, since saves commit in counter order, and anything later is left for the next poll
-			target = withConnection(connection -> {
+			// one transaction, so the entries and values are read from the same snapshot as the counter: every version up
+			// to it has committed, since saves commit in counter order, and anything later is left for the next poll
+			long[] read = withConnection(connection -> {
 				long latest = readVersion(connection);
+				long pruned = readPrunedBelow(connection);
 				if (latest > after)
-					reportRows(connection, after, latest, poll);
-				return latest;
+					readLog(connection, after, latest, changes);
+				return new long[] {latest, pruned};
 			});
+			target = read[0];
+			prunedBelow = read[1];
 		} catch (SQLException e) {
 			pollFailed(e);
-			return; // the cursor hasn't moved, so the next poll reports the same rows again, which is harmless
+			return; // the cursor hasn't moved, so the next poll reads the same entries again
 		}
 		if (!monitoring)
 			return; // stopping: leave the cursor, nothing reported now is applied anyway
 		pollCursor = target;
 		pollSucceeded();
+		if (prunedBelow > after + 1 && !reportedBehind) {
+			// versions after the cursor and below the mark were pruned before this server read them. What's left is still
+			// reported, since it's newer than what was missed
+			reportedBehind = true;
+			Skript.error("Changes that other servers saved to the database '" + getName() + "' were removed from its change "
+				+ "log before this server read them, since it fell over 5 minutes behind, so some of them were missed. "
+				+ "Restart the server to reload its variables");
+		}
+		if (changes.isEmpty())
+			return;
+		reportsApplied = false; // before the task that sets it again is queued
+		changes.forEach((name, value) -> {
+			reportCount.incrementAndGet();
+			// KEEP_LOCAL, since a pending local change is newer than what was read, and will be saved after it
+			if (name.endsWith("::*")) {
+				reportCleared(name, ReportPolicy.KEEP_LOCAL);
+			} else {
+				reportUpdated(name, value, ReportPolicy.KEEP_LOCAL);
+			}
+		});
+		runAfterReports(() -> reportsApplied = true); // behind the reports, so after they're applied
 	}
 
 	/**
-	 * Reports every row another server saved after version {@code after}, up to {@code target}, and notes each name in
-	 * the {@link ReportTracker}. Runs under the connection lock, so each name is reported either before or after any save
-	 * of this server's commits, never during one.
+	 * Reads the log entries other servers saved after version {@code after}, up to {@code target}, into {@code changes}:
+	 * each name with its current value, null for a deleted variable or a cleared list, in the order of its last entry.
 	 * <p>
-	 * This server's own rows are left out by their versions. Not just filtered out by the database: after a big save of
-	 * its own, a range of only its own versions made the planner scan the whole table to return nothing. If every
-	 * version in the range is this server's, nothing is read at all.
+	 * This server's own entries are left out by their versions. If every version in the range is this server's,
+	 * nothing is read at all.
 	 *
 	 * @param after  The last version already reported
-	 * @param target The counter, read in the same transaction, so rows still being committed are left for the next poll
-	 * @param poll   Which poll this is, for the tracker
+	 * @param target The counter, read in the same transaction, so saves still being committed are left for the next poll
 	 */
-	private void reportRows(Connection connection, long after, long target, long poll) throws SQLException {
+	private void readLog(Connection connection, long after, long target,
+	                     Map<String, SerializedVariable.@Nullable Value> changes) throws SQLException {
 		while (!ownVersions.isEmpty() && ownVersions.peekFirst() <= after)
 			ownVersions.pollFirst(); // already passed
-		StringJoiner own = new StringJoiner(", ", " AND version NOT IN (", ")");
+		StringJoiner own = new StringJoiner(", ", " AND l.version NOT IN (", ")");
 		int owned = 0;
 		for (long version : ownVersions) {
 			if (version > target || owned == MAX_EXCLUDED_VERSIONS)
-				break; // any left in only get reported back, which repeats values memory has
+				break; // any left in are read back, which only repeats values memory has
 			own.add(Long.toString(version)); // numbers this server made, so they're safe in the statement
 			owned++;
 		}
 		if (owned == target - after)
 			return; // every version in the range is this server's
-		try (PreparedStatement statement = connection.prepareStatement("SELECT name, type, value FROM " + table
-				+ " WHERE version > ? AND version <= ?" + (owned == 0 ? "" : own.toString()))) {
+		// in index order, so the database reads the entries in order without sorting them
+		try (PreparedStatement statement = connection.prepareStatement("SELECT l.name, t.type, t.value FROM " + logTable
+			+ " l LEFT JOIN " + table + " t ON t.name = l.name WHERE l.version > ? AND l.version <= ?"
+			+ (owned == 0 ? "" : own.toString()) + " ORDER BY l.version, l.seq")) {
 			statement.setFetchSize(loadFetchSize());
 			statement.setLong(1, after);
 			statement.setLong(2, target);
-			List<String> reported = new ArrayList<>();
 			try (ResultSet result = statement.executeQuery()) {
 				while (monitoring && result.next()) {
 					String name = result.getString(1);
 					String type = result.getString(2);
 					byte[] data = result.getBytes(3);
-					// no server saves a list as one variable, and a type needs a value: such a row is broken, so skip it
-					if (name.endsWith("::*") || (type == null) != (data == null))
-						continue;
-					SerializedVariable.Value value = type == null ? null : new SerializedVariable.Value(type, data); // null: a tombstone
-					tracker.reported(name, poll);
-					report(name, value);
-					reported.add(name);
-					if (reported.size() == REPORT_CHUNK) {
-						List<String> chunk = reported;
-						runAfterReports(() -> tracker.applied(chunk, poll)); // behind the reports, so after they're applied
-						reported = new ArrayList<>();
-					}
-				}
-			} finally {
-				// even if reading failed partway: the names reported so far must be marked, or they'd wait forever
-				if (!reported.isEmpty()) {
-					List<String> chunk = reported;
-					runAfterReports(() -> tracker.applied(chunk, poll));
+					if ((type == null) != (data == null))
+						continue; // a type needs a value: a broken row, so skip it
+					// a list's entry is a clear, and has no row; so does a deleted variable
+					SerializedVariable.Value value = type == null ? null : new SerializedVariable.Value(type, data);
+					changes.remove(name); // so it's put back at its last entry
+					changes.put(name, value);
 				}
 			}
 		}
@@ -695,12 +719,7 @@ public abstract class JdbcStorage extends VariableStorage {
 		if (!pollFailing) {
 			pollFailing = true;
 			Skript.error("Couldn't check the database '" + getName() + "' for changes from other servers: "
-				+ e.getMessage() + ". Retrying every " + TimeUnit.NANOSECONDS.toMillis(monitorIntervalNanos) + " ms");
-		}
-		if (!reportedBehind && System.nanoTime() - lastPollNanos > TombstonePruner.RETENTION_NANOS) {
-			reportedBehind = true;
-			Skript.error("The database '" + getName() + "' hasn't been checked for over an hour, so deletions made by "
-				+ "other servers may have been permanently missed. Restart the server to reload its variables");
+				+ e.getMessage() + ". Retrying after every save");
 		}
 	}
 
@@ -709,47 +728,21 @@ public abstract class JdbcStorage extends VariableStorage {
 			pollFailing = false;
 			Skript.info("Checking the database '" + getName() + "' for changes works again");
 		}
-		lastPollNanos = System.nanoTime();
-	}
-
-	// --------- REPORTS AND RACES ---------
-
-	/**
-	 * Reports a change another server saved, or this server's own saved value again after a race; see
-	 * {@link ReportTracker}. KEEP_LOCAL, since a pending local change is newer than either and will be saved after them.
-	 */
-	private void report(String name, SerializedVariable.@Nullable Value value) {
-		reportCount.incrementAndGet();
-		reportUpdated(name, value, ReportPolicy.KEEP_LOCAL);
 	}
 
 	/**
-	 * @return How many changes this storage has reported so far, including re-reports after races
+	 * @return How many changes this storage has reported so far, clears included
 	 */
 	@VisibleForTesting
 	long reportCount() {
 		return reportCount.get();
 	}
 
-	/**
-	 * @return What this storage remembers of its reports, for tests
-	 */
-	@VisibleForTesting
-	ReportTracker tracker() {
-		return tracker;
-	}
-
-	@Override
-	protected final void saveCycleEnded() {
-		if (monitorChanges)
-			tracker.saveCycleEnded();
-	}
-
 	// ---------------- PRUNING ------------------
 
 	/**
-	 * Removes the tombstones that are over an hour old, every few minutes; see {@link TombstonePruner}. Runs in its own
-	 * transaction after a save commits, so a slow prune doesn't hold the counter's lock, which every other server's save
+	 * Removes the log entries that are over 5 minutes old, about every minute; see {@link LogPruner}. Runs in its own
+	 * transactions after a save commits, so a slow prune doesn't hold the counter's lock, which every other server's save
 	 * waits for. A failure only warns, since the save went through, and the next prune tries again.
 	 *
 	 * @param connection The connection to use, with no transaction open
@@ -759,61 +752,60 @@ public abstract class JdbcStorage extends VariableStorage {
 		long now = System.nanoTime();
 		pruner.sample(now, version);
 		long cutoff = pruner.dueCutoff(now);
-		if (cutoff == TombstonePruner.NOT_DUE)
+		if (cutoff == LogPruner.NOT_DUE)
 			return;
 		try {
-			// READ COMMITTED, so deleting a name another server already pruned doesn't lock the gap it left. Under
-			// REPEATABLE READ, MySQL's default, it did, which held up other servers' saves of new names in that gap until
-			// this prune committed, and they hold the counter's lock while they wait, so every other server waited too
-			int isolation = connection.getTransactionIsolation();
-			connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-			boolean finished = prune(connection, pruner.prunedBelow(), cutoff);
-			connection.commit();
-			connection.setTransactionIsolation(isolation); // on a failure, the connection is dropped instead
-			if (finished)
-				pruner.prunedBelow(cutoff);
+			prune(connection, cutoff);
 		} catch (SQLException e) {
 			rollbackQuietly(connection);
 			dropConnection();
-			Skript.warning("Couldn't remove old deleted variables from the table '" + table + "' of the database '"
-				+ getName() + "': " + e.getMessage() + ". Trying again in a few minutes");
+			Skript.warning("Couldn't remove old entries from the change log '" + logTable + "' of the database '"
+				+ getName() + "': " + e.getMessage() + ". Trying again in a minute");
 		}
 	}
 
 	/**
-	 * Removes the tombstones with versions from {@code from} up to {@code cutoff}. Their names are read first, with a
-	 * plain read that locks nothing, then the rows are deleted by name, which locks only them. Deleting with the condition
-	 * itself scanned the whole table, since most rows have old versions, and locked every row it read: about 1.2 million
-	 * locks and 2 seconds for a table of that many rows. The range starts where the last finished prune stopped, since no
-	 * row gets an old version again, so a prune only reads the few minutes of changes since the last.
-	 *
-	 * @return Whether every such tombstone was removed, rather than only the first {@link #PRUNE_LIMIT}
+	 * Notes that the log is pruned below {@code cutoff}, then removes the log entries with versions below it,
+	 * {@value #PRUNE_VERSIONS} versions per statement, each committed on its own, so no transaction holds many locks.
+	 * The note is committed first, so a poll that finds entries gone always finds the note too. It's in the meta table's
+	 * second row, not the counter's, since every save locks that one. The entries are indexed by version, so each
+	 * statement only reads what it deletes, at the oldest end of the index, away from where saves add theirs.
 	 */
-	private boolean prune(Connection connection, long from, long cutoff) throws SQLException {
-		List<String> names = new ArrayList<>();
-		try (PreparedStatement statement = connection.prepareStatement("SELECT name FROM " + table
-				+ " WHERE value IS NULL AND version >= ? AND version < ? LIMIT " + PRUNE_LIMIT)) {
-			statement.setLong(1, from);
-			statement.setLong(2, cutoff);
-			try (ResultSet result = statement.executeQuery()) {
-				while (result.next())
-					names.add(result.getString(1));
+	private void prune(Connection connection, long cutoff) throws SQLException {
+		try (PreparedStatement statement = connection.prepareStatement(
+			"UPDATE " + metaTable + " SET version = ? WHERE id = 1 AND version < ?")) {
+			statement.setLong(1, cutoff);
+			statement.setLong(2, cutoff); // another server may have pruned further already
+			statement.executeUpdate();
+		}
+		connection.commit();
+		long oldest;
+		try (Statement statement = connection.createStatement();
+		     ResultSet result = statement.executeQuery("SELECT MIN(version) FROM " + logTable)) {
+			result.next();
+			oldest = result.getLong(1);
+			if (result.wasNull()) {
+				connection.commit();
+				return; // nothing logged
 			}
 		}
-		// the condition again, in case a row was set since it was read
-		try (RowWriter.Deletes deletes = new RowWriter.Deletes(connection, rowsPerStatement(), maxStatementBytes(), table,
-				"value IS NULL AND version < " + cutoff + " AND ")) {
-			for (String name : names)
-				deletes.add(name);
+		try (PreparedStatement statement = connection.prepareStatement(
+			"DELETE FROM " + logTable + " WHERE version >= ? AND version < ?")) {
+			for (long from = oldest; from < cutoff; from += PRUNE_VERSIONS) {
+				statement.setLong(1, from);
+				statement.setLong(2, Math.min(from + PRUNE_VERSIONS, cutoff));
+				statement.executeUpdate();
+				connection.commit();
+			}
 		}
-		return names.size() < PRUNE_LIMIT;
+		connection.commit();
 	}
 
 	/**
 	 * Replaces the pruner, so tests can choose its times.
 	 */
 	@VisibleForTesting
-	void pruner(TombstonePruner pruner) {
+	void pruner(LogPruner pruner) {
 		this.pruner = pruner;
 	}
 
@@ -859,23 +851,12 @@ public abstract class JdbcStorage extends VariableStorage {
 	// ---------------- CLOSING -------------------
 
 	/**
-	 * Closes the connection and frees this storage's table, so that another storage can use it.
+	 * Stops monitoring, closes the connection and frees this storage's table, so that another storage can use it.
 	 * Called by Skript on shutdown and after a failed load, once saving has stopped.
 	 */
 	@Override
 	public final void close() {
 		monitoring = false;
-		Thread thread = monitorThread;
-		if (thread != null) {
-			LockSupport.unpark(thread);
-			try {
-				thread.join(10_000);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}
-			monitorThread = null;
-		}
-		// then the connection
 		connectionLock.lock();
 		try {
 			dropConnection();

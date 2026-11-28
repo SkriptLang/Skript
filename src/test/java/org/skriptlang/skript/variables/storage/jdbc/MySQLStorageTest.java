@@ -43,7 +43,7 @@ import static org.junit.Assert.*;
  * and {@code SKRIPT_TEST_MYSQL_PASSWORD}. The user needs to be able to create and drop tables in the database.
  * They use their own table, {@value #TABLE}, and drop it before and after each test.
  * <p>
- * The logic shared with SQLite (clears, tombstones, pruning, backups) is tested more fully by
+ * The logic shared with SQLite (clears, the change log, pruning, backups) is tested more fully by
  * {@link SQLiteStorageTest}. These test what depends on MySQL: the schema, how names compare, the upsert,
  * streaming the load, and the limits on names and values.
  */
@@ -93,7 +93,7 @@ public class MySQLStorageTest {
 	}
 
 	private static void dropTables() throws SQLException {
-		sql("DROP TABLE IF EXISTS " + TABLE + ", " + TABLE + "_meta");
+		sql("DROP TABLE IF EXISTS " + TABLE + ", " + TABLE + "_meta, " + TABLE + "_log");
 	}
 
 	private static void sql(String... statements) throws SQLException {
@@ -195,32 +195,39 @@ public class MySQLStorageTest {
 	}
 
 	/**
-	 * @return A storage that monitors changes, so it keeps tombstones like a shared table, without ever polling
+	 * @return A storage that monitors changes, so it keeps a change log like a shared table, and only polls when told
 	 */
 	private JdbcStorage loadedSharedStorage() {
 		return storage(loadExpecting(VariableMap.concurrent(), true, SHARED));
 	}
 
 	private static final String SHARED_LINES = "monitor changes: true";
-	private static final String SHARED = database("default", SHARED_LINES, "monitor interval: 1 hour");
+	private static final String SHARED = database("default", SHARED_LINES);
 
 	/**
-	 * Loads the databases into a new manager, expecting it to work, and returns the warnings it printed.
+	 * @return The columns of one of the change log's indexes, in order, joined by commas
 	 */
-	private List<String> loadWarnings(String databases) {
-		VariableStorageManager manager = manager(VariableMap.concurrent());
-		try (RetainingLogHandler log = new RetainingLogHandler().start()) {
-			assertTrue(manager.load(node(databases)));
-			return log.getLog().stream()
-				.filter(entry -> entry.getLevel() == Level.WARNING)
-				.map(LogEntry::getMessage)
-				.toList();
-		}
+	private static @Nullable Object indexColumns(String index) throws SQLException {
+		return query("SELECT GROUP_CONCAT(COLUMN_NAME ORDER BY SEQ_IN_INDEX) FROM information_schema.STATISTICS "
+			+ "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = ?", TABLE + "_log", index);
 	}
 
-	private static boolean versionIndexed() throws SQLException {
-		return query("SELECT COLUMN_NAME FROM information_schema.STATISTICS "
-			+ "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = 'version_index'", TABLE) != null;
+	private static boolean hasChangeLog() throws SQLException {
+		return query("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?",
+			TABLE + "_log") != null;
+	}
+
+	/**
+	 * @return The change log's entries, each as its version and name, such as {@code 3 a::*}, in the order they're read
+	 */
+	private static List<String> logEntries() throws SQLException {
+		List<String> entries = new ArrayList<>();
+		try (Connection connection = open(); Statement statement = connection.createStatement();
+			 ResultSet result = statement.executeQuery("SELECT version, name FROM " + TABLE + "_log ORDER BY version, seq")) {
+			while (result.next())
+				entries.add(result.getLong(1) + " " + result.getString(2));
+		}
+		return entries;
 	}
 
 	private static JdbcStorage storage(VariableStorageManager manager) {
@@ -265,26 +272,18 @@ public class MySQLStorageTest {
 	/**
 	 * A row as it is in the table.
 	 *
-	 * @param text The value as text, or null for a tombstone
+	 * @param text The value as text
 	 */
-	private record Row(@Nullable String type, @Nullable String text, long version) {
-
-		boolean tombstone() {
-			return type == null && text == null;
-		}
-
-	}
+	private record Row(String type, String text) {}
 
 	private static @Nullable Row row(String name) throws SQLException {
 		try (Connection connection = open(); PreparedStatement statement = connection.prepareStatement(
-				"SELECT type, value, version FROM " + TABLE + " WHERE name = ?")) {
+				"SELECT type, value FROM " + TABLE + " WHERE name = ?")) {
 			statement.setString(1, name);
 			try (ResultSet result = statement.executeQuery()) {
 				if (!result.next())
 					return null;
-				byte[] data = result.getBytes(2);
-				Row row = new Row(result.getString(1), data == null ? null : new String(data, StandardCharsets.UTF_8),
-					result.getLong(3));
+				Row row = new Row(result.getString(1), new String(result.getBytes(2), StandardCharsets.UTF_8));
 				assertFalse("the name matched more than one row", result.next());
 				return row;
 			}
@@ -409,42 +408,37 @@ public class MySQLStorageTest {
 	}
 
 	@Test
-	public void aMonitoredTableHasAVersionIndex() throws SQLException {
+	public void aMonitoredTableHasAChangeLogKeyedByNameAndIndexedByVersion() throws SQLException {
 		needsServer();
 		loadedSharedStorage();
 
-		assertEquals("version", query("SELECT COLUMN_NAME FROM information_schema.STATISTICS "
-			+ "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = 'version_index'", TABLE));
+		assertEquals("name", indexColumns("PRIMARY"));
+		// polls and prunes read it in index order, so neither has to sort
+		assertEquals("version,seq", indexColumns("version_index"));
+		Object collation = query("SELECT COLLATION_NAME FROM information_schema.COLUMNS "
+			+ "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = 'name'", TABLE + "_log");
+		assertEquals("names join the main table's exactly", query("SELECT COLLATION_NAME FROM information_schema.COLUMNS "
+			+ "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = 'name'", TABLE), collation);
 	}
 
 	@Test
-	public void anUnmonitoredTableHasNoVersionIndex() throws SQLException {
+	public void anUnmonitoredTableHasNoChangeLog() throws SQLException {
 		needsServer();
 		loadedStorage();
 
-		assertFalse(versionIndexed());
+		assertFalse(hasChangeLog());
 	}
 
 	@Test
-	public void turningMonitoringOnAddsTheIndexToAnExistingTable() throws Exception {
+	public void turningMonitoringOnAddsTheChangeLogToAnExistingTable() throws Exception {
 		needsServer();
 		save(loadedStorage(), List.of(), change("a", "1"));
 		closeAll();
 		loadedSharedStorage();
 
-		assertTrue(versionIndexed());
-	}
-
-	@Test
-	public void turningMonitoringOffKeepsTheIndexAndWarns() throws Exception {
-		needsServer();
-		loadedSharedStorage();
+		assertTrue(hasChangeLog());
 		closeAll();
-
-		List<String> warnings = loadWarnings(database("default"));
-		assertTrue(versionIndexed()); // another server may still poll with it
-		assertEquals(warnings.toString(), 1, warnings.size());
-		assertTrue(warnings.get(0), warnings.get(0).contains("DROP INDEX version_index"));
+		assertEquals(Map.of("a", "1"), loaded());
 	}
 
 	@Test
@@ -464,7 +458,7 @@ public class MySQLStorageTest {
 		needsServer();
 		JdbcStorage storage = loadedStorage();
 		save(storage, List.of(), change("a", "1"));
-		sql("UPDATE " + TABLE + "_meta SET version = version + 1"); // as another server's save would
+		sql("UPDATE " + TABLE + "_meta SET version = version + 1 WHERE id = 0"); // as another server's save would
 
 		try (RetainingLogHandler log = new RetainingLogHandler().start()) {
 			storage.save(new VariableStorage.Batch(List.of(), List.of(change("b", "2"))));
@@ -529,43 +523,42 @@ public class MySQLStorageTest {
 	}
 
 	@Test
-	public void anOverwriteKeepsTheNewValueWithANewerVersion() throws Exception {
+	public void anOverwriteKeepsTheNewValue() throws Exception {
 		needsServer();
 		JdbcStorage storage = loadedStorage();
 		save(storage, List.of(), change("a", "old"));
-		long first = row("a").version();
 		save(storage, List.of(), change("a", "new"));
 
 		Row row = row("a");
 		assertEquals("new", row.text());
 		assertEquals(TEXT, row.type());
-		assertTrue(row.version() > first);
 	}
 
 	@Test
-	public void aDeletionLeavesATombstone() throws Exception {
+	public void aDeletionIsLoggedIfMonitored() throws Exception {
 		needsServer();
 		JdbcStorage storage = loadedSharedStorage();
 		save(storage, List.of(), change("a", "1"));
 		save(storage, List.of(), deletion("a"));
 
-		Row row = row("a");
-		assertTrue(row.tombstone());
-		closeAll();
-		assertEquals(Map.of(), loaded());
+		assertNull(row("a"));
+		assertEquals("a name keeps only its latest entry", List.of(counter() + " a"), logEntries());
 	}
 
 	@Test
-	public void aClearOnlyTombstonesItsList() throws Exception {
+	public void aClearOnlyRemovesItsListAndIsLoggedOnce() throws Exception {
 		needsServer();
 		JdbcStorage storage = loadedSharedStorage();
 		save(storage, List.of(), change("a", "own value"), change("a::b", "1"), change("a::b::c", "2"),
 			change("ab::x", "3"), change("a:x", "4"), change("A::b", "5"), change("a::😀", "6"));
 		save(storage, List.of("a::"));
 
-		assertTrue(row("a::b").tombstone());
-		assertTrue(row("a::b::c").tombstone());
-		assertTrue(row("a::😀").tombstone());
+		assertNull(row("a::b"));
+		assertNull(row("a::b::c"));
+		assertNull(row("a::😀"));
+		List<String> entries = logEntries();
+		assertEquals(counter() + " a::*", entries.get(entries.size() - 1));
+		assertEquals(8, entries.size()); // seven for the first save, one for the clear
 		assertEquals("own value", row("a").text());
 		assertEquals("3", row("ab::x").text());
 		assertEquals("4", row("a:x").text());
@@ -580,8 +573,8 @@ public class MySQLStorageTest {
 			change("50x::1", "4"));
 		save(storage, List.of("my_list::", "50%::"));
 
-		assertTrue(row("my_list::1").tombstone());
-		assertTrue(row("50%::1").tombstone());
+		assertNull(row("my_list::1"));
+		assertNull(row("50%::1"));
 		assertEquals("2", row("myXlist::1").text());
 		assertEquals("4", row("50x::1").text());
 	}
@@ -616,7 +609,7 @@ public class MySQLStorageTest {
 		}
 		save(loadedStorage(), List.of(), changes);
 
-		assertEquals((long) count, count("version = ?", counter()));
+		assertEquals((long) count, count("1 = 1"));
 		closeAll();
 		assertEquals(expected, loaded());
 	}
@@ -686,21 +679,27 @@ public class MySQLStorageTest {
 	}
 
 	@Test
-	public void aPollReportsAnotherServersRows() throws Exception {
+	public void aPollReportsAnotherServersChanges() throws Exception {
 		needsServer();
 		VariableMap globals = VariableMap.concurrent();
 		JdbcStorage storage = storage(loadExpecting(globals, true, SHARED)); // monitors, but polls only when told
-		save(storage, List.of(), change("gone", "1"));
+		save(storage, List.of(), change("gone", "1"), change("cleared::1", "1"));
 		globals.setVariable("gone", "1"); // as if loaded
+		globals.setVariable("cleared::1", "1");
 
-		// as another server's save: 2500 changed rows and a tombstone, under one new version
-		sql("SET SESSION cte_max_recursion_depth = 10000", "UPDATE " + TABLE + "_meta SET version = version + 1",
-			"INSERT INTO " + TABLE + " (name, type, value, version) "
+		// as another server's save: a clear, 2500 changed rows and a deletion, under one new version
+		String version = "(SELECT version FROM " + TABLE + "_meta AS m WHERE m.id = 0)";
+		sql("SET SESSION cte_max_recursion_depth = 10000", "UPDATE " + TABLE + "_meta SET version = version + 1 WHERE id = 0",
+			"DELETE FROM " + TABLE + " WHERE name >= 'cleared::' AND name < 'cleared:;'",
+			"REPLACE INTO " + TABLE + "_log (version, seq, name) VALUES (" + version + ", 0, 'cleared::*')",
+			"INSERT INTO " + TABLE + " (name, type, value) "
 				+ "WITH RECURSIVE n (i) AS (SELECT 0 UNION ALL SELECT i + 1 FROM n WHERE i < 2499) "
-				+ "SELECT CONCAT('remote::', i), '" + TEXT + "', CAST(CONCAT('v', i) AS BINARY), "
-				+ "(SELECT version FROM " + TABLE + "_meta) FROM n",
-			"UPDATE " + TABLE + " SET type = NULL, value = NULL, version = (SELECT version FROM " + TABLE + "_meta AS m) "
-				+ "WHERE name = 'gone'");
+				+ "SELECT CONCAT('remote::', i), '" + TEXT + "', CAST(CONCAT('v', i) AS BINARY) FROM n",
+			"REPLACE INTO " + TABLE + "_log (version, seq, name) "
+				+ "WITH RECURSIVE n (i) AS (SELECT 0 UNION ALL SELECT i + 1 FROM n WHERE i < 2499) "
+				+ "SELECT " + version + ", i + 1, CONCAT('remote::', i) FROM n",
+			"DELETE FROM " + TABLE + " WHERE name = 'gone'",
+			"REPLACE INTO " + TABLE + "_log (version, seq, name) VALUES (" + version + ", 2501, 'gone')");
 		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
 			storage.poll(); // streamed, since MySQL's fetch size makes it stream; the main thread here runs reports at once
 		}
@@ -708,6 +707,7 @@ public class MySQLStorageTest {
 		assertEquals("v0", globals.getVariable("remote::0"));
 		assertEquals("v2499", globals.getVariable("remote::2499"));
 		assertNull(globals.getVariable("gone"));
+		assertNull(globals.getVariable("cleared::1"));
 	}
 
 	@Test

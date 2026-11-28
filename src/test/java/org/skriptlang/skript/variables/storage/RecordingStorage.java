@@ -157,6 +157,13 @@ class RecordingStorage extends VariableStorage {
 	}
 
 	/**
+	 * Calls {@link #reportCleared(String, ReportPolicy)}, which is protected.
+	 */
+	void reportClearedForTest(String listName, ReportPolicy policy) {
+		reportCleared(listName, policy);
+	}
+
+	/**
 	 * @return how often {@link #save(Batch)} was called, including failed calls
 	 */
 	int saveAttempts() {

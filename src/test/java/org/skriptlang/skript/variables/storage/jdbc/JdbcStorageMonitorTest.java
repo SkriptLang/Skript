@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.variables.VariableMap;
+import org.skriptlang.skript.variables.storage.ManagerTests;
 import org.skriptlang.skript.variables.storage.VariableStorage;
 import org.skriptlang.skript.variables.storage.VariableStorageManager;
 
@@ -23,6 +24,7 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -38,30 +40,33 @@ import java.util.stream.Stream;
 import static org.junit.Assert.*;
 
 /**
- * Tests monitoring a table for other servers' changes: {@link JdbcStorage}'s monitor thread and its polls.
+ * Tests monitoring a table for other servers' changes: {@link JdbcStorage}'s change log and its polls.
  * Two "servers" share one SQLite file, each with its own manager, variables and main thread, through
  * {@link SharedStorage}, which acts like a database several servers can use. SQLite and MySQL run the same
  * monitoring code, so this covers MySQL's too.
  * <p>
- * Most tests set a long monitor interval and call {@link JdbcStorage#poll()} themselves, so nothing depends on timing.
- * Reports are applied on each server's main thread, which here is a queue the test runs with {@link Server#runTasks()}.
+ * A storage polls at the end of each save cycle. The saving threads here wait an hour between cycles, so most tests
+ * save with {@link Server#flush()}, which polls too, or call {@link JdbcStorage#poll()} themselves, and nothing depends
+ * on timing. Reports are applied on each server's main thread, which here is a queue the test runs with
+ * {@link Server#runTasks()}.
  */
 public class JdbcStorageMonitorTest {
 
 	private static final String TEXT = "text";
 	private static final String TABLE = JdbcStorage.DEFAULT_TABLE;
-	private static final String MANUAL = "monitor interval: 1 hour"; // the thread waits first, so it never polls
 
 	private static volatile Path sharedFile;
+	// how often the next storage started saves; only one test changes it
+	private static volatile long saveIntervalMillis = TimeUnit.HOURS.toMillis(1);
 
 	private Path folder;
 	private final List<Server> servers = new ArrayList<>();
 
 	/**
 	 * An SQLite storage that acts like a database other servers can share: it opens {@link #sharedFile} itself instead
-	 * of claiming it, so two storages can use it at once, and it supports monitoring.
+	 * of claiming it, so two storages can use it at once.
 	 */
-	static final class SharedStorage extends SQLiteStorage {
+	static final class SharedStorage extends ShareableSQLiteStorage {
 
 		SharedStorage(SkriptAddon registeringAddon, String type) {
 			super(registeringAddon, type);
@@ -83,13 +88,8 @@ public class JdbcStorageMonitorTest {
 		}
 
 		@Override
-		protected boolean supportsMonitoring() {
-			return true;
-		}
-
-		@Override
 		protected long saveIntervalMillis() {
-			return TimeUnit.HOURS.toMillis(1); // only saves when a test saves or flushes, so it can stage races
+			return saveIntervalMillis; // an hour unless a test changes it: only saves when a test saves or flushes
 		}
 
 	}
@@ -133,11 +133,14 @@ public class JdbcStorageMonitorTest {
 		}
 
 		/**
-		 * Saves what's queued, as the saving thread would: drains the queue, then saves it.
+		 * Does a save cycle, as the saving thread would: drains the queue, saves it, then polls. What the poll reported
+		 * waits on the main thread until {@link #runTasks()}.
+		 *
+		 * @return whether everything drained was saved
 		 */
-		void flush() {
+		boolean flush() {
 			try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
-				assertTrue(storage().flush());
+				return storage().flush();
 			}
 		}
 
@@ -147,9 +150,7 @@ public class JdbcStorageMonitorTest {
 		 * @return how many changes the poll reported
 		 */
 		int poll() {
-			try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
-				storage().poll();
-			}
+			pollOnly();
 			return runTasks();
 		}
 
@@ -166,6 +167,7 @@ public class JdbcStorageMonitorTest {
 				Runnable task;
 				while ((task = mainThread.poll()) != null)
 					task.run();
+				ManagerTests.runTickEnd(manager); // what a task left over once its time was up
 			}
 			long reported = storage().reportCount();
 			int count = (int) (reported - counted);
@@ -189,11 +191,13 @@ public class JdbcStorageMonitorTest {
 	public void setUp() throws IOException {
 		folder = Files.createTempDirectory("skript-monitor-test");
 		sharedFile = folder.resolve("shared.sqlite");
+		saveIntervalMillis = TimeUnit.HOURS.toMillis(1);
 	}
 
 	@After
 	public void tearDown() throws IOException {
 		servers.forEach(Server::close);
+		saveIntervalMillis = TimeUnit.HOURS.toMillis(1);
 		try (Stream<Path> paths = Files.walk(folder)) {
 			for (Path path : paths.sorted(Comparator.reverseOrder()).toList())
 				Files.delete(path);
@@ -223,16 +227,12 @@ public class JdbcStorageMonitorTest {
 	}
 
 	/**
-	 * Starts a server on the shared table, monitoring it, with the given extra lines.
+	 * Starts a server on the shared table, monitoring it.
 	 */
-	private Server server(String... lines) {
+	private Server server() {
 		Server server = new Server(false);
-		List<String> all = new ArrayList<>(List.of("monitor changes: true"));
-		all.addAll(List.of(lines));
-		if (all.stream().noneMatch(line -> line.startsWith("monitor interval")))
-			all.add(MANUAL);
 		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
-			assertTrue(server.manager.load(node(shared(all.toArray(String[]::new)))));
+			assertTrue(server.manager.load(node(shared("monitor changes: true"))));
 		}
 		awaitSavingIdle(server.storage());
 		return server;
@@ -256,24 +256,21 @@ public class JdbcStorageMonitorTest {
 	}
 
 	/**
-	 * @return How many names the storage remembers having reported
-	 */
-	private static int inFlight(Server server) {
-		return server.storage().tracker().size();
-	}
-
-	/**
 	 * Loads the databases into a new server, expecting it to fail or succeed, and returns the errors and warnings.
 	 */
 	private List<String> loadMessages(boolean successful, String databases) {
 		Server server = new Server(databases.contains("type: sqlite"));
 		try (RetainingLogHandler log = new RetainingLogHandler().start()) {
 			assertEquals(successful, server.manager.load(node(databases)));
-			return log.getLog().stream()
-				.filter(entry -> entry.getLevel().intValue() >= Level.WARNING.intValue())
-				.map(LogEntry::getMessage)
-				.toList();
+			return warnings(log);
 		}
+	}
+
+	private static List<String> warnings(RetainingLogHandler log) {
+		return log.getLog().stream()
+			.filter(entry -> entry.getLevel().intValue() >= Level.WARNING.intValue())
+			.map(LogEntry::getMessage)
+			.toList();
 	}
 
 	private static void assertMentions(List<String> messages, String part) {
@@ -293,7 +290,7 @@ public class JdbcStorageMonitorTest {
 	}
 
 	/**
-	 * Saves a batch straight to the server's storage, as its saving thread would.
+	 * Saves a batch straight to the server's storage, as its saving thread would, without polling after.
 	 */
 	private static void save(Server server, List<String> clears, SerializedVariable... changes) throws IOException {
 		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
@@ -305,69 +302,73 @@ public class JdbcStorageMonitorTest {
 		save(server, List.of(), changes);
 	}
 
+	private static Connection open() throws SQLException {
+		return DriverManager.getConnection("jdbc:sqlite:" + sharedFile.toAbsolutePath());
+	}
+
 	private static void sql(String... statements) throws SQLException {
-		try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + sharedFile.toAbsolutePath());
-			 Statement statement = connection.createStatement()) {
+		try (Connection connection = open(); Statement statement = connection.createStatement()) {
 			for (String sql : statements)
 				statement.execute(sql);
 		}
 	}
 
 	/**
-	 * Puts rows into the table directly, as another server's save would, under a new version.
-	 *
-	 * @param rows name, type and value of each row, where a null type or value makes a tombstone or a broken row
+	 * @return The first column of the first row the query gives, or null if it gives none
 	 */
-	private static void insertAsAnotherServer(String[]... rows) throws SQLException {
-		try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + sharedFile.toAbsolutePath())) {
+	private static Object query(String sql) throws SQLException {
+		try (Connection connection = open(); Statement statement = connection.createStatement();
+			 ResultSet result = statement.executeQuery(sql)) {
+			return result.next() ? result.getObject(1) : null;
+		}
+	}
+
+	/**
+	 * Saves rows and their log entries directly, as another server's save would, under a new version.
+	 *
+	 * @param rows name, type and value of each row
+	 */
+	private static void saveAsAnotherServer(String[]... rows) throws SQLException {
+		try (Connection connection = open()) {
 			connection.setAutoCommit(false);
 			long version;
 			try (Statement statement = connection.createStatement()) {
 				statement.executeUpdate("UPDATE " + TABLE + "_meta SET version = version + 1 WHERE id = 0");
-				var result = statement.executeQuery("SELECT version FROM " + TABLE + "_meta WHERE id = 0");
-				result.next();
-				version = result.getLong(1);
+				try (ResultSet result = statement.executeQuery("SELECT version FROM " + TABLE + "_meta WHERE id = 0")) {
+					result.next();
+					version = result.getLong(1);
+				}
 			}
-			try (PreparedStatement statement = connection.prepareStatement("INSERT OR REPLACE INTO " + TABLE
-					+ " (name, type, value, version) VALUES (?, ?, ?, ?)")) {
+			try (PreparedStatement upsert = connection.prepareStatement("INSERT OR REPLACE INTO " + TABLE
+					+ " (name, type, value) VALUES (?, ?, ?)");
+			     PreparedStatement log = connection.prepareStatement("INSERT OR REPLACE INTO " + TABLE
+					+ "_log (version, seq, name) VALUES (?, ?, ?)")) {
+				int seq = 0;
 				for (String[] row : rows) {
-					statement.setString(1, row[0]);
-					statement.setString(2, row[1]);
-					statement.setBytes(3, row[2] == null ? null : row[2].getBytes(StandardCharsets.UTF_8));
-					statement.setLong(4, version);
-					statement.executeUpdate();
+					upsert.setString(1, row[0]);
+					upsert.setString(2, row[1]);
+					upsert.setBytes(3, row[2].getBytes(StandardCharsets.UTF_8));
+					upsert.executeUpdate();
+					log.setLong(1, version);
+					log.setInt(2, seq++);
+					log.setString(3, row[0]);
+					log.executeUpdate();
 				}
 			}
 			connection.commit();
 		}
 	}
 
-	/**
-	 * @return how many monitor threads of storages named {@code default} are running. Every test's databases are named
-	 * that, so tests that count threads only start one server
-	 */
-	private static long monitorThreads() {
-		String name = "Skript variable storage default monitor thread";
-		return Thread.getAllStackTraces().keySet().stream()
-			.filter(thread -> thread.getName().equals(name) && thread.isAlive())
-			.count();
-	}
-
 	// ---- configuring ----
 
 	@Test
-	public void monitoringIsOffByDefault() {
+	public void monitoringIsOffByDefault() throws SQLException {
 		Server server = new Server(false);
 		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
 			assertTrue(server.manager.load(node(shared())));
 		}
-		assertEquals(0, monitorThreads());
-	}
-
-	@Test
-	public void monitoringStartsTheThread() {
-		server();
-		assertEquals(1, monitorThreads());
+		assertNull("without monitoring, there's no change log",
+			query("SELECT name FROM sqlite_master WHERE name = '" + TABLE + "_log'"));
 	}
 
 	@Test
@@ -376,27 +377,10 @@ public class JdbcStorageMonitorTest {
 	}
 
 	@Test
-	public void anInvalidMonitorIntervalFailsConfiguring() {
-		assertMentions(loadMessages(false, shared("monitor changes: true", "monitor interval: soon")), "'monitor interval'");
-	}
-
-	@Test
-	public void aTooShortMonitorIntervalFailsConfiguring() {
-		assertMentions(loadMessages(false, shared("monitor changes: true", "monitor interval: 10 milliseconds")),
-			"at least 100 milliseconds");
-	}
-
-	@Test
-	public void theMonitorIntervalIsIgnoredWithoutMonitoring() {
-		assertTrue(loadMessages(true, shared("monitor interval: 10 milliseconds")).isEmpty());
-	}
-
-	@Test
-	public void aStorageThatCantBeMonitoredWarnsAndDoesntMonitor() {
+	public void aStorageThatCantBeMonitoredWarnsAndDoesntMonitor() throws Exception {
 		String sqlite = "\tdefault:\n\t\ttype: sqlite\n\t\tfile: " + folder.resolve("own.sqlite").toString().replace('\\', '/')
 			+ "\n\t\tbackup interval: 0\n\t\tmonitor changes: true\n";
 		assertMentions(loadMessages(true, sqlite), "can't monitor changes");
-		assertEquals(0, monitorThreads());
 	}
 
 	// ---- what a poll reports ----
@@ -425,28 +409,52 @@ public class JdbcStorageMonitorTest {
 	}
 
 	@Test
-	public void aClearFromAnotherServerIsReportedRowByRow() throws Exception {
+	public void aClearFromAnotherServerIsReportedAsOneClear() throws Exception {
 		Server a = server();
-		save(a, change("list::1", "1"), change("list::2", "2"), change("listing", "kept"));
+		save(a, change("list::1", "1"), change("list::2", "2"), change("list::sub::3", "3"), change("listing", "kept"));
 		Server b = server();
 
 		save(a, List.of("list::"));
-		assertEquals(2, b.poll());
+		assertEquals(1, b.poll());
 		assertNull(b.get("list::1"));
 		assertNull(b.get("list::2"));
+		assertNull(b.get("list::sub::3"));
 		assertEquals("kept", b.get("listing"));
 	}
 
 	@Test
-	public void ownRowsArentReported() throws Exception {
+	public void aSetAfterAClearInTheSameSaveSurvivesIt() throws Exception {
+		Server a = server();
+		save(a, change("list::1", "1"), change("list::2", "2"));
 		Server b = server();
-		save(b, change("mine", "1"), deletion("gone"));
+
+		save(a, List.of("list::"), change("list::2", "new"));
+		assertEquals(2, b.poll());
+		assertNull(b.get("list::1"));
+		assertEquals("new", b.get("list::2"));
+	}
+
+	@Test
+	public void aSetBeforeAClearIsClearedToo() throws Exception {
+		Server a = server();
+		Server b = server();
+		save(a, change("list::1", "1"));
+		save(a, List.of("list::"));
+
+		b.poll();
+		assertNull(b.get("list::1"));
+	}
+
+	@Test
+	public void ownChangesArentReported() throws Exception {
+		Server b = server();
+		save(b, List.of("list::"), change("mine", "1"), deletion("gone"));
 
 		assertEquals(0, b.poll());
 	}
 
 	@Test
-	public void ownRowsBetweenAnotherServersArentReported() throws Exception {
+	public void ownChangesBetweenAnotherServersArentReported() throws Exception {
 		Server a = server();
 		Server b = server();
 		save(b, change("mine", "1"));
@@ -458,18 +466,18 @@ public class JdbcStorageMonitorTest {
 	}
 
 	@Test
-	public void anOwnRowAnotherServerChangedIsReported() throws Exception {
+	public void anOwnChangeAnotherServerChangedIsReported() throws Exception {
 		Server a = server();
 		Server b = server();
 		save(b, change("x", "1"));
-		save(a, change("x", "2")); // the row now has a's version
+		save(a, change("x", "2"));
 
 		assertEquals(1, b.poll());
 		assertEquals("2", b.get("x"));
 	}
 
 	@Test
-	public void rowsAreOnlyReportedOnce() throws Exception {
+	public void changesAreOnlyReportedOnce() throws Exception {
 		Server a = server();
 		Server b = server();
 		save(a, change("x", "1"));
@@ -479,7 +487,7 @@ public class JdbcStorageMonitorTest {
 	}
 
 	@Test
-	public void rowsAlreadyLoadedArentReported() throws Exception {
+	public void changesAlreadyLoadedArentReported() throws Exception {
 		Server a = server();
 		save(a, change("x", "1"));
 		Server b = server();
@@ -507,6 +515,7 @@ public class JdbcStorageMonitorTest {
 		Server b = server();
 		save(a, change("x", "1"));
 		save(a, change("x", "2"));
+		save(a, deletion("x"));
 		save(a, change("x", "3"));
 
 		assertEquals(1, b.poll());
@@ -514,10 +523,10 @@ public class JdbcStorageMonitorTest {
 	}
 
 	@Test
-	public void manyRowsInOneSaveAreAllReported() throws Exception {
+	public void manyChangesInOneSaveAreAllReported() throws Exception {
 		Server a = server();
 		Server b = server();
-		int count = 2_500; // three pages of 1000
+		int count = 2_500; // more than one fetch, and more than one statement of log entries
 		SerializedVariable[] changes = new SerializedVariable[count];
 		for (int i = 0; i < count; i++)
 			changes[i] = change("many::" + i, String.valueOf(i));
@@ -529,11 +538,11 @@ public class JdbcStorageMonitorTest {
 	}
 
 	@Test
-	public void manyRowsOverManySavesAreAllReported() throws Exception {
+	public void manyChangesOverManySavesAreAllReported() throws Exception {
 		Server a = server();
 		Server b = server();
 		for (int save = 0; save < 5; save++) {
-			SerializedVariable[] changes = new SerializedVariable[700]; // pages end in the middle of a save
+			SerializedVariable[] changes = new SerializedVariable[700];
 			for (int i = 0; i < changes.length; i++)
 				changes[i] = change("s" + save + "::" + i, save + "/" + i);
 			save(a, changes);
@@ -544,99 +553,85 @@ public class JdbcStorageMonitorTest {
 		assertEquals("0/0", b.get("s0::0"));
 	}
 
-	// ---- bad rows ----
-
-	@Test
-	public void aBrokenRowIsntReportedAsADeletion() throws Exception {
-		Server a = server();
-		save(a, change("x", "1"));
-		Server b = server();
-		insertAsAnotherServer(new String[] {"x", TEXT, null}, new String[] {"y", TEXT, "2"});
-
-		assertEquals(1, b.poll()); // only y
-		assertEquals("1", b.get("x"));
-		assertEquals("2", b.get("y"));
-	}
-
-	@Test
-	public void aRowNamedLikeAListDoesntStopPolling() throws Exception {
-		Server b = server();
-		insertAsAnotherServer(new String[] {"x::*", null, null}, new String[] {"y", TEXT, "2"});
-
-		assertEquals(1, b.poll()); // only y
-		assertEquals("2", b.get("y"));
-		insertAsAnotherServer(new String[] {"z", TEXT, "3"});
-		assertEquals(1, b.poll()); // and the cursor moved past it
-	}
-
 	@Test
 	public void anUnreadableTypeIsIgnored() throws Exception {
 		Server b = server();
-		insertAsAnotherServer(new String[] {"x", "a type from a missing addon", "?"});
+		saveAsAnotherServer(new String[] {"x", "a type from a missing addon", "?"}, new String[] {"y", TEXT, "2"});
 
 		b.poll();
 		assertNull(b.get("x"));
+		assertEquals("2", b.get("y"));
 	}
 
-	// ---- reports racing local saves ----
+	// ---- local changes come first ----
 
 	@Test
-	public void aReportAppliedAfterALocalSaveIsCorrected() throws Exception {
+	public void theNextDrainWaitsUntilReportsAreApplied() throws Exception {
+		Server a = server();
+		Server b = server();
+		assertTrue(b.storage().mayDrain());
+		save(a, change("x", "1"));
+
+		b.pollOnly();
+		assertFalse(b.storage().mayDrain());
+		b.runTasks();
+		assertTrue(b.storage().mayDrain());
+	}
+
+	@Test
+	public void aPollWithNothingToReportDoesntHoldUpDraining() {
+		Server b = server();
+		b.pollOnly();
+		assertTrue(b.storage().mayDrain());
+	}
+
+	@Test
+	public void aPendingLocalChangeBeatsAReport() throws Exception {
 		Server a = server();
 		Server b = server();
 		save(a, change("x", "remote"));
 		b.manager.set("x", "local");
 
-		b.pollOnly(); // reads remote; the report waits on the main thread
-		b.flush(); // local leaves the queue and is saved, after remote
-		b.runTasks(); // the report finds nothing pending, so it applies remote, then the re-report puts local back
-
+		b.poll(); // the report skips x, since b's change is newer and will be saved after a's
 		assertEquals("local", b.get("x"));
-		b.close();
-		servers.remove(b);
-		assertEquals("local", server().get("x")); // and that's what the table holds
+
+		assertTrue(b.flush());
+		assertEquals(1, a.poll());
+		assertEquals("local", a.get("x")); // and both servers end up with it
 	}
 
 	@Test
-	public void aReportAppliedBetweenTheDrainAndTheSaveIsCorrected() throws Exception {
+	public void aPendingLocalChangeBeatsAClear() throws Exception {
 		Server a = server();
+		save(a, change("list::1", "1"), change("list::2", "2"));
 		Server b = server();
-		save(a, change("x", "remote"));
-		b.globals.setVariable("x", "local"); // as if set and already drained, so not pending any more
+		b.manager.set("list::2", "local");
 
-		b.pollOnly();
-		b.runTasks(); // the report applies remote before the drained batch is saved
-		assertEquals("remote", b.get("x"));
-		save(b, change("x", "local")); // the drained batch's save
-		b.runTasks();
-
-		assertEquals("local", b.get("x"));
+		save(a, List.of("list::"));
+		b.poll();
+		assertNull(b.get("list::1"));
+		assertEquals("local", b.get("list::2"));
 	}
 
 	@Test
-	public void aClearRacingAReportIsCorrected() throws Exception {
+	public void aPendingLocalClearBeatsAReport() throws Exception {
 		Server a = server();
 		Server b = server();
 		save(a, change("list::1", "remote"));
 		b.manager.set("list::*", null);
 
-		b.pollOnly();
-		b.flush(); // the clear tombstones list::1, after remote
-		b.runTasks();
-
+		b.poll();
 		assertNull(b.get("list::1"));
 	}
 
 	@Test
-	public void aNewerLocalChangeBeatsTheReReport() throws Exception {
+	public void aChangeMadeWhileReportsWaitIsKept() throws Exception {
 		Server a = server();
 		Server b = server();
 		save(a, change("x", "remote"));
-		b.manager.set("x", "local");
 
 		b.pollOnly();
-		b.flush();
-		b.manager.set("x", "newer"); // pending when the report and the re-report are applied
+		b.manager.set("x", "newer"); // pending when the report is applied
 		b.runTasks();
 
 		assertEquals("newer", b.get("x"));
@@ -647,7 +642,7 @@ public class JdbcStorageMonitorTest {
 		Server a = server();
 		Server b = server();
 		b.manager.set("x", "local");
-		b.flush();
+		assertTrue(b.flush());
 		save(a, change("x", "later")); // another server's save after ours is newer, so it wins
 
 		b.poll();
@@ -655,67 +650,51 @@ public class JdbcStorageMonitorTest {
 		assertEquals("later", b.get("x"));
 	}
 
-	@Test
-	public void appliedReportsAreForgottenAfterTheNextSaveCycle() throws Exception {
-		Server a = server();
-		Server b = server();
-		save(a, change("x", "1"));
-		b.poll();
-		assertEquals(1, inFlight(b));
-
-		b.manager.set("y", "2");
-		b.flush();
-		assertEquals(0, inFlight(b));
-	}
+	// ---- polling after saving ----
 
 	@Test
-	public void aServerThatNeverSavesStillForgets() throws Exception {
-		Server a = server();
-		Server b = server();
-		save(a, change("x", "1"));
-		b.poll();
-
-		b.flush(); // nothing to save: the cycle still ends
-		assertEquals(0, inFlight(b));
-	}
-
-	@Test
-	public void waitingReportsAreRememberedUntilApplied() throws Exception {
-		Server a = server();
-		Server b = server();
-		save(a, change("x", "1"));
-		b.pollOnly();
-		b.flush();
-		b.flush();
-		assertEquals(1, inFlight(b)); // the main thread hasn't applied it yet
-
-		b.runTasks();
-		b.flush();
-		assertEquals(0, inFlight(b));
-	}
-
-	@Test
-	public void aSaveOutsideACycleForgetsNothing() throws Exception {
-		// save() alone stands for a drained batch: the next drain hasn't happened, so a report applied now may race it
-		Server a = server();
-		Server b = server();
-		save(a, change("x", "1"));
-		b.poll();
-
-		save(b, change("y", "2"));
-		assertEquals(1, inFlight(b));
-	}
-
-	@Test
-	public void unrelatedSavesDontReReport() throws Exception {
+	public void aSaveCyclePollsAfterSaving() throws Exception {
 		Server a = server();
 		Server b = server();
 		save(a, change("x", "remote"));
-		b.poll();
+		b.manager.set("y", "local");
 
-		b.manager.set("y", "mine");
-		b.flush();
-		assertEquals(0, b.runTasks());
+		assertTrue(b.flush());
+		assertEquals(1, b.runTasks());
+		assertEquals("remote", b.get("x"));
+		assertEquals("local", b.get("y"));
+	}
+
+	@Test
+	public void aFailedSaveDoesntPoll() throws Exception {
+		Server a = server();
+		Server b = server();
+		save(a, change("x", "1"));
+		b.manager.set("y", "2");
+		sql("ALTER TABLE " + TABLE + " RENAME TO hidden");
+
+		try (RetainingLogHandler log = new RetainingLogHandler().start()) {
+			assertFalse(b.storage().flush());
+			assertFalse("polled: " + log.getLog(), warnings(log).stream().anyMatch(m -> m.contains("for changes")));
+		}
+		sql("ALTER TABLE hidden RENAME TO " + TABLE);
+		assertTrue(b.flush()); // saves y, then polls
+		assertEquals(1, b.runTasks());
+		assertEquals("1", b.get("x"));
+	}
+
+	@Test
+	public void theSavingThreadPollsByItself() throws Exception {
+		Server a = server();
+		saveIntervalMillis = 100;
+		Server b = server();
+		save(a, change("x", "1"));
+
+		long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+		while (b.mainThread.isEmpty() && System.nanoTime() < deadline)
+			Thread.onSpinWait();
+		assertEquals(1, b.runTasks());
+		assertEquals("1", b.get("x"));
 	}
 
 	// ---- failures and stopping ----
@@ -725,12 +704,53 @@ public class JdbcStorageMonitorTest {
 		Server a = server();
 		Server b = server();
 		save(a, change("x", "1"));
-		sql("ALTER TABLE " + TABLE + " RENAME TO hidden");
+		sql("ALTER TABLE " + TABLE + "_log RENAME TO hidden");
 
 		assertEquals(0, b.poll());
-		sql("ALTER TABLE hidden RENAME TO " + TABLE);
-		assertEquals(1, b.poll()); // a new connection, and the same rows
+		assertTrue("a failed poll doesn't hold up draining", b.storage().mayDrain());
+		sql("ALTER TABLE hidden RENAME TO " + TABLE + "_log");
+		assertEquals(1, b.poll()); // a new connection, and the same entries
 		assertEquals("1", b.get("x"));
+	}
+
+	@Test
+	public void aServerThatFellBehindThePruneSaysSoOnce() throws Exception {
+		Server a = server();
+		Server b = server();
+		save(a, change("missed", "1"));
+		save(a, change("kept", "2"));
+		// as if another server pruned the first save's entries before b read them
+		sql("DELETE FROM " + TABLE + "_log WHERE name = 'missed'", "UPDATE " + TABLE + "_meta SET version = "
+			+ query("SELECT version FROM " + TABLE + "_meta WHERE id = 0") + " WHERE id = 1");
+
+		assertMentions(pollErrors(b), "Restart the server");
+		b.runTasks();
+		assertEquals("what's left is still reported", "2", b.get("kept"));
+		save(a, change("later", "3"));
+		assertEquals(List.of(), pollErrors(b));
+	}
+
+	@Test
+	public void aServerThatKeptUpIsntWarnedAboutPrunedVersions() throws Exception {
+		Server a = server();
+		Server b = server();
+		save(a, change("x", "1"));
+		assertEquals(1, b.poll());
+		sql("UPDATE " + TABLE + "_meta SET version = " + query("SELECT version FROM " + TABLE + "_meta WHERE id = 0")
+			+ " + 1 WHERE id = 1"); // pruned below the next version: everything b has read already
+		save(a, change("y", "2"));
+
+		assertEquals(List.of(), pollErrors(b));
+	}
+
+	/**
+	 * Polls, and returns the errors it printed.
+	 */
+	private static List<String> pollErrors(Server server) {
+		try (RetainingLogHandler log = new RetainingLogHandler().start()) {
+			server.storage().poll();
+			return warnings(log);
+		}
 	}
 
 	@Test
@@ -746,29 +766,7 @@ public class JdbcStorageMonitorTest {
 			storage.poll();
 		}
 		assertEquals(0, b.runTasks());
-	}
-
-	@Test
-	public void closingStopsTheMonitorThread() {
-		Server b = server();
-		assertEquals(1, monitorThreads());
-		b.close();
-		servers.remove(b);
-
-		assertEquals(0, monitorThreads()); // close() waits for the thread to end
-	}
-
-	@Test
-	public void theMonitorThreadPollsByItself() throws Exception {
-		Server a = server();
-		Server b = server("monitor interval: 100 milliseconds");
-		save(a, change("x", "1"));
-
-		long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
-		while (b.mainThread.isEmpty() && System.nanoTime() < deadline)
-			Thread.onSpinWait();
-		assertEquals(1, b.runTasks());
-		assertEquals("1", b.get("x"));
+		assertTrue("nothing will apply reports any more, so draining isn't held up", storage.mayDrain());
 	}
 
 }

@@ -64,6 +64,25 @@ public class TickBudgetTest {
 	}
 
 	@Test
+	public void reportsGetHalfOfWhatsLeftWithNoLimit() {
+		assertEquals(ms(20), reportBudget(0, ms(10), TICK, ms(40), false));
+		assertEquals(ms(12.5), reportBudget(0, ms(25), TICK, ms(25), false)); // more than the refresh's most
+	}
+
+	@Test
+	public void reportsAlwaysGetTheirLeast() {
+		assertEquals(REPORT_MIN_NANOS, reportBudget(0, ms(42), TICK, ms(8), false));
+		assertEquals(REPORT_MIN_NANOS, reportBudget(0, ms(60), TICK, ms(-10), false));
+		assertEquals(REPORT_MIN_NANOS, reportBudget(0, ms(1), TICK, ms(49), true)); // sprinting
+	}
+
+	@Test
+	public void reportsCountTimeUsedByEarlierListeners() {
+		assertEquals(ms(10), reportBudget(0, ms(30), TICK, ms(45), false));
+		assertEquals(ms(15), reportBudget(UNKNOWN, ms(30), TICK, ms(30), false));
+	}
+
+	@Test
 	public void nanoTimeOverflowingDoesntMatter() {
 		long start = Long.MAX_VALUE - ms(10);
 		long now = start + ms(20); // overflows

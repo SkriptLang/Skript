@@ -6,21 +6,21 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Saves variables to a table on a MySQL or MariaDB server. The driver comes with Paper, so nothing has to be downloaded.
  * <p>
- * Several servers can share one table, so this storage supports monitoring. While it monitors changes, deleted
- * variables are kept as tombstones for a while instead of being removed right away, and rows are indexed by version,
- * so servers watching the table can see each other's changes and deletions.
- * Without monitoring, the table is treated as this server's alone, which makes each saved row about half as much work
- * for the database. Sharing a table only shows other servers' changes eventually; it doesn't make variables safe to
+ * Several servers can share one table, so this storage supports monitoring. While it monitors changes, each save also
+ * logs what it changed, so servers watching the table can see each other's changes, deletions and clears.
+ * Without monitoring, the table is treated as this server's alone, which saves the database that extra row per change. Sharing a table only shows other servers' changes eventually; it doesn't make variables safe to
  * change from several servers at once.
  * <p>
  * Names longer than {@value #MAX_NAME_LENGTH} characters can't be saved, since that's as long as an InnoDB key can be.
@@ -196,32 +196,6 @@ public class MySQLStorage extends JdbcStorage {
 		}
 	}
 
-	/**
-	 * Adds the version index that polling needs, if this server monitors changes and the table doesn't have it yet.
-	 * MySQL has no {@code CREATE INDEX IF NOT EXISTS}, hence the check. An index this server doesn't need is only
-	 * warned about, not dropped, since another server sharing the table may poll with it.
-	 */
-	@Override
-	protected void schemaCreated(Connection connection) throws SQLException {
-		boolean indexed;
-		try (PreparedStatement statement = connection.prepareStatement("SELECT 1 FROM information_schema.STATISTICS "
-				+ "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = 'version_index'")) {
-			statement.setString(1, table());
-			try (ResultSet result = statement.executeQuery()) {
-				indexed = result.next();
-			}
-		}
-		if (monitorsChanges() && !indexed) {
-			try (Statement statement = connection.createStatement()) {
-				statement.execute("ALTER TABLE " + table() + " ADD INDEX version_index (version)");
-			}
-		} else if (!monitorsChanges() && indexed) {
-			Skript.warning("The table '" + table() + "' of the database '" + getName() + "' has an index for monitoring "
-				+ "changes, but this server doesn't monitor them. If no server does, removing it makes saving faster: "
-				+ "ALTER TABLE " + table() + " DROP INDEX version_index");
-		}
-	}
-
 	private static boolean atLeast(Matcher version, int major, int minor, int patch) {
 		int[] actual = {
 			Integer.parseInt(version.group(1)),
@@ -233,29 +207,35 @@ public class MySQLStorage extends JdbcStorage {
 	}
 
 	@Override
-	protected List<String> schemaSql(String table, String metaTable) {
-		return List.of(
+	protected List<String> schemaSql(String table, String metaTable, String logTable) {
+		List<String> statements = new ArrayList<>(List.of(
 			// binary, no-pad collation: names compare exactly, so 'a' and 'a ' are different variables,
 			// and a list's names sort together, which the range query for clears relies on
 			"CREATE TABLE IF NOT EXISTS " + table + " ("
 				+ "name VARCHAR(" + MAX_NAME_LENGTH + ") CHARACTER SET utf8mb4 COLLATE " + collation + " NOT NULL PRIMARY KEY, "
-				+ "type VARCHAR(255) CHARACTER SET utf8mb4 COLLATE " + collation + ", "
-				+ "value LONGBLOB, "
-				+ "version BIGINT NOT NULL"
-				+ ") ENGINE=InnoDB", // the version index is added by schemaCreated, only while monitoring
+				+ "type VARCHAR(255) CHARACTER SET utf8mb4 COLLATE " + collation + " NOT NULL, "
+				+ "value LONGBLOB NOT NULL"
+				+ ") ENGINE=InnoDB",
 			"CREATE TABLE IF NOT EXISTS " + metaTable + " (id INT NOT NULL PRIMARY KEY, version BIGINT NOT NULL) ENGINE=InnoDB",
-			"INSERT IGNORE INTO " + metaTable + " (id, version) VALUES (0, 0)");
+			// the version counter with id 0, and the version the change log is pruned below with id 1
+			"INSERT IGNORE INTO " + metaTable + " (id, version) VALUES (0, 0), (1, 0)"));
+		// one entry per name; the index is read in order by polls and pruned from its oldest end
+		if (monitorsChanges())
+			statements.add("CREATE TABLE IF NOT EXISTS " + logTable + " ("
+				+ "name VARCHAR(" + MAX_NAME_LENGTH + ") CHARACTER SET utf8mb4 COLLATE " + collation + " NOT NULL PRIMARY KEY, "
+				+ "version BIGINT NOT NULL, seq INT NOT NULL, INDEX version_index (version, seq)) ENGINE=InnoDB");
+		return statements;
 	}
 
 	@Override
-	protected String upsertSql(String table, int rows) {
-		String insert = "INSERT INTO " + table + " (name, type, value, version) VALUES " + upsertValues(rows);
-		if (aliasUpsert) // MySQL 8.0.19+: VALUES() in the update is deprecated there
-			return insert + " AS new ON DUPLICATE KEY UPDATE "
-				+ "type = new.type, value = new.value, version = new.version";
-		// MariaDB, and MySQL before 8.0.19
-		return insert + " ON DUPLICATE KEY UPDATE "
-			+ "type = VALUES(type), value = VALUES(value), version = VALUES(version)";
+	protected String upsertSql(String table, List<String> columns, int rows) {
+		StringJoiner updates = new StringJoiner(", ");
+		for (String column : columns.subList(1, columns.size())) {
+			// MySQL 8.0.19+: VALUES() in the update is deprecated there. MariaDB, and MySQL before 8.0.19, only have VALUES()
+			updates.add(column + (aliasUpsert ? " = new." + column : " = VALUES(" + column + ")"));
+		}
+		return "INSERT INTO " + table + " (" + String.join(", ", columns) + ") VALUES " + upsertValues(columns.size(), rows)
+			+ (aliasUpsert ? " AS new" : "") + " ON DUPLICATE KEY UPDATE " + updates;
 	}
 
 	@Override

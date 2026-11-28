@@ -374,19 +374,19 @@ databases:
 		# monitor changes: false
 		# Whether to watch the table for changes that other servers save to it, and apply them on this server. Defaults to false.
 		# Turn this on when several servers share one table, so that each one sees the others' changes without restarting.
-		# A change shows up about one 'monitor interval' after the other server saves it, and servers save about a second after a change is made.
+		# Servers save about a second after a change is made, and check the table for other servers' changes each time they save,
+		# so a change shows up on the other servers about one to two seconds after it's made.
 		# This only keeps servers roughly in sync. It doesn't make it safe to change the same variable on several servers at once:
 		# if two servers change it at about the same time, either change may win, so don't share variables like balances that way.
-		# If this server changed a variable and hasn't saved it yet, another server's change to it is ignored, and this server's change is saved over it.
-		# If this server can't reach the database for over an hour, it may miss variables other servers deleted in that time, and says so. Restart it to reload them.
-		# Every server that shares the table must turn this on, even one that only writes to it: with it off, deleted variables are removed from the table right away,
-		# so other servers never see those deletions. Skript warns if it notices another server saving to a table it doesn't monitor.
-		# With it off, the table is treated as this server's alone, which makes saving about half as much work for the database.
+		# If this server changed a variable and hasn't saved it yet, another server's change to it, or a deletion of its list, is ignored,
+		# and this server's change is saved over it. So this server never goes back to an older value than one it set itself.
+		# This server doesn't save again until it has applied the changes it found, so after another server changes many variables at once,
+		# this server's own changes wait to be saved until it has caught up, usually a few seconds at most.
+		# If this server can't reach the database for over 5 minutes, it may miss changes other servers made in that time, and says so. Restart it to reload them.
+		# Every server that shares the table must turn this on, even one that only writes to it: with it off, a server doesn't record what it changed,
+		# so other servers never see those changes. Skript warns if it notices another server saving to a table it doesn't monitor.
+		# With it off, the table is treated as this server's alone, which saves the database some work for every change.
 		# Other types of databases can't be shared by servers, so they ignore this option and warn if it's on.
-
-		# monitor interval: 1 second
-		# How often to check the table for changes from other servers, if 'monitor changes' is on. Defaults to 1 second, and can't be less than 100 milliseconds.
-		# Each check is one small query, plus one that reads the variables that changed, so checking more often costs the database a little more.
 
 		# == Notes for MySQL and MariaDB ==
 		# Each variable is one row of the table. A variable's name can be up to 768 characters long, and its value up to about half the

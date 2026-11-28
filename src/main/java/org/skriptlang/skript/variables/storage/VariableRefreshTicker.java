@@ -10,8 +10,9 @@ import org.bukkit.event.Listener;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
- * Runs the variable refresh at the end of every tick, for as long as {@link TickBudget} allows.
- * This is the only part of the refresh that needs the server, so the rest can be tested without one.
+ * At the end of every tick, applies reported changes left over from earlier in the tick, then runs the variable
+ * refresh, each for as long as {@link TickBudget} allows.
+ * This is the only part of either that needs the server, so the rest can be tested without one.
  */
 @ApiStatus.Internal
 public final class VariableRefreshTicker implements Listener {
@@ -36,9 +37,14 @@ public final class VariableRefreshTicker implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onTickEnd(ServerTickEndEvent event) {
 		ServerTickManager ticks = Bukkit.getServerTickManager();
-		long now = System.nanoTime();
 		long tickNanos = (long) (1e9 / ticks.getTickRate());
-		long budget = TickBudget.budget(tickStart, now, tickNanos, event.getTimeRemaining(), ticks.isSprinting());
+		boolean sprinting = ticks.isSprinting();
+		long eventRemaining = event.getTimeRemaining();
+		long start = System.nanoTime();
+		manager.reportTick(start + TickBudget.reportBudget(tickStart, start, tickNanos, eventRemaining, sprinting));
+		// the event's estimate was made before the reports ran, so take off the time they took
+		long now = System.nanoTime();
+		long budget = TickBudget.budget(tickStart, now, tickNanos, eventRemaining - (now - start), sprinting);
 		manager.refreshTick(now, now + budget);
 	}
 

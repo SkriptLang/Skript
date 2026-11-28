@@ -224,6 +224,49 @@ final class ChangeQueue {
 	}
 
 	/**
+	 * Finds the unsaved local changes under a list that a clear the storage reported with
+	 * {@link VariableStorage.ReportPolicy#KEEP_LOCAL} must keep: those made after every clear that covers them,
+	 * since they will be saved after the reported clear. The caller must hold {@link #lockExclusive()}, and then calls
+	 * {@link #recordClear(String, boolean)} for the reported clear and {@link #putPending} for each kept change,
+	 * so they survive it.
+	 * <p>
+	 * O(number of pending changes), not of the list's size: the pending changes are about one save interval's worth.
+	 *
+	 * @param prefix the list prefix, ending in {@code ::}, such as {@code a::} for {@code {a::*}}
+	 * @return the changes to keep, or null if an undrained local clear covers the whole list, in which case the reported
+	 * clear is to be ignored, since the local one will be saved after it. Empty once the queue is closed
+	 */
+	@Nullable List<SerializedVariable> unsavedUnder(String prefix) {
+		assert order.isWriteLocked();
+		assert prefix.endsWith("::") : prefix;
+		if (closed) // nothing is unsaved
+			return List.of();
+		List<Clear> related = new ArrayList<>();
+		for (Clear clear : clears) {
+			if (clear.save() && prefix.startsWith(clear.prefix()))
+				return null; // a local clear of this list, or of a list it's in
+			if (prefix.startsWith(clear.prefix()) || clear.prefix().startsWith(prefix))
+				related.add(clear);
+		}
+		List<SerializedVariable> kept = new ArrayList<>();
+		for (Pending change : pending.values()) {
+			if (!change.name().startsWith(prefix))
+				continue;
+			boolean live = true;
+			for (Clear clear : related) {
+				// a clear at or after the change's epoch drops it when draining
+				if (clear.epoch() >= change.epoch() && change.name().startsWith(clear.prefix())) {
+					live = false;
+					break;
+				}
+			}
+			if (live)
+				kept.add(new SerializedVariable(change.name(), change.value()));
+		}
+		return kept;
+	}
+
+	/**
 	 * Stops queueing: from now on, changes only reach the map. Waits for the writes in progress,
 	 * so everything queued before this returns is still drained. Called when the storage stops saving,
 	 * before its final save, so that the final save gets every change that will ever be queued.

@@ -106,23 +106,18 @@ public class SQLiteStorageTest {
 
 	/**
 	 * An SQLite storage that sends upserts as statements of up to 3 rows and 400 bytes, the way MySQL does with 1000 rows
-	 * and its packet size, so that path is tested without a MySQL server. Its tests monitor changes, so deletions are upserted, unless one turns that off.
+	 * and its packet size, so that path is tested without a MySQL server. Its tests monitor changes, so saves also log, unless one turns that off.
 	 * A short row, such as {@code r1 = x}, counts as 138 bytes.
 	 */
-	static final class MultiRowStorage extends SQLiteStorage {
+	static final class MultiRowStorage extends ShareableSQLiteStorage {
 
 		/**
-		 * The row count of every statement prepared, in order. A full statement is only prepared once per save.
+		 * The row count of every upsert to the main table prepared, in order. A full statement is only prepared once per save.
 		 */
 		final List<Integer> prepared = new ArrayList<>();
 
 		MultiRowStorage(SkriptAddon registeringAddon, String type) {
 			super(registeringAddon, type);
-		}
-
-		@Override
-		protected boolean supportsMonitoring() {
-			return true;
 		}
 
 		@Override
@@ -136,26 +131,22 @@ public class SQLiteStorageTest {
 		}
 
 		@Override
-		protected String upsertSql(String table, int rows) {
-			prepared.add(rows);
-			return super.upsertSql(table, rows);
+		protected String upsertSql(String table, List<String> columns, int rows) {
+			if (!table.endsWith("_log"))
+				prepared.add(rows);
+			return super.upsertSql(table, columns, rows);
 		}
 
 	}
 
 	/**
-	 * An SQLite storage that acts like it can be monitored, so the tombstones and pruning that databases shared between
+	 * An SQLite storage that acts like it can be monitored, so the change log and pruning that databases shared between
 	 * servers need can be tested without one.
 	 */
-	static final class MonitoredStorage extends SQLiteStorage {
+	static final class MonitoredStorage extends ShareableSQLiteStorage {
 
 		MonitoredStorage(SkriptAddon registeringAddon, String type) {
 			super(registeringAddon, type);
-		}
-
-		@Override
-		protected boolean supportsMonitoring() {
-			return true;
 		}
 
 	}
@@ -229,13 +220,13 @@ public class SQLiteStorageTest {
 
 	/**
 	 * @return A database section for the config, with any extra lines after the file. The types that act like a shared
-	 * database monitor changes, since only then do they keep tombstones, with an interval long enough never to poll
+	 * database monitor changes, since only then do they keep a change log
 	 */
 	private static String database(String name, String type, Path file, String... extra) {
 		StringBuilder section = new StringBuilder("\t" + name + ":\n\t\ttype: " + type
 			+ "\n\t\tfile: " + file.toString().replace('\\', '/') + "\n");
 		if (type.equals("monitored") || type.equals("multirow"))
-			section.append("\t\tmonitor changes: true\n\t\tmonitor interval: 1 hour\n");
+			section.append("\t\tmonitor changes: true\n");
 		for (String line : extra)
 			section.append("\t\t").append(line).append("\n");
 		return section.toString();
@@ -283,13 +274,10 @@ public class SQLiteStorageTest {
 
 	/**
 	 * Puts a row into the table directly, as if a save wrote it.
-	 *
-	 * @param type The type, or null for a tombstone or a broken row
-	 * @param data The value, or null for a tombstone
 	 */
 	private void insert(String name, String type, byte[] data) throws SQLException {
 		try (Connection connection = open(); PreparedStatement statement = connection.prepareStatement(
-				"INSERT INTO " + TABLE + " (name, type, value, version) VALUES (?, ?, ?, 1)")) {
+				"INSERT INTO " + TABLE + " (name, type, value) VALUES (?, ?, ?)")) {
 			statement.setString(1, name);
 			statement.setString(2, type);
 			statement.setBytes(3, data);
@@ -333,17 +321,30 @@ public class SQLiteStorageTest {
 	}
 
 	/**
-	 * Loads the file as a storage that keeps tombstones, and returns it for saving batches to it directly.
+	 * Loads the file as a storage that keeps a change log, and returns it for saving batches to it directly.
 	 */
 	private JdbcStorage loadedMonitoredStorage() {
 		return storage(loadExpecting(VariableMap.concurrent(), true, database("default", "monitored", file)));
 	}
 
 	/**
-	 * @return The name of the version index, if the table has one
+	 * @return The name of the change log's table, if the file has one
 	 */
-	private @Nullable Object versionIndex() throws SQLException {
-		return query("SELECT name FROM sqlite_master WHERE type = 'index' AND name = '" + TABLE + "_version'");
+	private @Nullable Object logTable() throws SQLException {
+		return query("SELECT name FROM sqlite_master WHERE type = 'table' AND name = '" + TABLE + "_log'");
+	}
+
+	/**
+	 * @return The change log's entries, each as its version and name, such as {@code 3 a::*}, in the order they're read
+	 */
+	private List<String> logEntries() throws SQLException {
+		List<String> entries = new ArrayList<>();
+		try (Connection connection = open(); Statement statement = connection.createStatement();
+			 ResultSet result = statement.executeQuery("SELECT version, name FROM " + TABLE + "_log ORDER BY version, seq")) {
+			while (result.next())
+				entries.add(result.getLong(1) + " " + result.getString(2));
+		}
+		return entries;
 	}
 
 	/**
@@ -366,29 +367,21 @@ public class SQLiteStorageTest {
 	/**
 	 * A row as it is in the table.
 	 *
-	 * @param text The value as text, or null for a tombstone
+	 * @param text The value as text
 	 */
-	private record Row(@Nullable String type, @Nullable String text, long version) {
-
-		boolean tombstone() {
-			return type == null && text == null;
-		}
-
-	}
+	private record Row(String type, String text) {}
 
 	/**
 	 * @return The row with the given name, or null if there is none
 	 */
 	private @Nullable Row row(String name) throws SQLException {
 		try (Connection connection = open(); PreparedStatement statement = connection.prepareStatement(
-				"SELECT type, value, version FROM " + TABLE + " WHERE name = ?")) {
+				"SELECT type, value FROM " + TABLE + " WHERE name = ?")) {
 			statement.setString(1, name);
 			try (ResultSet result = statement.executeQuery()) {
 				if (!result.next())
 					return null;
-				byte[] data = result.getBytes(2);
-				return new Row(result.getString(1), data == null ? null : new String(data, StandardCharsets.UTF_8),
-					result.getLong(3));
+				return new Row(result.getString(1), new String(result.getBytes(2), StandardCharsets.UTF_8));
 			}
 		}
 	}
@@ -425,7 +418,7 @@ public class SQLiteStorageTest {
 	 */
 	private static void pretendAnHourPassedSince(JdbcStorage storage, long version) {
 		long now = System.nanoTime();
-		TombstonePruner pruner = new TombstonePruner(now - TimeUnit.HOURS.toNanos(1));
+		LogPruner pruner = new LogPruner(now - TimeUnit.HOURS.toNanos(1));
 		pruner.sample(now - TimeUnit.HOURS.toNanos(2), version);
 		storage.pruner(pruner);
 	}
@@ -438,11 +431,11 @@ public class SQLiteStorageTest {
 
 		assertEquals(0L, ((Number) query("SELECT COUNT(*) FROM " + TABLE)).longValue());
 		assertEquals(0L, ((Number) query("SELECT version FROM " + TABLE + "_meta WHERE id = 0")).longValue());
-		assertNull("only polling needs the version index", versionIndex());
+		assertNull("only monitoring needs the change log", logTable());
 	}
 
 	@Test
-	public void aMonitorableTableWithoutMonitoringRemovesDeletedRows() throws Exception {
+	public void aMonitorableTableWithoutMonitoringLogsNothing() throws Exception {
 		VariableStorageManager manager = loadExpecting(VariableMap.concurrent(), true, database("default", "multirow", file)
 			.replace("monitor changes: true", "monitor changes: false"));
 		JdbcStorage storage = storage(manager);
@@ -450,7 +443,7 @@ public class SQLiteStorageTest {
 		save(storage, List.of("list::"), deletion("a"));
 
 		assertEquals(List.of(), names());
-		assertNull("only polling needs the version index", versionIndex());
+		assertNull("only monitoring needs the change log", logTable());
 	}
 
 	@Test
@@ -476,19 +469,19 @@ public class SQLiteStorageTest {
 		JdbcStorage storage = storage(load(VariableMap.concurrent()));
 		assertEquals(List.of(), saveWarnings(storage, change("a", "1")));
 
-		sql("UPDATE " + TABLE + "_meta SET version = version + 1"); // as another server's save would
+		sql("UPDATE " + TABLE + "_meta SET version = version + 1 WHERE id = 0"); // as another server's save would
 		List<String> warnings = saveWarnings(storage, change("b", "2"));
 		assertEquals(warnings.toString(), 1, warnings.size());
 		assertTrue(warnings.get(0), warnings.get(0).contains("'monitor changes'"));
 
-		sql("UPDATE " + TABLE + "_meta SET version = version + 1");
+		sql("UPDATE " + TABLE + "_meta SET version = version + 1 WHERE id = 0");
 		assertEquals(List.of(), saveWarnings(storage, change("c", "3"))); // once is enough
 	}
 
 	@Test
 	public void anotherServerSavingBeforeTheFirstSaveIsNoticed() throws Exception {
 		JdbcStorage storage = storage(load(VariableMap.concurrent()));
-		sql("UPDATE " + TABLE + "_meta SET version = version + 1");
+		sql("UPDATE " + TABLE + "_meta SET version = version + 1 WHERE id = 0");
 
 		assertEquals(1, saveWarnings(storage, change("a", "1")).size());
 	}
@@ -496,7 +489,7 @@ public class SQLiteStorageTest {
 	@Test
 	public void aMonitoredTableIsntWarnedAboutOtherServers() throws Exception {
 		JdbcStorage storage = loadedMonitoredStorage();
-		sql("UPDATE " + TABLE + "_meta SET version = version + 1");
+		sql("UPDATE " + TABLE + "_meta SET version = version + 1 WHERE id = 0");
 
 		assertEquals(List.of(), saveWarnings(storage, change("a", "1")));
 	}
@@ -515,16 +508,17 @@ public class SQLiteStorageTest {
 	}
 
 	@Test
-	public void aMonitoredTableGetsAVersionIndex() throws SQLException {
+	public void aMonitoredTableGetsAChangeLog() throws SQLException {
 		close(loadExpecting(VariableMap.concurrent(), true, database("default", "monitored", file)));
-		assertEquals(TABLE + "_version", versionIndex());
+		assertEquals(TABLE + "_log", logTable());
 	}
 
 	@Test
-	public void anOldVersionIndexIsDropped() throws SQLException {
+	public void theChangeLogIsKeptWithoutMonitoring() throws SQLException {
+		// another server sharing the table may still monitor it
 		close(loadExpecting(VariableMap.concurrent(), true, database("default", "monitored", file)));
 		createTables();
-		assertNull(versionIndex());
+		assertEquals(TABLE + "_log", logTable());
 	}
 
 	@Test
@@ -544,9 +538,9 @@ public class SQLiteStorageTest {
 	public void loadingAgainKeepsTheTables() throws SQLException {
 		createTables();
 		insert("a", "1");
-		createTables(); // CREATE ... IF NOT EXISTS, and the counter row isn't inserted twice
+		createTables(); // CREATE ... IF NOT EXISTS, and the meta rows aren't inserted twice
 		assertEquals(List.of("a"), names());
-		assertEquals(1L, ((Number) query("SELECT COUNT(*) FROM " + TABLE + "_meta")).longValue());
+		assertEquals(2L, ((Number) query("SELECT COUNT(*) FROM " + TABLE + "_meta")).longValue());
 	}
 
 	// ---- loading rows ----
@@ -567,23 +561,14 @@ public class SQLiteStorageTest {
 	}
 
 	@Test
-	public void tombstonesArentLoaded() throws SQLException {
-		createTables();
-		insert("a", "1");
-		insert("deleted", null, null);
-		assertEquals(Map.of("a", "1"), loaded());
-	}
-
-	@Test
 	public void badRowsAreSkippedAndKept() throws SQLException {
 		createTables();
 		insert("a", "1");
 		insert("list::*", "a list can't hold a value");
-		insert("no type", null, "a value without a type".getBytes(StandardCharsets.UTF_8));
 
 		assertEquals(Map.of("a", "1"), loaded());
-		// nothing is rewritten, so a later fix can still read them
-		assertEquals(List.of("a", "list::*", "no type"), names());
+		// nothing is rewritten, so a later fix can still read it
+		assertEquals(List.of("a", "list::*"), names());
 	}
 
 	@Test
@@ -596,7 +581,7 @@ public class SQLiteStorageTest {
 
 	@Test
 	public void aTableWithMissingColumnsFailsTheLoad() throws SQLException {
-		// the index and counter can be made, but the column check fails
+		// the counter can be made, but the column check fails
 		sql("CREATE TABLE " + TABLE + " (name TEXT PRIMARY KEY, version INTEGER)");
 		loadExpecting(VariableMap.concurrent(), false, database("default", "sqlite", file));
 	}
@@ -662,16 +647,14 @@ public class SQLiteStorageTest {
 	}
 
 	@Test
-	public void anOverwriteKeepsTheNewValueWithANewerVersion() throws Exception {
+	public void anOverwriteKeepsTheNewValue() throws Exception {
 		JdbcStorage storage = loadedStorage();
 		save(storage, List.of(), change("a", "old"));
-		long first = row("a").version();
 		save(storage, List.of(), change("a", "new"));
 
 		Row row = row("a");
 		assertEquals("new", row.text());
 		assertEquals(TEXT, row.type());
-		assertTrue(row.version() > first);
 	}
 
 	@Test
@@ -695,14 +678,24 @@ public class SQLiteStorageTest {
 	}
 
 	@Test
-	public void aDeletionLeavesATombstoneIfMonitored() throws Exception {
+	public void aDeletionIsLoggedIfMonitored() throws Exception {
 		JdbcStorage storage = loadedMonitoredStorage();
-		save(storage, List.of(), change("a", "1"));
+		save(storage, List.of(), change("a", "1"), change("b", "2"));
+		long set = counter();
 		save(storage, List.of(), deletion("a"));
 
-		assertTrue(row("a").tombstone());
-		close(managers.get(0));
-		assertEquals(Map.of(), loaded());
+		assertNull(row("a"));
+		assertEquals("a name keeps only its latest entry", List.of(set + " b", counter() + " a"), logEntries());
+	}
+
+	@Test
+	public void aListClearedAgainKeepsOneEntry() throws Exception {
+		JdbcStorage storage = loadedMonitoredStorage();
+		save(storage, List.of("a::"));
+		save(storage, List.of("a::", "b::", "a::"));
+
+		long version = counter();
+		assertEquals(List.of(version + " b::*", version + " a::*"), logEntries()); // the last of the save's clears of it
 	}
 
 	@Test
@@ -752,25 +745,28 @@ public class SQLiteStorageTest {
 	}
 
 	@Test
-	public void aClearOnlyTombstonesItsListIfMonitored() throws Exception {
+	public void aClearIsLoggedAsOneEntryIfMonitored() throws Exception {
 		JdbcStorage storage = loadedMonitoredStorage();
-		save(storage, List.of(), change("a", "own value"), change("a::b", "1"), change("ab::x", "2"));
+		save(storage, List.of(), change("a", "own value"), change("a::b", "1"), change("a::c", "2"), change("ab::x", "3"));
 		save(storage, List.of("a::"));
 
-		assertTrue(row("a::b").tombstone());
+		assertNull(row("a::b"));
+		assertNull(row("a::c"));
 		assertEquals("own value", row("a").text());
-		assertEquals("2", row("ab::x").text());
+		assertEquals("3", row("ab::x").text());
+		List<String> entries = logEntries();
+		assertEquals(5, entries.size()); // four for the first save, one for the clear
+		assertEquals(counter() + " a::*", entries.get(4));
 	}
 
 	@Test
-	public void aClearDoesntRestampTombstones() throws Exception {
+	public void aSavesClearsAreLoggedBeforeItsChanges() throws Exception {
+		// a server reading the log applies them in that order, so a set after a clear survives it there too
 		JdbcStorage storage = loadedMonitoredStorage();
-		save(storage, List.of(), change("x::1", "1"));
-		save(storage, List.of(), deletion("x::1"));
-		long deleted = row("x::1").version();
-		save(storage, List.of("x::"));
+		save(storage, List.of("b::", "a::"), change("a::!", "sorts before the clear's name"), deletion("x"));
 
-		assertEquals(deleted, row("x::1").version());
+		long version = counter();
+		assertEquals(List.of(version + " b::*", version + " a::*", version + " a::!", version + " x"), logEntries());
 	}
 
 	@Test
@@ -790,16 +786,15 @@ public class SQLiteStorageTest {
 	}
 
 	@Test
-	public void eachSaveBumpsTheCounterAndStampsItsRows() throws Exception {
-		JdbcStorage storage = loadedStorage();
+	public void eachSaveBumpsTheCounterAndFilesItsLogEntriesUnderIt() throws Exception {
+		JdbcStorage storage = loadedMonitoredStorage();
 		long before = counter();
 		save(storage, List.of(), change("a", "1"));
 		save(storage, List.of(), change("b", "2"));
 		save(storage, List.of("c::"));
 
 		assertEquals(before + 3, counter());
-		assertEquals(before + 1, row("a").version());
-		assertEquals(before + 2, row("b").version());
+		assertEquals(List.of((before + 1) + " a", (before + 2) + " b", (before + 3) + " c::*"), logEntries());
 	}
 
 	@Test
@@ -813,9 +808,8 @@ public class SQLiteStorageTest {
 			expected.put("big::" + i, String.valueOf(i));
 		}
 		save(storage, List.of(), changes);
-		long version = counter();
 
-		assertEquals((long) count, ((Number) query("SELECT COUNT(*) FROM " + TABLE + " WHERE version = " + version)).longValue());
+		assertEquals((long) count, ((Number) query("SELECT COUNT(*) FROM " + TABLE)).longValue());
 		close(managers.get(0));
 		assertEquals(expected, loaded());
 	}
@@ -879,14 +873,18 @@ public class SQLiteStorageTest {
 	}
 
 	@Test
-	public void tombstonesAreUpsertedInMultiRowStatements() throws Exception {
+	public void logEntriesAreSentInMultiRowStatements() throws Exception {
 		MultiRowStorage storage = loadedMultiRowStorage();
-		save(storage, List.of(), change("a", "1"), change("b", "2"), change("c", "3"));
-		save(storage, List.of(), deletion("a"), deletion("b"), change("c", "4"));
+		SerializedVariable[] changes = new SerializedVariable[7]; // with the clear, three statements of up to 3 entries
+		for (int i = 0; i < changes.length; i++)
+			changes[i] = i % 2 == 0 ? change("r" + i, "x") : deletion("r" + i);
+		save(storage, List.of("list::"), changes);
 
-		assertTrue(row("a").tombstone());
-		assertTrue(row("b").tombstone());
-		assertEquals("4", row("c").text());
+		long version = counter();
+		List<String> expected = new ArrayList<>(List.of(version + " list::*"));
+		for (int i = 0; i < changes.length; i++)
+			expected.add(version + " r" + i);
+		assertEquals("numbered in order across statements", expected, logEntries());
 	}
 
 	@Test
@@ -897,7 +895,7 @@ public class SQLiteStorageTest {
 		save(storage, List.of("list::"));
 
 		assertTrue(storage.prepared.isEmpty());
-		assertTrue(row("list::1").tombstone());
+		assertNull(row("list::1"));
 	}
 
 	@Test
@@ -949,20 +947,39 @@ public class SQLiteStorageTest {
 	}
 
 	@Test
-	public void pruningRemovesOnlyOldTombstones() throws Exception {
+	public void pruningRemovesOnlyOldLogEntries() throws Exception {
 		JdbcStorage storage = loadedMonitoredStorage();
-		save(storage, List.of(), change("old", "1"), change("recent", "2"), change("kept", "3"));
+		save(storage, List.of(), change("old", "1"), change("kept", "2"));
 		save(storage, List.of(), deletion("old"));
 		long oldDeletion = counter();
-		save(storage, List.of(), deletion("recent"));
+		save(storage, List.of(), change("recent", "3"));
 
 		// everything before the version after the old deletion is over an hour old
 		pretendAnHourPassedSince(storage, oldDeletion + 1);
 		save(storage, List.of(), change("trigger", "4"));
 
-		assertNull(row("old"));
-		assertTrue(row("recent").tombstone());
-		assertEquals("3", row("kept").text()); // values are never pruned, however old
+		assertEquals(List.of((oldDeletion + 1) + " recent", (oldDeletion + 2) + " trigger"), logEntries());
+		assertEquals("the pruned versions are noted", oldDeletion + 1,
+			((Number) query("SELECT version FROM " + TABLE + "_meta WHERE id = 1")).longValue());
+		assertEquals("2", row("kept").text()); // values are never pruned, however old
+		assertEquals("3", row("recent").text());
+	}
+
+	@Test
+	public void pruningManyVersionsTakesSeveralStatements() throws Exception {
+		JdbcStorage storage = loadedMonitoredStorage();
+		sql("UPDATE " + TABLE + "_meta SET version = 2500 WHERE id = 0");
+		StringBuilder old = new StringBuilder("INSERT INTO " + TABLE + "_log (version, seq, name) VALUES (1, 0, 'x1')");
+		for (int version = 2; version <= 2_500; version++) // over two statements' worth of versions
+			old.append(", (").append(version).append(", 0, 'x").append(version).append("')");
+		sql(old.toString());
+		save(storage, List.of(), change("recent", "1"));
+		long recent = counter();
+
+		pretendAnHourPassedSince(storage, recent);
+		save(storage, List.of(), change("trigger", "2"));
+
+		assertEquals(List.of(recent + " recent", (recent + 1) + " trigger"), logEntries());
 	}
 
 	// ---- backups ----
@@ -972,8 +989,6 @@ public class SQLiteStorageTest {
 		createTables();
 		insert("a", "1");
 		insert("list::1", "one");
-		insert("deleted", null, null); // a tombstone
-		insert("broken", null, "x".getBytes(StandardCharsets.UTF_8)); // a value without a type
 		insert("list::*", "a list can't hold a value");
 		JdbcStorage storage = loadedStorage();
 
@@ -982,8 +997,7 @@ public class SQLiteStorageTest {
 		assertFalse("a backup is read whole", text.contains(CsvFormat.COMPACTED_HEADER));
 		assertEquals(List.of(csvRow("a", "1"), csvRow("list::1", "one")),
 			csvRows(text).stream().sorted().toList());
-		assertEquals("the broken rows are still in the table", "x",
-			new String((byte[]) query("SELECT value FROM " + TABLE + " WHERE name = 'broken'"), StandardCharsets.UTF_8));
+		assertEquals("the broken row is still in the table", List.of("a", "list::*", "list::1"), names());
 	}
 
 	@Test

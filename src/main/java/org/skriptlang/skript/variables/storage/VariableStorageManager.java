@@ -45,7 +45,6 @@ public final class VariableStorageManager {
 	private final Function<@Nullable Object, SerializedVariable.@Nullable Value> serializer;
 	private final BiFunction<String, byte[], @Nullable Object> deserializer;
 	private final Executor mainThread;
-	private final Executor nextTick;
 	private final VariableRefresher refresher;
 
 	private static final String[] NO_KEYS = new String[0];
@@ -88,31 +87,10 @@ public final class VariableStorageManager {
 								  BiFunction<String, byte[], @Nullable Object> deserializer,
 								  Executor mainThread,
 								  BufferedSerializer refreshSerializer) {
-		this(globals, serializer, deserializer, mainThread, mainThread, refreshSerializer);
-	}
-
-	/**
-	 * @param globals           the map holding every global variable, which reads are served from
-	 * @param serializer        serializes a value for saving, on the thread that sets it; null for a deleted variable
-	 * @param deserializer      turns a stored value's type and data back into a value, or null if it can't
-	 * @param mainThread        runs tasks on the server's main thread, for changes that storages report
-	 * @param nextTick          runs tasks on the server's main thread in a later tick, for reported changes left over once
-	 *                          a tick's time for them is up. Only called on the main thread. On a server, {@code mainThread}
-	 *                          can't do this, since a task it schedules from a task runs in the same tick
-	 * @param refreshSerializer serializes values for the refresh, the same way as {@code serializer},
-	 *                          but into a buffer it reuses, since the refresh serializes every variable
-	 */
-	public VariableStorageManager(VariableMap globals,
-								  Function<@Nullable Object, SerializedVariable.@Nullable Value> serializer,
-								  BiFunction<String, byte[], @Nullable Object> deserializer,
-								  Executor mainThread,
-								  Executor nextTick,
-								  BufferedSerializer refreshSerializer) {
 		this.globals = globals;
 		this.serializer = serializer;
 		this.deserializer = deserializer;
 		this.mainThread = mainThread;
-		this.nextTick = nextTick;
 		this.refresher = new VariableRefresher(globals, refreshSerializer, this::route, () -> storages, VariableStorage::report);
 	}
 
@@ -1058,14 +1036,16 @@ public final class VariableStorageManager {
 	// ---------------------------- REPORTED CHANGES ----------------------------
 
 	/**
-	 * How long the main thread may spend on reported changes in one go. Whatever is left waits for the next tick,
-	 * so a storage reporting many changes at once, like another server's huge save, doesn't freeze the server.
+	 * How long a {@link #mainThread} task may spend on reported changes. It runs before the tick's work, when there's
+	 * no telling how much of the tick that work needs, so it only gets this much. Whatever is left is applied at the end
+	 * of the tick, by {@link #reportTick}, with the time the tick has left over.
 	 */
-	private static final long REPORT_BUDGET_NANOS = TimeUnit.MILLISECONDS.toNanos(5);
+	private static final long REPORT_BUDGET_NANOS = TickBudget.REPORT_MIN_NANOS;
 
 	// reported changes and afterReports tasks waiting for the main thread, in the order they were reported
 	private final Queue<Runnable> pendingReports = new ConcurrentLinkedQueue<>();
-	// whether a task to apply them is queued on the main thread or running, so only one ever is
+	// whether something will apply them: a task queued on the main thread, or the end of the tick for what a task left.
+	// While it's set, queueing a report schedules nothing, so only one task is ever queued
 	private final AtomicBoolean reportsScheduled = new AtomicBoolean();
 
 	/**
@@ -1081,9 +1061,9 @@ public final class VariableStorageManager {
 		}
 
 		@Override
-		public void cleared(VariableStorage source, String listName) {
+		public void cleared(VariableStorage source, String listName, VariableStorage.ReportPolicy policy) {
 			if (!closed)
-				queueReport(() -> applyClear(source, listName));
+				queueReport(() -> applyClear(source, listName, policy));
 		}
 
 		@Override
@@ -1101,15 +1081,27 @@ public final class VariableStorageManager {
 	private void queueReport(Runnable task) {
 		pendingReports.add(task);
 		if (reportsScheduled.compareAndSet(false, true))
-			mainThread.execute(this::applyReports);
+			mainThread.execute(() -> applyReports(System.nanoTime() + REPORT_BUDGET_NANOS));
 	}
 
 	/**
-	 * Runs queued report tasks on the main thread, in order, for up to {@link #REPORT_BUDGET_NANOS}.
-	 * If any are left, runs again in a later tick, through {@link #nextTick}.
+	 * Applies what's left of the reported changes at the end of a tick, until the deadline.
+	 * Called on the main thread at the end of every tick, by {@link VariableRefreshTicker}.
+	 *
+	 * @param deadline the {@link System#nanoTime()} to stop by
 	 */
-	private void applyReports() {
-		long deadline = System.nanoTime() + REPORT_BUDGET_NANOS;
+	void reportTick(long deadline) {
+		if (!pendingReports.isEmpty())
+			applyReports(deadline);
+	}
+
+	/**
+	 * Runs queued report tasks on the main thread, in order, until the deadline. If any are left,
+	 * {@link #reportsScheduled} stays set, and the end of the tick carries on with them.
+	 *
+	 * @param deadline the {@link System#nanoTime()} to stop by
+	 */
+	private void applyReports(long deadline) {
 		while (true) {
 			Runnable task = pendingReports.poll();
 			if (task == null) {
@@ -1124,16 +1116,11 @@ public final class VariableStorageManager {
 			} catch (RuntimeException e) {
 				// one broken report mustn't stop the ones after it
 				Skript.exception(e, "Applying a variable change reported by a database failed");
-			} catch (Error e) {
-				// still scheduled, so nothing else would queue this again: the rest waits for the next tick instead of forever
-				nextTick.execute(this::applyReports);
-				throw e;
 			}
+			// an Error is thrown on, leaving the rest to the end of the tick, like when the time is up
 			// nanoTime values may overflow, so they're only ever compared by their difference
-			if (System.nanoTime() - deadline >= 0 && !pendingReports.isEmpty()) {
-				nextTick.execute(this::applyReports); // still scheduled, so nothing else queues another
-				return;
-			}
+			if (System.nanoTime() - deadline >= 0 && !pendingReports.isEmpty())
+				return; // still scheduled, so nothing queues another task: the end of the tick carries on
 		}
 	}
 
@@ -1174,13 +1161,14 @@ public final class VariableStorageManager {
 	/**
 	 * Applies a reported deletion of a list, on the main thread, under the reporting storage's exclusive lock.
 	 * Only the variables in the list that the storage saves are deleted, so other storages' parts of the list stay.
-	 * Ignored if the storage saves no part of the list. Drops unsaved local changes under the list,
-	 * without queueing the deletion for saving.
+	 * Ignored if the storage saves no part of the list. Drops or keeps unsaved local changes under the list,
+	 * as the policy says, and never queues the deletion for saving.
 	 *
 	 * @param source   the storage that reported the deletion
 	 * @param listName the list's full name, such as {@code a::*}
+	 * @param policy   what to do with unsaved local changes under the list
 	 */
-	private void applyClear(VariableStorage source, String listName) {
+	private void applyClear(VariableStorage source, String listName, VariableStorage.ReportPolicy policy) {
 		String listPrefix = listName.substring(0, listName.length() - 1);
 		List<VariableStorage> involved = involvedIn(listPrefix); // empty if closed or ephemeral
 		if (!involved.contains(source)) {
@@ -1191,8 +1179,22 @@ public final class VariableStorageManager {
 		ChangeQueue queue = source.queue();
 		long stamp = queue.lockExclusive();
 		try {
+			List<SerializedVariable> kept = List.of();
+			if (policy == VariableStorage.ReportPolicy.KEEP_LOCAL) {
+				kept = queue.unsavedUnder(listPrefix);
+				if (kept == null) {
+					Skript.debug("Keeping the unsaved clear of '" + listName + "' over the one from the database '" + source.getName() + "'");
+					return;
+				}
+			}
+			// the kept changes are this storage's, since its queue has them, and their values are put back after the clear
+			Object[] keptValues = new Object[kept.size()];
+			for (int i = 0; i < keptValues.length; i++)
+				keptValues[i] = globals.getVariable(kept.get(i).name);
 			// drops the unsaved local changes under the list, without asking the storage to delete it again
 			queue.recordClear(listPrefix, false);
+			for (SerializedVariable change : kept)
+				queue.putPending(change.name, change.value); // after the clear, so it doesn't drop them
 			if (involved.size() == 1 && source.accept(listPrefix)) {
 				globals.setVariable(listName, null); // the whole list is this storage's
 			} else {
@@ -1201,6 +1203,10 @@ public final class VariableStorageManager {
 				collectOwned(source, listPrefix, globals.getVariable(listName), owned);
 				for (String name : owned)
 					globals.setVariable(name, null);
+			}
+			for (int i = 0; i < keptValues.length; i++) {
+				if (keptValues[i] != null) // a kept deletion is already gone
+					globals.setVariable(kept.get(i).name, keptValues[i]);
 			}
 		} finally {
 			queue.unlockExclusive(stamp);

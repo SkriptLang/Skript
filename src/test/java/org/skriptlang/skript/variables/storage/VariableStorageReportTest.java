@@ -31,8 +31,8 @@ public class VariableStorageReportTest {
 		}
 
 		@Override
-		public void cleared(VariableStorage source, String listName) {
-			received.add(source.getName() + " cleared " + listName);
+		public void cleared(VariableStorage source, String listName, VariableStorage.ReportPolicy policy) {
+			received.add(source.getName() + " cleared " + listName + " [" + policy + "]");
 		}
 
 		@Override
@@ -66,7 +66,7 @@ public class VariableStorageReportTest {
 		storage.reportUpdatedForTest("b", null);
 		storage.reportClearedForTest("l::*");
 		assertEquals(List.of("shared updated a = string [REPLACE_LOCAL]", "shared updated b (deleted) [REPLACE_LOCAL]",
-				"shared cleared l::*"),
+				"shared cleared l::* [REPLACE_LOCAL]"),
 			handler.received);
 	}
 
@@ -75,7 +75,9 @@ public class VariableStorageReportTest {
 		storage.startReceiving(handler);
 		storage.reportUpdatedForTest("a", null, VariableStorage.ReportPolicy.KEEP_LOCAL);
 		storage.reportUpdatedForTest("b", null, VariableStorage.ReportPolicy.REPLACE_LOCAL);
-		assertEquals(List.of("shared updated a (deleted) [KEEP_LOCAL]", "shared updated b (deleted) [REPLACE_LOCAL]"),
+		storage.reportClearedForTest("l::*", VariableStorage.ReportPolicy.KEEP_LOCAL);
+		assertEquals(List.of("shared updated a (deleted) [KEEP_LOCAL]", "shared updated b (deleted) [REPLACE_LOCAL]",
+				"shared cleared l::* [KEEP_LOCAL]"),
 			handler.received);
 	}
 

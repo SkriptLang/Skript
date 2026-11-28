@@ -684,8 +684,9 @@ public abstract class VariableStorage implements Closeable {
 		 *
 		 * @param source   the storage that reported it
 		 * @param listName the list's full name, such as {@code a::*}
+		 * @param policy   what to do with unsaved local changes under the list
 		 */
-		void cleared(VariableStorage source, String listName);
+		void cleared(VariableStorage source, String listName, ReportPolicy policy);
 
 		/**
 		 * Runs a task on the main thread after every change the storage reported before this call.
@@ -704,7 +705,7 @@ public abstract class VariableStorage implements Closeable {
 		}
 
 		@Override
-		public void cleared(VariableStorage source, String listName) {
+		public void cleared(VariableStorage source, String listName, ReportPolicy policy) {
 		}
 
 		@Override
@@ -759,29 +760,45 @@ public abstract class VariableStorage implements Closeable {
 	}
 
 	/**
-	 * Tells Skript that a list in this storage was deleted from outside this server.
-	 * Skript deletes the list's variables that this storage holds, including those in nested lists,
-	 * and drops any changes to them that this server has not saved yet. Unlike {@link #reportUpdated},
-	 * this has no {@link ReportPolicy}: a reported clear always replaces local changes.
-	 * A variable with the list's name minus the {@code ::*}, such as {@code a} for {@code a::*}, is not affected.
-	 * <p>
-	 * May be called from any thread, but only once loading has finished and the storage is running.
-	 * Ignored once the storage has stopped.
+	 * Tells Skript that a list in this storage was deleted from outside this server,
+	 * dropping any changes under it that this server has not saved yet.
+	 * Same as {@link #reportCleared(String, ReportPolicy)} with {@link ReportPolicy#REPLACE_LOCAL}.
 	 *
 	 * @param listName the full name of the list, including the {@code ::*} ending, such as {@code a::*}
 	 * @throws IllegalStateException    if the storage isn't running yet
 	 * @throws IllegalArgumentException if {@code listName} doesn't end with {@code ::*}
 	 */
 	protected final void reportCleared(String listName) {
+		reportCleared(listName, ReportPolicy.REPLACE_LOCAL);
+	}
+
+	/**
+	 * Tells Skript that a list in this storage was deleted from outside this server.
+	 * Skript deletes the list's variables that this storage holds, including those in nested lists.
+	 * If this server has unsaved changes under the list, the policy decides what happens to them:
+	 * {@link ReportPolicy#REPLACE_LOCAL} drops them, and {@link ReportPolicy#KEEP_LOCAL} keeps them, and their values,
+	 * since they will be saved after the clear. With {@code KEEP_LOCAL}, the clear is ignored entirely if an unsaved
+	 * local clear covers the whole list, since that will be saved after it too.
+	 * A variable with the list's name minus the {@code ::*}, such as {@code a} for {@code a::*}, is not affected.
+	 * <p>
+	 * May be called from any thread, but only once loading has finished and the storage is running.
+	 * Ignored once the storage has stopped.
+	 *
+	 * @param listName the full name of the list, including the {@code ::*} ending, such as {@code a::*}
+	 * @param policy   what to do with unsaved local changes under the list
+	 * @throws IllegalStateException    if the storage isn't running yet
+	 * @throws IllegalArgumentException if {@code listName} doesn't end with {@code ::*}
+	 */
+	protected final void reportCleared(String listName, ReportPolicy policy) {
 		if (!listName.endsWith(Variable.LIST_SUFFIX))
 			throw new IllegalArgumentException("Not a list name: " + listName);
-		handler().cleared(this, listName);
+		handler().cleared(this, listName, policy);
 	}
 
 	/**
 	 * Runs a task on the main thread once every change this storage reported before calling this has been applied.
-	 * Reports are applied in the order they were made, so the task simply runs after them. Only a few milliseconds
-	 * of reports are applied each tick, so after many reports at once, the task may wait several ticks.
+	 * Reports are applied in the order they were made, so the task simply runs after them. Reports only get the time
+	 * a tick has to spare, so after many reports at once, the task may wait several ticks.
 	 * Dropped once the storage has stopped. May be called from any thread, but only once the storage is running.
 	 */
 	protected final void runAfterReports(Runnable task) {
@@ -817,6 +834,15 @@ public abstract class VariableStorage implements Closeable {
 	 * Not called if loading or starting to save failed. Runs on the thread that loads the storages.
 	 */
 	protected void receivingStarted() {}
+
+	/**
+	 * @return whether the storage is running and its reported changes are applied: true from when
+	 * {@link #receivingStarted()} is called until the storage stops saving or fails
+	 */
+	protected final boolean isReceiving() {
+		ChangeHandler handler = changeHandler;
+		return handler != null && handler != STOPPED;
+	}
 
 	/**
 	 * Stops passing reported changes on: any reported from now on are ignored.
@@ -983,6 +1009,10 @@ public abstract class VariableStorage implements Closeable {
 	 */
 	private void saveLoop() {
 		while (saving) {
+			if (!mayDrain()) {
+				LockSupport.parkNanos(this, DRAIN_WAIT_NANOS);
+				continue;
+			}
 			long start = System.nanoTime();
 			long next = intervalNanos;
 			try {
@@ -1077,9 +1107,29 @@ public abstract class VariableStorage implements Closeable {
 	}
 
 	/**
-	 * Called on the saving thread at the end of each save cycle in which nothing was left unsaved: every change drained
-	 * so far has been saved, and the next is drained after this returns. Called whether or not there was anything to save,
-	 * about every {@link #saveIntervalMillis()} ms, so it must be cheap. Not called while a failed batch waits for a retry.
+	 * How long the save loop waits before asking {@link #mayDrain()} again, once it said no: about a tick.
+	 */
+	private static final long DRAIN_WAIT_NANOS = TimeUnit.MILLISECONDS.toNanos(50);
+
+	/**
+	 * Whether the save loop may start its next cycle, which drains the queue. A storage that reports changes can say no
+	 * until the main thread has applied what it reported, so no local change is drained before a report that's older
+	 * than it is applied: while the change is still queued, a {@link ReportPolicy#KEEP_LOCAL} report skips it.
+	 * Asked by the save loop only, about once a tick while it says no; {@link #flush()} and the final saves of
+	 * {@link #stopSaving()} drain anyway, since they run when nothing is reported. Defaults to always true.
+	 * Must be cheap, and must not wait.
+	 *
+	 * @return whether the next save cycle may start now
+	 */
+	protected boolean mayDrain() {
+		return true;
+	}
+
+	/**
+	 * Called at the end of each save cycle in which nothing was left unsaved: every change drained so far has been saved,
+	 * and the next is drained after this returns. Called whether or not there was anything to save, about every
+	 * {@link #saveIntervalMillis()} ms on the saving thread, and by {@link #flush()} on its caller's. The next cycle waits
+	 * for it, so the longer it takes, the later changes are saved. Not called while a failed batch waits for a retry.
 	 */
 	protected void saveCycleEnded() {}
 
