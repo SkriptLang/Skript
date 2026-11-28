@@ -36,6 +36,11 @@ public class TestTracker {
 	@Nullable
 	private static String currentTest;
 
+	/**
+	 * How many callers currently expect {@link Skript#exception} to be called, so it doesn't fail the current test.
+	 */
+	private static int expectingExceptions;
+
 	public static void registerTest(String test, Runnable runnable) {
 		if (registeredTests.containsKey(test)) {
 			throw new IllegalArgumentException("Test already registered: " + test);
@@ -67,6 +72,24 @@ public class TestTracker {
 
 	public static void parsingStarted(String name) {
 		currentTest = name + " (parsing)";
+	}
+
+	/**
+	 * Sets whether {@link Skript#exception} is expected to be called, for tests of code that reports exceptions on purpose.
+	 * While expected, it doesn't fail the current test. Each {@code true} must be matched by a {@code false}.
+	 *
+	 * @param expected whether exceptions are expected from now on
+	 */
+	public static void expectExceptions(boolean expected) {
+		expectingExceptions += expected ? 1 : -1;
+	}
+
+	/**
+	 * @return whether {@link Skript#exception} is currently expected to be called
+	 * @see #expectExceptions(boolean)
+	 */
+	public static boolean exceptionsExpected() {
+		return expectingExceptions > 0;
 	}
 
 	public static void JUnitTestFailed(String currentTest, String msg) {
