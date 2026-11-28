@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.test.util.ExpectedExceptions;
 import org.skriptlang.skript.variables.VariableMap;
 import org.skriptlang.skript.variables.storage.ManagerTests;
 import org.skriptlang.skript.variables.storage.VariableStorage;
@@ -673,8 +674,10 @@ public class JdbcStorageMonitorTest {
 		b.manager.set("y", "2");
 		sql("ALTER TABLE " + TABLE + " RENAME TO hidden");
 
-		try (RetainingLogHandler log = new RetainingLogHandler().start()) {
+		try (RetainingLogHandler log = new RetainingLogHandler().start();
+		     ExpectedExceptions exceptions = ExpectedExceptions.start()) {
 			assertFalse(b.storage().flush());
+			exceptions.assertReported("Could not save");
 			assertFalse("polled: " + log.getLog(), warnings(log).stream().anyMatch(m -> m.contains("for changes")));
 		}
 		sql("ALTER TABLE hidden RENAME TO " + TABLE);
