@@ -5,7 +5,7 @@ import ch.njol.skript.log.BlockingLogHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.skriptlang.skript.test.utils.ExpectedExceptions;
+import org.skriptlang.skript.test.util.ExpectedExceptions;
 import org.skriptlang.skript.variables.VariableMap;
 import org.skriptlang.skript.variables.storage.CsvFormat;
 import org.skriptlang.skript.variables.storage.ManagerTests;
