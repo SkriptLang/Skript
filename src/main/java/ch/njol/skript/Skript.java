@@ -976,8 +976,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		SkriptJUnitTest.setShutdownDelay(0);
 
 		info("Running JUnit test '" + test + "'");
-		Result result = JUnitCore.runClasses(clazz);
 		TestTracker.testStarted("JUnit: '" + test + "'");
+		Result result = JUnitCore.runClasses(clazz);
 
 		/*
 		 * Usage of @After is pointless if the JUnit class requires delay. As the @After will happen instantly.
@@ -2012,7 +2012,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @return an EmptyStacktraceException to throw if code execution should terminate.
 	 */
 	public static EmptyStacktraceException exception(@Nullable Throwable cause, @Nullable Thread thread, @Nullable TriggerItem item, String... info) {
-		if (testing()) { // needs to be here because TriggerItem catches exceptions
+		if (testing() && !TestTracker.exceptionsExpected()) { // needs to be here because TriggerItem catches exceptions
 			TestTracker.testFailed("A throwable was caught during execution.");
 		}
 

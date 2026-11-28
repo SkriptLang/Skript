@@ -2,6 +2,7 @@ package org.skriptlang.skript.test.util;
 
 import ch.njol.skript.log.BlockingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.test.runner.TestTracker;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -13,7 +14,8 @@ import java.util.logging.Logger;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Keeps the reports that {@link ch.njol.skript.Skript#exception} prints out of the log.
+ * Keeps the reports that {@link ch.njol.skript.Skript#exception} prints out of the log, and stops them failing the
+ * current test, as they would otherwise.
  * <p>
  * {@code Skript.exception} logs straight to {@link SkriptLogger#LOGGER}, so a {@link BlockingLogHandler} doesn't stop it.
  * This filters that logger instead, for every thread, until closed. Only the lines of such a report are held back,
@@ -38,6 +40,7 @@ public final class ExpectedExceptions implements AutoCloseable {
 	private ExpectedExceptions() {
 		previous = logger.getFilter();
 		logger.setFilter(this::isLoggable);
+		TestTracker.expectExceptions(true);
 	}
 
 	/**
@@ -84,10 +87,12 @@ public final class ExpectedExceptions implements AutoCloseable {
 
 	/**
 	 * Stops holding back reports, and puts back the logger's filter from before.
+	 * Reports after this fail the current test again.
 	 */
 	@Override
 	public void close() {
 		logger.setFilter(previous);
+		TestTracker.expectExceptions(false);
 	}
 
 }
