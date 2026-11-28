@@ -1,9 +1,11 @@
 package org.skriptlang.skript.variables.storage;
 
+import ch.njol.skript.variables.SerializedVariable;
 import ch.njol.skript.variables.SerializedVariable.Value;
 import org.junit.Before;
 import org.junit.Test;
 import org.skriptlang.skript.variables.storage.VariableStorage.Batch;
+import org.skriptlang.skript.variables.storage.VariableStorage.ReportPolicy;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -53,6 +55,29 @@ public class ChangeQueueTest {
 		} finally {
 			queue.unlockExclusive(stamp);
 		}
+	}
+
+	/**
+	 * Applies a clear the storage reported, the way the manager does: Skript's variables are cleared,
+	 * but the clear is only recorded to drop local changes, not to be saved.
+	 */
+	private void externalClear(String prefix) {
+		long stamp = queue.lockExclusive();
+		try {
+			variables.keySet().removeIf(name -> name.startsWith(prefix));
+			queue.recordClear(prefix, false);
+		} finally {
+			queue.unlockExclusive(stamp);
+		}
+	}
+
+	/**
+	 * Applies a change the storage reported, with the given policy.
+	 *
+	 * @return whether the change reached Skript's variables
+	 */
+	private boolean report(String name, Value value, ReportPolicy policy) {
+		return queue.externalWrite(name, policy, () -> variables.put(name, value));
 	}
 
 	@Test
@@ -169,10 +194,145 @@ public class ChangeQueueTest {
 	public void externalWriteDropsTheLocalChange() {
 		set("x", value(1));
 		Value external = value(2);
-		queue.externalWrite("x", () -> variables.put("x", external));
+		assertTrue(report("x", external, ReportPolicy.REPLACE_LOCAL));
 
 		assertEquals(external, variables.get("x"));
 		assertTrue(queue.drain().isEmpty());
+	}
+
+	@Test
+	public void replaceLocalStillAppliesUnderALocalClear() {
+		clear("a::");
+		Value external = value(1);
+		assertTrue(report("a::1", external, ReportPolicy.REPLACE_LOCAL));
+
+		assertEquals(external, variables.get("a::1"));
+		// the clear is still saved after the reported change, as before the policies existed
+		Batch batch = queue.drain();
+		assertEquals(List.of("a::"), batch.clears());
+		assertTrue(batch.changes().isEmpty());
+	}
+
+	// ---- KEEP_LOCAL ----
+
+	@Test
+	public void keepLocalSkipsAnUnsavedChange() {
+		Value local = value(1);
+		set("x", local);
+		assertFalse(report("x", value(2), ReportPolicy.KEEP_LOCAL));
+
+		assertEquals(local, variables.get("x"));
+		assertEquals(Map.of("x", local), RecordingStorage.changes(queue.drain()));
+	}
+
+	@Test
+	public void keepLocalSkipsAnUnsavedDeletion() {
+		set("x", value(1));
+		set("x", null);
+		assertFalse(report("x", value(2), ReportPolicy.KEEP_LOCAL));
+
+		assertNull(variables.get("x"));
+		Batch batch = queue.drain();
+		assertEquals(1, batch.changes().size());
+		assertNull(batch.changes().iterator().next().value);
+	}
+
+	@Test
+	public void keepLocalSkipsUnderAnUnsavedLocalClear() {
+		clear("a::");
+		assertFalse(report("a::b::1", value(1), ReportPolicy.KEEP_LOCAL));
+
+		assertNull(variables.get("a::b::1"));
+		Batch batch = queue.drain();
+		assertEquals(List.of("a::"), batch.clears());
+		assertTrue(batch.changes().isEmpty());
+	}
+
+	@Test
+	public void keepLocalIgnoresClearsOfOtherLists() {
+		clear("b::");
+		clear("a::b::");
+		Value external = value(1);
+		assertTrue(report("a::1", external, ReportPolicy.KEEP_LOCAL));
+		assertTrue(report("a::bc", external, ReportPolicy.KEEP_LOCAL));
+		assertTrue(report("a", external, ReportPolicy.KEEP_LOCAL));
+
+		assertEquals(external, variables.get("a::1"));
+		assertEquals(external, variables.get("a::bc"));
+		assertEquals(external, variables.get("a"));
+	}
+
+	@Test
+	public void keepLocalAppliesWhenNothingIsUnsaved() {
+		Value external = value(1);
+		assertTrue(report("x", external, ReportPolicy.KEEP_LOCAL));
+
+		assertEquals(external, variables.get("x"));
+		assertTrue(queue.drain().isEmpty());
+	}
+
+	@Test
+	public void keepLocalAppliesOnceTheChangeIsDrained() {
+		set("x", value(1));
+		queue.drain();
+		Value external = value(2);
+		assertTrue(report("x", external, ReportPolicy.KEEP_LOCAL));
+
+		assertEquals(external, variables.get("x"));
+		assertTrue(queue.drain().isEmpty());
+	}
+
+	@Test
+	public void keepLocalAppliesOnceTheClearIsDrained() {
+		clear("a::");
+		queue.drain();
+		Value external = value(1);
+		assertTrue(report("a::1", external, ReportPolicy.KEEP_LOCAL));
+
+		assertEquals(external, variables.get("a::1"));
+	}
+
+	@Test
+	public void keepLocalAppliesWhenAReportedClearDroppedTheLocalChange() {
+		set("a::1", value(1));
+		externalClear("a::"); // the local change is still pending, but draining drops it
+		Value external = value(2);
+		assertTrue(report("a::1", external, ReportPolicy.KEEP_LOCAL));
+
+		assertEquals(external, variables.get("a::1"));
+		assertTrue(queue.drain().isEmpty());
+	}
+
+	@Test
+	public void keepLocalSkipsAChangeMadeAfterAReportedClear() {
+		externalClear("a::");
+		Value local = value(1);
+		set("a::1", local);
+		assertFalse(report("a::1", value(2), ReportPolicy.KEEP_LOCAL));
+
+		assertEquals(local, variables.get("a::1"));
+		assertEquals(Map.of("a::1", local), RecordingStorage.changes(queue.drain()));
+	}
+
+	@Test
+	public void keepLocalSkipsAChangeMadeBetweenTwoReportedClears() {
+		externalClear("a::");
+		Value local = value(1);
+		set("a::1", local);
+		externalClear("b::"); // newer, but doesn't cover a::1, so the local change is still live
+		assertFalse(report("a::1", value(2), ReportPolicy.KEEP_LOCAL));
+
+		assertEquals(local, variables.get("a::1"));
+	}
+
+	@Test
+	public void keepLocalAppliesAfterClosing() {
+		set("x", value(1));
+		queue.close();
+		Value external = value(2);
+		assertTrue(report("x", external, ReportPolicy.KEEP_LOCAL));
+
+		assertEquals(external, variables.get("x"));
 	}
 
 	@Test
@@ -200,7 +360,7 @@ public class ChangeQueueTest {
 			queue.unlockExclusive(stamp);
 		}
 		Value external = value(3);
-		queue.externalWrite("z", () -> variables.put("z", external));
+		assertTrue(report("z", external, ReportPolicy.REPLACE_LOCAL));
 
 		assertEquals(after, variables.get("x"));
 		assertEquals(external, variables.get("z"));
@@ -213,13 +373,7 @@ public class ChangeQueueTest {
 		Value kept = value(2);
 		set("a::1", value(1));
 		set("b::1", kept);
-		long stamp = queue.lockExclusive();
-		try {
-			variables.keySet().removeIf(name -> name.startsWith("a::"));
-			queue.recordClear("a::", false);
-		} finally {
-			queue.unlockExclusive(stamp);
-		}
+		externalClear("a::");
 
 		Batch batch = queue.drain();
 		assertTrue(batch.clears().isEmpty());
@@ -341,6 +495,76 @@ public class ChangeQueueTest {
 			drains++;
 		}
 		assertTrue("took " + drains + " one-second drains to decay", drains <= 60);
+	}
+
+	// ---- what a reported clear keeps ----
+
+	/**
+	 * @return what {@link ChangeQueue#unsavedUnder} gives for the prefix, by name, or null if a local clear covers it
+	 */
+	private Map<String, Value> unsavedUnder(String prefix) {
+		long stamp = queue.lockExclusive();
+		try {
+			List<SerializedVariable> kept = queue.unsavedUnder(prefix);
+			if (kept == null)
+				return null;
+			Map<String, Value> byName = new HashMap<>();
+			for (SerializedVariable change : kept)
+				byName.put(change.name, change.value);
+			return byName;
+		} finally {
+			queue.unlockExclusive(stamp);
+		}
+	}
+
+	@Test
+	public void aReportedClearKeepsPendingChangesInTheList() {
+		Value kept = value(1);
+		set("a::1", kept);
+		set("a::sub::2", null);
+		set("a", value(3)); // the list's own name isn't in it
+		set("ab::1", value(4));
+
+		Map<String, Value> expected = new HashMap<>();
+		expected.put("a::1", kept);
+		expected.put("a::sub::2", null); // a pending deletion is kept too, so it's still saved
+		assertEquals(expected, unsavedUnder("a::"));
+	}
+
+	@Test
+	public void aReportedClearOfAListALocalClearCoversIsIgnored() {
+		clear("a::");
+		set("a::1", value(1));
+		assertNull(unsavedUnder("a::"));
+		assertNull("a clear of the list it's in covers it too", unsavedUnder("a::b::"));
+	}
+
+	@Test
+	public void aLocalClearInsideTheListOnlyDropsWhatItCovers() {
+		Value outside = value(2), after = value(3);
+		set("a::b::1", value(1));
+		set("a::c", outside);
+		clear("a::b::");
+		set("a::b::2", after);
+
+		assertEquals(Map.of("a::c", outside, "a::b::2", after), unsavedUnder("a::"));
+	}
+
+	@Test
+	public void changesAnEarlierReportedClearDroppedArentKept() {
+		set("a::1", value(1));
+		externalClear("a::"); // drops a::1 when draining
+		Value after = value(2);
+		set("a::2", after);
+
+		assertEquals(Map.of("a::2", after), unsavedUnder("a::"));
+	}
+
+	@Test
+	public void aReportedClearKeepsNothingOnceClosed() {
+		set("a::1", value(1));
+		queue.close();
+		assertEquals(Map.of(), unsavedUnder("a::"));
 	}
 
 }

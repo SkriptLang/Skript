@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * What the {@link VariableStorageManager} tests share: a manager that saves every value as its text,
@@ -38,6 +39,15 @@ public final class ManagerTests {
 			value -> value == null ? null : value(String.valueOf(value)),
 			(type, data) -> type.equals(READABLE) ? new String(data, StandardCharsets.UTF_8) : null,
 			mainThread);
+	}
+
+	/**
+	 * Applies the reported changes a main thread task left for the end of the tick, as the server would there.
+	 *
+	 * @param manager the manager
+	 */
+	public static void runTickEnd(VariableStorageManager manager) {
+		manager.reportTick(System.nanoTime() + TimeUnit.DAYS.toNanos(1));
 	}
 
 	/**

@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Locale;
+import java.util.StringJoiner;
 
 /**
  * Saves variables to an SQLite database: a single file on this server, plus the {@code -wal} and {@code -shm} files
@@ -17,6 +18,7 @@ import java.util.Locale;
  * <p>
  * Each storage needs its own file. SQLite only lets one connection write to a file at a time, so two storages
  * sharing one would just take turns saving, and a damaged file would take both with it.
+ * Since no other server can use the file either, nothing can monitor it, so it never keeps a change log.
  * <p>
  * We turn on WAL mode, so saves append to a log instead of rewriting the file in place, and readers never block the
  * writer. With {@code synchronous=NORMAL}, a save survives the server process crashing, though maybe not a power cut,
@@ -54,21 +56,23 @@ public class SQLiteStorage extends JdbcStorage {
 	}
 
 	@Override
-	protected List<String> schemaSql(String table, String metaTable) {
+	protected List<String> schemaSql(String table, String metaTable, String logTable) {
 		return List.of(
-			// make the main table (name, type, value, version)
-			"CREATE TABLE IF NOT EXISTS " + table + " (name TEXT NOT NULL PRIMARY KEY, type TEXT, value BLOB, "
-				+ "version INTEGER NOT NULL) WITHOUT ROWID",
-			// make the meta table (overall version tracker, basically), with initial values 0,0
+			// make the main table (name, type, value)
+			"CREATE TABLE IF NOT EXISTS " + table + " (name TEXT NOT NULL PRIMARY KEY, type TEXT NOT NULL, "
+				+ "value BLOB NOT NULL) WITHOUT ROWID",
+			// the meta table holds the version counter with id 0, and the version the change log is pruned below with id 1
 			"CREATE TABLE IF NOT EXISTS " + metaTable + " (id INTEGER NOT NULL PRIMARY KEY, version INTEGER NOT NULL)",
-			"INSERT OR IGNORE INTO " + metaTable + " (id, version) VALUES (0, 0)");
+			"INSERT OR IGNORE INTO " + metaTable + " (id, version) VALUES (0, 0), (1, 0)");
 	}
 
 	@Override
-	protected String upsertSql(String table) {
-		return "INSERT INTO " + table + " (name, type, value, version) VALUES (?, ?, ?, ?) "
-			+ "ON CONFLICT(name) DO UPDATE SET "
-			+ "type = excluded.type, value = excluded.value, version = excluded.version";
+	protected String upsertSql(String table, List<String> columns, int rows) {
+		StringJoiner updates = new StringJoiner(", ");
+		for (String column : columns.subList(1, columns.size()))
+			updates.add(column + " = excluded." + column);
+		return "INSERT INTO " + table + " (" + String.join(", ", columns) + ") VALUES " + upsertValues(columns.size(), rows)
+			+ " ON CONFLICT(" + columns.get(0) + ") DO UPDATE SET " + updates;
 	}
 
 	@Override
@@ -81,5 +85,13 @@ public class SQLiteStorage extends JdbcStorage {
 	@Override
 	protected boolean requiresFile() {
 		return true;
+	}
+
+	/**
+	 * @return False, since only this server can use the file
+	 */
+	@Override
+	protected boolean supportsMonitoring() {
+		return false;
 	}
 }

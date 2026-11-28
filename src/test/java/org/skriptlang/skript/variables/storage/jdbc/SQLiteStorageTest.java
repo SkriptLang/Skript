@@ -3,6 +3,8 @@ package org.skriptlang.skript.variables.storage.jdbc;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.log.BlockingLogHandler;
+import ch.njol.skript.log.LogEntry;
+import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.variables.SerializedVariable;
 import org.jetbrains.annotations.Nullable;
 import org.junit.After;
@@ -33,6 +35,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
@@ -84,6 +88,69 @@ public class SQLiteStorageTest {
 
 	}
 
+	/**
+	 * An SQLite storage that can only save values up to 10 bytes, like MySQL can only save values that fit in a packet.
+	 */
+	static final class SmallValueStorage extends SQLiteStorage {
+
+		SmallValueStorage(SkriptAddon registeringAddon, String type) {
+			super(registeringAddon, type);
+		}
+
+		@Override
+		protected long maxValueLength() {
+			return 10;
+		}
+
+	}
+
+	/**
+	 * An SQLite storage that sends upserts as statements of up to 3 rows and 400 bytes, the way MySQL does with 1000 rows
+	 * and its packet size, so that path is tested without a MySQL server. Its tests monitor changes, so saves also log, unless one turns that off.
+	 * A short row, such as {@code r1 = x}, counts as 138 bytes.
+	 */
+	static final class MultiRowStorage extends ShareableSQLiteStorage {
+
+		/**
+		 * The row count of every upsert to the main table prepared, in order. A full statement is only prepared once per save.
+		 */
+		final List<Integer> prepared = new ArrayList<>();
+
+		MultiRowStorage(SkriptAddon registeringAddon, String type) {
+			super(registeringAddon, type);
+		}
+
+		@Override
+		int rowsPerStatement() {
+			return 3;
+		}
+
+		@Override
+		protected long maxStatementBytes() {
+			return 400;
+		}
+
+		@Override
+		protected String upsertSql(String table, List<String> columns, int rows) {
+			if (!table.endsWith("_log"))
+				prepared.add(rows);
+			return super.upsertSql(table, columns, rows);
+		}
+
+	}
+
+	/**
+	 * An SQLite storage that acts like it can be monitored, so the change log and pruning that databases shared between
+	 * servers need can be tested without one.
+	 */
+	static final class MonitoredStorage extends ShareableSQLiteStorage {
+
+		MonitoredStorage(SkriptAddon registeringAddon, String type) {
+			super(registeringAddon, type);
+		}
+
+	}
+
 	@Before
 	public void setUp() throws IOException {
 		folder = Files.createTempDirectory("skript-sqlite-test");
@@ -118,6 +185,12 @@ public class SQLiteStorageTest {
 			manager.register(null, SameTableStorage.class, SameTableStorage::new, "sametable");
 		} else if (databases.contains("type: shortnames")) {
 			manager.register(null, ShortNameStorage.class, ShortNameStorage::new, "shortnames");
+		} else if (databases.contains("type: smallvalues")) {
+			manager.register(null, SmallValueStorage.class, SmallValueStorage::new, "smallvalues");
+		} else if (databases.contains("type: multirow")) {
+			manager.register(null, MultiRowStorage.class, MultiRowStorage::new, "multirow");
+		} else if (databases.contains("type: monitored")) {
+			manager.register(null, MonitoredStorage.class, MonitoredStorage::new, "monitored");
 		} else if (databases.contains("type: csv")) {
 			manager.register(null, FlatFileStorage.class, FlatFileStorage::new, "csv");
 		} else {
@@ -146,11 +219,14 @@ public class SQLiteStorageTest {
 	}
 
 	/**
-	 * @return A database section for the config, with any extra lines after the file
+	 * @return A database section for the config, with any extra lines after the file. The types that act like a shared
+	 * database monitor changes, since only then do they keep a change log
 	 */
 	private static String database(String name, String type, Path file, String... extra) {
 		StringBuilder section = new StringBuilder("\t" + name + ":\n\t\ttype: " + type
 			+ "\n\t\tfile: " + file.toString().replace('\\', '/') + "\n");
+		if (type.equals("monitored") || type.equals("multirow"))
+			section.append("\t\tmonitor changes: true\n");
 		for (String line : extra)
 			section.append("\t\t").append(line).append("\n");
 		return section.toString();
@@ -198,13 +274,10 @@ public class SQLiteStorageTest {
 
 	/**
 	 * Puts a row into the table directly, as if a save wrote it.
-	 *
-	 * @param type The type, or null for a broken row
-	 * @param data The value, or null for a broken row
 	 */
 	private void insert(String name, String type, byte[] data) throws SQLException {
 		try (Connection connection = open(); PreparedStatement statement = connection.prepareStatement(
-				"INSERT INTO " + TABLE + " (name, type, value, version) VALUES (?, ?, ?, 1)")) {
+				"INSERT INTO " + TABLE + " (name, type, value) VALUES (?, ?, ?)")) {
 			statement.setString(1, name);
 			statement.setString(2, type);
 			statement.setBytes(3, data);
@@ -248,6 +321,33 @@ public class SQLiteStorageTest {
 	}
 
 	/**
+	 * Loads the file as a storage that keeps a change log, and returns it for saving batches to it directly.
+	 */
+	private JdbcStorage loadedMonitoredStorage() {
+		return storage(loadExpecting(VariableMap.concurrent(), true, database("default", "monitored", file)));
+	}
+
+	/**
+	 * @return The name of the change log's table, if the file has one
+	 */
+	private @Nullable Object logTable() throws SQLException {
+		return query("SELECT name FROM sqlite_master WHERE type = 'table' AND name = '" + TABLE + "_log'");
+	}
+
+	/**
+	 * @return The change log's entries, each as its version and name, such as {@code 3 a::*}, in the order they're read
+	 */
+	private List<String> logEntries() throws SQLException {
+		List<String> entries = new ArrayList<>();
+		try (Connection connection = open(); Statement statement = connection.createStatement();
+			 ResultSet result = statement.executeQuery("SELECT version, name FROM " + TABLE + "_log ORDER BY version, seq")) {
+			while (result.next())
+				entries.add(result.getLong(1) + " " + result.getString(2));
+		}
+		return entries;
+	}
+
+	/**
 	 * Saves a batch straight to the storage, like its saving thread does.
 	 */
 	private static void save(JdbcStorage storage, List<String> clears, SerializedVariable... changes) throws IOException {
@@ -267,24 +367,21 @@ public class SQLiteStorageTest {
 	/**
 	 * A row as it is in the table.
 	 *
-	 * @param text The value as text, or null if it has none
+	 * @param text The value as text
 	 */
-	private record Row(@Nullable String type, @Nullable String text, long version) {
-	}
+	private record Row(String type, String text) {}
 
 	/**
 	 * @return The row with the given name, or null if there is none
 	 */
 	private @Nullable Row row(String name) throws SQLException {
 		try (Connection connection = open(); PreparedStatement statement = connection.prepareStatement(
-				"SELECT type, value, version FROM " + TABLE + " WHERE name = ?")) {
+				"SELECT type, value FROM " + TABLE + " WHERE name = ?")) {
 			statement.setString(1, name);
 			try (ResultSet result = statement.executeQuery()) {
 				if (!result.next())
 					return null;
-				byte[] data = result.getBytes(2);
-				return new Row(result.getString(1), data == null ? null : new String(data, StandardCharsets.UTF_8),
-					result.getLong(3));
+				return new Row(result.getString(1), new String(result.getBytes(2), StandardCharsets.UTF_8));
 			}
 		}
 	}
@@ -315,14 +412,113 @@ public class SQLiteStorageTest {
 		return ((Number) query("SELECT version FROM " + TABLE + "_meta WHERE id = 0")).longValue();
 	}
 
-	// ---- creating the tables ----
+	/**
+	 * Lets the storage's pruning think an hour has passed since it saw the given version,
+	 * and that it last pruned long enough ago to prune again.
+	 */
+	private static void pretendAnHourPassedSince(JdbcStorage storage, long version) {
+		long now = System.nanoTime();
+		LogPruner pruner = new LogPruner(now - TimeUnit.HOURS.toNanos(1));
+		pruner.sample(now - TimeUnit.HOURS.toNanos(2), version);
+		storage.pruner(pruner);
+	}
 
 	@Test
 	public void loadingAnEmptyFileCreatesTheTables() throws SQLException {
-		createTables();
+		VariableStorageManager manager = load(VariableMap.concurrent());
+		assertEquals(0, storage(manager).loadedVersion());
+		close(manager);
 
 		assertEquals(0L, ((Number) query("SELECT COUNT(*) FROM " + TABLE)).longValue());
-		assertEquals(0L, counter());
+		assertEquals(0L, ((Number) query("SELECT version FROM " + TABLE + "_meta WHERE id = 0")).longValue());
+		assertNull("only monitoring needs the change log", logTable());
+	}
+
+	@Test
+	public void aMonitorableTableWithoutMonitoringLogsNothing() throws Exception {
+		VariableStorageManager manager = loadExpecting(VariableMap.concurrent(), true, database("default", "multirow", file)
+			.replace("monitor changes: true", "monitor changes: false"));
+		JdbcStorage storage = storage(manager);
+		save(storage, List.of(), change("a", "1"), change("list::1", "2"));
+		save(storage, List.of("list::"), deletion("a"));
+
+		assertEquals(List.of(), names());
+		assertNull("only monitoring needs the change log", logTable());
+	}
+
+	@Test
+	public void manyDeletionsAreSentInMultiRowStatements() throws Exception {
+		VariableStorageManager manager = loadExpecting(VariableMap.concurrent(), true, database("default", "multirow", file)
+			.replace("monitor changes: true", "monitor changes: false"));
+		JdbcStorage storage = storage(manager);
+		SerializedVariable[] changes = new SerializedVariable[10];
+		SerializedVariable[] deletions = new SerializedVariable[9];
+		for (int i = 0; i < changes.length; i++)
+			changes[i] = change("r" + i, "x");
+		for (int i = 0; i < deletions.length; i++)
+			deletions[i] = deletion("r" + i); // 3 to a statement, by count: each name is only 22 bytes
+		deletions[8] = deletion("r8" + "y".repeat(100)); // a name that doesn't exist, over the limit alone
+		save(storage, List.of(), changes);
+		save(storage, List.of(), deletions);
+
+		assertEquals(List.of("r8", "r9"), names());
+	}
+
+	@Test
+	public void anotherServerSavingToAnUnmonitoredTableIsWarnedAboutOnce() throws Exception {
+		JdbcStorage storage = storage(load(VariableMap.concurrent()));
+		assertEquals(List.of(), saveWarnings(storage, change("a", "1")));
+
+		sql("UPDATE " + TABLE + "_meta SET version = version + 1 WHERE id = 0"); // as another server's save would
+		List<String> warnings = saveWarnings(storage, change("b", "2"));
+		assertEquals(warnings.toString(), 1, warnings.size());
+		assertTrue(warnings.get(0), warnings.get(0).contains("'monitor changes'"));
+
+		sql("UPDATE " + TABLE + "_meta SET version = version + 1 WHERE id = 0");
+		assertEquals(List.of(), saveWarnings(storage, change("c", "3"))); // once is enough
+	}
+
+	@Test
+	public void anotherServerSavingBeforeTheFirstSaveIsNoticed() throws Exception {
+		JdbcStorage storage = storage(load(VariableMap.concurrent()));
+		sql("UPDATE " + TABLE + "_meta SET version = version + 1 WHERE id = 0");
+
+		assertEquals(1, saveWarnings(storage, change("a", "1")).size());
+	}
+
+	@Test
+	public void aMonitoredTableIsntWarnedAboutOtherServers() throws Exception {
+		JdbcStorage storage = loadedMonitoredStorage();
+		sql("UPDATE " + TABLE + "_meta SET version = version + 1 WHERE id = 0");
+
+		assertEquals(List.of(), saveWarnings(storage, change("a", "1")));
+	}
+
+	/**
+	 * Saves a batch of changes, and returns the warnings that printed.
+	 */
+	private static List<String> saveWarnings(JdbcStorage storage, SerializedVariable... changes) throws IOException {
+		try (RetainingLogHandler log = new RetainingLogHandler().start()) {
+			storage.save(new VariableStorage.Batch(List.of(), List.of(changes)));
+			return log.getLog().stream()
+				.filter(entry -> entry.getLevel().intValue() >= Level.WARNING.intValue())
+				.map(LogEntry::getMessage)
+				.toList();
+		}
+	}
+
+	@Test
+	public void aMonitoredTableGetsAChangeLog() throws SQLException {
+		close(loadExpecting(VariableMap.concurrent(), true, database("default", "monitored", file)));
+		assertEquals(TABLE + "_log", logTable());
+	}
+
+	@Test
+	public void theChangeLogIsKeptWithoutMonitoring() throws SQLException {
+		// another server sharing the table may still monitor it
+		close(loadExpecting(VariableMap.concurrent(), true, database("default", "monitored", file)));
+		createTables();
+		assertEquals(TABLE + "_log", logTable());
 	}
 
 	@Test
@@ -332,20 +528,19 @@ public class SQLiteStorageTest {
 	}
 
 	@Test
-	public void savingContinuesFromTheStoredCounter() throws Exception {
+	public void loadingReadsTheVersionCounter() throws SQLException {
 		createTables();
 		sql("UPDATE " + TABLE + "_meta SET version = 7 WHERE id = 0");
-		save(loadedStorage(), List.of(), change("a", "1"));
-		assertEquals(8, row("a").version());
+		assertEquals(7, storage(load(VariableMap.concurrent())).loadedVersion());
 	}
 
 	@Test
 	public void loadingAgainKeepsTheTables() throws SQLException {
 		createTables();
 		insert("a", "1");
-		createTables(); // CREATE ... IF NOT EXISTS, and the counter row isn't inserted twice
+		createTables(); // CREATE ... IF NOT EXISTS, and the meta rows aren't inserted twice
 		assertEquals(List.of("a"), names());
-		assertEquals(1L, ((Number) query("SELECT COUNT(*) FROM " + TABLE + "_meta")).longValue());
+		assertEquals(2L, ((Number) query("SELECT COUNT(*) FROM " + TABLE + "_meta")).longValue());
 	}
 
 	// ---- loading rows ----
@@ -370,12 +565,10 @@ public class SQLiteStorageTest {
 		createTables();
 		insert("a", "1");
 		insert("list::*", "a list can't hold a value");
-		insert("no type", null, "a value without a type".getBytes(StandardCharsets.UTF_8));
-		insert("no value", null, null);
 
 		assertEquals(Map.of("a", "1"), loaded());
-		// nothing is rewritten, so a later fix can still read them
-		assertEquals(List.of("a", "list::*", "no type", "no value"), names());
+		// nothing is rewritten, so a later fix can still read it
+		assertEquals(List.of("a", "list::*"), names());
 	}
 
 	@Test
@@ -388,7 +581,7 @@ public class SQLiteStorageTest {
 
 	@Test
 	public void aTableWithMissingColumnsFailsTheLoad() throws SQLException {
-		// the index and counter can be made, but the column check fails
+		// the counter can be made, but the column check fails
 		sql("CREATE TABLE " + TABLE + " (name TEXT PRIMARY KEY, version INTEGER)");
 		loadExpecting(VariableMap.concurrent(), false, database("default", "sqlite", file));
 	}
@@ -454,16 +647,14 @@ public class SQLiteStorageTest {
 	}
 
 	@Test
-	public void anOverwriteKeepsTheNewValueWithANewerVersion() throws Exception {
+	public void anOverwriteKeepsTheNewValue() throws Exception {
 		JdbcStorage storage = loadedStorage();
 		save(storage, List.of(), change("a", "old"));
-		long first = row("a").version();
 		save(storage, List.of(), change("a", "new"));
 
 		Row row = row("a");
 		assertEquals("new", row.text());
 		assertEquals(TEXT, row.type());
-		assertTrue(row.version() > first);
 	}
 
 	@Test
@@ -484,6 +675,27 @@ public class SQLiteStorageTest {
 
 		assertEquals(List.of("b", "c"), names());
 		assertEquals("new", row("b").text());
+	}
+
+	@Test
+	public void aDeletionIsLoggedIfMonitored() throws Exception {
+		JdbcStorage storage = loadedMonitoredStorage();
+		save(storage, List.of(), change("a", "1"), change("b", "2"));
+		long set = counter();
+		save(storage, List.of(), deletion("a"));
+
+		assertNull(row("a"));
+		assertEquals("a name keeps only its latest entry", List.of(set + " b", counter() + " a"), logEntries());
+	}
+
+	@Test
+	public void aListClearedAgainKeepsOneEntry() throws Exception {
+		JdbcStorage storage = loadedMonitoredStorage();
+		save(storage, List.of("a::"));
+		save(storage, List.of("a::", "b::", "a::"));
+
+		long version = counter();
+		assertEquals(List.of(version + " b::*", version + " a::*"), logEntries()); // the last of the save's clears of it
 	}
 
 	@Test
@@ -533,6 +745,31 @@ public class SQLiteStorageTest {
 	}
 
 	@Test
+	public void aClearIsLoggedAsOneEntryIfMonitored() throws Exception {
+		JdbcStorage storage = loadedMonitoredStorage();
+		save(storage, List.of(), change("a", "own value"), change("a::b", "1"), change("a::c", "2"), change("ab::x", "3"));
+		save(storage, List.of("a::"));
+
+		assertNull(row("a::b"));
+		assertNull(row("a::c"));
+		assertEquals("own value", row("a").text());
+		assertEquals("3", row("ab::x").text());
+		List<String> entries = logEntries();
+		assertEquals(5, entries.size()); // four for the first save, one for the clear
+		assertEquals(counter() + " a::*", entries.get(4));
+	}
+
+	@Test
+	public void aSavesClearsAreLoggedBeforeItsChanges() throws Exception {
+		// a server reading the log applies them in that order, so a set after a clear survives it there too
+		JdbcStorage storage = loadedMonitoredStorage();
+		save(storage, List.of("b::", "a::"), change("a::!", "sorts before the clear's name"), deletion("x"));
+
+		long version = counter();
+		assertEquals(List.of(version + " b::*", version + " a::*", version + " a::!", version + " x"), logEntries());
+	}
+
+	@Test
 	public void savingTheSameBatchTwiceIsHarmless() throws Exception {
 		JdbcStorage storage = loadedStorage();
 		save(storage, List.of(), change("a::1", "1"), change("b", "2"));
@@ -549,16 +786,15 @@ public class SQLiteStorageTest {
 	}
 
 	@Test
-	public void eachSaveBumpsTheCounterAndStampsItsRows() throws Exception {
-		JdbcStorage storage = loadedStorage();
+	public void eachSaveBumpsTheCounterAndFilesItsLogEntriesUnderIt() throws Exception {
+		JdbcStorage storage = loadedMonitoredStorage();
 		long before = counter();
 		save(storage, List.of(), change("a", "1"));
 		save(storage, List.of(), change("b", "2"));
 		save(storage, List.of("c::"));
 
 		assertEquals(before + 3, counter());
-		assertEquals(before + 1, row("a").version());
-		assertEquals(before + 2, row("b").version());
+		assertEquals(List.of((before + 1) + " a", (before + 2) + " b", (before + 3) + " c::*"), logEntries());
 	}
 
 	@Test
@@ -572,9 +808,8 @@ public class SQLiteStorageTest {
 			expected.put("big::" + i, String.valueOf(i));
 		}
 		save(storage, List.of(), changes);
-		long version = counter();
 
-		assertEquals((long) count, ((Number) query("SELECT COUNT(*) FROM " + TABLE + " WHERE version = " + version)).longValue());
+		assertEquals((long) count, ((Number) query("SELECT COUNT(*) FROM " + TABLE)).longValue());
 		close(managers.get(0));
 		assertEquals(expected, loaded());
 	}
@@ -589,6 +824,110 @@ public class SQLiteStorageTest {
 		assertEquals("1", row("short").text());
 		assertNull(row("far too long a name"));
 		assertEquals("3", row("later").text());
+	}
+
+	// ---- multi-row upserts ----
+
+	private MultiRowStorage loadedMultiRowStorage() {
+		return (MultiRowStorage) storage(loadExpecting(VariableMap.concurrent(), true, database("default", "multirow", file)));
+	}
+
+	@Test
+	public void rowsAreCutShortBySize() throws Exception {
+		MultiRowStorage storage = loadedMultiRowStorage();
+		SerializedVariable[] changes = new SerializedVariable[10];
+		for (int i = 0; i < changes.length; i++)
+			changes[i] = change("r" + i, "x"); // 138 bytes each: 2 fit in 400, 3 don't
+		storage.prepared.clear();
+		save(storage, List.of(), changes);
+
+		assertEquals(List.of(2, 2, 2, 2, 2), storage.prepared); // none full, so each is prepared when sent
+		for (int i = 0; i < changes.length; i++)
+			assertEquals("x", row("r" + i).text());
+	}
+
+	@Test
+	public void aFullStatementIsPreparedOncePerSave() throws Exception {
+		MultiRowStorage storage = loadedMultiRowStorage();
+		SerializedVariable[] changes = new SerializedVariable[7];
+		for (int i = 0; i < changes.length; i++)
+			changes[i] = new SerializedVariable("r" + i, new SerializedVariable.Value("t", new byte[0])); // 118 bytes each
+		storage.prepared.clear();
+		save(storage, List.of(), changes);
+
+		assertEquals(List.of(3, 1), storage.prepared); // the full one is reused for both full statements, then the rest
+		assertEquals(7, names().size());
+	}
+
+	@Test
+	public void aRowOverTheLimitIsSentAlone() throws Exception {
+		MultiRowStorage storage = loadedMultiRowStorage();
+		String big = "y".repeat(200); // 542 bytes, more than the whole limit
+		storage.prepared.clear();
+		save(storage, List.of(), change("a", "x"), change("big", big), change("b", "x"));
+
+		assertEquals(List.of(1, 1, 1), storage.prepared);
+		assertEquals("x", row("a").text());
+		assertEquals(big, row("big").text());
+		assertEquals("x", row("b").text());
+	}
+
+	@Test
+	public void logEntriesAreSentInMultiRowStatements() throws Exception {
+		MultiRowStorage storage = loadedMultiRowStorage();
+		SerializedVariable[] changes = new SerializedVariable[7]; // with the clear, three statements of up to 3 entries
+		for (int i = 0; i < changes.length; i++)
+			changes[i] = i % 2 == 0 ? change("r" + i, "x") : deletion("r" + i);
+		save(storage, List.of("list::"), changes);
+
+		long version = counter();
+		List<String> expected = new ArrayList<>(List.of(version + " list::*"));
+		for (int i = 0; i < changes.length; i++)
+			expected.add(version + " r" + i);
+		assertEquals("numbered in order across statements", expected, logEntries());
+	}
+
+	@Test
+	public void aSaveWithoutRowsPreparesNoUpsert() throws Exception {
+		MultiRowStorage storage = loadedMultiRowStorage();
+		save(storage, List.of(), change("list::1", "1"));
+		storage.prepared.clear();
+		save(storage, List.of("list::"));
+
+		assertTrue(storage.prepared.isEmpty());
+		assertNull(row("list::1"));
+	}
+
+	@Test
+	public void aValueThatCantBeSavedIsSkipped() throws Exception {
+		VariableStorageManager manager = loadExpecting(VariableMap.concurrent(), true, database("default", "smallvalues", file));
+		JdbcStorage storage = storage(manager);
+		save(storage, List.of(), change("small", "0123456789"), change("big", "0123456789a"));
+		save(storage, List.of(), change("later", "3")); // saving still works afterwards
+
+		assertEquals("0123456789", row("small").text()); // exactly the limit is fine
+		assertNull(row("big"));
+		assertEquals("3", row("later").text());
+	}
+
+	@Test
+	public void aValueThatGrowsTooBigKeepsItsLastSavedValue() throws Exception {
+		VariableStorageManager manager = loadExpecting(VariableMap.concurrent(), true, database("default", "smallvalues", file));
+		JdbcStorage storage = storage(manager);
+		save(storage, List.of(), change("a", "small"));
+		save(storage, List.of(), change("a", "far too big a value"));
+
+		assertEquals("small", row("a").text());
+	}
+
+	@Test
+	public void aDeletionIsntLimitedByValueLength() throws Exception {
+		VariableStorageManager manager = loadExpecting(VariableMap.concurrent(), true, database("default", "smallvalues", file));
+		JdbcStorage storage = storage(manager);
+		save(storage, List.of(), change("a", "1"));
+		save(storage, List.of(), deletion("a"));
+
+		assertNull(row("a"));
 	}
 
 	@Test
@@ -607,6 +946,42 @@ public class SQLiteStorageTest {
 		assertEquals(version + 1, counter());
 	}
 
+	@Test
+	public void pruningRemovesOnlyOldLogEntries() throws Exception {
+		JdbcStorage storage = loadedMonitoredStorage();
+		save(storage, List.of(), change("old", "1"), change("kept", "2"));
+		save(storage, List.of(), deletion("old"));
+		long oldDeletion = counter();
+		save(storage, List.of(), change("recent", "3"));
+
+		// everything before the version after the old deletion is over an hour old
+		pretendAnHourPassedSince(storage, oldDeletion + 1);
+		save(storage, List.of(), change("trigger", "4"));
+
+		assertEquals(List.of((oldDeletion + 1) + " recent", (oldDeletion + 2) + " trigger"), logEntries());
+		assertEquals("the pruned versions are noted", oldDeletion + 1,
+			((Number) query("SELECT version FROM " + TABLE + "_meta WHERE id = 1")).longValue());
+		assertEquals("2", row("kept").text()); // values are never pruned, however old
+		assertEquals("3", row("recent").text());
+	}
+
+	@Test
+	public void pruningManyVersionsTakesSeveralStatements() throws Exception {
+		JdbcStorage storage = loadedMonitoredStorage();
+		sql("UPDATE " + TABLE + "_meta SET version = 2500 WHERE id = 0");
+		StringBuilder old = new StringBuilder("INSERT INTO " + TABLE + "_log (version, seq, name) VALUES (1, 0, 'x1')");
+		for (int version = 2; version <= 2_500; version++) // over two statements' worth of versions
+			old.append(", (").append(version).append(", 0, 'x").append(version).append("')");
+		sql(old.toString());
+		save(storage, List.of(), change("recent", "1"));
+		long recent = counter();
+
+		pretendAnHourPassedSince(storage, recent);
+		save(storage, List.of(), change("trigger", "2"));
+
+		assertEquals(List.of(recent + " recent", (recent + 1) + " trigger"), logEntries());
+	}
+
 	// ---- backups ----
 
 	@Test
@@ -614,8 +989,6 @@ public class SQLiteStorageTest {
 		createTables();
 		insert("a", "1");
 		insert("list::1", "one");
-		insert("no value", null, null); // a row without a type or value
-		insert("broken", null, "x".getBytes(StandardCharsets.UTF_8)); // a value without a type
 		insert("list::*", "a list can't hold a value");
 		JdbcStorage storage = loadedStorage();
 
@@ -624,8 +997,7 @@ public class SQLiteStorageTest {
 		assertFalse("a backup is read whole", text.contains(CsvFormat.COMPACTED_HEADER));
 		assertEquals(List.of(csvRow("a", "1"), csvRow("list::1", "one")),
 			csvRows(text).stream().sorted().toList());
-		assertEquals("the broken rows are still in the table", "x",
-			new String((byte[]) query("SELECT value FROM " + TABLE + " WHERE name = 'broken'"), StandardCharsets.UTF_8));
+		assertEquals("the broken row is still in the table", List.of("a", "list::*", "list::1"), names());
 	}
 
 	@Test

@@ -24,13 +24,20 @@ public class VariableStorageReportTest {
 		final List<String> received = new ArrayList<>();
 
 		@Override
-		public void updated(VariableStorage source, String name, SerializedVariable.@Nullable Value value) {
-			received.add(source.getName() + " updated " + name + (value == null ? " (deleted)" : " = " + value.type));
+		public void updated(VariableStorage source, String name, SerializedVariable.@Nullable Value value,
+							VariableStorage.ReportPolicy policy) {
+			received.add(source.getName() + " updated " + name + (value == null ? " (deleted)" : " = " + value.type)
+				+ " [" + policy + "]");
 		}
 
 		@Override
-		public void cleared(VariableStorage source, String listName) {
-			received.add(source.getName() + " cleared " + listName);
+		public void cleared(VariableStorage source, String listName, VariableStorage.ReportPolicy policy) {
+			received.add(source.getName() + " cleared " + listName + " [" + policy + "]");
+		}
+
+		@Override
+		public void afterReports(VariableStorage source, Runnable task) {
+			task.run(); // nothing is queued here, so every earlier report has already been passed on
 		}
 
 	}
@@ -58,8 +65,28 @@ public class VariableStorageReportTest {
 		storage.reportUpdatedForTest("a", new SerializedVariable.Value("string", new byte[0]));
 		storage.reportUpdatedForTest("b", null);
 		storage.reportClearedForTest("l::*");
-		assertEquals(List.of("shared updated a = string", "shared updated b (deleted)", "shared cleared l::*"),
+		assertEquals(List.of("shared updated a = string [REPLACE_LOCAL]", "shared updated b (deleted) [REPLACE_LOCAL]",
+				"shared cleared l::* [REPLACE_LOCAL]"),
 			handler.received);
+	}
+
+	@Test
+	public void thePolicyIsPassedOn() {
+		storage.startReceiving(handler);
+		storage.reportUpdatedForTest("a", null, VariableStorage.ReportPolicy.KEEP_LOCAL);
+		storage.reportUpdatedForTest("b", null, VariableStorage.ReportPolicy.REPLACE_LOCAL);
+		storage.reportClearedForTest("l::*", VariableStorage.ReportPolicy.KEEP_LOCAL);
+		assertEquals(List.of("shared updated a (deleted) [KEEP_LOCAL]", "shared updated b (deleted) [REPLACE_LOCAL]",
+				"shared cleared l::* [KEEP_LOCAL]"),
+			handler.received);
+	}
+
+	@Test
+	public void aListCantBeReportedAsUpdatedWithAPolicy() {
+		storage.startReceiving(handler);
+		assertThrows(IllegalArgumentException.class,
+			() -> storage.reportUpdatedForTest("a::*", null, VariableStorage.ReportPolicy.KEEP_LOCAL));
+		assertTrue(handler.received.isEmpty());
 	}
 
 	@Test

@@ -167,26 +167,103 @@ final class ChangeQueue {
 
 	/**
 	 * Applies a change that came from the storage itself, such as another server writing to the same database.
-	 * Runs {@code mapWrite} while the name is locked, and drops any unsaved local change to it,
-	 * so that the storage's newer value is not overwritten. Does not queue anything.
+	 * Does not queue anything.
+	 * <p>
+	 * With {@link VariableStorage.ReportPolicy#REPLACE_LOCAL}, runs {@code mapWrite} while the name is locked
+	 * and drops any unsaved local change to it, so that the storage's value is not overwritten.
+	 * With {@link VariableStorage.ReportPolicy#KEEP_LOCAL}, does nothing if the name has an unsaved local change,
+	 * or an undrained local clear covers it, since that will be saved after the storage's value.
+	 * A pending change dropped by a later clear the storage reported itself doesn't count, as draining drops it.
+	 * Otherwise runs {@code mapWrite} as above. Once the queue is closed, nothing is unsaved, so it always runs.
 	 *
 	 * @param name     the variable's name
+	 * @param policy   what to do if the variable has an unsaved local change
 	 * @param mapWrite changes the variable in Skript's variables; must not call into any storage
+	 * @return whether {@code mapWrite} ran
 	 */
-	void externalWrite(String name, Runnable mapWrite) {
+	boolean externalWrite(String name, VariableStorage.ReportPolicy policy, Runnable mapWrite) {
 		long stamp = order.readLock();
 		try {
 			if (closed) { // nothing is queued to drop
 				mapWrite.run();
-				return;
+				return true;
 			}
+			// REPLACE_LOCAL - remove any pending change to this var, and add to global map like normal
+			if (policy == VariableStorage.ReportPolicy.REPLACE_LOCAL) {
+				pending.compute(name, (key, old) -> {
+					mapWrite.run();
+					return null;
+				});
+				return true;
+			}
+			// KEEP_LOCAL - check for pending local changes first
+			// any clears cover this var?
+			long latestCover = -1;
+			for (Clear clear : clears) {
+				if (!name.startsWith(clear.prefix()))
+					continue;
+				if (clear.save()) // a local clear covers it and will be saved after the reported change
+					return false;
+				latestCover = Math.max(latestCover, clear.epoch());
+			}
+			long cover = latestCover;
+			boolean[] applied = new boolean[1];
+			// this checks whether there's a value already in pending, otherwise it applies like normal.
 			pending.compute(name, (key, old) -> {
+				// ensure we ignore any changes before the latest clear
+				if (old != null && old.epoch() > cover)
+					return old; // a live unsaved local change: keep it, skip the report
 				mapWrite.run();
+				applied[0] = true;
 				return null;
 			});
+			return applied[0];
 		} finally {
 			order.unlockRead(stamp);
 		}
+	}
+
+	/**
+	 * Finds the unsaved local changes under a list that a clear the storage reported with
+	 * {@link VariableStorage.ReportPolicy#KEEP_LOCAL} must keep: those made after every clear that covers them,
+	 * since they will be saved after the reported clear. The caller must hold {@link #lockExclusive()}, and then calls
+	 * {@link #recordClear(String, boolean)} for the reported clear and {@link #putPending} for each kept change,
+	 * so they survive it.
+	 * <p>
+	 * O(number of pending changes), not of the list's size: the pending changes are about one save interval's worth.
+	 *
+	 * @param prefix the list prefix, ending in {@code ::}, such as {@code a::} for {@code {a::*}}
+	 * @return the changes to keep, or null if an undrained local clear covers the whole list, in which case the reported
+	 * clear is to be ignored, since the local one will be saved after it. Empty once the queue is closed
+	 */
+	@Nullable List<SerializedVariable> unsavedUnder(String prefix) {
+		assert order.isWriteLocked();
+		assert prefix.endsWith("::") : prefix;
+		if (closed) // nothing is unsaved
+			return List.of();
+		List<Clear> related = new ArrayList<>();
+		for (Clear clear : clears) {
+			if (clear.save() && prefix.startsWith(clear.prefix()))
+				return null; // a local clear of this list, or of a list it's in
+			if (prefix.startsWith(clear.prefix()) || clear.prefix().startsWith(prefix))
+				related.add(clear);
+		}
+		List<SerializedVariable> kept = new ArrayList<>();
+		for (Pending change : pending.values()) {
+			if (!change.name().startsWith(prefix))
+				continue;
+			boolean live = true;
+			for (Clear clear : related) {
+				// a clear at or after the change's epoch drops it when draining
+				if (clear.epoch() >= change.epoch() && change.name().startsWith(clear.prefix())) {
+					live = false;
+					break;
+				}
+			}
+			if (live)
+				kept.add(new SerializedVariable(change.name(), change.value()));
+		}
+		return kept;
 	}
 
 	/**

@@ -5,6 +5,7 @@ import ch.njol.skript.variables.SerializedVariable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.skriptlang.skript.test.util.ExpectedExceptions;
 import org.skriptlang.skript.variables.VariableMap;
 
 import java.io.IOException;
@@ -41,7 +42,9 @@ public class VariableStorageManagerMigrationTest {
 	}
 
 	private boolean loadStorages(VariableStorage... storages) {
-		return ManagerTests.loadStorages(manager, storages);
+		boolean loaded = ManagerTests.loadStorages(manager, storages);
+		RecordingStorage.awaitSavingIdle(manager); // so the first save cycles can't drain what the test queues next
+		return loaded;
 	}
 
 	private void runMainThreadTasks() {
@@ -49,6 +52,16 @@ public class VariableStorageManagerMigrationTest {
 			List<Runnable> tasks = new ArrayList<>(mainThreadTasks);
 			mainThreadTasks.clear();
 			tasks.forEach(Runnable::run);
+		}
+	}
+
+	// runs main thread tasks until none are left, then the end of the tick, since a task stops once it's over its time
+	// limit and leaves the rest to it, and a slow machine can reach that limit in fewer reports than a fast one
+	private void runAllMainThreadTasks() {
+		while (!mainThreadTasks.isEmpty())
+			runMainThreadTasks();
+		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
+			ManagerTests.runTickEnd(manager);
 		}
 	}
 
@@ -169,12 +182,81 @@ public class VariableStorageManagerMigrationTest {
 		kills.reportUpdatedForTest("kills::steve", value("1"));
 		kills.reportUpdatedForTest("kills::steve", value("2"));
 		assertNull("applied only on the main thread", globals.getVariable("kills::steve"));
-		runMainThreadTasks();
+		runAllMainThreadTasks();
 		assertEquals("2", globals.getVariable("kills::steve")); // in the order reported
 
 		kills.reportUpdatedForTest("kills::steve", null);
-		runMainThreadTasks();
+		runAllMainThreadTasks();
 		assertNull(globals.getVariable("kills::steve"));
+	}
+
+	@Test
+	public void manyReportsShareOneMainThreadTask() {
+		RecordingStorage kills = storage("kills", "kills::"), all = storage("default");
+		assertTrue(loadStorages(kills, all));
+
+		for (int i = 0; i < 1000; i++)
+			kills.reportUpdatedForTest("kills::" + i, value(String.valueOf(i)));
+		assertEquals(1, mainThreadTasks.size());
+		runAllMainThreadTasks();
+		assertEquals("999", globals.getVariable("kills::999"));
+	}
+
+	@Test
+	public void reportsPastTheTimeLimitWaitForTheEndOfTheTick() {
+		RecordingStorage kills = storage("kills", "kills::"), all = storage("default");
+		assertTrue(loadStorages(kills, all));
+
+		List<Integer> ran = new ArrayList<>();
+		for (int i = 0; i < 4; i++) {
+			int task = i;
+			kills.runAfterReportsForTest(() -> {
+				ran.add(task);
+				sleep(3); // two of these are over the 5 ms limit
+			});
+		}
+		kills.reportUpdatedForTest("kills::steve", value("1"));
+		runMainThreadTasks();
+		assertTrue("stops once over the limit: " + ran, ran.size() < 4);
+		assertTrue("the rest are left for the end of the tick", mainThreadTasks.isEmpty());
+		assertNull(globals.getVariable("kills::steve"));
+
+		kills.reportUpdatedForTest("kills::alex", value("2"));
+		assertTrue("a report queued meanwhile waits for the end of the tick too", mainThreadTasks.isEmpty());
+
+		ManagerTests.runTickEnd(manager);
+		assertEquals(List.of(0, 1, 2, 3), ran); // still in order
+		assertEquals("1", globals.getVariable("kills::steve"));
+		assertEquals("2", globals.getVariable("kills::alex"));
+	}
+
+	@Test
+	public void aFailingReportTaskDoesntStopTheRest() {
+		RecordingStorage kills = storage("kills", "kills::"), all = storage("default");
+		assertTrue(loadStorages(kills, all));
+
+		kills.runAfterReportsForTest(() -> {
+			throw new IllegalStateException("broken on purpose");
+		});
+		kills.reportUpdatedForTest("kills::steve", value("1"));
+		try (ExpectedExceptions exceptions = ExpectedExceptions.start()) {
+			runAllMainThreadTasks();
+			exceptions.assertReported("Applying a variable change reported by a database failed");
+		}
+		assertEquals("1", globals.getVariable("kills::steve"));
+
+		kills.reportUpdatedForTest("kills::steve", value("2")); // and the queue still runs later reports
+		runAllMainThreadTasks();
+		assertEquals("2", globals.getVariable("kills::steve"));
+	}
+
+	private static void sleep(long millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Test
@@ -183,7 +265,7 @@ public class VariableStorageManagerMigrationTest {
 		assertTrue(loadStorages(kills));
 		kills.reportUpdatedForTest("kills::steve", value("1"));
 		kills.reportClearedForTest("kills::*");
-		runMainThreadTasks();
+		runAllMainThreadTasks();
 		assertTrue(savedBy(kills).isEmpty());
 	}
 
@@ -195,7 +277,7 @@ public class VariableStorageManagerMigrationTest {
 
 		all.reportUpdatedForTest("kills::steve", value("remote"));
 		all.reportUpdatedForTest("-temp", value("remote"));
-		runMainThreadTasks();
+		runAllMainThreadTasks();
 		assertEquals("local", globals.getVariable("kills::steve"));
 		assertNull(globals.getVariable("-temp"));
 	}
@@ -206,8 +288,47 @@ public class VariableStorageManagerMigrationTest {
 		assertTrue(loadStorages(all));
 		manager.set("a", "local");
 		all.reportUpdatedForTest("a", new SerializedVariable.Value("removed addon type", new byte[] {1}));
-		runMainThreadTasks();
+		runAllMainThreadTasks();
 		assertEquals("local", globals.getVariable("a"));
+	}
+
+	@Test
+	public void aKeepLocalReportDoesntReplaceAnUnsavedChange() {
+		RecordingStorage all = storage("default");
+		assertTrue(loadStorages(all));
+		manager.set("a", "local");
+
+		all.reportUpdatedForTest("a", value("remote"), VariableStorage.ReportPolicy.KEEP_LOCAL);
+		runAllMainThreadTasks();
+		assertEquals("local", globals.getVariable("a"));
+		assertEquals(Map.of("a", "local"), stored(all)); // still saved, after the reported change
+	}
+
+	@Test
+	public void aKeepLocalReportUnderAnUnsavedClearIsIgnored() {
+		RecordingStorage all = storage("default");
+		assertTrue(loadStorages(all));
+		manager.set("a::1", "1");
+		assertTrue(all.flush());
+		manager.set("a::*", null);
+
+		all.reportUpdatedForTest("a::1", value("remote"), VariableStorage.ReportPolicy.KEEP_LOCAL);
+		runAllMainThreadTasks();
+		assertNull(globals.getVariable("a::1"));
+		assertTrue(stored(all).isEmpty()); // the clear is still saved
+	}
+
+	@Test
+	public void aKeepLocalReportIsAppliedOnceTheChangeIsSaved() {
+		RecordingStorage all = storage("default");
+		assertTrue(loadStorages(all));
+		manager.set("a", "local");
+		assertTrue(all.flush());
+
+		all.reportUpdatedForTest("a", value("remote"), VariableStorage.ReportPolicy.KEEP_LOCAL);
+		runAllMainThreadTasks();
+		assertEquals("remote", globals.getVariable("a"));
+		assertEquals(Map.of("a", "local"), stored(all)); // the reported value isn't saved back
 	}
 
 	@Test
@@ -220,10 +341,45 @@ public class VariableStorageManagerMigrationTest {
 
 		all.reportClearedForTest("a::*");
 		assertEquals("1", globals.getVariable("a::1"));
-		runMainThreadTasks();
+		runAllMainThreadTasks();
 		assertNull(globals.getVariable("a::1"));
 		assertNull(globals.getVariable("a::b::2"));
 		assertEquals("own value", globals.getVariable("a"));
+	}
+
+	@Test
+	public void aKeepLocalClearKeepsUnsavedChanges() {
+		RecordingStorage all = storage("default");
+		assertTrue(loadStorages(all));
+		manager.set("a::saved", "1");
+		manager.set("a::deleted", "2");
+		assertTrue(all.flush());
+		manager.set("a::unsaved", "local");
+		manager.set("a::deleted", null);
+
+		all.reportClearedForTest("a::*", VariableStorage.ReportPolicy.KEEP_LOCAL);
+		runAllMainThreadTasks();
+		assertNull(globals.getVariable("a::saved"));
+		assertNull(globals.getVariable("a::deleted"));
+		assertEquals("local", globals.getVariable("a::unsaved"));
+		// the unsaved changes are still saved, and the reported clear isn't saved back, since its storage already has it
+		assertEquals(Map.of("a::saved", "1", "a::unsaved", "local"), stored(all));
+	}
+
+	@Test
+	public void aKeepLocalClearUnderAnUnsavedClearIsIgnored() {
+		RecordingStorage all = storage("default");
+		assertTrue(loadStorages(all));
+		manager.set("a::1", "1");
+		assertTrue(all.flush());
+		manager.set("a::*", null);
+		manager.set("a::2", "after");
+
+		all.reportClearedForTest("a::b::*", VariableStorage.ReportPolicy.KEEP_LOCAL);
+		all.reportClearedForTest("a::*", VariableStorage.ReportPolicy.KEEP_LOCAL);
+		runAllMainThreadTasks();
+		assertEquals("after", globals.getVariable("a::2"));
+		assertEquals(Map.of("a::2", "after"), stored(all));
 	}
 
 	@Test
@@ -237,7 +393,7 @@ public class VariableStorageManagerMigrationTest {
 		manager.set("a::c::b", "5"); // starts with a::c, so it's not partB's
 
 		partB.reportClearedForTest("a::*");
-		runMainThreadTasks();
+		runAllMainThreadTasks();
 		assertNull(globals.getVariable("a::b1"));
 		assertNull(globals.getVariable("a::b::x"));
 		assertNull(globals.getVariable("a::b"));
@@ -251,7 +407,7 @@ public class VariableStorageManagerMigrationTest {
 		assertTrue(loadStorages(kills, all));
 		manager.set("kills::steve", "1");
 		all.reportClearedForTest("kills::*");
-		runMainThreadTasks();
+		runAllMainThreadTasks();
 		assertEquals("1", globals.getVariable("kills::steve"));
 	}
 
@@ -261,7 +417,7 @@ public class VariableStorageManagerMigrationTest {
 		assertTrue(loadStorages(all));
 		all.stopSaving();
 		all.reportUpdatedForTest("a", value("1"));
-		runMainThreadTasks();
+		runAllMainThreadTasks();
 		assertNull(globals.getVariable("a"));
 	}
 

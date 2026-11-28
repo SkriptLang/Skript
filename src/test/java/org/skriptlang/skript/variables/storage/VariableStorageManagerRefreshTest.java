@@ -58,6 +58,7 @@ public class VariableStorageManagerRefreshTest {
 
 	private void load() {
 		assertTrue(ManagerTests.loadStorages(manager, storage));
+		storage.awaitSavingIdle(); // so the first save cycle can't drain what the test queues next
 	}
 
 	private void close() {

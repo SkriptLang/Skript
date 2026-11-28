@@ -42,7 +42,9 @@ public class VariableStorageManagerLoadTest {
 	}
 
 	private boolean loadStorages(VariableStorage... storages) {
-		return ManagerTests.loadStorages(manager, storages);
+		boolean loaded = ManagerTests.loadStorages(manager, storages);
+		RecordingStorage.awaitSavingIdle(manager); // so the first save cycles can't drain what the test queues next
+		return loaded;
 	}
 
 	private boolean load(String config) throws IOException {
@@ -52,9 +54,12 @@ public class VariableStorageManagerLoadTest {
 			return storage;
 		}, "recording");
 		SectionNode databases = databases(config);
+		boolean loaded;
 		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
-			return manager.load(databases);
+			loaded = manager.load(databases);
 		}
+		RecordingStorage.awaitSavingIdle(manager);
+		return loaded;
 	}
 
 	private List<String> storageNames() {

@@ -17,7 +17,9 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.LockSupport;
 
 /**
  * A storage for testing {@link VariableStorage}: it saves batches into {@link #saved}, a map standing in for the
@@ -134,10 +136,31 @@ class RecordingStorage extends VariableStorage {
 	}
 
 	/**
+	 * Calls {@link #reportUpdated(String, SerializedVariable.Value, ReportPolicy)}, which is protected.
+	 */
+	void reportUpdatedForTest(String name, SerializedVariable.@Nullable Value value, ReportPolicy policy) {
+		reportUpdated(name, value, policy);
+	}
+
+	/**
+	 * Calls {@link #runAfterReports}, which is protected.
+	 */
+	void runAfterReportsForTest(Runnable task) {
+		runAfterReports(task);
+	}
+
+	/**
 	 * Calls {@link #reportCleared}, which is protected.
 	 */
 	void reportClearedForTest(String listName) {
 		reportCleared(listName);
+	}
+
+	/**
+	 * Calls {@link #reportCleared(String, ReportPolicy)}, which is protected.
+	 */
+	void reportClearedForTest(String listName, ReportPolicy policy) {
+		reportCleared(listName, policy);
 	}
 
 	/**
@@ -173,6 +196,38 @@ class RecordingStorage extends VariableStorage {
 			changes.put(change.name, change.value);
 		}
 		return changes;
+	}
+
+	/**
+	 * Waits until the saving thread has finished its first save cycle and is waiting for the next one.
+	 * The thread saves once as soon as it starts, and only then waits {@link #intervalMillis}, so a test that relies
+	 * on a long interval to keep changes queued must call this first, or that first cycle can drain them.
+	 * The thread parks with this storage as its blocker only between cycles, which is how this tells.
+	 *
+	 * @throws AssertionError if the thread doesn't get there within 10 seconds
+	 */
+	void awaitSavingIdle() {
+		String threadName = "Skript variable storage " + getName() + " saving thread";
+		long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+		while (System.nanoTime() < deadline) {
+			for (Thread thread : Thread.getAllStackTraces().keySet()) {
+				if (thread.getName().equals(threadName) && LockSupport.getBlocker(thread) == this)
+					return;
+			}
+			Thread.onSpinWait();
+		}
+		throw new AssertionError("The saving thread of '" + getName() + "' never went idle");
+	}
+
+	/**
+	 * {@link #awaitSavingIdle() Waits} for the saving thread of every recording storage the manager loaded.
+	 * Call it right after loading, before queueing anything a test expects to stay queued.
+	 */
+	static void awaitSavingIdle(VariableStorageManager manager) {
+		for (VariableStorage storage : manager.storages()) {
+			if (storage instanceof RecordingStorage recording && !storage.loadFailed)
+				recording.awaitSavingIdle();
+		}
 	}
 
 	/**

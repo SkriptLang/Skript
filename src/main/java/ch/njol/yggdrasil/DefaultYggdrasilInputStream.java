@@ -32,12 +32,12 @@ public final class DefaultYggdrasilInputStream extends YggdrasilInputStream {
 	}
 	
 	/**
-	 * @throws EOFException If the end of the stream is reached
+	 * @throws FastEOFException If the end of the stream is reached
 	 */
 	private int read() throws IOException {
 		int b = in.read();
 		if (b < 0)
-			throw new EOFException();
+			throw new FastEOFException();
 		return b;
 	}
 	
@@ -51,7 +51,7 @@ public final class DefaultYggdrasilInputStream extends YggdrasilInputStream {
 		while (length > 0) {
 			int n = in.read(buf, offset, length);
 			if (n < 0)
-				throw new EOFException("Expected " + startLength + " bytes, but could only read " + (startLength - length));
+				throw new FastEOFException("Expected " + startLength + " bytes, but could only read " + (startLength - length));
 			offset += n;
 			length -= n;
 		}
